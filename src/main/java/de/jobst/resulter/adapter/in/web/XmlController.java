@@ -1,6 +1,8 @@
 package de.jobst.resulter.adapter.in.web;
 
 import de.jobst.resulter.adapter.in.web.jaxb.ResultList;
+import de.jobst.resulter.application.EventService;
+import de.jobst.resulter.domain.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,9 +22,12 @@ public class XmlController {
     public static final String FILE = "file";
     private final XmlParser xmlParser;
 
+    private final EventService eventService;
+
     @Autowired
-    public XmlController(XmlParser xmlParser) {
+    public XmlController(XmlParser xmlParser, EventService eventService) {
         this.xmlParser = xmlParser;
+        this.eventService = eventService;
     }
 
     @PostMapping("/upload")
@@ -30,10 +35,10 @@ public class XmlController {
     public ResponseEntity<ResultList> handleFileUpload(@RequestParam(FILE) MultipartFile file) {
         try {
             ResultList resultList = xmlParser.parseXmlFile(file.getInputStream());
-            if (Objects.nonNull(resultList)) {
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+            Event event = eventService.findOrCreate(Event.of(resultList.getEvent().getName()));
+
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
             if (Objects.nonNull(e.getCause())) {

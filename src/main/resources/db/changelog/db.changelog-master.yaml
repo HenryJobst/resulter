@@ -44,8 +44,6 @@ databaseChangeLog:
               - column:
                   name: DATE
                   type: date
-                  constraints:
-                    nullable: false
         - addForeignKeyConstraint:
               baseTableName: EVENTS
               baseColumnNames: ORGANISATION_ID

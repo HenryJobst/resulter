@@ -129,30 +129,6 @@
 					</excludes>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jaxb2-maven-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>xjc</id>
-						<goals>
-							<goal>xjc</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<packageName>de.jobst.resulter.adapter.in.web.jaxb</packageName>
-					<xjbSources>
-						<xjbSource>src/main/resources/global.xjb</xjbSource>
-					</xjbSources>
-					<sources>
-						<source>src/main/java/de/jobst/resulter/adapter/in/web/IOF.xsd</source>
-					</sources>
-					<outputDirectory>${basedir}/src/main/java</outputDirectory>
-					<clearOutputDir>false</clearOutputDir>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 	<repositories>

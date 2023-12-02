@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: createEventsTable
+      author: Henry Jobst
+      changes:
+        - createTable:
+            tableName: ORGANISATIONS
+            columns:
+              - column:
+                  name: ID
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_ORGANISATIONS
+              - column:
+                  name: NAME
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: SHORTNAME
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: EVENTS
+            columns:
+              - column:
+                  name: ID
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_EVENTS
+              - column:
+                  name: NAME
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ORGANISATION_ID
+                  type: bigint
+              - column:
+                  name: DATE
+                  type: date
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+              baseTableName: EVENTS
+              baseColumnNames: ORGANISATION_ID
+              constraintName: FK_EVENTS_ORGANISATIONS
+              referencedTableName: ORGANISATIONS
+              referencedColumnNames: ID
+              onDelete: RESTRICT
+              onUpdate: RESTRICT
+        - createSequence:
+            sequenceName: SEQ_EVENTS_ID
+        - createSequence:
+            sequenceName: SEQ_ORGANISATIONS_ID
+        - createIndex:
+            tableName: ORGANISATIONS
+            columns:
+              - column:
+                  name: ID
+            indexName:  IDX_ORGANISATIONS_ID
+        - createIndex:
+            tableName: EVENTS
+            columns:
+              - column:
+                 name: ID
+            indexName:  IDX_EVENTS_ID

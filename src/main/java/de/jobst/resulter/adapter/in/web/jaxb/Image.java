@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der Eclipse Implementation of JAXB, v3.0.0 generiert 
 // Siehe https://eclipse-ee4j.github.io/jaxb-ri 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2023.12.02 um 06:53:24 PM CET 
+// Generiert: 2023.12.07 um 10:23:25 PM CET 
 //
 
 
@@ -27,14 +27,14 @@ import jakarta.xml.bind.annotation.XmlValue;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType value="Image"&gt;
+ * &lt;complexType name="Image"&gt;
  *   &lt;simpleContent&gt;
  *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema&gt;base64Binary"&gt;
- *       &lt;attribute value="url" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
- *       &lt;attribute value="mediaType" use="required" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
- *       &lt;attribute value="width" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
- *       &lt;attribute value="height" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
- *       &lt;attribute value="resolution" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
+ *       &lt;attribute name="url" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;attribute name="mediaType" use="required" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;attribute name="width" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute name="height" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute name="resolution" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
  *     &lt;/extension&gt;
  *   &lt;/simpleContent&gt;
  * &lt;/complexType&gt;

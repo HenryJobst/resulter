@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der Eclipse Implementation of JAXB, v3.0.0 generiert 
 // Siehe https://eclipse-ee4j.github.io/jaxb-ri 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2023.12.02 um 06:53:24 PM CET 
+// Generiert: 2023.12.07 um 10:23:25 PM CET 
 //
 
 
@@ -28,9 +28,9 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;complexContent&gt;
  *     &lt;extension base="{http://www.orienteering.org/datastandard/3.0}BaseMessageElement"&gt;
  *       &lt;sequence&gt;
- *         &lt;element value="Event" type="{http://www.orienteering.org/datastandard/3.0}Event"/&gt;
- *         &lt;element value="ClassStart" type="{http://www.orienteering.org/datastandard/3.0}ClassStart" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element value="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
+ *         &lt;element name="Event" type="{http://www.orienteering.org/datastandard/3.0}Event"/&gt;
+ *         &lt;element name="ClassStart" type="{http://www.orienteering.org/datastandard/3.0}ClassStart" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element name="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/extension&gt;
  *   &lt;/complexContent&gt;

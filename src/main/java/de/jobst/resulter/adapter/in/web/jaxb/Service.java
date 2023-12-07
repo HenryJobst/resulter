@@ -31,20 +31,20 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Service"&gt;
+ * &lt;complexType value="Service"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="Id" type="{http://www.orienteering.org/datastandard/3.0}Id" minOccurs="0"/&gt;
- *         &lt;element name="Name" type="{http://www.orienteering.org/datastandard/3.0}LanguageString" maxOccurs="unbounded"/&gt;
- *         &lt;element name="Fee" type="{http://www.orienteering.org/datastandard/3.0}Fee" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Description" type="{http://www.orienteering.org/datastandard/3.0}LanguageString" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="MaxNumber" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/&gt;
- *         &lt;element name="RequestedNumber" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/&gt;
- *         &lt;element name="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
+ *         &lt;element value="Id" type="{http://www.orienteering.org/datastandard/3.0}Id" minOccurs="0"/&gt;
+ *         &lt;element value="Name" type="{http://www.orienteering.org/datastandard/3.0}LanguageString" maxOccurs="unbounded"/&gt;
+ *         &lt;element value="Fee" type="{http://www.orienteering.org/datastandard/3.0}Fee" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Description" type="{http://www.orienteering.org/datastandard/3.0}LanguageString" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="MaxNumber" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/&gt;
+ *         &lt;element value="RequestedNumber" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/&gt;
+ *         &lt;element value="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attribute name="type" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
- *       &lt;attribute name="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
+ *       &lt;attribute value="type" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;attribute value="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -89,7 +89,7 @@ public class Service
     protected Calendar modifyTime;
 
     /**
-     * Ruft den Wert der id-Eigenschaft ab.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -101,7 +101,7 @@ public class Service
     }
 
     /**
-     * Legt den Wert der id-Eigenschaft fest.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

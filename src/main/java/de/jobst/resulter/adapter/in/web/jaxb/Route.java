@@ -100,7 +100,7 @@ import jakarta.xml.bind.annotation.XmlValue;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Route"&gt;
+ * &lt;complexType value="Route"&gt;
  *   &lt;simpleContent&gt;
  *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema&gt;base64Binary"&gt;
  *     &lt;/extension&gt;

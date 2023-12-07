@@ -18,10 +18,10 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     @Override
     public Event findOrCreate(Event event) {
         Optional<EventEntity> eventEntity =
-                eventJpaRepository.findByName(event.name());
+                eventJpaRepository.findByName(event.name().value());
         if (eventEntity.isEmpty()) {
             EventEntity entity = new EventEntity();
-            entity.setName(event.name());
+            entity.setName(event.name().value());
             eventEntity = Optional.of(eventJpaRepository.save(entity));
         }
         EventEntity entity = eventEntity.get();

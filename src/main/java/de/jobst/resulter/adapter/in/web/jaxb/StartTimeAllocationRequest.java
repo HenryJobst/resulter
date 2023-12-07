@@ -28,14 +28,14 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="StartTimeAllocationRequest"&gt;
+ * &lt;complexType value="StartTimeAllocationRequest"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="Organisation" type="{http://www.orienteering.org/datastandard/3.0}Organisation" minOccurs="0"/&gt;
- *         &lt;element name="Person" type="{http://www.orienteering.org/datastandard/3.0}Person" minOccurs="0"/&gt;
+ *         &lt;element value="Organisation" type="{http://www.orienteering.org/datastandard/3.0}Organisation" minOccurs="0"/&gt;
+ *         &lt;element value="Person" type="{http://www.orienteering.org/datastandard/3.0}Person" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attribute name="type" default="Normal"&gt;
+ *       &lt;attribute value="type" default="Normal"&gt;
  *         &lt;simpleType&gt;
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN"&gt;
  *             &lt;enumeration value="Normal"/&gt;

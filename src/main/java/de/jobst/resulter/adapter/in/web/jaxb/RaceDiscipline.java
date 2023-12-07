@@ -18,7 +18,7 @@ import jakarta.xml.bind.annotation.XmlType;
  * 
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * <pre>
- * &lt;simpleType name="RaceDiscipline"&gt;
+ * &lt;simpleType value="RaceDiscipline"&gt;
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN"&gt;
  *     &lt;enumeration value="Sprint"/&gt;
  *     &lt;enumeration value="Middle"/&gt;

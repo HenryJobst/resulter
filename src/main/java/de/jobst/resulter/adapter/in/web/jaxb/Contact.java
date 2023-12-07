@@ -30,10 +30,10 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Contact"&gt;
+ * &lt;complexType value="Contact"&gt;
  *   &lt;simpleContent&gt;
  *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema&gt;string"&gt;
- *       &lt;attribute name="type" use="required"&gt;
+ *       &lt;attribute value="type" use="required"&gt;
  *         &lt;simpleType&gt;
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN"&gt;
  *             &lt;enumeration value="PhoneNumber"/&gt;
@@ -45,7 +45,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *           &lt;/restriction&gt;
  *         &lt;/simpleType&gt;
  *       &lt;/attribute&gt;
- *       &lt;attribute name="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
+ *       &lt;attribute value="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
  *     &lt;/extension&gt;
  *   &lt;/simpleContent&gt;
  * &lt;/complexType&gt;

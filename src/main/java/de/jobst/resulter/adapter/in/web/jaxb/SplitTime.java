@@ -28,15 +28,15 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="SplitTime"&gt;
+ * &lt;complexType value="SplitTime"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="ControlCode" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="Time" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/&gt;
- *         &lt;element name="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
+ *         &lt;element value="ControlCode" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element value="Time" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/&gt;
+ *         &lt;element value="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attribute name="status" default="OK"&gt;
+ *       &lt;attribute value="status" default="OK"&gt;
  *         &lt;simpleType&gt;
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN"&gt;
  *             &lt;enumeration value="OK"/&gt;

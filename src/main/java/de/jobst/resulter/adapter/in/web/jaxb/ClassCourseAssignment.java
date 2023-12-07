@@ -21,7 +21,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * 
- *         Element that connects a course with a class. Courses should be present in the RaceCourseData element and are matched on course name and/or course family. Classes are matched by 1) Id, 2) Name.
+ *         Element that connects a course with a class. Courses should be present in the RaceCourseData element and are matched on course value and/or course family. Classes are matched by 1) Id, 2) Name.
  *       
  * 
  * <p>Java-Klasse für ClassCourseAssignment complex type.
@@ -29,18 +29,18 @@ import jakarta.xml.bind.annotation.XmlType;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="ClassCourseAssignment"&gt;
+ * &lt;complexType value="ClassCourseAssignment"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="ClassId" type="{http://www.orienteering.org/datastandard/3.0}Id" minOccurs="0"/&gt;
- *         &lt;element name="ClassName" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="AllowedOnLeg" type="{http://www.w3.org/2001/XMLSchema}integer" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="CourseName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="CourseFamily" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
+ *         &lt;element value="ClassId" type="{http://www.orienteering.org/datastandard/3.0}Id" minOccurs="0"/&gt;
+ *         &lt;element value="ClassName" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element value="AllowedOnLeg" type="{http://www.w3.org/2001/XMLSchema}integer" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="CourseName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element value="CourseFamily" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element value="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attribute name="numberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute value="numberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;

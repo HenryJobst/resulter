@@ -33,19 +33,19 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Person"&gt;
+ * &lt;complexType value="Person"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="Id" type="{http://www.orienteering.org/datastandard/3.0}Id" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Name" type="{http://www.orienteering.org/datastandard/3.0}PersonName"/&gt;
- *         &lt;element name="BirthDate" type="{http://www.w3.org/2001/XMLSchema}date" minOccurs="0"/&gt;
- *         &lt;element name="Nationality" type="{http://www.orienteering.org/datastandard/3.0}Country" minOccurs="0"/&gt;
- *         &lt;element name="Address" type="{http://www.orienteering.org/datastandard/3.0}Address" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Contact" type="{http://www.orienteering.org/datastandard/3.0}Contact" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
+ *         &lt;element value="Id" type="{http://www.orienteering.org/datastandard/3.0}Id" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Name" type="{http://www.orienteering.org/datastandard/3.0}PersonName"/&gt;
+ *         &lt;element value="BirthDate" type="{http://www.w3.org/2001/XMLSchema}date" minOccurs="0"/&gt;
+ *         &lt;element value="Nationality" type="{http://www.orienteering.org/datastandard/3.0}Country" minOccurs="0"/&gt;
+ *         &lt;element value="Address" type="{http://www.orienteering.org/datastandard/3.0}Address" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Contact" type="{http://www.orienteering.org/datastandard/3.0}Contact" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attribute name="sex"&gt;
+ *       &lt;attribute value="sex"&gt;
  *         &lt;simpleType&gt;
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN"&gt;
  *             &lt;enumeration value="F"/&gt;
@@ -53,7 +53,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *           &lt;/restriction&gt;
  *         &lt;/simpleType&gt;
  *       &lt;/attribute&gt;
- *       &lt;attribute name="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
+ *       &lt;attribute value="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -64,7 +64,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Person", propOrder = {
     "ids",
-    "name",
+    "value",
     "birthDate",
     "nationality",
     "addresses",
@@ -129,7 +129,7 @@ public class Person
     }
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -141,7 +141,7 @@ public class Person
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

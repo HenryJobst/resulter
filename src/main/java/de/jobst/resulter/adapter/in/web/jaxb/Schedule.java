@@ -29,18 +29,18 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Schedule"&gt;
+ * &lt;complexType value="Schedule"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="StartTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EndTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/&gt;
- *         &lt;element name="Name" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="Venue" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Position" type="{http://www.orienteering.org/datastandard/3.0}GeoPosition" minOccurs="0"/&gt;
- *         &lt;element name="Details" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element value="StartTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *         &lt;element value="EndTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/&gt;
+ *         &lt;element value="Name" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element value="Venue" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element value="Position" type="{http://www.orienteering.org/datastandard/3.0}GeoPosition" minOccurs="0"/&gt;
+ *         &lt;element value="Details" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attribute name="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
+ *       &lt;attribute value="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -52,7 +52,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(name = "Schedule", propOrder = {
     "startTime",
     "endTime",
-    "name",
+    "value",
     "venue",
     "position",
     "details"
@@ -132,7 +132,7 @@ public class Schedule
     }
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -144,7 +144,7 @@ public class Schedule
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

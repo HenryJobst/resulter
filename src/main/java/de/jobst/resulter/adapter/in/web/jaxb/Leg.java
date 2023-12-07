@@ -27,15 +27,15 @@ import jakarta.xml.bind.annotation.XmlType;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Leg"&gt;
+ * &lt;complexType value="Leg"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="Name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
+ *         &lt;element value="Name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element value="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attribute name="minNumberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" /&gt;
- *       &lt;attribute name="maxNumberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" /&gt;
+ *       &lt;attribute value="minNumberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" /&gt;
+ *       &lt;attribute value="maxNumberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -45,7 +45,7 @@ import jakarta.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Leg", propOrder = {
-    "name",
+    "value",
     "extensions"
 })
 public class Leg
@@ -63,7 +63,7 @@ public class Leg
     protected BigInteger maxNumberOfCompetitors;
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -75,7 +75,7 @@ public class Leg
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

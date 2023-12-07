@@ -25,12 +25,12 @@ import jakarta.xml.bind.annotation.XmlType;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="GeoPosition"&gt;
+ * &lt;complexType value="GeoPosition"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;attribute name="lng" use="required" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
- *       &lt;attribute name="lat" use="required" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
- *       &lt;attribute name="alt" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
+ *       &lt;attribute value="lng" use="required" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
+ *       &lt;attribute value="lat" use="required" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
+ *       &lt;attribute value="alt" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;

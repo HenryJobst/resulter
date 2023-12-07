@@ -18,7 +18,7 @@ import jakarta.xml.bind.annotation.XmlValue;
 
 /**
  * 
- *         Identifier element, used extensively. The id should be known and common for both systems taking part in the data exchange.
+ *         Identifier element, used extensively. The value should be known and common for both systems taking part in the data exchange.
  *       
  * 
  * <p>Java-Klasse für Id complex type.
@@ -26,10 +26,10 @@ import jakarta.xml.bind.annotation.XmlValue;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Id"&gt;
+ * &lt;complexType value="Id"&gt;
  *   &lt;simpleContent&gt;
  *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema&gt;string"&gt;
- *       &lt;attribute name="type" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;attribute value="type" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
  *     &lt;/extension&gt;
  *   &lt;/simpleContent&gt;
  * &lt;/complexType&gt;

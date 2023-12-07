@@ -18,7 +18,7 @@ import jakarta.xml.bind.annotation.XmlValue;
 
 /**
  * 
- *         Defines the name of the country.
+ *         Defines the value of the country.
  *       
  * 
  * <p>Java-Klasse für Country complex type.
@@ -26,10 +26,10 @@ import jakarta.xml.bind.annotation.XmlValue;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Country"&gt;
+ * &lt;complexType value="Country"&gt;
  *   &lt;simpleContent&gt;
  *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema&gt;string"&gt;
- *       &lt;attribute name="code" use="required" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;attribute value="code" use="required" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
  *     &lt;/extension&gt;
  *   &lt;/simpleContent&gt;
  * &lt;/complexType&gt;

@@ -33,26 +33,26 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Class"&gt;
+ * &lt;complexType value="Class"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="Id" type="{http://www.orienteering.org/datastandard/3.0}Id" minOccurs="0"/&gt;
- *         &lt;element name="Name" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="ShortName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="ClassType" type="{http://www.orienteering.org/datastandard/3.0}ClassType" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Leg" type="{http://www.orienteering.org/datastandard/3.0}Leg" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="TeamFee" type="{http://www.orienteering.org/datastandard/3.0}Fee" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Fee" type="{http://www.orienteering.org/datastandard/3.0}Fee" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Status" type="{http://www.orienteering.org/datastandard/3.0}EventClassStatus" minOccurs="0"/&gt;
- *         &lt;element name="RaceClass" type="{http://www.orienteering.org/datastandard/3.0}RaceClass" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="TooFewEntriesSubstituteClass" type="{http://www.orienteering.org/datastandard/3.0}Class" minOccurs="0"/&gt;
- *         &lt;element name="TooManyEntriesSubstituteClass" type="{http://www.orienteering.org/datastandard/3.0}Class" minOccurs="0"/&gt;
- *         &lt;element name="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
+ *         &lt;element value="Id" type="{http://www.orienteering.org/datastandard/3.0}Id" minOccurs="0"/&gt;
+ *         &lt;element value="Name" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element value="ShortName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element value="ClassType" type="{http://www.orienteering.org/datastandard/3.0}ClassType" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Leg" type="{http://www.orienteering.org/datastandard/3.0}Leg" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="TeamFee" type="{http://www.orienteering.org/datastandard/3.0}Fee" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Fee" type="{http://www.orienteering.org/datastandard/3.0}Fee" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Status" type="{http://www.orienteering.org/datastandard/3.0}EventClassStatus" minOccurs="0"/&gt;
+ *         &lt;element value="RaceClass" type="{http://www.orienteering.org/datastandard/3.0}RaceClass" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="TooFewEntriesSubstituteClass" type="{http://www.orienteering.org/datastandard/3.0}Class" minOccurs="0"/&gt;
+ *         &lt;element value="TooManyEntriesSubstituteClass" type="{http://www.orienteering.org/datastandard/3.0}Class" minOccurs="0"/&gt;
+ *         &lt;element value="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attribute name="minAge" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
- *       &lt;attribute name="maxAge" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
- *       &lt;attribute name="sex" default="B"&gt;
+ *       &lt;attribute value="minAge" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute value="maxAge" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute value="sex" default="B"&gt;
  *         &lt;simpleType&gt;
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN"&gt;
  *             &lt;enumeration value="B"/&gt;
@@ -61,13 +61,13 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *           &lt;/restriction&gt;
  *         &lt;/simpleType&gt;
  *       &lt;/attribute&gt;
- *       &lt;attribute name="minNumberOfTeamMembers" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" /&gt;
- *       &lt;attribute name="maxNumberOfTeamMembers" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" /&gt;
- *       &lt;attribute name="minTeamAge" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
- *       &lt;attribute name="maxTeamAge" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
- *       &lt;attribute name="numberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
- *       &lt;attribute name="maxNumberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
- *       &lt;attribute name="resultListMode" default="Default"&gt;
+ *       &lt;attribute value="minNumberOfTeamMembers" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" /&gt;
+ *       &lt;attribute value="maxNumberOfTeamMembers" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" /&gt;
+ *       &lt;attribute value="minTeamAge" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute value="maxTeamAge" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute value="numberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute value="maxNumberOfCompetitors" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute value="resultListMode" default="Default"&gt;
  *         &lt;simpleType&gt;
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN"&gt;
  *             &lt;enumeration value="Default"/&gt;
@@ -76,7 +76,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *           &lt;/restriction&gt;
  *         &lt;/simpleType&gt;
  *       &lt;/attribute&gt;
- *       &lt;attribute name="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
+ *       &lt;attribute value="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -87,7 +87,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Class", propOrder = {
     "id",
-    "name",
+    "value",
     "shortName",
     "classTypes",
     "legs",
@@ -157,7 +157,7 @@ public class Class
     protected Calendar modifyTime;
 
     /**
-     * Ruft den Wert der id-Eigenschaft ab.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -169,7 +169,7 @@ public class Class
     }
 
     /**
-     * Legt den Wert der id-Eigenschaft fest.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -181,7 +181,7 @@ public class Class
     }
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -193,7 +193,7 @@ public class Class
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

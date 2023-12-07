@@ -25,16 +25,16 @@ import jakarta.xml.bind.annotation.XmlType;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Map"&gt;
+ * &lt;complexType value="Map"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="Id" type="{http://www.orienteering.org/datastandard/3.0}Id" minOccurs="0"/&gt;
- *         &lt;element name="Image" type="{http://www.orienteering.org/datastandard/3.0}Image" minOccurs="0"/&gt;
- *         &lt;element name="Scale" type="{http://www.w3.org/2001/XMLSchema}double"/&gt;
- *         &lt;element name="MapPositionTopLeft" type="{http://www.orienteering.org/datastandard/3.0}MapPosition"/&gt;
- *         &lt;element name="MapPositionBottomRight" type="{http://www.orienteering.org/datastandard/3.0}MapPosition"/&gt;
- *         &lt;element name="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
+ *         &lt;element value="Id" type="{http://www.orienteering.org/datastandard/3.0}Id" minOccurs="0"/&gt;
+ *         &lt;element value="Image" type="{http://www.orienteering.org/datastandard/3.0}Image" minOccurs="0"/&gt;
+ *         &lt;element value="Scale" type="{http://www.w3.org/2001/XMLSchema}double"/&gt;
+ *         &lt;element value="MapPositionTopLeft" type="{http://www.orienteering.org/datastandard/3.0}MapPosition"/&gt;
+ *         &lt;element value="MapPositionBottomRight" type="{http://www.orienteering.org/datastandard/3.0}MapPosition"/&gt;
+ *         &lt;element value="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -71,7 +71,7 @@ public class Map
     protected Extensions extensions;
 
     /**
-     * Ruft den Wert der id-Eigenschaft ab.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -83,7 +83,7 @@ public class Map
     }
 
     /**
-     * Legt den Wert der id-Eigenschaft fest.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

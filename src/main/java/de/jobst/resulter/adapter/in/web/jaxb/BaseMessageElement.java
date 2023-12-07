@@ -29,12 +29,12 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="BaseMessageElement"&gt;
+ * &lt;complexType value="BaseMessageElement"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;attribute name="iofVersion" use="required" type="{http://www.w3.org/2001/XMLSchema}string" fixed="3.0" /&gt;
- *       &lt;attribute name="createTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
- *       &lt;attribute name="creator" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;attribute value="iofVersion" use="required" type="{http://www.w3.org/2001/XMLSchema}string" fixed="3.0" /&gt;
+ *       &lt;attribute value="createTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
+ *       &lt;attribute value="creator" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;

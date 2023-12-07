@@ -32,25 +32,25 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Race"&gt;
+ * &lt;complexType value="Race"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="RaceNumber" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="Name" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="StartTime" type="{http://www.orienteering.org/datastandard/3.0}DateAndOptionalTime" minOccurs="0"/&gt;
- *         &lt;element name="EndTime" type="{http://www.orienteering.org/datastandard/3.0}DateAndOptionalTime" minOccurs="0"/&gt;
- *         &lt;element name="Status" type="{http://www.orienteering.org/datastandard/3.0}EventStatus" minOccurs="0"/&gt;
- *         &lt;element name="Classification" type="{http://www.orienteering.org/datastandard/3.0}EventClassification" minOccurs="0"/&gt;
- *         &lt;element name="Position" type="{http://www.orienteering.org/datastandard/3.0}GeoPosition" minOccurs="0"/&gt;
- *         &lt;element name="Discipline" type="{http://www.orienteering.org/datastandard/3.0}RaceDiscipline" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Organiser" type="{http://www.orienteering.org/datastandard/3.0}Organisation" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Official" type="{http://www.orienteering.org/datastandard/3.0}Role" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Service" type="{http://www.orienteering.org/datastandard/3.0}Service" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="URL" type="{http://www.orienteering.org/datastandard/3.0}EventURL" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element name="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
+ *         &lt;element value="RaceNumber" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
+ *         &lt;element value="Name" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element value="StartTime" type="{http://www.orienteering.org/datastandard/3.0}DateAndOptionalTime" minOccurs="0"/&gt;
+ *         &lt;element value="EndTime" type="{http://www.orienteering.org/datastandard/3.0}DateAndOptionalTime" minOccurs="0"/&gt;
+ *         &lt;element value="Status" type="{http://www.orienteering.org/datastandard/3.0}EventStatus" minOccurs="0"/&gt;
+ *         &lt;element value="Classification" type="{http://www.orienteering.org/datastandard/3.0}EventClassification" minOccurs="0"/&gt;
+ *         &lt;element value="Position" type="{http://www.orienteering.org/datastandard/3.0}GeoPosition" minOccurs="0"/&gt;
+ *         &lt;element value="Discipline" type="{http://www.orienteering.org/datastandard/3.0}RaceDiscipline" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Organiser" type="{http://www.orienteering.org/datastandard/3.0}Organisation" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Official" type="{http://www.orienteering.org/datastandard/3.0}Role" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Service" type="{http://www.orienteering.org/datastandard/3.0}Service" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="URL" type="{http://www.orienteering.org/datastandard/3.0}EventURL" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element value="Extensions" type="{http://www.orienteering.org/datastandard/3.0}Extensions" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attribute name="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
+ *       &lt;attribute value="modifyTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -61,7 +61,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Race", propOrder = {
     "raceNumber",
-    "name",
+    "value",
     "startTime",
     "endTime",
     "status",
@@ -138,7 +138,7 @@ public class Race
     }
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -150,7 +150,7 @@ public class Race
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

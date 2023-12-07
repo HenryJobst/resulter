@@ -19,7 +19,7 @@ import jakarta.xml.bind.annotation.XmlValue;
 
 /**
  * 
- *           Defines the name of the start place (e.g. Start 1), if the race has multiple start places.
+ *           Defines the value of the start place (e.g. Start 1), if the race has multiple start places.
  *         
  * 
  * <p>Java-Klasse für StartName complex type.
@@ -27,10 +27,10 @@ import jakarta.xml.bind.annotation.XmlValue;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="StartName"&gt;
+ * &lt;complexType value="StartName"&gt;
  *   &lt;simpleContent&gt;
  *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema&gt;string"&gt;
- *       &lt;attribute name="raceNumber" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute value="raceNumber" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
  *     &lt;/extension&gt;
  *   &lt;/simpleContent&gt;
  * &lt;/complexType&gt;

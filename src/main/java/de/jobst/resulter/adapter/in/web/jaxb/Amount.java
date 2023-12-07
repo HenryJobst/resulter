@@ -27,10 +27,10 @@ import jakarta.xml.bind.annotation.XmlValue;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="Amount"&gt;
+ * &lt;complexType value="Amount"&gt;
  *   &lt;simpleContent&gt;
  *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema&gt;decimal"&gt;
- *       &lt;attribute name="currency" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;attribute value="currency" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
  *     &lt;/extension&gt;
  *   &lt;/simpleContent&gt;
  * &lt;/complexType&gt;

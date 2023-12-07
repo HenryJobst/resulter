@@ -27,12 +27,12 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="MapPosition"&gt;
+ * &lt;complexType value="MapPosition"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;attribute name="x" use="required" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
- *       &lt;attribute name="y" use="required" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
- *       &lt;attribute name="unit" default="mm"&gt;
+ *       &lt;attribute value="x" use="required" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
+ *       &lt;attribute value="y" use="required" type="{http://www.w3.org/2001/XMLSchema}double" /&gt;
+ *       &lt;attribute value="unit" default="mm"&gt;
  *         &lt;simpleType&gt;
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN"&gt;
  *             &lt;enumeration value="px"/&gt;

@@ -26,10 +26,10 @@ import jakarta.xml.bind.annotation.XmlType;
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="SimpleRaceCourse"&gt;
+ * &lt;complexType value="SimpleRaceCourse"&gt;
  *   &lt;complexContent&gt;
  *     &lt;extension base="{http://www.orienteering.org/datastandard/3.0}SimpleCourse"&gt;
- *       &lt;attribute name="raceNumber" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
+ *       &lt;attribute value="raceNumber" type="{http://www.w3.org/2001/XMLSchema}integer" /&gt;
  *     &lt;/extension&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;

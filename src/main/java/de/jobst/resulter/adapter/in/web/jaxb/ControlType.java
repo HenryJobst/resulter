@@ -18,7 +18,7 @@ import jakarta.xml.bind.annotation.XmlType;
  * 
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * <pre>
- * &lt;simpleType name="ControlType"&gt;
+ * &lt;simpleType value="ControlType"&gt;
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN"&gt;
  *     &lt;enumeration value="Control"/&gt;
  *     &lt;enumeration value="Start"/&gt;

@@ -30,7 +30,7 @@ public class XmlController {
     @ResponseBody
     public ResponseEntity<String> handleFileUpload(@RequestParam(FILE) MultipartFile file) {
         try {
-            Event event = importService.importFile(file);
+            Event event = importService.importFile(file.getInputStream());
             return new ResponseEntity<>(event.toString(), HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());

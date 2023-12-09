@@ -5,8 +5,8 @@ import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.domain.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -25,8 +25,8 @@ public class XMLImportService {
         this.eventService = eventService;
     }
 
-    Event importFile(MultipartFile file) throws Exception {
-        ResultList resultList = xmlParser.parseXmlFile(file.getInputStream());
+    Event importFile(InputStream inputStream) throws Exception {
+        ResultList resultList = xmlParser.parseXmlFile(inputStream);
 
         Collection<ClassResult> classResults =
                 resultList.getClassResults().stream()
@@ -84,13 +84,12 @@ public class XMLImportService {
                                         )).toList()
                         )).toList();
 
-        Event event = eventService.findOrCreate(
+        return eventService.findOrCreate(
                 Event.of(resultList.getEvent().getName(),
                         classResults,
                         resultList.getEvent().getOrganisers().stream().map(
                                 organisation -> Organisation.of(organisation.getName(), organisation.getShortName())
                         ).toList()
                 ));
-        return event;
     }
 }

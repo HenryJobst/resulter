@@ -26,9 +26,13 @@ public class XmlUploadClient {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(uploadUrl, HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String>
+                response =
+                restTemplate.exchange(uploadUrl, HttpMethod.POST, requestEntity, String.class);
 
-        System.out.println(MessageFormat.format("Response-Code: {0}", response.getStatusCode()));
+        System.out.println(MessageFormat.format("Response-Code: {0}\n{1}",
+                response.getStatusCode(),
+                response.hasBody() ? response.getBody() : ""));
     }
 }
 

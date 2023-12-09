@@ -1,6 +1,6 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.out.jpa.inmem.InMemoryEventRepository;
+import de.jobst.resulter.adapter.out.inmem.InMemoryEventRepository;
 import de.jobst.resulter.application.port.EventRepository;
 import org.jetbrains.annotations.NotNull;
 

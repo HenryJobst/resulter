@@ -33,8 +33,10 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     }
 
     @Override
-    public Optional<Event> findById(EventId EventId) {
-        return Optional.empty();
+    public Optional<Event> findById(EventId eventId) {
+        Optional<EventEntity> eventEntity =
+                eventJpaRepository.findById(eventId.value());
+        return eventEntity.map(EventEntity::asEvent);
     }
 
     @Override
@@ -45,6 +47,6 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
             eventEntity = Optional.of(EventEntity.from(save(event)));
         }
         EventEntity entity = eventEntity.get();
-        return Event.of(entity.getId(), entity.getName());
+        return entity.asEvent();
     }
 }

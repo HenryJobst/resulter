@@ -1,6 +1,6 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.out.jpa.inmem.InMemoryEventRepository;
+import de.jobst.resulter.adapter.out.inmem.InMemoryEventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class EventServiceFindTest {
 
         assertThat(foundEvent).isEqualTo(savedEvent);
     }
-    
+
     @Test
     public void whenRepositoryHasEventFindByItsIdReturnsItInAnOptional() {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();

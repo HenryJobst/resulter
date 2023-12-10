@@ -50,7 +50,8 @@ public class XMLImportService {
                                                                                         .toInstant(),
                                                                                 ZoneId.systemDefault())
                                                                         : null
-                                                        )
+                                                        ),
+                                                        Gender.of(personResult.getPerson().getSex())
                                                 ),
                                                 Objects.nonNull(personResult.getOrganisation()) ?
                                                         Organisation.of(

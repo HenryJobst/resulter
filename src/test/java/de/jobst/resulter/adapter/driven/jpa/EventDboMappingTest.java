@@ -32,7 +32,8 @@ class EventDboMappingTest {
         personResults.add(PersonResult.of(
                 Person.of(
                         FamilyName.of("Knopf"), GivenName.of("Jim"),
-                        LocalDate.of(2000, 11, 1)),
+                        LocalDate.of(2000, 11, 1),
+                        Gender.M),
                 Organisation.of("O-Club", "OC"),
                 personRaceResults));
 

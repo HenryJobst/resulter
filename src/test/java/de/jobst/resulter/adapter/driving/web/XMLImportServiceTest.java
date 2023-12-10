@@ -1,7 +1,7 @@
 package de.jobst.resulter.adapter.driving.web;
 
 import de.jobst.resulter.adapter.TestConfig;
-import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -14,7 +14,10 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,5 +55,21 @@ class XMLImportServiceTest {
                 .isEqualTo("Winter-OL 2023");
         assertThat(Objects.requireNonNull(event.getClassResults()).value())
                 .hasSize(35);
+        Collection<ClassResult> classResults = event.getClassResults().value();
+        assertThat(classResults).element(0).extracting(ClassResult::classResultName).isEqualTo(
+                ClassResultName.of("BK (Beginner Kurz)"));
+        assertThat(classResults).element(0).extracting(ClassResult::classResultShortName).isEqualTo(
+                ClassResultShortName.of("BK"));
+        assertThat(classResults).element(0).extracting(ClassResult::gender).isEqualTo(
+                Gender.of("M"));
+        Optional<ClassResult> first = classResults.stream().findFirst();
+        assertThat(first).isPresent();
+        assertThat(first.get().personResults().value()).hasSize(13);
+        Optional<PersonResult> firstPersonResult = first.get().personResults().value().stream().findFirst();
+        assertThat(firstPersonResult).isPresent();
+        assertThat(firstPersonResult.get().person().personName().familyName()).isEqualTo(FamilyName.of("Graumann"));
+        assertThat(firstPersonResult.get().person().personName().givenName()).isEqualTo(GivenName.of("Bernd"));
+        assertThat(firstPersonResult.get().person().birthDate().value()).isEqualTo(LocalDate.of(1961, 1, 1));
+        assertThat(firstPersonResult.get().person().gender()).isEqualTo(Gender.M);
     }
 }

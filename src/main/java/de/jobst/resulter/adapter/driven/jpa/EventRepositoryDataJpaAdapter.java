@@ -3,12 +3,14 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
+@ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
 public class EventRepositoryDataJpaAdapter implements EventRepository {
 
     private final EventJpaRepository eventJpaRepository;

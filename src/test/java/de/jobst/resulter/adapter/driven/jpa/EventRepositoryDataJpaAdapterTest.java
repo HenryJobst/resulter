@@ -19,7 +19,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-//@Import(EventRepositoryDataJpaAdapter.class) // @Repository classes aren't created as part of @DataJdbcTest slicing
 @DataJpaTest(properties = "spring.test.database.replace=NONE")
 @ContextConfiguration(
         classes = {TestConfig.class},

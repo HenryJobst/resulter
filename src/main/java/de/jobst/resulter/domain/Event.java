@@ -12,6 +12,7 @@ import java.util.Collection;
 @Getter
 public class Event {
     @NonNull final private EventName name;
+
     @Nullable
     @Setter
     private EventId id;

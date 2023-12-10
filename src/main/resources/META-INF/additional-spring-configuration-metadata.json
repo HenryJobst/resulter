@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "resulter.repository.inmemory",
+      "type": "java.lang.String",
+      "description": "Activate InMemory repositories."
+    }
+  ]
+}

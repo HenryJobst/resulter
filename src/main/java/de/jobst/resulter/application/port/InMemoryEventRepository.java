@@ -1,6 +1,5 @@
-package de.jobst.resulter.adapter.out.inmem;
+package de.jobst.resulter.application.port;
 
-import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
 import org.apache.commons.lang3.ObjectUtils;
@@ -20,7 +19,7 @@ public class InMemoryEventRepository implements EventRepository {
         if (ObjectUtils.isNotEmpty(event.getId())) {
             event = Event.of(sequence.getAndIncrement(),
                     event.getName().value(),
-                    Objects.requireNonNull(event.getClassResults()).classResults());
+                    Objects.requireNonNull(event.getClassResults()).value());
         }
         events.put(event.getId(), event);
         savedEvents.add(event);

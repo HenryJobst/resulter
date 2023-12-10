@@ -1,18 +1,20 @@
 package de.jobst.resulter.domain;
 
+import org.springframework.lang.NonNull;
+
 import java.text.MessageFormat;
 
 public enum Gender {
     M("M"),
     F("F"),
     ;
-  String value;
+    final String value;
 
-    Gender(String value) {
+    Gender(@NonNull String value) {
         this.value = value;
     }
 
-    public static Gender of(String value) {
+    public static Gender of(@NonNull String value) {
         return switch (value) {
             case "M" -> M;
             case "F" -> F;

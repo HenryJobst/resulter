@@ -1,7 +1,7 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.out.inmem.InMemoryEventRepository;
 import de.jobst.resulter.application.port.EventRepository;
+import de.jobst.resulter.application.port.InMemoryEventRepository;
 import org.jetbrains.annotations.NotNull;
 
 public class EventServiceFactory {

@@ -1,6 +1,6 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.out.inmem.InMemoryEventRepository;
+import de.jobst.resulter.application.port.InMemoryEventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ class EventServiceFindTest {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
         EventService eventService = EventServiceFactory.createServiceWith(eventRepository);
 
-        Event savedEvent = eventService.findOrCreate(Event.of("Test", null));
+        Event savedEvent = eventService.findOrCreate(Event.of("Test"));
 
         assertThat(savedEvent).isNotNull();
     }
@@ -30,7 +30,7 @@ class EventServiceFindTest {
     @Test
     public void whenRepositoryIsNotEmptyFindOrCreateReturnsItAgain() {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
-        Event savedEvent = eventRepository.findOrCreate(Event.of("Test", null));
+        Event savedEvent = eventRepository.findOrCreate(Event.of("Test"));
         EventService eventService = EventServiceFactory.createServiceWith(eventRepository);
 
         Event foundEvent = eventService.findOrCreate(savedEvent);
@@ -41,7 +41,7 @@ class EventServiceFindTest {
     @Test
     public void whenRepositoryHasEventFindByItsIdReturnsItInAnOptional() {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
-        Event savedEvent = eventRepository.save(Event.of("Test", null));
+        Event savedEvent = eventRepository.save(Event.of("Test"));
         EventService eventService = EventServiceFactory.createServiceWith(eventRepository);
 
         Optional<Event> foundEvent = eventService.findById(savedEvent.getId());

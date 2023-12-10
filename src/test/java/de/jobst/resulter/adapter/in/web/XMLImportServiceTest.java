@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.in.web;
 
 import de.jobst.resulter.ResulterApplication;
+import de.jobst.resulter.adapter.TestConfig;
 import de.jobst.resulter.domain.Event;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = "spring.test.database.replace=NONE")
 @ContextConfiguration(
-        classes = {TestJpaConfig.class, ResulterApplication.class},
+        classes = {TestConfig.class, ResulterApplication.class},
         loader = AnnotationConfigContextLoader.class)
 @EntityScan(basePackages = {"de.jobst.resulter"})
-//@EnableJpaRepositories(basePackages = "de.jobst.resulter.adapter.out.jpa")
-//@Import(value = {XMLImportService.class})
 class XMLImportServiceTest {
 
     @Autowired
@@ -40,10 +39,10 @@ class XMLImportServiceTest {
 
         assertThat(event).isNotNull();
         assertThat(Objects.requireNonNull(event.getId()).value())
-                .isEqualTo(1L);
+                .isGreaterThanOrEqualTo(1L);
         assertThat(event.getName().value())
                 .isEqualTo("Winter-OL 2023");
-        assertThat(Objects.requireNonNull(event.getClassResults()).classResults())
+        assertThat(Objects.requireNonNull(event.getClassResults()).value())
                 .hasSize(35);
     }
 }

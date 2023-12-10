@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.in.web;
+package de.jobst.resulter.adapter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +14,7 @@ import java.util.Objects;
 @Configuration
 @PropertySource("classpath:persistence.properties")
 @EnableTransactionManagement
-public class TestJpaConfig {
+public class TestConfig {
 
     @Autowired
     private Environment env;

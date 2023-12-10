@@ -1,7 +1,7 @@
 package de.jobst.resulter;
 
-import de.jobst.resulter.adapter.out.inmem.InMemoryEventRepository;
 import de.jobst.resulter.application.port.EventRepository;
+import de.jobst.resulter.application.port.InMemoryEventRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

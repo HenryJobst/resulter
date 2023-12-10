@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Henry Jobst
       changes:
         - createTable:
-            tableName: ORGANISATIONS
+            tableName: EVENT
             columns:
               - column:
                   name: ID
@@ -12,7 +12,56 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                    primaryKeyName: PK_ORGANISATIONS
+                    primaryKeyName: PK_EVENT
+              - column:
+                  name: NAME
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: DATE
+                  type: date
+        - createTable:
+            tableName: CLASS_RESULT
+            columns:
+              - column:
+                  name: ID
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_CLASS_RESULT
+              - column:
+                  name: NAME
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: SHORT_NAME
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: GENDER
+                  type: varchar(1)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: EVENT_ID
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_CLASS_RESULT_EVENT
+        - createTable:
+            tableName: ORGANISATION
+            columns:
+              - column:
+                  name: ID
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_ORGANISATION
               - column:
                   name: NAME
                   type: varchar(255)
@@ -23,48 +72,36 @@ databaseChangeLog:
                   type: varchar(20)
                   constraints:
                     nullable: false
-        - createTable:
-            tableName: EVENTS
-            columns:
-              - column:
-                  name: ID
-                  type: bigint
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-                    primaryKeyName: PK_EVENTS
-              - column:
-                  name: NAME
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: ORGANISATION_ID
-                  type: bigint
-              - column:
-                  name: DATE
-                  type: date
         - addForeignKeyConstraint:
-              baseTableName: EVENTS
-              baseColumnNames: ORGANISATION_ID
-              constraintName: FK_EVENTS_ORGANISATIONS
-              referencedTableName: ORGANISATIONS
-              referencedColumnNames: ID
-              onDelete: RESTRICT
-              onUpdate: RESTRICT
+            baseTableName: CLASS_RESULT
+            baseColumnNames: EVENT_ID
+            constraintName: FK_CLASS_RESULT_EVENT
+            referencedTableName: EVENT
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
         - createSequence:
-            sequenceName: SEQ_EVENTS_ID
+            sequenceName: SEQ_EVENT_ID
         - createSequence:
-            sequenceName: SEQ_ORGANISATIONS_ID
+            sequenceName: SEQ_CLASS_RESULT_ID
+            incrementBy: 50
+        - createSequence:
+            sequenceName: SEQ_ORGANISATION_ID
         - createIndex:
-            tableName: ORGANISATIONS
+            tableName: ORGANISATION
             columns:
               - column:
                   name: ID
-            indexName:  IDX_ORGANISATIONS_ID
+            indexName: IDX_ORGANISATION_ID
         - createIndex:
-            tableName: EVENTS
+            tableName: EVENT
             columns:
               - column:
-                 name: ID
-            indexName:  IDX_EVENTS_ID
+                  name: ID
+            indexName: IDX_EVENT_ID
+        - createIndex:
+            tableName: CLASS_RESULT
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_CLASS_RESULT_ID

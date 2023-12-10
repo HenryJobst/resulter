@@ -43,6 +43,10 @@ public class Event {
         this(eventId, eventName, null, null, classResults, null);
     }
 
+    public static Event of(String name) {
+        return new Event(EventId.of(0L), EventName.of(name), ClassResults.of(new ArrayList<>()));
+    }
+
     public static Event of(String name, Collection<ClassResult> classResults) {
         return new Event(EventId.of(0L), EventName.of(name), ClassResults.of(classResults));
     }

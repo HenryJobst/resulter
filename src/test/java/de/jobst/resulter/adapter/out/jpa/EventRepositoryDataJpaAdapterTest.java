@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.out.jpa;
 
+import de.jobst.resulter.adapter.TestConfig;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventName;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,9 +22,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 //@Import(EventRepositoryDataJpaAdapter.class) // @Repository classes aren't created as part of @DataJdbcTest slicing
 @DataJpaTest(properties = "spring.test.database.replace=NONE")
 @ContextConfiguration(
-        classes = {TestJpaConfig.class},
+        classes = {TestConfig.class},
         loader = AnnotationConfigContextLoader.class)
 @EntityScan(basePackages = {"de.jobst.resulter.adapter.out.jpa"})
+@EnableJpaRepositories(basePackages = "de.jobst.resulter.adapter.out.jpa")
 @Import(EventRepositoryDataJpaAdapter.class)
 class EventRepositoryDataJpaAdapterTest {
 
@@ -32,7 +35,7 @@ class EventRepositoryDataJpaAdapterTest {
     @Test
     @Transactional
     public void savedEventCanBeFoundByItsId() {
-        Event event = Event.of("test event", null);
+        Event event = Event.of("test event");
 
         Event savedEvent = eventRepositoryAdapter.save(event);
 
@@ -56,8 +59,8 @@ class EventRepositoryDataJpaAdapterTest {
     @Test
     @Transactional
     public void twoSavedEventsBothReturnedByFindAll() {
-        Event one = Event.of("one", null);
-        Event two = Event.of("two", null);
+        Event one = Event.of("one");
+        Event two = Event.of("two");
 
         eventRepositoryAdapter.save(one);
         eventRepositoryAdapter.save(two);
@@ -65,6 +68,39 @@ class EventRepositoryDataJpaAdapterTest {
         List<Event> allEvents = eventRepositoryAdapter.findAll();
         assertThat(allEvents)
                 .hasSize(2);
+    }
+
+    @Test
+    @Transactional
+    void findOrCreateWithNonExisting() {
+        Event event = Event.of("test event");
+
+        Event savedEvent = eventRepositoryAdapter.findOrCreate(event);
+
+        Optional<Event> found = eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()));
+
+        assertThat(found)
+                .isPresent()
+                .get()
+                .extracting(Event::getName)
+                .isEqualTo(EventName.of("test event"));
+    }
+
+    @Test
+    @Transactional
+    void findOrCreateWithExisting() {
+        Event event = Event.of("test event");
+        eventRepositoryAdapter.save(event);
+
+        Event savedEvent = eventRepositoryAdapter.findOrCreate(event);
+
+        Optional<Event> found = eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()));
+
+        assertThat(found)
+                .isPresent()
+                .get()
+                .extracting(Event::getName)
+                .isEqualTo(EventName.of("test event"));
     }
 
 }

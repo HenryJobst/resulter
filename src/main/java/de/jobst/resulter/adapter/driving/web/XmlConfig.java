@@ -11,7 +11,7 @@ public class XmlConfig {
     public Jaxb2Marshaller jaxb2Marshaller() {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
         //marshaller.setClassesToBeBound(RaceCourseData.class);
-        dmarshaller.setPackagesToScan("de.jobst.resulter.adapter.driving.web.jaxb");
+        marshaller.setPackagesToScan("de.jobst.resulter.adapter.driving.web.jaxb");
         return marshaller;
     }
 }

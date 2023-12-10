@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.out.jpa;
+package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.adapter.TestConfig;
 import de.jobst.resulter.domain.Event;
@@ -24,8 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(
         classes = {TestConfig.class},
         loader = AnnotationConfigContextLoader.class)
-@EntityScan(basePackages = {"de.jobst.resulter.adapter.out.jpa"})
-@EnableJpaRepositories(basePackages = "de.jobst.resulter.adapter.out.jpa")
+@EntityScan(basePackages = {"de.jobst.resulter.adapter.driven.jpa"})
+@EnableJpaRepositories(basePackages = "de.jobst.resulter.adapter.driven.jpa")
 @Import(EventRepositoryDataJpaAdapter.class)
 class EventRepositoryDataJpaAdapterTest {
 

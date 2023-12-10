@@ -1,6 +1,6 @@
-package de.jobst.resulter.adapter.in.web;
+package de.jobst.resulter.adapter.driving.web;
 
-import de.jobst.resulter.adapter.in.web.jaxb.ResultList;
+import de.jobst.resulter.adapter.driving.web.jaxb.ResultList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.Unmarshaller;
 import org.springframework.stereotype.Component;

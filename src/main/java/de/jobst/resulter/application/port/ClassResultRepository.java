@@ -1,4 +1,4 @@
-package de.jobst.resulter.application;
+package de.jobst.resulter.application.port;
 
 public interface ClassResultRepository {
 }

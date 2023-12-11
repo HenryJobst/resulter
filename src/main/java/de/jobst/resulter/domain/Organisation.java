@@ -12,8 +12,8 @@ public class Organisation {
     @Setter
     private OrganisationId id;
 
-    OrganisationName name;
-    OrganisationShortName shortName;
+    private OrganisationName name;
+    private OrganisationShortName shortName;
 
     public Organisation(@Nullable OrganisationId id,
                         @NonNull OrganisationName name,

@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record PersonRaceResult(RaceNumber raceNumber, DateTime startTime, DateTime finishTime, PunchTime runtime,
-                               Position positon, ResultStatus state, List<SplitTime> splitTimes) {
+                               Position positon, ResultStatus state, SplitTimes splitTimes) {
     public static PersonRaceResult of(Long raceNumber,
                                       LocalDateTime startTime,
                                       LocalDateTime finishTime,
@@ -18,6 +18,6 @@ public record PersonRaceResult(RaceNumber raceNumber, DateTime startTime, DateTi
                 PunchTime.of(punchTime),
                 Position.of(position),
                 ResultStatus.fromValue(resultState),
-                splitTimes);
+                SplitTimes.of(splitTimes));
     }
 }

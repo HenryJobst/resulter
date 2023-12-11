@@ -19,7 +19,7 @@ public class InMemoryEventRepository implements EventRepository {
 
     @Override
     public Event save(Event event) {
-        if (ObjectUtils.isNotEmpty(event.getId()) && event.getId().value() == 0) {
+        if (ObjectUtils.isEmpty(event.getId()) || event.getId().value() == 0) {
             event.setId(EventId.of(sequence.incrementAndGet()));
         }
         events.put(event.getId(), event);

@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -27,7 +27,7 @@ public class EventDbo {
     private String name;
 
     @OneToMany(mappedBy = "eventDbo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ClassResultDbo> classResults = new ArrayList<>();
+    private Set<ClassResultDbo> classResults = new HashSet<>();
 
     public static EventDbo from(Event event) {
         EventDbo eventDbo = new EventDbo();
@@ -36,7 +36,7 @@ public class EventDbo {
         }
         eventDbo.setName(event.getName().value());
         eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults())
-                .value().stream().map(it -> ClassResultDbo.from(it, eventDbo)).collect(Collectors.toList()));
+                .value().stream().map(it -> ClassResultDbo.from(it, eventDbo)).collect(Collectors.toSet()));
         return eventDbo;
     }
 

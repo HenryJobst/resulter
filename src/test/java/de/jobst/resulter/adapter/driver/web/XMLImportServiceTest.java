@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driving.web;
+package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.TestConfig;
 import de.jobst.resulter.domain.*;
@@ -29,10 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
         classes = {TestConfig.class},
         loader = AnnotationConfigContextLoader.class)
 @ComponentScan(basePackages = {"de.jobst.resulter.application",
-        "de.jobst.resulter.adapter.driving.web",
+        "de.jobst.resulter.adapter.driver.web",
         "de.jobst.resulter.adapter.driven.jpa"})
 @EntityScan(basePackages = {
-        "de.jobst.resulter.adapter.driving.web",
+        "de.jobst.resulter.adapter.driver.web",
         "de.jobst.resulter.adapter.driven.jpa"})
 @EnableJpaRepositories(basePackages = {"de.jobst.resulter.adapter.driven.jpa"})
 class XMLImportServiceTest {

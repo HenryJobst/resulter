@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driving.web;
+package de.jobst.resulter.adapter.driver.web;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,7 @@ public class XmlConfig {
     public Jaxb2Marshaller jaxb2Marshaller() {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
         //marshaller.setClassesToBeBound(RaceCourseData.class);
-        marshaller.setPackagesToScan("de.jobst.resulter.adapter.driving.web.jaxb");
+        marshaller.setPackagesToScan("de.jobst.resulter.adapter.driver.web.jaxb");
         return marshaller;
     }
 }

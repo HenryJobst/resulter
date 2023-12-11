@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driving.web;
+package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.domain.Event;
 import lombok.extern.slf4j.Slf4j;

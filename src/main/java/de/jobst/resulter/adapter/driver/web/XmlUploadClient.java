@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driving.web;
+package de.jobst.resulter.adapter.driver.web;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;

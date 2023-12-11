@@ -32,8 +32,13 @@ public class Person {
         return new Person(null, PersonName.of(familyName, givenName), BirthDate.of(birthDate), gender);
     }
 
-    public static Person of(String familyName, String givenName, LocalDate birthDate, String gender) {
+    public static Person of(String familyName, String givenName, LocalDate birthDate, Gender gender) {
         return new Person(null, PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
-                BirthDate.of(birthDate), Gender.of(gender));
+                BirthDate.of(birthDate), gender);
+    }
+
+    public static Person of(long id, String familyName, String givenName, LocalDate birthDate, Gender gender) {
+        return new Person(PersonId.of(id), PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
+                BirthDate.of(birthDate), gender);
     }
 }

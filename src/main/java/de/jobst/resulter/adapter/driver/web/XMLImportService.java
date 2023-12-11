@@ -1,6 +1,6 @@
-package de.jobst.resulter.adapter.driving.web;
+package de.jobst.resulter.adapter.driver.web;
 
-import de.jobst.resulter.adapter.driving.web.jaxb.ResultList;
+import de.jobst.resulter.adapter.driver.web.jaxb.ResultList;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.application.PersonService;
@@ -37,7 +37,7 @@ public class XMLImportService {
     }
 
     @NonNull
-    private static List<PersonRaceResult> getPersonRaceResults(de.jobst.resulter.adapter.driving.web.jaxb.PersonResult personResult) {
+    private static List<PersonRaceResult> getPersonRaceResults(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult) {
         return personResult.getResults().stream().map(personRaceResult ->
                 PersonRaceResult.of(
                         personRaceResult.getRaceNumber().longValue(),
@@ -59,7 +59,7 @@ public class XMLImportService {
     }
 
     @NonNull
-    private static List<SplitTime> getSplitTimes(de.jobst.resulter.adapter.driving.web.jaxb.PersonRaceResult personRaceResult) {
+    private static List<SplitTime> getSplitTimes(de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult personRaceResult) {
         return personRaceResult.getSplitTimes().stream().map(
                 splitTime ->
                         SplitTime.of(
@@ -69,7 +69,7 @@ public class XMLImportService {
         ).toList();
     }
 
-    @NonNull private Person getPerson(de.jobst.resulter.adapter.driving.web.jaxb.PersonResult personResult) {
+    @NonNull private Person getPerson(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult) {
         return personService.findOrCreate(
                 Person.of(
                         PersonName.of(
@@ -98,7 +98,7 @@ public class XMLImportService {
                         .map(classResult -> ClassResult.of(
                                 classResult.getClazz().getName(),
                                 classResult.getClazz().getShortName(),
-                                classResult.getClazz().getSex(),
+                                Gender.of(classResult.getClazz().getSex()),
                                 getPersonResults(classResult)
                         )).toList();
 
@@ -112,7 +112,7 @@ public class XMLImportService {
     }
 
     @NonNull
-    private List<PersonResult> getPersonResults(de.jobst.resulter.adapter.driving.web.jaxb.ClassResult classResult) {
+    private List<PersonResult> getPersonResults(de.jobst.resulter.adapter.driver.web.jaxb.ClassResult classResult) {
         return classResult.getPersonResults().stream().map(personResult ->
                 PersonResult.of(
                         getPerson(personResult),
@@ -122,7 +122,7 @@ public class XMLImportService {
     }
 
     @Nullable
-    private Organisation getOrganisation(de.jobst.resulter.adapter.driving.web.jaxb.PersonResult personResult) {
+    private Organisation getOrganisation(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult) {
         return Objects.nonNull(personResult.getOrganisation()) ?
                 organisationService.findOrCreate(
                         Organisation.of(

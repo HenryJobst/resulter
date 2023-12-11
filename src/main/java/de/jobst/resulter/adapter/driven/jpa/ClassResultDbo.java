@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.ClassResult;
+import de.jobst.resulter.domain.Gender;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 @Table(name = "CLASS_RESULT")
 public class ClassResultDbo {
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "class_result_generator")
-    @SequenceGenerator(name = "class_result_generator", sequenceName = "SEQ_CLASS_RESULT_ID")
+    @SequenceGenerator(name = "class_result_generator", sequenceName = "SEQ_CLASS_RESULT_ID", allocationSize = 50)
     @Column(name = "ID", nullable = false, unique = true)
     private Long id;
 
@@ -24,7 +25,8 @@ public class ClassResultDbo {
     private String shortName;
 
     @Column(name = "GENDER", nullable = false)
-    private String gender;
+    @Enumerated(value = EnumType.STRING)
+    private Gender gender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EVENT_ID")
@@ -35,7 +37,7 @@ public class ClassResultDbo {
         classResultDbo.setEventDbo(eventDbo);
         classResultDbo.setName(classResult.classResultName().value());
         classResultDbo.setShortName(classResult.classResultShortName().value());
-        classResultDbo.setGender(classResult.gender().name());
+        classResultDbo.setGender(classResult.gender());
         return classResultDbo;
     }
 

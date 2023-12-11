@@ -39,7 +39,7 @@ class EventDboMappingTest {
 
         Collection<ClassResult> classResults = new ArrayList<>();
         classResults.add(ClassResult.of("H50- (Herren ab 50)", "H50-",
-                Gender.M.name(), personResults));
+                Gender.M, personResults));
 
         Event event = Event.of("Domain", classResults);
 

@@ -158,12 +158,12 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <packageName>de.jobst.resulter.adapter.driving.web.jaxb</packageName>
+                    <packageName>de.jobst.resulter.adapter.driver.web.jaxb</packageName>
                     <xjbSources>
                         <xjbSource>src/main/resources/global.xjb</xjbSource>
                     </xjbSources>
                     <sources>
-                        <source>src/main/java/de/jobst/resulter/adapter/driving/web/IOF.xsd</source>
+                        <source>src/main/java/de/jobst/resulter/adapter/driver/web/IOF.xsd</source>
                     </sources>
                     <outputDirectory>${basedir}/target/generated-sources/</outputDirectory>
                     <clearOutputDir>false</clearOutputDir>

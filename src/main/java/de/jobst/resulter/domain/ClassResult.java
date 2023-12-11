@@ -8,11 +8,10 @@ public record ClassResult(ClassResultName classResultName, ClassResultShortName 
                           PersonResults personResults) {
     public static ClassResult of(@NonNull String name,
                                  @NonNull String shortName,
-                                 @NonNull String gender,
+                                 @NonNull Gender gender,
                                  Collection<PersonResult> personResults) {
-        Gender gender1 = Gender.of(gender);
         return new ClassResult(ClassResultName.of(name), ClassResultShortName.of(shortName),
-                gender1,
+                gender,
                 PersonResults.of(personResults));
     }
 }

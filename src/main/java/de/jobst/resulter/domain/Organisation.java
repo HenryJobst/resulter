@@ -26,4 +26,8 @@ public class Organisation {
     public static Organisation of(String name, String shortName) {
         return new Organisation(null, OrganisationName.of(name), OrganisationShortName.of(shortName));
     }
+
+    public static Organisation of(long id, String name, String shortName) {
+        return new Organisation(OrganisationId.of(id), OrganisationName.of(name), OrganisationShortName.of(shortName));
+    }
 }

@@ -8,47 +8,47 @@ databaseChangeLog:
             columns:
               - column:
                   name: ID
-                  type: bigint
+                  type: BIGINT
                   constraints:
                     primaryKey: true
                     nullable: false
                     primaryKeyName: PK_EVENT
               - column:
                   name: NAME
-                  type: varchar(255)
+                  type: VARCHAR(255)
                   constraints:
                     nullable: false
               - column:
                   name: DATE
-                  type: date
+                  type: DATE
         - createTable:
             tableName: CLASS_RESULT
             columns:
               - column:
                   name: ID
-                  type: bigint
+                  type: BIGINT
                   constraints:
                     primaryKey: true
                     nullable: false
                     primaryKeyName: PK_CLASS_RESULT
               - column:
                   name: NAME
-                  type: varchar(255)
+                  type: VARCHAR(255)
                   constraints:
                     nullable: false
               - column:
                   name: SHORT_NAME
-                  type: varchar(20)
+                  type: VARCHAR(20)
                   constraints:
                     nullable: false
               - column:
                   name: GENDER
-                  type: varchar(1)
+                  type: VARCHAR(3)
                   constraints:
                     nullable: false
               - column:
                   name: EVENT_ID
-                  type: bigint
+                  type: BIGINT
                   constraints:
                     nullable: false
                     foreignKeyName: FK_CLASS_RESULT_EVENT
@@ -57,19 +57,49 @@ databaseChangeLog:
             columns:
               - column:
                   name: ID
-                  type: bigint
+                  type: BIGINT
                   constraints:
                     primaryKey: true
                     nullable: false
                     primaryKeyName: PK_ORGANISATION
               - column:
                   name: NAME
-                  type: varchar(255)
+                  type: VARCHAR(255)
                   constraints:
                     nullable: false
               - column:
-                  name: SHORTNAME
-                  type: varchar(20)
+                  name: SHORT_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: PERSON
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_PERSON
+              - column:
+                  name: FAMILY_NAME
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: GIVEN_NAME
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: BIRTH_DATE
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: GENDER
+                  type: varchar(3)
                   constraints:
                     nullable: false
         - addForeignKeyConstraint:
@@ -82,11 +112,16 @@ databaseChangeLog:
             onUpdate: RESTRICT
         - createSequence:
             sequenceName: SEQ_EVENT_ID
+            incrementBy: 1
         - createSequence:
             sequenceName: SEQ_CLASS_RESULT_ID
             incrementBy: 50
         - createSequence:
             sequenceName: SEQ_ORGANISATION_ID
+            incrementBy: 10
+        - createSequence:
+            sequenceName: SEQ_PERSON_ID
+            incrementBy: 10
         - createIndex:
             tableName: ORGANISATION
             columns:
@@ -99,6 +134,12 @@ databaseChangeLog:
               - column:
                   name: ID
             indexName: IDX_EVENT_ID
+        - createIndex:
+            tableName: PERSON
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_PERSON_ID
         - createIndex:
             tableName: CLASS_RESULT
             columns:

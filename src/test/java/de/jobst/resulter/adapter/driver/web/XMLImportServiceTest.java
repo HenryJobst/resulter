@@ -56,17 +56,16 @@ class XMLImportServiceTest {
 
         assertThat(Objects.requireNonNull(event.getClassResults()).value()).hasSize(35);
         Collection<ClassResult> classResults = event.getClassResults().value();
-        assertThat(classResults).element(0).extracting(ClassResult::classResultName).isEqualTo(
-                ClassResultName.of("BK (Beginner Kurz)"));
-        assertThat(classResults).element(0).extracting(ClassResult::classResultShortName).isEqualTo(
-                ClassResultShortName.of("BK"));
-        assertThat(classResults).element(0).extracting(ClassResult::gender).isEqualTo(
-                Gender.of("M"));
+        Optional<ClassResult>
+                classResultBK =
+                classResults.parallelStream().filter(it -> it.classResultName().value().contains("BK")).findAny();
+        assertThat(classResultBK).isPresent();
+        assertThat(classResultBK.get().classResultName().value()).isEqualTo("BK (Beginner Kurz)");
+        assertThat(classResultBK.get().classResultShortName().value()).isEqualTo("BK");
+        assertThat(classResultBK.get().gender()).isEqualTo(Gender.of("M"));
 
-        Optional<ClassResult> first = classResults.stream().findFirst();
-        assertThat(first).isPresent();
-        assertThat(first.get().personResults().value()).hasSize(13);
-        Optional<PersonResult> firstPersonResult = first.get().personResults().value().stream().findFirst();
+        assertThat(classResultBK.get().personResults().value()).hasSize(13);
+        Optional<PersonResult> firstPersonResult = classResultBK.get().personResults().value().stream().findFirst();
         assertThat(firstPersonResult).isPresent();
 
         assertThat(Objects.requireNonNull(firstPersonResult.get().person().getId())

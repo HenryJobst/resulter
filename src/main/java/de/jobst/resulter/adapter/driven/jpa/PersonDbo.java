@@ -31,7 +31,7 @@ public class PersonDbo {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(name = "BIRTH_DATE", nullable = false)
+    @Column(name = "BIRTH_DATE")
     private LocalDate birthDate;
 
     public static PersonDbo from(Person person) {
@@ -42,7 +42,9 @@ public class PersonDbo {
         personDbo.setFamilyName(person.getPersonName().familyName().value());
         personDbo.setGivenName(person.getPersonName().givenName().value());
         personDbo.setGender(person.getGender());
-        personDbo.setBirthDate(person.getBirthDate().value());
+        if (person.getBirthDate() != null) {
+            personDbo.setBirthDate(person.getBirthDate().value());
+        }
         return personDbo;
     }
 

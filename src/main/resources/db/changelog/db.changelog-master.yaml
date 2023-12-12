@@ -95,8 +95,6 @@ databaseChangeLog:
               - column:
                   name: BIRTH_DATE
                   type: DATE
-                  constraints:
-                    nullable: false
               - column:
                   name: GENDER
                   type: varchar(3)

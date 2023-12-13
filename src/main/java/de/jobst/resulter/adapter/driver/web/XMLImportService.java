@@ -53,7 +53,7 @@ public class XMLImportService {
                         Objects.nonNull(personRaceResult.getPosition()) ?
                                 personRaceResult.getPosition().longValue() :
                                 null,
-                        personRaceResult.getStatus().value(),
+                        ResultStatus.fromValue(personRaceResult.getStatus().value()),
                         getSplitTimes(personRaceResult)
                 )).toList();
     }

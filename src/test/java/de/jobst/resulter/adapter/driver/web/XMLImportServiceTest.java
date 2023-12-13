@@ -24,7 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(properties = {"spring.test.database.replace=NONE",
-        "resulter.repository.inmemory=true"})
+        "resulter.repository.inmemory=false"})
 @ContextConfiguration(
         classes = {TestConfig.class},
         loader = AnnotationConfigContextLoader.class)

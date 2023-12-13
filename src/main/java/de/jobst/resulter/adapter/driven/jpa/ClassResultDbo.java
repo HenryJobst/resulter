@@ -4,17 +4,22 @@ import de.jobst.resulter.domain.ClassResult;
 import de.jobst.resulter.domain.Gender;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "CLASS_RESULT")
+@NoArgsConstructor
 public class ClassResultDbo {
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "class_result_generator")
-    @SequenceGenerator(name = "class_result_generator", sequenceName = "SEQ_CLASS_RESULT_ID", allocationSize = 50)
+    @SequenceGenerator(name = "class_result_generator", sequenceName = "SEQ_CLASS_RESULT_ID")
     @Column(name = "ID", nullable = false, unique = true)
     private Long id;
 
@@ -32,16 +37,27 @@ public class ClassResultDbo {
     @JoinColumn(name = "EVENT_ID")
     private EventDbo eventDbo;
 
+    @OneToMany(mappedBy = "classResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PersonResultDbo> personResults = new HashSet<>();
+
     public static ClassResultDbo from(ClassResult classResult, EventDbo eventDbo) {
         ClassResultDbo classResultDbo = new ClassResultDbo();
+        if (classResult.id() != null) {
+            classResultDbo.setId(classResult.id().value());
+        }
         classResultDbo.setEventDbo(eventDbo);
         classResultDbo.setName(classResult.classResultName().value());
         classResultDbo.setShortName(classResult.classResultShortName().value());
         classResultDbo.setGender(classResult.gender());
+        classResultDbo.setPersonResults(Objects.requireNonNull(classResult.personResults())
+                .value().stream().map(it -> PersonResultDbo.from(it, classResultDbo)).collect(Collectors.toSet()));
         return classResultDbo;
     }
 
     public ClassResult asClassResult() {
-        return ClassResult.of(getName(), getShortName(), getGender(), new ArrayList<>());
+        return ClassResult.of(getName(),
+                getShortName(),
+                getGender(),
+                getPersonResults().stream().map(PersonResultDbo::asPersonResult).toList());
     }
 }

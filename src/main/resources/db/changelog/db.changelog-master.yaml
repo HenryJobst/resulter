@@ -100,11 +100,108 @@ databaseChangeLog:
                   type: varchar(3)
                   constraints:
                     nullable: false
+        - createTable:
+            tableName: PERSON_RESULT
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_PERSON_RESULT
+              - column:
+                  name: PERSON_ID
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_PERSON_RESULT_PERSON
+              - column:
+                  name: ORGANISATION_ID
+                  type: bigint
+                  constraints:
+                    nullable: true
+                    foreignKeyName: FK_PERSON_RESULT_ORGANISATION
+              - column:
+                  name: CLASS_RESULT_ID
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_PERSON_RESULT_CLASS_RESULT
+        - createTable:
+            tableName: PERSON_RACE_RESULT
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_PERSON_RACE_RESULT
+              - column:
+                  name: PERSON_RESULT_ID
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_PERSON_RACE_RESULT_PERSON_RESULT
+              - column:
+                  name: START_TIME
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: FINISH_TIME
+                  type: DATE
+              - column:
+                  name: PUNCH_TIME
+                  type: DOUBLE
+              - column:
+                  name: POSITION
+                  type: bigint
+              - column:
+                  name: RACE_NUMBER
+                  type: bigint
+              - column:
+                  name: STATE
+                  type: varchar(20)
+
         - addForeignKeyConstraint:
             baseTableName: CLASS_RESULT
             baseColumnNames: EVENT_ID
             constraintName: FK_CLASS_RESULT_EVENT
             referencedTableName: EVENT
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableName: PERSON_RESULT
+            baseColumnNames: CLASS_RESULT_ID
+            constraintName: FK_PERSON_RESULT_CLASS_RESULT
+            referencedTableName: CLASS_RESULT
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableName: PERSON_RESULT
+            baseColumnNames: PERSON_ID
+            constraintName: FK_PERSON_RESULT_PERSON
+            referencedTableName: PERSON
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableName: PERSON_RESULT
+            baseColumnNames: ORGANISATION_ID
+            constraintName: FK_PERSON_RESULT_ORGANISATION
+            referencedTableName: ORGANISATION
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableName: PERSON_RACE_RESULT
+            baseColumnNames: PERSON_RESULT_ID
+            constraintName: FK_PERSON_RACE_RESULT_PERSON_RESULT
+            referencedTableName: PERSON_RESULT
             referencedColumnNames: ID
             onDelete: RESTRICT
             onUpdate: RESTRICT
@@ -119,6 +216,12 @@ databaseChangeLog:
             incrementBy: 10
         - createSequence:
             sequenceName: SEQ_PERSON_ID
+            incrementBy: 10
+        - createSequence:
+            sequenceName: SEQ_PERSON_RESULT_ID
+            incrementBy: 10
+        - createSequence:
+            sequenceName: SEQ_PERSON_RACE_RESULT_ID
             incrementBy: 10
         - createIndex:
             tableName: ORGANISATION
@@ -144,3 +247,15 @@ databaseChangeLog:
               - column:
                   name: ID
             indexName: IDX_CLASS_RESULT_ID
+        - createIndex:
+            tableName: PERSON_RESULT
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_PERSON_RESULT_ID
+        - createIndex:
+            tableName: PERSON_RACE_RESULT
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_PERSON_RACE_RESULT_ID

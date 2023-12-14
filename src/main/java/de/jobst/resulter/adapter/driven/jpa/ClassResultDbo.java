@@ -38,7 +38,7 @@ public class ClassResultDbo {
     private EventDbo eventDbo;
 
     @OneToMany(mappedBy = "classResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PersonResultDbEntity> personResults = new HashSet<>();
+    private Set<PersonResultDbo> personResults = new HashSet<>();
 
     public static ClassResultDbo from(ClassResult classResult, EventDbo eventDbo) {
         ClassResultDbo classResultDbo = new ClassResultDbo();
@@ -53,7 +53,7 @@ public class ClassResultDbo {
                 Objects.requireNonNull(classResult.personResults())
                         .value()
                         .stream()
-                        .map(it -> PersonResultDbEntity.from(it, classResultDbo))
+                        .map(it -> PersonResultDbo.from(it, classResultDbo))
                         .collect(Collectors.toSet()));
         return classResultDbo;
     }
@@ -62,7 +62,7 @@ public class ClassResultDbo {
         return ClassResult.of(getName(),
                 getShortName(),
                 getGender(),
-                getPersonResults().stream().map(PersonResultDbEntity::asPersonResult).toList()
+                getPersonResults().stream().map(PersonResultDbo::asPersonResult).toList()
         );
     }
 }

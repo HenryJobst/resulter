@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Setter
 @Entity
 @Table(name = "PERSON_RESULT")
-public class PersonResultDbEntity {
+public class PersonResultDbo {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
     @SequenceGenerator(name = "entity_generator", sequenceName = "SEQ_PERSON_RESULT_ID", allocationSize = 10)
@@ -36,8 +36,8 @@ public class PersonResultDbEntity {
     @OneToMany(mappedBy = "personResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PersonRaceResultDbo> personRaceResults = new HashSet<>();
 
-    public static PersonResultDbEntity from(PersonResult personResult, ClassResultDbo classResultDbo) {
-        PersonResultDbEntity personResultDbo = new PersonResultDbEntity();
+    public static PersonResultDbo from(PersonResult personResult, ClassResultDbo classResultDbo) {
+        PersonResultDbo personResultDbo = new PersonResultDbo();
         if (personResult.id() != null) {
             personResultDbo.setId(personResult.id().value());
         }

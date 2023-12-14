@@ -25,7 +25,7 @@ public class PersonRaceResultDbo {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "PERSON_RESULT_ID", nullable = false)
-    private PersonResultDbEntity personResultDbo;
+    private PersonResultDbo personResultDbo;
 
     @Column(name = "RACE_NUMBER", nullable = false)
     private Long raceNumber;
@@ -42,7 +42,7 @@ public class PersonRaceResultDbo {
     private ResultStatus state;
 
 
-    public static PersonRaceResultDbo from(PersonRaceResult personRaceResult, PersonResultDbEntity personResultDbo) {
+    public static PersonRaceResultDbo from(PersonRaceResult personRaceResult, PersonResultDbo personResultDbo) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
         personRaceResultDbo.setPersonResultDbo(personResultDbo);
         if (personRaceResult.id() != null) {

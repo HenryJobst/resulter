@@ -4,6 +4,7 @@ import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.ResultStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 @Setter
 @Entity
 @Table(name = "PERSON_RACE_RESULT")
+@NoArgsConstructor
 public class PersonRaceResultDbo {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
@@ -21,9 +23,9 @@ public class PersonRaceResultDbo {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "PERSON_RESULT_ID")
-    private PersonResultDbo personResultDbo;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "PERSON_RESULT_ID", nullable = false)
+    private PersonResultDbEntity personResultDbo;
 
     @Column(name = "RACE_NUMBER", nullable = false)
     private Long raceNumber;
@@ -40,8 +42,9 @@ public class PersonRaceResultDbo {
     private ResultStatus state;
 
 
-    public static PersonRaceResultDbo from(PersonRaceResult personRaceResult, PersonResultDbo personResultDbo) {
+    public static PersonRaceResultDbo from(PersonRaceResult personRaceResult, PersonResultDbEntity personResultDbo) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
+        personRaceResultDbo.setPersonResultDbo(personResultDbo);
         if (personRaceResult.id() != null) {
             personRaceResultDbo.setId(personRaceResult.id().value());
         }

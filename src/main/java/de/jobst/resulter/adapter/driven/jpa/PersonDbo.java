@@ -3,17 +3,12 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
+@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
 @Table(name = "PERSON")
-@Getter
-@Setter
-@NoArgsConstructor
 public class PersonDbo {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
@@ -50,5 +45,45 @@ public class PersonDbo {
 
     public Person asPerson() {
         return Person.of(id, familyName, givenName, birthDate, gender);
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setFamilyName(String familyName) {
+        this.familyName = familyName;
+    }
+
+    public String getFamilyName() {
+        return familyName;
+    }
+
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
+    }
+
+    public String getGivenName() {
+        return givenName;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 }

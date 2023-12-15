@@ -3,19 +3,14 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.ResultStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-@Getter
-@Setter
+@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
 @Table(name = "PERSON_RACE_RESULT")
-@NoArgsConstructor
 public class PersonRaceResultDbo {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
@@ -70,5 +65,69 @@ public class PersonRaceResultDbo {
 
     public PersonRaceResult asPersonRaceResult() {
         return PersonRaceResult.of(raceNumber, startTime, finishTime, punchTime, position, state, new ArrayList<>());
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(LocalDateTime finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public Double getPunchTime() {
+        return punchTime;
+    }
+
+    public void setPunchTime(Double punchTime) {
+        this.punchTime = punchTime;
+    }
+
+    public Long getRaceNumber() {
+        return raceNumber;
+    }
+
+    public void setRaceNumber(Long raceNumber) {
+        this.raceNumber = raceNumber;
+    }
+
+    public Long getPosition() {
+        return position;
+    }
+
+    public void setPosition(Long position) {
+        this.position = position;
+    }
+
+    public ResultStatus getState() {
+        return state;
+    }
+
+    public void setState(ResultStatus state) {
+        this.state = state;
+    }
+
+    public PersonResultDbo getPersonResultDbo() {
+        return personResultDbo;
+    }
+
+    public void setPersonResultDbo(PersonResultDbo personResultDbo) {
+        this.personResultDbo = personResultDbo;
     }
 }

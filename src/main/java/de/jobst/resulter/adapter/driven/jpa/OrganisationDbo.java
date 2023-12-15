@@ -2,15 +2,10 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.Organisation;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
 @Table(name = "ORGANISATION")
-@Getter
-@Setter
-@NoArgsConstructor
 public class OrganisationDbo {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
@@ -36,5 +31,29 @@ public class OrganisationDbo {
 
     public Organisation asOrganisation() {
         return Organisation.of(id, name, shortName);
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public String getShortName() {
+        return shortName;
     }
 }

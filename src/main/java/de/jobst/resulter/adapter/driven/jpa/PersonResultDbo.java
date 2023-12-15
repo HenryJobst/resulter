@@ -2,16 +2,14 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.PersonResult;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Getter
-@Setter
+@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
 @Table(name = "PERSON_RESULT")
 public class PersonResultDbo {
@@ -60,5 +58,45 @@ public class PersonResultDbo {
                         organisation.asOrganisation() : null,
                 personRaceResults.stream().map(PersonRaceResultDbo::asPersonRaceResult).toList()
         );
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setClassResultDbo(ClassResultDbo classResultDbo) {
+        this.classResultDbo = classResultDbo;
+    }
+
+    public ClassResultDbo getClassResultDbo() {
+        return classResultDbo;
+    }
+
+    public void setPerson(PersonDbo person) {
+        this.person = person;
+    }
+
+    public PersonDbo getPerson() {
+        return person;
+    }
+
+    public void setOrganisation(OrganisationDbo organisation) {
+        this.organisation = organisation;
+    }
+
+    public OrganisationDbo getOrganisation() {
+        return organisation;
+    }
+
+    public void setPersonRaceResults(Set<PersonRaceResultDbo> personRaceResults) {
+        this.personRaceResults = personRaceResults;
+    }
+
+    public Collection<PersonRaceResultDbo> getPersonRaceResults() {
+        return personRaceResults;
     }
 }

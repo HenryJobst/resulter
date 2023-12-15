@@ -25,9 +25,6 @@ public class EventDbo {
     @OneToMany(mappedBy = "eventDbo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ClassResultDbo> classResults = new HashSet<>();
 
-    public EventDbo() {
-    }
-
     public static EventDbo from(Event event) {
         EventDbo eventDbo = new EventDbo();
         if (event.getId() != null) {

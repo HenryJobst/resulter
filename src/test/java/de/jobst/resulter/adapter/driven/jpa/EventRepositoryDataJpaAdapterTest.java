@@ -35,7 +35,8 @@ class EventRepositoryDataJpaAdapterTest {
     @Test
     @Transactional
     public void savedEventCanBeFoundByItsId() {
-        Event event = Event.of("test event");
+        String eventName = "test event";
+        Event event = Event.of(eventName);
 
         Event savedEvent = eventRepositoryAdapter.save(event);
 
@@ -45,7 +46,7 @@ class EventRepositoryDataJpaAdapterTest {
                 .isPresent()
                 .get()
                 .extracting(Event::getName)
-                .isEqualTo(EventName.of("test event"));
+                .isEqualTo(EventName.of(eventName));
     }
 
     @Test
@@ -73,7 +74,8 @@ class EventRepositoryDataJpaAdapterTest {
     @Test
     @Transactional
     void findOrCreateWithNonExisting() {
-        Event event = Event.of("test event");
+        String eventName = "test event";
+        Event event = Event.of(eventName);
 
         Event savedEvent = eventRepositoryAdapter.findOrCreate(event);
 
@@ -83,13 +85,14 @@ class EventRepositoryDataJpaAdapterTest {
                 .isPresent()
                 .get()
                 .extracting(Event::getName)
-                .isEqualTo(EventName.of("test event"));
+                .isEqualTo(EventName.of(eventName));
     }
 
     @Test
     @Transactional
     void findOrCreateWithExisting() {
-        Event event = Event.of("test event");
+        String eventName = "test event";
+        Event event = Event.of(eventName);
         eventRepositoryAdapter.save(event);
 
         Event savedEvent = eventRepositoryAdapter.findOrCreate(event);
@@ -100,7 +103,7 @@ class EventRepositoryDataJpaAdapterTest {
                 .isPresent()
                 .get()
                 .extracting(Event::getName)
-                .isEqualTo(EventName.of("test event"));
+                .isEqualTo(EventName.of(eventName));
     }
 
 }

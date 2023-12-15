@@ -65,7 +65,14 @@ class XMLImportServiceTest {
         assertThat(classResultBK.get().gender()).isEqualTo(Gender.of("M"));
 
         assertThat(classResultBK.get().personResults().value()).hasSize(13);
-        Optional<PersonResult> firstPersonResult = classResultBK.get().personResults().value().stream().findFirst();
+        Optional<PersonResult>
+                firstPersonResult =
+                classResultBK.get()
+                        .personResults()
+                        .value()
+                        .stream()
+                        .filter(it -> it.person().getPersonName().familyName().value().contains("Graumann"))
+                        .findAny();
         assertThat(firstPersonResult).isPresent();
 
         assertThat(Objects.requireNonNull(firstPersonResult.get().person().getId())

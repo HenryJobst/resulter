@@ -3,22 +3,19 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.ClassResult;
 import de.jobst.resulter.domain.Gender;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Getter
-@Setter
+@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed"})
 @Entity
 @Table(name = "CLASS_RESULT")
-@NoArgsConstructor
 public class ClassResultDbo {
-    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "class_result_generator")
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "class_result_generator")
     @SequenceGenerator(name = "class_result_generator", sequenceName = "SEQ_CLASS_RESULT_ID")
     @Column(name = "ID", nullable = false, unique = true)
     private Long id;
@@ -64,5 +61,53 @@ public class ClassResultDbo {
                 getGender(),
                 getPersonResults().stream().map(PersonResultDbo::asPersonResult).toList()
         );
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public Collection<PersonResultDbo> getPersonResults() {
+        return personResults;
+    }
+
+    private void setPersonResults(Set<PersonResultDbo> personResultDbos) {
+        this.personResults = personResultDbos;
+    }
+
+    public EventDbo getEventDbo() {
+        return eventDbo;
+    }
+
+    public void setEventDbo(EventDbo eventDbo) {
+        this.eventDbo = eventDbo;
     }
 }

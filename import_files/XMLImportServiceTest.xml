@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<ResultList xmlns="http://www.orienteering.org/datastandard/3.0"
+            iofVersion="3.0"
+            createTime="2023-12-15T18:00:00.00"
+            creator="SportSoftware OE2010 V.11.0">
+    <Event>
+        <Name>Test-Event</Name>
+    </Event>
+    <ClassResult>
+        <Class resultListMode="Default" sex="M">
+            <Id>100000</Id>
+            <Name>BK (Beginner Kurz)</Name>
+            <ShortName>BK</ShortName>
+            <Fee>
+                <Name>Default</Name>
+                <Amount>4.00</Amount>
+            </Fee>
+            <Fee>
+                <Name>Startfee 2</Name>
+                <Amount>4.00</Amount>
+            </Fee>
+        </Class>
+        <Course>
+            <Id>9004</Id>
+            <Name>Bahn 4</Name>
+            <Length>2030</Length>
+            <Climb>0</Climb>
+            <NumberOfControls>6</NumberOfControls>
+        </Course>
+        <PersonResult>
+            <Person sex="M">
+                <Name>
+                    <Family>Mustermann</Family>
+                    <Given>Max</Given>
+                </Name>
+                <BirthDate>1960-10-11</BirthDate>
+            </Person>
+            <Organisation>
+                <Id>3</Id>
+                <Name>OLV Berlin</Name>
+                <ShortName>OLV</ShortName>
+                <Country code="GER">GER</Country>
+            </Organisation>
+            <Result raceNumber="1">
+                <StartTime>2020-01-18T11:30:05.000</StartTime>
+                <FinishTime>2020-01-18T11:49:06.000</FinishTime>
+                <Time>1141</Time>
+                <TimeBehind>0</TimeBehind>
+                <Position>1</Position>
+                <Status>OK</Status>
+                <SplitTime>
+                    <ControlCode>134</ControlCode>
+                    <Time>212</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>140</ControlCode>
+                    <Time>372</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>120</ControlCode>
+                    <Time>525</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>111</ControlCode>
+                    <Time>646</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>121</ControlCode>
+                    <Time>837</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>126</ControlCode>
+                    <Time>1062</Time>
+                </SplitTime>
+                <ControlCard>8091061</ControlCard>
+                <AssignedFee>
+                    <Fee type="Normal">
+                        <Name>Actual</Name>
+                        <Amount>0.00</Amount>
+                    </Fee>
+                </AssignedFee>
+            </Result>
+        </PersonResult>
+        <PersonResult>
+            <Person sex="F">
+                <Name>
+                    <Family>Turnschuh</Family>
+                    <Given>Tina</Given>
+                </Name>
+                <BirthDate>1980-12-01</BirthDate>
+            </Person>
+            <Organisation>
+                <Id>14</Id>
+                <Name>TSV 1822</Name>
+                <ShortName>TSV</ShortName>
+                <Country code="GER">GER</Country>
+            </Organisation>
+            <Result raceNumber="1">
+                <StartTime>2020-01-18T11:33:05.000</StartTime>
+                <FinishTime>2020-01-18T11:53:14.000</FinishTime>
+                <Time>1209</Time>
+                <TimeBehind>68</TimeBehind>
+                <Position>2</Position>
+                <Status>OK</Status>
+                <SplitTime>
+                    <ControlCode>134</ControlCode>
+                    <Time>224</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>140</ControlCode>
+                    <Time>400</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>120</ControlCode>
+                    <Time>576</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>111</ControlCode>
+                    <Time>713</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>121</ControlCode>
+                    <Time>931</Time>
+                </SplitTime>
+                <SplitTime>
+                    <ControlCode>126</ControlCode>
+                    <Time>1123</Time>
+                </SplitTime>
+                <ControlCard>8003876</ControlCard>
+                <AssignedFee>
+                    <Fee type="Normal">
+                        <Name>Actual</Name>
+                        <Amount>0.00</Amount>
+                    </Fee>
+                </AssignedFee>
+            </Result>
+        </PersonResult>
+    </ClassResult>
+</ResultList>

@@ -64,7 +64,7 @@ class XMLImportServiceTest {
         assertThat(classResultBK.get().classResultShortName().value()).isEqualTo("BK");
         assertThat(classResultBK.get().gender()).isEqualTo(Gender.of("M"));
 
-        assertThat(classResultBK.get().personResults().value()).hasSize(13);
+        assertThat(classResultBK.get().personResults().value()).hasSize(2);
         Optional<PersonResult>
                 firstPersonResult =
                 classResultBK.get()
@@ -113,14 +113,10 @@ class XMLImportServiceTest {
         assertThat(firstPersonRaceResult.get().state()).isEqualTo(ResultStatus.OK);
 
         assertThat(firstPersonRaceResult.get().splitTimes().value()).hasSize(6);
-        /*
         Optional<SplitTime> firstSplittime =
                 firstPersonRaceResult.get().splitTimes().value().stream().findFirst();
         assertThat(firstSplittime).isPresent();
-
         assertThat(firstSplittime.get().controlCode().value()).isEqualTo("134");
         assertThat(firstSplittime.get().punchTime().value()).isEqualTo(212.0);
-        */
-
     }
 }

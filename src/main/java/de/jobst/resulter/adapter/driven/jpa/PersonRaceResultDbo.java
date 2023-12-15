@@ -7,6 +7,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
@@ -36,6 +37,8 @@ public class PersonRaceResultDbo {
     @Enumerated(value = EnumType.STRING)
     private ResultStatus state;
 
+    @OneToMany(mappedBy = "personRaceResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SplitTimeDbo> spitTimes = new ArrayList<>();
 
     public static PersonRaceResultDbo from(PersonRaceResult personRaceResult, PersonResultDbo personResultDbo) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
@@ -59,12 +62,20 @@ public class PersonRaceResultDbo {
         if (ObjectUtils.isNotEmpty(personRaceResult.state())) {
             personRaceResultDbo.setState(personRaceResult.state());
         }
+        if (ObjectUtils.isNotEmpty(personRaceResult.splitTimes())) {
+            personRaceResultDbo.setSplitTimes(personRaceResult.splitTimes()
+                    .value()
+                    .stream()
+                    .map(it -> SplitTimeDbo.from(it, personRaceResultDbo))
+                    .toList());
+        }
 
         return personRaceResultDbo;
     }
 
     public PersonRaceResult asPersonRaceResult() {
-        return PersonRaceResult.of(raceNumber, startTime, finishTime, punchTime, position, state, new ArrayList<>());
+        return PersonRaceResult.of(raceNumber, startTime, finishTime, punchTime, position, state,
+                spitTimes.stream().map(SplitTimeDbo::asSplitTime).toList());
     }
 
     public long getId() {
@@ -129,5 +140,13 @@ public class PersonRaceResultDbo {
 
     public void setPersonResultDbo(PersonResultDbo personResultDbo) {
         this.personResultDbo = personResultDbo;
+    }
+
+    public List<SplitTimeDbo> getSplitTimes() {
+        return spitTimes;
+    }
+
+    public void setSplitTimes(List<SplitTimeDbo> splitTimes) {
+        this.spitTimes = splitTimes;
     }
 }

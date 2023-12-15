@@ -43,7 +43,7 @@ class XMLImportServiceTest {
     @Test
     @Transactional
     void importFile() throws Exception {
-        String filePath = "import_files/Zwischenzeiten_IOFv3_WinterOL.xml";
+        String filePath = "import_files/XMLImportServiceTest.xml";
 
         FileSystemResource fileSystemResource = new FileSystemResource(new File(filePath));
 
@@ -52,9 +52,9 @@ class XMLImportServiceTest {
 
         assertThat(event).isNotNull();
         assertThat(Objects.requireNonNull(event.getId()).value()).isGreaterThanOrEqualTo(1L);
-        assertThat(event.getName().value()).isEqualTo("Winter-OL 2023");
+        assertThat(event.getName().value()).isEqualTo("Test-Event");
 
-        assertThat(Objects.requireNonNull(event.getClassResults()).value()).hasSize(35);
+        assertThat(Objects.requireNonNull(event.getClassResults()).value()).hasSize(1);
         Collection<ClassResult> classResults = event.getClassResults().value();
         Optional<ClassResult>
                 classResultBK =
@@ -71,24 +71,27 @@ class XMLImportServiceTest {
                         .personResults()
                         .value()
                         .stream()
-                        .filter(it -> it.person().getPersonName().familyName().value().contains("Graumann"))
+                        .filter(it -> it.person().getPersonName().familyName().value().contains("Mustermann"))
                         .findAny();
         assertThat(firstPersonResult).isPresent();
 
         assertThat(Objects.requireNonNull(firstPersonResult.get().person().getId())
                 .value()).isGreaterThanOrEqualTo(1);
-        assertThat(firstPersonResult.get().person().getPersonName().familyName()).isEqualTo(FamilyName.of("Graumann"));
-        assertThat(firstPersonResult.get().person().getPersonName().givenName()).isEqualTo(GivenName.of("Bernd"));
-        assertThat(firstPersonResult.get().person().getBirthDate().value()).isEqualTo(LocalDate.of(1961, 1, 1));
+        assertThat(firstPersonResult.get()
+                .person()
+                .getPersonName()
+                .familyName()).isEqualTo(FamilyName.of("Mustermann"));
+        assertThat(firstPersonResult.get().person().getPersonName().givenName()).isEqualTo(GivenName.of("Max"));
+        assertThat(firstPersonResult.get().person().getBirthDate().value()).isEqualTo(LocalDate.of(1960, 10, 11));
         assertThat(firstPersonResult.get().person().getGender()).isEqualTo(Gender.M);
 
         assertThat(Objects.requireNonNull(firstPersonResult.get().organisation().getId())
                 .value()).isGreaterThanOrEqualTo(1);
-        assertThat(firstPersonResult.get().organisation().getName().value()).isEqualTo("ESV Lok Berlin-Schöneweide");
+        assertThat(firstPersonResult.get().organisation().getName().value()).isEqualTo("OLV Berlin");
         assertThat(firstPersonResult.get()
                 .organisation()
                 .getShortName()
-                .value()).isEqualTo("ESV Lok Berlin-Schöneweide");
+                .value()).isEqualTo("OLV");
 
         assertThat(firstPersonResult.get().personRaceResults().value()).hasSize(1);
         Optional<PersonRaceResult>
@@ -98,18 +101,18 @@ class XMLImportServiceTest {
 
         assertThat(firstPersonRaceResult.get().raceNumber().value()).isEqualTo(1);
         assertThat(firstPersonRaceResult.get().positon().value()).isEqualTo(1);
-        assertThat(firstPersonRaceResult.get().startTime()).isEqualTo(DateTime.of(LocalDateTime.of(LocalDate.of(2023,
-                        3,
+        assertThat(firstPersonRaceResult.get().startTime()).isEqualTo(DateTime.of(LocalDateTime.of(LocalDate.of(2020,
+                        1,
                         18),
                 LocalTime.of(11, 30, 5))));
-        assertThat(firstPersonRaceResult.get().finishTime()).isEqualTo(DateTime.of(LocalDateTime.of(LocalDate.of(2023,
-                        3,
+        assertThat(firstPersonRaceResult.get().finishTime()).isEqualTo(DateTime.of(LocalDateTime.of(LocalDate.of(2020,
+                        1,
                         18),
                 LocalTime.of(11, 49, 6))));
         assertThat(firstPersonRaceResult.get().runtime().value()).isEqualTo(1141.0);
         assertThat(firstPersonRaceResult.get().state()).isEqualTo(ResultStatus.OK);
 
-        assertThat(firstPersonRaceResult.get().splitTimes().value()).hasSize(0);
+        assertThat(firstPersonRaceResult.get().splitTimes().value()).hasSize(6);
         /*
         Optional<SplitTime> firstSplittime =
                 firstPersonRaceResult.get().splitTimes().value().stream().findFirst();

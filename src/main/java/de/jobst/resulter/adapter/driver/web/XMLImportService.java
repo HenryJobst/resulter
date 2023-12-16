@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.jaxb.Class;
 import de.jobst.resulter.adapter.driver.web.jaxb.ResultList;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
@@ -41,8 +42,9 @@ public class XMLImportService {
         return personResult.getResults().stream().map(personRaceResult ->
                 PersonRaceResult.of(
                         personRaceResult.getRaceNumber().longValue(),
-                        LocalDateTime.ofInstant(personRaceResult.getStartTime()
-                                .toInstant(), ZoneId.systemDefault()),
+                        ObjectUtils.isNotEmpty(personRaceResult.getStartTime()) ?
+                                LocalDateTime.ofInstant(personRaceResult.getStartTime()
+                                        .toInstant(), ZoneId.systemDefault()) : null,
                         ObjectUtils.isNotEmpty(personRaceResult.getFinishTime()) ?
                                 LocalDateTime.ofInstant(personRaceResult.getFinishTime()
                                                 .toInstant(),
@@ -69,7 +71,8 @@ public class XMLImportService {
         ).toList();
     }
 
-    @NonNull private Person getPerson(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult) {
+    @NonNull
+    private Person getPerson(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult) {
         return personService.findOrCreate(
                 Person.of(
                         PersonName.of(
@@ -95,12 +98,15 @@ public class XMLImportService {
 
         Collection<ClassResult> classResults =
                 resultList.getClassResults().stream()
-                        .map(classResult -> ClassResult.of(
-                                classResult.getClazz().getName(),
-                                classResult.getClazz().getShortName(),
-                                Gender.of(classResult.getClazz().getSex()),
-                                getPersonResults(classResult)
-                        )).toList();
+                        .map(classResult -> {
+                            Class clazz = classResult.getClazz();
+                            return ClassResult.of(
+                                    clazz.getName(),
+                                    clazz.getShortName(),
+                                    Gender.of(clazz.getSex()),
+                                    getPersonResults(classResult)
+                            );
+                        }).toList();
 
         return eventService.findOrCreate(
                 Event.of(resultList.getEvent().getName(),

@@ -25,7 +25,7 @@ public class PersonRaceResultDbo {
 
     @Column(name = "RACE_NUMBER", nullable = false)
     private Long raceNumber;
-    @Column(name = "START_TIME", nullable = false)
+    @Column(name = "START_TIME")
     private LocalDateTime startTime;
     @Column(name = "FINISH_TIME")
     private LocalDateTime finishTime;
@@ -46,7 +46,9 @@ public class PersonRaceResultDbo {
         if (personRaceResult.id() != null) {
             personRaceResultDbo.setId(personRaceResult.id().value());
         }
-        personRaceResultDbo.setStartTime(personRaceResult.startTime().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.startTime())) {
+            personRaceResultDbo.setStartTime(personRaceResult.startTime().value());
+        }
         if (ObjectUtils.isNotEmpty(personRaceResult.finishTime())) {
             personRaceResultDbo.setFinishTime(personRaceResult.finishTime().value());
         }

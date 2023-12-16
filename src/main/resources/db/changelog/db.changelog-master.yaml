@@ -147,8 +147,6 @@ databaseChangeLog:
               - column:
                   name: START_TIME
                   type: DATE
-                  constraints:
-                    nullable: false
               - column:
                   name: FINISH_TIME
                   type: DATE

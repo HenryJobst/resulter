@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.ClassResult;
 import de.jobst.resulter.domain.Gender;
 import jakarta.persistence.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,7 +24,7 @@ public class ClassResultDbo {
     @Column(name = "NAME", nullable = false)
     private String name;
 
-    @Column(name = "SHORT_NAME", nullable = false)
+    @Column(name = "SHORT_NAME")
     private String shortName;
 
     @Column(name = "GENDER", nullable = false)
@@ -44,7 +45,9 @@ public class ClassResultDbo {
         }
         classResultDbo.setEventDbo(eventDbo);
         classResultDbo.setName(classResult.classResultName().value());
-        classResultDbo.setShortName(classResult.classResultShortName().value());
+        if (StringUtils.isNotEmpty(classResult.classResultShortName().value())) {
+            classResultDbo.setShortName(classResult.classResultShortName().value());
+        }
         classResultDbo.setGender(classResult.gender());
         classResultDbo.setPersonResults(
                 Objects.requireNonNull(classResult.personResults())

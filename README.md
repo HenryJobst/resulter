@@ -1,4 +1,4 @@
-<img src="Logo_Resulter.png" alt="Resulter Logo" width="512"/>
+<img src="Logo_Resulter.png" alt="Resulter Logo" width="250"/>
 
 # **Resulter**
 
@@ -35,7 +35,7 @@ implementiert ist.
 1. Klonen Sie das Repository:
 
 ```bash
-   git clone [URL des Repositories]
+   git clone https://github.com/HenryJobst/resulter.git
 ````
 
 Wechseln Sie in das Backend-Verzeichnis und starten Sie den SpringBoot-Server:

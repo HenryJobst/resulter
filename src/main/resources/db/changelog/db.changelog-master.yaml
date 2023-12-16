@@ -39,8 +39,6 @@ databaseChangeLog:
               - column:
                   name: SHORT_NAME
                   type: VARCHAR(20)
-                  constraints:
-                    nullable: false
               - column:
                   name: GENDER
                   type: VARCHAR(3)

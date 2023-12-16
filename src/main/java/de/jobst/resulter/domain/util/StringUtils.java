@@ -6,12 +6,22 @@ public class StringUtils {
         StringBuilder result = new StringBuilder();
         boolean newWord = true; // Markiert den Beginn eines neuen Wortes
 
-        for (char ch : text.toCharArray()) {
-            if (ch == ' ' || ch == '-' || ch == '/') {
-                newWord = true; // Nächstes Zeichen wird Anfang eines neuen Wortes sein
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            boolean isSeparator = (ch == ' ' || ch == '-' || ch == '/' || ch == '+');
+
+            if (isSeparator) {
+                if (newWord && !result.isEmpty() && result.charAt(result.length() - 1) == ' ') {
+                    result.setLength(result.length() - 1); // Entferne das zusätzliche Leerzeichen vor dem Separator
+                }
                 result.append(ch);
+                newWord = true;
             } else {
                 if (newWord) {
+                    if (i > 0 && text.charAt(i - 1) == ' ' &&
+                            !result.isEmpty() && result.charAt(result.length() - 1) == ' ') {
+                        result.setLength(result.length() - 1); // Entferne das zusätzliche Leerzeichen vor dem Wort
+                    }
                     result.append(Character.toUpperCase(ch)); // Erster Buchstabe groß
                     newWord = false;
                 } else {

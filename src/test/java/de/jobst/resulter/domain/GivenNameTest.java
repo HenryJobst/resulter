@@ -8,6 +8,11 @@ class GivenNameTest {
 
     @Test
     void testGivenNameWithSlash() {
-        assertThat(GivenName.of("hans/paul").value()).isEqualTo("Hans/Paul");
+        assertThat(GivenName.of("hans / paul").value()).isEqualTo("Hans/Paul");
+    }
+
+    @Test
+    void testGivenNameWithPlus() {
+        assertThat(GivenName.of("haNs  +   pAul").value()).isEqualTo("Hans+Paul");
     }
 }

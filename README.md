@@ -66,6 +66,6 @@ vermeiden.
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe die LICENSE Datei für Details.
+Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe die [LICENSE.txt](LICENSE.txt) Datei für Details.
 
 © 2023-

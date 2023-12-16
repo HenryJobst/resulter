@@ -1,4 +1,4 @@
-![Resulter Logo](Logo_Resulter.png)
+<img src="Logo_Resulter.png" alt="Resulter Logo" width="512"/>
 
 # **Resulter**
 

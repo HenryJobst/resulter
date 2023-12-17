@@ -10,6 +10,16 @@
     "events": "Wettkämpfe"
   },
   "labels": {
-    "language": "Sprache"
+    "logo": "Logo",
+    "language": "Sprache",
+    "event": "Keine Wettkämpfe | Wettkampf | Wettkämpfe",
+    "new": "Neu",
+    "reload": "Neu laden",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "name": "Name",
+    "date": "Datum",
+    "class": "Keine Klasse | Klasse | Klassen",
+    "participant": "Kein Teilnehmer | Teilnehmer | Teilnehmer"
   }
 }

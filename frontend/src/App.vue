@@ -47,7 +47,13 @@ export default defineComponent({
     <header class="flex justify-between items-center bg-gray-200 p-4">
       <!-- Logo und Menüeinträge -->
       <div class="flex items-center">
-        <img alt="Logo" class="mr-6" src="@/assets/Logo_Resulter.png" width="60" height="60" />
+        <img
+          :alt="t('labels.logo')"
+          class="mr-6"
+          src="@/assets/Logo_Resulter.png"
+          width="60"
+          height="60"
+        />
         <nav>
           <ul class="flex text-2xl">
             <li class="mr-4">

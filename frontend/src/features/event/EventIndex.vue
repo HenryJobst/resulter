@@ -9,7 +9,6 @@ store.loadEventsAction()
 </script>
 
 <template>
-  <h2>{{ t('pages.events') }}</h2>
   <RouterView></RouterView>
 </template>
 

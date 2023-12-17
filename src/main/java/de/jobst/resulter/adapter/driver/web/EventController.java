@@ -6,14 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
 
-@Controller
+@RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @Slf4j
 public class EventController {
 
@@ -24,13 +25,11 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @PostMapping("/event")
-    @ResponseBody
-    public ResponseEntity<String> handleEvents() {
+    @GetMapping("/events")
+    public ResponseEntity<List<Event>> handleEvents() {
         try {
             List<Event> events = eventService.findAll();
-
-            return new ResponseEntity<>(events.toString(), HttpStatus.OK);
+            return ResponseEntity.ok(events);
         } catch (Exception e) {
             log.error(e.getMessage());
             if (Objects.nonNull(e.getCause())) {

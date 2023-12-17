@@ -3,8 +3,8 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -22,6 +22,7 @@ public class OrganisationService {
         return organisationRepository.findOrCreate(organisation);
     }
 
+    @Transactional
     Optional<Organisation> findById(OrganisationId organisationId) {
         return organisationRepository.findById(organisationId);
     }

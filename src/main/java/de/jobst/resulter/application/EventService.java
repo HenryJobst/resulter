@@ -7,9 +7,9 @@ import de.jobst.resulter.domain.ClassResult;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.PersonResult;
-import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -48,10 +48,12 @@ public class EventService {
                 event.getName().value(), classResults));
     }
 
+    @Transactional
     Optional<Event> findById(EventId eventId) {
         return eventRepository.findById(eventId);
     }
 
+    @Transactional
     public List<Event> findAll() {
         return eventRepository.findAll();
     }

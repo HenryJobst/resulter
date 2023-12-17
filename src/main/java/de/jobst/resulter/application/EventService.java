@@ -12,6 +12,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -49,5 +50,9 @@ public class EventService {
 
     Optional<Event> findById(EventId eventId) {
         return eventRepository.findById(eventId);
+    }
+
+    public List<Event> findAll() {
+        return eventRepository.findAll();
     }
 }

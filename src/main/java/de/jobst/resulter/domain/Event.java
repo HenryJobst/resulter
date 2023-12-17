@@ -11,12 +11,15 @@ import java.util.Collection;
 
 @Getter
 public class Event {
-    @NonNull final private EventName name;
+    @NonNull
+    @Setter
+    private EventName name;
 
     @Nullable
     @Setter
     private EventId id;
     @Nullable
+    @Setter
     private DateTime startTime;
     @Nullable
     private DateTime endTime;

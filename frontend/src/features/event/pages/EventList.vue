@@ -36,7 +36,8 @@ const store = useEventStore()
     <DataTable :value="store.events" class="p-datatable-sm" tableStyle="min-width: 50rem">
       <Column field="id" :header="t('labels.no')" />
       <Column field="name" :header="t('labels.name')" />
-      <Column field="startTime" :header="t('labels.date')" />
+      <Column field="startDate" :header="t('labels.date')" />
+      <Column field="startTime" :header="t('labels.time')" />
       <Column class="text-right" field="classes" :header="t('labels.class', 2)" />
       <Column class="text-right" field="participants" :header="t('labels.participant', 2)" />
       <Column class="text-right">

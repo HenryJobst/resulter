@@ -18,9 +18,15 @@
     "reload": "Neu laden",
     "edit": "Bearbeiten",
     "delete": "Löschen",
+    "save": "Speichern",
+    "create": "Erstellen",
     "name": "Name",
     "date": "Datum",
+    "time": "Zeit",
     "class": "Keine Klasse | Klasse | Klassen",
     "participant": "Kein Teilnehmer | Teilnehmer | Teilnehmer"
+  },
+  "messages": {
+    "edit_event": "Wettkampf mit ID {id} bearbeiten"
   }
 }

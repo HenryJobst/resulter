@@ -18,9 +18,15 @@
     "reload": "Reload",
     "edit": "Edit",
     "delete": "Delete",
+    "save": "Save",
+    "create": "Create",
     "name": "Name",
     "date": "Date",
+    "time": "Time",
     "class": "No class | Class | Classes",
     "participant": "No participant | Participant | Participants"
+  },
+  "messages": {
+    "edit_event": "Edit even with ID {id}"
   }
 }

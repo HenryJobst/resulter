@@ -20,7 +20,7 @@ const eventSubmitHandler = (event: Omit<Event, 'id'>) => {
     <Spinner v-if="store.loadingEvents"></Spinner>
 
     <EventForm v-if="!store.loadingEvents" @event-submit="eventSubmitHandler">
-      <Button type="submit" label="Erstellen"></Button>
+      <Button type="submit" :label="t('labels.create')"></Button>
     </EventForm>
   </div>
 </template>

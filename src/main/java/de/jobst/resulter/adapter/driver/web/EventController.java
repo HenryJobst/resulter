@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.domain.Event;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +27,10 @@ public class EventController {
     }
 
     @GetMapping("/events")
-    public ResponseEntity<List<Event>> handleEvents() {
+    public ResponseEntity<List<EventDto>> handleEvents() {
         try {
             List<Event> events = eventService.findAll();
-            return ResponseEntity.ok(events);
+            return ResponseEntity.ok(events.stream().map(it -> EventDto.from(it)).toList());
         } catch (Exception e) {
             log.error(e.getMessage());
             if (Objects.nonNull(e.getCause())) {

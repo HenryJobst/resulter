@@ -4,9 +4,12 @@ import de.jobst.resulter.domain.Event;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
-public record EventDto(Long id, String name,
-                       LocalDate startTime,
+public record EventDto(Long id,
+                       String name,
+                       LocalDate startDate,
+                       LocalTime startTime,
                        Integer classes,
                        Long participants) {
     static public EventDto from(Event event) {
@@ -16,6 +19,8 @@ public record EventDto(Long id, String name,
                 event.getName().value(),
                 ObjectUtils.isNotEmpty(event.getStartTime()) ?
                         event.getStartTime().value().toLocalDate() : null,
+                ObjectUtils.isNotEmpty(event.getStartTime()) ?
+                        event.getStartTime().value().toLocalTime() : null,
                 ObjectUtils.isNotEmpty(event.getClassResults()) ? event.getClassResults().value().size() : 0,
                 event.getClassResults().value().stream().mapToLong(it -> it.personResults().value().size()).sum()
         );

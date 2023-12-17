@@ -49,12 +49,17 @@ public class EventService {
     }
 
     @Transactional
-    Optional<Event> findById(EventId eventId) {
+    public Optional<Event> findById(EventId eventId) {
         return eventRepository.findById(eventId);
     }
 
     @Transactional
     public List<Event> findAll() {
         return eventRepository.findAll();
+    }
+
+    @Transactional
+    public Event updateEvent(Event event) {
+        return eventRepository.save(event);
     }
 }

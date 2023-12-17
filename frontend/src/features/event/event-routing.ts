@@ -5,7 +5,7 @@ import EventEdit from '@/features/event/pages/EventEdit.vue'
 
 export const eventRouting = [
   {
-    path: '/:locale/events',
+    path: '/:locale/event',
     name: 'event-index',
     component: EventIndex,
     children: [

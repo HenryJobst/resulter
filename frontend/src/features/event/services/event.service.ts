@@ -1,7 +1,7 @@
 import type { Event } from '@/features/event/model/event'
 import axios from 'axios'
 
-const url: string = import.meta.env.VITE_API_ENDPOINT + 'events'
+const url: string = import.meta.env.VITE_API_ENDPOINT + 'event'
 
 export class EventService {
   static async getAll(): Promise<Event[]> {
@@ -10,7 +10,7 @@ export class EventService {
   }
 
   static async getById(id: string): Promise<Event> {
-    const response = await axios.get(url + id)
+    const response = await axios.get(url + '/' + id)
     return response.data
   }
 
@@ -20,12 +20,12 @@ export class EventService {
   }
 
   static async update(event: Event): Promise<Event> {
-    const response = await axios.put(url + event.id, event)
+    const response = await axios.put(url + '/' + event.id, event)
     return response.data
   }
 
   static async deleteById(id: number | string) {
-    const response = await axios.delete(url + id)
+    const response = await axios.delete(url + '/' + id)
     return response.data
   }
 }

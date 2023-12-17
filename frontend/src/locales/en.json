@@ -10,6 +10,16 @@
     "events": "Events"
   },
   "labels": {
-    "language": "Language"
+    "logo": "Logo",
+    "language": "Language",
+    "event": "No event | Event | Events",
+    "new": "New",
+    "reload": "Reload",
+    "edit": "Edit",
+    "delete": "Delete",
+    "name": "Name",
+    "date": "Date",
+    "class": "No class | Class | Classes",
+    "participant": "No participant | Participant | Participants"
   }
 }

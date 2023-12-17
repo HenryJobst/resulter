@@ -6,6 +6,8 @@ const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 <template>
   <h2>{{ t('pages.start') }}</h2>
+
+  <img alt="Logo" class="my-4" src="@/assets/Logo_Resulter.png" width="400" height="400" />
 </template>
 
 <style scoped></style>

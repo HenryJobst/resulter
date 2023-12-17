@@ -43,110 +43,53 @@ export default defineComponent({
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
-      <nav class="flex flex-row md:flex-nowrap lg:flex-nowrap xl:flex-nowrap">
-        <img
-          alt="Resulter Logo"
-          class="logo"
-          src="@/assets/Logo_Resulter.png"
-          width="50"
-          height="50"
-        />
-        <div class="navigation">
-          <router-link :to="{ name: 'start-page', params: { locale } }">
-            {{ t('navigations.start') }}
-          </router-link>
-          <router-link :to="{ name: 'event-index', params: { locale } }">
-            {{ t('navigations.events') }}
-          </router-link>
-          <router-link :to="{ name: 'about-page', params: { locale } }">
-            {{ t('navigations.about') }}
-          </router-link>
-        </div>
-        <form class="language">
-          <label for="locale-select">{{ t('labels.language') }}</label>
-          <select id="locale-select" v-model="currentLocale">
-            <option
-              v-for="optionLocale in supportLocales"
-              :key="optionLocale"
-              :value="optionLocale"
-            >
-              {{ optionLocale }}
-            </option>
-          </select>
-        </form>
-      </nav>
-    </div>
-  </header>
-  <body>
-    <router-view />
-  </body>
+  <div class="flex flex-col h-full">
+    <header class="flex justify-between items-center bg-gray-200 p-4">
+      <!-- Logo und Menüeinträge -->
+      <div class="flex items-center">
+        <img alt="Logo" class="mr-6" src="@/assets/Logo_Resulter.png" width="60" height="60" />
+        <nav>
+          <ul class="flex text-2xl">
+            <li class="mr-4">
+              <router-link :to="{ name: 'start-page', params: { locale } }">
+                {{ t('navigations.start') }}
+              </router-link>
+            </li>
+            <li class="mr-4">
+              <router-link :to="{ name: 'event-index', params: { locale } }">
+                {{ t('navigations.events') }}
+              </router-link>
+            </li>
+            <li class="mr-4">
+              <router-link :to="{ name: 'about-page', params: { locale } }">
+                {{ t('navigations.about') }}
+              </router-link>
+            </li>
+            <!-- Weitere Menüeinträge hier hinzufügen -->
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Sprachauswahl -->
+      <div>
+        <label class="mr-2" for="locale-select">{{ t('labels.language') }}</label>
+        <select id="locale-select" class="form-select" v-model="currentLocale">
+          <option v-for="optionLocale in supportLocales" :key="optionLocale" :value="optionLocale">
+            {{ optionLocale }}
+          </option>
+        </select>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <body>
+      <div class="flex-1 m-4">
+        <router-view />
+      </div>
+    </body>
+  </div>
+  <header></header>
+  <body></body>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 16px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 768px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-
-nav {
-  display: inline-flex;
-}
-
-.navigation {
-  margin-right: 1rem;
-}
-
-.language label {
-  margin-right: 1rem;
-}
-</style>
+<style scoped></style>

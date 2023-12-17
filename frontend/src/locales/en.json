@@ -1,0 +1,15 @@
+{
+  "pages": {
+    "start": "Start page",
+    "about": "About page",
+    "events": "Events index page"
+  },
+  "navigations": {
+    "start": "Start",
+    "about": "About",
+    "events": "Events"
+  },
+  "labels": {
+    "language": "Language"
+  }
+}

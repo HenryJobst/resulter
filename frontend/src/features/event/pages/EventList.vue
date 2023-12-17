@@ -6,7 +6,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 
 import { ref } from 'vue'
-import Spinner from '@/components/Spinner.vue'
+import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 
 interface Size {

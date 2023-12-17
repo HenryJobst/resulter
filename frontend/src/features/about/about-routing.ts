@@ -2,7 +2,7 @@ import AboutPage from '@/features/about/AboutPage.vue'
 
 export const aboutRouting = [
   {
-    path: '/about',
+    path: '/:locale/about',
     name: 'about-page',
     component: AboutPage
   }

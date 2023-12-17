@@ -34,11 +34,11 @@ const store = useEventStore()
 
   <div v-if="store.errorMessage === null && !store.loadingEvents">
     <DataTable :value="store.events" class="p-datatable-sm" tableStyle="min-width: 50rem">
-      <Column field="id.value" header="#" />
-      <Column field="name.value" :header="t('labels.name')" />
-      <Column field="startDate.value" :header="t('labels.date')" />
-      <Column class="text-right" field="classResults.size" :header="t('labels.class', 2)" />
-      <Column class="text-right" field="classResults.size" :header="t('labels.participant', 2)" />
+      <Column field="id" :header="t('labels.no')" />
+      <Column field="name" :header="t('labels.name')" />
+      <Column field="startTime" :header="t('labels.date')" />
+      <Column class="text-right" field="classes" :header="t('labels.class', 2)" />
+      <Column class="text-right" field="participants" :header="t('labels.participant', 2)" />
       <Column class="text-right">
         <template #body="slotProps">
           <router-link :to="{ name: 'event-edit', params: { id: slotProps.data.id } }">

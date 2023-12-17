@@ -10,6 +10,7 @@
     "events": "Events"
   },
   "labels": {
+    "no": "#",
     "logo": "Logo",
     "language": "Language",
     "event": "No event | Event | Events",

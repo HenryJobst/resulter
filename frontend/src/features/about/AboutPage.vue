@@ -1,15 +1,10 @@
+<script setup>
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
+</script>
 <template>
-  <div class="about">
-    <h1>Resulter</h1>
-  </div>
+  <h2>{{ t('pages.about') }}</h2>
 </template>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-}
-</style>
+<style></style>

@@ -2,7 +2,7 @@
 import EventForm from '@/features/event/widgets/EventForm.vue'
 import Button from 'primevue/button'
 import { useEventStore } from '@/features/event/store/event.store'
-import Spinner from '@/components/Spinner.vue'
+import Spinner from '@/components/SpinnerComponent.vue'
 import type { Event } from '@/features/event/model/event'
 
 const store = useEventStore()

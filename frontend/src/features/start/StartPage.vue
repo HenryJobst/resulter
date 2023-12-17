@@ -1,10 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
+</script>
 
 <template>
-  <div>
-    <h1>Startseite</h1>
-    <p class="text-4xl">Willkommen beim Resulter.</p>
-  </div>
+  <h2>{{ t('pages.start') }}</h2>
 </template>
 
 <style scoped></style>

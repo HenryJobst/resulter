@@ -1,0 +1,15 @@
+{
+  "pages": {
+    "start": "Startseite",
+    "about": "Über",
+    "events": "Wettkampfliste"
+  },
+  "navigations": {
+    "start": "Start",
+    "about": "Über",
+    "events": "Wettkämpfe"
+  },
+  "labels": {
+    "language": "Sprache"
+  }
+}

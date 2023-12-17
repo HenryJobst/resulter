@@ -10,6 +10,10 @@ import en from './locales/en.json'
 import de from './locales/de.json'
 import PrimeVue from 'primevue/config'
 
+import 'primevue/resources/themes/bootstrap4-light-blue/theme.css'
+import 'primeflex/primeflex.css'
+import 'primeicons/primeicons.css'
+
 const i18n = setupI18n({
   legacy: false,
   locale: 'en',
@@ -20,7 +24,7 @@ const i18n = setupI18n({
 const router = setupRouter(i18n)
 
 const app = createApp(App)
-app.use(PrimeVue, { unstyled: true, ripple: true })
+app.use(PrimeVue, { ripple: true })
 app.use(createPinia())
 app.use(i18n)
 app.use(router)

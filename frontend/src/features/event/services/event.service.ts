@@ -1,8 +1,7 @@
 import type { Event } from '@/features/event/model/event'
 import axios from 'axios'
 
-const url: string = 'http://localhost:3000/events/'
-// const apiEndpoint = import.meta.env.VITE_API_ENDPOINT
+const url: string = import.meta.env.VITE_API_ENDPOINT + 'events'
 
 export class EventService {
   static async getAll(): Promise<Event[]> {

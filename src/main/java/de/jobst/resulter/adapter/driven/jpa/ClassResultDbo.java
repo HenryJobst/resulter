@@ -59,10 +59,10 @@ public class ClassResultDbo {
 
         Map<ClassResultId, List<PersonResult>> personResultsByClassResultId =
                 PersonResultDbo.asPersonResults(eventConfig,
-                                classResultDbos.parallelStream().flatMap(x -> x.personResults.stream()).toList())
-                        .parallelStream()
+                                classResultDbos.stream().flatMap(x -> x.personResults.stream()).toList())
+                        .stream()
                         .collect(Collectors.groupingBy(PersonResult::classResultId));
-        return classResultDbos.parallelStream()
+        return classResultDbos.stream()
                 .map(
                         it -> ClassResult.of(it.id,
                                 it.eventDbo != null ? it.eventDbo.getId() : EventId.empty().value(),

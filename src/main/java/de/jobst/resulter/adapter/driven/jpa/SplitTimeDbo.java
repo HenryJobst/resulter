@@ -36,7 +36,7 @@ public class SplitTimeDbo {
     }
 
     static public List<SplitTime> asSplitTimes(List<SplitTimeDbo> splitTimeDbos) {
-        return splitTimeDbos.parallelStream().map(it ->
+        return splitTimeDbos.stream().map(it ->
                 SplitTime.of(it.id,
                         it.personRaceResultDbo != null ? it.personRaceResultDbo.getId() : PersonRaceResultId.empty()
                                 .value(),

@@ -69,17 +69,17 @@ public class EventDbo {
     static public List<Event> asEvents(EventConfig eventConfig, List<EventDbo> eventDbos) {
         Map<EventId, List<ClassResult>> classResultsByEventId =
                 ClassResultDbo.asClassResults(eventConfig,
-                                eventDbos.parallelStream().flatMap(x -> x.classResults.stream()).toList())
-                        .parallelStream()
+                                eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
+                        .stream()
                         .collect(Collectors.groupingBy(ClassResult::eventId));
 
-        return eventDbos.parallelStream()
+        return eventDbos.stream()
                 .map(it -> Event.of(it.id,
                         it.name,
                         it.startTime,
                         it.endTime,
                         classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>()),
-                        it.organisations.parallelStream().map(x -> x.asOrganisation()).toList(),
+                        it.organisations.stream().map(x -> x.asOrganisation()).toList(),
                         it.state)
                 )
                 .toList();

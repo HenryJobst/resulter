@@ -58,7 +58,7 @@ class XMLImportServiceTest {
         Collection<ClassResult> classResults = event.getClassResults().value();
         Optional<ClassResult>
                 classResultBK =
-                classResults.parallelStream().filter(it -> it.classResultName().value().contains("BK")).findAny();
+                classResults.stream().filter(it -> it.classResultName().value().contains("BK")).findAny();
         assertThat(classResultBK).isPresent();
         assertThat(classResultBK.get().classResultName().value()).isEqualTo("BK (Beginner Kurz)");
         assertThat(classResultBK.get().classResultShortName().value()).isEqualTo("BK");

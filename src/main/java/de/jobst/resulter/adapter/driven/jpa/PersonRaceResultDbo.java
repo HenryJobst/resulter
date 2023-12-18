@@ -77,12 +77,12 @@ public class PersonRaceResultDbo {
     public static Collection<PersonRaceResult> asPersonRaceResults(EventConfig eventConfig,
                                                                    List<PersonRaceResultDbo> personRaceResultDbos) {
         Map<PersonRaceResultId, List<SplitTime>> splitTimesByPersonRaceResultId =
-                SplitTimeDbo.asSplitTimes(personRaceResultDbos.parallelStream()
+                SplitTimeDbo.asSplitTimes(personRaceResultDbos.stream()
                                 .flatMap(x -> x.splitTimes.stream())
                                 .toList())
-                        .parallelStream()
+                        .stream()
                         .collect(Collectors.groupingBy(SplitTime::personRaceResultId));
-        return personRaceResultDbos.parallelStream()
+        return personRaceResultDbos.stream()
                 .map(
                         it -> PersonRaceResult.of(
                                 it.id,

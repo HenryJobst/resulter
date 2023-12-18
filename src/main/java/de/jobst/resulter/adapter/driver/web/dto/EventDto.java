@@ -17,9 +17,9 @@ public record EventDto(Long id,
                 ObjectUtils.isNotEmpty(event.getId()) ?
                         event.getId().value() : 0,
                 event.getName().value(),
-                ObjectUtils.isNotEmpty(event.getStartTime()) ?
+                ObjectUtils.isNotEmpty(event.getStartTime()) && ObjectUtils.isNotEmpty(event.getStartTime().value()) ?
                         event.getStartTime().value().toLocalDate() : null,
-                ObjectUtils.isNotEmpty(event.getStartTime()) ?
+                ObjectUtils.isNotEmpty(event.getStartTime()) && ObjectUtils.isNotEmpty(event.getStartTime().value()) ?
                         event.getStartTime().value().toLocalTime() : null,
                 ObjectUtils.isNotEmpty(event.getClassResults()) ? event.getClassResults().value().size() : 0,
                 event.getClassResults().value().stream().mapToLong(it -> it.personResults().value().size()).sum()

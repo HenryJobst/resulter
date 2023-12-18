@@ -16,7 +16,7 @@
     <logger name="org.hibernate.stat" level="debug" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.hibernate.engine" level="debug" additivity="false">
+    <logger name="org.hibernate.engine" level="info" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
     <logger name="org.hibernate.SQL_SLOW" level="info" additivity="false">

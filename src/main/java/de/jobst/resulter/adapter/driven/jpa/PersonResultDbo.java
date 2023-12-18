@@ -67,7 +67,8 @@ public class PersonResultDbo {
                                         it.getClassResultDbo().getId() :
                                         ClassResultId.empty().value(),
                                 it.person.asPerson(),
-                                it.organisation.asOrganisation(),
+                                ObjectUtils.isNotEmpty(it.organisation) ?
+                                        it.organisation.asOrganisation() : null,
                                 Optional.ofNullable(personRaceResultsByPersonResultId.getOrDefault(PersonResultId.of(it.id),
                                         new ArrayList<>()))))
                 .toList();

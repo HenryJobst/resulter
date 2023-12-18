@@ -27,7 +27,7 @@ public class XmlUploadClient {
                 "import_files/48_Teu_Ergeb_SI_Kat.xml"
         );
 
-        String uploadUrl = "http://localhost:8080/upload";
+        String uploadUrl = "http://localhost:8080/api/upload";
 
         filePathee.forEach((filePath) -> {
             HttpHeaders headers = new HttpHeaders();

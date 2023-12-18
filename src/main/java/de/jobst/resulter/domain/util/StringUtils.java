@@ -8,20 +8,22 @@ public class StringUtils {
 
         for (int i = 0; i < text.length(); i++) {
             char ch = text.charAt(i);
-            boolean isSeparator = (ch == ' ' || ch == '-' || ch == '/' || ch == '+');
+            boolean isSeparator = isSeparator(ch);
 
             if (isSeparator) {
-                if (newWord && !result.isEmpty() && result.charAt(result.length() - 1) == ' ') {
-                    result.setLength(result.length() - 1); // Entferne das zusätzliche Leerzeichen vor dem Separator
+                int lastCharIndex = result.length() - 1;
+                char lastChar = result.charAt(lastCharIndex);
+                if (newWord && !result.isEmpty() && isSpace(lastChar)) {
+                    result.setLength(lastCharIndex); // Entferne das zusätzliche Leerzeichen vor dem Separator
+                    result.append(ch);
+                } else if (newWord && !result.isEmpty() && isSeparator(lastChar)) {
+                    // ignoriere aktuellen Separator
+                } else {
+                    result.append(ch);
                 }
-                result.append(ch);
                 newWord = true;
             } else {
                 if (newWord) {
-                    if (i > 0 && text.charAt(i - 1) == ' ' &&
-                            !result.isEmpty() && result.charAt(result.length() - 1) == ' ') {
-                        result.setLength(result.length() - 1); // Entferne das zusätzliche Leerzeichen vor dem Wort
-                    }
                     result.append(Character.toUpperCase(ch)); // Erster Buchstabe groß
                     newWord = false;
                 } else {
@@ -31,5 +33,13 @@ public class StringUtils {
         }
 
         return result.toString().trim();
+    }
+
+    private static boolean isSeparator(char ch) {
+        return ch == ' ' || ch == '-' || ch == '/' || ch == '+';
+    }
+
+    private static boolean isSpace(char ch) {
+        return ch == ' ';
     }
 }

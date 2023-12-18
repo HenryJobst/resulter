@@ -16,7 +16,7 @@ public class XmlUploadClient {
 
     public static void main(String[] args) {
         List<String> filePathee = Arrays.asList(
-                "import_files/Zwischenzeiten Kat 7.MKOL.xml",
+               /* "import_files/Zwischenzeiten Kat 7.MKOL.xml",
                 "import_files/schorf23_ergsi.xml",
                 "import_files/40_FrühlingsOL_Kategorienn_Zwischenzeiten_30.xml",
                 "import_files/Zwischenzeiten_IOFv3_WinterOL.xml",
@@ -25,6 +25,7 @@ public class XmlUploadClient {
                 "import_files/20231015_Herbst-OL_oe.xml",
                 "import_files/32nebel_tag_SI.xml",
                 "import_files/48_Teu_Ergeb_SI_Kat.xml"
+                */
         );
 
         String uploadUrl = "http://localhost:8080/api/upload";

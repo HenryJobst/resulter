@@ -19,8 +19,14 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: DATE
+                  name: START_TIME
                   type: DATE
+              - column:
+                  name: END_TIME
+                  type: DATE
+              - column:
+                  name: STATE
+                  type: VARCHAR(20)
         - createTable:
             tableName: CLASS_RESULT
             columns:
@@ -50,6 +56,21 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     foreignKeyName: FK_CLASS_RESULT_EVENT
+        - createTable:
+            tableName: EVENT_ORGANISATION
+            columns:
+              - column:
+                  name: EVENT_ID
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_EVENT_ORGANISATION_EVENT
+              - column:
+                  name: ORGANISATION_ID
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_EVENT_ORGANISATION_ORGANISATION
         - createTable:
             tableName: ORGANISATION
             columns:
@@ -182,6 +203,22 @@ databaseChangeLog:
               - column:
                   name: PUNCH_TIME
                   type: DOUBLE
+        - addForeignKeyConstraint:
+            baseTableName: EVENT_ORGANISATION
+            baseColumnNames: EVENT_ID
+            constraintName: FK_EVENT_ORGANISATION_EVENT
+            referencedTableName: EVENT
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableName: EVENT_ORGANISATION
+            baseColumnNames: ORGANISATION_ID
+            constraintName: FK_EVENT_ORGANISATION_ORGANISATION
+            referencedTableName: ORGANISATION
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
         - addForeignKeyConstraint:
             baseTableName: CLASS_RESULT
             baseColumnNames: EVENT_ID

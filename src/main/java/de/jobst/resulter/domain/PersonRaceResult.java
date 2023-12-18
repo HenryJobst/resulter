@@ -1,10 +1,13 @@
 package de.jobst.resulter.domain;
 
+import org.springframework.lang.NonNull;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public record PersonRaceResult(PersonRaceResultId id,
+                               PersonResultId personResultId,
                                RaceNumber raceNumber,
                                DateTime startTime,
                                DateTime finishTime,
@@ -20,8 +23,32 @@ public record PersonRaceResult(PersonRaceResultId id,
                                       ResultStatus resultState,
                                       @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
                                       Optional<List<SplitTime>> splitTimes) {
+        return PersonRaceResult.of(
+                PersonRaceResultId.empty().value(),
+                PersonResultId.empty().value(),
+                raceNumber,
+                startTime,
+                finishTime,
+                punchTime,
+                position,
+                resultState,
+                splitTimes);
+    }
+
+    public static PersonRaceResult of(
+            @NonNull Long id,
+            @NonNull Long personResultId,
+            Long raceNumber,
+            LocalDateTime startTime,
+            LocalDateTime finishTime,
+            Double punchTime,
+            Long position,
+            ResultStatus resultState,
+            @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+            Optional<List<SplitTime>> splitTimes) {
         return new PersonRaceResult(
-                PersonRaceResultId.of(0L),
+                PersonRaceResultId.of(id),
+                PersonResultId.of(personResultId),
                 RaceNumber.of(raceNumber),
                 DateTime.of(startTime),
                 DateTime.of(finishTime),

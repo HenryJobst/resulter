@@ -6,6 +6,10 @@ public record PersonRaceResultId(long value) {
         return new PersonRaceResultId(value);
     }
 
+    public static PersonRaceResultId empty() {
+        return new PersonRaceResultId(0L);
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;

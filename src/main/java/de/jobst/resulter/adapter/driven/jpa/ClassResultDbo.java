@@ -1,15 +1,10 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
-import de.jobst.resulter.domain.ClassResult;
-import de.jobst.resulter.domain.EventConfig;
-import de.jobst.resulter.domain.Gender;
+import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed"})
@@ -59,16 +54,25 @@ public class ClassResultDbo {
         return classResultDbo;
     }
 
-    public ClassResult asClassResult(EventConfig eventConfig) {
-        return ClassResult.of(getName(),
-                getShortName(),
-                getGender(),
-                getPersonResults().stream().map(it -> it.asPersonResult(eventConfig)).toList()
-        );
+    static public Collection<ClassResult> asClassResults(EventConfig eventConfig,
+                                                         Collection<ClassResultDbo> classResultDbos) {
+
+        Map<ClassResultId, List<PersonResult>> personResultsByClassResultId =
+                PersonResultDbo.asPersonResults(eventConfig,
+                                classResultDbos.parallelStream().flatMap(x -> x.personResults.stream()).toList())
+                        .parallelStream()
+                        .collect(Collectors.groupingBy(PersonResult::classResultId));
+        return classResultDbos.parallelStream()
+                .map(
+                        it -> ClassResult.of(it.id,
+                                it.eventDbo != null ? it.eventDbo.getId() : EventId.empty().value(),
+                                it.name, it.shortName, it.gender,
+                                personResultsByClassResultId.getOrDefault(ClassResultId.of(it.id), new ArrayList<>())))
+                .toList();
     }
 
     public long getId() {
-        return id;
+        return id != null ? id : ClassResultId.empty().value();
     }
 
     public void setId(long id) {

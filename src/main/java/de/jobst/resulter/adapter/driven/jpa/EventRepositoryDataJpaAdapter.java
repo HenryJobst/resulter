@@ -24,31 +24,29 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     public Event save(Event event) {
         EventDbo eventEntity = EventDbo.from(event);
         EventDbo savedEventEntity = eventJpaRepository.save(eventEntity);
-        return savedEventEntity.asEvent(EventConfig.fromEvent(event));
+        return EventDbo.asEvents(EventConfig.fromEvent(event), List.of(savedEventEntity)).getFirst();
     }
 
     @Override
     public List<Event> findAll(EventConfig eventConfig) {
-        return eventJpaRepository.findAll().stream()
-                .map(it -> it.asEvent(eventConfig))
-                .toList();
+        return EventDbo.asEvents(eventConfig, eventJpaRepository.findAll());
     }
 
     @Override
     public Optional<Event> findById(EventId eventId) {
         Optional<EventDbo> eventEntity =
                 eventJpaRepository.findById(eventId.value());
-        return eventEntity.map(it -> it.asEvent(EventConfig.full()));
+        return eventEntity.map(it -> EventDbo.asEvents(EventConfig.full(), List.of(it)).getFirst());
     }
 
     @Override
     public Event findOrCreate(Event event) {
-        Optional<EventDbo> eventEntity =
+        Optional<EventDbo> optionalEventDbo =
                 eventJpaRepository.findByName(event.getName().value());
-        if (eventEntity.isEmpty()) {
-            eventEntity = Optional.of(EventDbo.from(save(event)));
+        if (optionalEventDbo.isEmpty()) {
+            optionalEventDbo = Optional.of(EventDbo.from(save(event)));
         }
-        EventDbo entity = eventEntity.get();
-        return entity.asEvent(EventConfig.fromEvent(event));
+        EventDbo eventDbo = optionalEventDbo.get();
+        return EventDbo.asEvents(EventConfig.fromEvent(event), List.of(eventDbo)).getFirst();
     }
 }

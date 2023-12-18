@@ -17,7 +17,7 @@ class EventDboMappingTest {
         eventDbo.setId(19L);
         eventDbo.setName("Entity");
 
-        Event event = eventDbo.asEvent(EventConfig.full());
+        Event event = EventDbo.asEvents(EventConfig.full(), List.of(eventDbo)).getFirst();
 
         assertThat(Objects.requireNonNull(event.getId()).value()).isEqualTo(19L);
         assertThat(event.getName().value())

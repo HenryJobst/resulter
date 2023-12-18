@@ -1,7 +1,10 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
+import de.jobst.resulter.domain.PersonRaceResultId;
 import de.jobst.resulter.domain.SplitTime;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
@@ -32,6 +35,14 @@ public class SplitTimeDbo {
         return splitTimeDbo;
     }
 
+    static public List<SplitTime> asSplitTimes(List<SplitTimeDbo> splitTimeDbos) {
+        return splitTimeDbos.parallelStream().map(it ->
+                SplitTime.of(it.id,
+                        it.personRaceResultDbo != null ? it.personRaceResultDbo.getId() : PersonRaceResultId.empty()
+                                .value(),
+                        it.controlCode, it.punchTime)).toList();
+    }
+
     public String getControlCode() {
         return controlCode;
     }
@@ -41,7 +52,10 @@ public class SplitTimeDbo {
     }
 
     public SplitTime asSplitTime() {
-        return SplitTime.of(id, controlCode, punchTime);
+        return SplitTime.of(id,
+                personRaceResultDbo != null ? personRaceResultDbo.getId() : PersonRaceResultId.empty().value(),
+                controlCode,
+                punchTime);
     }
 
     public long getId() {

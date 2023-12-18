@@ -18,6 +18,7 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class XMLImportService {
@@ -56,7 +57,7 @@ public class XMLImportService {
                                 personRaceResult.getPosition().longValue() :
                                 null,
                         ResultStatus.fromValue(personRaceResult.getStatus().value()),
-                        getSplitTimes(personRaceResult)
+                        Optional.of(getSplitTimes(personRaceResult))
                 )).toList();
     }
 
@@ -123,7 +124,7 @@ public class XMLImportService {
                 PersonResult.of(
                         getPerson(personResult),
                         getOrganisation(personResult),
-                        getPersonRaceResults(personResult)
+                        Optional.of(getPersonRaceResults(personResult))
                 )).toList();
     }
 

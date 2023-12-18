@@ -1,11 +1,13 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
+import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.PersonResult;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,19 +46,24 @@ public class PersonResultDbo {
         if (ObjectUtils.isNotEmpty(personResult.organisation())) {
             personResultDbo.setOrganisation(OrganisationDbo.from(personResult.organisation()));
         }
-        personResultDbo.setPersonRaceResults(personResult.personRaceResults()
-                .value()
-                .stream()
-                .map(it -> PersonRaceResultDbo.from(it, personResultDbo))
-                .collect(Collectors.toSet()));
+        if (personResult.personRaceResults().isPresent()) {
+            personResultDbo.setPersonRaceResults(personResult.personRaceResults().get()
+                    .value()
+                    .stream()
+                    .map(it -> PersonRaceResultDbo.from(it, personResultDbo))
+                    .collect(Collectors.toSet()));
+        }
         return personResultDbo;
     }
 
-    public PersonResult asPersonResult() {
+    public PersonResult asPersonResult(EventConfig eventConfig) {
         return PersonResult.of(person.asPerson(),
                 ObjectUtils.isNotEmpty(organisation) ?
                         organisation.asOrganisation() : null,
-                personRaceResults.stream().map(PersonRaceResultDbo::asPersonRaceResult).toList()
+                eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RACE_RESULTS) ? Optional.empty() :
+                        Optional.of(
+                                personRaceResults.stream().map(it -> it.asPersonRaceResult(
+                                        eventConfig)).toList())
         );
     }
 

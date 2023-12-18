@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
+import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.ResultStatus;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
@@ -64,8 +66,8 @@ public class PersonRaceResultDbo {
         if (ObjectUtils.isNotEmpty(personRaceResult.state())) {
             personRaceResultDbo.setState(personRaceResult.state());
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.splitTimes())) {
-            personRaceResultDbo.setSplitTimes(personRaceResult.splitTimes()
+        if (personRaceResult.splitTimes().isPresent() && ObjectUtils.isNotEmpty(personRaceResult.splitTimes().get())) {
+            personRaceResultDbo.setSplitTimes(personRaceResult.splitTimes().get()
                     .value()
                     .stream()
                     .map(it -> SplitTimeDbo.from(it, personRaceResultDbo))
@@ -75,9 +77,11 @@ public class PersonRaceResultDbo {
         return personRaceResultDbo;
     }
 
-    public PersonRaceResult asPersonRaceResult() {
+    public PersonRaceResult asPersonRaceResult(EventConfig eventConfig) {
         return PersonRaceResult.of(raceNumber, startTime, finishTime, punchTime, position, state,
-                spitTimes.stream().map(SplitTimeDbo::asSplitTime).toList());
+                eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.SPLIT_TIMES) ? Optional.empty() :
+                        Optional.of(
+                                spitTimes.stream().map(SplitTimeDbo::asSplitTime).toList()));
     }
 
     public long getId() {

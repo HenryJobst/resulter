@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.ClassResult;
+import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.Gender;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.StringUtils;
@@ -58,11 +59,11 @@ public class ClassResultDbo {
         return classResultDbo;
     }
 
-    public ClassResult asClassResult() {
+    public ClassResult asClassResult(EventConfig eventConfig) {
         return ClassResult.of(getName(),
                 getShortName(),
                 getGender(),
-                getPersonResults().stream().map(PersonResultDbo::asPersonResult).toList()
+                getPersonResults().stream().map(it -> it.asPersonResult(eventConfig)).toList()
         );
     }
 

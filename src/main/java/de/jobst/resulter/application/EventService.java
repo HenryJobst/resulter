@@ -3,10 +3,7 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.PersonRepository;
-import de.jobst.resulter.domain.ClassResult;
-import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.PersonResult;
+import de.jobst.resulter.domain.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +39,9 @@ public class EventService {
                                                 ObjectUtils.isNotEmpty(y.organisation()) ?
                                                         organisationRepository.findOrCreate(y.organisation()) :
                                                         y.organisation(),
-                                                y.personRaceResults().value())).toList())
+                                                y.personRaceResults().isPresent() ?
+                                                        Optional.ofNullable(y.personRaceResults().get().value()) :
+                                                        Optional.empty())).toList())
                 ).toList();
         return eventRepository.findOrCreate(Event.of(ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0L,
                 event.getName().value(), classResults));
@@ -54,10 +53,11 @@ public class EventService {
     }
 
     @Transactional
-    public List<Event> findAll() {
-        return eventRepository.findAll();
+    public List<Event> findAll(EventConfig eventConfig) {
+        return eventRepository.findAll(eventConfig);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     @Transactional
     public Event updateEvent(Event event) {
         return eventRepository.save(event);

@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.adapter.TestConfig;
 import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ class EventRepositoryDataJpaAdapterTest {
     @Test
     @Transactional
     public void newRepositoryReturnsEmptyForFindAll() {
-        List<Event> events = eventRepositoryAdapter.findAll();
+        List<Event> events = eventRepositoryAdapter.findAll(EventConfig.full());
 
         assertThat(events).isEmpty();
     }
@@ -66,7 +67,7 @@ class EventRepositoryDataJpaAdapterTest {
         eventRepositoryAdapter.save(one);
         eventRepositoryAdapter.save(two);
 
-        List<Event> allEvents = eventRepositoryAdapter.findAll();
+        List<Event> allEvents = eventRepositoryAdapter.findAll(EventConfig.full());
         assertThat(allEvents)
                 .hasSize(2);
     }

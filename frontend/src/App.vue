@@ -62,7 +62,7 @@ export default defineComponent({
               </router-link>
             </li>
             <li class="mr-4">
-              <router-link :to="{ name: 'event-index', params: { locale } }">
+              <router-link :to="{ name: 'event-list', params: { locale } }">
                 {{ t('navigations.events') }}
               </router-link>
             </li>

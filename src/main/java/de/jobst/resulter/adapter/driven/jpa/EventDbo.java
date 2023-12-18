@@ -79,7 +79,9 @@ public class EventDbo {
                         it.startTime,
                         it.endTime,
                         classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>()),
-                        it.organisations.stream().map(x -> x.asOrganisation()).toList(),
+                        it.organisations.stream()
+                                .map(x -> ObjectUtils.isNotEmpty(x) ? x.asOrganisation() : null)
+                                .toList(),
                         it.state)
                 )
                 .toList();

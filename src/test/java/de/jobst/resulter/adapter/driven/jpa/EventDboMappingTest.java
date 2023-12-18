@@ -5,10 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,7 +17,7 @@ class EventDboMappingTest {
         eventDbo.setId(19L);
         eventDbo.setName("Entity");
 
-        Event event = eventDbo.asEvent();
+        Event event = eventDbo.asEvent(EventConfig.full());
 
         assertThat(Objects.requireNonNull(event.getId()).value()).isEqualTo(19L);
         assertThat(event.getName().value())
@@ -49,7 +46,7 @@ class EventDboMappingTest {
                 punchTime,
                 position,
                 resultStatus,
-                splitTimes));
+                Optional.of(splitTimes)));
 
         Collection<PersonResult> personResults = new ArrayList<>();
         String familyName = "Knopf";
@@ -64,7 +61,7 @@ class EventDboMappingTest {
                         birthDate,
                         personGender),
                 Organisation.of(clubName, clubShortName),
-                personRaceResults));
+                Optional.of(personRaceResults)));
 
         Collection<ClassResult> classResults = new ArrayList<>();
         String className = "H50- (Herren ab 50)";

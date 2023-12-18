@@ -2,6 +2,7 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.InMemoryEventRepository;
 import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventName;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +33,7 @@ class InMemoryEventRepositoryTest {
 
     @Test
     public void newRepositoryReturnsEmptyForFindAll() {
-        List<Event> events = inMemoryEventRepository.findAll();
+        List<Event> events = inMemoryEventRepository.findAll(EventConfig.full());
 
         assertThat(events).isEmpty();
     }
@@ -45,7 +46,7 @@ class InMemoryEventRepositoryTest {
         inMemoryEventRepository.save(one);
         inMemoryEventRepository.save(two);
 
-        List<Event> allEvents = inMemoryEventRepository.findAll();
+        List<Event> allEvents = inMemoryEventRepository.findAll(EventConfig.full());
         assertThat(allEvents)
                 .hasSize(2);
 

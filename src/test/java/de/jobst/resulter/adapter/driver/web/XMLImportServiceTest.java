@@ -93,10 +93,11 @@ class XMLImportServiceTest {
                 .getShortName()
                 .value()).isEqualTo("OLV");
 
-        assertThat(firstPersonResult.get().personRaceResults().value()).hasSize(1);
+        assertThat(firstPersonResult.get().personRaceResults()).isPresent();
+        assertThat(firstPersonResult.get().personRaceResults().get().value()).hasSize(1);
         Optional<PersonRaceResult>
                 firstPersonRaceResult =
-                firstPersonResult.get().personRaceResults().value().stream().findFirst();
+                firstPersonResult.get().personRaceResults().get().value().stream().findFirst();
         assertThat(firstPersonRaceResult).isPresent();
 
         assertThat(firstPersonRaceResult.get().raceNumber().value()).isEqualTo(1);
@@ -112,9 +113,10 @@ class XMLImportServiceTest {
         assertThat(firstPersonRaceResult.get().runtime().value()).isEqualTo(1141.0);
         assertThat(firstPersonRaceResult.get().state()).isEqualTo(ResultStatus.OK);
 
-        assertThat(firstPersonRaceResult.get().splitTimes().value()).hasSize(6);
+        assertThat(firstPersonRaceResult.get().splitTimes()).isPresent();
+        assertThat(firstPersonRaceResult.get().splitTimes().get().value()).hasSize(6);
         Optional<SplitTime> firstSplittime =
-                firstPersonRaceResult.get().splitTimes().value().stream().findFirst();
+                firstPersonRaceResult.get().splitTimes().get().value().stream().findFirst();
         assertThat(firstSplittime).isPresent();
         assertThat(firstSplittime.get().controlCode().value()).isEqualTo("134");
         assertThat(firstSplittime.get().punchTime().value()).isEqualTo(212.0);

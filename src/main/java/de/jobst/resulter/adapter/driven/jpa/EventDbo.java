@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventConfig;
 import jakarta.persistence.*;
 
 import java.util.Collection;
@@ -36,8 +37,8 @@ public class EventDbo {
         return eventDbo;
     }
 
-    public Event asEvent() {
-        return Event.of(id, name, classResults.stream().map(ClassResultDbo::asClassResult).toList());
+    public Event asEvent(EventConfig eventConfig) {
+        return Event.of(id, name, classResults.stream().map(it -> it.asClassResult(eventConfig)).toList());
     }
 
     public long getId() {

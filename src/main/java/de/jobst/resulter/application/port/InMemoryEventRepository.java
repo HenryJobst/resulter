@@ -1,6 +1,7 @@
 package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,7 +29,7 @@ public class InMemoryEventRepository implements EventRepository {
     }
 
     @Override
-    public List<Event> findAll() {
+    public List<Event> findAll(EventConfig eventConfig) {
         return List.copyOf(events.values());
     }
 
@@ -46,15 +47,18 @@ public class InMemoryEventRepository implements EventRepository {
                 .orElseGet(() -> save(event));
     }
 
-    @SuppressWarnings("unused") public List<Event> savedEvents() {
+    @SuppressWarnings("unused")
+    public List<Event> savedEvents() {
         return savedEvents;
     }
 
-    @SuppressWarnings("unused") public int saveCount() {
+    @SuppressWarnings("unused")
+    public int saveCount() {
         return savedEvents.size();
     }
 
-    @SuppressWarnings("unused") public void resetSaveCount() {
+    @SuppressWarnings("unused")
+    public void resetSaveCount() {
         savedEvents.clear();
     }
 

@@ -2,6 +2,7 @@ package de.jobst.resulter.domain;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public record PersonRaceResult(PersonRaceResultId id,
                                RaceNumber raceNumber,
@@ -10,14 +11,15 @@ public record PersonRaceResult(PersonRaceResultId id,
                                PunchTime runtime,
                                Position positon,
                                ResultStatus state,
-                               SplitTimes splitTimes) {
+                               Optional<SplitTimes> splitTimes) {
     public static PersonRaceResult of(Long raceNumber,
                                       LocalDateTime startTime,
                                       LocalDateTime finishTime,
                                       Double punchTime,
                                       Long position,
                                       ResultStatus resultState,
-                                      List<SplitTime> splitTimes) {
+                                      @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+                                      Optional<List<SplitTime>> splitTimes) {
         return new PersonRaceResult(
                 PersonRaceResultId.of(0L),
                 RaceNumber.of(raceNumber),
@@ -26,6 +28,6 @@ public record PersonRaceResult(PersonRaceResultId id,
                 PunchTime.of(punchTime),
                 Position.of(position),
                 resultState,
-                SplitTimes.of(splitTimes));
+                splitTimes.map(SplitTimes::of));
     }
 }

@@ -7,7 +7,6 @@ import App from './App.vue'
 import { setupRouter } from './router'
 import { setupI18n } from '@/i18n'
 import en from './locales/en.json'
-import de from './locales/de.json'
 import PrimeVue from 'primevue/config'
 
 import 'primevue/resources/themes/bootstrap4-light-blue/theme.css'
@@ -18,7 +17,7 @@ const i18n = setupI18n({
   legacy: false,
   locale: 'en',
   fallbackLocale: 'de',
-  messages: { en, de }
+  messages: { en }
 })
 
 const router = setupRouter(i18n)

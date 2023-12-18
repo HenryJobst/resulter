@@ -3,14 +3,13 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.PersonRepository;
-import de.jobst.resulter.domain.*;
-import org.apache.commons.lang3.ObjectUtils;
+import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventConfig;
+import de.jobst.resulter.domain.EventId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -30,21 +29,7 @@ public class EventService {
 
     @Transactional
     public Event findOrCreate(Event event) {
-        Collection<ClassResult> classResults =
-                Objects.requireNonNull(event.getClassResults()).value().stream().map(x ->
-                        ClassResult.of(x.classResultName().value(), x.classResultShortName().value(), x.gender(),
-                                x.personResults().value().stream().map(y ->
-                                        PersonResult.of(
-                                                personRepository.findOrCreate(y.person()),
-                                                ObjectUtils.isNotEmpty(y.organisation()) ?
-                                                        organisationRepository.findOrCreate(y.organisation()) :
-                                                        y.organisation(),
-                                                y.personRaceResults().isPresent() ?
-                                                        Optional.ofNullable(y.personRaceResults().get().value()) :
-                                                        Optional.empty())).toList())
-                ).toList();
-        return eventRepository.findOrCreate(Event.of(ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0L,
-                event.getName().value(), classResults));
+        return eventRepository.findOrCreate(event);
     }
 
     @Transactional

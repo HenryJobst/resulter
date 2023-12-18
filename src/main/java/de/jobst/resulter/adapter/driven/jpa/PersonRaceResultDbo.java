@@ -1,15 +1,12 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
-import de.jobst.resulter.domain.EventConfig;
-import de.jobst.resulter.domain.PersonRaceResult;
-import de.jobst.resulter.domain.ResultStatus;
+import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
@@ -40,7 +37,7 @@ public class PersonRaceResultDbo {
     private ResultStatus state;
 
     @OneToMany(mappedBy = "personRaceResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SplitTimeDbo> spitTimes = new ArrayList<>();
+    private List<SplitTimeDbo> splitTimes = new ArrayList<>();
 
     public static PersonRaceResultDbo from(PersonRaceResult personRaceResult, PersonResultDbo personResultDbo) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
@@ -77,11 +74,38 @@ public class PersonRaceResultDbo {
         return personRaceResultDbo;
     }
 
+    public static Collection<PersonRaceResult> asPersonRaceResults(EventConfig eventConfig,
+                                                                   List<PersonRaceResultDbo> personRaceResultDbos) {
+        Map<PersonRaceResultId, List<SplitTime>> splitTimesByPersonRaceResultId =
+                SplitTimeDbo.asSplitTimes(personRaceResultDbos.parallelStream()
+                                .flatMap(x -> x.splitTimes.stream())
+                                .toList())
+                        .parallelStream()
+                        .collect(Collectors.groupingBy(SplitTime::personRaceResultId));
+        return personRaceResultDbos.parallelStream()
+                .map(
+                        it -> PersonRaceResult.of(
+                                it.id,
+                                it.getPersonResultDbo() != null ?
+                                        it.getPersonResultDbo().getId() :
+                                        PersonResultId.empty().value(),
+                                it.raceNumber,
+                                it.getStartTime(),
+                                it.getFinishTime(),
+                                it.getPunchTime(),
+                                it.getPosition(),
+                                it.getState(),
+                                Optional.ofNullable(splitTimesByPersonRaceResultId.getOrDefault(
+                                        PersonRaceResultId.of(it.id),
+                                        new ArrayList<>()))))
+                .toList();
+    }
+
     public PersonRaceResult asPersonRaceResult(EventConfig eventConfig) {
         return PersonRaceResult.of(raceNumber, startTime, finishTime, punchTime, position, state,
                 eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.SPLIT_TIMES) ? Optional.empty() :
                         Optional.of(
-                                spitTimes.stream().map(SplitTimeDbo::asSplitTime).toList()));
+                                splitTimes.stream().map(SplitTimeDbo::asSplitTime).toList()));
     }
 
     public long getId() {
@@ -149,10 +173,10 @@ public class PersonRaceResultDbo {
     }
 
     public List<SplitTimeDbo> getSplitTimes() {
-        return spitTimes;
+        return splitTimes;
     }
 
     public void setSplitTimes(List<SplitTimeDbo> splitTimes) {
-        this.spitTimes = splitTimes;
+        this.splitTimes = splitTimes;
     }
 }

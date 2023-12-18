@@ -1,14 +1,10 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
-import de.jobst.resulter.domain.EventConfig;
-import de.jobst.resulter.domain.PersonResult;
+import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
@@ -56,8 +52,34 @@ public class PersonResultDbo {
         return personResultDbo;
     }
 
+    static public Collection<PersonResult> asPersonResults(EventConfig eventConfig,
+                                                           Collection<PersonResultDbo> personResultDbos) {
+        Map<PersonResultId, List<PersonRaceResult>> personRaceResultsByPersonResultId =
+                PersonRaceResultDbo.asPersonRaceResults(eventConfig,
+                                personResultDbos.parallelStream().flatMap(x -> x.personRaceResults.stream()).toList())
+                        .parallelStream()
+                        .collect(Collectors.groupingBy(PersonRaceResult::personResultId));
+        return personResultDbos.parallelStream()
+                .map(
+                        it -> PersonResult.of(
+                                it.id,
+                                it.getClassResultDbo() != null ?
+                                        it.getClassResultDbo().getId() :
+                                        ClassResultId.empty().value(),
+                                it.person.asPerson(),
+                                it.organisation.asOrganisation(),
+                                Optional.ofNullable(personRaceResultsByPersonResultId.getOrDefault(PersonResultId.of(it.id),
+                                        new ArrayList<>()))))
+                .toList();
+    }
+
     public PersonResult asPersonResult(EventConfig eventConfig) {
-        return PersonResult.of(person.asPerson(),
+        return PersonResult.of(
+                getId(),
+                ObjectUtils.isNotEmpty(getClassResultDbo()) ?
+                        getClassResultDbo().getId() :
+                        ClassResultId.empty().value(),
+                person.asPerson(),
                 ObjectUtils.isNotEmpty(organisation) ?
                         organisation.asOrganisation() : null,
                 eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RACE_RESULTS) ? Optional.empty() :
@@ -67,43 +89,43 @@ public class PersonResultDbo {
         );
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public long getId() {
         return id;
     }
 
-    public void setClassResultDbo(ClassResultDbo classResultDbo) {
-        this.classResultDbo = classResultDbo;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public ClassResultDbo getClassResultDbo() {
         return classResultDbo;
     }
 
-    public void setPerson(PersonDbo person) {
-        this.person = person;
+    public void setClassResultDbo(ClassResultDbo classResultDbo) {
+        this.classResultDbo = classResultDbo;
     }
 
     public PersonDbo getPerson() {
         return person;
     }
 
-    public void setOrganisation(OrganisationDbo organisation) {
-        this.organisation = organisation;
+    public void setPerson(PersonDbo person) {
+        this.person = person;
     }
 
     public OrganisationDbo getOrganisation() {
         return organisation;
     }
 
-    public void setPersonRaceResults(Set<PersonRaceResultDbo> personRaceResults) {
-        this.personRaceResults = personRaceResults;
+    public void setOrganisation(OrganisationDbo organisation) {
+        this.organisation = organisation;
     }
 
     public Collection<PersonRaceResultDbo> getPersonRaceResults() {
         return personRaceResults;
+    }
+
+    public void setPersonRaceResults(Set<PersonRaceResultDbo> personRaceResults) {
+        this.personRaceResults = personRaceResults;
     }
 }

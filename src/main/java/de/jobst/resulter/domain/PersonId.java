@@ -6,6 +6,10 @@ public record PersonId(long value) {
         return new PersonId(value);
     }
 
+    public static PersonId empty() {
+        return new PersonId(0L);
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;

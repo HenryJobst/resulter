@@ -31,9 +31,9 @@ public class EventController {
 
     @GetMapping("/event")
     public ResponseEntity<List<EventDto>> handleEvents(
-            @RequestParam(name = "shallowClassResults", required = false, defaultValue = "true")
+            @RequestParam(name = "shallowClassResults", required = false, defaultValue = "false")
             Boolean shallowClassResults,
-            @RequestParam(name = "shallowPersonResults", required = false, defaultValue = "true")
+            @RequestParam(name = "shallowPersonResults", required = false, defaultValue = "false")
             Boolean shallowPersonResults,
             @RequestParam(name = "shallowPersonRaceResults", required = false, defaultValue = "true")
             Boolean shallowPersonRaceResults,

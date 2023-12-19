@@ -71,11 +71,16 @@ public class EventDbo {
     }
 
     static public List<Event> asEvents(EventConfig eventConfig, List<EventDbo> eventDbos) {
-        Map<EventId, List<ClassResult>> classResultsByEventId =
-                ClassResultDbo.asClassResults(eventConfig,
-                                eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
-                        .stream()
-                        .collect(Collectors.groupingBy(ClassResult::eventId));
+        Map<EventId, List<ClassResult>> classResultsByEventId;
+        if (eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.CLASS_RESULTS)) {
+            classResultsByEventId = new HashMap<>();
+        } else {
+            classResultsByEventId =
+                    ClassResultDbo.asClassResults(eventConfig,
+                                    eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
+                            .stream()
+                            .collect(Collectors.groupingBy(ClassResult::eventId));
+        }
 
         return eventDbos.stream()
                 .map(it -> Event.of(it.id,
@@ -83,9 +88,11 @@ public class EventDbo {
                         it.startTime,
                         it.endTime,
                         Optional.of(classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>())),
-                        Optional.of(it.organisations.stream()
-                                .map(x -> ObjectUtils.isNotEmpty(x) ? x.asOrganisation() : null)
-                                .toList()),
+                        eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.EVENT_ORGANISATIONS) ?
+                                Optional.empty() :
+                                Optional.of(it.organisations.stream()
+                                        .map(x -> ObjectUtils.isNotEmpty(x) ? x.asOrganisation() : null)
+                                        .toList()),
                         it.state)
                 )
                 .toList();

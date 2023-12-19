@@ -54,22 +54,24 @@ public class Event {
     }
 
     public static Event of(String name) {
-        return Event.of(name, new ArrayList<>());
+        return Event.of(name, Optional.of(new ArrayList<>()));
     }
 
-    public static Event of(String name, Collection<ClassResult> classResults) {
+    public static Event of(String name, Optional<Collection<ClassResult>> classResults) {
         return Event.of(EventId.empty().value(), name, classResults);
     }
 
     public static Event of(long id, String name) {
-        return Event.of(id, name, new ArrayList<>());
+        return Event.of(id, name, Optional.of(new ArrayList<>()));
     }
 
-    public static Event of(long id, String name, Collection<ClassResult> classResults) {
-        return Event.of(id, name, null, null, classResults, new ArrayList<>(), null);
+    public static Event of(long id, String name, Optional<Collection<ClassResult>> classResults) {
+        return Event.of(id, name, null, null, classResults, Optional.of(new ArrayList<>()), null);
     }
 
-    public static Event of(String name, Collection<ClassResult> classResults, Collection<Organisation> organisations) {
+    public static Event of(String name,
+                           Optional<Collection<ClassResult>> classResults,
+                           Optional<Collection<Organisation>> organisations) {
         return Event.of(EventId.empty().value(),
                 name,
                 null,
@@ -80,14 +82,15 @@ public class Event {
     }
 
     static public Event of(long id, String eventName, LocalDateTime startTime,
-                           LocalDateTime endTime, Collection<ClassResult> classResults,
-                           Collection<Organisation> organisations, EventStatus eventState) {
+                           LocalDateTime endTime,
+                           Optional<Collection<ClassResult>> classResults,
+                           Optional<Collection<Organisation>> organisations, EventStatus eventState) {
         return new Event(EventId.of(id),
                 EventName.of(eventName),
                 DateTime.of(startTime),
                 DateTime.of(endTime),
-                Optional.of(ClassResults.of(classResults)),
-                Optional.of(Organisations.of(organisations)),
+                classResults.map(ClassResults::of),
+                organisations.map(Organisations::of),
                 eventState);
     }
 }

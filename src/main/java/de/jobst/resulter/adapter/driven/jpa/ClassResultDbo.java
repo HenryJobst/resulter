@@ -47,7 +47,7 @@ public class ClassResultDbo {
         classResultDbo.setGender(classResult.gender());
         classResultDbo.setPersonResults(
                 Objects.requireNonNull(classResult.personResults())
-                        .value()
+                        .get().value()
                         .stream()
                         .map(it -> PersonResultDbo.from(it, classResultDbo))
                         .collect(Collectors.toSet()));
@@ -67,7 +67,8 @@ public class ClassResultDbo {
                         it -> ClassResult.of(it.id,
                                 it.eventDbo != null ? it.eventDbo.getId() : EventId.empty().value(),
                                 it.name, it.shortName, it.gender,
-                                personResultsByClassResultId.getOrDefault(ClassResultId.of(it.id), new ArrayList<>())))
+                                Optional.ofNullable(personResultsByClassResultId.getOrDefault(ClassResultId.of(it.id),
+                                        new ArrayList<>()))))
                 .toList();
     }
 

@@ -105,16 +105,16 @@ public class XMLImportService {
                                     clazz.getName(),
                                     clazz.getShortName(),
                                     Gender.of(clazz.getSex()),
-                                    getPersonResults(classResult)
+                                    Optional.of(getPersonResults(classResult))
                             );
                         }).toList();
 
         return eventService.findOrCreate(
                 Event.of(resultList.getEvent().getName(),
-                        classResults,
-                        resultList.getEvent().getOrganisers().stream().map(
+                        Optional.of(classResults),
+                        Optional.of(resultList.getEvent().getOrganisers().stream().map(
                                 organisation -> Organisation.of(organisation.getName(), organisation.getShortName())
-                        ).toList()
+                        ).toList())
                 ));
     }
 

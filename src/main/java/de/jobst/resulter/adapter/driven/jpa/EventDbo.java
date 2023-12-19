@@ -82,10 +82,10 @@ public class EventDbo {
                         it.name,
                         it.startTime,
                         it.endTime,
-                        classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>()),
-                        it.organisations.stream()
+                        Optional.of(classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>())),
+                        Optional.of(it.organisations.stream()
                                 .map(x -> ObjectUtils.isNotEmpty(x) ? x.asOrganisation() : null)
-                                .toList(),
+                                .toList()),
                         it.state)
                 )
                 .toList();

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public record PersonRaceResult(PersonRaceResultId id,
                                PersonResultId personResultId,
                                RaceNumber raceNumber,
@@ -21,7 +22,6 @@ public record PersonRaceResult(PersonRaceResultId id,
                                       Double punchTime,
                                       Long position,
                                       ResultStatus resultState,
-                                      @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
                                       Optional<List<SplitTime>> splitTimes) {
         return PersonRaceResult.of(
                 PersonRaceResultId.empty().value(),
@@ -44,7 +44,6 @@ public record PersonRaceResult(PersonRaceResultId id,
             Double punchTime,
             Long position,
             ResultStatus resultState,
-            @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
             Optional<List<SplitTime>> splitTimes) {
         return new PersonRaceResult(
                 PersonRaceResultId.of(id),

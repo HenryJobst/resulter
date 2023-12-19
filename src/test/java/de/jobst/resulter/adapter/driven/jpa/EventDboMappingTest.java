@@ -68,10 +68,10 @@ class EventDboMappingTest {
         String classShortName = "H50-";
         Gender classGender = Gender.M;
         classResults.add(ClassResult.of(className, classShortName,
-                classGender, personResults));
+                classGender, Optional.of(personResults)));
 
         String eventName = "Domain";
-        Event event = Event.of(eventName, classResults);
+        Event event = Event.of(eventName, Optional.of(classResults));
 
         EventDbo entity = EventDbo.from(event);
 

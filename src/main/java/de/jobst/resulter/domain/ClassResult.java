@@ -3,15 +3,17 @@ package de.jobst.resulter.domain;
 import org.springframework.lang.NonNull;
 
 import java.util.Collection;
+import java.util.Optional;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public record ClassResult(ClassResultId id,
                           EventId eventId,
                           ClassResultName classResultName, ClassResultShortName classResultShortName, Gender gender,
-                          PersonResults personResults) {
+                          Optional<PersonResults> personResults) {
     public static ClassResult of(@NonNull String name,
                                  @NonNull String shortName,
                                  @NonNull Gender gender,
-                                 Collection<PersonResult> personResults) {
+                                 Optional<Collection<PersonResult>> personResults) {
         return ClassResult.of(ClassResultId.empty().value(),
                 EventId.empty().value(), name, shortName, gender, personResults);
     }
@@ -20,7 +22,7 @@ public record ClassResult(ClassResultId id,
                                  @NonNull String name,
                                  @NonNull String shortName,
                                  @NonNull Gender gender,
-                                 Collection<PersonResult> personResults) {
+                                 Optional<Collection<PersonResult>> personResults) {
         return ClassResult.of(ClassResultId.empty().value(),
                 eventId, name, shortName, gender, personResults);
     }
@@ -30,12 +32,12 @@ public record ClassResult(ClassResultId id,
                                  @NonNull String name,
                                  @NonNull String shortName,
                                  @NonNull Gender gender,
-                                 Collection<PersonResult> personResults) {
+                                 Optional<Collection<PersonResult>> personResults) {
         return new ClassResult(
                 ClassResultId.of(classResultId),
                 EventId.of(eventId),
                 ClassResultName.of(name), ClassResultShortName.of(shortName),
                 gender,
-                PersonResults.of(personResults));
+                personResults.map(PersonResults::of));
     }
 }

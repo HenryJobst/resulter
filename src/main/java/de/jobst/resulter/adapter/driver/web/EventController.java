@@ -31,6 +31,10 @@ public class EventController {
 
     @GetMapping("/event")
     public ResponseEntity<List<EventDto>> handleEvents(
+            @RequestParam(name = "shallowClassResults", required = false, defaultValue = "true")
+            Boolean shallowClassResults,
+            @RequestParam(name = "shallowPersonResults", required = false, defaultValue = "true")
+            Boolean shallowPersonResults,
             @RequestParam(name = "shallowPersonRaceResults", required = false, defaultValue = "true")
             Boolean shallowPersonRaceResults,
             @RequestParam(name = "shallowSplitTimes", required = false, defaultValue = "true")
@@ -53,7 +57,20 @@ public class EventController {
             if (shallowOrganisations) {
                 shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
             }
-            if (shallowPersonRaceResults) {
+            if (shallowClassResults) {
+                shallowLoads.add(EventConfig.ShallowLoads.CLASS_RESULTS);
+                shallowLoads.add(EventConfig.ShallowLoads.PERSON_RESULTS);
+                shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
+                shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
+                shallowLoads.add(EventConfig.ShallowLoads.PERSONS);
+                shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
+            } else if (shallowPersonResults) {
+                shallowLoads.add(EventConfig.ShallowLoads.PERSON_RESULTS);
+                shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
+                shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
+                shallowLoads.add(EventConfig.ShallowLoads.PERSONS);
+                shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
+            } else if (shallowPersonRaceResults) {
                 shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
                 shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
             } else if (shallowSplitTimes) {

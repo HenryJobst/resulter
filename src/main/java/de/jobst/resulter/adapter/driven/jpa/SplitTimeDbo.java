@@ -11,8 +11,8 @@ import java.util.List;
 @Table(name = "SPLIT_TIME")
 public class SplitTimeDbo {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
-    @SequenceGenerator(name = "entity_generator", sequenceName = "SEQ_SPLIT_TIME_ID", allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_split_time")
+    @SequenceGenerator(name = "entity_generator_split_time", sequenceName = "SEQ_SPLIT_TIME_ID", allocationSize = 10)
     @Column(name = "ID", nullable = false)
     private Long id;
 

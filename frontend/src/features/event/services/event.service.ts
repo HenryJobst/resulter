@@ -4,9 +4,20 @@ import axios from 'axios'
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'event'
 
 export class EventService {
-  static async getAll(): Promise<Event[]> {
-    const response = await axios.get(url)
-    return response.data
+  static async getAll(): Promise<Event[] | void> {
+    return await axios
+      .get<Event[]>(url)
+      .then((response) => {
+        return response.data.map((element) => {
+          if (element.startTime) {
+            element.startTime = new Date(element.startTime)
+          }
+          return element
+        })
+      })
+      .catch((error) => {
+        console.error('Fehler bei der Anfrage:', error)
+      })
   }
 
   static async getById(id: string): Promise<Event> {

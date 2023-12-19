@@ -12,7 +12,7 @@ public interface EventRepository {
 
     List<Event> findAll(EventConfig eventConfig);
 
-    Optional<Event> findById(EventId EventId);
+    Optional<Event> findById(EventId EventId, EventConfig eventConfig);
 
     Event findOrCreate(Event event);
 }

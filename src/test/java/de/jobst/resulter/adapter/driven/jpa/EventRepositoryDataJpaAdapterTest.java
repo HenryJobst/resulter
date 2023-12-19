@@ -41,7 +41,9 @@ class EventRepositoryDataJpaAdapterTest {
 
         Event savedEvent = eventRepositoryAdapter.save(event);
 
-        Optional<Event> found = eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()));
+        Optional<Event>
+                found =
+                eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()), EventConfig.full());
 
         assertThat(found)
                 .isPresent()
@@ -80,7 +82,9 @@ class EventRepositoryDataJpaAdapterTest {
 
         Event savedEvent = eventRepositoryAdapter.findOrCreate(event);
 
-        Optional<Event> found = eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()));
+        Optional<Event>
+                found =
+                eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()), EventConfig.full());
 
         assertThat(found)
                 .isPresent()
@@ -98,7 +102,9 @@ class EventRepositoryDataJpaAdapterTest {
 
         Event savedEvent = eventRepositoryAdapter.findOrCreate(event);
 
-        Optional<Event> found = eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()));
+        Optional<Event>
+                found =
+                eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()), EventConfig.full());
 
         assertThat(found)
                 .isPresent()

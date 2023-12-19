@@ -8,8 +8,10 @@ import jakarta.persistence.*;
 @Table(name = "ORGANISATION")
 public class OrganisationDbo {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
-    @SequenceGenerator(name = "entity_generator", sequenceName = "SEQ_ORGANISATION_ID", allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_organisation")
+    @SequenceGenerator(name = "entity_generator_organisation",
+            sequenceName = "SEQ_ORGANISATION_ID",
+            allocationSize = 10)
     @Column(name = "ID", nullable = false, unique = true)
     private Long id;
 

@@ -11,8 +11,8 @@ import java.time.LocalDate;
 @Table(name = "PERSON")
 public class PersonDbo {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
-    @SequenceGenerator(name = "entity_generator", sequenceName = "SEQ_PERSON_ID", allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_person")
+    @SequenceGenerator(name = "entity_generator_person", sequenceName = "SEQ_PERSON_ID", allocationSize = 10)
     @Column(name = "ID", nullable = false, unique = true)
     private Long id;
 

@@ -34,7 +34,7 @@ public class InMemoryEventRepository implements EventRepository {
     }
 
     @Override
-    public Optional<Event> findById(EventId EventId) {
+    public Optional<Event> findById(EventId EventId, EventConfig eventConfig) {
         return Optional.ofNullable(events.get(EventId));
     }
 

@@ -13,6 +13,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,7 +51,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         return EventDbo.asEvents(eventConfig, resultList);
     }
 
-    private EntityGraph<?> getEntityGraph(EventConfig eventConfig) {
+    private EntityGraph<EventDbo> getEntityGraph(EventConfig eventConfig) {
         EntityGraph<EventDbo> entityGraph = entityManager.createEntityGraph(EventDbo.class);
 
         if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.EVENT_ORGANISATIONS)) {
@@ -82,12 +83,17 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         return entityGraph;
     }
 
-
     @Override
-    public Optional<Event> findById(EventId eventId) {
-        Optional<EventDbo> eventEntity =
-                eventJpaRepository.findById(eventId.value());
-        return eventEntity.map(it -> EventDbo.asEvents(EventConfig.full(), List.of(it)).getFirst());
+    public Optional<Event> findById(EventId eventId, EventConfig eventConfig) {
+        TypedQuery<EventDbo> query = entityManager.createQuery(
+                MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
+                        EventDbo_.class_.getName(),
+                        EventDbo_.id.getName()),
+                EventDbo.class);
+        query.setParameter("id", eventId.value());
+        query.setHint("jakarta.persistence.loadgraph", getEntityGraph(eventConfig));
+
+        return query.getResultStream().findFirst().map(it -> EventDbo.asEvents(eventConfig, List.of(it)).getFirst());
     }
 
     @Override

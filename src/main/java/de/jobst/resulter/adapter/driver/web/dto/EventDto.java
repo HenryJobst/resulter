@@ -21,8 +21,8 @@ public record EventDto(Long id,
                         event.getStartTime().value().toLocalDate() : null,
                 ObjectUtils.isNotEmpty(event.getStartTime()) && ObjectUtils.isNotEmpty(event.getStartTime().value()) ?
                         event.getStartTime().value().toLocalTime() : null,
-                ObjectUtils.isNotEmpty(event.getClassResults()) ? event.getClassResults().value().size() : 0,
-                event.getClassResults().value().stream().mapToLong(it -> it.personResults().value().size()).sum()
+                ObjectUtils.isNotEmpty(event.getClassResults()) ? event.getClassResults().get().value().size() : 0,
+                event.getClassResults().get().value().stream().mapToLong(it -> it.personResults().value().size()).sum()
         );
     }
 }

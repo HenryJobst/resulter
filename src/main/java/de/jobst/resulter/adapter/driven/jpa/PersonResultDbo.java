@@ -38,9 +38,13 @@ public class PersonResultDbo {
             personResultDbo.setId(personResult.id().value());
         }
         personResultDbo.setClassResultDbo(classResultDbo);
-        personResultDbo.setPerson(PersonDbo.from(personResult.person()));
-        if (ObjectUtils.isNotEmpty(personResult.organisation())) {
-            personResultDbo.setOrganisation(OrganisationDbo.from(personResult.organisation()));
+        if (personResult.person().isPresent()) {
+            personResultDbo.setPerson(PersonDbo.from(personResult.person().get()));
+        }
+        if (personResult.organisation().isPresent()) {
+            if (ObjectUtils.isNotEmpty(personResult.organisation().get())) {
+                personResultDbo.setOrganisation(OrganisationDbo.from(personResult.organisation().get()));
+            }
         }
         if (personResult.personRaceResults().isPresent()) {
             personResultDbo.setPersonRaceResults(personResult.personRaceResults().get()
@@ -54,11 +58,16 @@ public class PersonResultDbo {
 
     static public Collection<PersonResult> asPersonResults(EventConfig eventConfig,
                                                            Collection<PersonResultDbo> personResultDbos) {
-        Map<PersonResultId, List<PersonRaceResult>> personRaceResultsByPersonResultId =
-                PersonRaceResultDbo.asPersonRaceResults(eventConfig,
-                                personResultDbos.stream().flatMap(x -> x.personRaceResults.stream()).toList())
-                        .stream()
-                        .collect(Collectors.groupingBy(PersonRaceResult::personResultId));
+        Map<PersonResultId, List<PersonRaceResult>> personRaceResultsByPersonResultId;
+        if (eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RACE_RESULTS)) {
+            personRaceResultsByPersonResultId = new HashMap<>();
+        } else {
+            personRaceResultsByPersonResultId =
+                    PersonRaceResultDbo.asPersonRaceResults(eventConfig,
+                                    personResultDbos.stream().flatMap(x -> x.personRaceResults.stream()).toList())
+                            .stream()
+                            .collect(Collectors.groupingBy(PersonRaceResult::personResultId));
+        }
         return personResultDbos.stream()
                 .map(
                         it -> PersonResult.of(
@@ -66,28 +75,15 @@ public class PersonResultDbo {
                                 it.getClassResultDbo() != null ?
                                         it.getClassResultDbo().getId() :
                                         ClassResultId.empty().value(),
-                                it.person.asPerson(),
-                                ObjectUtils.isNotEmpty(it.organisation) ?
-                                        it.organisation.asOrganisation() : null,
+                                eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSONS) ?
+                                        Optional.empty() : Optional.of(it.person.asPerson()),
+                                eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.ORGANISATIONS) ?
+                                        Optional.empty() :
+                                        (ObjectUtils.isNotEmpty(it.organisation) ?
+                                                Optional.of(it.organisation.asOrganisation()) : Optional.of(null)),
                                 Optional.ofNullable(personRaceResultsByPersonResultId.getOrDefault(PersonResultId.of(it.id),
                                         new ArrayList<>()))))
                 .toList();
-    }
-
-    public PersonResult asPersonResult(EventConfig eventConfig) {
-        return PersonResult.of(
-                getId(),
-                ObjectUtils.isNotEmpty(getClassResultDbo()) ?
-                        getClassResultDbo().getId() :
-                        ClassResultId.empty().value(),
-                person.asPerson(),
-                ObjectUtils.isNotEmpty(organisation) ?
-                        organisation.asOrganisation() : null,
-                eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RACE_RESULTS) ? Optional.empty() :
-                        Optional.of(
-                                personRaceResults.stream().map(it -> it.asPersonRaceResult(
-                                        eventConfig)).toList())
-        );
     }
 
     public long getId() {

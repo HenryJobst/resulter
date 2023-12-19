@@ -56,11 +56,11 @@ class EventDboMappingTest {
         String clubName = "O-Club";
         String clubShortName = "OC";
         personResults.add(PersonResult.of(
-                Person.of(
+                Optional.of(Person.of(
                         FamilyName.of(familyName), GivenName.of(givenName),
                         birthDate,
-                        personGender),
-                Organisation.of(clubName, clubShortName),
+                        personGender)),
+                Optional.of(Organisation.of(clubName, clubShortName)),
                 Optional.of(personRaceResults)));
 
         Collection<ClassResult> classResults = new ArrayList<>();

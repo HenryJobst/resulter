@@ -34,10 +34,25 @@ public class EventController {
             @RequestParam(name = "shallowPersonRaceResults", required = false, defaultValue = "true")
             Boolean shallowPersonRaceResults,
             @RequestParam(name = "shallowSplitTimes", required = false, defaultValue = "true")
-            Boolean shallowSplitTimes
+            Boolean shallowSplitTimes,
+            @RequestParam(name = "shallowPersons", required = false, defaultValue = "true")
+            Boolean shallowPersons,
+            @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
+            Boolean shallowOrganisations,
+            @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "true")
+            Boolean shallowEventOrganisations
     ) {
         try {
             EnumSet<EventConfig.ShallowLoads> shallowLoads = EnumSet.noneOf(EventConfig.ShallowLoads.class);
+            if (shallowEventOrganisations) {
+                shallowLoads.add(EventConfig.ShallowLoads.EVENT_ORGANISATIONS);
+            }
+            if (shallowPersons) {
+                shallowLoads.add(EventConfig.ShallowLoads.PERSONS);
+            }
+            if (shallowOrganisations) {
+                shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
+            }
             if (shallowPersonRaceResults) {
                 shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
                 shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);

@@ -76,12 +76,17 @@ public class PersonRaceResultDbo {
 
     public static Collection<PersonRaceResult> asPersonRaceResults(EventConfig eventConfig,
                                                                    List<PersonRaceResultDbo> personRaceResultDbos) {
-        Map<PersonRaceResultId, List<SplitTime>> splitTimesByPersonRaceResultId =
-                SplitTimeDbo.asSplitTimes(personRaceResultDbos.stream()
-                                .flatMap(x -> x.splitTimes.stream())
-                                .toList())
-                        .stream()
-                        .collect(Collectors.groupingBy(SplitTime::personRaceResultId));
+        Map<PersonRaceResultId, List<SplitTime>> splitTimesByPersonRaceResultId;
+        if (eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.SPLIT_TIMES)) {
+            splitTimesByPersonRaceResultId = new HashMap<>();
+        } else {
+            splitTimesByPersonRaceResultId =
+                    SplitTimeDbo.asSplitTimes(personRaceResultDbos.stream()
+                                    .flatMap(x -> x.splitTimes.stream())
+                                    .toList())
+                            .stream()
+                            .collect(Collectors.groupingBy(SplitTime::personRaceResultId));
+        }
         return personRaceResultDbos.stream()
                 .map(
                         it -> PersonRaceResult.of(

@@ -8,8 +8,10 @@ import org.springframework.lang.Nullable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 public class Event {
     @NonNull
@@ -24,10 +26,10 @@ public class Event {
     private DateTime startTime;
     @Nullable
     private DateTime endTime;
-    @Nullable
-    private ClassResults classResults;
-    @Nullable
-    private Organisations organisations;
+    @NonNull
+    private Optional<ClassResults> classResults = Optional.empty();
+    @NonNull
+    private Optional<Organisations> organisations = Optional.empty();
     @Nullable
     private EventStatus eventState;
 
@@ -39,8 +41,8 @@ public class Event {
                  @NonNull EventName eventName,
                  @Nullable DateTime startTime,
                  @Nullable DateTime endTime,
-                 @Nullable ClassResults classResults,
-                 @Nullable Organisations organisations,
+                 @NonNull Optional<ClassResults> classResults,
+                 @NonNull Optional<Organisations> organisations,
                  @Nullable EventStatus eventState) {
         this.id = id;
         this.name = eventName;
@@ -84,8 +86,8 @@ public class Event {
                 EventName.of(eventName),
                 DateTime.of(startTime),
                 DateTime.of(endTime),
-                ClassResults.of(classResults),
-                Organisations.of(organisations),
+                Optional.of(ClassResults.of(classResults)),
+                Optional.of(Organisations.of(organisations)),
                 eventState);
     }
 }

@@ -15,14 +15,18 @@ public record EventConfig(EnumSet<ShallowLoads> shallowLoads) {
     public static EventConfig fromEvent(Event event) {
         EnumSet<ShallowLoads> shallowLoads = EnumSet.noneOf(ShallowLoads.class);
 
-        if (Objects.requireNonNull(event.getClassResults())
-                .value()
+        if (event.getClassResults().isEmpty()) {
+            shallowLoads.add(ShallowLoads.CLASS_RESULTS);
+            shallowLoads.add(ShallowLoads.PERSON_RACE_RESULTS);
+            shallowLoads.add(ShallowLoads.SPLIT_TIMES);
+        } else if (event.getClassResults()
+                .get().value()
                 .stream()
                 .flatMap(x -> x.personResults().value().stream()).noneMatch(y -> y.personRaceResults().isPresent())) {
             shallowLoads.add(ShallowLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(ShallowLoads.SPLIT_TIMES);
         } else if (Objects.requireNonNull(event.getClassResults())
-                .value()
+                .get().value()
                 .stream()
                 .flatMap(x -> x.personResults()
                         .value()
@@ -35,5 +39,12 @@ public record EventConfig(EnumSet<ShallowLoads> shallowLoads) {
         return EventConfig.of(shallowLoads);
     }
 
-    public enum ShallowLoads {PERSON_RACE_RESULTS, SPLIT_TIMES}
+    public enum ShallowLoads {
+        CLASS_RESULTS,
+        PERSON_RACE_RESULTS,
+        SPLIT_TIMES,
+        PERSONS,
+        ORGANISATIONS,
+        EVENT_ORGANISATIONS
+    }
 }

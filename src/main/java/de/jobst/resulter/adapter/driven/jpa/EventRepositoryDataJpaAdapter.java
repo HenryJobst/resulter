@@ -29,7 +29,8 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
 
     @Override
     public List<Event> findAll(EventConfig eventConfig) {
-        return EventDbo.asEvents(eventConfig, eventJpaRepository.findAll());
+        List<EventDbo> all = eventJpaRepository.findAll();
+        return EventDbo.asEvents(eventConfig, all);
     }
 
     @Override

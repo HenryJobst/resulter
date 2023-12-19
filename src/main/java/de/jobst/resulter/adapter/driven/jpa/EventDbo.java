@@ -54,11 +54,15 @@ public class EventDbo {
             eventDbo.setEndTime(event.getEndTime().value());
         }
 
-        eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults())
-                .value().stream().map(it -> ClassResultDbo.from(it, eventDbo)).collect(Collectors.toSet()));
+        if (event.getClassResults().isPresent()) {
+            eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults().get())
+                    .value().stream().map(it -> ClassResultDbo.from(it, eventDbo)).collect(Collectors.toSet()));
+        }
 
-        eventDbo.setOrganisations(Objects.requireNonNull(event.getOrganisations())
-                .value().stream().map(it -> OrganisationDbo.from(it)).collect(Collectors.toSet()));
+        if (event.getOrganisations().isPresent()) {
+            eventDbo.setOrganisations(Objects.requireNonNull(event.getOrganisations().get())
+                    .value().stream().map(OrganisationDbo::from).collect(Collectors.toSet()));
+        }
 
         if (ObjectUtils.isNotEmpty(event.getEventState())) {
             eventDbo.setState(event.getEventState());

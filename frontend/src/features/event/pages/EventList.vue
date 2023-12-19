@@ -6,10 +6,50 @@ import Column from 'primevue/column'
 import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
+const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const store = useEventStore()
+
+const dateOptions: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}
+
+const timeOptions: Intl.DateTimeFormatOptions = {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false
+}
+
+const formatDateFunction = computed(() => {
+  return (date: string | Date) => {
+    if (!date) return ''
+    if (typeof date === 'string') {
+      return new Date(date).toLocaleDateString(locale.value, dateOptions)
+    }
+    return date.toLocaleDateString(locale.value, dateOptions)
+  }
+})
+
+const formatTimeFunction = computed(() => {
+  return (time: string | Date) => {
+    if (!time) return ''
+    if (typeof time === 'string') {
+      return new Date(time).toLocaleTimeString(locale.value, timeOptions)
+    }
+    return time.toLocaleTimeString(locale.value, timeOptions)
+  }
+})
+
+const formatDate = (date: string) => {
+  return formatDateFunction.value(date)
+}
+const formatTime = (time: string) => {
+  return formatTimeFunction.value(time)
+}
 </script>
 
 <template>
@@ -33,11 +73,21 @@ const store = useEventStore()
   <Spinner v-if="store.loadingEvents"></Spinner>
 
   <div v-if="store.errorMessage === null && !store.loadingEvents">
-    <DataTable :value="store.events" class="p-datatable-sm" tableStyle="min-width: 50rem">
+    <DataTable :value="store.events" class="p-datatable-sm">
       <Column field="id" :header="t('labels.no')" />
       <Column field="name" :header="t('labels.name')" />
-      <Column field="startDate" :header="t('labels.date')" />
-      <Column field="startTime" :header="t('labels.time')" />
+      <Column field="startDate" :header="t('labels.date')">
+        <!--suppress JSUnresolvedReference -->
+        <template #body="slotProps">
+          {{ formatDate(slotProps.data.startTime) }}
+        </template>
+      </Column>
+      <Column field="startTime" :header="t('labels.time')">
+        <!--suppress JSUnresolvedReference -->
+        <template #body="slotProps">
+          {{ formatTime(slotProps.data.startTime) }}
+        </template>
+      </Column>
       <Column class="text-right" field="classes" :header="t('labels.class', 2)" />
       <Column class="text-right" field="participants" :header="t('labels.participant', 2)" />
       <Column class="text-right">

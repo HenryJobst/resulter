@@ -4,6 +4,7 @@ import de.jobst.resulter.application.port.InMemoryEventRepository;
 import de.jobst.resulter.application.port.InMemoryOrganisationRepository;
 import de.jobst.resulter.application.port.InMemoryPersonRepository;
 import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventId;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ class EventServiceFindTest {
         EventService eventService = EventServiceFactory.createServiceWith(
                 new InMemoryEventRepository(), new InMemoryPersonRepository(), new InMemoryOrganisationRepository());
 
-        assertThat(eventService.findById(EventId.of(9999))).isEmpty();
+        assertThat(eventService.findById(EventId.of(9999), EventConfig.full())).isEmpty();
     }
 
     @Test
@@ -59,7 +60,7 @@ class EventServiceFindTest {
                 eventService =
                 EventServiceFactory.createServiceWith(eventRepository, personRepository, organisationRepository);
 
-        Optional<Event> foundEvent = eventService.findById(savedEvent.getId());
+        Optional<Event> foundEvent = eventService.findById(savedEvent.getId(), EventConfig.full());
 
         assertThat(foundEvent).isNotEmpty();
     }

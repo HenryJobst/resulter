@@ -12,8 +12,10 @@ import java.util.stream.Collectors;
 @Table(name = "PERSON_RESULT")
 public class PersonResultDbo {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
-    @SequenceGenerator(name = "entity_generator", sequenceName = "SEQ_PERSON_RESULT_ID", allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_person_result")
+    @SequenceGenerator(name = "entity_generator_person_result",
+            sequenceName = "SEQ_PERSON_RESULT_ID",
+            allocationSize = 10)
     @Column(name = "ID", nullable = false)
     private Long id;
 

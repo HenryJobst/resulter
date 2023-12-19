@@ -33,8 +33,8 @@ public class EventService {
     }
 
     @Transactional
-    public Optional<Event> findById(EventId eventId) {
-        return eventRepository.findById(eventId);
+    public Optional<Event> findById(EventId eventId, EventConfig eventConfig) {
+        return eventRepository.findById(eventId, eventConfig);
     }
 
     @Transactional

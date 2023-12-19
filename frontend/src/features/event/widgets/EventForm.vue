@@ -6,13 +6,17 @@ import { useI18n } from 'vue-i18n'
 
 import Calendar from 'primevue/calendar'
 
+const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
+
 const defaultDate = new Date()
 const defaultTime = defaultDate
 defaultTime.setHours(11)
+
 const formData = ref<Event | Omit<Event, 'id'>>({
   name: '',
-  startDate: defaultDate,
-  startTime: defaultTime
+  startTime: new Date().toLocaleDateString(locale.value),
+  classes: 0,
+  participants: 0
 })
 
 const props = defineProps<{ event?: Event }>()
@@ -22,6 +26,7 @@ onMounted(() => {
     formData.value = {
       ...props.event
     }
+    console.log(formData)
   }
 })
 
@@ -31,8 +36,6 @@ const formSubmitHandler = () => {
   // console.log(formData.value)
   emit('eventSubmit', formData.value)
 }
-
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 </script>
 
 <template>
@@ -48,7 +51,7 @@ const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
         <label for="startDate" class="col-fixed w-32">{{ t('labels.date') }}</label>
         <div class="col">
           <Calendar
-            v-model="formData.startDate"
+            v-model="formData.startTime"
             id="startDate"
             date-format="dd.mm.yy"
             show-icon

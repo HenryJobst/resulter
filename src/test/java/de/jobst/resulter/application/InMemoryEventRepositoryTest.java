@@ -22,7 +22,8 @@ class InMemoryEventRepositoryTest {
 
         Event savedEvent = inMemoryEventRepository.save(event);
 
-        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()));
+        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()),
+                EventConfig.full());
 
         assertThat(found)
                 .isPresent()
@@ -58,7 +59,8 @@ class InMemoryEventRepositoryTest {
 
         Event savedEvent = inMemoryEventRepository.findOrCreate(event);
 
-        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()));
+        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()),
+                EventConfig.full());
 
         assertThat(found)
                 .isPresent()
@@ -74,7 +76,8 @@ class InMemoryEventRepositoryTest {
 
         Event savedEvent = inMemoryEventRepository.findOrCreate(event);
 
-        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()));
+        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()),
+                EventConfig.full());
 
         assertThat(found)
                 .isPresent()

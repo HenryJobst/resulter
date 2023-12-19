@@ -15,8 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -65,6 +66,7 @@ class XMLImportServiceTest {
         assertThat(classResultBK.get().classResultShortName().value()).isEqualTo("BK");
         assertThat(classResultBK.get().gender()).isEqualTo(Gender.of("M"));
 
+        assertThat(classResultBK.get().personResults()).isPresent();
         assertThat(classResultBK.get().personResults().get().value()).hasSize(2);
         Optional<PersonResult>
                 firstPersonResult =
@@ -107,14 +109,14 @@ class XMLImportServiceTest {
 
         assertThat(firstPersonRaceResult.get().raceNumber().value()).isEqualTo(1);
         assertThat(firstPersonRaceResult.get().positon().value()).isEqualTo(1);
-        assertThat(firstPersonRaceResult.get().startTime()).isEqualTo(DateTime.of(LocalDateTime.of(LocalDate.of(2020,
+        assertThat(firstPersonRaceResult.get().startTime()).isEqualTo(DateTime.of(ZonedDateTime.of(LocalDate.of(2020,
                         1,
                         18),
-                LocalTime.of(11, 30, 5))));
-        assertThat(firstPersonRaceResult.get().finishTime()).isEqualTo(DateTime.of(LocalDateTime.of(LocalDate.of(2020,
+                LocalTime.of(11, 30, 5), ZoneId.systemDefault())));
+        assertThat(firstPersonRaceResult.get().finishTime()).isEqualTo(DateTime.of(ZonedDateTime.of(LocalDate.of(2020,
                         1,
                         18),
-                LocalTime.of(11, 49, 6))));
+                LocalTime.of(11, 49, 6), ZoneId.systemDefault())));
         assertThat(firstPersonRaceResult.get().runtime().value()).isEqualTo(1141.0);
         assertThat(firstPersonRaceResult.get().state()).isEqualTo(ResultStatus.OK);
 

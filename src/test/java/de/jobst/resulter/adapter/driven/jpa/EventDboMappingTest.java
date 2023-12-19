@@ -4,7 +4,8 @@ import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,8 +35,8 @@ class EventDboMappingTest {
         splitTimes.add(SplitTime.of("134", 34.0));
         Collection<PersonRaceResult> personRaceResults = new ArrayList<>();
         long raceNumber = 1L;
-        LocalDateTime startTime = LocalDateTime.of(2020, 10, 11, 11, 12);
-        LocalDateTime finishTime = LocalDateTime.of(2020, 10, 11, 11, 54);
+        ZonedDateTime startTime = ZonedDateTime.of(2020, 10, 11, 11, 12, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime finishTime = ZonedDateTime.of(2020, 10, 11, 11, 54, 0, 0, ZoneId.systemDefault());
         double punchTime = 1000.0;
         long position = 2L;
         ResultStatus resultStatus = ResultStatus.OK;
@@ -77,6 +78,7 @@ class EventDboMappingTest {
 
         assertThat(entity.getName()).isEqualTo(eventName);
         assertThat(entity.getClassResults()).hasSize(classResults.size());
+        assertThat(entity.getClassResults().stream().findFirst()).isPresent();
         ClassResultDbo classResultDbo = entity.getClassResults().stream().findFirst().get();
         assertThat(classResultDbo.getName()).isEqualTo(className);
         assertThat(classResultDbo.getShortName()).isEqualTo(classShortName);

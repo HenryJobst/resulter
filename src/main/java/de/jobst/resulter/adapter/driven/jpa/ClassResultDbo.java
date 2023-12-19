@@ -57,11 +57,16 @@ public class ClassResultDbo {
     static public Collection<ClassResult> asClassResults(EventConfig eventConfig,
                                                          Collection<ClassResultDbo> classResultDbos) {
 
-        Map<ClassResultId, List<PersonResult>> personResultsByClassResultId =
-                PersonResultDbo.asPersonResults(eventConfig,
-                                classResultDbos.stream().flatMap(x -> x.personResults.stream()).toList())
-                        .stream()
-                        .collect(Collectors.groupingBy(PersonResult::classResultId));
+        Map<ClassResultId, List<PersonResult>> personResultsByClassResultId;
+        if (eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RESULTS)) {
+            personResultsByClassResultId = new HashMap<>();
+        } else {
+            personResultsByClassResultId =
+                    PersonResultDbo.asPersonResults(eventConfig,
+                                    classResultDbos.stream().flatMap(x -> x.personResults.stream()).toList())
+                            .stream()
+                            .collect(Collectors.groupingBy(PersonResult::classResultId));
+        }
         return classResultDbos.stream()
                 .map(
                         it -> ClassResult.of(it.id,

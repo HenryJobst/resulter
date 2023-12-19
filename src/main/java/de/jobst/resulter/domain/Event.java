@@ -5,7 +5,7 @@ import lombok.Setter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -81,8 +81,8 @@ public class Event {
                 null);
     }
 
-    static public Event of(long id, String eventName, LocalDateTime startTime,
-                           LocalDateTime endTime,
+    static public Event of(long id, String eventName, ZonedDateTime startTime,
+                           ZonedDateTime endTime,
                            Optional<Collection<ClassResult>> classResults,
                            Optional<Collection<Organisation>> organisations, EventStatus eventState) {
         return new Event(EventId.of(id),

@@ -1,9 +1,9 @@
 package de.jobst.resulter.domain;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
-public record DateTime(LocalDateTime value) {
-    public static DateTime of(LocalDateTime value) {
+public record DateTime(ZonedDateTime value) {
+    public static DateTime of(ZonedDateTime value) {
         return new DateTime(value);
     }
 }

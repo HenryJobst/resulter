@@ -4,7 +4,7 @@ import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -13,17 +13,17 @@ import java.util.stream.Collectors;
 @Table(name = "EVENT")
 public class EventDbo {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
-    @SequenceGenerator(name = "entity_generator", sequenceName = "SEQ_EVENT_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_event")
+    @SequenceGenerator(name = "entity_generator_event", sequenceName = "SEQ_EVENT_ID", allocationSize = 1)
     @Column(name = "ID", nullable = false, unique = true)
     private Long id;
 
     @Column(name = "NAME", nullable = false, unique = true)
     private String name;
     @Column(name = "START_TIME")
-    private LocalDateTime startTime;
+    private ZonedDateTime startTime;
     @Column(name = "END_TIME")
-    private LocalDateTime endTime;
+    private ZonedDateTime endTime;
     @OneToMany(mappedBy = "eventDbo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ClassResultDbo> classResults = new HashSet<>();
 
@@ -87,7 +87,7 @@ public class EventDbo {
                         it.name,
                         it.startTime,
                         it.endTime,
-                        Optional.of(classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>())),
+                        Optional.ofNullable(classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>())),
                         eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.EVENT_ORGANISATIONS) ?
                                 Optional.empty() :
                                 Optional.of(it.organisations.stream()
@@ -122,19 +122,19 @@ public class EventDbo {
         this.name = name;
     }
 
-    public LocalDateTime getStartTime() {
+    public ZonedDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(ZonedDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime() {
+    public ZonedDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(ZonedDateTime endTime) {
         this.endTime = endTime;
     }
 

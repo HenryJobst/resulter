@@ -25,6 +25,7 @@
     <logger name="org.hibernate.cache" level="warn" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
+    <logger name="org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator" level="ERROR"/>
 
     <root level="warn">
         <appender-ref ref="STDOUT"/>

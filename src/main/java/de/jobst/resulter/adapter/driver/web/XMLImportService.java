@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
@@ -44,12 +43,12 @@ public class XMLImportService {
                 PersonRaceResult.of(
                         personRaceResult.getRaceNumber().longValue(),
                         ObjectUtils.isNotEmpty(personRaceResult.getStartTime()) ?
-                                LocalDateTime.ofInstant(personRaceResult.getStartTime()
-                                        .toInstant(), ZoneId.systemDefault()) : null,
+                                personRaceResult.getStartTime().toInstant().atZone(
+                                        personRaceResult.getStartTime().getTimeZone().toZoneId()) : null,
                         ObjectUtils.isNotEmpty(personRaceResult.getFinishTime()) ?
-                                LocalDateTime.ofInstant(personRaceResult.getFinishTime()
-                                                .toInstant(),
-                                        ZoneId.systemDefault()) : null,
+                                personRaceResult.getFinishTime()
+                                        .toInstant()
+                                        .atZone(personRaceResult.getFinishTime().getTimeZone().toZoneId()) : null,
                         ObjectUtils.isNotEmpty(personRaceResult.getTime()) ?
                                 personRaceResult.getTime() :
                                 null,

@@ -4,7 +4,7 @@ import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -13,8 +13,10 @@ import java.util.stream.Collectors;
 @Table(name = "PERSON_RACE_RESULT")
 public class PersonRaceResultDbo {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator")
-    @SequenceGenerator(name = "entity_generator", sequenceName = "SEQ_PERSON_RACE_RESULT_ID", allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_person_race_result")
+    @SequenceGenerator(name = "entity_generator_person_race_result",
+            sequenceName = "SEQ_PERSON_RACE_RESULT_ID",
+            allocationSize = 10)
     @Column(name = "ID", nullable = false)
     private Long id;
 
@@ -25,9 +27,9 @@ public class PersonRaceResultDbo {
     @Column(name = "RACE_NUMBER", nullable = false)
     private Long raceNumber;
     @Column(name = "START_TIME")
-    private LocalDateTime startTime;
+    private ZonedDateTime startTime;
     @Column(name = "FINISH_TIME")
-    private LocalDateTime finishTime;
+    private ZonedDateTime finishTime;
     @Column(name = "PUNCH_TIME")
     private Double punchTime;
     @Column(name = "POSITION")
@@ -121,19 +123,19 @@ public class PersonRaceResultDbo {
         this.id = id;
     }
 
-    public LocalDateTime getStartTime() {
+    public ZonedDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(ZonedDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getFinishTime() {
+    public ZonedDateTime getFinishTime() {
         return finishTime;
     }
 
-    public void setFinishTime(LocalDateTime finishTime) {
+    public void setFinishTime(ZonedDateTime finishTime) {
         this.finishTime = finishTime;
     }
 

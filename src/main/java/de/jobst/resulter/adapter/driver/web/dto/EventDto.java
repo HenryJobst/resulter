@@ -3,13 +3,9 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.domain.Event;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 public record EventDto(Long id,
                        String name,
-                       LocalDate startDate,
-                       LocalTime startTime,
+                       String startTime,
                        Integer classes,
                        Long participants) {
     static public EventDto from(Event event) {
@@ -18,9 +14,7 @@ public record EventDto(Long id,
                         event.getId().value() : 0,
                 event.getName().value(),
                 ObjectUtils.isNotEmpty(event.getStartTime()) && ObjectUtils.isNotEmpty(event.getStartTime().value()) ?
-                        event.getStartTime().value().toLocalDate() : null,
-                ObjectUtils.isNotEmpty(event.getStartTime()) && ObjectUtils.isNotEmpty(event.getStartTime().value()) ?
-                        event.getStartTime().value().toLocalTime() : null,
+                        event.getStartTime().value().toString() : null,
                 ObjectUtils.isNotEmpty(event.getClassResults()) && event.getClassResults().isPresent() ?
                         event.getClassResults().get().value().size() :
                         0,

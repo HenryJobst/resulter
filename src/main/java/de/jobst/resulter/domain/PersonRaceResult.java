@@ -2,7 +2,7 @@ package de.jobst.resulter.domain;
 
 import org.springframework.lang.NonNull;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,8 +17,8 @@ public record PersonRaceResult(PersonRaceResultId id,
                                ResultStatus state,
                                Optional<SplitTimes> splitTimes) {
     public static PersonRaceResult of(Long raceNumber,
-                                      LocalDateTime startTime,
-                                      LocalDateTime finishTime,
+                                      ZonedDateTime startTime,
+                                      ZonedDateTime finishTime,
                                       Double punchTime,
                                       Long position,
                                       ResultStatus resultState,
@@ -39,8 +39,8 @@ public record PersonRaceResult(PersonRaceResultId id,
             @NonNull Long id,
             @NonNull Long personResultId,
             Long raceNumber,
-            LocalDateTime startTime,
-            LocalDateTime finishTime,
+            ZonedDateTime startTime,
+            ZonedDateTime finishTime,
             Double punchTime,
             Long position,
             ResultStatus resultState,

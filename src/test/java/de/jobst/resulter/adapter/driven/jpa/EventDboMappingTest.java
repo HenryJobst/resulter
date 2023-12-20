@@ -49,12 +49,12 @@ class EventDboMappingTest {
         String clubName = "O-Club";
         String clubShortName = "OC";
         personResults.add(PersonResult.of(
-                Optional.of(Person.of(
+                Person.of(
                         FamilyName.of(familyName), GivenName.of(givenName),
                         birthDate,
-                        personGender)),
-                Optional.of(Organisation.of(clubName, clubShortName)),
-                Optional.of(personRaceResults)));
+                        personGender),
+                Organisation.of(clubName, clubShortName),
+                personRaceResults));
 
         Collection<ClassResult> classResults = new ArrayList<>();
         String className = "H50- (Herren ab 50)";
@@ -126,11 +126,11 @@ class EventDboMappingTest {
                     if (ObjectUtils.isNotEmpty(personResult)) {
                         assertThat(personResultDbo).isNotNull();
 
-                        if (personResult.person().isPresent()) {
+                        if (personResult.getPerson().isLoaded()) {
                             assertThat(personResultDbo).isNotNull();
                             assertThat(personResultDbo.getPerson()).isNotNull();
 
-                            Person person = personResult.person().get();
+                            Person person = personResult.getPerson().get();
                             PersonDbo personDbo = personResultDbo.getPerson();
 
                             assertThat(personDbo.getFamilyName()).isEqualTo(person.getPersonName()
@@ -142,11 +142,11 @@ class EventDboMappingTest {
                             assertThat(personResultDbo.getPerson()).isNull();
                         }
 
-                        if (personResult.organisation().isPresent()) {
+                        if (personResult.getOrganisation().isLoaded()) {
                             assertThat(personResultDbo).isNotNull();
                             assertThat(personResultDbo.getOrganisation()).isNotNull();
 
-                            Organisation organisation = personResult.organisation().get();
+                            Organisation organisation = personResult.getOrganisation().get();
                             OrganisationDbo organisationDbo = personResultDbo.getOrganisation();
 
                             assertThat(organisationDbo.getName()).isEqualTo(organisation.getName().value());
@@ -155,16 +155,16 @@ class EventDboMappingTest {
                             assertThat(personResultDbo.getOrganisation()).isNull();
                         }
 
-                        if (personResult.personRaceResults().isPresent()) {
+                        if (personResult.getPersonRaceResults().isLoaded()) {
                             assertThat(personResultDbo.getPersonRaceResults()).isNotEmpty();
-                            assertThat(personResultDbo.getPersonRaceResults()).hasSize(personResult.personRaceResults()
+                            assertThat(personResultDbo.getPersonRaceResults()).hasSize(personResult.getPersonRaceResults()
                                     .get()
                                     .value()
                                     .size());
 
                             PersonRaceResult
                                     personRaceResult =
-                                    personResult.personRaceResults().get().value().stream().findFirst().orElse(null);
+                                    personResult.getPersonRaceResults().get().value().stream().findFirst().orElse(null);
                             PersonRaceResultDbo
                                     personRaceResultDbo =
                                     personResultDbo.getPersonRaceResults().stream().findFirst().orElse(null);

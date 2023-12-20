@@ -10,7 +10,7 @@ import java.util.Collection;
 
 @Getter
 public class ClassResult {
-    @Nullable
+    @NonNull
     @Setter
     private ClassResultId id;
     @NonNull
@@ -24,7 +24,7 @@ public class ClassResult {
     @NonNull
     private final ShallowLoadProxy<PersonResults> personResults;
 
-    public ClassResult(@Nullable ClassResultId id,
+    public ClassResult(@NonNull ClassResultId id,
                        @NonNull EventId eventId,
                        @NonNull ClassResultName classResultName,
                        @NonNull ClassResultShortName classResultShortName,
@@ -46,7 +46,7 @@ public class ClassResult {
                 EventId.empty().value(), name, shortName, gender, personResults);
     }
 
-    public static ClassResult of(@NonNull Long eventId,
+    public static ClassResult of(long eventId,
                                  @NonNull String name,
                                  @NonNull String shortName,
                                  @NonNull Gender gender,
@@ -55,14 +55,14 @@ public class ClassResult {
                 eventId, name, shortName, gender, personResults);
     }
 
-    public static ClassResult of(@NonNull Long classResultId,
-                                 @NonNull Long eventId,
+    public static ClassResult of(long id,
+                                 long eventId,
                                  @NonNull String name,
                                  @NonNull String shortName,
                                  @NonNull Gender gender,
                                  @Nullable Collection<PersonResult> personResults) {
         return new ClassResult(
-                ClassResultId.of(classResultId),
+                ClassResultId.of(id),
                 EventId.of(eventId),
                 ClassResultName.of(name), ClassResultShortName.of(shortName),
                 gender,

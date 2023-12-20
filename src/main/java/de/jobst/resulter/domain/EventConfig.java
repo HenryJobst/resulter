@@ -32,7 +32,7 @@ public record EventConfig(EnumSet<ShallowLoads> shallowLoads) {
                 .value()
                 .stream()
                 .flatMap(x -> x.getPersonResults().get().value().stream())
-                .noneMatch(y -> y.personRaceResults().isPresent())) {
+                .noneMatch(y -> y.getPersonRaceResults().isLoaded())) {
             shallowLoads.add(ShallowLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(ShallowLoads.SPLIT_TIMES);
         } else if (Objects.requireNonNull(event.getClassResults())
@@ -41,8 +41,8 @@ public record EventConfig(EnumSet<ShallowLoads> shallowLoads) {
                 .flatMap(x -> x.getPersonResults()
                         .get().value()
                         .stream()
-                        .filter(y -> y.personRaceResults().isPresent())
-                        .flatMap(z -> z.personRaceResults().get().value()
+                        .filter(y -> y.getPersonRaceResults().isLoaded())
+                        .flatMap(z -> z.getPersonRaceResults().get().value()
                                 .stream())).noneMatch(u -> u.splitTimes().isPresent())) {
             shallowLoads.add(ShallowLoads.SPLIT_TIMES);
         }

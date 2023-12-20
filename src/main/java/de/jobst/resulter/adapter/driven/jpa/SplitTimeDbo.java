@@ -27,11 +27,9 @@ public class SplitTimeDbo {
     public static SplitTimeDbo from(SplitTime splitTime, PersonRaceResultDbo personRaceResultDbo) {
         SplitTimeDbo splitTimeDbo = new SplitTimeDbo();
         splitTimeDbo.setPersonResultDbo(personRaceResultDbo);
-        if (splitTime.id() != null) {
-            splitTimeDbo.setId(splitTime.id().value());
-        }
-        splitTimeDbo.setControlCode(splitTime.controlCode().value());
-        splitTimeDbo.setPunchTime(splitTime.punchTime().value());
+        splitTimeDbo.setId(splitTime.getId().value());
+        splitTimeDbo.setControlCode(splitTime.getControlCode().value());
+        splitTimeDbo.setPunchTime(splitTime.getPunchTime().value());
         return splitTimeDbo;
     }
 

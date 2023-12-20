@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
@@ -44,29 +47,28 @@ public class PersonRaceResultDbo {
     public static PersonRaceResultDbo from(PersonRaceResult personRaceResult, PersonResultDbo personResultDbo) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
         personRaceResultDbo.setPersonResultDbo(personResultDbo);
-        if (personRaceResult.id() != null) {
-            personRaceResultDbo.setId(personRaceResult.id().value());
+        personRaceResultDbo.setId(personRaceResult.getId().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getStartTime())) {
+            personRaceResultDbo.setStartTime(personRaceResult.getStartTime().value());
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.startTime())) {
-            personRaceResultDbo.setStartTime(personRaceResult.startTime().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getFinishTime())) {
+            personRaceResultDbo.setFinishTime(personRaceResult.getFinishTime().value());
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.finishTime())) {
-            personRaceResultDbo.setFinishTime(personRaceResult.finishTime().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getRuntime())) {
+            personRaceResultDbo.setPunchTime(personRaceResult.getRuntime().value());
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.runtime())) {
-            personRaceResultDbo.setPunchTime(personRaceResult.runtime().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getRaceNumber())) {
+            personRaceResultDbo.setRaceNumber(personRaceResult.getRaceNumber().value());
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.raceNumber())) {
-            personRaceResultDbo.setRaceNumber(personRaceResult.raceNumber().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getPositon())) {
+            personRaceResultDbo.setPosition(personRaceResult.getPositon().value());
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.positon())) {
-            personRaceResultDbo.setPosition(personRaceResult.positon().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getState())) {
+            personRaceResultDbo.setState(personRaceResult.getState());
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.state())) {
-            personRaceResultDbo.setState(personRaceResult.state());
-        }
-        if (personRaceResult.splitTimes().isPresent() && ObjectUtils.isNotEmpty(personRaceResult.splitTimes().get())) {
-            personRaceResultDbo.setSplitTimes(personRaceResult.splitTimes().get()
+        if (personRaceResult.getSplitTimes().isLoaded() &&
+                ObjectUtils.isNotEmpty(personRaceResult.getSplitTimes().get())) {
+            personRaceResultDbo.setSplitTimes(personRaceResult.getSplitTimes().get()
                     .value()
                     .stream()
                     .map(it -> SplitTimeDbo.from(it, personRaceResultDbo))
@@ -79,15 +81,15 @@ public class PersonRaceResultDbo {
     public static Collection<PersonRaceResult> asPersonRaceResults(EventConfig eventConfig,
                                                                    List<PersonRaceResultDbo> personRaceResultDbos) {
         Map<PersonRaceResultId, List<SplitTime>> splitTimesByPersonRaceResultId;
-        if (eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.SPLIT_TIMES)) {
-            splitTimesByPersonRaceResultId = new HashMap<>();
-        } else {
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.SPLIT_TIMES)) {
             splitTimesByPersonRaceResultId =
                     SplitTimeDbo.asSplitTimes(personRaceResultDbos.stream()
                                     .flatMap(x -> x.splitTimes.stream())
                                     .toList())
                             .stream()
-                            .collect(Collectors.groupingBy(SplitTime::personRaceResultId));
+                            .collect(Collectors.groupingBy(SplitTime::getPersonRaceResultId));
+        } else {
+            splitTimesByPersonRaceResultId = null;
         }
         return personRaceResultDbos.stream()
                 .map(
@@ -102,17 +104,10 @@ public class PersonRaceResultDbo {
                                 it.getPunchTime(),
                                 it.getPosition(),
                                 it.getState(),
-                                Optional.ofNullable(splitTimesByPersonRaceResultId.getOrDefault(
-                                        PersonRaceResultId.of(it.id),
-                                        new ArrayList<>()))))
+                                splitTimesByPersonRaceResultId == null ? null :
+                                        splitTimesByPersonRaceResultId.getOrDefault(
+                                                PersonRaceResultId.of(it.id), new ArrayList<>())))
                 .toList();
-    }
-
-    public PersonRaceResult asPersonRaceResult(EventConfig eventConfig) {
-        return PersonRaceResult.of(raceNumber, startTime, finishTime, punchTime, position, state,
-                eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.SPLIT_TIMES) ? Optional.empty() :
-                        Optional.of(
-                                splitTimes.stream().map(SplitTimeDbo::asSplitTime).toList()));
     }
 
     public long getId() {

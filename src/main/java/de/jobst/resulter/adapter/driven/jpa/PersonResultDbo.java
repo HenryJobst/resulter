@@ -64,7 +64,7 @@ public class PersonResultDbo {
                     PersonRaceResultDbo.asPersonRaceResults(eventConfig,
                                     personResultDbos.stream().flatMap(x -> x.personRaceResults.stream()).toList())
                             .stream()
-                            .collect(Collectors.groupingBy(PersonRaceResult::personResultId));
+                            .collect(Collectors.groupingBy(PersonRaceResult::getPersonResultId));
         } else {
             personRaceResultsByPersonResultId = null;
         }

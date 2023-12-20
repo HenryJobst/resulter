@@ -43,7 +43,7 @@ public record EventConfig(EnumSet<ShallowLoads> shallowLoads) {
                         .stream()
                         .filter(y -> y.getPersonRaceResults().isLoaded())
                         .flatMap(z -> z.getPersonRaceResults().get().value()
-                                .stream())).noneMatch(u -> u.splitTimes().isPresent())) {
+                                .stream())).noneMatch(u -> u.getSplitTimes().isLoaded())) {
             shallowLoads.add(ShallowLoads.SPLIT_TIMES);
         }
         if (event.getOrganisations().isEmpty()) {

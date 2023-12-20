@@ -8,7 +8,10 @@ import org.springframework.lang.NonNull;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,7 +42,7 @@ class EventDboMappingTest {
                 punchTime,
                 position,
                 resultStatus,
-                Optional.of(splitTimes)));
+                splitTimes));
 
         Collection<PersonResult> personResults = new ArrayList<>();
         String familyName = "Knopf";
@@ -172,28 +175,28 @@ class EventDboMappingTest {
                             if (ObjectUtils.isNotEmpty(personRaceResult)) {
                                 assertThat(personRaceResultDbo).isNotNull();
 
-                                assertThat(personRaceResultDbo.getRaceNumber()).isEqualTo(personRaceResult.raceNumber()
+                                assertThat(personRaceResultDbo.getRaceNumber()).isEqualTo(personRaceResult.getRaceNumber()
                                         .value());
-                                assertThat(personRaceResultDbo.getStartTime()).isEqualTo(personRaceResult.startTime()
+                                assertThat(personRaceResultDbo.getStartTime()).isEqualTo(personRaceResult.getStartTime()
                                         .value());
-                                assertThat(personRaceResultDbo.getFinishTime()).isEqualTo(personRaceResult.finishTime()
+                                assertThat(personRaceResultDbo.getFinishTime()).isEqualTo(personRaceResult.getFinishTime()
                                         .value());
-                                assertThat(personRaceResultDbo.getPunchTime()).isEqualTo(personRaceResult.runtime()
+                                assertThat(personRaceResultDbo.getPunchTime()).isEqualTo(personRaceResult.getRuntime()
                                         .value());
-                                assertThat(personRaceResultDbo.getPosition()).isEqualTo(personRaceResult.positon()
+                                assertThat(personRaceResultDbo.getPosition()).isEqualTo(personRaceResult.getPositon()
                                         .value());
-                                assertThat(personRaceResultDbo.getState()).isEqualTo(personRaceResult.state());
+                                assertThat(personRaceResultDbo.getState()).isEqualTo(personRaceResult.getState());
 
-                                if (personRaceResult.splitTimes().isPresent()) {
+                                if (personRaceResult.getSplitTimes().isLoaded()) {
                                     assertThat(personRaceResultDbo.getSplitTimes()).isNotEmpty();
-                                    assertThat(personRaceResultDbo.getSplitTimes()).hasSize(personRaceResult.splitTimes()
+                                    assertThat(personRaceResultDbo.getSplitTimes()).hasSize(personRaceResult.getSplitTimes()
                                             .get()
                                             .value()
                                             .size());
 
                                     SplitTime
                                             splitTime =
-                                            personRaceResult.splitTimes()
+                                            personRaceResult.getSplitTimes()
                                                     .get()
                                                     .value()
                                                     .stream()
@@ -205,9 +208,9 @@ class EventDboMappingTest {
                                     if (ObjectUtils.isNotEmpty(splitTime)) {
                                         assertThat(splitTimeDbo).isNotNull();
 
-                                        assertThat(splitTimeDbo.getControlCode()).isEqualTo(splitTime.controlCode()
+                                        assertThat(splitTimeDbo.getControlCode()).isEqualTo(splitTime.getControlCode()
                                                 .value());
-                                        assertThat(splitTimeDbo.getPunchTime()).isEqualTo(splitTime.punchTime()
+                                        assertThat(splitTimeDbo.getPunchTime()).isEqualTo(splitTime.getPunchTime()
                                                 .value());
                                     }
                                 } else {

@@ -113,25 +113,26 @@ class XMLImportServiceTest {
                 firstPersonResult.get().getPersonRaceResults().get().value().stream().findFirst();
         assertThat(firstPersonRaceResult).isPresent();
 
-        assertThat(firstPersonRaceResult.get().raceNumber().value()).isEqualTo(1);
-        assertThat(firstPersonRaceResult.get().positon().value()).isEqualTo(1);
-        assertThat(firstPersonRaceResult.get().startTime()).isEqualTo(DateTime.of(ZonedDateTime.of(LocalDate.of(2020,
+        assertThat(firstPersonRaceResult.get().getRaceNumber().value()).isEqualTo(1);
+        assertThat(firstPersonRaceResult.get().getPositon().value()).isEqualTo(1);
+        assertThat(firstPersonRaceResult.get().getStartTime()).isEqualTo(DateTime.of(ZonedDateTime.of(LocalDate.of(2020,
                         1,
                         18),
                 LocalTime.of(11, 30, 5), ZoneId.systemDefault())));
-        assertThat(firstPersonRaceResult.get().finishTime()).isEqualTo(DateTime.of(ZonedDateTime.of(LocalDate.of(2020,
+        assertThat(firstPersonRaceResult.get()
+                .getFinishTime()).isEqualTo(DateTime.of(ZonedDateTime.of(LocalDate.of(2020,
                         1,
                         18),
                 LocalTime.of(11, 49, 6), ZoneId.systemDefault())));
-        assertThat(firstPersonRaceResult.get().runtime().value()).isEqualTo(1141.0);
-        assertThat(firstPersonRaceResult.get().state()).isEqualTo(ResultStatus.OK);
+        assertThat(firstPersonRaceResult.get().getRuntime().value()).isEqualTo(1141.0);
+        assertThat(firstPersonRaceResult.get().getState()).isEqualTo(ResultStatus.OK);
 
-        assertThat(firstPersonRaceResult.get().splitTimes()).isPresent();
-        assertThat(firstPersonRaceResult.get().splitTimes().get().value()).hasSize(6);
+        assertThat(firstPersonRaceResult.get().getSplitTimes().isLoaded()).isTrue();
+        assertThat(firstPersonRaceResult.get().getSplitTimes().get().value()).hasSize(6);
         Optional<SplitTime> firstSplittime =
-                firstPersonRaceResult.get().splitTimes().get().value().stream().findFirst();
+                firstPersonRaceResult.get().getSplitTimes().get().value().stream().findFirst();
         assertThat(firstSplittime).isPresent();
-        assertThat(firstSplittime.get().controlCode().value()).isEqualTo("134");
-        assertThat(firstSplittime.get().punchTime().value()).isEqualTo(212.0);
+        assertThat(firstSplittime.get().getControlCode().value()).isEqualTo("134");
+        assertThat(firstSplittime.get().getPunchTime().value()).isEqualTo(212.0);
     }
 }

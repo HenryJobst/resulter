@@ -1,17 +1,43 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ShallowLoadProxy;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.util.Collection;
 
-public record ClassResult(ClassResultId id,
-                          EventId eventId,
-                          ClassResultName classResultName,
-                          ClassResultShortName classResultShortName,
-                          Gender gender,
-                          ShallowLoadProxy<PersonResults> personResults) {
+@Getter
+public class ClassResult {
+    @Nullable
+    @Setter
+    private ClassResultId id;
+    @NonNull
+    private final EventId eventId;
+    @NonNull
+    private final ClassResultName classResultName;
+    @NonNull
+    private final ClassResultShortName classResultShortName;
+    @NonNull
+    private final Gender gender;
+    @NonNull
+    private final ShallowLoadProxy<PersonResults> personResults;
+
+    public ClassResult(@Nullable ClassResultId id,
+                       @NonNull EventId eventId,
+                       @NonNull ClassResultName classResultName,
+                       @NonNull ClassResultShortName classResultShortName,
+                       @NonNull Gender gender,
+                       @NonNull ShallowLoadProxy<PersonResults> personResults) {
+        this.id = id;
+        this.eventId = eventId;
+        this.classResultName = classResultName;
+        this.classResultShortName = classResultShortName;
+        this.gender = gender;
+        this.personResults = personResults;
+    }
+
     public static ClassResult of(@NonNull String name,
                                  @NonNull String shortName,
                                  @NonNull Gender gender,

@@ -77,7 +77,7 @@ public class EventDbo {
                     ClassResultDbo.asClassResults(eventConfig,
                                     eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
                             .stream()
-                            .collect(Collectors.groupingBy(ClassResult::eventId));
+                            .collect(Collectors.groupingBy(ClassResult::getEventId));
         } else {
             classResultsByEventId = null;
         }

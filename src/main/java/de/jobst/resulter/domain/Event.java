@@ -1,5 +1,6 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
@@ -15,14 +16,11 @@ import java.util.Optional;
 @Getter
 public class Event {
     @NonNull
-    @Setter
     private EventName name;
-
     @Nullable
     @Setter
     private EventId id;
     @Nullable
-    @Setter
     private DateTime startTime;
     @Nullable
     private DateTime endTime;
@@ -92,5 +90,12 @@ public class Event {
                 classResults.map(ClassResults::of),
                 organisations.map(Organisations::of),
                 eventState);
+    }
+
+    public boolean update(EventName eventName, DateTime startTime) {
+        ValueObjectChecks.requireNotNull(eventName);
+        this.name = eventName;
+        this.startTime = startTime;
+        return false;
     }
 }

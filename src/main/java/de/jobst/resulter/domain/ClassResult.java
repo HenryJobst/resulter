@@ -8,7 +8,9 @@ import java.util.Optional;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public record ClassResult(ClassResultId id,
                           EventId eventId,
-                          ClassResultName classResultName, ClassResultShortName classResultShortName, Gender gender,
+                          ClassResultName classResultName,
+                          ClassResultShortName classResultShortName,
+                          Gender gender,
                           Optional<PersonResults> personResults) {
     public static ClassResult of(@NonNull String name,
                                  @NonNull String shortName,

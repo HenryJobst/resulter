@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.adapter.TestConfig;
+import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventName;
@@ -31,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EventRepositoryDataJpaAdapterTest {
 
     @Autowired
-    EventRepositoryDataJpaAdapter eventRepositoryAdapter;
+    EventRepository eventRepository;
 
     @Test
     @Transactional
@@ -39,11 +40,11 @@ class EventRepositoryDataJpaAdapterTest {
         String eventName = "test event";
         Event event = Event.of(eventName);
 
-        Event savedEvent = eventRepositoryAdapter.save(event);
+        Event savedEvent = eventRepository.save(event);
 
         Optional<Event>
                 found =
-                eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()), EventConfig.full());
+                eventRepository.findById(Objects.requireNonNull(savedEvent.getId()), EventConfig.full());
 
         assertThat(found)
                 .isPresent()
@@ -55,7 +56,7 @@ class EventRepositoryDataJpaAdapterTest {
     @Test
     @Transactional
     public void newRepositoryReturnsEmptyForFindAll() {
-        List<Event> events = eventRepositoryAdapter.findAll(EventConfig.full());
+        List<Event> events = eventRepository.findAll(EventConfig.full());
 
         assertThat(events).isEmpty();
     }
@@ -66,10 +67,10 @@ class EventRepositoryDataJpaAdapterTest {
         Event one = Event.of("one");
         Event two = Event.of("two");
 
-        eventRepositoryAdapter.save(one);
-        eventRepositoryAdapter.save(two);
+        eventRepository.save(one);
+        eventRepository.save(two);
 
-        List<Event> allEvents = eventRepositoryAdapter.findAll(EventConfig.full());
+        List<Event> allEvents = eventRepository.findAll(EventConfig.full());
         assertThat(allEvents)
                 .hasSize(2);
     }
@@ -80,11 +81,11 @@ class EventRepositoryDataJpaAdapterTest {
         String eventName = "test event";
         Event event = Event.of(eventName);
 
-        Event savedEvent = eventRepositoryAdapter.findOrCreate(event);
+        Event savedEvent = eventRepository.findOrCreate(event);
 
         Optional<Event>
                 found =
-                eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()), EventConfig.full());
+                eventRepository.findById(Objects.requireNonNull(savedEvent.getId()), EventConfig.full());
 
         assertThat(found)
                 .isPresent()
@@ -98,13 +99,13 @@ class EventRepositoryDataJpaAdapterTest {
     void findOrCreateWithExisting() {
         String eventName = "test event";
         Event event = Event.of(eventName);
-        eventRepositoryAdapter.save(event);
+        eventRepository.save(event);
 
-        Event savedEvent = eventRepositoryAdapter.findOrCreate(event);
+        Event savedEvent = eventRepository.findOrCreate(event);
 
         Optional<Event>
                 found =
-                eventRepositoryAdapter.findById(Objects.requireNonNull(savedEvent.getId()), EventConfig.full());
+                eventRepository.findById(Objects.requireNonNull(savedEvent.getId()), EventConfig.full());
 
         assertThat(found)
                 .isPresent()

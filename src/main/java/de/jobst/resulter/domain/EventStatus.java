@@ -26,4 +26,8 @@ public enum EventStatus {
         return value;
     }
 
+    static public EventStatus getDefault() {
+        return EventStatus.PROPOSED;
+    }
+
 }

@@ -55,7 +55,7 @@ class XMLImportServiceTest {
         assertThat(Objects.requireNonNull(event.getId()).value()).isGreaterThanOrEqualTo(1L);
         assertThat(event.getName().value()).isEqualTo("Test-Event");
 
-        assertThat(Objects.requireNonNull(event.getClassResults())).isPresent();
+        assertThat(event.getClassResults().isLoaded()).isTrue();
         assertThat(Objects.requireNonNull(event.getClassResults()).get().value()).hasSize(1);
         Collection<ClassResult> classResults = event.getClassResults().get().value();
         Optional<ClassResult>

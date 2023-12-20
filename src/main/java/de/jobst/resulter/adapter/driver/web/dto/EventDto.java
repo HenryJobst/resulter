@@ -15,10 +15,8 @@ public record EventDto(Long id,
                 event.getName().value(),
                 ObjectUtils.isNotEmpty(event.getStartTime()) && ObjectUtils.isNotEmpty(event.getStartTime().value()) ?
                         event.getStartTime().value().toString() : null,
-                ObjectUtils.isNotEmpty(event.getClassResults()) && event.getClassResults().isPresent() ?
-                        event.getClassResults().get().value().size() :
-                        0,
-                event.getClassResults().isPresent() ?
+                event.getClassResults().isLoaded() ? event.getClassResults().get().value().size() : 0,
+                event.getClassResults().isLoaded() ?
                         event.getClassResults()
                                 .get()
                                 .value()

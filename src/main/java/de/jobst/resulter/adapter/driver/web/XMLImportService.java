@@ -110,11 +110,10 @@ public class XMLImportService {
 
         return eventService.findOrCreate(
                 Event.of(resultList.getEvent().getName(),
-                        Optional.of(classResults),
-                        Optional.of(resultList.getEvent().getOrganisers().stream().map(
-                                organisation -> Organisation.of(organisation.getName(), organisation.getShortName())
-                        ).toList())
-                ));
+                        classResults,
+                        resultList.getEvent().getOrganisers().stream().map(
+                                o -> Organisation.of(o.getName(), o.getShortName())
+                        ).toList()));
     }
 
     @NonNull

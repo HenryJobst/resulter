@@ -46,6 +46,9 @@ public record EventConfig(EnumSet<ShallowLoads> shallowLoads) {
                                 .stream())).noneMatch(u -> u.splitTimes().isPresent())) {
             shallowLoads.add(ShallowLoads.SPLIT_TIMES);
         }
+        if (event.getOrganisations().isEmpty()) {
+            shallowLoads.add(ShallowLoads.EVENT_ORGANISATIONS);
+        }
         return EventConfig.of(shallowLoads);
     }
 

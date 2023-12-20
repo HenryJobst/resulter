@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed"})
+@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
 @Table(name = "EVENT")
 public class EventDbo {
@@ -54,12 +54,12 @@ public class EventDbo {
             eventDbo.setEndTime(event.getEndTime().value());
         }
 
-        if (event.getClassResults().isPresent()) {
+        if (event.getClassResults().isLoaded()) {
             eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults().get())
                     .value().stream().map(it -> ClassResultDbo.from(it, eventDbo)).collect(Collectors.toSet()));
         }
 
-        if (event.getOrganisations().isPresent()) {
+        if (event.getOrganisations().isLoaded()) {
             eventDbo.setOrganisations(Objects.requireNonNull(event.getOrganisations().get())
                     .value().stream().map(OrganisationDbo::from).collect(Collectors.toSet()));
         }
@@ -72,14 +72,14 @@ public class EventDbo {
 
     static public List<Event> asEvents(EventConfig eventConfig, List<EventDbo> eventDbos) {
         Map<EventId, List<ClassResult>> classResultsByEventId;
-        if (eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.CLASS_RESULTS)) {
-            classResultsByEventId = new HashMap<>();
-        } else {
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.CLASS_RESULTS)) {
             classResultsByEventId =
                     ClassResultDbo.asClassResults(eventConfig,
                                     eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
                             .stream()
                             .collect(Collectors.groupingBy(ClassResult::eventId));
+        } else {
+            classResultsByEventId = null;
         }
 
         return eventDbos.stream()
@@ -87,12 +87,12 @@ public class EventDbo {
                         it.name,
                         it.startTime,
                         it.endTime,
-                        Optional.ofNullable(classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>())),
-                        eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.EVENT_ORGANISATIONS) ?
-                                Optional.empty() :
-                                Optional.of(it.organisations.stream()
+                        classResultsByEventId == null ? null :
+                                classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>()),
+                        eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.EVENT_ORGANISATIONS) ? null :
+                                it.organisations.stream()
                                         .map(x -> ObjectUtils.isNotEmpty(x) ? x.asOrganisation() : null)
-                                        .toList()),
+                                        .toList(),
                         it.state)
                 )
                 .toList();

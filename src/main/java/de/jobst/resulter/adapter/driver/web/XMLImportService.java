@@ -104,7 +104,7 @@ public class XMLImportService {
                                     clazz.getName(),
                                     clazz.getShortName(),
                                     Gender.of(clazz.getSex()),
-                                    Optional.of(getPersonResults(classResult))
+                                    getPersonResults(classResult)
                             );
                         }).toList();
 

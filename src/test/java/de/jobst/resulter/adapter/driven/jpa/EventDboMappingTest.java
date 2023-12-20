@@ -61,7 +61,7 @@ class EventDboMappingTest {
         String classShortName = "H50-";
         Gender classGender = Gender.M;
         classResults.add(ClassResult.of(className, classShortName,
-                classGender, Optional.of(personResults)));
+                classGender, personResults));
 
         return Event.of(A_EVENT_NAME, classResults);
 
@@ -109,7 +109,7 @@ class EventDboMappingTest {
                 assertThat(classResultDbo.getShortName()).isEqualTo(classResult.classResultShortName().value());
                 assertThat(classResultDbo.getGender()).isEqualTo(classResult.gender());
 
-                if (classResult.personResults().isPresent()) {
+                if (classResult.personResults().isLoaded()) {
                     assertThat(classResultDbo.getPersonResults()).isNotEmpty();
                     assertThat(classResultDbo.getPersonResults()).hasSize(classResult.personResults()
                             .get()

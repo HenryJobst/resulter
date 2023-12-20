@@ -12,17 +12,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class EventDboMappingTest {
 
+    public static final String A_EVENT_NAME = "A event name";
+    public static final long A_EVENT_ID = 19L;
+
     @Test
     public void databaseEntityToDomainIsMappedCorrectly() {
         EventDbo eventDbo = new EventDbo();
-        eventDbo.setId(19L);
-        eventDbo.setName("Entity");
+        eventDbo.setId(A_EVENT_ID);
+        eventDbo.setName(A_EVENT_NAME);
 
         Event event = EventDbo.asEvents(EventConfig.full(), List.of(eventDbo)).getFirst();
 
-        assertThat(Objects.requireNonNull(event.getId()).value()).isEqualTo(19L);
-        assertThat(event.getName().value())
-                .isEqualTo("Entity");
+        assertThat(Objects.requireNonNull(event.getId()).value()).isEqualTo(A_EVENT_ID);
+        assertThat(event.getName().value()).isEqualTo(A_EVENT_NAME);
+        assertThat(event.getStartTime()).isNotNull();
+        assertThat(event.getStartTime().value()).isNull();
+        assertThat(event.getOrganisations().isLoaded()).isTrue();
+        assertThat(event.getOrganisations().get().value()).isEmpty();
+        assertThat(event.getClassResults().isLoaded()).isTrue();
+        assertThat(event.getClassResults().get().value()).isEmpty();
+        assertThat(event.getEventState()).isNull();
     }
 
     @Test
@@ -71,12 +80,11 @@ class EventDboMappingTest {
         classResults.add(ClassResult.of(className, classShortName,
                 classGender, Optional.of(personResults)));
 
-        String eventName = "Domain";
-        Event event = Event.of(eventName, Optional.of(classResults));
+        Event event = Event.of(A_EVENT_NAME, classResults);
 
         EventDbo entity = EventDbo.from(event);
 
-        assertThat(entity.getName()).isEqualTo(eventName);
+        assertThat(entity.getName()).isEqualTo(A_EVENT_NAME);
         assertThat(entity.getClassResults()).hasSize(classResults.size());
         assertThat(entity.getClassResults().stream().findFirst()).isPresent();
         ClassResultDbo classResultDbo = entity.getClassResults().stream().findFirst().get();

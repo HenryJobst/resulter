@@ -1,5 +1,6 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.domain.util.ShallowLoadProxy;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,12 +8,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 public class Event {
     @NonNull
@@ -20,14 +18,14 @@ public class Event {
     @Nullable
     @Setter
     private EventId id;
-    @Nullable
-    private DateTime startTime;
-    @Nullable
-    private DateTime endTime;
     @NonNull
-    private Optional<ClassResults> classResults = Optional.empty();
+    private DateTime startTime = DateTime.empty();
     @NonNull
-    private Optional<Organisations> organisations = Optional.empty();
+    private DateTime endTime = DateTime.empty();
+    @NonNull
+    private ShallowLoadProxy<ClassResults> classResults = ShallowLoadProxy.empty();
+    @NonNull
+    private ShallowLoadProxy<Organisations> organisations = ShallowLoadProxy.empty();
     @Nullable
     private EventStatus eventState;
 
@@ -37,10 +35,10 @@ public class Event {
 
     public Event(@Nullable EventId id,
                  @NonNull EventName eventName,
-                 @Nullable DateTime startTime,
-                 @Nullable DateTime endTime,
-                 @NonNull Optional<ClassResults> classResults,
-                 @NonNull Optional<Organisations> organisations,
+                 @NonNull DateTime startTime,
+                 @NonNull DateTime endTime,
+                 @NonNull ShallowLoadProxy<ClassResults> classResults,
+                 @NonNull ShallowLoadProxy<Organisations> organisations,
                  @Nullable EventStatus eventState) {
         this.id = id;
         this.name = eventName;
@@ -51,25 +49,26 @@ public class Event {
         this.eventState = eventState;
     }
 
-    public static Event of(String name) {
-        return Event.of(name, Optional.of(new ArrayList<>()));
+    public static Event of(@NonNull String name) {
+        return Event.of(name, null);
     }
 
-    public static Event of(String name, Optional<Collection<ClassResult>> classResults) {
+    public static Event of(@NonNull String name, @Nullable Collection<ClassResult> classResults) {
         return Event.of(EventId.empty().value(), name, classResults);
     }
 
-    public static Event of(long id, String name) {
-        return Event.of(id, name, Optional.of(new ArrayList<>()));
+    public static Event of(long id, @NonNull String name) {
+        return Event.of(id, name, null);
     }
 
-    public static Event of(long id, String name, Optional<Collection<ClassResult>> classResults) {
-        return Event.of(id, name, null, null, classResults, Optional.of(new ArrayList<>()), null);
+    public static Event of(long id, @NonNull String name, @Nullable Collection<ClassResult> classResults) {
+        return Event.of(id, name, null, null, classResults,
+                null, null);
     }
 
-    public static Event of(String name,
-                           Optional<Collection<ClassResult>> classResults,
-                           Optional<Collection<Organisation>> organisations) {
+    public static Event of(@NonNull String name,
+                           @Nullable Collection<ClassResult> classResults,
+                           @Nullable Collection<Organisation> organisations) {
         return Event.of(EventId.empty().value(),
                 name,
                 null,
@@ -79,23 +78,27 @@ public class Event {
                 null);
     }
 
-    static public Event of(long id, String eventName, ZonedDateTime startTime,
-                           ZonedDateTime endTime,
-                           Optional<Collection<ClassResult>> classResults,
-                           Optional<Collection<Organisation>> organisations, EventStatus eventState) {
+    static public Event of(long id,
+                           @NonNull String eventName,
+                           @Nullable ZonedDateTime startTime,
+                           @Nullable ZonedDateTime endTime,
+                           @Nullable Collection<ClassResult> classResults,
+                           @Nullable Collection<Organisation> organisations,
+                           @Nullable EventStatus eventState) {
         return new Event(EventId.of(id),
                 EventName.of(eventName),
                 DateTime.of(startTime),
                 DateTime.of(endTime),
-                classResults.map(ClassResults::of),
-                organisations.map(Organisations::of),
+                (classResults != null) ? ShallowLoadProxy.of(ClassResults.of(classResults)) : ShallowLoadProxy.empty(),
+                (organisations != null) ?
+                        ShallowLoadProxy.of(Organisations.of(organisations)) :
+                        ShallowLoadProxy.empty(),
                 eventState);
     }
 
-    public boolean update(EventName eventName, DateTime startTime) {
+    public void update(EventName eventName, DateTime startTime) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
-        return false;
     }
 }

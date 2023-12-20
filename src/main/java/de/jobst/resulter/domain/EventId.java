@@ -3,6 +3,9 @@ package de.jobst.resulter.domain;
 public record EventId(long value) {
 
     public static EventId of(long value) {
+        if (value < 0L) {
+            throw new IllegalArgumentException("Id must be greater or equal 0.");
+        }
         return new EventId(value);
     }
 

@@ -8,12 +8,10 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,46 +26,6 @@ public class EventController {
     @Autowired
     public EventController(EventService eventService) {
         this.eventService = eventService;
-    }
-
-    @NonNull
-    private static EventConfig getEventConfig(Boolean shallowClassResults,
-                                              Boolean shallowPersonResults,
-                                              Boolean shallowPersonRaceResults,
-                                              Boolean shallowSplitTimes,
-                                              Boolean shallowPersons,
-                                              Boolean shallowOrganisations,
-                                              Boolean shallowEventOrganisations) {
-        EnumSet<EventConfig.ShallowLoads> shallowLoads = EnumSet.noneOf(EventConfig.ShallowLoads.class);
-        if (shallowEventOrganisations) {
-            shallowLoads.add(EventConfig.ShallowLoads.EVENT_ORGANISATIONS);
-        }
-        if (shallowPersons) {
-            shallowLoads.add(EventConfig.ShallowLoads.PERSONS);
-        }
-        if (shallowOrganisations) {
-            shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
-        }
-        if (shallowClassResults) {
-            shallowLoads.add(EventConfig.ShallowLoads.CLASS_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSONS);
-            shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
-        } else if (shallowPersonResults) {
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSONS);
-            shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
-        } else if (shallowPersonRaceResults) {
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
-        } else if (shallowSplitTimes) {
-            shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
-        }
-        return EventConfig.of(shallowLoads);
     }
 
     @GetMapping("/event")
@@ -88,16 +46,13 @@ public class EventController {
             Boolean shallowEventOrganisations
     ) {
         try {
-            EventConfig
-                    eventConfig =
-                    getEventConfig(shallowClassResults,
-                            shallowPersonResults,
-                            shallowPersonRaceResults,
-                            shallowSplitTimes,
-                            shallowPersons,
-                            shallowOrganisations,
-                            shallowEventOrganisations);
-            List<Event> events = eventService.findAll(eventConfig);
+            List<Event> events = eventService.findAll(EventService.getEventConfig(shallowClassResults,
+                    shallowPersonResults,
+                    shallowPersonRaceResults,
+                    shallowSplitTimes,
+                    shallowPersons,
+                    shallowOrganisations,
+                    shallowEventOrganisations));
             return ResponseEntity.ok(events.stream().map(EventDto::from).toList());
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -127,15 +82,13 @@ public class EventController {
             Boolean shallowEventOrganisations
     ) {
         try {
-            EventConfig
-                    eventConfig =
-                    getEventConfig(shallowClassResults,
-                            shallowPersonResults,
-                            shallowPersonRaceResults,
-                            shallowSplitTimes,
-                            shallowPersons,
-                            shallowOrganisations,
-                            shallowEventOrganisations);
+            EventConfig eventConfig = EventService.getEventConfig(shallowClassResults,
+                    shallowPersonResults,
+                    shallowPersonRaceResults,
+                    shallowSplitTimes,
+                    shallowPersons,
+                    shallowOrganisations,
+                    shallowEventOrganisations);
             Optional<Event> event = eventService.findById(EventId.of(id), eventConfig);
             return event.map(value -> ResponseEntity.ok(EventDto.from(value)))
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -151,31 +104,22 @@ public class EventController {
     @PutMapping("/event/{id}")
     public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
         try {
-            EventConfig
-                    eventConfig =
-                    getEventConfig(true,
-                            true,
-                            true,
-                            true,
-                            true,
-                            true,
-                            false);
-            Optional<Event> optionalEvent = eventService.findById(EventId.of(id), eventConfig);
-            if (optionalEvent.isPresent()) {
-                Event event = optionalEvent.get();
-                event.setName(EventName.of(eventDto.name()));
-                if (ObjectUtils.isNotEmpty(eventDto.startTime())) {
-                    if (ObjectUtils.isNotEmpty(eventDto.startTime())) {
-                        event.setStartTime(DateTime.of(ZonedDateTime.parse(eventDto.startTime(),
-                                DateTimeFormatter.ISO_DATE_TIME)));
-                    }
-                } else {
-                    event.setStartTime(null);
-                }
-                eventService.updateEvent(event);
+            Event event = eventService.updateEvent(EventId.of(id),
+                    EventName.of(eventDto.name()),
+                    ObjectUtils.isNotEmpty(eventDto.startTime()) ?
+                            DateTime.of(ZonedDateTime.parse(eventDto.startTime(),
+                                    DateTimeFormatter.ISO_DATE_TIME)) : null);
+            if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            if (Objects.nonNull(e.getCause())) {
+                log.error(e.getCause().getMessage());
+            }
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error(e.getMessage());
             if (Objects.nonNull(e.getCause())) {

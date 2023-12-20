@@ -12,6 +12,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -30,6 +31,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     }
 
     @Override
+    @Transactional
     public Event save(Event event) {
         EventDbo eventEntity = EventDbo.from(event);
         EventDbo savedEventEntity = eventJpaRepository.save(eventEntity);
@@ -37,6 +39,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Event> findAll(EventConfig eventConfig) {
         EntityGraph<?> entityGraph = getEntityGraph(eventConfig);
 
@@ -84,6 +87,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Event> findById(EventId eventId, EventConfig eventConfig) {
         TypedQuery<EventDbo> query = entityManager.createQuery(
                 MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
@@ -97,6 +101,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     }
 
     @Override
+    @Transactional
     public Event findOrCreate(Event event) {
         Optional<EventDbo> optionalEventDbo =
                 eventJpaRepository.findByName(event.getName().value());

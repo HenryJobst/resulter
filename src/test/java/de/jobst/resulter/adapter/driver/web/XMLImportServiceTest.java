@@ -66,7 +66,7 @@ class XMLImportServiceTest {
         assertThat(classResultBK.get().classResultShortName().value()).isEqualTo("BK");
         assertThat(classResultBK.get().gender()).isEqualTo(Gender.of("M"));
 
-        assertThat(classResultBK.get().personResults()).isPresent();
+        assertThat(classResultBK.get().personResults().isLoaded()).isTrue();
         assertThat(classResultBK.get().personResults().get().value()).hasSize(2);
         Optional<PersonResult>
                 firstPersonResult =

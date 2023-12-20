@@ -1,8 +1,11 @@
 package de.jobst.resulter.domain;
 
-public record OrganisationId(Long value) {
-    public static OrganisationId of(Long id) {
-        return new OrganisationId(id);
+public record OrganisationId(long value) {
+    public static OrganisationId of(long value) {
+        if (value < 0L) {
+            throw new IllegalArgumentException("Id must be greater or equal 0.");
+        }
+        return new OrganisationId(value);
     }
 
     public static OrganisationId empty() {

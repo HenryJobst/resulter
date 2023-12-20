@@ -23,7 +23,7 @@ public record EventConfig(EnumSet<ShallowLoads> shallowLoads) {
         } else if (event.getClassResults()
                 .get().value()
                 .stream()
-                .noneMatch(y -> y.personResults().isPresent())) {
+                .anyMatch(y -> y.personResults().isEmpty())) {
             shallowLoads.add(ShallowLoads.PERSON_RESULTS);
             shallowLoads.add(ShallowLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(ShallowLoads.SPLIT_TIMES);

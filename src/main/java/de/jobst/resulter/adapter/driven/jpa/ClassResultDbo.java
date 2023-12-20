@@ -58,22 +58,23 @@ public class ClassResultDbo {
                                                          Collection<ClassResultDbo> classResultDbos) {
 
         Map<ClassResultId, List<PersonResult>> personResultsByClassResultId;
-        if (eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RESULTS)) {
-            personResultsByClassResultId = new HashMap<>();
-        } else {
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RESULTS)) {
             personResultsByClassResultId =
                     PersonResultDbo.asPersonResults(eventConfig,
                                     classResultDbos.stream().flatMap(x -> x.personResults.stream()).toList())
                             .stream()
                             .collect(Collectors.groupingBy(PersonResult::classResultId));
+        } else {
+            personResultsByClassResultId = null;
         }
         return classResultDbos.stream()
                 .map(
                         it -> ClassResult.of(it.id,
                                 it.eventDbo != null ? it.eventDbo.getId() : EventId.empty().value(),
                                 it.name, it.shortName, it.gender,
-                                Optional.ofNullable(personResultsByClassResultId.getOrDefault(ClassResultId.of(it.id),
-                                        new ArrayList<>()))))
+                                personResultsByClassResultId == null ? null :
+                                        personResultsByClassResultId.getOrDefault(ClassResultId.of(it.id),
+                                                new ArrayList<>())))
                 .toList();
     }
 
@@ -117,6 +118,7 @@ public class ClassResultDbo {
         this.personResults = personResultDbos;
     }
 
+    @SuppressWarnings("unused")
     public EventDbo getEventDbo() {
         return eventDbo;
     }

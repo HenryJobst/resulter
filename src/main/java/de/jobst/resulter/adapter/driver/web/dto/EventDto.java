@@ -21,8 +21,8 @@ public record EventDto(Long id,
                                 .get()
                                 .value()
                                 .stream()
-                                .filter(it -> it.personResults().isLoaded())
-                                .mapToLong(it -> it.personResults().get().value().size())
+                                .filter(it -> it.getPersonResults().isLoaded())
+                                .mapToLong(it -> it.getPersonResults().get().value().size())
                                 .sum() : 0
         );
     }

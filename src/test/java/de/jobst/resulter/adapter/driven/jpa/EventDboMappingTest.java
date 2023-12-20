@@ -105,20 +105,20 @@ class EventDboMappingTest {
 
             if (ObjectUtils.isNotEmpty(classResult)) {
                 assertThat(classResultDbo).isNotNull();
-                assertThat(classResultDbo.getName()).isEqualTo(classResult.classResultName().value());
-                assertThat(classResultDbo.getShortName()).isEqualTo(classResult.classResultShortName().value());
-                assertThat(classResultDbo.getGender()).isEqualTo(classResult.gender());
+                assertThat(classResultDbo.getName()).isEqualTo(classResult.getClassResultName().value());
+                assertThat(classResultDbo.getShortName()).isEqualTo(classResult.getClassResultShortName().value());
+                assertThat(classResultDbo.getGender()).isEqualTo(classResult.getGender());
 
-                if (classResult.personResults().isLoaded()) {
+                if (classResult.getPersonResults().isLoaded()) {
                     assertThat(classResultDbo.getPersonResults()).isNotEmpty();
-                    assertThat(classResultDbo.getPersonResults()).hasSize(classResult.personResults()
+                    assertThat(classResultDbo.getPersonResults()).hasSize(classResult.getPersonResults()
                             .get()
                             .value()
                             .size());
 
                     PersonResult
                             personResult =
-                            classResult.personResults().get().value().stream().findFirst().orElse(null);
+                            classResult.getPersonResults().get().value().stream().findFirst().orElse(null);
                     PersonResultDbo
                             personResultDbo =
                             classResultDbo.getPersonResults().stream().findFirst().orElse(null);

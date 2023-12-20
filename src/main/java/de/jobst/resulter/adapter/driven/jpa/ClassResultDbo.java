@@ -36,17 +36,17 @@ public class ClassResultDbo {
 
     public static ClassResultDbo from(ClassResult classResult, EventDbo eventDbo) {
         ClassResultDbo classResultDbo = new ClassResultDbo();
-        if (classResult.id() != null) {
-            classResultDbo.setId(classResult.id().value());
+        if (classResult.getId() != null) {
+            classResultDbo.setId(classResult.getId().value());
         }
         classResultDbo.setEventDbo(eventDbo);
-        classResultDbo.setName(classResult.classResultName().value());
-        if (StringUtils.isNotEmpty(classResult.classResultShortName().value())) {
-            classResultDbo.setShortName(classResult.classResultShortName().value());
+        classResultDbo.setName(classResult.getClassResultName().value());
+        if (StringUtils.isNotEmpty(classResult.getClassResultShortName().value())) {
+            classResultDbo.setShortName(classResult.getClassResultShortName().value());
         }
-        classResultDbo.setGender(classResult.gender());
+        classResultDbo.setGender(classResult.getGender());
         classResultDbo.setPersonResults(
-                Objects.requireNonNull(classResult.personResults())
+                Objects.requireNonNull(classResult.getPersonResults())
                         .get().value()
                         .stream()
                         .map(it -> PersonResultDbo.from(it, classResultDbo))

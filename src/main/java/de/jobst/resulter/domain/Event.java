@@ -13,11 +13,11 @@ import java.util.Collection;
 
 @Getter
 public class Event {
-    @NonNull
-    private EventName name;
     @Nullable
     @Setter
     private EventId id;
+    @NonNull
+    private EventName name;
     @NonNull
     private DateTime startTime = DateTime.empty();
     @NonNull

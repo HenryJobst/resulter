@@ -75,36 +75,42 @@ class XMLImportServiceTest {
                         .get()
                         .value()
                         .stream()
-                        .filter(it -> it.person().isPresent())
-                        .filter(it -> it.person().get().getPersonName().familyName().value().contains("Mustermann"))
+                        .filter(it -> it.getPerson().isLoaded())
+                        .filter(it -> it.getPerson().get().getPersonName().familyName().value().contains("Mustermann"))
                         .findAny();
         assertThat(firstPersonResult).isPresent();
 
-        assertThat(Objects.requireNonNull(firstPersonResult.get().person())).isPresent();
-        assertThat(Objects.requireNonNull(firstPersonResult.get().person().get().getId())
+        assertThat(Objects.requireNonNull(firstPersonResult.get().getPerson()).isLoaded()).isTrue();
+        assertThat(Objects.requireNonNull(firstPersonResult.get().getPerson().get().getId())
                 .value()).isGreaterThanOrEqualTo(1);
         assertThat(firstPersonResult.get()
-                .person().get()
+                .getPerson().get()
                 .getPersonName()
                 .familyName()).isEqualTo(FamilyName.of("Mustermann"));
-        assertThat(firstPersonResult.get().person().get().getPersonName().givenName()).isEqualTo(GivenName.of("Max"));
-        assertThat(firstPersonResult.get().person().get().getBirthDate().value()).isEqualTo(LocalDate.of(1960, 10, 11));
-        assertThat(firstPersonResult.get().person().get().getGender()).isEqualTo(Gender.M);
-
-        assertThat(Objects.requireNonNull(firstPersonResult.get().organisation())).isPresent();
-        assertThat(Objects.requireNonNull(firstPersonResult.get().organisation().get().getId())
-                .value()).isGreaterThanOrEqualTo(1);
-        assertThat(firstPersonResult.get().organisation().get().getName().value()).isEqualTo("OLV Berlin");
         assertThat(firstPersonResult.get()
-                .organisation().get()
+                .getPerson()
+                .get()
+                .getPersonName()
+                .givenName()).isEqualTo(GivenName.of("Max"));
+        assertThat(firstPersonResult.get().getPerson().get().getBirthDate().value()).isEqualTo(LocalDate.of(1960,
+                10,
+                11));
+        assertThat(firstPersonResult.get().getPerson().get().getGender()).isEqualTo(Gender.M);
+
+        assertThat(firstPersonResult.get().getOrganisation().isLoaded()).isTrue();
+        assertThat(Objects.requireNonNull(firstPersonResult.get().getOrganisation().get().getId())
+                .value()).isGreaterThanOrEqualTo(1);
+        assertThat(firstPersonResult.get().getOrganisation().get().getName().value()).isEqualTo("OLV Berlin");
+        assertThat(firstPersonResult.get()
+                .getOrganisation().get()
                 .getShortName()
                 .value()).isEqualTo("OLV");
 
-        assertThat(firstPersonResult.get().personRaceResults()).isPresent();
-        assertThat(firstPersonResult.get().personRaceResults().get().value()).hasSize(1);
+        assertThat(firstPersonResult.get().getPersonRaceResults().isLoaded()).isTrue();
+        assertThat(firstPersonResult.get().getPersonRaceResults().get().value()).hasSize(1);
         Optional<PersonRaceResult>
                 firstPersonRaceResult =
-                firstPersonResult.get().personRaceResults().get().value().stream().findFirst();
+                firstPersonResult.get().getPersonRaceResults().get().value().stream().findFirst();
         assertThat(firstPersonRaceResult).isPresent();
 
         assertThat(firstPersonRaceResult.get().raceNumber().value()).isEqualTo(1);

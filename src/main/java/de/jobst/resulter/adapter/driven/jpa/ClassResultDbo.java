@@ -36,9 +36,7 @@ public class ClassResultDbo {
 
     public static ClassResultDbo from(ClassResult classResult, EventDbo eventDbo) {
         ClassResultDbo classResultDbo = new ClassResultDbo();
-        if (classResult.getId() != null) {
-            classResultDbo.setId(classResult.getId().value());
-        }
+        classResultDbo.setId(classResult.getId().value());
         classResultDbo.setEventDbo(eventDbo);
         classResultDbo.setName(classResult.getClassResultName().value());
         if (StringUtils.isNotEmpty(classResult.getClassResultShortName().value())) {
@@ -63,7 +61,7 @@ public class ClassResultDbo {
                     PersonResultDbo.asPersonResults(eventConfig,
                                     classResultDbos.stream().flatMap(x -> x.personResults.stream()).toList())
                             .stream()
-                            .collect(Collectors.groupingBy(PersonResult::classResultId));
+                            .collect(Collectors.groupingBy(PersonResult::getClassResultId));
         } else {
             personResultsByClassResultId = null;
         }

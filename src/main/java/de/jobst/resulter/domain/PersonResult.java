@@ -1,20 +1,43 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.domain.util.ShallowLoadProxy;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.Collection;
-import java.util.Optional;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public record PersonResult(PersonResultId id,
-                           ClassResultId classResultId,
-                           Optional<Person> person,
-                           Optional<Organisation> organisation,
-                           Optional<PersonRaceResults> personRaceResults) {
+@Getter
+public class PersonResult {
+    @NonNull
+    @Setter
+    private PersonResultId id;
+    @NonNull
+    private final ClassResultId classResultId;
+    @NonNull
+    private final ShallowLoadProxy<Person> person;
+    @NonNull
+    private final ShallowLoadProxy<Organisation> organisation;
+    @NonNull
+    private final ShallowLoadProxy<PersonRaceResults> personRaceResults;
+
+    public PersonResult(@NonNull PersonResultId id,
+                        @NonNull ClassResultId classResultId,
+                        @NonNull ShallowLoadProxy<Person> person,
+                        @NonNull ShallowLoadProxy<Organisation> organisation,
+                        @NonNull ShallowLoadProxy<PersonRaceResults> personRaceResults) {
+        this.id = id;
+        this.classResultId = classResultId;
+        this.person = person;
+        this.organisation = organisation;
+        this.personRaceResults = personRaceResults;
+    }
+
     public static PersonResult of(
-            @NonNull Optional<Person> person,
-            @NonNull Optional<Organisation> organisation,
-            @NonNull Optional<Collection<PersonRaceResult>> personRaceResults) {
+            @Nullable Person person,
+            @Nullable Organisation organisation,
+            @Nullable Collection<PersonRaceResult> personRaceResults) {
         return PersonResult.of(
                 PersonResultId.empty().value(),
                 ClassResultId.empty().value(),
@@ -24,27 +47,29 @@ public record PersonResult(PersonResultId id,
 
     public static PersonResult of(
             @NonNull Long classResultId,
-            @NonNull Optional<Person> person,
-            @NonNull Optional<Organisation> organisation,
-            @NonNull Optional<Collection<PersonRaceResult>> personRaceResults) {
-        return new PersonResult(
-                PersonResultId.empty(),
-                ClassResultId.of(classResultId),
+            @Nullable Person person,
+            @Nullable Organisation organisation,
+            @Nullable Collection<PersonRaceResult> personRaceResults) {
+        return PersonResult.of(
+                PersonResultId.empty().value(),
+                classResultId,
                 person, organisation,
-                personRaceResults.map(PersonRaceResults::of));
+                personRaceResults);
     }
 
     public static PersonResult of(
-            @NonNull Long id,
-            @NonNull Long classResultId,
-            @NonNull Optional<Person> person,
-            @NonNull Optional<Organisation> organisation,
-            @NonNull Optional<Collection<PersonRaceResult>> personRaceResults) {
+            long id,
+            long classResultId,
+            @Nullable Person person,
+            @Nullable Organisation organisation,
+            @Nullable Collection<PersonRaceResult> personRaceResults) {
         return new PersonResult(
                 PersonResultId.of(id),
                 ClassResultId.of(classResultId),
-                person,
-                organisation,
-                personRaceResults.map(PersonRaceResults::of));
+                ShallowLoadProxy.of(person),
+                ShallowLoadProxy.of(organisation),
+                (personRaceResults != null) ?
+                        ShallowLoadProxy.of(PersonRaceResults.of(personRaceResults)) :
+                        ShallowLoadProxy.empty());
     }
 }

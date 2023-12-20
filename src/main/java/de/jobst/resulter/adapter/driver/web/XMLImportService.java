@@ -120,9 +120,9 @@ public class XMLImportService {
     private List<PersonResult> getPersonResults(de.jobst.resulter.adapter.driver.web.jaxb.ClassResult classResult) {
         return classResult.getPersonResults().stream().map(personResult ->
                 PersonResult.of(
-                        Optional.of(getPerson(personResult)),
-                        Optional.ofNullable(getOrganisation(personResult)),
-                        Optional.of(getPersonRaceResults(personResult))
+                        getPerson(personResult),
+                        getOrganisation(personResult),
+                        getPersonRaceResults(personResult)
                 )).toList();
     }
 

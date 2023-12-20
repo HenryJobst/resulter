@@ -13,7 +13,7 @@ import java.util.Collection;
 
 @Getter
 public class Event {
-    @Nullable
+    @NonNull
     @Setter
     private EventId id;
     @NonNull
@@ -33,7 +33,7 @@ public class Event {
         this.name = name;
     }
 
-    public Event(@Nullable EventId id,
+    public Event(@NonNull EventId id,
                  @NonNull EventName eventName,
                  @NonNull DateTime startTime,
                  @NonNull DateTime endTime,

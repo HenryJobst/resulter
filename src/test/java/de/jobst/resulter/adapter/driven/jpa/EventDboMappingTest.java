@@ -34,7 +34,7 @@ class EventDboMappingTest {
     public void domainToDatabaseEntityIsMappedCorrectly() {
         Event event = EventTestDataGenerator.getTestEvent();
 
-        EventDbo entity = EventDbo.from(event);
+        EventDbo entity = EventDbo.from(event, null);
 
         assertThat(entity.getName()).isEqualTo(event.getName().value());
         assertThat(entity.getStartTime()).isEqualTo(event.getStartTime().value());

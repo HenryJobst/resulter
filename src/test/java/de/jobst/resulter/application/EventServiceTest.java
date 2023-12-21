@@ -19,8 +19,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(properties = {"spring.test.database.replace=NONE",
@@ -51,14 +49,9 @@ class EventServiceTest {
         // Entität flach laden
         EventConfig eventConfig = EventConfig.full();
         eventConfig.shallowLoads().add(EventConfig.ShallowLoads.CLASS_RESULTS);
-        Optional<Event> eventToChange = eventService.findById(savedEvent.getId(), eventConfig);
-        assertThat(eventToChange).isPresent();
 
-        Event
-                changedEvent =
-                eventService.updateEvent(eventToChange.get().getId(),
-                        EventName.of("ChangedEvent"),
-                        eventToChange.get().getStartTime());
+        Event changedEvent =
+                eventService.updateEvent(savedEvent.getId(), EventName.of("ChangedEvent"), savedEvent.getStartTime());
 
         assertThat(changedEvent.getClassResults().isEmpty() ||
                 (changedEvent.getClassResults().isLoaded() &&

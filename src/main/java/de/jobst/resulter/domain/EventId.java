@@ -13,6 +13,10 @@ public record EventId(long value) {
         return new EventId(0L);
     }
 
+    public boolean isPersistent() {
+        return value != empty().value;
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;

@@ -10,6 +10,7 @@ import jakarta.persistence.Subgraph;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import org.hibernate.Hibernate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,16 +25,36 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
 
     private final EventJpaRepository eventJpaRepository;
     private final EntityManager entityManager;
+    private final PersonJpaRepository personJpaRepository;
+    private final OrganisationJpaRepository organisationJpaRepository;
 
-    public EventRepositoryDataJpaAdapter(EventJpaRepository eventJpaRepository, EntityManager entityManager) {
+    public EventRepositoryDataJpaAdapter(EventJpaRepository eventJpaRepository, EntityManager entityManager,
+                                         PersonJpaRepository personJpaRepository,
+                                         OrganisationJpaRepository organisationJpaRepository) {
         this.eventJpaRepository = eventJpaRepository;
         this.entityManager = entityManager;
+        this.personJpaRepository = personJpaRepository;
+        this.organisationJpaRepository = organisationJpaRepository;
     }
 
     @Override
     @Transactional
     public Event save(Event event) {
         EventDbo eventEntity = EventDbo.from(event);
+        if (Hibernate.isInitialized(eventEntity.getClassResults())) {
+            eventEntity.getClassResults()
+                    .stream()
+                    .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
+                    .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
+                    .forEach(personResultDbo -> {
+                        if (Hibernate.isInitialized(personResultDbo.getPerson())) {
+                            personJpaRepository.save(personResultDbo.getPerson());
+                        }
+                        if (Hibernate.isInitialized(personResultDbo.getOrganisation())) {
+                            organisationJpaRepository.save(personResultDbo.getOrganisation());
+                        }
+                    });
+        }
         EventDbo savedEventEntity = eventJpaRepository.save(eventEntity);
         return EventDbo.asEvents(EventConfig.fromEvent(event), List.of(savedEventEntity)).getFirst();
     }
@@ -89,6 +110,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Event> findById(EventId eventId, EventConfig eventConfig) {
+        @SuppressWarnings("SqlSourceToSinkFlow")
         TypedQuery<EventDbo> query = entityManager.createQuery(
                 MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
                         EventDbo_.class_.getName(),
@@ -97,7 +119,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         query.setParameter("id", eventId.value());
         query.setHint("jakarta.persistence.loadgraph", getEntityGraph(eventConfig));
 
-        return query.getResultStream().findFirst().map(it -> EventDbo.asEvents(eventConfig, List.of(it)).getFirst());
+        return query.getResultStream().findFirst().map(it -> EventDbo.asEvent(eventConfig, it));
     }
 
     @Override
@@ -108,7 +130,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         if (optionalEventDbo.isEmpty()) {
             optionalEventDbo = Optional.of(EventDbo.from(save(event)));
         }
-        EventDbo eventDbo = optionalEventDbo.get();
-        return EventDbo.asEvents(EventConfig.fromEvent(event), List.of(eventDbo)).getFirst();
+        return EventDbo.asEvent(EventConfig.fromEvent(event), optionalEventDbo.get());
     }
+
 }

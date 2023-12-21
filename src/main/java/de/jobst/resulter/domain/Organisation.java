@@ -3,19 +3,19 @@ package de.jobst.resulter.domain;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
+@SuppressWarnings("FieldMayBeFinal")
 @Getter
 public class Organisation {
 
-    @Nullable
+    @NonNull
     @Setter
     private OrganisationId id;
 
     private OrganisationName name;
     private OrganisationShortName shortName;
 
-    public Organisation(@Nullable OrganisationId id,
+    public Organisation(@NonNull OrganisationId id,
                         @NonNull OrganisationName name,
                         @NonNull OrganisationShortName shortName) {
         this.id = id;
@@ -24,7 +24,7 @@ public class Organisation {
     }
 
     public static Organisation of(String name, String shortName) {
-        return new Organisation(null, OrganisationName.of(name), OrganisationShortName.of(shortName));
+        return new Organisation(OrganisationId.empty(), OrganisationName.of(name), OrganisationShortName.of(shortName));
     }
 
     public static Organisation of(long id, String name, String shortName) {

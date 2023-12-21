@@ -2,9 +2,12 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
+import de.jobst.resulter.domain.PersonId;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
@@ -29,9 +32,12 @@ public class PersonDbo {
     @Column(name = "BIRTH_DATE")
     private LocalDate birthDate;
 
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
+    private Set<PersonResultDbo> personResults = new HashSet<>();
+
     public static PersonDbo from(Person person) {
         PersonDbo personDbo = new PersonDbo();
-        if (person.getId() != null) {
+        if (person.getId().value() != PersonId.empty().value()) {
             personDbo.setId(person.getId().value());
         }
         personDbo.setFamilyName(person.getPersonName().familyName().value());

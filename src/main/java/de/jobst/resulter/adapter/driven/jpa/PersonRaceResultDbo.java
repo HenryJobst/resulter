@@ -46,8 +46,10 @@ public class PersonRaceResultDbo {
 
     public static PersonRaceResultDbo from(PersonRaceResult personRaceResult, PersonResultDbo personResultDbo) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
+        if (personRaceResult.getId().value() != PersonRaceResultId.empty().value()) {
+            personRaceResultDbo.setId(personRaceResult.getId().value());
+        }
         personRaceResultDbo.setPersonResultDbo(personResultDbo);
-        personRaceResultDbo.setId(personRaceResult.getId().value());
         if (ObjectUtils.isNotEmpty(personRaceResult.getStartTime())) {
             personRaceResultDbo.setStartTime(personRaceResult.getStartTime().value());
         }

@@ -36,7 +36,9 @@ public class PersonResultDbo {
 
     public static PersonResultDbo from(PersonResult personResult, ClassResultDbo classResultDbo) {
         PersonResultDbo personResultDbo = new PersonResultDbo();
-        personResultDbo.setId(personResult.getId().value());
+        if (personResult.getId().value() != PersonResultId.empty().value()) {
+            personResultDbo.setId(personResult.getId().value());
+        }
         personResultDbo.setClassResultDbo(classResultDbo);
         if (personResult.getPerson().isLoaded()) {
             personResultDbo.setPerson(PersonDbo.from(personResult.getPerson().get()));

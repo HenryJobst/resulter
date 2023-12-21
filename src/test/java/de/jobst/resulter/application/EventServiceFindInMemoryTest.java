@@ -12,7 +12,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EventServiceFindTest {
+class EventServiceFindInMemoryTest {
     @Test
     public void whenRepositoryIsEmptyFindReturnsEmptyOptional() {
         EventService eventService = EventServiceFactory.createServiceWith(

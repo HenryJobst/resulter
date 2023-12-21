@@ -3,13 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.junit.jupiter.api.Test;
-import org.springframework.lang.NonNull;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,69 +11,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class EventDboMappingTest {
 
-    public static final String A_EVENT_NAME = "A event name";
-    public static final long A_EVENT_ID = 19L;
-
-    @NonNull
-    private static Event getTestEvent() {
-        List<SplitTime> splitTimes = new ArrayList<>();
-        String controlCode1 = "134";
-        double punchTime1 = 120.0;
-        splitTimes.add(SplitTime.of(controlCode1, punchTime1));
-        splitTimes.add(SplitTime.of("128", 104.0));
-        splitTimes.add(SplitTime.of("134", 34.0));
-        Collection<PersonRaceResult> personRaceResults = new ArrayList<>();
-        long raceNumber = 1L;
-        ZonedDateTime startTime = ZonedDateTime.of(2020, 10, 11, 11, 12, 0, 0, ZoneId.systemDefault());
-        ZonedDateTime finishTime = ZonedDateTime.of(2020, 10, 11, 11, 54, 0, 0, ZoneId.systemDefault());
-        double punchTime = 1000.0;
-        long position = 2L;
-        ResultStatus resultStatus = ResultStatus.OK;
-        personRaceResults.add(PersonRaceResult.of(
-                raceNumber,
-                startTime,
-                finishTime,
-                punchTime,
-                position,
-                resultStatus,
-                splitTimes));
-
-        Collection<PersonResult> personResults = new ArrayList<>();
-        String familyName = "Knopf";
-        String givenName = "Jim";
-        LocalDate birthDate = LocalDate.of(2000, 11, 1);
-        Gender personGender = Gender.M;
-        String clubName = "O-Club";
-        String clubShortName = "OC";
-        personResults.add(PersonResult.of(
-                Person.of(
-                        FamilyName.of(familyName), GivenName.of(givenName),
-                        birthDate,
-                        personGender),
-                Organisation.of(clubName, clubShortName),
-                personRaceResults));
-
-        Collection<ClassResult> classResults = new ArrayList<>();
-        String className = "H50- (Herren ab 50)";
-        String classShortName = "H50-";
-        Gender classGender = Gender.M;
-        classResults.add(ClassResult.of(className, classShortName,
-                classGender, personResults));
-
-        return Event.of(A_EVENT_NAME, classResults);
-
-    }
-
     @Test
     public void databaseEntityToDomainIsMappedCorrectly() {
         EventDbo eventDbo = new EventDbo();
-        eventDbo.setId(A_EVENT_ID);
-        eventDbo.setName(A_EVENT_NAME);
+        eventDbo.setId(EventTestDataGenerator.A_EVENT_ID);
+        eventDbo.setName(EventTestDataGenerator.A_EVENT_NAME);
 
         Event event = EventDbo.asEvents(EventConfig.full(), List.of(eventDbo)).getFirst();
 
-        assertThat(Objects.requireNonNull(event.getId()).value()).isEqualTo(A_EVENT_ID);
-        assertThat(event.getName().value()).isEqualTo(A_EVENT_NAME);
+        assertThat(Objects.requireNonNull(event.getId()).value()).isEqualTo(EventTestDataGenerator.A_EVENT_ID);
+        assertThat(event.getName().value()).isEqualTo(EventTestDataGenerator.A_EVENT_NAME);
         assertThat(event.getStartTime()).isNotNull();
         assertThat(event.getStartTime().value()).isNull();
         assertThat(event.getOrganisations().isLoaded()).isTrue();
@@ -91,7 +32,7 @@ class EventDboMappingTest {
 
     @Test
     public void domainToDatabaseEntityIsMappedCorrectly() {
-        Event event = getTestEvent();
+        Event event = EventTestDataGenerator.getTestEvent();
 
         EventDbo entity = EventDbo.from(event);
 

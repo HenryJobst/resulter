@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.PersonRaceResultId;
 import de.jobst.resulter.domain.SplitTime;
+import de.jobst.resulter.domain.SplitTimeId;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -26,8 +27,10 @@ public class SplitTimeDbo {
 
     public static SplitTimeDbo from(SplitTime splitTime, PersonRaceResultDbo personRaceResultDbo) {
         SplitTimeDbo splitTimeDbo = new SplitTimeDbo();
+        if (splitTime.getId().value() != SplitTimeId.empty().value()) {
+            splitTimeDbo.setId(splitTime.getId().value());
+        }
         splitTimeDbo.setPersonResultDbo(personRaceResultDbo);
-        splitTimeDbo.setId(splitTime.getId().value());
         splitTimeDbo.setControlCode(splitTime.getControlCode().value());
         splitTimeDbo.setPunchTime(splitTime.getPunchTime().value());
         return splitTimeDbo;

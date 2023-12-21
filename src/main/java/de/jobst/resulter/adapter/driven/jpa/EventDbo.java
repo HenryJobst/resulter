@@ -42,7 +42,9 @@ public class EventDbo {
 
     public static EventDbo from(Event event) {
         EventDbo eventDbo = new EventDbo();
-        eventDbo.setId(event.getId().value());
+        if (event.getId().value() != EventId.empty().value()) {
+            eventDbo.setId(event.getId().value());
+        }
         eventDbo.setName(event.getName().value());
 
         if (ObjectUtils.isNotEmpty(event.getStartTime())) {
@@ -94,6 +96,10 @@ public class EventDbo {
                         it.state)
                 )
                 .toList();
+    }
+
+    static Event asEvent(EventConfig eventConfig, EventDbo eventDbo) {
+        return asEvents(eventConfig, List.of(eventDbo)).getFirst();
     }
 
     public long getId() {

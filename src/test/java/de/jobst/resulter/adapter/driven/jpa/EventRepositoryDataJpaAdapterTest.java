@@ -5,6 +5,7 @@ import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventName;
+import de.jobst.resulter.domain.EventTestDataGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -28,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         loader = AnnotationConfigContextLoader.class)
 @EntityScan(basePackages = {"de.jobst.resulter.adapter.driven.jpa"})
 @EnableJpaRepositories(basePackages = "de.jobst.resulter.adapter.driven.jpa")
-@Import(EventRepositoryDataJpaAdapter.class)
+@Import({EventRepositoryDataJpaAdapter.class})
 class EventRepositoryDataJpaAdapterTest {
 
     @Autowired
@@ -37,8 +38,7 @@ class EventRepositoryDataJpaAdapterTest {
     @Test
     @Transactional
     public void savedEventCanBeFoundByItsId() {
-        String eventName = "test event";
-        Event event = Event.of(eventName);
+        Event event = Event.of(EventTestDataGenerator.A_EVENT_NAME);
 
         Event savedEvent = eventRepository.save(event);
 
@@ -50,7 +50,7 @@ class EventRepositoryDataJpaAdapterTest {
                 .isPresent()
                 .get()
                 .extracting(Event::getName)
-                .isEqualTo(EventName.of(eventName));
+                .isEqualTo(EventName.of(EventTestDataGenerator.A_EVENT_NAME));
     }
 
     @Test
@@ -78,8 +78,7 @@ class EventRepositoryDataJpaAdapterTest {
     @Test
     @Transactional
     void findOrCreateWithNonExisting() {
-        String eventName = "test event";
-        Event event = Event.of(eventName);
+        Event event = Event.of(EventTestDataGenerator.A_EVENT_NAME);
 
         Event savedEvent = eventRepository.findOrCreate(event);
 
@@ -91,14 +90,13 @@ class EventRepositoryDataJpaAdapterTest {
                 .isPresent()
                 .get()
                 .extracting(Event::getName)
-                .isEqualTo(EventName.of(eventName));
+                .isEqualTo(EventName.of(EventTestDataGenerator.A_EVENT_NAME));
     }
 
     @Test
     @Transactional
     void findOrCreateWithExisting() {
-        String eventName = "test event";
-        Event event = Event.of(eventName);
+        Event event = Event.of(EventTestDataGenerator.A_EVENT_NAME);
         eventRepository.save(event);
 
         Event savedEvent = eventRepository.findOrCreate(event);
@@ -111,7 +109,6 @@ class EventRepositoryDataJpaAdapterTest {
                 .isPresent()
                 .get()
                 .extracting(Event::getName)
-                .isEqualTo(EventName.of(eventName));
+                .isEqualTo(EventName.of(EventTestDataGenerator.A_EVENT_NAME));
     }
-
 }

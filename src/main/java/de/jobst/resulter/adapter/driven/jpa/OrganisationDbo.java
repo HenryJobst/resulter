@@ -1,7 +1,11 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.Organisation;
+import de.jobst.resulter.domain.OrganisationId;
 import jakarta.persistence.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
@@ -21,9 +25,15 @@ public class OrganisationDbo {
     @Column(name = "SHORT_NAME", nullable = false)
     private String shortName;
 
+    @OneToMany(mappedBy = "organisation", fetch = FetchType.LAZY)
+    private Set<PersonResultDbo> personResults = new HashSet<>();
+
+    @ManyToMany(mappedBy = "organisations", fetch = FetchType.LAZY)
+    private Set<EventDbo> events = new HashSet<>();
+
     public static OrganisationDbo from(Organisation organisation) {
         OrganisationDbo organisationDbo = new OrganisationDbo();
-        if (organisation.getId() != null) {
+        if (organisation.getId().value() != OrganisationId.empty().value()) {
             organisationDbo.setId(organisation.getId().value());
         }
         organisationDbo.setName(organisation.getName().value());

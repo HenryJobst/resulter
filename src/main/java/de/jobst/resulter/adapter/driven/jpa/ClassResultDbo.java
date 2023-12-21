@@ -36,7 +36,9 @@ public class ClassResultDbo {
 
     public static ClassResultDbo from(ClassResult classResult, EventDbo eventDbo) {
         ClassResultDbo classResultDbo = new ClassResultDbo();
-        classResultDbo.setId(classResult.getId().value());
+        if (classResult.getId().value() != ClassResultId.empty().value()) {
+            classResultDbo.setId(classResult.getId().value());
+        }
         classResultDbo.setEventDbo(eventDbo);
         classResultDbo.setName(classResult.getClassResultName().value());
         if (StringUtils.isNotEmpty(classResult.getClassResultShortName().value())) {

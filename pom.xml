@@ -218,7 +218,7 @@
                         <configuration>
                             <filesets>
                                 <fileset>
-                                    <directory>${project.build.directory}/generated-sources</directory>
+                                    <directory>${project.build.directory}/generated-sources/annotations</directory>
                                     <includes>
                                         <include>**/*</include>
                                     </includes>

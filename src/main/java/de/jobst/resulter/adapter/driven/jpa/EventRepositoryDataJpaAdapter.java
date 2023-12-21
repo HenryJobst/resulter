@@ -40,7 +40,9 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     @Override
     @Transactional
     public Event save(Event event) {
-        EventDbo eventEntity = EventDbo.from(event);
+        EventDbo persisted =
+                event.getId().isPersistent() ? eventJpaRepository.findById(event.getId().value()).orElse(null) : null;
+        EventDbo eventEntity = EventDbo.from(event, persisted);
         if (Hibernate.isInitialized(eventEntity.getClassResults())) {
             eventEntity.getClassResults()
                     .stream()
@@ -56,7 +58,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
                     });
         }
         EventDbo savedEventEntity = eventJpaRepository.save(eventEntity);
-        return EventDbo.asEvents(EventConfig.fromEvent(event), List.of(savedEventEntity)).getFirst();
+        return EventDbo.asEvent(EventConfig.fromEvent(event), savedEventEntity);
     }
 
     @Override
@@ -128,7 +130,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         Optional<EventDbo> optionalEventDbo =
                 eventJpaRepository.findByName(event.getName().value());
         if (optionalEventDbo.isEmpty()) {
-            optionalEventDbo = Optional.of(EventDbo.from(save(event)));
+            return save(event);
         }
         return EventDbo.asEvent(EventConfig.fromEvent(event), optionalEventDbo.get());
     }

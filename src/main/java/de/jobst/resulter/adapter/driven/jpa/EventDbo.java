@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -40,7 +41,7 @@ public class EventDbo {
     @Enumerated(value = EnumType.STRING)
     private EventStatus state;
 
-    public static EventDbo from(Event event) {
+    public static EventDbo from(Event event, @Nullable EventDbo persistedEventDbo) {
         EventDbo eventDbo = new EventDbo();
         if (event.getId().value() != EventId.empty().value()) {
             eventDbo.setId(event.getId().value());
@@ -57,11 +58,19 @@ public class EventDbo {
         if (event.getClassResults().isLoaded()) {
             eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults().get())
                     .value().stream().map(it -> ClassResultDbo.from(it, eventDbo)).collect(Collectors.toSet()));
+        } else if (persistedEventDbo != null) {
+            eventDbo.setClassResults(persistedEventDbo.getClassResults());
+        } else if (event.getId().isPersistent()) {
+            throw new IllegalArgumentException();
         }
 
         if (event.getOrganisations().isLoaded()) {
             eventDbo.setOrganisations(Objects.requireNonNull(event.getOrganisations().get())
                     .value().stream().map(OrganisationDbo::from).collect(Collectors.toSet()));
+        } else if (persistedEventDbo != null) {
+            eventDbo.setOrganisations(persistedEventDbo.getOrganisations());
+        } else if (event.getId().isPersistent()) {
+            throw new IllegalArgumentException();
         }
 
         if (ObjectUtils.isNotEmpty(event.getEventState())) {
@@ -110,7 +119,7 @@ public class EventDbo {
         this.id = id;
     }
 
-    public Collection<ClassResultDbo> getClassResults() {
+    public Set<ClassResultDbo> getClassResults() {
         return classResults;
     }
 

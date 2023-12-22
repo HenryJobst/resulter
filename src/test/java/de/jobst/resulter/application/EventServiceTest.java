@@ -1,11 +1,11 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.adapter.TestConfig;
+import de.jobst.resulter.adapter.driven.jpa.EventDbo;
 import de.jobst.resulter.adapter.driven.jpa.EventRepositoryDataJpaAdapter;
 import de.jobst.resulter.adapter.driven.jpa.OrganisationRepositoryDataJpaAdapter;
 import de.jobst.resulter.adapter.driven.jpa.PersonRepositoryDataJpaAdapter;
 import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventName;
 import de.jobst.resulter.domain.EventTestDataGenerator;
 import jakarta.persistence.EntityManager;
@@ -46,13 +46,12 @@ class EventServiceTest {
         // Entität anlegen und wieder entladen
         Event event = EventTestDataGenerator.getTestEvent();
         Event savedEvent = eventService.findOrCreate(event);
-        // Entität flach laden
-        EventConfig eventConfig = EventConfig.full();
-        eventConfig.shallowLoads().add(EventConfig.ShallowLoads.CLASS_RESULTS);
+        entityManager.detach(EventDbo.from(savedEvent, null));
 
         Event changedEvent =
                 eventService.updateEvent(savedEvent.getId(), EventName.of("ChangedEvent"), savedEvent.getStartTime());
 
+        assertThat(changedEvent).isNotNull();
         assertThat(changedEvent.getClassResults().isEmpty() ||
                 (changedEvent.getClassResults().isLoaded() &&
                         changedEvent.getClassResults().get().value().size() == 1)).isTrue();

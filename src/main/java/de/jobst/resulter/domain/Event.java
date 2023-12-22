@@ -8,6 +8,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 
 
@@ -50,7 +51,7 @@ public class Event {
     }
 
     public static Event of(@NonNull String name) {
-        return Event.of(name, null);
+        return Event.of(name, new ArrayList<>());
     }
 
     public static Event of(@NonNull String name, @Nullable Collection<ClassResult> classResults) {
@@ -58,12 +59,12 @@ public class Event {
     }
 
     public static Event of(long id, @NonNull String name) {
-        return Event.of(id, name, null);
+        return Event.of(id, name, new ArrayList<>());
     }
 
     public static Event of(long id, @NonNull String name, @Nullable Collection<ClassResult> classResults) {
         return Event.of(id, name, null, null, classResults,
-                null, null);
+                new ArrayList<>(), null);
     }
 
     public static Event of(@NonNull String name,

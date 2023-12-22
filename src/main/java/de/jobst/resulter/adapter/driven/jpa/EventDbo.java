@@ -107,7 +107,7 @@ public class EventDbo {
                 .toList();
     }
 
-    static Event asEvent(EventConfig eventConfig, EventDbo eventDbo) {
+    static public Event asEvent(EventConfig eventConfig, EventDbo eventDbo) {
         return asEvents(eventConfig, List.of(eventDbo)).getFirst();
     }
 

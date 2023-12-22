@@ -2,7 +2,8 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
-import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,32 +35,57 @@ public class PersonResultDbo {
     @OneToMany(mappedBy = "personResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PersonRaceResultDbo> personRaceResults = new HashSet<>();
 
-    public static PersonResultDbo from(PersonResult personResult, ClassResultDbo classResultDbo) {
+    public static PersonResultDbo from(@NonNull PersonResult personResult,
+                                       @NonNull ClassResultDbo classResultDbo,
+                                       @Nullable PersonResultDbo persistedPersonResultDbo) {
         PersonResultDbo personResultDbo = new PersonResultDbo();
         if (personResult.getId().value() != PersonResultId.empty().value()) {
             personResultDbo.setId(personResult.getId().value());
         }
         personResultDbo.setClassResultDbo(classResultDbo);
+
         if (personResult.getPerson().isLoaded()) {
             personResultDbo.setPerson(PersonDbo.from(personResult.getPerson().get()));
+        } else if (persistedPersonResultDbo != null) {
+            personResultDbo.setPerson(persistedPersonResultDbo.getPerson());
+        } else if (personResult.getId().isPersistent()) {
+            throw new IllegalArgumentException();
         }
+
         if (personResult.getOrganisation().isLoaded()) {
-            if (ObjectUtils.isNotEmpty(personResult.getOrganisation().get())) {
-                personResultDbo.setOrganisation(OrganisationDbo.from(personResult.getOrganisation().get()));
-            }
+            personResultDbo.setOrganisation(OrganisationDbo.from(personResult.getOrganisation().get()));
+        } else if (persistedPersonResultDbo != null) {
+            personResultDbo.setOrganisation(persistedPersonResultDbo.getOrganisation());
+        } else if (personResult.getId().isPersistent()) {
+            throw new IllegalArgumentException();
         }
+
         if (personResult.getPersonRaceResults().isLoaded()) {
             personResultDbo.setPersonRaceResults(personResult.getPersonRaceResults().get()
                     .value()
                     .stream()
-                    .map(it -> PersonRaceResultDbo.from(it, personResultDbo))
+                    .map(it -> {
+                        PersonRaceResultDbo persistedPersonRaceResultDbo =
+                                persistedPersonResultDbo != null ?
+                                        (persistedPersonResultDbo.getPersonRaceResults()
+                                                .stream()
+                                                .filter(x -> x.getId() == it.getId().value())
+                                                .findFirst()
+                                                .orElse(null))
+                                        : null;
+                        return PersonRaceResultDbo.from(it, personResultDbo, persistedPersonRaceResultDbo);
+                    })
                     .collect(Collectors.toSet()));
+        } else if (persistedPersonResultDbo != null) {
+            personResultDbo.setPersonRaceResults(persistedPersonResultDbo.getPersonRaceResults());
+        } else if (personResult.getId().isPersistent()) {
+            throw new IllegalArgumentException();
         }
         return personResultDbo;
     }
 
-    static public Collection<PersonResult> asPersonResults(EventConfig eventConfig,
-                                                           Collection<PersonResultDbo> personResultDbos) {
+    static public Collection<PersonResult> asPersonResults(@NonNull EventConfig eventConfig,
+                                                           @NonNull Collection<PersonResultDbo> personResultDbos) {
         Map<PersonResultId, List<PersonRaceResult>> personRaceResultsByPersonResultId;
         if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RACE_RESULTS)) {
             personRaceResultsByPersonResultId =
@@ -120,7 +146,7 @@ public class PersonResultDbo {
         this.organisation = organisation;
     }
 
-    public Collection<PersonRaceResultDbo> getPersonRaceResults() {
+    public Set<PersonRaceResultDbo> getPersonRaceResults() {
         return personRaceResults;
     }
 

@@ -13,6 +13,10 @@ public record SplitTimeId(long value) {
         return new SplitTimeId(0L);
     }
 
+    public boolean isPersistent() {
+        return value != empty().value;
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;

@@ -3,6 +3,8 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -44,7 +46,9 @@ public class PersonRaceResultDbo {
     @OneToMany(mappedBy = "personRaceResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SplitTimeDbo> splitTimes = new ArrayList<>();
 
-    public static PersonRaceResultDbo from(PersonRaceResult personRaceResult, PersonResultDbo personResultDbo) {
+    public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult,
+                                           @NonNull PersonResultDbo personResultDbo,
+                                           @Nullable PersonRaceResultDbo persistedPersonRaceResultDbo) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
         if (personRaceResult.getId().value() != PersonRaceResultId.empty().value()) {
             personRaceResultDbo.setId(personRaceResult.getId().value());
@@ -68,19 +72,24 @@ public class PersonRaceResultDbo {
         if (ObjectUtils.isNotEmpty(personRaceResult.getState())) {
             personRaceResultDbo.setState(personRaceResult.getState());
         }
-        if (personRaceResult.getSplitTimes().isLoaded() &&
-                ObjectUtils.isNotEmpty(personRaceResult.getSplitTimes().get())) {
+        if (personRaceResult.getSplitTimes().isLoaded()) {
             personRaceResultDbo.setSplitTimes(personRaceResult.getSplitTimes().get()
                     .value()
                     .stream()
                     .map(it -> SplitTimeDbo.from(it, personRaceResultDbo))
                     .toList());
+        } else if (persistedPersonRaceResultDbo != null) {
+            personRaceResultDbo.setSplitTimes(persistedPersonRaceResultDbo.getSplitTimes());
+
+        } else if (personRaceResult.getId().isPersistent()) {
+            throw new IllegalArgumentException();
         }
 
         return personRaceResultDbo;
     }
 
-    public static Collection<PersonRaceResult> asPersonRaceResults(EventConfig eventConfig,
+    public static Collection<PersonRaceResult> asPersonRaceResults(@NonNull EventConfig eventConfig,
+                                                                   @NonNull
                                                                    List<PersonRaceResultDbo> personRaceResultDbos) {
         Map<PersonRaceResultId, List<SplitTime>> splitTimesByPersonRaceResultId;
         if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.SPLIT_TIMES)) {

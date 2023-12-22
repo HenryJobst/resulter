@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,7 +35,9 @@ public class ClassResultDbo {
     @OneToMany(mappedBy = "classResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PersonResultDbo> personResults = new HashSet<>();
 
-    public static ClassResultDbo from(ClassResult classResult, EventDbo eventDbo) {
+    public static ClassResultDbo from(ClassResult classResult,
+                                      EventDbo eventDbo,
+                                      @Nullable ClassResultDbo persistedClassResultDbo) {
         ClassResultDbo classResultDbo = new ClassResultDbo();
         if (classResult.getId().value() != ClassResultId.empty().value()) {
             classResultDbo.setId(classResult.getId().value());
@@ -45,12 +48,28 @@ public class ClassResultDbo {
             classResultDbo.setShortName(classResult.getClassResultShortName().value());
         }
         classResultDbo.setGender(classResult.getGender());
-        classResultDbo.setPersonResults(
-                Objects.requireNonNull(classResult.getPersonResults())
-                        .get().value()
-                        .stream()
-                        .map(it -> PersonResultDbo.from(it, classResultDbo))
-                        .collect(Collectors.toSet()));
+        if (classResult.getPersonResults().isLoaded()) {
+            classResultDbo.setPersonResults(
+                    Objects.requireNonNull(classResult.getPersonResults())
+                            .get().value()
+                            .stream()
+                            .map(it -> {
+                                PersonResultDbo persistedPersonResultDbo =
+                                        persistedClassResultDbo != null ?
+                                                (persistedClassResultDbo.getPersonResults()
+                                                        .stream()
+                                                        .filter(x -> x.getId() == it.getId().value())
+                                                        .findFirst()
+                                                        .orElse(null))
+                                                : null;
+                                return PersonResultDbo.from(it, classResultDbo, persistedPersonResultDbo);
+                            })
+                            .collect(Collectors.toSet()));
+        } else if (persistedClassResultDbo != null) {
+            classResultDbo.setPersonResults(persistedClassResultDbo.getPersonResults());
+        } else if (classResult.getId().isPersistent()) {
+            throw new IllegalArgumentException();
+        }
         return classResultDbo;
     }
 
@@ -110,7 +129,7 @@ public class ClassResultDbo {
         this.gender = gender;
     }
 
-    public Collection<PersonResultDbo> getPersonResults() {
+    public Set<PersonResultDbo> getPersonResults() {
         return personResults;
     }
 

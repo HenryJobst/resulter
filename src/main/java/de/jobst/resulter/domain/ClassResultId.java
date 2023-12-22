@@ -13,8 +13,13 @@ public record ClassResultId(long value) {
         return new ClassResultId(0L);
     }
 
+    public boolean isPersistent() {
+        return value != empty().value;
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;
     }
+
 }

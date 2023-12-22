@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
@@ -41,7 +42,7 @@ public class EventDbo {
     @Enumerated(value = EnumType.STRING)
     private EventStatus state;
 
-    public static EventDbo from(Event event, @Nullable EventDbo persistedEventDbo) {
+    public static EventDbo from(@NonNull Event event, @Nullable EventDbo persistedEventDbo) {
         EventDbo eventDbo = new EventDbo();
         if (event.getId().value() != EventId.empty().value()) {
             eventDbo.setId(event.getId().value());
@@ -57,7 +58,18 @@ public class EventDbo {
 
         if (event.getClassResults().isLoaded()) {
             eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults().get())
-                    .value().stream().map(it -> ClassResultDbo.from(it, eventDbo)).collect(Collectors.toSet()));
+                    .value().stream().map(it -> {
+                        ClassResultDbo
+                                persistedClassResultDbo =
+                                persistedEventDbo != null ?
+                                        persistedEventDbo.getClassResults()
+                                                .stream()
+                                                .filter(x -> x.getId() == it.getId().value())
+                                                .findFirst()
+                                                .orElse(null) :
+                                        null;
+                        return ClassResultDbo.from(it, eventDbo, persistedClassResultDbo);
+                    }).collect(Collectors.toSet()));
         } else if (persistedEventDbo != null) {
             eventDbo.setClassResults(persistedEventDbo.getClassResults());
         } else if (event.getId().isPersistent()) {
@@ -79,7 +91,7 @@ public class EventDbo {
         return eventDbo;
     }
 
-    static public List<Event> asEvents(EventConfig eventConfig, List<EventDbo> eventDbos) {
+    static public List<Event> asEvents(@NonNull EventConfig eventConfig, @NonNull List<EventDbo> eventDbos) {
         Map<EventId, List<ClassResult>> classResultsByEventId;
         if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.CLASS_RESULTS)) {
             classResultsByEventId =
@@ -107,7 +119,7 @@ public class EventDbo {
                 .toList();
     }
 
-    static public Event asEvent(EventConfig eventConfig, EventDbo eventDbo) {
+    static public Event asEvent(@NonNull EventConfig eventConfig, @NonNull EventDbo eventDbo) {
         return asEvents(eventConfig, List.of(eventDbo)).getFirst();
     }
 

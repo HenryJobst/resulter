@@ -13,6 +13,10 @@ public record PersonRaceResultId(long value) {
         return new PersonRaceResultId(0L);
     }
 
+    public boolean isPersistent() {
+        return value != empty().value;
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;

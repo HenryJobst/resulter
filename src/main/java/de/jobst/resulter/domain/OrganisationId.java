@@ -11,4 +11,8 @@ public record OrganisationId(long value) {
     public static OrganisationId empty() {
         return new OrganisationId(0L);
     }
+
+    public boolean isPersistent() {
+        return value != empty().value;
+    }
 }

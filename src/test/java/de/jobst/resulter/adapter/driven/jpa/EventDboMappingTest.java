@@ -143,10 +143,13 @@ class EventDboMappingTest {
                                                     .stream()
                                                     .findFirst()
                                                     .orElse(null);
-                                    SplitTimeDbo
-                                            splitTimeDbo =
-                                            personRaceResultDbo.getSplitTimes().stream().findFirst().orElse(null);
                                     if (ObjectUtils.isNotEmpty(splitTime)) {
+                                        SplitTimeDbo
+                                                splitTimeDbo =
+                                                personRaceResultDbo.getSplitTimes().stream()
+                                                        .sorted(() -> {
+                                                        })
+                                                        .findFirst().orElse(null);
                                         assertThat(splitTimeDbo).isNotNull();
 
                                         assertThat(splitTimeDbo.getControlCode()).isEqualTo(splitTime.getControlCode()

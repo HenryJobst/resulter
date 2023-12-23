@@ -7,10 +7,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
@@ -44,7 +41,7 @@ public class PersonRaceResultDbo {
     private ResultStatus state;
 
     @OneToMany(mappedBy = "personRaceResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SplitTimeDbo> splitTimes = new ArrayList<>();
+    private Set<SplitTimeDbo> splitTimes = new HashSet<>();
 
     public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult,
                                            @NonNull PersonResultDbo personResultDbo,
@@ -77,7 +74,7 @@ public class PersonRaceResultDbo {
                     .value()
                     .stream()
                     .map(it -> SplitTimeDbo.from(it, personRaceResultDbo))
-                    .toList());
+                    .collect(Collectors.toSet()));
         } else if (persistedPersonRaceResultDbo != null) {
             personRaceResultDbo.setSplitTimes(persistedPersonRaceResultDbo.getSplitTimes());
 
@@ -96,6 +93,7 @@ public class PersonRaceResultDbo {
             splitTimesByPersonRaceResultId =
                     SplitTimeDbo.asSplitTimes(personRaceResultDbos.stream()
                                     .flatMap(x -> x.splitTimes.stream())
+                                    .sorted()
                                     .toList())
                             .stream()
                             .collect(Collectors.groupingBy(SplitTime::getPersonRaceResultId));
@@ -185,11 +183,11 @@ public class PersonRaceResultDbo {
         this.personResultDbo = personResultDbo;
     }
 
-    public List<SplitTimeDbo> getSplitTimes() {
+    public Set<SplitTimeDbo> getSplitTimes() {
         return splitTimes;
     }
 
-    public void setSplitTimes(List<SplitTimeDbo> splitTimes) {
+    public void setSplitTimes(Set<SplitTimeDbo> splitTimes) {
         this.splitTimes = splitTimes;
     }
 }

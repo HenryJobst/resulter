@@ -20,7 +20,7 @@ public class EventTestDataGenerator {
         double punchTime1 = 120.0;
         splitTimes.add(SplitTime.of(controlCode1, punchTime1));
         splitTimes.add(SplitTime.of("128", 104.0));
-        splitTimes.add(SplitTime.of("134", 34.0));
+        splitTimes.add(SplitTime.of("132", 34.0));
         Collection<PersonRaceResult> personRaceResults = new ArrayList<>();
         long raceNumber = 1L;
         ZonedDateTime startTime = ZonedDateTime.of(2020, 10, 11, 11, 12, 0, 0, ZoneId.systemDefault());

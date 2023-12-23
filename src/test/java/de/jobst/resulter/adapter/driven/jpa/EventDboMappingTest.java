@@ -147,8 +147,8 @@ class EventDboMappingTest {
                                         SplitTimeDbo
                                                 splitTimeDbo =
                                                 personRaceResultDbo.getSplitTimes().stream()
-                                                        .sorted(() -> {
-                                                        })
+                                                        .filter(x -> x.getControlCode()
+                                                                .equals(splitTime.getControlCode().value()))
                                                         .findFirst().orElse(null);
                                         assertThat(splitTimeDbo).isNotNull();
 

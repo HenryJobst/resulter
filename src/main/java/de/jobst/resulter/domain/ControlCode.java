@@ -1,6 +1,8 @@
 package de.jobst.resulter.domain;
 
-public record ControlCode(String value) {
+import org.springframework.lang.NonNull;
+
+public record ControlCode(String value) implements Comparable<ControlCode> {
     public static ControlCode of(String value) {
         return new ControlCode(value);
     }
@@ -8,5 +10,16 @@ public record ControlCode(String value) {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;
+    }
+
+    @Override
+    public int compareTo(@NonNull ControlCode o) {
+        if (value == null) {
+            return (o.value == null) ? 0 : -1;
+        }
+        if (o.value == null) {
+            return 1;
+        }
+        return value.compareTo(o.value());
     }
 }

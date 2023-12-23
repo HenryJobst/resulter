@@ -1,6 +1,8 @@
 package de.jobst.resulter.domain;
 
-public record SplitTimeId(long value) {
+import org.springframework.lang.NonNull;
+
+public record SplitTimeId(long value) implements Comparable<SplitTimeId> {
 
     public static SplitTimeId of(long value) {
         if (value < 0L) {
@@ -20,5 +22,10 @@ public record SplitTimeId(long value) {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;
+    }
+
+    @Override
+    public int compareTo(@NonNull SplitTimeId o) {
+        return Long.compare(value, o.value);
     }
 }

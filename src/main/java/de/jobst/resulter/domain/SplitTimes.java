@@ -1,9 +1,9 @@
 package de.jobst.resulter.domain;
 
-import java.util.Collection;
+import java.util.List;
 
-public record SplitTimes(Collection<SplitTime> value) {
-    public static SplitTimes of(Collection<SplitTime> splitTimes) {
-        return new SplitTimes(splitTimes);
+public record SplitTimes(List<SplitTime> value) {
+    public static SplitTimes of(List<SplitTime> splitTimes) {
+        return new SplitTimes(splitTimes.stream().sorted().toList());
     }
 }

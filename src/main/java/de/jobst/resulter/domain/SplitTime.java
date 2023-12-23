@@ -6,7 +6,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 @Getter
-public class SplitTime {
+public class SplitTime implements Comparable<SplitTime> {
     @NonNull
     @Setter
     private SplitTimeId id;
@@ -40,5 +40,17 @@ public class SplitTime {
         return new SplitTime(SplitTimeId.of(id),
                 PersonRaceResultId.of(personRaceResultId),
                 ControlCode.of(controlCode), PunchTime.of(punchTime));
+    }
+
+    @Override
+    public int compareTo(@NonNull SplitTime o) {
+        int value = punchTime.compareTo(o.punchTime);
+        if (value == 0) {
+            value = controlCode.compareTo(o.controlCode);
+        }
+        if (value == 0) {
+            value = id.compareTo(o.id);
+        }
+        return value;
     }
 }

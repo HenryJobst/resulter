@@ -4,13 +4,14 @@ import de.jobst.resulter.domain.PersonRaceResultId;
 import de.jobst.resulter.domain.SplitTime;
 import de.jobst.resulter.domain.SplitTimeId;
 import jakarta.persistence.*;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
 @Table(name = "SPLIT_TIME")
-public class SplitTimeDbo {
+public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_split_time")
     @SequenceGenerator(name = "entity_generator_split_time", sequenceName = "SEQ_SPLIT_TIME_ID", allocationSize = 10)
@@ -81,5 +82,17 @@ public class SplitTimeDbo {
 
     public void setPersonResultDbo(PersonRaceResultDbo personRaceResultDbo) {
         this.personRaceResultDbo = personRaceResultDbo;
+    }
+
+    @Override
+    public int compareTo(@NonNull SplitTimeDbo o) {
+        int value = punchTime.compareTo(o.punchTime);
+        if (value == 0) {
+            value = controlCode.compareTo(o.controlCode);
+        }
+        if (value == 0) {
+            value = id.compareTo(o.id);
+        }
+        return value;
     }
 }

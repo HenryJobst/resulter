@@ -2,6 +2,10 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+// noinspection SpellCheckingInspection
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import AuthStorePlugin from '@/features/keycloak/plugins/authStore'
+import keycloakService from '@/features/keycloak/services/keycloak'
 
 import App from './App.vue'
 import { setupRouter } from './router'
@@ -20,11 +24,19 @@ const i18n = setupI18n({
   messages: { en }
 })
 
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+
 const router = setupRouter(i18n)
 
-const app = createApp(App)
-app.use(PrimeVue, { ripple: true })
-app.use(createPinia())
-app.use(i18n)
-app.use(router)
-app.mount('#app')
+const renderApp = () => {
+  const app = createApp(App)
+  app.use(PrimeVue, { ripple: true })
+  app.use(AuthStorePlugin, { pinia })
+  app.use(pinia)
+  app.use(i18n)
+  app.use(router)
+  app.mount('#app')
+}
+
+keycloakService.callInit(renderApp).then()

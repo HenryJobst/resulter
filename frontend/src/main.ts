@@ -4,7 +4,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 // noinspection SpellCheckingInspection
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import AuthStorePlugin from '@/features/keycloak/plugins/authStore'
+import AuthStorePlugin from '@/features/keycloak/plugins/authStorePlugin'
 import keycloakService from '@/features/keycloak/services/keycloak'
 
 import App from './App.vue'

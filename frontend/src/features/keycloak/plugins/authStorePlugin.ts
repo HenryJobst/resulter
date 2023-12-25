@@ -1,11 +1,11 @@
 import type { Pinia } from 'pinia'
 import type { App } from 'vue'
-import { useAuthStore } from '@/features/keycloak/store/authStore'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import KeycloakService from '@/features/keycloak/services/keycloak'
 import setupInterceptors from '@/features/keycloak/services/tokenInterceptors'
 
 // Definieren Sie eine Schnittstelle für die Plugin-Optionen, falls erforderlich
-interface AuthStorePluginOptions {
+export interface AuthStorePluginOptions {
   pinia: Pinia
 }
 

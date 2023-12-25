@@ -39,7 +39,7 @@ watch(currentLocale, (val) => {
           :height="'60'"
         />
         <nav>
-          <ul class="flex text-2xl">
+          <ul class="flex flex-row flex-wrap text-2xl">
             <li class="mr-4">
               <router-link :to="{ name: 'start-page', params: { locale } }">
                 {{ t('navigations.start') }}
@@ -61,13 +61,23 @@ watch(currentLocale, (val) => {
       </div>
       <!-- Sprachauswahl -->
       <div class="flex flex-row flex-wrap">
-        <a href="#" class="text-xl" v-if="!authStore.isAuthenticated" @click="authStore.login()">
+        <a
+          href="#"
+          class="text-xl mr-4"
+          v-if="!authStore.isAuthenticated"
+          @click="authStore.login()"
+        >
           {{ t('navigations.login') }}
         </a>
-        <a href="#" class="text-xl" v-if="authStore.isAuthenticated" @click="authStore.logout()">
+        <a
+          href="#"
+          class="text-xl mr-4"
+          v-if="authStore.isAuthenticated"
+          @click="authStore.logout()"
+        >
           {{ t('navigations.logout') }}
         </a>
-        <div class="flex flex-row flex-nowrap ml-4">
+        <div class="flex flex-row flex-nowrap">
           <label class="mr-2 mt-1" for="locale-select">{{ t('labels.language') }}</label>
           <select id="locale-select" class="form-select" v-model="currentLocale">
             <option
@@ -85,6 +95,14 @@ watch(currentLocale, (val) => {
     <div class="flex-1 m-4">
       <router-view />
     </div>
+
+    <footer class="flex justify-between items-center bg-gray-200 p-4">
+      <div class="flex items-center">
+        <div v-if="authStore.authenticated" class="ml-4">
+          {{ t('labels.login_user', { username: authStore.user.username }) }}
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 

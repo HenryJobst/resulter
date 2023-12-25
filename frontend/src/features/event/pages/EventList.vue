@@ -7,10 +7,12 @@ import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const store = useEventStore()
+const authStore = useAuthStore()
 
 const dateOptions: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -93,13 +95,19 @@ const formatTime = (time: string) => {
       <Column class="text-right">
         <template #body="slotProps">
           <router-link :to="{ name: 'event-edit', params: { id: slotProps.data.id } }">
-            <Button icon="pi pi-pencil" class="mr-2" :label="t('labels.edit')"></Button>
+            <Button
+              icon="pi pi-pencil"
+              class="mr-2"
+              :label="t('labels.edit')"
+              v-if="authStore.isAdmin"
+            ></Button>
           </router-link>
           <Button
             icon="pi pi-trash"
             severity="danger"
             :label="t('labels.delete')"
             @click="store.deleteEventAction(slotProps.data.id)"
+            v-if="authStore.isAdmin"
           ></Button>
         </template>
       </Column>

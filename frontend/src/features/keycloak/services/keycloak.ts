@@ -50,7 +50,16 @@ async function initStore(storeInstance: any): Promise<void> {
   }
 }
 
-function logout(url: string): void {
+async function login(url: string): Promise<Keycloak | undefined> {
+  try {
+    keycloak.login({ redirectUri: url }).then()
+    return keycloak
+  } catch (error) {
+    handleError(error as Error, 'Failed to refresh token')
+  }
+}
+
+async function logout(url: string): Promise<void> {
   keycloak.logout({ redirectUri: url }).then()
 }
 
@@ -67,6 +76,7 @@ async function refreshToken(): Promise<Keycloak | undefined> {
 const KeycloakService = {
   callInit: init,
   callInitStore: initStore,
+  callLogin: login,
   callLogout: logout,
   callTokenRefresh: refreshToken
 }

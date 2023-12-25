@@ -1,44 +1,28 @@
-<script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { SUPPORT_LOCALES } from './i18n'
 
-export default defineComponent({
-  name: 'App',
-  setup() {
-    const router = useRouter()
-    const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
+const router = useRouter()
+const { t, locale } = useI18n()
+const authStore = useAuthStore()
 
-    /**
-     * select locale value for language select form
-     *
-     * If you use the vue-i18n composer `locale` property directly, it will be re-rendering component when this property is changed,
-     * before dynamic import was used to asynchronously load and apply locale messages
-     * To avoid this, use the another locale reactive value.
-     */
-    const currentLocale = ref(locale.value)
+// Verwalten des aktuellen Lokalisierungswertes
+const currentLocale = ref(locale.value)
 
-    // sync to switch locale from router locale path
-    watch(router.currentRoute, (route) => {
-      currentLocale.value = route.params.locale as string
-    })
+// Synchronisation, um die Lokalisierung vom Router-Pfad zu ändern
+watch(router.currentRoute, (route) => {
+  currentLocale.value = route.params.locale as string
+})
 
-    /**
-     * when change the locale, go to locale route
-     *
-     * when the changes are detected, load the locale message and set the language via vue-router navigation guard.
-     * change the vue-i18n locale too.
-     */
-    watch(currentLocale, (val) => {
-      router.push({
-        name: router.currentRoute.value.name!,
-        params: { locale: val }
-      })
-    })
-
-    return { t, locale, currentLocale, supportLocales: SUPPORT_LOCALES }
-  }
+// Änderung der Lokalisierung, gehen Sie zur Lokalisierungsroute
+watch(currentLocale, (val) => {
+  router.push({
+    name: router.currentRoute.value.name!,
+    params: { locale: val }
+  })
 })
 </script>
 
@@ -51,8 +35,8 @@ export default defineComponent({
           :alt="t('labels.logo')"
           class="mr-6"
           src="@/assets/Logo_Resulter.png"
-          width="60"
-          height="60"
+          :width="'60'"
+          :height="'60'"
         />
         <nav>
           <ul class="flex text-2xl">
@@ -75,27 +59,33 @@ export default defineComponent({
           </ul>
         </nav>
       </div>
-
       <!-- Sprachauswahl -->
-      <div>
-        <label class="mr-2" for="locale-select">{{ t('labels.language') }}</label>
-        <select id="locale-select" class="form-select" v-model="currentLocale">
-          <option v-for="optionLocale in supportLocales" :key="optionLocale" :value="optionLocale">
-            {{ optionLocale }}
-          </option>
-        </select>
+      <div class="flex flex-row flex-wrap">
+        <a href="#" class="text-xl" v-if="!authStore.isAuthenticated" @click="authStore.login()">
+          {{ t('navigations.login') }}
+        </a>
+        <a href="#" class="text-xl" v-if="authStore.isAuthenticated" @click="authStore.logout()">
+          {{ t('navigations.logout') }}
+        </a>
+        <div class="flex flex-row flex-nowrap ml-4">
+          <label class="mr-2 mt-1" for="locale-select">{{ t('labels.language') }}</label>
+          <select id="locale-select" class="form-select" v-model="currentLocale">
+            <option
+              v-for="optionLocale in SUPPORT_LOCALES"
+              :key="optionLocale"
+              :value="optionLocale"
+            >
+              {{ optionLocale }}
+            </option>
+          </select>
+        </div>
       </div>
     </header>
 
-    <!-- Body -->
-    <body>
-      <div class="flex-1 m-4">
-        <router-view />
-      </div>
-    </body>
+    <div class="flex-1 m-4">
+      <router-view />
+    </div>
   </div>
-  <header></header>
-  <body></body>
 </template>
 
 <style scoped></style>

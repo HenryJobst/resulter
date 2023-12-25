@@ -7,7 +7,9 @@
   "navigations": {
     "start": "Start",
     "about": "About",
-    "events": "Events"
+    "events": "Events",
+    "login": "Login",
+    "logout": "Logout"
   },
   "labels": {
     "no": "#",

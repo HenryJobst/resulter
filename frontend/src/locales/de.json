@@ -26,7 +26,8 @@
     "date": "Datum",
     "time": "Zeit",
     "class": "Keine Klasse | Klasse | Klassen",
-    "participant": "Kein Teilnehmer | Teilnehmer | Teilnehmer"
+    "participant": "Kein Teilnehmer | Teilnehmer | Teilnehmer",
+    "login_user": "Angemeldet als: {username}"
   },
   "messages": {
     "edit_event": "Wettkampf mit ID {id} bearbeiten"

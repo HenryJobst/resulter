@@ -26,7 +26,8 @@
     "date": "Date",
     "time": "Time",
     "class": "No class | Class | Classes",
-    "participant": "No participant | Participant | Participants"
+    "participant": "No participant | Participant | Participants",
+    "login_user": "Logged in as: {username}"
   },
   "messages": {
     "edit_event": "Edit even with ID {id}"

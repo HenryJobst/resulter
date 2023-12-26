@@ -27,7 +27,7 @@ function handleError(error: Error, message: string): void {
 async function init(onInitCallback: () => void): Promise<void> {
   try {
     authenticated = await keycloak.init({
-      flow: 'standard',
+      flow: 'hybrid',
       onLoad: 'check-sso',
       silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`
     })

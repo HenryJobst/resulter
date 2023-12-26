@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
 import type { Event } from '@/features/event/model/event'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import Calendar from 'primevue/calendar'
@@ -17,15 +17,51 @@ const formData = ref<Event | Omit<Event, 'id'>>({
   classes: 0,
   participants: 0
 })
+const dateTime = ref(new Date(formData.value.startTime))
 
 const props = defineProps<{ event?: Event }>()
 
+const datePart = computed({
+  get: () =>
+    new Date(dateTime.value.getFullYear(), dateTime.value.getMonth(), dateTime.value.getDate()),
+  set: (newDate) => {
+    dateTime.value = new Date(
+      newDate.getFullYear(),
+      newDate.getMonth(),
+      newDate.getDate(),
+      dateTime.value.getHours(),
+      dateTime.value.getMinutes()
+    )
+    formData.value.startTime = dateTime.value.toISOString()
+  }
+})
+
+const timePart = computed({
+  get: () => {
+    return new Date(
+      dateTime.value.getFullYear(),
+      dateTime.value.getMonth(),
+      dateTime.value.getDate(),
+      dateTime.value.getHours(),
+      dateTime.value.getMinutes()
+    )
+  },
+  set: (newTime) => {
+    dateTime.value = new Date(
+      dateTime.value.getFullYear(),
+      dateTime.value.getMonth(),
+      dateTime.value.getDate(),
+      newTime.getHours(),
+      newTime.getMinutes()
+    )
+    formData.value.startTime = dateTime.value.toISOString()
+  }
+})
+
 onMounted(() => {
-  if (props.event !== void 0) {
-    formData.value = {
-      ...props.event
-    }
-    //console.log(formData)
+  if (props.event) {
+    formData.value = { ...props.event }
+    dateTime.value = new Date(props.event.startTime)
   }
 })
 
@@ -49,24 +85,13 @@ const formSubmitHandler = () => {
       <div class="flex flex-row">
         <label for="startDate" class="col-fixed w-32">{{ t('labels.date') }}</label>
         <div class="col">
-          <Calendar
-            v-model="formData.startTime"
-            id="startDate"
-            date-format="dd.mm.yy"
-            show-icon
-          ></Calendar>
+          <Calendar v-model="datePart" id="startDate" date-format="dd.mm.yy" show-icon></Calendar>
         </div>
       </div>
       <div class="flex flex-row">
         <label for="startTime" class="col-fixed w-32">{{ t('labels.time') }}</label>
         <div>
-          <Calendar
-            v-model="formData.startTime"
-            id="startTime"
-            showIcon
-            iconDisplay="input"
-            timeOnly
-          >
+          <Calendar v-model="timePart" id="startTime" showIcon iconDisplay="input" timeOnly>
             <template #inputicon="{ clickCallback }">
               <i class="pi pi-clock" @click="clickCallback" />
             </template>

@@ -27,6 +27,7 @@ function handleError(error: Error, message: string): void {
 async function init(onInitCallback: () => void): Promise<void> {
   try {
     authenticated = await keycloak.init({
+      flow: 'standard',
       onLoad: 'check-sso',
       silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`
     })
@@ -51,9 +52,9 @@ async function initStore(storeInstance: any): Promise<void> {
   }
 }
 
-async function login(url?: string): Promise<Keycloak | undefined> {
+async function login(url?: string, locale?: string): Promise<Keycloak | undefined> {
   try {
-    keycloak.login({ redirectUri: url }).then()
+    keycloak.login({ redirectUri: url, locale: locale }).then()
     return keycloak
   } catch (error) {
     handleError(error as Error, 'Failed to refresh token')

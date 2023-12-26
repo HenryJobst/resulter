@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
@@ -9,12 +9,17 @@ const router = useRouter()
 const { t, locale } = useI18n()
 const authStore = useAuthStore()
 
-// Verwalten des aktuellen Lokalisierungswertes
 const currentLocale = ref(locale.value)
+const fullUrl = ref('')
+
+onMounted(() => {
+  fullUrl.value = window.location.href
+})
 
 // Synchronisation, um die Lokalisierung vom Router-Pfad zu ändern
 watch(router.currentRoute, (route) => {
   currentLocale.value = route.params.locale as string
+  fullUrl.value = window.location.href
 })
 
 // Änderung der Lokalisierung, gehen Sie zur Lokalisierungsroute
@@ -65,7 +70,7 @@ watch(currentLocale, (val) => {
           href="#"
           class="text-xl mr-4"
           v-if="!authStore.isAuthenticated"
-          @click="authStore.login()"
+          @click="authStore.login(fullUrl, currentLocale)"
         >
           {{ t('navigations.login') }}
         </a>

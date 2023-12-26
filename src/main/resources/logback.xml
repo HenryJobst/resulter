@@ -10,7 +10,7 @@
     <logger name="org.hibernate.SQL" level="debug" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.hibernate.orm.jdbc.bind" level="warn" additivity="false">
+    <logger name="org.hibernate.orm.jdbc.bind" level="trace" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
     <logger name="org.hibernate.stat" level="debug" additivity="false">

@@ -8,6 +8,8 @@ import org.springframework.lang.NonNull;
 
 import java.util.List;
 
+import static de.jobst.resulter.domain.util.CompareUtils.compareNullable;
+
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
 @Table(name = "SPLIT_TIME")
@@ -86,13 +88,19 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
 
     @Override
     public int compareTo(@NonNull SplitTimeDbo o) {
-        int value = punchTime.compareTo(o.punchTime);
+        // Vergleich von punchTime unter Berücksichtigung von Null-Werten
+        int value = compareNullable(punchTime, o.punchTime);
+
+        // Wenn punchTime gleich ist, weiter mit controlCode vergleichen
         if (value == 0) {
-            value = controlCode.compareTo(o.controlCode);
+            value = compareNullable(controlCode, o.controlCode);
         }
+
+        // Wenn controlCode gleich ist, weiter mit id vergleichen
         if (value == 0) {
-            value = id.compareTo(o.id);
+            value = compareNullable(id, o.id);
         }
+
         return value;
     }
 }

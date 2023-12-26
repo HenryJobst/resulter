@@ -1,15 +1,5 @@
-// file: src/services/tokenInterceptors.ts
-
-//import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import axiosInstance from '@/features/keycloak/services/api'
-
-interface Store {
-  authenticated: boolean
-  user: {
-    token: string
-  }
-  refreshUserToken: () => Promise<void>
-}
+import KeycloakService from '@/features/keycloak/services/keycloak'
 
 const setup = (store: any) => {
   axiosInstance.interceptors.request.use(
@@ -37,7 +27,7 @@ const setup = (store: any) => {
           return axiosInstance(originalConfig)
         } catch (_error) {
           console.error('Refresh token failed', _error)
-          // Handle token refresh failure (e.g., redirect to login page)
+          await KeycloakService.callLogin(originalConfig.url)
         }
       }
 

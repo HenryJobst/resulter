@@ -50,7 +50,7 @@ async function initStore(storeInstance: any): Promise<void> {
   }
 }
 
-async function login(url: string): Promise<Keycloak | undefined> {
+async function login(url?: string): Promise<Keycloak | undefined> {
   try {
     keycloak.login({ redirectUri: url }).then()
     return keycloak
@@ -59,7 +59,7 @@ async function login(url: string): Promise<Keycloak | undefined> {
   }
 }
 
-async function logout(url: string): Promise<void> {
+async function logout(url?: string): Promise<void> {
   keycloak.logout({ redirectUri: url }).then()
 }
 

@@ -1,6 +1,5 @@
-// file: src/services/api.ts
-
 import axios from 'axios'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 // Define the structure for environment variables if needed
 interface EnvVariables {
@@ -11,17 +10,18 @@ interface EnvVariables {
 const env: EnvVariables = import.meta.env as unknown as EnvVariables
 
 // Creating an Axios instance
-const instance = axios.create({
+const axiosInstance = axios.create({
   baseURL: `${env.VITE_API_ENDPOINT}`,
   headers: {
     'Content-Type': 'application/json'
   }
 })
 
-// Token Interceptor (example)
-instance.interceptors.request.use(
+// Token Interceptor
+axiosInstance.interceptors.request.use(
   (config) => {
-    const token = 'your_token_retrieval_logic' // Replace with your token retrieval logic
+    const authStore = useAuthStore()
+    const token = authStore.user.token
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -32,4 +32,4 @@ instance.interceptors.request.use(
   }
 )
 
-export default instance
+export default axiosInstance

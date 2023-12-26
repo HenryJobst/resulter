@@ -9,8 +9,7 @@ import Calendar from 'primevue/calendar'
 const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const defaultDate = new Date()
-const defaultTime = defaultDate
-defaultTime.setHours(11)
+defaultDate.setHours(11)
 
 const formData = ref<Event | Omit<Event, 'id'>>({
   name: '',
@@ -26,7 +25,7 @@ onMounted(() => {
     formData.value = {
       ...props.event
     }
-    console.log(formData)
+    //console.log(formData)
   }
 })
 

@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { EventService } from '@/features/event/services/event.service'
 import { useRouter } from 'vue-router'
 import type { Event } from '@/features/event/model/event'
+import { useI18n } from 'vue-i18n'
 
 export const useEventStore = defineStore('event', () => {
   const events = ref<Event[]>([])
@@ -10,6 +11,7 @@ export const useEventStore = defineStore('event', () => {
   const errorMessage = ref<null | string>(null)
 
   const router = useRouter()
+  const locale = useI18n().locale
 
   // Actions
   const loadEventsAction = function () {
@@ -18,7 +20,11 @@ export const useEventStore = defineStore('event', () => {
     // Effect
     EventService.getAll()
       .then((eventsFromService) => {
-        events.value = eventsFromService
+        if (eventsFromService) {
+          events.value = eventsFromService
+        } else {
+          events.value = []
+        }
       })
       .catch((error: Error) => {
         errorMessage.value = error.message
@@ -28,6 +34,11 @@ export const useEventStore = defineStore('event', () => {
       })
   }
 
+  const redirectToEvents = function () {
+    let to = '/' + locale.value + '/event'
+    router.replace(to).then()
+  }
+
   const createEventAction = function (event: Omit<Event, 'id'>) {
     loading.value = true
     errorMessage.value = null
@@ -35,7 +46,7 @@ export const useEventStore = defineStore('event', () => {
     EventService.create(event)
       .then((eventFromService) => {
         events.value.push(eventFromService)
-        router.replace('/events')
+        redirectToEvents()
       })
       .catch((error: Error) => {
         errorMessage.value = error.message
@@ -52,7 +63,7 @@ export const useEventStore = defineStore('event', () => {
     EventService.update(event)
       .then(() => {
         loadEventsAction()
-        router.replace('/events')
+        redirectToEvents()
       })
       .catch((error: Error) => {
         errorMessage.value = error.message
@@ -69,6 +80,7 @@ export const useEventStore = defineStore('event', () => {
     EventService.deleteById(id)
       .then(() => {
         loadEventsAction()
+        redirectToEvents()
       })
       .catch((error: Error) => {
         errorMessage.value = error.message

@@ -27,7 +27,7 @@ const setup = (store: any) => {
           return axiosInstance(originalConfig)
         } catch (_error) {
           console.error('Refresh token failed', _error)
-          await KeycloakService.callLogin(originalConfig.url)
+          await KeycloakService.callLogin(originalConfig.url, originalConfig.locale)
         }
       }
 

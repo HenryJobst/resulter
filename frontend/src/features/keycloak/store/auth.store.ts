@@ -38,9 +38,12 @@ export const useAuthStore = defineStore(
       takeCredentials(keycloak)
     }
 
-    async function login(url?: string | null) {
+    async function login(url?: string, locale?: string) {
       try {
-        const keycloak = await KeycloakService.callLogin(url ? url : import.meta.env.VITE_APP_URL)
+        const keycloak = await KeycloakService.callLogin(
+          url ? url : import.meta.env.VITE_APP_URL,
+          locale
+        )
         takeCredentials(keycloak)
       } catch (error) {
         console.error(error)

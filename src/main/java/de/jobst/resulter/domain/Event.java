@@ -97,9 +97,10 @@ public class Event {
                 eventState);
     }
 
-    public void update(EventName eventName, DateTime startTime) {
+    public void update(EventName eventName, DateTime startTime, Organisations organisations) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
+        this.organisations = organisations != null ? ShallowLoadProxy.of(organisations) : ShallowLoadProxy.empty();
     }
 }

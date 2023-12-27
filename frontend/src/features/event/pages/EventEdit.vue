@@ -5,6 +5,7 @@ import { useEventStore } from '@/features/event/store/event.store'
 import Spinner from '@/components/SpinnerComponent.vue'
 import type { Event } from '@/features/event/model/event'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{ id: string; locale?: string }>()
 const store = useEventStore()
@@ -15,6 +16,11 @@ const eventSubmitHandler = (event: Event) => {
 }
 
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
+
+const router = useRouter()
+const redirectBack = () => {
+  router.replace({ name: 'event-list' })
+}
 </script>
 
 <template>
@@ -25,6 +31,13 @@ const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
     <EventForm v-if="!store.loadingEvents" :event="event" @event-submit="eventSubmitHandler">
       <Button class="mt-2" type="submit" :label="t('labels.save')"></Button>
+      <Button
+        class="ml-2"
+        severity="secondary"
+        type="reset"
+        :label="t('labels.back')"
+        @click="redirectBack"
+      ></Button>
     </EventForm>
   </div>
 </template>

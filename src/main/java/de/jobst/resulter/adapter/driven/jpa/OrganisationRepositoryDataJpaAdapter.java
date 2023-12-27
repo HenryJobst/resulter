@@ -5,6 +5,7 @@ import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,7 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
     }
 
     @Override
+    @Transactional
     public Organisation save(Organisation organisation) {
         OrganisationDbo organisationEntity = OrganisationDbo.from(organisation);
         OrganisationDbo savedOrganisationEntity = organisationJpaRepository.save(organisationEntity);
@@ -27,6 +29,7 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
     }
 
     @Override
+    @Transactional
     public List<Organisation> findAll() {
         return organisationJpaRepository.findAll().stream()
                 .map(OrganisationDbo::asOrganisation)
@@ -34,6 +37,7 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
     }
 
     @Override
+    @Transactional
     public Optional<Organisation> findById(OrganisationId organisationId) {
         Optional<OrganisationDbo> organisationEntity =
                 organisationJpaRepository.findById(organisationId.value());
@@ -41,6 +45,7 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
     }
 
     @Override
+    @Transactional
     public Organisation findOrCreate(Organisation organisation) {
         Optional<OrganisationDbo> organisationEntity =
                 organisationJpaRepository.findByName(organisation.getName().value());

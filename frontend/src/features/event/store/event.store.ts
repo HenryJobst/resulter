@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { EventService } from '@/features/event/services/event.service'
 import { useRouter } from 'vue-router'
 import type { Event } from '@/features/event/model/event'
-import { useI18n } from 'vue-i18n'
 
 export const useEventStore = defineStore('event', () => {
   const events = ref<Event[]>([])
@@ -11,7 +10,6 @@ export const useEventStore = defineStore('event', () => {
   const errorMessage = ref<null | string>(null)
 
   const router = useRouter()
-  const locale = useI18n().locale
 
   // Actions
   const loadEventsAction = function () {
@@ -35,8 +33,7 @@ export const useEventStore = defineStore('event', () => {
   }
 
   const redirectToEvents = function () {
-    let to = '/' + locale.value + '/event'
-    router.replace(to).then()
+    router.replace({ name: 'event-list' }).then()
   }
 
   const createEventAction = function (event: Omit<Event, 'id'>) {

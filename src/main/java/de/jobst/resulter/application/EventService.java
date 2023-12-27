@@ -78,7 +78,7 @@ public class EventService {
         return eventRepository.findAll(eventConfig);
     }
 
-    public Event updateEvent(EventId id, EventName name, DateTime startDate) {
+    public Event updateEvent(EventId id, EventName name, DateTime startDate, Organisations organisations) {
         EventConfig eventConfig = getEventConfig(true,
                 true,
                 true,
@@ -91,7 +91,7 @@ public class EventService {
             return null;
         }
         Event event = optionalEvent.get();
-        event.update(name, startDate);
+        event.update(name, startDate, organisations);
         return eventRepository.save(event);
     }
 

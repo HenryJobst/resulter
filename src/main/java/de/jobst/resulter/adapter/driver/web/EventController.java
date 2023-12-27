@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.application.EventService;
+import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -12,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -22,10 +21,12 @@ import java.util.Optional;
 public class EventController {
 
     private final EventService eventService;
+    private final OrganisationService organisationService;
 
     @Autowired
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService, OrganisationService organisationService) {
         this.eventService = eventService;
+        this.organisationService = organisationService;
     }
 
     @GetMapping("/event")
@@ -104,11 +105,19 @@ public class EventController {
     @PutMapping("/event/{id}")
     public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
         try {
-            Event event = eventService.updateEvent(EventId.of(id),
+            Event event = eventService.updateEvent(
+                    EventId.of(id),
                     EventName.of(eventDto.name()),
                     ObjectUtils.isNotEmpty(eventDto.startTime()) ?
                             DateTime.of(ZonedDateTime.parse(eventDto.startTime(),
-                                    DateTimeFormatter.ISO_DATE_TIME)) : null);
+                                    DateTimeFormatter.ISO_DATE_TIME)) : null,
+                    Organisations.of(
+                            eventDto.organisations() == null ? new ArrayList<>() :
+                                    Arrays.stream(eventDto.organisations())
+                                            .map(it -> organisationService.findById(OrganisationId.of(it)).orElse(null))
+                                            .filter(ObjectUtils::isNotEmpty)
+                                            .toList()
+                    ));
             if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
             } else {

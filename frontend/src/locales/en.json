@@ -21,15 +21,21 @@
     "edit": "Edit",
     "delete": "Delete",
     "save": "Save",
+    "back": "Back",
     "create": "Create",
     "name": "Name",
     "date": "Date",
     "time": "Time",
     "class": "No class | Class | Classes",
     "participant": "No participant | Participant | Participants",
-    "login_user": "Logged in as: {username}"
+    "login_user": "Logged in as: {username}",
+    "organisation": "Club"
   },
   "messages": {
-    "edit_event": "Edit even with ID {id}"
+    "edit_event": "Edit event with ID {id}",
+    "new_event": "New event",
+    "loading": "Loading...",
+    "error": "Error: {message}",
+    "select": "Select..."
   }
 }

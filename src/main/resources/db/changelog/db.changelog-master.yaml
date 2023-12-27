@@ -20,10 +20,10 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: START_TIME
-                  type: DATE
+                  type: TIMESTAMPTZ
               - column:
                   name: END_TIME
-                  type: DATE
+                  type: TIMESTAMPTZ
               - column:
                   name: STATE
                   type: VARCHAR(20)
@@ -165,10 +165,10 @@ databaseChangeLog:
                     foreignKeyName: FK_PERSON_RACE_RESULT_PERSON_RESULT
               - column:
                   name: START_TIME
-                  type: DATE
+                  type: TIMESTAMPTZ
               - column:
                   name: FINISH_TIME
-                  type: DATE
+                  type: TIMESTAMPTZ
               - column:
                   name: PUNCH_TIME
                   type: DOUBLE

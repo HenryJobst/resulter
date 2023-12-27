@@ -1,6 +1,5 @@
 package de.jobst.resulter.domain.util;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ShallowLoadProxy<T> {
@@ -29,8 +28,11 @@ public class ShallowLoadProxy<T> {
             value = load();
         }
 
-        return Optional.ofNullable(value)
-                .orElseThrow(() -> new DataNotLoadedException("Data not loaded, get not possible."));
+        if (isLoaded) {
+            return value;
+        } else {
+            throw new DataNotLoadedException("Data not loaded, get not possible.");
+        }
     }
 
     private T load() {

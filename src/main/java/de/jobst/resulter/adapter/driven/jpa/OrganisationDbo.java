@@ -32,6 +32,9 @@ public class OrganisationDbo {
     private Set<EventDbo> events = new HashSet<>();
 
     public static OrganisationDbo from(Organisation organisation) {
+        if (null == organisation) {
+            return null;
+        }
         OrganisationDbo organisationDbo = new OrganisationDbo();
         if (organisation.getId().value() != OrganisationId.empty().value()) {
             organisationDbo.setId(organisation.getId().value());

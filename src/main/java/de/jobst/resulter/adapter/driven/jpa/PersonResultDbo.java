@@ -104,10 +104,10 @@ public class PersonResultDbo {
                                         it.getClassResultDbo().getId() :
                                         ClassResultId.empty().value(),
                                 eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSONS) ?
-                                        null : it.person.asPerson(),
+                                        null : (it.person != null ? it.person.asPerson() : null),
                                 eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.ORGANISATIONS) ?
                                         null :
-                                        it.organisation.asOrganisation(),
+                                        (it.organisation != null ? it.organisation.asOrganisation() : null),
                                 personRaceResultsByPersonResultId == null ? null :
                                         personRaceResultsByPersonResultId.getOrDefault(PersonResultId.of(it.id),
                                                 new ArrayList<>())))

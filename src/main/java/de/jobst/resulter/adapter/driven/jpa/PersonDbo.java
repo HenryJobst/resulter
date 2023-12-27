@@ -36,6 +36,9 @@ public class PersonDbo {
     private Set<PersonResultDbo> personResults = new HashSet<>();
 
     public static PersonDbo from(Person person) {
+        if (null == person) {
+            return null;
+        }
         PersonDbo personDbo = new PersonDbo();
         if (person.getId().value() != PersonId.empty().value()) {
             personDbo.setId(person.getId().value());

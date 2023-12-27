@@ -49,10 +49,12 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
                     .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
                     .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
                     .forEach(personResultDbo -> {
-                        if (Hibernate.isInitialized(personResultDbo.getPerson())) {
+                        if (personResultDbo.getPerson() != null &&
+                                Hibernate.isInitialized(personResultDbo.getPerson())) {
                             personJpaRepository.save(personResultDbo.getPerson());
                         }
-                        if (Hibernate.isInitialized(personResultDbo.getOrganisation())) {
+                        if (personResultDbo.getOrganisation() != null &&
+                                Hibernate.isInitialized(personResultDbo.getOrganisation())) {
                             organisationJpaRepository.save(personResultDbo.getOrganisation());
                         }
                     });

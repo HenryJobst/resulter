@@ -15,7 +15,7 @@ const eventSubmitHandler = (event: Omit<Event, 'id'>) => {
 
 <template>
   <div>
-    <h2>Neuer Wettkampf</h2>
+    <h2>{{ t('messages.new_event') }}</h2>
 
     <Spinner v-if="store.loadingEvents"></Spinner>
 

@@ -7,7 +7,8 @@ public record EventDto(Long id,
                        String name,
                        String startTime,
                        Integer classes,
-                       Long participants) {
+                       Long participants,
+                       Long[] organisations) {
     static public EventDto from(Event event) {
         return new EventDto(
                 ObjectUtils.isNotEmpty(event.getId()) ?
@@ -23,7 +24,12 @@ public record EventDto(Long id,
                                 .stream()
                                 .filter(it -> it.getPersonResults().isLoaded())
                                 .mapToLong(it -> it.getPersonResults().get().value().size())
-                                .sum() : 0
+                                .sum() : 0,
+                event.getOrganisations().isLoaded() ?
+                        event.getOrganisations().get().value().stream()
+                                .map(it -> it.getId().value())
+                                .toArray(Long[]::new) : new Long[0]
+
         );
     }
 }

@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 // noinspection SpellCheckingInspection
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { VueQueryPlugin } from '@tanstack/vue-query'
 import AuthStorePlugin from '@/features/keycloak/plugins/authStorePlugin'
 import keycloakService from '@/features/keycloak/services/keycloak'
 
@@ -33,6 +34,7 @@ const renderApp = () => {
   const app = createApp(App)
   app.use(PrimeVue, { ripple: true })
   app.use(AuthStorePlugin, { pinia })
+  app.use(VueQueryPlugin)
   app.use(pinia)
   app.use(i18n)
   app.use(router)

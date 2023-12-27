@@ -4,8 +4,8 @@ import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,13 +17,15 @@ public class OrganisationService {
         this.organisationRepository = organisationRepository;
     }
 
-    @Transactional
+    public List<Organisation> findAll() {
+        return organisationRepository.findAll();
+    }
+
     public Organisation findOrCreate(Organisation organisation) {
         return organisationRepository.findOrCreate(organisation);
     }
 
-    @Transactional
-    Optional<Organisation> findById(OrganisationId organisationId) {
+    public Optional<Organisation> findById(OrganisationId organisationId) {
         return organisationRepository.findById(organisationId);
     }
 }

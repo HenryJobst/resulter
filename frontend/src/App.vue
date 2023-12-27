@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { SUPPORT_LOCALES } from './i18n'
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 
 const router = useRouter()
 const { t, locale } = useI18n()
@@ -99,6 +100,7 @@ watch(currentLocale, (val) => {
 
     <div class="flex-1 m-4">
       <router-view />
+      <VueQueryDevtools />
     </div>
 
     <footer class="flex justify-between items-center bg-gray-200 p-4">

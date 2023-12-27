@@ -4,4 +4,5 @@ export interface Event {
   startTime: string | Date
   classes: number
   participants: number
+  organisations: number[]
 }

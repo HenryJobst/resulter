@@ -5,6 +5,9 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import Calendar from 'primevue/calendar'
+import MultiSelect from 'primevue/multiselect'
+import { OrganisationService } from '@/features/organisation/services/organisation.service'
+import { useQuery } from '@tanstack/vue-query'
 
 const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
@@ -15,8 +18,10 @@ const formData = ref<Event | Omit<Event, 'id'>>({
   name: '',
   startTime: new Date().toLocaleDateString(locale.value),
   classes: 0,
-  participants: 0
+  participants: 0,
+  organisations: []
 })
+
 const dateTime = ref(new Date(formData.value.startTime))
 
 const props = defineProps<{ event?: Event }>()
@@ -65,6 +70,11 @@ onMounted(() => {
   }
 })
 
+const organisationQuery = useQuery({
+  queryKey: ['organisations'],
+  queryFn: () => OrganisationService.getAll()
+})
+
 const emit = defineEmits(['eventSubmit'])
 
 const formSubmitHandler = () => {
@@ -90,12 +100,35 @@ const formSubmitHandler = () => {
       </div>
       <div class="flex flex-row">
         <label for="startTime" class="col-fixed w-32">{{ t('labels.time') }}</label>
-        <div>
+        <div class="col">
           <Calendar v-model="timePart" id="startTime" showIcon iconDisplay="input" timeOnly>
             <template #inputicon="{ clickCallback }">
               <i class="pi pi-clock" @click="clickCallback" />
             </template>
           </Calendar>
+        </div>
+      </div>
+      <div class="flex flex-row">
+        <label for="organisations" class="col-fixed w-32">{{ t('labels.organisation') }}</label>
+        <div class="col">
+          <span v-if="organisationQuery.status.value === 'pending'">{{
+            t('messages.loading')
+          }}</span>
+          <span v-else-if="organisationQuery.status.value === 'error'">
+            {{ t('messages.error', { message: organisationQuery.error.toLocaleString() }) }}
+          </span>
+          <div v-else-if="organisationQuery.data" class="card">
+            <MultiSelect
+              id="organisations"
+              v-model="formData.organisations"
+              :options="organisationQuery.data.value"
+              filter
+              optionLabel="name"
+              option-value="id"
+              :placeholder="t('messages.select')"
+              class="w-full md:w-20rem"
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -17,6 +17,7 @@
     "language": "Language",
     "event": "No event | Event | Events",
     "new": "New",
+    "import": "Import",
     "reload": "Reload",
     "edit": "Edit",
     "delete": "Delete",
@@ -34,6 +35,7 @@
   "messages": {
     "edit_event": "Edit event with ID {id}",
     "new_event": "New event",
+    "import_event": "Import event",
     "loading": "Loading...",
     "error": "Error: {message}",
     "select": "Select..."

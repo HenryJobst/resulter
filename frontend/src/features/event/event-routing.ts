@@ -2,6 +2,7 @@ import EventIndex from '@/features/event/EventIndex.vue'
 import EventList from '@/features/event/pages/EventList.vue'
 import EventNew from '@/features/event/pages/EventNew.vue'
 import EventEdit from '@/features/event/pages/EventEdit.vue'
+import EventImport from '@/features/event/pages/EventImport.vue'
 
 export const eventRouting = [
   {
@@ -18,6 +19,11 @@ export const eventRouting = [
         path: 'new',
         name: 'event-new',
         component: EventNew
+      },
+      {
+        path: 'import',
+        name: 'event-import',
+        component: EventImport
       },
       {
         path: 'edit/:id',

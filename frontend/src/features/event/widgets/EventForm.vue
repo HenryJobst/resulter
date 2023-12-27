@@ -16,7 +16,7 @@ defaultDate.setHours(11)
 
 const formData = ref<Event | Omit<Event, 'id'>>({
   name: '',
-  startTime: new Date().toLocaleDateString(locale.value),
+  startTime: new Date(),
   classes: 0,
   participants: 0,
   organisations: []

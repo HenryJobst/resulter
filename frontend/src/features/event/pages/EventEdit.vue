@@ -18,8 +18,8 @@ const eventSubmitHandler = (event: Event) => {
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const router = useRouter()
-const redirectBack = () => {
-  router.replace({ name: 'event-list' })
+const redirectBack = async () => {
+  await router.replace({ name: 'event-list' })
 }
 </script>
 

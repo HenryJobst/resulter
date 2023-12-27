@@ -57,18 +57,15 @@ const formatTime = (time: string) => {
 <template>
   <h1>{{ t('labels.event') }}</h1>
   <div class="flex justify-content-between my-4">
-    <router-link
-      :to="{
-        name: 'event-new'
-      }"
-    >
-      <Button :label="t('labels.new')"></Button>
-    </router-link>
-    <Button
-      severity="secondary"
-      :label="t('labels.reload')"
-      @click="store.loadEventsAction"
-    ></Button>
+    <div class="flex justify-content-start">
+      <router-link :to="{ name: 'event-new' }">
+        <Button :label="t('labels.new')"></Button>
+      </router-link>
+      <router-link class="ml-2" :to="{ name: 'event-import' }">
+        <Button :label="t('labels.import')"></Button>
+      </router-link>
+    </div>
+    <Button severity="secondary" :label="t('labels.reload')" @click="store.loadEventsAction" />
   </div>
 
   <ErrorMessage :message="store.errorMessage"></ErrorMessage>

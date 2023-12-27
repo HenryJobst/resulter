@@ -17,6 +17,7 @@
     "language": "Sprache",
     "event": "Keine Wettkämpfe | Wettkampf | Wettkämpfe",
     "new": "Neu",
+    "import": "Importieren",
     "reload": "Neu laden",
     "edit": "Bearbeiten",
     "delete": "Löschen",
@@ -34,6 +35,7 @@
   "messages": {
     "edit_event": "Wettkampf mit ID {id} bearbeiten",
     "new_event": "Neuer Wettkampf",
+    "import_event": "Neuen Wettkampf importieren",
     "loading": "Lade...",
     "error": "Fehler: {message}",
     "select": "Bitte auswählen..."

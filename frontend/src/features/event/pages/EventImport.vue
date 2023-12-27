@@ -24,7 +24,7 @@ const redirectBack = async () => {
 
 <template>
   <div>
-    <h2>{{ t('messages.new_event') }}</h2>
+    <h2>{{ t('messages.import_event') }}</h2>
 
     <Spinner v-if="store.loadingEvents"></Spinner>
 

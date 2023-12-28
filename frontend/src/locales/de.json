@@ -48,5 +48,22 @@
     "drag_drop": "Dateien zuw Importieren hier hinziehen oder oben auswählen.",
     "success": "Erfolg",
     "uploaded": " 'Wettkampf importiert"
+  },
+  "result_state": {
+    "OK": "OK",
+    "Finished": "Beendet",
+    "MissingPunch": "Fehlstempel",
+    "Disqualified": "Disqualifiziert",
+    "DidNotFinish": "Nicht beendet",
+    "Active": "Aktiv",
+    "Inactive": "Inaktiv",
+    "OverTime": "Zeitüberschreitung",
+    "SportingWithdrawal": "SportingWithdrawal",
+    "NotCompeting": "Ausser Konkurrenz",
+    "Moved": "Moved",
+    "MovedUp": "MovedUp",
+    "DidNotStart": "Nicht gestartet",
+    "DidNotEnter": "Nicht angetreten",
+    "Cancelled": "Abgebrochen"
   }
 }

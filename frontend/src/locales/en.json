@@ -48,5 +48,22 @@
     "drag_drop": "Drag and drop files here to import or choose above.",
     "success": "Success",
     "uploaded": " 'File Uploaded"
+  },
+  "result_state": {
+    "OK": "OK",
+    "Finished": "Finished",
+    "MissingPunch": "MissingPunch",
+    "Disqualified": "Disqualified",
+    "DidNotFinish": "DidNotFinish",
+    "Active": "Active",
+    "Inactive": "Inactive",
+    "OverTime": "OverTime",
+    "SportingWithdrawal": "SportingWithdrawal",
+    "NotCompeting": "NotCompeting",
+    "Moved": "Moved",
+    "MovedUp": "MovedUp",
+    "DidNotStart": "DidNotStart",
+    "DidNotEnter": "DidNotEnter",
+    "Cancelled": "Cancelled"
   }
 }

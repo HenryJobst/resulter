@@ -5,7 +5,7 @@ import java.text.MessageFormat;
 public record PersonName(FamilyName familyName, GivenName givenName) {
 
     public String getFullName() {
-        return MessageFormat.format("{0}, {1}", familyName.value(), givenName.value());
+        return MessageFormat.format("{1} {0}", familyName.value(), givenName.value());
     }
 
     public static PersonName of(FamilyName familyName, GivenName givenName) {

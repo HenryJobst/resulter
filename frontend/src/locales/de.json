@@ -35,7 +35,8 @@
     "choose": "Auswählen",
     "clear": "Leeren",
     "results": "Ergebnisse",
-    "position": "Platz"
+    "position": "Platz",
+    "birth_year": "Jg."
   },
   "messages": {
     "edit_event": "Wettkampf mit ID {id} bearbeiten",

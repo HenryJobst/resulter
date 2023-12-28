@@ -56,11 +56,13 @@ const treeNodes = computed(() => {
   }
 })
 
-const resultColumn = (slotProps: any) => {
-  console.log('resultColumn aufgerufen', slotProps)
+const resultColumn = (slotProps: any): string => {
   return slotProps.data.resultStatus === 'OK'
     ? formatTime(slotProps.data.runTime)
     : t('result_state.' + slotProps.data.resultStatus)
+}
+const birthYearColumn = (slotProps: any): string => {
+  return slotProps.data.birthYear ? slotProps.data.birthYear.slice(-2) : ''
 }
 </script>
 
@@ -79,6 +81,12 @@ const resultColumn = (slotProps: any) => {
         <DataTable :value="slotProps.node.data">
           <Column field="position" :header="t('labels.position')" />
           <Column field="personName" :header="t('labels.name')" />
+          <Column :header="t('labels.birth_year')">
+            <template #body="slotProps">
+              {{ birthYearColumn(slotProps) }}
+            </template>
+          </Column>
+          <Column field="organisation" :header="t('labels.organisation')" />
           <Column :header="t('labels.time')">
             <template #body="slotProps">
               {{ resultColumn(slotProps) }}

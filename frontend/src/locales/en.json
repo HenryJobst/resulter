@@ -35,7 +35,8 @@
     "choose": "Choose",
     "clear": "Clear",
     "results": "Results",
-    "position": "Position"
+    "position": "Position",
+    "birth_year": "Year of birth"
   },
   "messages": {
     "edit_event": "Edit event with ID {id}",

@@ -6,8 +6,15 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.lang.NonNull;
 
 import java.time.Duration;
+import java.time.Year;
 
-public record PersonResultDto(Long id, Long position, String personName, Duration runTime, String resultStatus)
+public record PersonResultDto(Long id,
+                              Long position,
+                              String personName,
+                              Year birthYear,
+                              Duration runTime,
+                              String resultStatus,
+                              String organisation)
         implements Comparable<PersonResultDto> {
     static public PersonResultDto from(PersonResult personResult) {
         PersonRaceResult
@@ -18,8 +25,12 @@ public record PersonResultDto(Long id, Long position, String personName, Duratio
                 personResult.getId().value(),
                 personRaceResult.getPositon().value(),
                 personResult.getPerson().get().getPersonName().getFullName(),
+                personResult.getPerson().get().getBirthDate().value() != null ?
+                        Year.from(personResult.getPerson().get().getBirthDate().value()) : null,
                 runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
-                personRaceResult.getState().value()
+                personRaceResult.getState().value(),
+                personResult.getOrganisation().get() != null ?
+                        personResult.getOrganisation().get().getName().value() : ""
         );
     }
 

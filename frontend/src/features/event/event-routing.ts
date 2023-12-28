@@ -3,6 +3,7 @@ import EventList from '@/features/event/pages/EventList.vue'
 import EventNew from '@/features/event/pages/EventNew.vue'
 import EventEdit from '@/features/event/pages/EventEdit.vue'
 import EventImport from '@/features/event/pages/EventImport.vue'
+import EventResults from '@/features/event/pages/EventResults.vue'
 
 export const eventRouting = [
   {
@@ -30,6 +31,12 @@ export const eventRouting = [
         name: 'event-edit',
         props: true,
         component: EventEdit
+      },
+      {
+        path: 'results/:id',
+        name: 'event-results',
+        props: true,
+        component: EventResults
       }
     ]
   }

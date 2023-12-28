@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
+import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.*;
@@ -153,6 +154,46 @@ public class EventController {
                 log.error(e.getCause().getMessage());
             }
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            if (Objects.nonNull(e.getCause())) {
+                log.error(e.getCause().getMessage());
+            }
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/event/{id}/results")
+    public ResponseEntity<EventResultsDto> getEventResults(
+            @PathVariable Long id,
+            @RequestParam(name = "shallowClassResults", required = false, defaultValue = "false")
+            Boolean shallowClassResults,
+            @RequestParam(name = "shallowPersonResults", required = false, defaultValue = "false")
+            Boolean shallowPersonResults,
+            @RequestParam(name = "shallowPersonRaceResults", required = false, defaultValue = "false")
+            Boolean shallowPersonRaceResults,
+            @RequestParam(name = "shallowSplitTimes", required = false, defaultValue = "true")
+            Boolean shallowSplitTimes,
+            @RequestParam(name = "shallowPersons", required = false, defaultValue = "false")
+            Boolean shallowPersons,
+            @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
+            Boolean shallowOrganisations,
+            @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "true")
+            Boolean shallowEventOrganisations
+    ) {
+        try {
+            EventConfig eventConfig = EventService.getEventConfig(shallowClassResults,
+                    shallowPersonResults,
+                    shallowPersonRaceResults,
+                    shallowSplitTimes,
+                    shallowPersons,
+                    shallowOrganisations,
+                    shallowEventOrganisations);
+            Optional<Event> event = eventService.findById(EventId.of(id), eventConfig);
+
+            return event.map(value -> ResponseEntity.ok(EventResultsDto.from(value)))
+                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
         } catch (Exception e) {
             log.error(e.getMessage());
             if (Objects.nonNull(e.getCause())) {

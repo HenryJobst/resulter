@@ -9,7 +9,7 @@ import MultiSelect from 'primevue/multiselect'
 import { OrganisationService } from '@/features/organisation/services/organisation.service'
 import { useQuery } from '@tanstack/vue-query'
 
-const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
+const { t } = useI18n()
 
 const defaultDate = new Date()
 defaultDate.setHours(11)
@@ -117,6 +117,7 @@ const formSubmitHandler = () => {
           <span v-else-if="organisationQuery.status.value === 'error'">
             {{ t('messages.error', { message: organisationQuery.error.toLocaleString() }) }}
           </span>
+
           <div v-else-if="organisationQuery.data" class="card">
             <MultiSelect
               id="organisations"

@@ -1,5 +1,6 @@
 import type { Event } from '@/features/event/model/event'
 import axiosInstance from '@/features/keycloak/services/api'
+import type { EventResults } from '@/features/event/model/event_results'
 
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'event'
 
@@ -22,6 +23,11 @@ export class EventService {
 
   static async getById(id: string): Promise<Event> {
     const response = await axiosInstance.get(url + '/' + id)
+    return response.data
+  }
+
+  static async getResultsById(id: string): Promise<EventResults> {
+    const response = await axiosInstance.get(url + '/' + id + '/results')
     return response.data
   }
 

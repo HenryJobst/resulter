@@ -55,13 +55,13 @@ const formatTime = (time: string) => {
 </script>
 
 <template>
-  <h1>{{ t('labels.event') }}</h1>
+  <h1>{{ t('labels.event', 2) }}</h1>
   <div class="flex justify-content-between my-4">
     <div class="flex justify-content-start">
-      <router-link :to="{ name: 'event-new' }">
+      <router-link :to="{ name: 'event-new' }" v-if="authStore.isAuthenticated">
         <Button icon="pi pi-plus" :label="t('labels.new')" outlined></Button>
       </router-link>
-      <router-link class="ml-2" :to="{ name: 'event-import' }">
+      <router-link class="ml-2" :to="{ name: 'event-import' }" v-if="authStore.isAuthenticated">
         <Button icon="pi pi-upload" :label="t('labels.import')" outlined></Button>
       </router-link>
     </div>
@@ -79,7 +79,6 @@ const formatTime = (time: string) => {
 
   <div v-if="store.errorMessage === null && !store.loadingEvents">
     <DataTable :value="store.events" class="p-datatable-sm">
-      <Column field="id" :header="t('labels.no')" />
       <Column field="name" :header="t('labels.name')" />
       <Column field="startDate" :header="t('labels.date')">
         <!--suppress JSUnresolvedReference -->

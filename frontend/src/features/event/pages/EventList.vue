@@ -96,6 +96,9 @@ const formatTime = (time: string) => {
       <Column class="text-right" field="participants" :header="t('labels.participant', 2)" />
       <Column class="text-right">
         <template #body="slotProps">
+          <router-link :to="{ name: 'event-results', params: { id: slotProps.data.id } }">
+            <Button icon="pi pi-list" class="mr-2" :label="t('labels.results')" outlined />
+          </router-link>
           <router-link :to="{ name: 'event-edit', params: { id: slotProps.data.id } }">
             <Button
               icon="pi pi-pencil"
@@ -103,7 +106,7 @@ const formatTime = (time: string) => {
               :label="t('labels.edit')"
               outlined
               v-if="authStore.isAdmin"
-            ></Button>
+            />
           </router-link>
           <Button
             icon="pi pi-trash"
@@ -112,7 +115,7 @@ const formatTime = (time: string) => {
             :label="t('labels.delete')"
             @click="store.deleteEventAction(slotProps.data.id)"
             v-if="authStore.isAdmin"
-          ></Button>
+          />
         </template>
       </Column>
     </DataTable>

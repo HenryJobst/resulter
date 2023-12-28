@@ -9,7 +9,7 @@ import org.springframework.lang.Nullable;
 import java.util.Collection;
 
 @Getter
-public class ClassResult {
+public class ClassResult implements Comparable<ClassResult> {
     @NonNull
     @Setter
     private ClassResultId id;
@@ -69,5 +69,14 @@ public class ClassResult {
                 (personResults != null) ?
                         ShallowLoadProxy.of(PersonResults.of(personResults)) :
                         ShallowLoadProxy.empty());
+    }
+
+    @Override
+    public int compareTo(@NonNull ClassResult o) {
+        int value = classResultName.compareTo(o.classResultName);
+        if (value == 0) {
+            value = id.compareTo(o.id);
+        }
+        return value;
     }
 }

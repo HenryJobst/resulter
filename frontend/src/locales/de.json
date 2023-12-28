@@ -33,7 +33,8 @@
     "organisation": "Verein",
     "megabytes": "MB",
     "choose": "Auswählen",
-    "clear": "Leeren"
+    "clear": "Leeren",
+    "results": "Ergebnisse"
   },
   "messages": {
     "edit_event": "Wettkampf mit ID {id} bearbeiten",

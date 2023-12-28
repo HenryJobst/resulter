@@ -1,5 +1,7 @@
 package de.jobst.resulter.domain;
 
+import org.springframework.lang.NonNull;
+
 public record ClassResultId(long value) {
 
     public static ClassResultId of(long value) {
@@ -22,4 +24,7 @@ public record ClassResultId(long value) {
         return this.getClass().getSimpleName() + "=" + value;
     }
 
+    public int compareTo(@NonNull ClassResultId o) {
+        return Long.compare(value, o.value);
+    }
 }

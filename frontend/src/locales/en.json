@@ -33,7 +33,8 @@
     "organisation": "Club",
     "megabytes": "MB",
     "choose": "Choose",
-    "clear": "Clear"
+    "clear": "Clear",
+    "results": "Results"
   },
   "messages": {
     "edit_event": "Edit event with ID {id}",

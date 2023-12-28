@@ -64,6 +64,11 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     }
 
     @Override
+    public void deleteEvent(Event event) {
+        eventJpaRepository.deleteById(event.getId().value());
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<Event> findAll(EventConfig eventConfig) {
         EntityGraph<?> entityGraph = getEntityGraph(eventConfig);

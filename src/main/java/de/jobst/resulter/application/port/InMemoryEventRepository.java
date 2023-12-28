@@ -29,6 +29,15 @@ public class InMemoryEventRepository implements EventRepository {
     }
 
     @Override
+    public void deleteEvent(Event event) {
+        if (ObjectUtils.isEmpty(event.getId()) || event.getId().value() == 0) {
+            return;
+        }
+        events.remove(event.getId());
+        savedEvents.remove(event);
+    }
+
+    @Override
     public List<Event> findAll(EventConfig eventConfig) {
         return List.copyOf(events.values());
     }

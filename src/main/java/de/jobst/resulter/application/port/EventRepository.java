@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface EventRepository {
     Event save(Event event);
 
+    void deleteEvent(Event event);
+
     List<Event> findAll(EventConfig eventConfig);
 
     Optional<Event> findById(EventId EventId, EventConfig eventConfig);

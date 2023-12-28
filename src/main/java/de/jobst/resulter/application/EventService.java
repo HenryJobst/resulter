@@ -95,4 +95,14 @@ public class EventService {
         return eventRepository.save(event);
     }
 
+    public boolean deleteEvent(EventId eventId) {
+        Optional<Event> optionalEvent = findById(eventId, EventConfig.full());
+        if (optionalEvent.isEmpty()) {
+            return false;
+        }
+        Event event = optionalEvent.get();
+        eventRepository.deleteEvent(event);
+        return true;
+    }
+
 }

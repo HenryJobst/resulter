@@ -132,13 +132,9 @@ const formSubmitHandler = () => {
         </div>
       </div>
     </div>
-    <!--div class="field grid">
-      <label for="volume" class="col-fixed" style="width: 100px">Volume</label>
-      <div class="col">
-        <InputText v-model.number="formData.volume" type="number" id="volume"></InputText>
-      </div>
-    </div-->
-    <slot></slot>
+    <div class="mt-2">
+      <slot></slot>
+    </div>
   </form>
 </template>
 

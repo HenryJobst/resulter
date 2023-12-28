@@ -29,12 +29,13 @@ const redirectBack = async () => {
     <Spinner v-if="store.loadingEvents"></Spinner>
 
     <EventForm v-if="!store.loadingEvents" @event-submit="eventSubmitHandler">
-      <Button type="submit" :label="t('labels.create')"></Button>
+      <Button type="submit" :label="t('labels.create')" outlined></Button>
       <Button
         class="ml-2"
         severity="secondary"
         type="reset"
         :label="t('labels.back')"
+        outlined
         @click="redirectBack"
       ></Button>
     </EventForm>

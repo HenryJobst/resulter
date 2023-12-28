@@ -30,14 +30,20 @@
     "class": "No class | Class | Classes",
     "participant": "No participant | Participant | Participants",
     "login_user": "Logged in as: {username}",
-    "organisation": "Club"
+    "organisation": "Club",
+    "megabytes": "MB",
+    "choose": "Choose",
+    "clear": "Clear"
   },
   "messages": {
     "edit_event": "Edit event with ID {id}",
     "new_event": "New event",
-    "import_event": "Import event",
+    "import_event": "Import new event",
     "loading": "Loading...",
     "error": "Error: {message}",
-    "select": "Select..."
+    "select": "Select...",
+    "pending": "Pending",
+    "completed": "Completed",
+    "drag_drop": "Drag and drop files here to import or choose above."
   }
 }

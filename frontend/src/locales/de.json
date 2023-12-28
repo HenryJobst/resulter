@@ -34,7 +34,8 @@
     "megabytes": "MB",
     "choose": "Auswählen",
     "clear": "Leeren",
-    "results": "Ergebnisse"
+    "results": "Ergebnisse",
+    "position": "Platz"
   },
   "messages": {
     "edit_event": "Wettkampf mit ID {id} bearbeiten",
@@ -52,7 +53,7 @@
   "result_state": {
     "OK": "OK",
     "Finished": "Beendet",
-    "MissingPunch": "Fehlstempel",
+    "MissingPunch": "Fehlst",
     "Disqualified": "Disqualifiziert",
     "DidNotFinish": "Nicht beendet",
     "Active": "Aktiv",
@@ -62,7 +63,7 @@
     "NotCompeting": "Ausser Konkurrenz",
     "Moved": "Moved",
     "MovedUp": "MovedUp",
-    "DidNotStart": "Nicht gestartet",
+    "DidNotStart": "N Ang",
     "DidNotEnter": "Nicht angetreten",
     "Cancelled": "Abgebrochen"
   }

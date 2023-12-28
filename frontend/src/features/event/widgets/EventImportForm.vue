@@ -9,9 +9,11 @@ import ProgressBar from 'primevue/progressbar'
 import Badge from 'primevue/badge'
 import Toast from 'primevue/toast'
 import Button from 'primevue/button'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
+const authStore = useAuthStore()
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'upload'
 
 const internalInstance = getCurrentInstance()
@@ -69,7 +71,12 @@ const uploadEvent = (callback: () => void) => {
 }
 
 const onTemplatedUpload = () => {
-  toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 })
+  toast.add({
+    severity: 'info',
+    summary: t('messages.success'),
+    detail: t('messages.uploaded'),
+    life: 5000
+  })
 }
 
 const formatSize = (bytes: number): string => {
@@ -120,7 +127,7 @@ const formatSize = (bytes: number): string => {
                   outlined
                 ></Button>
                 <Button
-                  v-if="files.length > 0"
+                  v-if="files.length > 0 && authStore.isAuthenticated"
                   @click="uploadEvent(uploadCallback)"
                   icon="pi pi-upload"
                   :label="t('labels.import')"

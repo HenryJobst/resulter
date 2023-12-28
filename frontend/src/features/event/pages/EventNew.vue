@@ -6,8 +6,10 @@ import Spinner from '@/components/SpinnerComponent.vue'
 import type { Event } from '@/features/event/model/event'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const store = useEventStore()
+const authStore = useAuthStore()
 
 const eventSubmitHandler = (event: Omit<Event, 'id'>) => {
   console.log(event)
@@ -29,7 +31,12 @@ const redirectBack = async () => {
     <Spinner v-if="store.loadingEvents"></Spinner>
 
     <EventForm v-if="!store.loadingEvents" @event-submit="eventSubmitHandler">
-      <Button type="submit" :label="t('labels.create')" outlined></Button>
+      <Button
+        type="submit"
+        :label="t('labels.create')"
+        outlined
+        v-if="authStore.isAuthenticated"
+      ></Button>
       <Button
         class="ml-2"
         severity="secondary"

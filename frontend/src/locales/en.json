@@ -44,6 +44,8 @@
     "select": "Select...",
     "pending": "Pending",
     "completed": "Completed",
-    "drag_drop": "Drag and drop files here to import or choose above."
+    "drag_drop": "Drag and drop files here to import or choose above.",
+    "success": "Success",
+    "uploaded": " 'File Uploaded"
   }
 }

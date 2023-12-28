@@ -17,6 +17,7 @@ import PrimeVue from 'primevue/config'
 import 'primevue/resources/themes/bootstrap4-light-blue/theme.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
+import ToastService from 'primevue/toastservice'
 
 const i18n = setupI18n({
   legacy: false,
@@ -35,6 +36,7 @@ const renderApp = () => {
   app.use(PrimeVue, { ripple: true })
   app.use(AuthStorePlugin, { pinia })
   app.use(VueQueryPlugin)
+  app.use(ToastService)
   app.use(pinia)
   app.use(i18n)
   app.use(router)

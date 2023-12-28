@@ -30,7 +30,10 @@
     "class": "Keine Klasse | Klasse | Klassen",
     "participant": "Kein Teilnehmer | Teilnehmer | Teilnehmer",
     "login_user": "Angemeldet als: {username}",
-    "organisation": "Verein"
+    "organisation": "Verein",
+    "megabytes": "MB",
+    "choose": "Auswählen",
+    "clear": "Leeren"
   },
   "messages": {
     "edit_event": "Wettkampf mit ID {id} bearbeiten",
@@ -38,6 +41,9 @@
     "import_event": "Neuen Wettkampf importieren",
     "loading": "Lade...",
     "error": "Fehler: {message}",
-    "select": "Bitte auswählen..."
+    "select": "Bitte auswählen...",
+    "pending": "Ausstehend",
+    "completed": "Fertiggestellt",
+    "drag_drop": "Dateien zuw Importieren hier hinziehen oder oben auswählen."
   }
 }

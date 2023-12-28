@@ -59,13 +59,19 @@ const formatTime = (time: string) => {
   <div class="flex justify-content-between my-4">
     <div class="flex justify-content-start">
       <router-link :to="{ name: 'event-new' }">
-        <Button :label="t('labels.new')"></Button>
+        <Button icon="pi pi-plus" :label="t('labels.new')" outlined></Button>
       </router-link>
       <router-link class="ml-2" :to="{ name: 'event-import' }">
-        <Button :label="t('labels.import')"></Button>
+        <Button icon="pi pi-upload" :label="t('labels.import')" outlined></Button>
       </router-link>
     </div>
-    <Button severity="secondary" :label="t('labels.reload')" @click="store.loadEventsAction" />
+    <Button
+      icon="pi pi-refresh"
+      :label="t('labels.reload')"
+      outlined
+      severity="secondary"
+      @click="store.loadEventsAction"
+    />
   </div>
 
   <ErrorMessage :message="store.errorMessage"></ErrorMessage>
@@ -96,12 +102,14 @@ const formatTime = (time: string) => {
               icon="pi pi-pencil"
               class="mr-2"
               :label="t('labels.edit')"
+              outlined
               v-if="authStore.isAdmin"
             ></Button>
           </router-link>
           <Button
             icon="pi pi-trash"
             severity="danger"
+            outlined
             :label="t('labels.delete')"
             @click="store.deleteEventAction(slotProps.data.id)"
             v-if="authStore.isAdmin"

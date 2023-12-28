@@ -176,7 +176,7 @@ public class EventController {
             Boolean shallowSplitTimes,
             @RequestParam(name = "shallowPersons", required = false, defaultValue = "false")
             Boolean shallowPersons,
-            @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
+            @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "false")
             Boolean shallowOrganisations,
             @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "true")
             Boolean shallowEventOrganisations

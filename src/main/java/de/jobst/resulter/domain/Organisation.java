@@ -11,7 +11,7 @@ import java.util.Collection;
 
 @SuppressWarnings("FieldMayBeFinal")
 @Getter
-public class Organisation {
+public class Organisation implements Comparable<Organisation> {
 
     @NonNull
     @Setter
@@ -72,5 +72,14 @@ public class Organisation {
                         ShallowLoadProxy.of(Organisations.of(parentOrganisations)) :
                         ShallowLoadProxy.empty()
         );
+    }
+
+    @Override
+    public int compareTo(@NonNull Organisation o) {
+        int val = type.compareTo(o.type);
+        if (val == 0) {
+            val = name.compareTo(o.name);
+        }
+        return val;
     }
 }

@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000004_organisation
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: ORGANISATION
+      comment: Table organisation with sequence, indexes and keys
+      changes:
+        - createTable:
+            tableName: ORGANISATION
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_ORGANISATION
+              - column:
+                  name: NAME
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: SHORT_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+        - createSequence:
+            sequenceName: SEQ_ORGANISATION_ID
+            incrementBy: 10
+        - createIndex:
+            tableName: ORGANISATION
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_ORGANISATION_ID

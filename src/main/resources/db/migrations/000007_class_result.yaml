@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000007_class_result
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: CLASS_RESULT
+      comment: Table class_result with sequence, indexes and keys
+      changes:
+        - createTable:
+            tableName: CLASS_RESULT
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_CLASS_RESULT
+              - column:
+                  name: NAME
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: SHORT_NAME
+                  type: VARCHAR(20)
+              - column:
+                  name: GENDER
+                  type: VARCHAR(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: EVENT_ID
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_CLASS_RESULT_EVENT
+        - addForeignKeyConstraint:
+            baseTableName: CLASS_RESULT
+            baseColumnNames: EVENT_ID
+            constraintName: FK_CLASS_RESULT_EVENT
+            referencedTableName: EVENT
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - createSequence:
+            sequenceName: SEQ_CLASS_RESULT_ID
+            incrementBy: 50
+        - createIndex:
+            tableName: CLASS_RESULT
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_CLASS_RESULT_ID

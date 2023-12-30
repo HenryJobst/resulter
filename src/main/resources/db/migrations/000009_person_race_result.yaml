@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000009_person_race_result
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: PERSON_RACE_RESULT
+      comment: Table person_race_result with sequence, indexes and keys
+      changes:
+        - createTable:
+            tableName: PERSON_RACE_RESULT
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_PERSON_RACE_RESULT
+              - column:
+                  name: PERSON_RESULT_ID
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_PERSON_RACE_RESULT_PERSON_RESULT
+              - column:
+                  name: START_TIME
+                  type: TIMESTAMPTZ
+              - column:
+                  name: FINISH_TIME
+                  type: TIMESTAMPTZ
+              - column:
+                  name: PUNCH_TIME
+                  type: DOUBLE
+              - column:
+                  name: POSITION
+                  type: bigint
+              - column:
+                  name: RACE_NUMBER
+                  type: bigint
+              - column:
+                  name: STATE
+                  type: varchar(20)
+        - addForeignKeyConstraint:
+            baseTableName: PERSON_RACE_RESULT
+            baseColumnNames: PERSON_RESULT_ID
+            constraintName: FK_PERSON_RACE_RESULT_PERSON_RESULT
+            referencedTableName: PERSON_RESULT
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - createSequence:
+            sequenceName: SEQ_PERSON_RACE_RESULT_ID
+            incrementBy: 10
+        - createIndex:
+            tableName: PERSON_RACE_RESULT
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_PERSON_RACE_RESULT_ID

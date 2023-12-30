@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000003_person
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: PERSON
+      comment: Tables person with sequence, indexes and keys
+      changes:
+        - createTable:
+            tableName: PERSON
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_PERSON
+              - column:
+                  name: FAMILY_NAME
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: GIVEN_NAME
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: BIRTH_DATE
+                  type: DATE
+              - column:
+                  name: GENDER
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+        - createSequence:
+            sequenceName: SEQ_PERSON_ID
+            incrementBy: 10
+        - createIndex:
+            tableName: PERSON
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_PERSON_ID

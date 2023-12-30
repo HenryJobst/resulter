@@ -45,7 +45,8 @@ public class PersonResultDbo {
         personResultDbo.setClassResultDbo(classResultDbo);
 
         if (personResult.getPerson().isLoaded()) {
-            personResultDbo.setPerson(PersonDbo.from(personResult.getPerson().get()));
+            personResultDbo.setPerson(PersonDbo.from(personResult.getPerson().get(),
+                    persistedPersonResultDbo != null ? persistedPersonResultDbo.person : null));
         } else if (persistedPersonResultDbo != null) {
             personResultDbo.setPerson(persistedPersonResultDbo.getPerson());
         } else if (personResult.getId().isPersistent()) {
@@ -53,7 +54,10 @@ public class PersonResultDbo {
         }
 
         if (personResult.getOrganisation().isLoaded()) {
-            personResultDbo.setOrganisation(OrganisationDbo.from(personResult.getOrganisation().get()));
+            OrganisationDbo persistedOrganisationDbo =
+                    persistedPersonResultDbo != null ? persistedPersonResultDbo.getOrganisation() : null;
+            personResultDbo.setOrganisation(OrganisationDbo.from(personResult.getOrganisation().get(),
+                    persistedOrganisationDbo));
         } else if (persistedPersonResultDbo != null) {
             personResultDbo.setOrganisation(persistedPersonResultDbo.getOrganisation());
         } else if (personResult.getId().isPersistent()) {

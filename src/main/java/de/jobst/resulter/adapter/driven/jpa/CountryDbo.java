@@ -25,16 +25,16 @@ public class CountryDbo {
             return null;
         }
         CountryDbo countryDbo = new CountryDbo();
-        if (country.id().value() != CountryId.empty().value()) {
-            countryDbo.setId(country.id().value());
+        if (country.getId().value() != CountryId.empty().value()) {
+            countryDbo.setId(country.getId().value());
         }
-        countryDbo.setCode(country.code());
-        countryDbo.setName(country.name());
+        countryDbo.setCode(country.getCode().value());
+        countryDbo.setName(country.getName().value());
         return countryDbo;
     }
 
     public Country asCountry() {
-        return Country.of(CountryId.of(id), code, name);
+        return Country.of(id, code, name);
     }
 
     public void setId(long id) {

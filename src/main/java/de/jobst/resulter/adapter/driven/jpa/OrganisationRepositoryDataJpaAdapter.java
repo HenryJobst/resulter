@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
+import org.hibernate.Hibernate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +16,12 @@ import java.util.Optional;
 public class OrganisationRepositoryDataJpaAdapter implements OrganisationRepository {
 
     private final OrganisationJpaRepository organisationJpaRepository;
+    private final CountryJpaRepository countryJpaRepository;
 
-    public OrganisationRepositoryDataJpaAdapter(OrganisationJpaRepository organisationJpaRepository) {
+    public OrganisationRepositoryDataJpaAdapter(OrganisationJpaRepository organisationJpaRepository,
+                                                CountryJpaRepository countryJpaRepository) {
         this.organisationJpaRepository = organisationJpaRepository;
+        this.countryJpaRepository = countryJpaRepository;
     }
 
     @Override
@@ -27,8 +31,19 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
                 organisation.getId().isPersistent() ?
                         organisationJpaRepository.findById(organisation.getId().value()).orElse(null) :
                         null;
-        OrganisationDbo organisationEntity = OrganisationDbo.from(organisation, persisted);
-        OrganisationDbo savedOrganisationEntity = organisationJpaRepository.save(organisationEntity);
+        OrganisationDbo organisationDbo = OrganisationDbo.from(organisation, persisted);
+        if (organisationDbo.getCountry() != null &&
+                Hibernate.isInitialized(organisationDbo.getCountry())) {
+            organisationDbo.setCountry(countryJpaRepository.save(organisationDbo.getCountry()));
+        }
+        if (Hibernate.isInitialized(organisationDbo.getParentOrganisations())) {
+            var organisationsToSave = organisationDbo.getParentOrganisations()
+                    .stream()
+                    .filter(it -> it != null && Hibernate.isInitialized(it))
+                    .toList();
+            organisationJpaRepository.saveAll(organisationsToSave);
+        }
+        OrganisationDbo savedOrganisationEntity = organisationJpaRepository.save(organisationDbo);
         return savedOrganisationEntity.asOrganisation();
     }
 

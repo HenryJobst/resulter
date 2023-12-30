@@ -34,6 +34,7 @@ public class PersonRepositoryDataJpaAdapter implements PersonRepository {
     public List<Person> findAll() {
         return personJpaRepository.findAll().stream()
                 .map(PersonDbo::asPerson)
+                .sorted()
                 .toList();
     }
 

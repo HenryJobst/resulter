@@ -44,20 +44,26 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
                 event.getId().isPersistent() ? eventJpaRepository.findById(event.getId().value()).orElse(null) : null;
         EventDbo eventEntity = EventDbo.from(event, persisted);
         if (Hibernate.isInitialized(eventEntity.getClassResults())) {
-            eventEntity.getClassResults()
-                    .stream()
-                    .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
-                    .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
-                    .forEach(personResultDbo -> {
-                        if (personResultDbo.getPerson() != null &&
-                                Hibernate.isInitialized(personResultDbo.getPerson())) {
-                            personJpaRepository.save(personResultDbo.getPerson());
-                        }
-                        if (personResultDbo.getOrganisation() != null &&
-                                Hibernate.isInitialized(personResultDbo.getOrganisation())) {
-                            organisationJpaRepository.save(personResultDbo.getOrganisation());
-                        }
-                    });
+            var personsToSave =
+                    eventEntity.getClassResults()
+                            .stream()
+                            .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
+                            .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
+                            .filter(personResultDbo -> personResultDbo.getPerson() != null &&
+                                    Hibernate.isInitialized(personResultDbo.getPerson()))
+                            .map(PersonResultDbo::getPerson)
+                            .toList();
+            personJpaRepository.saveAll(personsToSave);
+            var organisationsToSave =
+                    eventEntity.getClassResults()
+                            .stream()
+                            .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
+                            .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
+                            .filter(personResultDbo -> personResultDbo.getOrganisation() != null &&
+                                    Hibernate.isInitialized(personResultDbo.getOrganisation()))
+                            .map(PersonResultDbo::getOrganisation)
+                            .toList();
+            organisationJpaRepository.saveAll(organisationsToSave);
         }
         EventDbo savedEventEntity = eventJpaRepository.save(eventEntity);
         return EventDbo.asEvent(EventConfig.fromEvent(event), savedEventEntity);

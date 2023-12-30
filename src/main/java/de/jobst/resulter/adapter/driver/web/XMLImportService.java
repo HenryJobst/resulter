@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.jaxb.Class;
 import de.jobst.resulter.adapter.driver.web.jaxb.ResultList;
+import de.jobst.resulter.application.CountryService;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.application.PersonService;
@@ -26,14 +27,17 @@ public class XMLImportService {
     private final EventService eventService;
     private final PersonService personService;
     private final OrganisationService organisationService;
+    private final CountryService countryService;
 
     public XMLImportService(XmlParser xmlParser, EventService eventService,
                             PersonService personService,
-                            OrganisationService organisationService) {
+                            OrganisationService organisationService,
+                            CountryService countryService) {
         this.xmlParser = xmlParser;
         this.eventService = eventService;
         this.personService = personService;
         this.organisationService = organisationService;
+        this.countryService = countryService;
     }
 
     @NonNull
@@ -72,23 +76,24 @@ public class XMLImportService {
 
     @NonNull
     private Person getPerson(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult) {
+        de.jobst.resulter.adapter.driver.web.jaxb.Person person = personResult.getPerson();
         return personService.findOrCreate(
                 Person.of(
                         PersonName.of(
-                                personResult.getPerson().getName().getFamily(),
-                                personResult.getPerson().getName().getGiven()
+                                person.getName().getFamily(),
+                                person.getName().getGiven()
                         ),
                         BirthDate.of(
-                                ObjectUtils.isNotEmpty(personResult.getPerson()
+                                ObjectUtils.isNotEmpty(person
                                         .getBirthDate()) ?
-                                        LocalDate.ofInstant(personResult.getPerson()
+                                        LocalDate.ofInstant(person
                                                         .getBirthDate()
                                                         .toGregorianCalendar()
                                                         .toInstant(),
                                                 ZoneId.systemDefault())
                                         : null
                         ),
-                        Gender.of(personResult.getPerson().getSex()))
+                        Gender.of(person.getSex()))
         );
     }
 
@@ -113,7 +118,8 @@ public class XMLImportService {
                         resultList.getEvent().getOrganisers().stream().map(
                                 o -> Organisation.of(o.getName(), o.getShortName(),
                                         o.getCountry() == null ? null :
-                                                Country.of(o.getCountry().getCode(), o.getCountry().getValue()))
+                                                Country.of(o.getCountry().getCode(),
+                                                        o.getCountry().getValue()))
                         ).toList()));
     }
 
@@ -129,11 +135,18 @@ public class XMLImportService {
 
     @Nullable
     private Organisation getOrganisation(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult) {
-        return Objects.nonNull(personResult.getOrganisation()) ?
+        de.jobst.resulter.adapter.driver.web.jaxb.Organisation organisation = personResult.getOrganisation();
+        return Objects.nonNull(organisation) ?
                 organisationService.findOrCreate(
                         Organisation.of(
-                                personResult.getOrganisation().getName(),
-                                personResult.getOrganisation().getShortName())) :
+                                organisation.getName(),
+                                organisation.getShortName(),
+                                organisation.getCountry() != null ?
+                                        countryService.findOrCreate(
+                                                Country.of(organisation.getCountry().getCode(),
+                                                        organisation.getCountry().getValue())) : null
+                        )
+                ) :
                 null;
     }
 }

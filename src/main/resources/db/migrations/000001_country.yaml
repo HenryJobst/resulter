@@ -24,9 +24,13 @@ databaseChangeLog:
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
+                    unique: true
               - column:
                   name: CODE
                   type: VARCHAR(3)
+                  constraints:
+                    nullable: false
+                    unique: true
         - createSequence:
             sequenceName: SEQ_COUNTRY_ID
             incrementBy: 1
@@ -36,15 +40,3 @@ databaseChangeLog:
               - column:
                   name: ID
             indexName: IDX_COUNTRY_ID
-        - insert:
-            tableName: COUNTRY
-            columns:
-              - column:
-                  name: id
-                  valueNumeric: "nextval('SEQ_COUNTRY_ID')"
-              - column:
-                  name: CODE
-                  value: "GER"
-              - column:
-                  name: NAME
-                  value: "GER"

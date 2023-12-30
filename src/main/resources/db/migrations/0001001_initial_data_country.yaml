@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001001_initial_data_country
+      author: Henry Jobst
+      comment: Add initial data for country table
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - sqlCheck:
+                expectedResult: 1
+                sql: SELECT COUNT(1) FROM COUNTRY WHERE CODE = 'GER'
+      changes:
+        - insert:
+            tableName: COUNTRY
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: "nextval('SEQ_COUNTRY_ID')"
+              - column:
+                  name: CODE
+                  value: "GER"
+              - column:
+                  name: NAME
+                  value: "GER"

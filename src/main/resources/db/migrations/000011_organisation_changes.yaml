@@ -17,7 +17,7 @@ databaseChangeLog:
                   - column:
                       name: TYPE
                       type: VARCHAR(60)
-                      defaultValue: 'Other'
+                      defaultValue: 'OTHER'
                       constraints:
                         nullable: false
                   - column:

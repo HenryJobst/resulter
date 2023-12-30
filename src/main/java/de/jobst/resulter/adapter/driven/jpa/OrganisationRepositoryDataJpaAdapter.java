@@ -52,6 +52,7 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
     public List<Organisation> findAll() {
         return organisationJpaRepository.findAll().stream()
                 .map(OrganisationDbo::asOrganisation)
+                .sorted()
                 .toList();
     }
 

@@ -65,6 +65,7 @@ if (!authStore.isAdmin) {
         <Column field="id" :header="t('labels.no')" />
         <Column field="name" :header="t('labels.name')" />
         <Column field="shortName" :header="t('labels.short_name')" />
+        <Column field="type" :header="t('labels.type')" />
         <Column class="text-right">
           <template #body="slotProps">
             <router-link :to="{ name: 'organisation-edit', params: { id: slotProps.data.id } }">

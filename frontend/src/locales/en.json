@@ -42,7 +42,8 @@
     "position": "Position",
     "birth_year": "Year of birth",
     "gender": "Gender",
-    "birth_date": "Date of birth"
+    "birth_date": "Date of birth",
+    "type": "Type"
   },
   "messages": {
     "edit_event": "Edit event with ID {id}",

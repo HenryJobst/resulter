@@ -1,19 +1,17 @@
 import axiosInstance from '@/features/keycloak/services/api'
 import type { Organisation } from '@/features/organisation/model/organisation'
+import { handleApiError } from '@/utils/HandleError'
 
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'organisation'
 
 export class OrganisationService {
-  static async getAll(): Promise<Organisation[] | void> {
+  static async getAll(t: (key: string) => string): Promise<Organisation[] | null> {
     return await axiosInstance
       .get<Organisation[]>(url)
-      .then((response) => {
-        return response.data.map((element) => {
-          return element
-        })
-      })
+      .then((response) => response.data)
       .catch((error) => {
-        console.error('Fehler bei der Anfrage:', error)
+        handleApiError(error, t)
+        return null
       })
   }
 }

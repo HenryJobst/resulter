@@ -8,6 +8,8 @@
     "start": "Start",
     "about": "About",
     "events": "Events",
+    "organisations": "Organisations",
+    "persons": "Persons",
     "login": "Login",
     "logout": "Logout"
   },
@@ -25,12 +27,14 @@
     "back": "Back",
     "create": "Create",
     "name": "Name",
+    "short_name": "Short name",
     "date": "Date",
     "time": "Time",
     "class": "No class | Class | Classes",
     "participant": "No participant | Participant | Participants",
     "login_user": "Logged in as: {username}",
-    "organisation": "Club",
+    "organisation": "No club | Club | Clubs",
+    "person": "No person | Person | Persons",
     "megabytes": "MB",
     "choose": "Choose",
     "clear": "Clear",
@@ -67,5 +71,13 @@
     "DidNotStart": "DidNotStart",
     "DidNotEnter": "DidNotEnter",
     "Cancelled": "Cancelled"
+  },
+  "errors": {
+    "notFound": "Requested ressource not found. {name}, {message}",
+    "unauthorized": "Unauthorized request. {name}, {message}",
+    "forbidden": "Request forbidden. {name}, {message}",
+    "internalServerError": "Internal server error. {name}, {message}",
+    "unknownApiError": "Unknown api error. {name}, {message}",
+    "unknownError": "Unknown error. {name}, {message}"
   }
 }

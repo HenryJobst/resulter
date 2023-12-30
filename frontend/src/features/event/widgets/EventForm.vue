@@ -72,7 +72,7 @@ onMounted(() => {
 
 const organisationQuery = useQuery({
   queryKey: ['organisations'],
-  queryFn: () => OrganisationService.getAll()
+  queryFn: () => OrganisationService.getAll(t)
 })
 
 const emit = defineEmits(['eventSubmit'])

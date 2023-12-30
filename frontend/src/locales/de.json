@@ -8,6 +8,8 @@
     "start": "Start",
     "about": "Über",
     "events": "Wettkämpfe",
+    "organisations": "Vereine",
+    "persons": "Personen",
     "login": "Login",
     "logout": "Logout"
   },
@@ -25,12 +27,14 @@
     "back": "Zurück",
     "create": "Erstellen",
     "name": "Name",
+    "short_name": "Kurzname",
     "date": "Datum",
     "time": "Zeit",
     "class": "Keine Klasse | Klasse | Klassen",
     "participant": "Kein Teilnehmer | Teilnehmer | Teilnehmer",
     "login_user": "Angemeldet als: {username}",
-    "organisation": "Verein",
+    "organisation": "Kein Verein | Verein | Vereine ",
+    "person": "Keine Person | Person | Personen",
     "megabytes": "MB",
     "choose": "Auswählen",
     "clear": "Leeren",
@@ -67,5 +71,13 @@
     "DidNotStart": "N Ang",
     "DidNotEnter": "Nicht angetreten",
     "Cancelled": "Abgebrochen"
+  },
+  "errors": {
+    "notFound": "Angefragte Ressource nicht gefunden. {name}, {message}",
+    "unauthorized": "Unberechtigter Zugriff abgewiesen. {name}, {message}",
+    "forbidden": "Zugriff verboten. {name}, {message}",
+    "internalServerError": "Interner Server Fehler. {name}, {message}",
+    "unknownApiError": "Unbekannter Api-Fehler. {name}, {message}",
+    "unknownError": "Unbekannter Fehler. {name}, {message}"
   }
 }

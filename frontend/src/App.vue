@@ -56,6 +56,16 @@ watch(currentLocale, (val) => {
                 {{ t('navigations.events') }}
               </router-link>
             </li>
+            <li class="mr-4" v-if="authStore.isAdmin">
+              <router-link :to="{ name: 'organisation-list', params: { locale } }">
+                {{ t('navigations.organisations') }}
+              </router-link>
+            </li>
+            <li class="mr-4" v-if="authStore.isAdmin">
+              <router-link :to="{ name: 'person-list', params: { locale } }">
+                {{ t('navigations.persons') }}
+              </router-link>
+            </li>
             <li class="mr-4">
               <router-link :to="{ name: 'about-page', params: { locale } }">
                 {{ t('navigations.about') }}

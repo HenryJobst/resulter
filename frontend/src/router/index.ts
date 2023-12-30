@@ -5,6 +5,8 @@ import type { I18n } from 'vue-i18n'
 import { startRouting } from '@/features/start/start-routing'
 import { aboutRouting } from '@/features/about/about-routing'
 import { eventRouting } from '@/features/event/event-routing'
+import { organisationRouting } from '@/features/organisation/organisation-routing'
+import { personRouting } from '@/features/person/person-routing'
 
 export function setupRouter(i18n: I18n): Router {
   const locale = getLocale(i18n)
@@ -14,6 +16,8 @@ export function setupRouter(i18n: I18n): Router {
     ...startRouting,
     ...aboutRouting,
     ...eventRouting,
+    ...organisationRouting,
+    ...personRouting,
     {
       path: '/:pathMatch(.*)*',
       redirect: () => `/${locale}`

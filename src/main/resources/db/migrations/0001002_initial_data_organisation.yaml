@@ -24,7 +24,7 @@ databaseChangeLog:
                   value: "Nord-Ost-Rangliste"
               - column:
                   name: TYPE
-                  value: "NationalRegion"
+                  value: "NATIONAL_REGION"
               - column:
                   name: COUNTRY_ID
                   value: "1"
@@ -42,7 +42,7 @@ databaseChangeLog:
                   value: "Landesverband Berlin"
               - column:
                   name: TYPE
-                  value: "NationalRegion"
+                  value: "NATIONAL_REGION"
               - column:
                   name: COUNTRY_ID
                   value: "1"
@@ -60,7 +60,7 @@ databaseChangeLog:
                   value: "Landesverband Brandenburg"
               - column:
                   name: TYPE
-                  value: "NationalRegion"
+                  value: "NATIONAL_REGION"
               - column:
                   name: COUNTRY_ID
                   value: "1"
@@ -78,7 +78,7 @@ databaseChangeLog:
                   value: "Landesverband Mecklenburg-Vorpommern"
               - column:
                   name: TYPE
-                  value: "NationalRegion"
+                  value: "NATIONAL_REGION"
               - column:
                   name: COUNTRY_ID
                   value: "1"

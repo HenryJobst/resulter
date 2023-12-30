@@ -47,10 +47,6 @@ const personQuery = authStore.isAdmin
       @click="reload"
     />
   </div>
-
-  <!--ErrorMessage :message="store.errorMessage"></ErrorMessage-->
-  <!--Spinner v-if="store.loadingPersons"></Spinner-->
-
   <div>
     <span v-if="personQuery?.status.value === 'pending'">
       {{ t('messages.loading') }}
@@ -65,6 +61,8 @@ const personQuery = authStore.isAdmin
       <DataTable :value="personQuery?.data.value" class="p-datatable-sm">
         <Column field="id" :header="t('labels.no')" />
         <Column field="name" :header="t('labels.name')" />
+        <Column field="gender" :header="t('labels.gender')" />
+        <Column field="birthDate" :header="t('labels.birth_date')" />
         <Column class="text-right">
           <template #body="slotProps">
             <router-link :to="{ name: 'person-edit', params: { id: slotProps.data.id } }">

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @SuppressWarnings("FieldMayBeFinal")
 @Getter
-public class Person {
+public class Person implements Comparable<Person> {
 
     @NonNull
     @Setter
@@ -41,5 +41,14 @@ public class Person {
     public static Person of(long id, String familyName, String givenName, LocalDate birthDate, Gender gender) {
         return new Person(PersonId.of(id), PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
                 BirthDate.of(birthDate), gender);
+    }
+
+    @Override
+    public int compareTo(@NonNull Person o) {
+        int val = this.personName.familyName().compareTo(o.personName.familyName());
+        if (val == 0) {
+            val = this.personName.givenName().compareTo(o.personName.givenName());
+        }
+        return val;
     }
 }

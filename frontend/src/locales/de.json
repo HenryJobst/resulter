@@ -40,7 +40,9 @@
     "clear": "Leeren",
     "results": "Ergebnisse",
     "position": "Platz",
-    "birth_year": "Jg."
+    "birth_year": "Jg.",
+    "gender": "Geschlecht",
+    "birth_date": "Geburtsdatum"
   },
   "messages": {
     "edit_event": "Wettkampf mit ID {id} bearbeiten",

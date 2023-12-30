@@ -40,7 +40,9 @@
     "clear": "Clear",
     "results": "Results",
     "position": "Position",
-    "birth_year": "Year of birth"
+    "birth_year": "Year of birth",
+    "gender": "Gender",
+    "birth_date": "Date of birth"
   },
   "messages": {
     "edit_event": "Edit event with ID {id}",

@@ -36,19 +36,15 @@ public class OrganisationDbo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COUNTRY_ID")
     private CountryDbo country;
-
     @OneToMany(mappedBy = "organisation", fetch = FetchType.LAZY)
     private Set<PersonResultDbo> personResults = new HashSet<>();
-
     @ManyToMany(mappedBy = "organisations", fetch = FetchType.LAZY)
     private Set<EventDbo> events = new HashSet<>();
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "ORGANISATION_ORGANISATION",
             joinColumns = @JoinColumn(name = "ORGANISATION_ID"),
             inverseJoinColumns = @JoinColumn(name = "PARENT_ORGANISATION_ID"))
     private Set<OrganisationDbo> parentOrganisations = new HashSet<>();
-
     @ManyToMany(mappedBy = "parentOrganisations", fetch = FetchType.LAZY)
     private Set<OrganisationDbo> childOrganisations = new HashSet<>();
 
@@ -92,35 +88,39 @@ public class OrganisationDbo {
         return organisationDbo;
     }
 
-    public Organisation asOrganisation() {
-        return Organisation.of(id, name, shortName, type.value(), country.asCountry(),
-                parentOrganisations.stream().map(it -> Organisation.of(
-                        it.id, it.name, it.shortName, it.type.value(), it.country.asCountry(), null
-                )).toList());
-    }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Organisation asOrganisation() {
+        return Organisation.of(id, name, shortName, type.value(),
+                country != null ? country.asCountry() : null,
+                parentOrganisations.stream().map(it -> Organisation.of(
+                        it.id, it.name, it.shortName, it.type.value(),
+                        it.country != null ? it.country.asCountry() : null,
+                        null
+                )).toList());
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getShortName() {
         return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 
     public OrganisationType getType() {
@@ -153,5 +153,13 @@ public class OrganisationDbo {
 
     public void setChildOrganisations(Set<OrganisationDbo> childOrganisations) {
         this.childOrganisations = childOrganisations;
+    }
+
+    public Set<PersonResultDbo> getPersonResults() {
+        return personResults;
+    }
+
+    public void setPersonResults(Set<PersonResultDbo> personResults) {
+        this.personResults = personResults;
     }
 }

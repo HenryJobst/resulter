@@ -78,7 +78,17 @@ public class EventDbo {
 
         if (event.getOrganisations().isLoaded()) {
             eventDbo.setOrganisations(Objects.requireNonNull(event.getOrganisations().get())
-                    .value().stream().map(OrganisationDbo::from).collect(Collectors.toSet()));
+                    .value().stream().map(it -> {
+                        OrganisationDbo persistedOrganisationDbo =
+                                persistedEventDbo != null ?
+                                        (persistedEventDbo.getOrganisations()
+                                                .stream()
+                                                .filter(x -> x.getId() == it.getId().value())
+                                                .findFirst()
+                                                .orElse(null))
+                                        : null;
+                        return OrganisationDbo.from(it, persistedOrganisationDbo);
+                    }).collect(Collectors.toSet()));
         } else if (persistedEventDbo != null) {
             eventDbo.setOrganisations(persistedEventDbo.getOrganisations());
         } else if (event.getId().isPersistent()) {

@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000010_split_time
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: SPLIT_TIME
+      comment: Table split_times with sequence, indexes and keys
+      changes:
+        - createTable:
+            tableName: SPLIT_TIME
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_SPLIT_TIME
+              - column:
+                  name: PERSON_RACE_RESULT_ID
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_SPLIT_TIME_PERSON_RACE_RESULT
+              - column:
+                  name: CONTROL_CODE
+                  type: VARCHAR(3)
+              - column:
+                  name: PUNCH_TIME
+                  type: DOUBLE
+        - addForeignKeyConstraint:
+            baseTableName: SPLIT_TIME
+            baseColumnNames: PERSON_RACE_RESULT_ID
+            constraintName: FK_SPLIT_TIME_PERSON_RACE_RESULT
+            referencedTableName: PERSON_RACE_RESULT
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - createSequence:
+            sequenceName: SEQ_SPLIT_TIME_ID
+            incrementBy: 10
+        - createIndex:
+            tableName: SPLIT_TIME
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_SPLIT_TIME_ID

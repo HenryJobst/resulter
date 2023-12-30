@@ -4,6 +4,7 @@ import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
 import jakarta.persistence.*;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -35,7 +36,7 @@ public class PersonDbo {
     @OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
     private Set<PersonResultDbo> personResults = new HashSet<>();
 
-    public static PersonDbo from(Person person) {
+    public static PersonDbo from(Person person, @Nullable PersonDbo persistedPersonDbo) {
         if (null == person) {
             return null;
         }

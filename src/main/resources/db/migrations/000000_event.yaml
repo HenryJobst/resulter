@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000000_event
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: EVENT
+      comment: Tables event with sequence, indexes and keys
+      changes:
+        - createTable:
+            tableName: EVENT
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_EVENT
+              - column:
+                  name: NAME
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: START_TIME
+                  type: TIMESTAMPTZ
+              - column:
+                  name: END_TIME
+                  type: TIMESTAMPTZ
+              - column:
+                  name: STATE
+                  type: VARCHAR(20)
+        - createSequence:
+            sequenceName: SEQ_EVENT_ID
+            incrementBy: 1
+        - createIndex:
+            tableName: EVENT
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_EVENT_ID

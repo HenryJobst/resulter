@@ -23,7 +23,11 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
     @Override
     @Transactional
     public Organisation save(Organisation organisation) {
-        OrganisationDbo organisationEntity = OrganisationDbo.from(organisation);
+        OrganisationDbo persisted =
+                organisation.getId().isPersistent() ?
+                        organisationJpaRepository.findById(organisation.getId().value()).orElse(null) :
+                        null;
+        OrganisationDbo organisationEntity = OrganisationDbo.from(organisation, persisted);
         OrganisationDbo savedOrganisationEntity = organisationJpaRepository.save(organisationEntity);
         return savedOrganisationEntity.asOrganisation();
     }
@@ -50,7 +54,7 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
         Optional<OrganisationDbo> organisationEntity =
                 organisationJpaRepository.findByName(organisation.getName().value());
         if (organisationEntity.isEmpty()) {
-            organisationEntity = Optional.of(OrganisationDbo.from(save(organisation)));
+            return save(organisation);
         }
         OrganisationDbo entity = organisationEntity.get();
         return entity.asOrganisation();

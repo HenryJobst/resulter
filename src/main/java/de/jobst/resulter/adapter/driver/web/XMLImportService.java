@@ -111,7 +111,9 @@ public class XMLImportService {
                 Event.of(resultList.getEvent().getName(),
                         classResults,
                         resultList.getEvent().getOrganisers().stream().map(
-                                o -> Organisation.of(o.getName(), o.getShortName())
+                                o -> Organisation.of(o.getName(), o.getShortName(),
+                                        o.getCountry() == null ? null :
+                                                Country.of(o.getCountry().getCode(), o.getCountry().getValue()))
                         ).toList()));
     }
 

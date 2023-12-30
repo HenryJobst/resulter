@@ -21,7 +21,11 @@ public class PersonRepositoryDataJpaAdapter implements PersonRepository {
 
     @Override
     public Person save(Person person) {
-        PersonDbo personEntity = PersonDbo.from(person);
+        PersonDbo persisted =
+                person.getId().isPersistent() ?
+                        personJpaRepository.findById(person.getId().value()).orElse(null) :
+                        null;
+        PersonDbo personEntity = PersonDbo.from(person, persisted);
         PersonDbo savedPersonEntity = personJpaRepository.save(personEntity);
         return savedPersonEntity.asPerson();
     }
@@ -48,7 +52,7 @@ public class PersonRepositoryDataJpaAdapter implements PersonRepository {
                                 .value(),
                         person.getPersonName().givenName().value(), person.getBirthDate().value(), person.getGender());
         if (personEntity.isEmpty()) {
-            personEntity = Optional.of(PersonDbo.from(save(person)));
+            return save(person);
         }
         PersonDbo entity = personEntity.get();
         return entity.asPerson();

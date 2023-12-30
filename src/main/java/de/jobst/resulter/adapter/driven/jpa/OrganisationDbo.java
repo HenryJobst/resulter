@@ -2,10 +2,14 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
+import de.jobst.resulter.domain.OrganisationType;
 import jakarta.persistence.*;
+import org.springframework.lang.Nullable;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
@@ -25,13 +29,30 @@ public class OrganisationDbo {
     @Column(name = "SHORT_NAME", nullable = false)
     private String shortName;
 
+    @Column(name = "TYPE", nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private OrganisationType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "COUNTRY_ID")
+    private CountryDbo country;
+
     @OneToMany(mappedBy = "organisation", fetch = FetchType.LAZY)
     private Set<PersonResultDbo> personResults = new HashSet<>();
 
     @ManyToMany(mappedBy = "organisations", fetch = FetchType.LAZY)
     private Set<EventDbo> events = new HashSet<>();
 
-    public static OrganisationDbo from(Organisation organisation) {
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "ORGANISATION_ORGANISATION",
+            joinColumns = @JoinColumn(name = "ORGANISATION_ID"),
+            inverseJoinColumns = @JoinColumn(name = "PARENT_ORGANISATION_ID"))
+    private Set<OrganisationDbo> parentOrganisations = new HashSet<>();
+
+    @ManyToMany(mappedBy = "parentOrganisations", fetch = FetchType.LAZY)
+    private Set<OrganisationDbo> childOrganisations = new HashSet<>();
+
+    public static OrganisationDbo from(Organisation organisation, @Nullable OrganisationDbo persistedOrganisationDbo) {
         if (null == organisation) {
             return null;
         }
@@ -41,11 +62,41 @@ public class OrganisationDbo {
         }
         organisationDbo.setName(organisation.getName().value());
         organisationDbo.setShortName(organisation.getShortName().value());
+
+        organisationDbo.setType(organisation.getType());
+        organisationDbo.setCountry(CountryDbo.from(organisation.getCountry().get()));
+
+        if (organisation.getParentOrganisations().isLoaded()) {
+            organisationDbo.setParentOrganisations(
+                    Objects.requireNonNull(organisation.getParentOrganisations())
+                            .get().value()
+                            .stream()
+                            .map(it -> {
+                                OrganisationDbo persistedParentOrganisationDbo =
+                                        persistedOrganisationDbo != null ?
+                                                (persistedOrganisationDbo.getParentOrganisations()
+                                                        .stream()
+                                                        .filter(x -> x.getId() == it.getId().value())
+                                                        .findFirst()
+                                                        .orElse(null))
+                                                : null;
+                                return OrganisationDbo.from(it, persistedParentOrganisationDbo);
+                            })
+                            .collect(Collectors.toSet()));
+        } else if (persistedOrganisationDbo != null) {
+            organisationDbo.setParentOrganisations(persistedOrganisationDbo.getParentOrganisations());
+        } else if (organisation.getId().isPersistent()) {
+            throw new IllegalArgumentException();
+        }
+
         return organisationDbo;
     }
 
     public Organisation asOrganisation() {
-        return Organisation.of(id, name, shortName);
+        return Organisation.of(id, name, shortName, type.value(), country.asCountry(),
+                parentOrganisations.stream().map(it -> Organisation.of(
+                        it.id, it.name, it.shortName, it.type.value(), it.country.asCountry(), null
+                )).toList());
     }
 
     public void setId(Long id) {
@@ -70,5 +121,37 @@ public class OrganisationDbo {
 
     public String getShortName() {
         return shortName;
+    }
+
+    public OrganisationType getType() {
+        return type;
+    }
+
+    public void setType(OrganisationType type) {
+        this.type = type;
+    }
+
+    public CountryDbo getCountry() {
+        return country;
+    }
+
+    public void setCountry(CountryDbo country) {
+        this.country = country;
+    }
+
+    public Set<OrganisationDbo> getParentOrganisations() {
+        return parentOrganisations;
+    }
+
+    public void setParentOrganisations(Set<OrganisationDbo> parentOrganisations) {
+        this.parentOrganisations = parentOrganisations;
+    }
+
+    public Set<OrganisationDbo> getChildOrganisations() {
+        return childOrganisations;
+    }
+
+    public void setChildOrganisations(Set<OrganisationDbo> childOrganisations) {
+        this.childOrganisations = childOrganisations;
     }
 }

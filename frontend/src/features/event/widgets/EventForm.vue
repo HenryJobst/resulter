@@ -8,6 +8,7 @@ import Calendar from 'primevue/calendar'
 import MultiSelect from 'primevue/multiselect'
 import { OrganisationService } from '@/features/organisation/services/organisation.service'
 import { useQuery } from '@tanstack/vue-query'
+import { CupService } from '@/features/cup/services/cup.service'
 
 const { t } = useI18n()
 
@@ -19,7 +20,8 @@ const formData = ref<Event | Omit<Event, 'id'>>({
   startTime: new Date(),
   classes: 0,
   participants: 0,
-  organisations: []
+  organisations: [],
+  cups: []
 })
 
 const dateTime = ref(new Date(formData.value.startTime))
@@ -72,7 +74,14 @@ onMounted(() => {
 
 const organisationQuery = useQuery({
   queryKey: ['organisations'],
-  queryFn: () => OrganisationService.getAll(t)
+  queryFn: () => OrganisationService.getAll(t),
+  select: (data) => data ?? []
+})
+
+const cupQuery = useQuery({
+  queryKey: ['cups'],
+  queryFn: () => CupService.getAll(t),
+  select: (data) => data ?? []
 })
 
 const emit = defineEmits(['eventSubmit'])
@@ -109,7 +118,7 @@ const formSubmitHandler = () => {
         </div>
       </div>
       <div class="flex flex-row">
-        <label for="organisations" class="col-fixed w-32">{{ t('labels.organisation') }}</label>
+        <label for="organisations" class="col-fixed w-32">{{ t('labels.organisation', 2) }}</label>
         <div class="col">
           <span v-if="organisationQuery.status.value === 'pending'">{{
             t('messages.loading')
@@ -133,6 +142,29 @@ const formSubmitHandler = () => {
         </div>
       </div>
     </div>
+    <div class="flex flex-row">
+      <label for="cups" class="col-fixed w-32">{{ t('labels.cup', 2) }}</label>
+      <div class="col">
+        <span v-if="cupQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+        <span v-else-if="cupQuery.status.value === 'error'">
+          {{ t('messages.error', { message: cupQuery.error.toLocaleString() }) }}
+        </span>
+
+        <div v-else-if="cupQuery.data" class="card">
+          <MultiSelect
+            id="cups"
+            v-model="formData.cups"
+            :options="cupQuery.data.value"
+            filter
+            optionLabel="name"
+            option-value="id"
+            :placeholder="t('messages.select')"
+            class="w-full md:w-20rem"
+          />
+        </div>
+      </div>
+    </div>
+
     <div class="mt-2">
       <slot></slot>
     </div>

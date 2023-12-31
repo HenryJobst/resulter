@@ -93,28 +93,28 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     private EntityGraph<EventDbo> getEntityGraph(EventConfig eventConfig) {
         EntityGraph<EventDbo> entityGraph = entityManager.createEntityGraph(EventDbo.class);
 
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.EVENT_ORGANISATIONS)) {
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS)) {
             entityGraph.addSubgraph(EventDbo_.organisations);
         }
 
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.CLASS_RESULTS)) {
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CLASS_RESULTS)) {
             Subgraph<ClassResultDbo> classResultSubgraph = entityGraph.addSubgraph(EventDbo_.classResults.getName());
-            if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RESULTS)) {
+            if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSON_RESULTS)) {
                 Subgraph<PersonResultDbo>
                         personResultSubgraph =
                         classResultSubgraph.addSubgraph(ClassResultDbo_.personResults.getName());
-                if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RACE_RESULTS)) {
+                if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS)) {
                     Subgraph<PersonRaceResultDbo>
                             personRaceResultSubgraph =
                             personResultSubgraph.addSubgraph(PersonResultDbo_.personRaceResults.getName());
-                    if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.SPLIT_TIMES)) {
+                    if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.SPLIT_TIMES)) {
                         personRaceResultSubgraph.addSubgraph(PersonRaceResultDbo_.splitTimes);
                     }
                 }
-                if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSONS)) {
+                if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSONS)) {
                     personResultSubgraph.addAttributeNodes(PersonResultDbo_.person.getName());
                 }
-                if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.ORGANISATIONS)) {
+                if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.ORGANISATIONS)) {
                     personResultSubgraph.addAttributeNodes(PersonResultDbo_.organisation.getName());
                 }
             }

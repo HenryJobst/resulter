@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000018_cup_event
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: CUP_EVENT
+      comment: Table cup_event with keys
+      changes:
+        - createTable:
+            tableName: CUP_EVENT
+            columns:
+              - column:
+                  name: CUP_ID
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_CUP_EVENT_CUP
+              - column:
+                  name: EVENT_ID
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_CUP_EVENT_EVENT
+        - addForeignKeyConstraint:
+            baseTableName: CUP_EVENT
+            baseColumnNames: CUP_ID
+            constraintName: FK_CUP_EVENT_CUP
+            referencedTableName: CUP
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableName: CUP_EVENT
+            baseColumnNames: EVENT_ID
+            constraintName: FK_CUP_EVENT_EVENT
+            referencedTableName: EVENT
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT

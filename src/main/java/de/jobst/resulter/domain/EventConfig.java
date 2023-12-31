@@ -3,38 +3,43 @@ package de.jobst.resulter.domain;
 import java.util.EnumSet;
 import java.util.Objects;
 
-public record EventConfig(EnumSet<ShallowLoads> shallowLoads) {
-    static public EventConfig of(EnumSet<ShallowLoads> shallowLoads) {
+public record EventConfig(EnumSet<ShallowEventLoads> shallowLoads) {
+
+    static public EventConfig of(EnumSet<ShallowEventLoads> shallowLoads) {
         return new EventConfig(shallowLoads);
     }
 
     static public EventConfig full() {
-        return new EventConfig(EnumSet.noneOf(ShallowLoads.class));
+        return new EventConfig(EnumSet.noneOf(ShallowEventLoads.class));
+    }
+
+    static public EventConfig empty() {
+        return new EventConfig(EnumSet.allOf(ShallowEventLoads.class));
     }
 
     public static EventConfig fromEvent(Event event) {
-        EnumSet<ShallowLoads> shallowLoads = EnumSet.noneOf(ShallowLoads.class);
+        EnumSet<ShallowEventLoads> shallowLoads = EnumSet.noneOf(ShallowEventLoads.class);
 
         if (event.getClassResults().isEmpty()) {
-            shallowLoads.add(ShallowLoads.CLASS_RESULTS);
-            shallowLoads.add(ShallowLoads.PERSON_RESULTS);
-            shallowLoads.add(ShallowLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(ShallowLoads.SPLIT_TIMES);
+            shallowLoads.add(ShallowEventLoads.CLASS_RESULTS);
+            shallowLoads.add(ShallowEventLoads.PERSON_RESULTS);
+            shallowLoads.add(ShallowEventLoads.PERSON_RACE_RESULTS);
+            shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
         } else if (event.getClassResults()
                 .get().value()
                 .stream()
                 .anyMatch(y -> y.getPersonResults().isEmpty())) {
-            shallowLoads.add(ShallowLoads.PERSON_RESULTS);
-            shallowLoads.add(ShallowLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(ShallowLoads.SPLIT_TIMES);
+            shallowLoads.add(ShallowEventLoads.PERSON_RESULTS);
+            shallowLoads.add(ShallowEventLoads.PERSON_RACE_RESULTS);
+            shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
         } else if (event.getClassResults()
                 .get()
                 .value()
                 .stream()
                 .flatMap(x -> x.getPersonResults().get().value().stream())
                 .noneMatch(y -> y.getPersonRaceResults().isLoaded())) {
-            shallowLoads.add(ShallowLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(ShallowLoads.SPLIT_TIMES);
+            shallowLoads.add(ShallowEventLoads.PERSON_RACE_RESULTS);
+            shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
         } else if (Objects.requireNonNull(event.getClassResults())
                 .get().value()
                 .stream()
@@ -44,21 +49,22 @@ public record EventConfig(EnumSet<ShallowLoads> shallowLoads) {
                         .filter(y -> y.getPersonRaceResults().isLoaded())
                         .flatMap(z -> z.getPersonRaceResults().get().value()
                                 .stream())).noneMatch(u -> u.getSplitTimes().isLoaded())) {
-            shallowLoads.add(ShallowLoads.SPLIT_TIMES);
+            shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
         }
         if (event.getOrganisations().isEmpty()) {
-            shallowLoads.add(ShallowLoads.EVENT_ORGANISATIONS);
+            shallowLoads.add(ShallowEventLoads.EVENT_ORGANISATIONS);
         }
         return EventConfig.of(shallowLoads);
     }
 
-    public enum ShallowLoads {
+    public enum ShallowEventLoads {
         CLASS_RESULTS,
         PERSON_RESULTS,
         PERSON_RACE_RESULTS,
         SPLIT_TIMES,
         PERSONS,
         ORGANISATIONS,
-        EVENT_ORGANISATIONS
+        EVENT_ORGANISATIONS,
+        CUPS
     }
 }

@@ -89,7 +89,7 @@ public class PersonRaceResultDbo {
                                                                    @NonNull
                                                                    List<PersonRaceResultDbo> personRaceResultDbos) {
         Map<PersonRaceResultId, List<SplitTime>> splitTimesByPersonRaceResultId;
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.SPLIT_TIMES)) {
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.SPLIT_TIMES)) {
             splitTimesByPersonRaceResultId =
                     SplitTimeDbo.asSplitTimes(personRaceResultDbos.stream()
                                     .flatMap(x -> x.splitTimes.stream())

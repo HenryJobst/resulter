@@ -33,35 +33,39 @@ public class EventService {
                                              Boolean shallowSplitTimes,
                                              Boolean shallowPersons,
                                              Boolean shallowOrganisations,
-                                             Boolean shallowEventOrganisations) {
-        EnumSet<EventConfig.ShallowLoads> shallowLoads = EnumSet.noneOf(EventConfig.ShallowLoads.class);
+                                             Boolean shallowEventOrganisations,
+                                             Boolean shallowCups) {
+        EnumSet<EventConfig.ShallowEventLoads> shallowLoads = EnumSet.noneOf(EventConfig.ShallowEventLoads.class);
         if (shallowEventOrganisations) {
-            shallowLoads.add(EventConfig.ShallowLoads.EVENT_ORGANISATIONS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS);
         }
         if (shallowPersons) {
-            shallowLoads.add(EventConfig.ShallowLoads.PERSONS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
         }
         if (shallowOrganisations) {
-            shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
+        }
+        if (shallowCups) {
+            shallowLoads.add(EventConfig.ShallowEventLoads.CUPS);
         }
         if (shallowClassResults) {
-            shallowLoads.add(EventConfig.ShallowLoads.CLASS_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSONS);
-            shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.CLASS_RESULTS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RESULTS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
+            shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
         } else if (shallowPersonResults) {
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
-            shallowLoads.add(EventConfig.ShallowLoads.PERSONS);
-            shallowLoads.add(EventConfig.ShallowLoads.ORGANISATIONS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RESULTS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
+            shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
         } else if (shallowPersonRaceResults) {
-            shallowLoads.add(EventConfig.ShallowLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
+            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
+            shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
         } else if (shallowSplitTimes) {
-            shallowLoads.add(EventConfig.ShallowLoads.SPLIT_TIMES);
+            shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
         }
         return EventConfig.of(shallowLoads);
     }
@@ -78,20 +82,21 @@ public class EventService {
         return eventRepository.findAll(eventConfig);
     }
 
-    public Event updateEvent(EventId id, EventName name, DateTime startDate, Organisations organisations) {
+    public Event updateEvent(EventId id, EventName name, DateTime startDate, Organisations organisations, Cups cups) {
         EventConfig eventConfig = getEventConfig(true,
                 true,
                 true,
                 true,
                 true,
                 true,
+                false,
                 false);
         Optional<Event> optionalEvent = findById(id, eventConfig);
         if (optionalEvent.isEmpty()) {
             return null;
         }
         Event event = optionalEvent.get();
-        event.update(name, startDate, organisations);
+        event.update(name, startDate, organisations, cups);
         return eventRepository.save(event);
     }
 

@@ -91,7 +91,7 @@ public class PersonResultDbo {
     static public Collection<PersonResult> asPersonResults(@NonNull EventConfig eventConfig,
                                                            @NonNull Collection<PersonResultDbo> personResultDbos) {
         Map<PersonResultId, List<PersonRaceResult>> personRaceResultsByPersonResultId;
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RACE_RESULTS)) {
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS)) {
             personRaceResultsByPersonResultId =
                     PersonRaceResultDbo.asPersonRaceResults(eventConfig,
                                     personResultDbos.stream().flatMap(x -> x.personRaceResults.stream()).toList())
@@ -107,9 +107,9 @@ public class PersonResultDbo {
                                 it.getClassResultDbo() != null ?
                                         it.getClassResultDbo().getId() :
                                         ClassResultId.empty().value(),
-                                eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSONS) ?
+                                eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSONS) ?
                                         null : (it.person != null ? it.person.asPerson() : null),
-                                eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.ORGANISATIONS) ?
+                                eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.ORGANISATIONS) ?
                                         null :
                                         (it.organisation != null ? it.organisation.asOrganisation() : null),
                                 personRaceResultsByPersonResultId == null ? null :

@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000017_event_organisation_changes
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - uniqueConstraintExists:
+                tableName: EVENT_ORGANISATION
+                columnNames: EVENT_ID, ORGANISATION_ID
+                constraintName: UK_EVENT_ORGANISATION
+      comment: Change table event_organisation
+      changes:
+        - addUniqueConstraint:
+            columnNames: EVENT_ID, ORGANISATION_ID
+            constraintName: UK_EVENT_ORGANISATION
+            tableName: EVENT_ORGANISATION
+            validate: true

@@ -11,7 +11,7 @@ public interface OrganisationRepository {
 
     List<Organisation> findAll();
 
-    Optional<Organisation> findById(OrganisationId OrganisationId);
+    Optional<Organisation> findById(OrganisationId organisationId);
 
     Organisation findOrCreate(Organisation organisation);
 }

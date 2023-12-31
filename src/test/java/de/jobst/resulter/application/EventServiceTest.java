@@ -52,7 +52,8 @@ class EventServiceTest {
                 eventService.updateEvent(savedEvent.getId(),
                         EventName.of("ChangedEvent"),
                         savedEvent.getStartTime(),
-                        savedEvent.getOrganisations().get());
+                        savedEvent.getOrganisations().get(),
+                        savedEvent.getCups().get());
 
         assertThat(changedEvent).isNotNull();
         assertThat(changedEvent.getClassResults().isEmpty() ||

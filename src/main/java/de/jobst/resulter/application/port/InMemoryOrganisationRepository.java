@@ -33,8 +33,8 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
     }
 
     @Override
-    public Optional<Organisation> findById(OrganisationId OrganisationId) {
-        return Optional.ofNullable(organisations.get(OrganisationId));
+    public Optional<Organisation> findById(OrganisationId organisationId) {
+        return Optional.ofNullable(organisations.get(organisationId));
     }
 
     @Override

@@ -43,7 +43,8 @@
     "birth_year": "Year of birth",
     "gender": "Gender",
     "birth_date": "Date of birth",
-    "type": "Type"
+    "type": "Type",
+    "cup": "No cup | Cup | Cups"
   },
   "messages": {
     "edit_event": "Edit event with ID {id}",

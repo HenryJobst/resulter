@@ -43,7 +43,8 @@
     "birth_year": "Jg.",
     "gender": "Geschlecht",
     "birth_date": "Geburtsdatum",
-    "type": "Typ"
+    "type": "Typ",
+    "cup": "Kein Cup | Cup | Cups"
   },
   "messages": {
     "edit_event": "Wettkampf mit ID {id} bearbeiten",

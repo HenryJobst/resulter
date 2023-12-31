@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
-import de.jobst.resulter.application.CupService;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.*;
@@ -24,13 +23,11 @@ public class EventController {
 
     private final EventService eventService;
     private final OrganisationService organisationService;
-    private final CupService cupService;
 
     @Autowired
-    public EventController(EventService eventService, OrganisationService organisationService, CupService cupService) {
+    public EventController(EventService eventService, OrganisationService organisationService) {
         this.eventService = eventService;
         this.organisationService = organisationService;
-        this.cupService = cupService;
     }
 
     @GetMapping("/event")
@@ -48,9 +45,7 @@ public class EventController {
             @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
             Boolean shallowOrganisations,
             @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "false")
-            Boolean shallowEventOrganisations,
-            @RequestParam(name = "shallowCups", required = false, defaultValue = "true")
-            Boolean shallowCups
+            Boolean shallowEventOrganisations
     ) {
         try {
             List<Event> events = eventService.findAll(EventService.getEventConfig(shallowClassResults,
@@ -59,8 +54,7 @@ public class EventController {
                     shallowSplitTimes,
                     shallowPersons,
                     shallowOrganisations,
-                    shallowEventOrganisations,
-                    shallowCups));
+                    shallowEventOrganisations));
             return ResponseEntity.ok(events.stream().map(EventDto::from).toList());
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -87,9 +81,7 @@ public class EventController {
             @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
             Boolean shallowOrganisations,
             @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "false")
-            Boolean shallowEventOrganisations,
-            @RequestParam(name = "shallowCups", required = false, defaultValue = "true")
-            Boolean shallowCups
+            Boolean shallowEventOrganisations
     ) {
         try {
             EventConfig eventConfig = EventService.getEventConfig(shallowClassResults,
@@ -98,8 +90,7 @@ public class EventController {
                     shallowSplitTimes,
                     shallowPersons,
                     shallowOrganisations,
-                    shallowEventOrganisations,
-                    shallowCups);
+                    shallowEventOrganisations);
             Optional<Event> event = eventService.findById(EventId.of(id), eventConfig);
             return event.map(value -> ResponseEntity.ok(EventDto.from(value)))
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -131,7 +122,8 @@ public class EventController {
                     Cups.of(
                             eventDto.cups() == null ? new ArrayList<>() :
                                     Arrays.stream(eventDto.cups())
-                                            .map(it -> cupService.findById(CupId.of(it)).orElse(null))
+                                            .map(it -> cupService.findById(CupId.of(it), CupConfig.empty())
+                                                    .orElse(null))
                                             .filter(ObjectUtils::isNotEmpty)
                                             .toList()
                     )
@@ -196,9 +188,7 @@ public class EventController {
             @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "false")
             Boolean shallowOrganisations,
             @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "true")
-            Boolean shallowEventOrganisations,
-            @RequestParam(name = "shallowCups", required = false, defaultValue = "true")
-            Boolean shallowCups
+            Boolean shallowEventOrganisations
     ) {
         try {
             EventConfig eventConfig = EventService.getEventConfig(shallowClassResults,
@@ -207,8 +197,7 @@ public class EventController {
                     shallowSplitTimes,
                     shallowPersons,
                     shallowOrganisations,
-                    shallowEventOrganisations,
-                    shallowCups);
+                    shallowEventOrganisations);
             Optional<Event> event = eventService.findById(EventId.of(id), eventConfig);
 
             return event.map(value -> ResponseEntity.ok(EventResultsDto.from(value)))

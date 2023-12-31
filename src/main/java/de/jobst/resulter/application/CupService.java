@@ -4,6 +4,8 @@ import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupConfig;
 import de.jobst.resulter.domain.CupId;
+import de.jobst.resulter.domain.EventConfig;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;

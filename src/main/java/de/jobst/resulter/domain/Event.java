@@ -20,19 +20,15 @@ public class Event {
     @NonNull
     private EventName name;
     @NonNull
-    private DateTime startTime = DateTime.empty();
+    private DateTime startTime;
     @NonNull
-    private DateTime endTime = DateTime.empty();
+    private final DateTime endTime;
     @NonNull
-    private ShallowLoadProxy<ClassResults> classResults = ShallowLoadProxy.empty();
+    private final ShallowLoadProxy<ClassResults> classResults;
     @NonNull
-    private ShallowLoadProxy<Organisations> organisations = ShallowLoadProxy.empty();
+    private ShallowLoadProxy<Organisations> organisations;
     @Nullable
-    private EventStatus eventState;
-
-    public Event(@NonNull EventName name) {
-        this.name = name;
-    }
+    private final EventStatus eventState;
 
     public Event(@NonNull EventId id,
                  @NonNull EventName eventName,

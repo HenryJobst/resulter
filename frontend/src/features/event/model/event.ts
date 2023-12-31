@@ -5,4 +5,5 @@ export interface Event {
   classes: number
   participants: number
   organisations: number[]
+  cups: number[]
 }

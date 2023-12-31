@@ -77,7 +77,7 @@ public class ClassResultDbo {
                                                          Collection<ClassResultDbo> classResultDbos) {
 
         Map<ClassResultId, List<PersonResult>> personResultsByClassResultId;
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.PERSON_RESULTS)) {
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSON_RESULTS)) {
             personResultsByClassResultId =
                     PersonResultDbo.asPersonResults(eventConfig,
                                     classResultDbos.stream().flatMap(x -> x.personResults.stream()).toList())

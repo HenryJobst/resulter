@@ -42,6 +42,9 @@ public class EventDbo {
     @Enumerated(value = EnumType.STRING)
     private EventStatus state;
 
+    @ManyToMany(mappedBy = "events", fetch = FetchType.LAZY)
+    private Set<CupDbo> cups = new HashSet<>();
+
     public static EventDbo from(@NonNull Event event, @Nullable EventDbo persistedEventDbo) {
         EventDbo eventDbo = new EventDbo();
         if (event.getId().value() != EventId.empty().value()) {
@@ -98,12 +101,31 @@ public class EventDbo {
         if (ObjectUtils.isNotEmpty(event.getEventState())) {
             eventDbo.setState(event.getEventState());
         }
+
+        if (event.getCups().isLoaded()) {
+            eventDbo.setCups(Objects.requireNonNull(event.getCups().get())
+                    .value().stream().map(it -> {
+                        CupDbo persistedCupDbo =
+                                persistedEventDbo != null ?
+                                        (persistedEventDbo.getCups()
+                                                .stream()
+                                                .filter(x -> x.getId() == it.getId().value())
+                                                .findFirst()
+                                                .orElse(null))
+                                        : null;
+                        return CupDbo.from(it, persistedCupDbo);
+                    }).collect(Collectors.toSet()));
+        } else if (persistedEventDbo != null) {
+            eventDbo.setCups(persistedEventDbo.getCups());
+        } else if (event.getId().isPersistent()) {
+            throw new IllegalArgumentException();
+        }
         return eventDbo;
     }
 
     static public List<Event> asEvents(@NonNull EventConfig eventConfig, @NonNull List<EventDbo> eventDbos) {
         Map<EventId, List<ClassResult>> classResultsByEventId;
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.CLASS_RESULTS)) {
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CLASS_RESULTS)) {
             classResultsByEventId =
                     ClassResultDbo.asClassResults(eventConfig,
                                     eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
@@ -120,9 +142,13 @@ public class EventDbo {
                         it.endTime,
                         classResultsByEventId == null ? null :
                                 classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>()),
-                        eventConfig.shallowLoads().contains(EventConfig.ShallowLoads.EVENT_ORGANISATIONS) ? null :
+                        eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS) ? null :
                                 it.organisations.stream()
                                         .map(x -> ObjectUtils.isNotEmpty(x) ? x.asOrganisation() : null)
+                                        .toList(),
+                        eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CUPS) ? null :
+                                it.cups.stream()
+                                        .map(x -> ObjectUtils.isNotEmpty(x) ? CupDbo.asCup(CupConfig.empty(), x) : null)
                                         .toList(),
                         it.state)
                 )
@@ -187,5 +213,13 @@ public class EventDbo {
 
     public void setState(EventStatus state) {
         this.state = state;
+    }
+
+    public Set<CupDbo> getCups() {
+        return cups;
+    }
+
+    public void setCups(Set<CupDbo> cups) {
+        this.cups = cups;
     }
 }

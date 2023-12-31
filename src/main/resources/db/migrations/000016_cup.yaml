@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000016_cup
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: CUP
+      comment: Table organisation with sequence, indexes and keys
+      changes:
+        - createTable:
+            tableName: CUP
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_CUP
+              - column:
+                  name: NAME
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: TYPE
+                  type: VARCHAR(60)
+                  defaultValue: 'ADD'
+                  constraints:
+                    nullable: false
+        - createSequence:
+            sequenceName: SEQ_CUP_ID
+            incrementBy: 1
+        - createIndex:
+            tableName: CUP
+            columns:
+              - column:
+                  name: ID
+            indexName: IDX_CUP_ID

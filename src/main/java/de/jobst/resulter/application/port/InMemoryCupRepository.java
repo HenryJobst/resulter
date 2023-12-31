@@ -1,6 +1,7 @@
 package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Cup;
+import de.jobst.resulter.domain.CupConfig;
 import de.jobst.resulter.domain.CupId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,12 +29,12 @@ public class InMemoryCupRepository implements CupRepository {
     }
 
     @Override
-    public List<Cup> findAll() {
+    public List<Cup> findAll(CupConfig cupConfig) {
         return List.copyOf(cups.values());
     }
 
     @Override
-    public Optional<Cup> findById(CupId cupId) {
+    public Optional<Cup> findById(CupId cupId, CupConfig cupConfig) {
         return Optional.ofNullable(cups.get(cupId));
     }
 

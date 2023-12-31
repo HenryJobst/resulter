@@ -35,19 +35,19 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
 
     @Override
     @Transactional
-    public List<Cup> findAll() {
+    public List<Cup> findAll(CupConfig cupConfig) {
         return cupJpaRepository.findAll().stream()
-                .map(it -> CupDbo.asCup(CupConfig.full(), it))
+                .map(it -> CupDbo.asCup(cupConfig, it))
                 .sorted()
                 .toList();
     }
 
     @Override
     @Transactional
-    public Optional<Cup> findById(CupId cupId) {
+    public Optional<Cup> findById(CupId cupId, CupConfig cupConfig) {
         Optional<CupDbo> cupEntity =
                 cupJpaRepository.findById(cupId.value());
-        return cupEntity.map(it -> CupDbo.asCup(CupConfig.empty(), it));
+        return cupEntity.map(it -> CupDbo.asCup(cupConfig, it));
     }
 
     @Override

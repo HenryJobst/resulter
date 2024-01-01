@@ -27,11 +27,12 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
     @Override
     @Transactional
     public Organisation save(Organisation organisation) {
-        OrganisationDbo persisted =
-                organisation.getId().isPersistent() ?
-                        organisationJpaRepository.findById(organisation.getId().value()).orElse(null) :
-                        null;
-        OrganisationDbo organisationDbo = OrganisationDbo.from(organisation, persisted);
+        DboResolvers dboResolvers = new DboResolvers(null,
+                null,
+                null,
+                id -> organisationJpaRepository.findById(id.value()).orElse(null)
+        );
+        OrganisationDbo organisationDbo = OrganisationDbo.from(organisation, null, dboResolvers);
         if (organisationDbo.getCountry() != null &&
                 Hibernate.isInitialized(organisationDbo.getCountry())) {
             organisationDbo.setCountry(countryJpaRepository.save(organisationDbo.getCountry()));

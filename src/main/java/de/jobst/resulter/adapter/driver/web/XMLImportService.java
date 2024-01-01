@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -121,8 +120,7 @@ public class XMLImportService {
                                         o.getCountry() == null ? null :
                                                 Country.of(o.getCountry().getCode(),
                                                         o.getCountry().getValue()))
-                        ).toList(),
-                        new ArrayList<>()
+                        ).toList()
                 )
         );
     }

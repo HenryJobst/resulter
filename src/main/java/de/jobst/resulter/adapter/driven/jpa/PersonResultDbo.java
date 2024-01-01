@@ -3,7 +3,6 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,16 +36,23 @@ public class PersonResultDbo {
 
     public static PersonResultDbo from(@NonNull PersonResult personResult,
                                        @NonNull ClassResultDbo classResultDbo,
-                                       @Nullable PersonResultDbo persistedPersonResultDbo) {
-        PersonResultDbo personResultDbo = new PersonResultDbo();
+                                       DboResolver<PersonResultId, PersonResultDbo> dboResolver,
+                                       DboResolvers dboResolverMap) {
+        PersonResultDbo personResultDbo;
+        PersonResultDbo persistedPersonResultDbo;
         if (personResult.getId().value() != PersonResultId.empty().value()) {
-            personResultDbo.setId(personResult.getId().value());
+            personResultDbo = dboResolver.findDboById(personResult.getId());
+            persistedPersonResultDbo = personResultDbo;
+        } else {
+            personResultDbo = new PersonResultDbo();
+            persistedPersonResultDbo = null;
         }
         personResultDbo.setClassResultDbo(classResultDbo);
 
         if (personResult.getPerson().isLoaded()) {
+            PersonDbo persistedPersonDbo = persistedPersonResultDbo != null ? persistedPersonResultDbo.person : null;
             personResultDbo.setPerson(PersonDbo.from(personResult.getPerson().get(),
-                    persistedPersonResultDbo != null ? persistedPersonResultDbo.person : null));
+                    (id) -> persistedPersonDbo, dboResolverMap));
         } else if (persistedPersonResultDbo != null) {
             personResultDbo.setPerson(persistedPersonResultDbo.getPerson());
         } else if (personResult.getId().isPersistent()) {
@@ -57,7 +63,7 @@ public class PersonResultDbo {
             OrganisationDbo persistedOrganisationDbo =
                     persistedPersonResultDbo != null ? persistedPersonResultDbo.getOrganisation() : null;
             personResultDbo.setOrganisation(OrganisationDbo.from(personResult.getOrganisation().get(),
-                    persistedOrganisationDbo));
+                    (id) -> persistedOrganisationDbo, dboResolverMap));
         } else if (persistedPersonResultDbo != null) {
             personResultDbo.setOrganisation(persistedPersonResultDbo.getOrganisation());
         } else if (personResult.getId().isPersistent()) {
@@ -77,7 +83,9 @@ public class PersonResultDbo {
                                                 .findFirst()
                                                 .orElse(null))
                                         : null;
-                        return PersonRaceResultDbo.from(it, personResultDbo, persistedPersonRaceResultDbo);
+                        return PersonRaceResultDbo.from(it,
+                                personResultDbo,
+                                (id) -> persistedPersonRaceResultDbo, dboResolverMap);
                     })
                     .collect(Collectors.toSet()));
         } else if (persistedPersonResultDbo != null) {

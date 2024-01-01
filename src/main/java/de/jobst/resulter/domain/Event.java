@@ -29,8 +29,6 @@ public class Event {
     private ShallowLoadProxy<Organisations> organisations;
     @Nullable
     private final EventStatus eventState;
-    @NonNull
-    private ShallowLoadProxy<Cups> cups;
 
     public Event(@NonNull EventId id,
                  @NonNull EventName eventName,
@@ -38,7 +36,6 @@ public class Event {
                  @NonNull DateTime endTime,
                  @NonNull ShallowLoadProxy<ClassResults> classResults,
                  @NonNull ShallowLoadProxy<Organisations> organisations,
-                 @NonNull ShallowLoadProxy<Cups> cups,
                  @Nullable EventStatus eventState) {
         this.id = id;
         this.name = eventName;
@@ -46,7 +43,6 @@ public class Event {
         this.endTime = endTime;
         this.classResults = classResults;
         this.organisations = organisations;
-        this.cups = cups;
         this.eventState = eventState;
     }
 
@@ -64,20 +60,18 @@ public class Event {
 
     public static Event of(long id, @NonNull String name, @Nullable Collection<ClassResult> classResults) {
         return Event.of(id, name, null, null, classResults,
-                new ArrayList<>(), new ArrayList<>(), null);
+                new ArrayList<>(), null);
     }
 
     public static Event of(@NonNull String name,
                            @Nullable Collection<ClassResult> classResults,
-                           @Nullable Collection<Organisation> organisations,
-                           @Nullable Collection<Cup> cups) {
+                           @Nullable Collection<Organisation> organisations) {
         return Event.of(EventId.empty().value(),
                 name,
                 null,
                 null,
                 classResults,
                 organisations,
-                cups,
                 null);
     }
 
@@ -87,7 +81,6 @@ public class Event {
                            @Nullable ZonedDateTime endTime,
                            @Nullable Collection<ClassResult> classResults,
                            @Nullable Collection<Organisation> organisations,
-                           @Nullable Collection<Cup> cups,
                            @Nullable EventStatus eventState) {
         return new Event(EventId.of(id),
                 EventName.of(eventName),
@@ -97,17 +90,13 @@ public class Event {
                 (organisations != null) ?
                         ShallowLoadProxy.of(Organisations.of(organisations)) :
                         ShallowLoadProxy.empty(),
-                (cups != null) ?
-                        ShallowLoadProxy.of(Cups.of(cups)) :
-                        ShallowLoadProxy.empty(),
                 eventState);
     }
 
-    public void update(EventName eventName, DateTime startTime, Organisations organisations, Cups cups) {
+    public void update(EventName eventName, DateTime startTime, Organisations organisations) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
         this.organisations = organisations != null ? ShallowLoadProxy.of(organisations) : ShallowLoadProxy.empty();
-        this.cups = cups != null ? ShallowLoadProxy.of(cups) : ShallowLoadProxy.empty();
     }
 }

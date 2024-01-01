@@ -37,12 +37,20 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         this.organisationJpaRepository = organisationJpaRepository;
     }
 
+    @Transactional
+    public DboResolver<EventId, EventDbo> getIdResolver() {
+        return (EventId id) -> findDboById(id, EventConfig.full()).orElse(null);
+    }
+
     @Override
     @Transactional
     public Event save(Event event) {
-        EventDbo persisted =
-                event.getId().isPersistent() ? eventJpaRepository.findById(event.getId().value()).orElse(null) : null;
-        EventDbo eventEntity = EventDbo.from(event, persisted);
+        DboResolvers dboResolvers = new DboResolvers(null,
+                getIdResolver(),
+                id -> personJpaRepository.findById(id.value()).orElse(null),
+                id -> organisationJpaRepository.findById(id.value()).orElse(null)
+        );
+        EventDbo eventEntity = EventDbo.from(event, null, dboResolvers);
         if (Hibernate.isInitialized(eventEntity.getClassResults())) {
             var personsToSave =
                     eventEntity.getClassResults()
@@ -122,9 +130,8 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         return entityGraph;
     }
 
-    @Override
     @Transactional(readOnly = true)
-    public Optional<Event> findById(EventId eventId, EventConfig eventConfig) {
+    public Optional<EventDbo> findDboById(EventId eventId, EventConfig eventConfig) {
         @SuppressWarnings("SqlSourceToSinkFlow")
         TypedQuery<EventDbo> query = entityManager.createQuery(
                 MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
@@ -134,7 +141,13 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         query.setParameter("id", eventId.value());
         query.setHint("jakarta.persistence.loadgraph", getEntityGraph(eventConfig));
 
-        return query.getResultStream().findFirst().map(it -> EventDbo.asEvent(eventConfig, it));
+        return query.getResultStream().findFirst();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Event> findById(EventId eventId, EventConfig eventConfig) {
+        return findDboById(eventId, eventConfig).map(it -> EventDbo.asEvent(eventConfig, it));
     }
 
     @Override

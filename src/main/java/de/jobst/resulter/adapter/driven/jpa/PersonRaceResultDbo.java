@@ -4,7 +4,6 @@ import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -45,11 +44,18 @@ public class PersonRaceResultDbo {
 
     public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult,
                                            @NonNull PersonResultDbo personResultDbo,
-                                           @Nullable PersonRaceResultDbo persistedPersonRaceResultDbo) {
-        PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
+                                           @NonNull DboResolver<PersonRaceResultId, PersonRaceResultDbo> dboResolver,
+                                           DboResolvers dboResolverMap) {
+        PersonRaceResultDbo personRaceResultDbo;
+        PersonRaceResultDbo persistedPersonRaceResultDbo;
         if (personRaceResult.getId().value() != PersonRaceResultId.empty().value()) {
-            personRaceResultDbo.setId(personRaceResult.getId().value());
+            personRaceResultDbo = dboResolver.findDboById(personRaceResult.getId());
+            persistedPersonRaceResultDbo = personRaceResultDbo;
+        } else {
+            personRaceResultDbo = new PersonRaceResultDbo();
+            persistedPersonRaceResultDbo = null;
         }
+
         personRaceResultDbo.setPersonResultDbo(personResultDbo);
         if (ObjectUtils.isNotEmpty(personRaceResult.getStartTime())) {
             personRaceResultDbo.setStartTime(personRaceResult.getStartTime().value());
@@ -73,7 +79,20 @@ public class PersonRaceResultDbo {
             personRaceResultDbo.setSplitTimes(personRaceResult.getSplitTimes().get()
                     .value()
                     .stream()
-                    .map(it -> SplitTimeDbo.from(it, personRaceResultDbo))
+                    .map(it -> {
+                        SplitTimeDbo persistedSplitTimeDbo =
+                                persistedPersonRaceResultDbo != null ?
+                                        (persistedPersonRaceResultDbo.getSplitTimes()
+                                                .stream()
+                                                .filter(x -> x.getId() == it.getId().value())
+                                                .findFirst()
+                                                .orElse(null))
+                                        : null;
+                        return SplitTimeDbo.from(it,
+                                personRaceResultDbo,
+                                (id) -> persistedSplitTimeDbo,
+                                dboResolverMap);
+                    })
                     .collect(Collectors.toSet()));
         } else if (persistedPersonRaceResultDbo != null) {
             personRaceResultDbo.setSplitTimes(persistedPersonRaceResultDbo.getSplitTimes());

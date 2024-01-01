@@ -9,7 +9,7 @@ import org.springframework.lang.Nullable;
 import java.util.Collection;
 
 @Getter
-public class Cup {
+public class Cup implements Comparable<Cup> {
     @NonNull
     @Setter
     private CupId id;
@@ -17,8 +17,10 @@ public class Cup {
     private final CupName name;
     @NonNull
     private final CupType type;
+
     @NonNull
-    private final ShallowLoadProxy<Events> events;
+    @Setter
+    private ShallowLoadProxy<Events> events;
 
     public Cup(@NonNull CupId id, @NonNull CupName name,
                @NonNull CupType type,
@@ -40,5 +42,10 @@ public class Cup {
                 type,
                 (events != null) ? ShallowLoadProxy.of(Events.of(events)) : ShallowLoadProxy.empty()
         );
+    }
+
+    @Override
+    public int compareTo(@NonNull Cup o) {
+        return name.compareTo(o.name);
     }
 }

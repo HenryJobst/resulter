@@ -64,7 +64,6 @@ public record EventConfig(EnumSet<ShallowEventLoads> shallowLoads) {
         SPLIT_TIMES,
         PERSONS,
         ORGANISATIONS,
-        EVENT_ORGANISATIONS,
-        CUPS
+        EVENT_ORGANISATIONS
     }
 }

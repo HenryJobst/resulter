@@ -1,8 +1,9 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ValueObjectChecks;
+import org.springframework.lang.NonNull;
 
-public record CupName(String value) {
+public record CupName(String value) implements Comparable<CupName> {
 
     public static CupName of(String name) {
         ValueObjectChecks.requireNotEmpty(name);
@@ -12,5 +13,10 @@ public record CupName(String value) {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;
+    }
+
+    @Override
+    public int compareTo(@NonNull CupName o) {
+        return value.compareTo(o.value);
     }
 }

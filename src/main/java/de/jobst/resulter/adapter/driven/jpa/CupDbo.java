@@ -7,7 +7,6 @@ import de.jobst.resulter.domain.CupType;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -39,11 +38,17 @@ public class CupDbo {
     @Enumerated(value = EnumType.STRING)
     private CupType type;
 
-    public static CupDbo from(@NonNull Cup cup, @Nullable CupDbo persistedCupDbo) {
-        CupDbo cupDbo = new CupDbo();
+    public static CupDbo from(@NonNull Cup cup, DboResolvers dboResolvers) {
+        CupDbo cupDbo;
+        CupDbo persistedCupDbo;
         if (cup.getId().value() != CupId.empty().value()) {
-            cupDbo.setId(cup.getId().value());
+            cupDbo = dboResolvers.cupDboDboResolver().findDboById(cup.getId());
+            persistedCupDbo = cupDbo;
+        } else {
+            cupDbo = new CupDbo();
+            persistedCupDbo = null;
         }
+
         cupDbo.setName(cup.getName().value());
 
         if (cup.getEvents().isLoaded()) {
@@ -57,7 +62,7 @@ public class CupDbo {
                                                 .findFirst()
                                                 .orElse(null))
                                         : null;
-                        return EventDbo.from(it, persistedEventDbo);
+                        return EventDbo.from(it, (id) -> persistedEventDbo, dboResolvers);
                     }).collect(Collectors.toSet()));
         } else if (persistedCupDbo != null) {
             cupDbo.setEvents(persistedCupDbo.getEvents());

@@ -3,7 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.lang.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,10 +37,16 @@ public class ClassResultDbo {
 
     public static ClassResultDbo from(ClassResult classResult,
                                       EventDbo eventDbo,
-                                      @Nullable ClassResultDbo persistedClassResultDbo) {
-        ClassResultDbo classResultDbo = new ClassResultDbo();
+                                      @NonNull DboResolver<ClassResultId, ClassResultDbo> dboResolver,
+                                      @NonNull DboResolvers dboResolverMap) {
+        ClassResultDbo classResultDbo;
+        ClassResultDbo persistedClassResultDbo;
         if (classResult.getId().value() != ClassResultId.empty().value()) {
-            classResultDbo.setId(classResult.getId().value());
+            classResultDbo = dboResolver.findDboById(classResult.getId());
+            persistedClassResultDbo = classResultDbo;
+        } else {
+            classResultDbo = new ClassResultDbo();
+            persistedClassResultDbo = null;
         }
         classResultDbo.setEventDbo(eventDbo);
         classResultDbo.setName(classResult.getClassResultName().value());
@@ -62,7 +68,10 @@ public class ClassResultDbo {
                                                         .findFirst()
                                                         .orElse(null))
                                                 : null;
-                                return PersonResultDbo.from(it, classResultDbo, persistedPersonResultDbo);
+                                return PersonResultDbo.from(it,
+                                        classResultDbo,
+                                        (id) -> persistedPersonResultDbo,
+                                        dboResolverMap);
                             })
                             .collect(Collectors.toSet()));
         } else if (persistedClassResultDbo != null) {

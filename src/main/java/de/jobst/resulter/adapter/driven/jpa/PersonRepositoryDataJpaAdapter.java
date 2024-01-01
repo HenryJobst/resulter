@@ -21,11 +21,12 @@ public class PersonRepositoryDataJpaAdapter implements PersonRepository {
 
     @Override
     public Person save(Person person) {
-        PersonDbo persisted =
-                person.getId().isPersistent() ?
-                        personJpaRepository.findById(person.getId().value()).orElse(null) :
-                        null;
-        PersonDbo personEntity = PersonDbo.from(person, persisted);
+        DboResolvers dboResolvers = new DboResolvers(null,
+                null,
+                id -> personJpaRepository.findById(id.value()).orElse(null),
+                null
+        );
+        PersonDbo personEntity = PersonDbo.from(person, null, dboResolvers);
         PersonDbo savedPersonEntity = personJpaRepository.save(personEntity);
         return savedPersonEntity.asPerson();
     }

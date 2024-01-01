@@ -33,8 +33,7 @@ public class EventService {
                                              Boolean shallowSplitTimes,
                                              Boolean shallowPersons,
                                              Boolean shallowOrganisations,
-                                             Boolean shallowEventOrganisations,
-                                             Boolean shallowCups) {
+                                             Boolean shallowEventOrganisations) {
         EnumSet<EventConfig.ShallowEventLoads> shallowLoads = EnumSet.noneOf(EventConfig.ShallowEventLoads.class);
         if (shallowEventOrganisations) {
             shallowLoads.add(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS);
@@ -44,9 +43,6 @@ public class EventService {
         }
         if (shallowOrganisations) {
             shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
-        }
-        if (shallowCups) {
-            shallowLoads.add(EventConfig.ShallowEventLoads.CUPS);
         }
         if (shallowClassResults) {
             shallowLoads.add(EventConfig.ShallowEventLoads.CLASS_RESULTS);
@@ -82,21 +78,20 @@ public class EventService {
         return eventRepository.findAll(eventConfig);
     }
 
-    public Event updateEvent(EventId id, EventName name, DateTime startDate, Organisations organisations, Cups cups) {
+    public Event updateEvent(EventId id, EventName name, DateTime startDate, Organisations organisations) {
         EventConfig eventConfig = getEventConfig(true,
                 true,
                 true,
                 true,
                 true,
                 true,
-                false,
                 false);
         Optional<Event> optionalEvent = findById(id, eventConfig);
         if (optionalEvent.isEmpty()) {
             return null;
         }
         Event event = optionalEvent.get();
-        event.update(name, startDate, organisations, cups);
+        event.update(name, startDate, organisations);
         return eventRepository.save(event);
     }
 

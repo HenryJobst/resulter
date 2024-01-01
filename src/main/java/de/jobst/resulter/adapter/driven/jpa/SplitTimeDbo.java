@@ -28,10 +28,14 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
     @Column(name = "PUNCH_TIME")
     private Double punchTime;
 
-    public static SplitTimeDbo from(SplitTime splitTime, PersonRaceResultDbo personRaceResultDbo) {
-        SplitTimeDbo splitTimeDbo = new SplitTimeDbo();
+    public static SplitTimeDbo from(SplitTime splitTime, PersonRaceResultDbo personRaceResultDbo,
+                                    DboResolver<SplitTimeId, SplitTimeDbo> dboResolver,
+                                    DboResolvers dboResolverMap) {
+        SplitTimeDbo splitTimeDbo;
         if (splitTime.getId().value() != SplitTimeId.empty().value()) {
-            splitTimeDbo.setId(splitTime.getId().value());
+            splitTimeDbo = dboResolver.findDboById(splitTime.getId());
+        } else {
+            splitTimeDbo = new SplitTimeDbo();
         }
         splitTimeDbo.setPersonResultDbo(personRaceResultDbo);
         splitTimeDbo.setControlCode(splitTime.getControlCode().value());

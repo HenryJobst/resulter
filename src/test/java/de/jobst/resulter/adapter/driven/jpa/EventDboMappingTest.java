@@ -34,7 +34,13 @@ class EventDboMappingTest {
     public void domainToDatabaseEntityIsMappedCorrectly() {
         Event event = EventTestDataGenerator.getTestEvent();
 
-        EventDbo entity = EventDbo.from(event, null);
+        DboResolvers dboResolvers = new DboResolvers(
+                null,
+                null,
+                null,
+                null
+        );
+        EventDbo entity = EventDbo.from(event, (id) -> null, dboResolvers);
 
         assertThat(entity.getName()).isEqualTo(event.getName().value());
         assertThat(entity.getStartTime()).isEqualTo(event.getStartTime().value());
@@ -178,7 +184,6 @@ class EventDboMappingTest {
         } else {
             assertThat(entity.getClassResults()).isNull();
         }
-
 
     }
 }

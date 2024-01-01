@@ -4,7 +4,6 @@ import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.OrganisationType;
 import jakarta.persistence.*;
-import org.springframework.lang.Nullable;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -48,14 +47,26 @@ public class OrganisationDbo {
     @ManyToMany(mappedBy = "parentOrganisations", fetch = FetchType.LAZY)
     private Set<OrganisationDbo> childOrganisations = new HashSet<>();
 
-    public static OrganisationDbo from(Organisation organisation, @Nullable OrganisationDbo persistedOrganisationDbo) {
+    public static OrganisationDbo from(Organisation organisation,
+                                       DboResolver<OrganisationId, OrganisationDbo> dboResolver,
+                                       DboResolvers dboResolverMap) {
         if (null == organisation) {
             return null;
         }
-        OrganisationDbo organisationDbo = new OrganisationDbo();
+        OrganisationDbo organisationDbo;
+        OrganisationDbo persistedOrganisationDbo;
         if (organisation.getId().value() != OrganisationId.empty().value()) {
-            organisationDbo.setId(organisation.getId().value());
+            if (dboResolver != null) {
+                organisationDbo = dboResolver.findDboById(organisation.getId());
+            } else {
+                organisationDbo = dboResolverMap.organisationDboResolver().findDboById(organisation.getId());
+            }
+            persistedOrganisationDbo = organisationDbo;
+        } else {
+            organisationDbo = new OrganisationDbo();
+            persistedOrganisationDbo = null;
         }
+
         organisationDbo.setName(organisation.getName().value());
         organisationDbo.setShortName(organisation.getShortName().value());
 
@@ -76,7 +87,7 @@ public class OrganisationDbo {
                                                         .findFirst()
                                                         .orElse(null))
                                                 : null;
-                                return OrganisationDbo.from(it, persistedParentOrganisationDbo);
+                                return OrganisationDbo.from(it, (id) -> persistedParentOrganisationDbo, dboResolverMap);
                             })
                             .collect(Collectors.toSet()));
         } else if (persistedOrganisationDbo != null) {

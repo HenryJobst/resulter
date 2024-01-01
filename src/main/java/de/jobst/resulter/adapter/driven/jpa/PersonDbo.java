@@ -4,7 +4,6 @@ import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
 import jakarta.persistence.*;
-import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -36,13 +35,20 @@ public class PersonDbo {
     @OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
     private Set<PersonResultDbo> personResults = new HashSet<>();
 
-    public static PersonDbo from(Person person, @Nullable PersonDbo persistedPersonDbo) {
+    public static PersonDbo from(Person person, DboResolver<PersonId, PersonDbo> dboResolver,
+                                 DboResolvers dboResolverMap) {
         if (null == person) {
             return null;
         }
-        PersonDbo personDbo = new PersonDbo();
+        PersonDbo personDbo;
         if (person.getId().value() != PersonId.empty().value()) {
-            personDbo.setId(person.getId().value());
+            if (dboResolver != null) {
+                personDbo = dboResolver.findDboById(person.getId());
+            } else {
+                personDbo = dboResolverMap.personDboResolver().findDboById(person.getId());
+            }
+        } else {
+            personDbo = new PersonDbo();
         }
         personDbo.setFamilyName(person.getPersonName().familyName().value());
         personDbo.setGivenName(person.getPersonName().givenName().value());
@@ -57,43 +63,43 @@ public class PersonDbo {
         return Person.of(id, familyName, givenName, birthDate, gender);
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public long getId() {
         return id;
     }
 
-    public void setFamilyName(String familyName) {
-        this.familyName = familyName;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getFamilyName() {
         return familyName;
     }
 
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
+    public void setFamilyName(String familyName) {
+        this.familyName = familyName;
     }
 
     public String getGivenName() {
         return givenName;
     }
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
     }
 
     public Gender getGender() {
         return gender;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 
     public LocalDate getBirthDate() {
         return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 }

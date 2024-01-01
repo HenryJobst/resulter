@@ -131,7 +131,7 @@ public class EventController {
                     Cups.of(
                             eventDto.cups() == null ? new ArrayList<>() :
                                     Arrays.stream(eventDto.cups())
-                                            .map(it -> cupService.findById(CupId.of(it), CupConfig.empty())
+                                            .map(it -> cupService.findById(CupId.of(it), CupConfig.full())
                                                     .orElse(null))
                                             .filter(ObjectUtils::isNotEmpty)
                                             .toList()

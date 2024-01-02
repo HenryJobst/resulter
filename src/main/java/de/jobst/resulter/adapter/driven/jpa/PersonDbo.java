@@ -4,6 +4,8 @@ import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
 import jakarta.persistence.*;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -35,17 +37,19 @@ public class PersonDbo {
     @OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
     private Set<PersonResultDbo> personResults = new HashSet<>();
 
-    public static PersonDbo from(Person person, DboResolver<PersonId, PersonDbo> dboResolver,
-                                 DboResolvers dboResolverMap) {
+    public static PersonDbo from(Person person,
+                                 @Nullable DboResolver<PersonId, PersonDbo> dboResolver,
+                                 @NonNull DboResolvers dboResolvers) {
         if (null == person) {
             return null;
         }
-        PersonDbo personDbo;
+        PersonDbo personDbo = null;
         if (person.getId().value() != PersonId.empty().value()) {
             if (dboResolver != null) {
                 personDbo = dboResolver.findDboById(person.getId());
-            } else {
-                personDbo = dboResolverMap.personDboResolver().findDboById(person.getId());
+            }
+            if (personDbo == null) {
+                personDbo = dboResolvers.getPersonDboResolver().findDboById(person.getId());
             }
         } else {
             personDbo = new PersonDbo();

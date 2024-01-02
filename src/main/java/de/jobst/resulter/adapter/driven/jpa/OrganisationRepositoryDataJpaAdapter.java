@@ -27,11 +27,11 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
     @Override
     @Transactional
     public Organisation save(Organisation organisation) {
-        DboResolvers dboResolvers = new DboResolvers(null,
-                null,
-                null,
-                id -> organisationJpaRepository.findById(id.value()).orElse(null)
-        );
+        DboResolvers dboResolvers = DboResolvers.empty();
+        dboResolvers.setOrganisationDboResolver(
+                id -> organisationJpaRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setCountryDboResolver(
+                id -> countryJpaRepository.findById(id.value()).orElseThrow());
         OrganisationDbo organisationDbo = OrganisationDbo.from(organisation, null, dboResolvers);
         if (organisationDbo.getCountry() != null &&
                 Hibernate.isInitialized(organisationDbo.getCountry())) {

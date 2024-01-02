@@ -1,7 +1,9 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.adapter.TestConfig;
-import de.jobst.resulter.adapter.driven.jpa.*;
+import de.jobst.resulter.adapter.driven.jpa.EventRepositoryDataJpaAdapter;
+import de.jobst.resulter.adapter.driven.jpa.OrganisationRepositoryDataJpaAdapter;
+import de.jobst.resulter.adapter.driven.jpa.PersonRepositoryDataJpaAdapter;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventName;
 import de.jobst.resulter.domain.EventTestDataGenerator;
@@ -41,17 +43,8 @@ class EventServiceTest {
     @Transactional
     void testUpdateExistingEvent() {
 
-        DboResolvers dboResolvers = new DboResolvers(
-                null,
-                null,
-                null,
-                null
-        );
-
-        // Entität anlegen und wieder entladen
         Event event = EventTestDataGenerator.getTestEvent();
         Event savedEvent = eventService.findOrCreate(event);
-        entityManager.detach(EventDbo.from(savedEvent, (e) -> null, dboResolvers));
 
         Event changedEvent =
                 eventService.updateEvent(savedEvent.getId(),

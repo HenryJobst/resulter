@@ -27,29 +27,32 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     private final EntityManager entityManager;
     private final PersonJpaRepository personJpaRepository;
     private final OrganisationJpaRepository organisationJpaRepository;
+    private final CountryJpaRepository countryJpaRepository;
 
     public EventRepositoryDataJpaAdapter(EventJpaRepository eventJpaRepository, EntityManager entityManager,
                                          PersonJpaRepository personJpaRepository,
-                                         OrganisationJpaRepository organisationJpaRepository) {
+                                         OrganisationJpaRepository organisationJpaRepository,
+                                         CountryJpaRepository countryJpaRepository) {
         this.eventJpaRepository = eventJpaRepository;
         this.entityManager = entityManager;
         this.personJpaRepository = personJpaRepository;
         this.organisationJpaRepository = organisationJpaRepository;
+        this.countryJpaRepository = countryJpaRepository;
     }
 
     @Transactional
     public DboResolver<EventId, EventDbo> getIdResolver() {
-        return (EventId id) -> findDboById(id, EventConfig.full()).orElse(null);
+        return (EventId id) -> findDboById(id, EventConfig.full()).orElseThrow();
     }
 
     @Override
     @Transactional
     public Event save(Event event) {
-        DboResolvers dboResolvers = new DboResolvers(null,
-                getIdResolver(),
-                id -> personJpaRepository.findById(id.value()).orElse(null),
-                id -> organisationJpaRepository.findById(id.value()).orElse(null)
-        );
+        DboResolvers dboResolvers = DboResolvers.empty();
+        dboResolvers.setEventDboResolver(getIdResolver());
+        dboResolvers.setPersonDboResolver(id -> personJpaRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setOrganisationDboResolver(id -> organisationJpaRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setCountryDboResolver(id -> countryJpaRepository.findById(id.value()).orElseThrow());
         EventDbo eventEntity = EventDbo.from(event, null, dboResolvers);
         if (Hibernate.isInitialized(eventEntity.getClassResults())) {
             var personsToSave =
@@ -62,6 +65,21 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
                             .map(PersonResultDbo::getPerson)
                             .toList();
             personJpaRepository.saveAll(personsToSave);
+
+            var countriesToSave =
+                    eventEntity.getClassResults()
+                            .stream()
+                            .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
+                            .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
+                            .filter(personResultDbo -> personResultDbo.getOrganisation() != null &&
+                                    Hibernate.isInitialized(personResultDbo.getOrganisation()))
+                            .map(PersonResultDbo::getOrganisation)
+                            .filter(organisationDbo -> organisationDbo.getCountry() != null &&
+                                    Hibernate.isInitialized(organisationDbo.getCountry()))
+                            .map(OrganisationDbo::getCountry)
+                            .toList();
+            countryJpaRepository.saveAll(countriesToSave);
+
             var organisationsToSave =
                     eventEntity.getClassResults()
                             .stream()

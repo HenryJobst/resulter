@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,12 +37,17 @@ public class PersonResultDbo {
 
     public static PersonResultDbo from(@NonNull PersonResult personResult,
                                        @NonNull ClassResultDbo classResultDbo,
-                                       DboResolver<PersonResultId, PersonResultDbo> dboResolver,
-                                       DboResolvers dboResolverMap) {
-        PersonResultDbo personResultDbo;
+                                       @Nullable DboResolver<PersonResultId, PersonResultDbo> dboResolver,
+                                       @NonNull DboResolvers dboResolvers) {
+        PersonResultDbo personResultDbo = null;
         PersonResultDbo persistedPersonResultDbo;
         if (personResult.getId().value() != PersonResultId.empty().value()) {
-            personResultDbo = dboResolver.findDboById(personResult.getId());
+            if (dboResolver != null) {
+                personResultDbo = dboResolver.findDboById(personResult.getId());
+            }
+            if (personResultDbo == null) {
+                personResultDbo = dboResolvers.getPersonResultDboResolver().findDboById(personResult.getId());
+            }
             persistedPersonResultDbo = personResultDbo;
         } else {
             personResultDbo = new PersonResultDbo();
@@ -52,7 +58,7 @@ public class PersonResultDbo {
         if (personResult.getPerson().isLoaded()) {
             PersonDbo persistedPersonDbo = persistedPersonResultDbo != null ? persistedPersonResultDbo.person : null;
             personResultDbo.setPerson(PersonDbo.from(personResult.getPerson().get(),
-                    (id) -> persistedPersonDbo, dboResolverMap));
+                    (id) -> persistedPersonDbo, dboResolvers));
         } else if (persistedPersonResultDbo != null) {
             personResultDbo.setPerson(persistedPersonResultDbo.getPerson());
         } else if (personResult.getId().isPersistent()) {
@@ -63,7 +69,7 @@ public class PersonResultDbo {
             OrganisationDbo persistedOrganisationDbo =
                     persistedPersonResultDbo != null ? persistedPersonResultDbo.getOrganisation() : null;
             personResultDbo.setOrganisation(OrganisationDbo.from(personResult.getOrganisation().get(),
-                    (id) -> persistedOrganisationDbo, dboResolverMap));
+                    (id) -> persistedOrganisationDbo, dboResolvers));
         } else if (persistedPersonResultDbo != null) {
             personResultDbo.setOrganisation(persistedPersonResultDbo.getOrganisation());
         } else if (personResult.getId().isPersistent()) {
@@ -71,6 +77,7 @@ public class PersonResultDbo {
         }
 
         if (personResult.getPersonRaceResults().isLoaded()) {
+            PersonResultDbo finalPersonResultDbo = personResultDbo;
             personResultDbo.setPersonRaceResults(personResult.getPersonRaceResults().get()
                     .value()
                     .stream()
@@ -84,8 +91,8 @@ public class PersonResultDbo {
                                                 .orElse(null))
                                         : null;
                         return PersonRaceResultDbo.from(it,
-                                personResultDbo,
-                                (id) -> persistedPersonRaceResultDbo, dboResolverMap);
+                                finalPersonResultDbo,
+                                (id) -> persistedPersonRaceResultDbo, dboResolvers);
                     })
                     .collect(Collectors.toSet()));
         } else if (persistedPersonResultDbo != null) {

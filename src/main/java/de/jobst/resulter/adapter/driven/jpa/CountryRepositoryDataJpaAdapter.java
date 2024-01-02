@@ -23,14 +23,11 @@ public class CountryRepositoryDataJpaAdapter implements CountryRepository {
     @Override
     @Transactional
     public Country save(Country country) {
-        /*
-        CountryDbo persisted =
-                country.getId().isPersistent() ?
-                        countryJpaRepository.findById(country.getId().value()).orElse(null) :
-                        null;
-
-         */
-        CountryDbo countryEntity = CountryDbo.from(country);
+        DboResolvers dboResolvers = DboResolvers.empty();
+        dboResolvers.setCountryDboResolver(
+                (id) -> countryJpaRepository.findById(id.value()).orElseThrow()
+        );
+        CountryDbo countryEntity = CountryDbo.from(country, null, dboResolvers);
         CountryDbo savedCountryEntity = countryJpaRepository.save(countryEntity);
         return savedCountryEntity.asCountry();
     }

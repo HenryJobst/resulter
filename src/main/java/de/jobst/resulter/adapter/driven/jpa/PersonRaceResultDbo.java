@@ -4,6 +4,7 @@ import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -44,12 +45,18 @@ public class PersonRaceResultDbo {
 
     public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult,
                                            @NonNull PersonResultDbo personResultDbo,
-                                           @NonNull DboResolver<PersonRaceResultId, PersonRaceResultDbo> dboResolver,
-                                           DboResolvers dboResolverMap) {
-        PersonRaceResultDbo personRaceResultDbo;
+                                           @Nullable DboResolver<PersonRaceResultId, PersonRaceResultDbo> dboResolver,
+                                           @NonNull DboResolvers dboResolvers) {
+        PersonRaceResultDbo personRaceResultDbo = null;
         PersonRaceResultDbo persistedPersonRaceResultDbo;
         if (personRaceResult.getId().value() != PersonRaceResultId.empty().value()) {
-            personRaceResultDbo = dboResolver.findDboById(personRaceResult.getId());
+            if (dboResolver != null) {
+                personRaceResultDbo = dboResolver.findDboById(personRaceResult.getId());
+            }
+            if (personRaceResultDbo == null) {
+                personRaceResultDbo =
+                        dboResolvers.getPersonRaceResultDboResolver().findDboById(personRaceResult.getId());
+            }
             persistedPersonRaceResultDbo = personRaceResultDbo;
         } else {
             personRaceResultDbo = new PersonRaceResultDbo();
@@ -76,6 +83,7 @@ public class PersonRaceResultDbo {
             personRaceResultDbo.setState(personRaceResult.getState());
         }
         if (personRaceResult.getSplitTimes().isLoaded()) {
+            PersonRaceResultDbo finalPersonRaceResultDbo = personRaceResultDbo;
             personRaceResultDbo.setSplitTimes(personRaceResult.getSplitTimes().get()
                     .value()
                     .stream()
@@ -89,9 +97,9 @@ public class PersonRaceResultDbo {
                                                 .orElse(null))
                                         : null;
                         return SplitTimeDbo.from(it,
-                                personRaceResultDbo,
+                                finalPersonRaceResultDbo,
                                 (id) -> persistedSplitTimeDbo,
-                                dboResolverMap);
+                                dboResolvers);
                     })
                     .collect(Collectors.toSet()));
         } else if (persistedPersonRaceResultDbo != null) {

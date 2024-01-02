@@ -49,7 +49,8 @@ public class EventTestDataGenerator {
                         FamilyName.of(familyName), GivenName.of(givenName),
                         birthDate,
                         personGender),
-                Organisation.of(clubName, clubShortName, Country.of(1L, "GER", "GER")),
+                Organisation.of(clubName, clubShortName,
+                        Country.of(CountryId.empty().value(), "NED", "NED")), // need to be a not existing one
                 personRaceResults));
 
         Collection<ClassResult> classResults = new ArrayList<>();

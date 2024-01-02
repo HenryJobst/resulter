@@ -4,6 +4,7 @@ import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,12 +38,17 @@ public class ClassResultDbo {
 
     public static ClassResultDbo from(ClassResult classResult,
                                       EventDbo eventDbo,
-                                      @NonNull DboResolver<ClassResultId, ClassResultDbo> dboResolver,
-                                      @NonNull DboResolvers dboResolverMap) {
-        ClassResultDbo classResultDbo;
+                                      @Nullable DboResolver<ClassResultId, ClassResultDbo> dboResolver,
+                                      @NonNull DboResolvers dboResolvers) {
+        ClassResultDbo classResultDbo = null;
         ClassResultDbo persistedClassResultDbo;
         if (classResult.getId().value() != ClassResultId.empty().value()) {
-            classResultDbo = dboResolver.findDboById(classResult.getId());
+            if (dboResolver != null) {
+                classResultDbo = dboResolver.findDboById(classResult.getId());
+            }
+            if (classResultDbo == null) {
+                classResultDbo = dboResolvers.getClassResultDboResolver().findDboById(classResult.getId());
+            }
             persistedClassResultDbo = classResultDbo;
         } else {
             classResultDbo = new ClassResultDbo();
@@ -55,6 +61,7 @@ public class ClassResultDbo {
         }
         classResultDbo.setGender(classResult.getGender());
         if (classResult.getPersonResults().isLoaded()) {
+            ClassResultDbo finalClassResultDbo = classResultDbo;
             classResultDbo.setPersonResults(
                     Objects.requireNonNull(classResult.getPersonResults())
                             .get().value()
@@ -69,9 +76,9 @@ public class ClassResultDbo {
                                                         .orElse(null))
                                                 : null;
                                 return PersonResultDbo.from(it,
-                                        classResultDbo,
+                                        finalClassResultDbo,
                                         (id) -> persistedPersonResultDbo,
-                                        dboResolverMap);
+                                        dboResolvers);
                             })
                             .collect(Collectors.toSet()));
         } else if (persistedClassResultDbo != null) {

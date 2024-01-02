@@ -46,14 +46,15 @@ public class EventDbo {
 
     public static EventDbo from(@NonNull Event event,
                                 DboResolver<EventId, EventDbo> dboResolver,
-                                @NonNull DboResolvers dboResolverMap) {
-        EventDbo eventDbo;
+                                @NonNull DboResolvers dboResolvers) {
+        EventDbo eventDbo = null;
         EventDbo persistedEventDbo;
         if (event.getId().value() != EventId.empty().value()) {
             if (dboResolver != null) {
-                eventDbo = dboResolverMap.eventDboResolver().findDboById(event.getId());
-            } else {
-                eventDbo = dboResolverMap.eventDboResolver().findDboById(event.getId());
+                eventDbo = dboResolver.findDboById(event.getId());
+            }
+            if (eventDbo == null) {
+                eventDbo = dboResolvers.getEventDboResolver().findDboById(event.getId());
             }
             persistedEventDbo = eventDbo;
         } else {
@@ -71,6 +72,7 @@ public class EventDbo {
         }
 
         if (event.getClassResults().isLoaded()) {
+            EventDbo finalEventDbo = eventDbo;
             eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults().get())
                     .value().stream().map(it -> {
                         ClassResultDbo
@@ -82,8 +84,8 @@ public class EventDbo {
                                                 .findFirst()
                                                 .orElse(null) :
                                         null;
-                        return ClassResultDbo.from(it, eventDbo, (id) -> persistedClassResultDbo,
-                                dboResolverMap);
+                        return ClassResultDbo.from(it, finalEventDbo, (id) -> persistedClassResultDbo,
+                                dboResolvers);
                     }).collect(Collectors.toSet()));
         } else if (persistedEventDbo != null) {
             eventDbo.setClassResults(persistedEventDbo.getClassResults());
@@ -102,7 +104,7 @@ public class EventDbo {
                                                 .findFirst()
                                                 .orElse(null))
                                         : null;
-                        return OrganisationDbo.from(it, (id) -> persistedOrganisationDbo, dboResolverMap);
+                        return OrganisationDbo.from(it, (id) -> persistedOrganisationDbo, dboResolvers);
                     }).collect(Collectors.toSet()));
         } else if (persistedEventDbo != null) {
             eventDbo.setOrganisations(persistedEventDbo.getOrganisations());

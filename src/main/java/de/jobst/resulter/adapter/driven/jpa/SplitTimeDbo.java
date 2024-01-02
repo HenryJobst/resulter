@@ -5,6 +5,7 @@ import de.jobst.resulter.domain.SplitTime;
 import de.jobst.resulter.domain.SplitTimeId;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -29,11 +30,16 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
     private Double punchTime;
 
     public static SplitTimeDbo from(SplitTime splitTime, PersonRaceResultDbo personRaceResultDbo,
-                                    DboResolver<SplitTimeId, SplitTimeDbo> dboResolver,
-                                    DboResolvers dboResolverMap) {
-        SplitTimeDbo splitTimeDbo;
+                                    @Nullable DboResolver<SplitTimeId, SplitTimeDbo> dboResolver,
+                                    @NonNull DboResolvers dboResolvers) {
+        SplitTimeDbo splitTimeDbo = null;
         if (splitTime.getId().value() != SplitTimeId.empty().value()) {
-            splitTimeDbo = dboResolver.findDboById(splitTime.getId());
+            if (dboResolver != null) {
+                splitTimeDbo = dboResolver.findDboById(splitTime.getId());
+            }
+            if (splitTimeDbo == null) {
+                splitTimeDbo = dboResolvers.getSplitTimeDboResolver().findDboById(splitTime.getId());
+            }
         } else {
             splitTimeDbo = new SplitTimeDbo();
         }

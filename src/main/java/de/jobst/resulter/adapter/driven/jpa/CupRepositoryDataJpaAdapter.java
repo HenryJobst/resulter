@@ -37,18 +37,10 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
     @Override
     @Transactional
     public Cup save(Cup cup) {
-        DboResolvers dboResolvers = new DboResolvers(
-                id -> cupJpaRepository.findById(id.value()).orElse(null),
-                null,
-                null,
-                null
-        );
-        CupDbo
-                persistedCupDbo =
-                cup.getId().value() != CupId.empty().value() ?
-                        findDboById(cup.getId(), CupConfig.full()).orElse(null) :
-                        null;
-        CupDbo cupDbo = CupDbo.from(cup, dboResolvers);
+        DboResolvers dboResolvers = DboResolvers.empty();
+        dboResolvers.setCupDboDboResolver(
+                id -> cupJpaRepository.findById(id.value()).orElseThrow());
+        CupDbo cupDbo = CupDbo.from(cup, null, dboResolvers);
         CupDbo savedCupEntity = cupJpaRepository.save(cupDbo);
         return CupDbo.asCup(CupConfig.empty(), savedCupEntity);
     }

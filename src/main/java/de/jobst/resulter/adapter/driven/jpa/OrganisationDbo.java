@@ -4,6 +4,8 @@ import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.OrganisationType;
 import jakarta.persistence.*;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -48,18 +50,19 @@ public class OrganisationDbo {
     private Set<OrganisationDbo> childOrganisations = new HashSet<>();
 
     public static OrganisationDbo from(Organisation organisation,
-                                       DboResolver<OrganisationId, OrganisationDbo> dboResolver,
-                                       DboResolvers dboResolverMap) {
+                                       @Nullable DboResolver<OrganisationId, OrganisationDbo> dboResolver,
+                                       @NonNull DboResolvers dboResolvers) {
         if (null == organisation) {
             return null;
         }
-        OrganisationDbo organisationDbo;
+        OrganisationDbo organisationDbo = null;
         OrganisationDbo persistedOrganisationDbo;
         if (organisation.getId().value() != OrganisationId.empty().value()) {
             if (dboResolver != null) {
                 organisationDbo = dboResolver.findDboById(organisation.getId());
-            } else {
-                organisationDbo = dboResolverMap.organisationDboResolver().findDboById(organisation.getId());
+            }
+            if (organisationDbo == null) {
+                organisationDbo = dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId());
             }
             persistedOrganisationDbo = organisationDbo;
         } else {
@@ -71,7 +74,11 @@ public class OrganisationDbo {
         organisationDbo.setShortName(organisation.getShortName().value());
 
         organisationDbo.setType(organisation.getType());
-        organisationDbo.setCountry(CountryDbo.from(organisation.getCountry().get()));
+        organisationDbo.setCountry(CountryDbo.from(organisation.getCountry().get(),
+                (id) ->
+                        persistedOrganisationDbo != null ?
+                                persistedOrganisationDbo.getCountry() : null,
+                dboResolvers));
 
         if (organisation.getParentOrganisations().isLoaded()) {
             organisationDbo.setParentOrganisations(
@@ -87,7 +94,7 @@ public class OrganisationDbo {
                                                         .findFirst()
                                                         .orElse(null))
                                                 : null;
-                                return OrganisationDbo.from(it, (id) -> persistedParentOrganisationDbo, dboResolverMap);
+                                return OrganisationDbo.from(it, (id) -> persistedParentOrganisationDbo, dboResolvers);
                             })
                             .collect(Collectors.toSet()));
         } else if (persistedOrganisationDbo != null) {

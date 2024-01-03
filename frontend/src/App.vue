@@ -52,6 +52,11 @@ watch(currentLocale, (val) => {
               </router-link>
             </li>
             <li class="mr-4">
+              <router-link :to="{ name: 'cup-list', params: { locale } }">
+                {{ t('navigations.cups') }}
+              </router-link>
+            </li>
+            <li class="mr-4">
               <router-link :to="{ name: 'event-list', params: { locale } }">
                 {{ t('navigations.events') }}
               </router-link>

@@ -14,6 +14,8 @@ defaultDate.setHours(11)
 
 const formData = ref<Organisation | Omit<Organisation, 'id'>>({
   name: '',
+  shortName: '',
+  type: '',
   organisations: []
 })
 
@@ -39,7 +41,7 @@ const formSubmitHandler = () => {
 </script>
 
 <template>
-  <form @submit.prorganisation="formSubmitHandler">
+  <form @submit.prevent="formSubmitHandler">
     <div class="flex flex-col">
       <div class="flex flex-row">
         <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>

@@ -7,6 +7,7 @@
   "navigations": {
     "start": "Start",
     "about": "About",
+    "cups": "Cups",
     "events": "Events",
     "organisations": "Organisations",
     "persons": "Persons",
@@ -47,6 +48,7 @@
     "cup": "No cup | Cup | Cups"
   },
   "messages": {
+    "edit_cup": "Edit cup with ID {id}",
     "edit_event": "Edit event with ID {id}",
     "new_event": "New event",
     "import_event": "Import new event",

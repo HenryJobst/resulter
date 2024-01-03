@@ -3,4 +3,5 @@ export interface Organisation {
   name: string
   shortName: string
   type: string
+  organisations: Organisation[]
 }

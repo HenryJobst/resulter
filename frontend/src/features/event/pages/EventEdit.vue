@@ -20,9 +20,6 @@ const eventSubmitHandler = (event: Event) => {
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const router = useRouter()
-const redirectBack = async () => {
-  await router.replace({ name: 'event-list' })
-}
 </script>
 
 <template>
@@ -45,7 +42,7 @@ const redirectBack = async () => {
         type="reset"
         :label="t('labels.back')"
         outlined
-        @click="redirectBack"
+        @click="router.back()"
       ></Button>
     </EventForm>
   </div>

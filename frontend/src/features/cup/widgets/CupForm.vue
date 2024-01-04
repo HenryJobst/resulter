@@ -31,7 +31,7 @@ const eventQuery = useQuery({
 const emit = defineEmits(['cupSubmit'])
 
 const formSubmitHandler = () => {
-  // console.log(formData.value)
+  //console.log(formData.value)
   emit('cupSubmit', formData.value)
 }
 </script>
@@ -48,7 +48,7 @@ const formSubmitHandler = () => {
       <div class="flex flex-row">
         <label for="type" class="col-fixed w-32">{{ t('labels.type') }}</label>
         <div class="col">
-          <InputText v-model="formData.type" type="text" id="type"></InputText>
+          <InputText disabled="true" v-model="formData.type" type="text" id="type"></InputText>
         </div>
       </div>
       <div class="flex flex-row">
@@ -64,9 +64,9 @@ const formSubmitHandler = () => {
               id="events"
               v-model="formData.events"
               :options="eventQuery.data.value"
+              data-key="id"
               filter
               optionLabel="name"
-              option-value="id"
               :placeholder="t('messages.select')"
               class="w-full md:w-20rem"
             />

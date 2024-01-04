@@ -1,10 +1,7 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.CupRepository;
-import de.jobst.resulter.domain.Cup;
-import de.jobst.resulter.domain.CupConfig;
-import de.jobst.resulter.domain.CupId;
-import de.jobst.resulter.domain.EventConfig;
+import de.jobst.resulter.domain.*;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -40,5 +37,18 @@ public class CupService {
             shallowLoads.add(CupConfig.ShallowCupLoads.EVENTS);
         }
         return CupConfig.of(shallowLoads, eventConfig);
+    }
+
+    public Cup updateCup(CupId id, CupName name, CupType type, Events events) {
+
+        EventConfig eventConfig = EventConfig.empty();
+        CupConfig cupConfig = getCupConfig(false, eventConfig);
+        Optional<Cup> optionalCup = findById(id, cupConfig);
+        if (optionalCup.isEmpty()) {
+            return null;
+        }
+        Cup cup = optionalCup.get();
+        cup.update(name, type, events);
+        return cupRepository.save(cup);
     }
 }

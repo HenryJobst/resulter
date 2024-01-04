@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
+import Dropdown from 'primevue/dropdown'
 import type { Cup } from '@/features/cup/model/cup'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -34,6 +35,12 @@ const formSubmitHandler = () => {
   //console.log(formData.value)
   emit('cupSubmit', formData.value)
 }
+
+const cupTypes = ref([
+  { name: 'NOR', code: 'NOR' },
+  { name: 'Kristall', code: 'KRISTALL' },
+  { name: 'Nebel', code: 'NEBEL' }
+])
 </script>
 
 <template>
@@ -48,7 +55,15 @@ const formSubmitHandler = () => {
       <div class="flex flex-row">
         <label for="type" class="col-fixed w-32">{{ t('labels.type') }}</label>
         <div class="col">
-          <InputText disabled="true" v-model="formData.type" type="text" id="type"></InputText>
+          <Dropdown
+            id="type"
+            v-model="formData.type"
+            :options="cupTypes"
+            optionLabel="code"
+            data-key="code"
+            :placeholder="t('messages.select')"
+            class="w-full md:w-14rem"
+          />
         </div>
       </div>
       <div class="flex flex-row">

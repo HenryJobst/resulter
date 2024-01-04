@@ -13,7 +13,7 @@ import java.util.Collection;
 
 
 @Getter
-public class Event {
+public class Event implements Comparable<Event> {
     @NonNull
     @Setter
     private EventId id;
@@ -98,5 +98,10 @@ public class Event {
         this.name = eventName;
         this.startTime = startTime;
         this.organisations = organisations != null ? ShallowLoadProxy.of(organisations) : ShallowLoadProxy.empty();
+    }
+
+    @Override
+    public int compareTo(@NonNull Event o) {
+        return name.compareTo(o.name);
     }
 }

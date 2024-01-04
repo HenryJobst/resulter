@@ -11,14 +11,15 @@ public record CupDto(Long id,
                      String type,
                      List<EventDto> events) {
     static public CupDto from(Cup cup) {
-        return new CupDto(
+        CupDto cupDto = new CupDto(
                 ObjectUtils.isNotEmpty(cup.getId()) ?
                         cup.getId().value() : 0,
                 cup.getName().value(),
                 cup.getType().value(),
                 cup.getEvents().isLoaded() ?
-                        cup.getEvents().get().value().stream().map(EventDto::from).sorted().toList() :
+                        cup.getEvents().get().value().stream().sorted().map(EventDto::from).toList() :
                         new ArrayList<>()
         );
+        return cupDto;
     }
 }

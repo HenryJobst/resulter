@@ -16,6 +16,16 @@ export class CupService {
       })
   }
 
+  static async getById(id: string, t: (key: string) => string): Promise<Cup> {
+    return await axiosInstance
+      .get(url + '/' + id)
+      .then((response) => response.data)
+      .catch((error) => {
+        handleApiError(error, t)
+        return null
+      })
+  }
+
   static async getResultsById(id: string): Promise<CupResults> {
     const response = await axiosInstance.get(url + '/' + id + '/results')
     return response.data
@@ -30,4 +40,12 @@ export class CupService {
         return null
       })
   }
+
+  /*
+    static async create(event: Omit<Event, 'id'>): Promise<Event> {
+      const response = await axiosInstance.post(url, event)
+      return response.data
+    }
+  
+   */
 }

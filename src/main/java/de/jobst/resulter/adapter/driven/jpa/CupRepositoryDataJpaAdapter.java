@@ -23,10 +23,13 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
 
     private final CupJpaRepository cupJpaRepository;
     private final EntityManager entityManager;
+    private final EventJpaRepository eventJpaRepository;
 
-    public CupRepositoryDataJpaAdapter(CupJpaRepository cupJpaRepository, EntityManager entityManager) {
+    public CupRepositoryDataJpaAdapter(CupJpaRepository cupJpaRepository, EntityManager entityManager,
+                                       EventJpaRepository eventJpaRepository) {
         this.cupJpaRepository = cupJpaRepository;
         this.entityManager = entityManager;
+        this.eventJpaRepository = eventJpaRepository;
     }
 
     @Transactional
@@ -37,9 +40,13 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
     @Override
     @Transactional
     public Cup save(Cup cup) {
+
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setCupDboDboResolver(
                 id -> cupJpaRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setEventDboResolver(
+                id -> eventJpaRepository.findById(id.value()).orElseThrow());
+
         CupDbo cupDbo = CupDbo.from(cup, null, dboResolvers);
         CupDbo savedCupEntity = cupJpaRepository.save(cupDbo);
         return CupDbo.asCup(CupConfig.empty(), savedCupEntity);

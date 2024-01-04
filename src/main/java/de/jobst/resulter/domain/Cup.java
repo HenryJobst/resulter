@@ -1,6 +1,7 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ShallowLoadProxy;
+import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
@@ -14,9 +15,9 @@ public class Cup implements Comparable<Cup> {
     @Setter
     private CupId id;
     @NonNull
-    private final CupName name;
+    private CupName name;
     @NonNull
-    private final CupType type;
+    private CupType type;
 
     @NonNull
     @Setter
@@ -47,5 +48,12 @@ public class Cup implements Comparable<Cup> {
     @Override
     public int compareTo(@NonNull Cup o) {
         return name.compareTo(o.name);
+    }
+
+    public void update(CupName name, CupType type, Events events) {
+        ValueObjectChecks.requireNotNull(name);
+        this.name = name;
+        this.type = type;
+        this.setEvents(ShallowLoadProxy.of(events));
     }
 }

@@ -7,12 +7,13 @@ import { useI18n } from 'vue-i18n'
 import MultiSelect from 'primevue/multiselect'
 import { useQuery } from '@tanstack/vue-query'
 import { EventService } from '@/features/event/services/event.service'
+import { CupService } from '@/features/cup/services/cup.service'
 
 const { t } = useI18n()
 
 const formData = ref<Cup | Omit<Cup, 'id'>>({
   name: '',
-  type: '',
+  type: { id: 'ADD' },
   events: []
 })
 
@@ -29,18 +30,17 @@ const eventQuery = useQuery({
   queryFn: () => EventService.getAll()
 })
 
+const cupTypesQuery = useQuery({
+  queryKey: ['cuptypes'],
+  queryFn: () => CupService.getCupTypes(t)
+})
+
 const emit = defineEmits(['cupSubmit'])
 
 const formSubmitHandler = () => {
   //console.log(formData.value)
   emit('cupSubmit', formData.value)
 }
-
-const cupTypes = ref([
-  { name: 'NOR', code: 'NOR' },
-  { name: 'Kristall', code: 'KRISTALL' },
-  { name: 'Nebel', code: 'NEBEL' }
-])
 </script>
 
 <template>
@@ -55,12 +55,17 @@ const cupTypes = ref([
       <div class="flex flex-row">
         <label for="type" class="col-fixed w-32">{{ t('labels.type') }}</label>
         <div class="col">
+          <span v-if="cupTypesQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+          <span v-else-if="cupTypesQuery.status.value === 'error'">
+            {{ t('messages.error', { message: cupTypesQuery.error.toLocaleString() }) }}
+          </span>
           <Dropdown
+            v-else-if="cupTypesQuery.data"
             id="type"
             v-model="formData.type"
-            :options="cupTypes"
-            optionLabel="code"
-            data-key="code"
+            :options="cupTypesQuery.data.value"
+            optionLabel="id"
+            data-key="id"
             :placeholder="t('messages.select')"
             class="w-full md:w-14rem"
           />
@@ -73,7 +78,6 @@ const cupTypes = ref([
           <span v-else-if="eventQuery.status.value === 'error'">
             {{ t('messages.error', { message: eventQuery.error.toLocaleString() }) }}
           </span>
-
           <div v-else-if="eventQuery.data" class="card">
             <MultiSelect
               id="events"

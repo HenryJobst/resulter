@@ -52,7 +52,7 @@ const cupQuery = useQuery({
     <div v-else-if="cupQuery?.data" class="card">
       <DataTable :value="cupQuery?.data.value" class="p-datatable-sm">
         <Column field="name" :header="t('labels.name')" />
-        <Column field="type" :header="t('labels.type')" />
+        <Column field="type.id" :header="t('labels.type')" />
         <Column :header="t('labels.event', 2)">
           <template #body="slotProps">
             {{ slotProps.data.events.length }}

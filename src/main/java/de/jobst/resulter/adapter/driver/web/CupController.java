@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.CupDto;
+import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.application.CupService;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.domain.*;
@@ -11,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -28,6 +26,20 @@ public class CupController {
     public CupController(CupService cupService, EventService eventService) {
         this.cupService = cupService;
         this.eventService = eventService;
+    }
+
+    @GetMapping("/cuptypes")
+    public ResponseEntity<List<CupTypeDto>> handleCupTypes() {
+        try {
+            List<CupTypeDto> cupTypes = Arrays.stream(CupType.values()).map(CupTypeDto::from).toList();
+            return ResponseEntity.ok(cupTypes);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            if (Objects.nonNull(e.getCause())) {
+                log.error(e.getCause().getMessage());
+            }
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/cup")
@@ -118,7 +130,7 @@ public class CupController {
             Cup cup = cupService.updateCup(
                     CupId.of(id),
                     CupName.of(cupDto.name()),
-                    CupType.fromValue(cupDto.type()),
+                    CupType.fromValue(cupDto.type().id()),
                     Events.of(
                             cupDto.events() == null ? new ArrayList<>() :
                                     cupDto.events().stream()

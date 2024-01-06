@@ -28,7 +28,7 @@ export class CupService {
       })
   }
 
-  static async getById(id: string, t: (key: string) => string): Promise<Cup> {
+  static async getById(id: number, t: (key: string) => string): Promise<Cup> {
     return await axiosInstance
       .get(url + '/' + id)
       .then((response) => response.data)

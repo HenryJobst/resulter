@@ -10,32 +10,33 @@ import { CupService } from '@/features/cup/services/cup.service'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
 
-const props = defineProps<{ id: string; locale?: string }>()
+const props = defineProps<{ id: number; locale?: string }>()
 const authStore = useAuthStore()
 
 const { t } = useI18n()
 
-const cupQuery = useQuery({
-  queryKey: ['cups', props.id],
-  queryFn: () => CupService.getById(props.id, t)
-})
-
 const queryClient = useQueryClient()
 
-queryClient.invalidateQueries({ queryKey: ['cups', props.id] })
-
-const cupMutation = useMutation({
-  mutationFn: (cup: Cup) => CupService.update(cup, t),
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['cups'] })
-  }
+const cupQuery = useQuery({
+  queryKey: ['cups', { id: props.id }],
+  queryFn: () => CupService.getById(props.id, t),
+  initialData: () => queryClient.getQueryData<Cup[]>(['cups'])?.find((cup) => cup.id === props.id),
+  initialDataUpdatedAt: () => queryClient.getQueryState(['cups'])?.dataUpdatedAt
 })
 
 const router = useRouter()
 
+const cupMutation = useMutation({
+  mutationFn: (cup: Cup) => CupService.update(cup, t),
+  onSuccess: (cup) => {
+    queryClient.setQueryData(['cups', { id: props.id }], cup)
+    queryClient.invalidateQueries({ queryKey: ['cups'] })
+    router.back()
+  }
+})
+
 const cupSubmitHandler = (cup: Cup) => {
   cupMutation.mutate(cup)
-  router.back()
 }
 </script>
 

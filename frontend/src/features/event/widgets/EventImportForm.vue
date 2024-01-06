@@ -7,7 +7,6 @@ import { useToast } from 'primevue/usetoast'
 import FileUpload from 'primevue/fileupload'
 import ProgressBar from 'primevue/progressbar'
 import Badge from 'primevue/badge'
-import Toast from 'primevue/toast'
 import Button from 'primevue/button'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
@@ -74,7 +73,7 @@ const onTemplatedUpload = () => {
   toast.add({
     severity: 'info',
     summary: t('messages.success'),
-    detail: t('messages.uploaded'),
+    detail: t('messages.event_uploaded'),
     life: 5000
   })
 }
@@ -107,7 +106,6 @@ const formatSize = (bytes: number): string => {
   <form @submit.prevent="formSubmitHandler">
     <div class="flex flex-col">
       <div class="card">
-        <Toast />
         <FileUpload
           name="file"
           :url="url"

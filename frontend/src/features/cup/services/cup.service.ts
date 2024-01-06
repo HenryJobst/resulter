@@ -53,11 +53,23 @@ export class CupService {
       })
   }
 
-  /*
-    static async create(event: Omit<Event, 'id'>): Promise<Event> {
-      const response = await axiosInstance.post(url, event)
-      return response.data
-    }
+  static async create(cup: Omit<Cup, 'id'>, t: (key: string) => string): Promise<Cup> {
+    return await axiosInstance
+      .post(url, cup)
+      .then((response) => response.data)
+      .catch((error) => {
+        handleApiError(error, t)
+        return null
+      })
+  }
   
-   */
+  static async deleteById(id: number | string, t: (key: string) => string) {
+    return await axiosInstance
+      .delete(url + '/' + id)
+      .then((response) => response.data)
+      .catch((error) => {
+        handleApiError(error, t)
+        return null
+      })
+  }
 }

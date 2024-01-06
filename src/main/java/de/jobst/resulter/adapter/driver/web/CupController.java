@@ -8,6 +8,7 @@ import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,10 +35,7 @@ public class CupController {
             List<CupTypeDto> cupTypes = Arrays.stream(CupType.values()).map(CupTypeDto::from).toList();
             return ResponseEntity.ok(cupTypes);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -74,10 +72,7 @@ public class CupController {
             List<Cup> cups = cupService.findAll(cupConfig);
             return ResponseEntity.ok(cups.stream().map(CupDto::from).toList());
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -116,10 +111,7 @@ public class CupController {
             return cup.map(value -> ResponseEntity.ok(CupDto.from(value)))
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -145,18 +137,75 @@ public class CupController {
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+        } catch (DataIntegrityViolationException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (IllegalArgumentException e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/cup")
+    public ResponseEntity<CupDto> createCup(@RequestBody CupDto cupDto) {
+        try {
+            Cup cup = cupService.createCup(
+                    cupDto.name(),
+                    CupType.fromValue(cupDto.type().id()),
+                    Events.of(
+                            cupDto.events() == null ? new ArrayList<>() :
+                                    cupDto.events().stream()
+                                            .map(it -> eventService.findById(EventId.of(it.id()), EventConfig.empty())
+                                                    .orElse(null))
+                                            .filter(ObjectUtils::isNotEmpty)
+                                            .toList()
+                    )
+            );
+            if (null != cup) {
+                return ResponseEntity.ok(CupDto.from(cup));
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (DataIntegrityViolationException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/cup/{id}")
+    public ResponseEntity<Boolean> deleteCup(@PathVariable Long id) {
+        try {
+            boolean success = cupService.deleteCup(CupId.of(id));
+            if (success) {
+                return ResponseEntity.ok(Boolean.TRUE);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (DataIntegrityViolationException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static void logError(Exception e) {
+        log.error(e.getMessage());
+        if (Objects.nonNull(e.getCause())) {
+            log.error(e.getCause().getMessage());
         }
     }
 }

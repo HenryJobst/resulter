@@ -47,6 +47,15 @@ public class InMemoryCupRepository implements CupRepository {
                 .orElseGet(() -> save(cup));
     }
 
+    @Override
+    public void deleteCup(Cup cup) {
+        if (ObjectUtils.isEmpty(cup.getId()) || cup.getId().value() == 0) {
+            return;
+        }
+        cups.remove(cup.getId());
+        savedCups.remove(cup);
+    }
+
     @SuppressWarnings("unused")
     public List<Cup> savedCups() {
         return savedCups;

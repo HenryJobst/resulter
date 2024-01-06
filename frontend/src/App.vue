@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { SUPPORT_LOCALES } from './i18n'
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
+import Toast from 'primevue/toast'
 
 const router = useRouter()
 const { t, locale } = useI18n()
@@ -114,6 +115,7 @@ watch(currentLocale, (val) => {
     </header>
 
     <div class="flex-1 m-4">
+      <Toast />
       <router-view />
       <VueQueryDevtools />
     </div>

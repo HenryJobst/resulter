@@ -12,6 +12,10 @@ class ForbiddenException extends Error {
   /* ... */
 }
 
+class ConflictException extends Error {
+  /* ... */
+}
+
 class InternalServerErrorException extends Error {
   /* ... */
 }
@@ -31,6 +35,10 @@ export function handleApiError(error: unknown, t: (key: string, object: any) => 
       case 403:
         throw new ForbiddenException(
           t('errors.forbidden', { name: error.name, message: error.message })
+        )
+      case 409:
+        throw new ConflictException(
+          t('errors.conflict', { name: error.name, message: error.message })
         )
       case 500:
         throw new InternalServerErrorException(

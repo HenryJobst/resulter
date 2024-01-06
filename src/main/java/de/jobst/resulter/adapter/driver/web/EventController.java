@@ -57,10 +57,7 @@ public class EventController {
                     shallowEventOrganisations));
             return ResponseEntity.ok(events.stream().map(EventDto::from).toList());
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -95,10 +92,7 @@ public class EventController {
             return event.map(value -> ResponseEntity.ok(EventDto.from(value)))
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -126,16 +120,10 @@ public class EventController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (IllegalArgumentException e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -150,16 +138,10 @@ public class EventController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (IllegalArgumentException e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -196,11 +178,15 @@ public class EventController {
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static void logError(Exception e) {
+        log.error(e.getMessage());
+        if (Objects.nonNull(e.getCause())) {
+            log.error(e.getCause().getMessage());
         }
     }
 }

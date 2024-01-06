@@ -48,8 +48,10 @@
     "cup": "Kein Cup | Cup | Cups"
   },
   "messages": {
-    "edit_event": "Wettkampf mit ID {id} bearbeiten",
+    "new_cup": "Neuer Cup",
+    "edit_cup": "Cup mit ID {id} bearbeiten",
     "new_event": "Neuer Wettkampf",
+    "edit_event": "Wettkampf mit ID {id} bearbeiten",
     "import_event": "Neuen Wettkampf importieren",
     "loading": "Lade...",
     "error": "Fehler: {message}",
@@ -58,7 +60,10 @@
     "completed": "Fertiggestellt",
     "drag_drop": "Dateien zuw Importieren hier hinziehen oder oben auswählen.",
     "success": "Erfolg",
-    "uploaded": " 'Wettkampf importiert"
+    "event_uploaded": "Wettkampf importiert",
+    "cup_created": "Cup angelegt",
+    "cup_changed": "Cup geändert",
+    "cup_deleted": "Cup gelöscht"
   },
   "result_state": {
     "OK": "OK",
@@ -78,7 +83,8 @@
     "Cancelled": "Abgebrochen"
   },
   "errors": {
-    "notFound": "Angefragte Ressource nicht gefunden. {name}, {message}",
+    "notFound": "Die angefragte Ressource nicht gefunden. {name}, {message}",
+    "conflict": "Die angefragte Änderung der Ressource verursacht einen Konflikt. {name}, {message}",
     "unauthorized": "Unberechtigter Zugriff abgewiesen. {name}, {message}",
     "forbidden": "Zugriff verboten. {name}, {message}",
     "internalServerError": "Interner Server Fehler. {name}, {message}",

@@ -9,11 +9,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { CupService } from '@/features/cup/services/cup.service'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
+import { useToast } from 'primevue/usetoast'
 
 const props = defineProps<{ id: number; locale?: string }>()
 const authStore = useAuthStore()
 
 const { t } = useI18n()
+
+const router = useRouter()
+
+const navigateCupToList = () => {
+  router.back() //.push({ name: 'cup-list' })
+}
 
 const queryClient = useQueryClient()
 
@@ -24,14 +31,20 @@ const cupQuery = useQuery({
   initialDataUpdatedAt: () => queryClient.getQueryState(['cups'])?.dataUpdatedAt
 })
 
-const router = useRouter()
+const toast = useToast()
 
 const cupMutation = useMutation({
   mutationFn: (cup: Cup) => CupService.update(cup, t),
   onSuccess: (cup) => {
     queryClient.setQueryData(['cups', { id: props.id }], cup)
     queryClient.invalidateQueries({ queryKey: ['cups'] })
-    router.back()
+    toast.add({
+      severity: 'info',
+      summary: t('messages.success'),
+      detail: t('messages.cup_changed'),
+      life: 5000
+    })
+    navigateCupToList()
   }
 })
 
@@ -42,13 +55,15 @@ const cupSubmitHandler = (cup: Cup) => {
 
 <template>
   <div v-bind="$attrs">
-    <h2>{{ t('messages.edit_cup', { id: props.id }) }}</h2>
-    <span v-if="cupQuery.status.value === 'pending'">
+    <h1>{{ t('messages.edit_cup', { id: props.id }) }}</h1>
+
+    <span v-if="cupQuery.status.value === 'pending' || cupMutation.status.value === 'pending'">
       {{ t('messages.loading') }}
       <Spinner />
     </span>
-    <span v-else-if="cupQuery.status.value === 'error'">
-      <ErrorMessage :message="t('messages.error', { message: cupQuery.error.value?.message })" />
+    <span v-else-if="cupQuery.status.value === 'error' || cupMutation.status.value === 'error'">
+      <ErrorMessage :message="t('messages.error', { message: cupQuery.error.value })" />
+      <ErrorMessage :message="t('messages.error', { message: cupMutation.error.value })" />
     </span>
     <CupForm :cup="cupQuery.data.value" @cup-submit="cupSubmitHandler" v-else-if="cupQuery.data">
       <Button
@@ -64,10 +79,14 @@ const cupSubmitHandler = (cup: Cup) => {
         type="reset"
         :label="t('labels.back')"
         outlined
-        @click="router.back()"
+        @click="navigateCupToList"
       ></Button>
     </CupForm>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+h1 {
+  margin-bottom: 1rem;
+}
+</style>

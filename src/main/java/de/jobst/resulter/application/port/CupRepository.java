@@ -15,4 +15,6 @@ public interface CupRepository {
     Optional<Cup> findById(CupId cupId, CupConfig cupConfig);
 
     Cup findOrCreate(Cup cup);
+
+    void deleteCup(Cup cup);
 }

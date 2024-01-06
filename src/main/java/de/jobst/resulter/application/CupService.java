@@ -51,4 +51,19 @@ public class CupService {
         cup.update(name, type, events);
         return cupRepository.save(cup);
     }
+
+    public Cup createCup(String name, CupType type, Events events) {
+        Cup cup = Cup.of(CupId.empty().value(), name, type, events.value());
+        return cupRepository.save(cup);
+    }
+
+    public boolean deleteCup(CupId cupId) {
+        Optional<Cup> optionalCup = findById(cupId, CupConfig.full());
+        if (optionalCup.isEmpty()) {
+            return false;
+        }
+        Cup cup = optionalCup.get();
+        cupRepository.deleteCup(cup);
+        return true;
+    }
 }

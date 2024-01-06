@@ -108,4 +108,9 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
         CupDbo entity = cupEntity.get();
         return CupDbo.asCup(CupConfig.empty(), entity);
     }
+
+    @Override
+    public void deleteCup(Cup cup) {
+        cupJpaRepository.deleteById(cup.getId().value());
+    }
 }

@@ -6,22 +6,44 @@ import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { CupService } from '@/features/cup/services/cup.service'
+import { useToast } from 'primevue/usetoast'
 
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
+const { t } = useI18n()
 
 const authStore = useAuthStore()
 
-const reload = () => {}
+const queryClient = useQueryClient()
+
+const toast = useToast()
+
+const cupMutation = useMutation({
+  mutationFn: (id: number) => CupService.deleteById(id, t),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['cups'] })
+    toast.add({
+      severity: 'info',
+      summary: t('messages.success'),
+      detail: t('messages.cup_deleted'),
+      life: 5000
+    })
+  }
+})
+
 const deleteCup = (id: number) => {
   console.log(id)
+  cupMutation.mutate(id)
 }
 
 const cupQuery = useQuery({
   queryKey: ['cups'],
   queryFn: () => CupService.getAll(t)
 })
+
+const reload = () => {
+  cupQuery.refetch()
+}
 </script>
 
 <template>
@@ -42,12 +64,15 @@ const cupQuery = useQuery({
   </div>
 
   <div>
-    <span v-if="cupQuery?.status.value === 'pending'">
+    <span v-if="cupQuery?.status.value === 'pending' || cupMutation.status.value === 'pending'">
       {{ t('messages.loading') }}
       <Spinner />
     </span>
-    <span v-else-if="cupQuery?.status.value === 'error'">
+    <span v-else-if="cupQuery?.status.value === 'error' || cupMutation.status.value === 'error'">
       <ErrorMessage :message="t('messages.error', { message: cupQuery?.error.value?.message })" />
+      <ErrorMessage
+        :message="t('messages.error', { message: cupMutation?.error.value?.message })"
+      />
     </span>
     <div v-else-if="cupQuery?.data" class="card">
       <DataTable :value="cupQuery?.data.value" class="p-datatable-sm">

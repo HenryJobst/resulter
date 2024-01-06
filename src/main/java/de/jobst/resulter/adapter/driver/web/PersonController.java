@@ -32,11 +32,15 @@ public class PersonController {
             List<Person> persons = personService.findAll();
             return ResponseEntity.ok(persons.stream().map(PersonDto::from).toList());
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
+            logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static void logError(Exception e) {
+        log.error(e.getMessage());
+        if (Objects.nonNull(e.getCause())) {
+            log.error(e.getCause().getMessage());
         }
     }
 }

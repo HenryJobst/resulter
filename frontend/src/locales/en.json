@@ -48,9 +48,10 @@
     "cup": "No cup | Cup | Cups"
   },
   "messages": {
+    "new_cup": "New cup",
     "edit_cup": "Edit cup with ID {id}",
-    "edit_event": "Edit event with ID {id}",
     "new_event": "New event",
+    "edit_event": "Edit event with ID {id}",
     "import_event": "Import new event",
     "loading": "Loading...",
     "error": "Error: {message}",
@@ -59,7 +60,10 @@
     "completed": "Completed",
     "drag_drop": "Drag and drop files here to import or choose above.",
     "success": "Success",
-    "uploaded": " 'File Uploaded"
+    "event_uploaded": "File uploaded",
+    "cup_created": "Cup created",
+    "cup_changed": "Cup changed",
+    "cup_deleted": "Cup deleted"
   },
   "result_state": {
     "OK": "OK",
@@ -80,6 +84,7 @@
   },
   "errors": {
     "notFound": "Requested ressource not found. {name}, {message}",
+    "conflict": "Requested change results in a conflict. {name}, {message}",
     "unauthorized": "Unauthorized request. {name}, {message}",
     "forbidden": "Request forbidden. {name}, {message}",
     "internalServerError": "Internal server error. {name}, {message}",

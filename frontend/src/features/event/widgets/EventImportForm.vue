@@ -10,6 +10,8 @@ import Badge from 'primevue/badge'
 import Button from 'primevue/button'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
+import { toastDisplayDuration } from '@/utils/constants'
+
 const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const authStore = useAuthStore()
@@ -74,7 +76,7 @@ const onTemplatedUpload = () => {
     severity: 'info',
     summary: t('messages.success'),
     detail: t('messages.event_uploaded'),
-    life: 5000
+    life: toastDisplayDuration
   })
 }
 

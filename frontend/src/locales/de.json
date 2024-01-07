@@ -34,7 +34,7 @@
     "class": "Keine Klasse | Klasse | Klassen",
     "participant": "Kein Teilnehmer | Teilnehmer | Teilnehmer",
     "login_user": "Angemeldet als: {username}",
-    "organisation": "Kein Verein | Verein | Vereine ",
+    "organisation": "Kein Organisation | Organisation | Organisationen ",
     "person": "Keine Person | Person | Personen",
     "megabytes": "MB",
     "choose": "Auswählen",
@@ -45,7 +45,9 @@
     "gender": "Geschlecht",
     "birth_date": "Geburtsdatum",
     "type": "Typ",
-    "cup": "Kein Cup | Cup | Cups"
+    "cup": "Kein Cup | Cup | Cups",
+    "entity_list": "{entity}",
+    "country": "Country"
   },
   "messages": {
     "new_cup": "Neuer Cup",
@@ -63,7 +65,12 @@
     "event_uploaded": "Wettkampf importiert",
     "cup_created": "Cup angelegt",
     "cup_changed": "Cup geändert",
-    "cup_deleted": "Cup gelöscht"
+    "cup_deleted": "Cup gelöscht",
+    "new_entity": "{entity} anlegen",
+    "edit_entity": "{entity} bearbeiten",
+    "entity_created": "{entity} angelegt",
+    "entity_changed": "{entity} geändert",
+    "entity_deleted": "{entity} gelöscht"
   },
   "result_state": {
     "OK": "OK",
@@ -89,6 +96,7 @@
     "forbidden": "Zugriff verboten. {name}, {message}",
     "internalServerError": "Interner Server Fehler. {name}, {message}",
     "unknownApiError": "Unbekannter Api-Fehler. {name}, {message}",
-    "unknownError": "Unbekannter Fehler. {name}, {message}"
+    "unknownError": "Unbekannter Fehler. {name}, {message}",
+    "noResponseError": "Keine Antwort vom Server erhalten. {name}, {message}, {code}"
   }
 }

@@ -1,8 +1,7 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.OrganisationRepository;
-import de.jobst.resulter.domain.Organisation;
-import de.jobst.resulter.domain.OrganisationId;
+import de.jobst.resulter.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,5 +26,20 @@ public class OrganisationService {
 
     public Optional<Organisation> findById(OrganisationId organisationId) {
         return organisationRepository.findById(organisationId);
+    }
+
+    public Organisation updateOrganisation(OrganisationId id, OrganisationName name,
+                                           OrganisationShortName shortName,
+                                           OrganisationType type,
+                                           Country country,
+                                           Organisations organisations) {
+
+        Optional<Organisation> optionalOrganisation = findById(id);
+        if (optionalOrganisation.isEmpty()) {
+            return null;
+        }
+        Organisation organisation = optionalOrganisation.get();
+        organisation.update(name, shortName, type, country, organisations);
+        return organisationRepository.save(organisation);
     }
 }

@@ -34,7 +34,6 @@ const cupMutation = useMutation({
 })
 
 const deleteCup = (id: number) => {
-  console.log(id)
   cupMutation.mutate(id)
 }
 

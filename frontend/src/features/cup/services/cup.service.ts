@@ -5,7 +5,7 @@ import type { CupResults } from '@/features/cup/model/cup_results'
 import type { CupType } from '@/features/cup/model/cuptype'
 
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'cup'
-const cupTypeUrl: string = import.meta.env.VITE_API_ENDPOINT + 'cuptypes'
+const cupTypeUrl: string = import.meta.env.VITE_API_ENDPOINT + 'cup_types'
 
 export class CupService {
   static async getAll(t: (key: string) => string): Promise<Cup[] | null> {
@@ -62,7 +62,7 @@ export class CupService {
         return null
       })
   }
-  
+
   static async deleteById(id: number | string, t: (key: string) => string) {
     return await axiosInstance
       .delete(url + '/' + id)

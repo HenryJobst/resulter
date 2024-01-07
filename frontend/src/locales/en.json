@@ -34,7 +34,7 @@
     "class": "No class | Class | Classes",
     "participant": "No participant | Participant | Participants",
     "login_user": "Logged in as: {username}",
-    "organisation": "No club | Club | Clubs",
+    "organisation": "No organisation | Organisation | Organisations",
     "person": "No person | Person | Persons",
     "megabytes": "MB",
     "choose": "Choose",
@@ -45,7 +45,9 @@
     "gender": "Gender",
     "birth_date": "Date of birth",
     "type": "Type",
-    "cup": "No cup | Cup | Cups"
+    "cup": "No cup | Cup | Cups",
+    "entity_list": "{entity}",
+    "country": "Country"
   },
   "messages": {
     "new_cup": "New cup",
@@ -63,7 +65,12 @@
     "event_uploaded": "File uploaded",
     "cup_created": "Cup created",
     "cup_changed": "Cup changed",
-    "cup_deleted": "Cup deleted"
+    "cup_deleted": "Cup deleted",
+    "new_entity": "New {entity}",
+    "edit_entity": "Edit {entity}",
+    "entity_created": "{entity} created",
+    "entity_changed": "{entity} changed",
+    "entity_deleted": "{entity} deleted"
   },
   "result_state": {
     "OK": "OK",
@@ -89,6 +96,7 @@
     "forbidden": "Request forbidden. {name}, {message}",
     "internalServerError": "Internal server error. {name}, {message}",
     "unknownApiError": "Unknown api error. {name}, {message}",
-    "unknownError": "Unknown error. {name}, {message}"
+    "unknownError": "Unknown error. {name}, {message}",
+    "noResponseError": "No response error. {name}, {message}, {code}"
   }
 }

@@ -31,7 +31,7 @@ const eventQuery = useQuery({
 })
 
 const cupTypesQuery = useQuery({
-  queryKey: ['cuptypes'],
+  queryKey: ['cup_types'],
   queryFn: () => CupService.getCupTypes(t)
 })
 

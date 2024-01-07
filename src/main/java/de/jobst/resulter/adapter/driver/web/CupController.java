@@ -29,7 +29,7 @@ public class CupController {
         this.eventService = eventService;
     }
 
-    @GetMapping("/cuptypes")
+    @GetMapping("/cup_types")
     public ResponseEntity<List<CupTypeDto>> handleCupTypes() {
         try {
             List<CupTypeDto> cupTypes = Arrays.stream(CupType.values()).map(CupTypeDto::from).toList();

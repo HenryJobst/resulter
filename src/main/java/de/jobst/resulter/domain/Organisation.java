@@ -1,6 +1,7 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ShallowLoadProxy;
+import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
@@ -17,12 +18,17 @@ public class Organisation implements Comparable<Organisation> {
     @Setter
     private OrganisationId id;
 
+    @NonNull
     private OrganisationName name;
     private OrganisationShortName shortName;
+    @NonNull
     private OrganisationType type;
+    @NonNull
+    @Setter
     private ShallowLoadProxy<Country> country;
 
     @NonNull
+    @Setter
     private ShallowLoadProxy<Organisations> parentOrganisations = ShallowLoadProxy.empty();
 
     public Organisation(@NonNull OrganisationId id,
@@ -81,5 +87,18 @@ public class Organisation implements Comparable<Organisation> {
             val = name.compareTo(o.name);
         }
         return val;
+    }
+
+    public void update(OrganisationName name,
+                       OrganisationShortName shortName,
+                       OrganisationType type,
+                       Country country,
+                       Organisations organisations) {
+        ValueObjectChecks.requireNotNull(name);
+        this.name = name;
+        this.shortName = shortName;
+        this.type = type;
+        this.country = ShallowLoadProxy.of(country);
+        this.setParentOrganisations(ShallowLoadProxy.of(organisations));
     }
 }

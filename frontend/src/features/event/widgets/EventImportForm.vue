@@ -12,7 +12,7 @@ import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 import { toastDisplayDuration } from '@/utils/constants'
 
-const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
+const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const authStore = useAuthStore()
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'upload'

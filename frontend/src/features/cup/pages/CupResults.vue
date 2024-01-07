@@ -14,7 +14,7 @@ const props = defineProps<{ id: string; locale?: string }>()
 const store = useCupStore()
 const cup = store.selectCup(+props.id)
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 function parseDurationMoment(durationString: string): moment.Duration {
   return moment.duration(durationString)
@@ -53,6 +53,7 @@ const treeNodes = computed(() => {
   if (cupResultsQuery.isFetched) {
     return createTreeNodes(cupResultsQuery.data.value?.classResultDtos)
   }
+  return null
 })
 
 const resultColumn = (slotProps: any): string => {

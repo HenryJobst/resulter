@@ -74,7 +74,9 @@ const organisationTypesQuery = useQuery({
           </div>
         </div>
         <div class="flex flex-row">
-          <label for="organisations" class="col-fixed w-32">{{ t('labels.organisation') }}</label>
+          <label for="organisations" class="col-fixed w-32">{{
+            t('labels.parent_organisation')
+          }}</label>
           <div class="col">
             <span v-if="organisationQuery.status.value === 'pending'">{{
               t('messages.loading')

@@ -17,9 +17,15 @@ const listLabel: string = t('labels.organisation', 2)
 const columns: GenericListColumn[] = [
   { label: 'labels.no', field: 'id' },
   { label: 'labels.name', field: 'name' },
-  { label: 'labels.short_name', field: 'short_name' },
+  { label: 'labels.short_name', field: 'shortName' },
   { label: 'labels.type', field: 'type.id' },
-  { label: 'labels.country', field: 'country.name' }
+  { label: 'labels.country', field: 'country.name' },
+  {
+    label: 'labels.parent_organisation',
+    field: 'organisations',
+    type: 'list',
+    listElemField: 'shortName'
+  }
 ]
 </script>
 

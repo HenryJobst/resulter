@@ -47,7 +47,8 @@
     "type": "Type",
     "cup": "No cup | Cup | Cups",
     "entity_list": "{entity}",
-    "country": "Country"
+    "country": "Country",
+    "parent_organisation": "Parent organisation"
   },
   "messages": {
     "new_cup": "New cup",

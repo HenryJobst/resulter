@@ -9,7 +9,7 @@
     "about": "Über",
     "cups": "Cups",
     "events": "Wettkämpfe",
-    "organisations": "Vereine",
+    "organisations": "Organisationen",
     "persons": "Personen",
     "login": "Login",
     "logout": "Logout"
@@ -47,7 +47,8 @@
     "type": "Typ",
     "cup": "Kein Cup | Cup | Cups",
     "entity_list": "{entity}",
-    "country": "Country"
+    "country": "Land",
+    "parent_organisation": "Dach-Organisation"
   },
   "messages": {
     "new_cup": "Neuer Cup",

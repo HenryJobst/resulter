@@ -3,6 +3,7 @@ import { defineProps, type PropType } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import Chip from 'primevue/chip'
 import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Button from 'primevue/button'
@@ -92,7 +93,17 @@ const reload = () => {
           :key="col.label"
           :field="col.field"
           :header="t(col.label)"
-        />
+        >
+          <template v-slot:body="slotProps" v-if="col.type === 'list'">
+            <div>
+              <Chip
+                v-for="(item, index) in slotProps.data[col.field]"
+                :key="index"
+                :label="item[col.listElemField!]"
+              />
+            </div>
+          </template>
+        </Column>
         <!-- ... Other columns ... -->
         <Column class="text-right">
           <template #body="{ data }">

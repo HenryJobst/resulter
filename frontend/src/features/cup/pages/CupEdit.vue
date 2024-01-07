@@ -11,6 +11,8 @@ import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
 import { useToast } from 'primevue/usetoast'
 
+import { toastDisplayDuration } from '@/utils/constants'
+
 const props = defineProps<{ id: number; locale?: string }>()
 const authStore = useAuthStore()
 
@@ -19,7 +21,7 @@ const { t } = useI18n()
 const router = useRouter()
 
 const navigateCupToList = () => {
-  router.back() //.push({ name: 'cup-list' })
+  router.replace({ name: 'cup-list' })
 }
 
 const queryClient = useQueryClient()
@@ -42,7 +44,7 @@ const cupMutation = useMutation({
       severity: 'info',
       summary: t('messages.success'),
       detail: t('messages.cup_changed'),
-      life: 5000
+      life: toastDisplayDuration
     })
     navigateCupToList()
   }

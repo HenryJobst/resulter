@@ -10,6 +10,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { CupService } from '@/features/cup/services/cup.service'
 import { useToast } from 'primevue/usetoast'
 
+import { toastDisplayDuration } from '@/utils/constants'
+
 const { t } = useI18n()
 
 const authStore = useAuthStore()
@@ -26,7 +28,7 @@ const cupMutation = useMutation({
       severity: 'info',
       summary: t('messages.success'),
       detail: t('messages.cup_deleted'),
-      life: 5000
+      life: toastDisplayDuration
     })
   }
 })

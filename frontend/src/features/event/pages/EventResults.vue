@@ -15,7 +15,7 @@ const props = defineProps<{ id: string; locale?: string }>()
 const store = useEventStore()
 const event = store.selectEvent(+props.id)
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 function parseDurationMoment(durationString: string): moment.Duration {
   return moment.duration(durationString)
@@ -54,6 +54,7 @@ const treeNodes = computed(() => {
   if (eventResultsQuery.isFetched) {
     return createTreeNodes(eventResultsQuery.data.value?.classResultDtos)
   }
+  return null
 })
 
 const resultColumn = (slotProps: any): string => {

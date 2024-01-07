@@ -6,10 +6,8 @@ import type { Event } from '@/features/event/model/event'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const store = useEventStore()
-const authStore = useAuthStore()
 
 const eventSubmitHandler = (event: Omit<Event, 'id'>) => {
   console.log(event)

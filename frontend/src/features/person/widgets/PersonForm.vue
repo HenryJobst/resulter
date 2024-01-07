@@ -31,7 +31,7 @@ const formSubmitHandler = () => {
 </script>
 
 <template>
-  <form @submit.prperson="formSubmitHandler">
+  <form @submit.prevent="formSubmitHandler">
     <div class="flex flex-col">
       <div class="flex flex-row">
         <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>

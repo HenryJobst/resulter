@@ -2,9 +2,6 @@
 import type { Organisation } from '@/features/organisation/model/organisation'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
-
-const authStore = useAuthStore()
 
 const organisationSubmitHandler = (organisation: Omit<Organisation, 'id'>) => {
   console.log(organisation)

@@ -52,4 +52,14 @@ public class OrganisationService {
         Organisation organisation = Organisation.of(name, shortName, type, country, organisations);
         return organisationRepository.save(organisation);
     }
+
+    public boolean deleteOrganisation(OrganisationId id) {
+        Optional<Organisation> optionalOrganisation = findById(id);
+        if (optionalOrganisation.isEmpty()) {
+            return false;
+        }
+        Organisation organisation = optionalOrganisation.get();
+        organisationRepository.deleteOrganisation(organisation);
+        return true;
+    }
 }

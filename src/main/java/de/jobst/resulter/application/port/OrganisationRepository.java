@@ -14,4 +14,6 @@ public interface OrganisationRepository {
     Optional<Organisation> findById(OrganisationId organisationId);
 
     Organisation findOrCreate(Organisation organisation);
+
+    void deleteOrganisation(Organisation organisation);
 }

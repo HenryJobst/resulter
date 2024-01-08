@@ -53,6 +53,7 @@ const deleteEntity = (id: number) => {
 
 const reload = () => {
   entityQuery.refetch()
+  deleteMutation.reset()
 }
 </script>
 

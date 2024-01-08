@@ -73,10 +73,10 @@ public class OrganisationController {
                     OrganisationName.of(organisationDto.name()),
                     OrganisationShortName.of(organisationDto.shortName()),
                     OrganisationType.fromValue(organisationDto.type().id()),
-                    (organisationDto.countryDto() != null) ?
-                            Country.of(organisationDto.countryDto().id(),
-                                    organisationDto.countryDto().name(),
-                                    organisationDto.countryDto().code()) : null,
+                    (organisationDto.country() != null) ?
+                            Country.of(organisationDto.country().id(),
+                                    organisationDto.country().name(),
+                                    organisationDto.country().code()) : null,
                     Organisations.of(
                             organisationDto.organisations() == null ? new ArrayList<>() :
                                     organisationDto.organisations().stream()
@@ -110,10 +110,10 @@ public class OrganisationController {
                     OrganisationName.of(organisationDto.name()),
                     OrganisationShortName.of(organisationDto.shortName()),
                     OrganisationType.fromValue(organisationDto.type().id()),
-                    (organisationDto.countryDto() != null) ?
-                            Country.of(organisationDto.countryDto().id(),
-                                    organisationDto.countryDto().name(),
-                                    organisationDto.countryDto().code()) : null,
+                    (organisationDto.country() != null) ?
+                            Country.of(organisationDto.country().id(),
+                                    organisationDto.country().name(),
+                                    organisationDto.country().code()) : null,
                     Organisations.of(
                             organisationDto.organisations() == null ? new ArrayList<>() :
                                     organisationDto.organisations().stream()

@@ -17,7 +17,7 @@ const newLabel: string = t('messages.new_entity', { entity: t('labels.organisati
 const formData = ref<Organisation | Omit<Organisation, 'id'>>({
   name: '',
   shortName: '',
-  type: { id: 'OTHER' },
+  type: { id: 'Other' },
   country: { id: 1, code: 'GER', name: 'GER' },
   organisations: []
 })

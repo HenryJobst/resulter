@@ -10,7 +10,7 @@ public record OrganisationDto(Long id,
                               String name,
                               String shortName,
                               OrganisationTypeDto type,
-                              CountryDto countryDto,
+                              CountryDto country,
                               List<OrganisationDto> organisations) {
     static public OrganisationDto from(Organisation organisation) {
         return new OrganisationDto(

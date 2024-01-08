@@ -1,5 +1,6 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
@@ -27,5 +28,16 @@ public class Country {
 
     public static Country of(long id, String code, String name) {
         return new Country(CountryId.of(id), CountryCode.of(code), CountryName.of(name));
+    }
+
+    public static Country of(CountryCode code, CountryName name) {
+        return new Country(CountryId.empty(), code, name);
+    }
+
+    public void update(CountryCode code, CountryName name) {
+        ValueObjectChecks.requireNotNull(code);
+        ValueObjectChecks.requireNotNull(name);
+        this.code = code;
+        this.name = name;
     }
 }

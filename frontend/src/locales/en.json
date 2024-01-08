@@ -94,6 +94,7 @@
     "notFound": "Requested ressource not found. {name}, {message}",
     "conflict": "Requested change results in a conflict. {name}, {message}",
     "unauthorized": "Unauthorized request. {name}, {message}",
+    "badRequest": "Bad request. {name}, {message}",
     "forbidden": "Request forbidden. {name}, {message}",
     "internalServerError": "Internal server error. {name}, {message}",
     "unknownApiError": "Unknown api error. {name}, {message}",

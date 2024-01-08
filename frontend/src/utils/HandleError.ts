@@ -4,6 +4,10 @@ class NotFoundException extends Error {
   /* ... */
 }
 
+class BadRequestException extends Error {
+  /* ... */
+}
+
 class UnauthorizedException extends Error {
   /* ... */
 }
@@ -26,9 +30,9 @@ export function handleApiError(error: unknown, t: (key: string, object: any) => 
     if (error.response) {
       // Got response from server
       switch (error.response.status) {
-        case 404:
-          throw new NotFoundException(
-            t('errors.notFound', { name: error.name, message: error.message })
+        case 400:
+          throw new BadRequestException(
+            t('errors.badRequest', { name: error.name, message: error.message })
           )
         case 401:
           throw new UnauthorizedException(
@@ -37,6 +41,10 @@ export function handleApiError(error: unknown, t: (key: string, object: any) => 
         case 403:
           throw new ForbiddenException(
             t('errors.forbidden', { name: error.name, message: error.message })
+          )
+        case 404:
+          throw new NotFoundException(
+            t('errors.notFound', { name: error.name, message: error.message })
           )
         case 409:
           throw new ConflictException(

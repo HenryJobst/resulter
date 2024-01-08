@@ -80,6 +80,18 @@ public class Organisation implements Comparable<Organisation> {
         );
     }
 
+    public static Organisation of(OrganisationName name,
+                                  OrganisationShortName shortName,
+                                  OrganisationType type,
+                                  Country country,
+                                  Organisations organisations) {
+        return new Organisation(OrganisationId.empty(), name, shortName, type,
+                ShallowLoadProxy.of(country),
+                (organisations != null) ?
+                        ShallowLoadProxy.of(Organisations.of(organisations.value())) :
+                        ShallowLoadProxy.empty());
+    }
+
     @Override
     public int compareTo(@NonNull Organisation o) {
         int val = type.compareTo(o.type);

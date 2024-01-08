@@ -76,4 +76,9 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
         OrganisationDbo entity = organisationEntity.get();
         return entity.asOrganisation();
     }
+
+    @Override
+    public void deleteOrganisation(Organisation organisation) {
+        organisationJpaRepository.deleteById(organisation.getId().value());
+    }
 }

@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
+import org.hibernate.Hibernate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -56,9 +57,15 @@ public class PersonResultDbo {
         personResultDbo.setClassResultDbo(classResultDbo);
 
         if (personResult.getPerson().isLoaded()) {
-            PersonDbo persistedPersonDbo = persistedPersonResultDbo != null ? persistedPersonResultDbo.person : null;
+            PersonDbo
+                    persistedPersonDbo =
+                    persistedPersonResultDbo != null && Hibernate.isInitialized(persistedPersonResultDbo.person) ?
+                            persistedPersonResultDbo.person :
+                            null;
             personResultDbo.setPerson(PersonDbo.from(personResult.getPerson().get(),
-                    (id) -> persistedPersonDbo, dboResolvers));
+                    (id) -> persistedPersonDbo != null && persistedPersonDbo.getId() == id.value() ?
+                            persistedPersonDbo :
+                            null, dboResolvers));
         } else if (persistedPersonResultDbo != null) {
             personResultDbo.setPerson(persistedPersonResultDbo.getPerson());
         } else if (personResult.getId().isPersistent()) {
@@ -67,9 +74,14 @@ public class PersonResultDbo {
 
         if (personResult.getOrganisation().isLoaded()) {
             OrganisationDbo persistedOrganisationDbo =
-                    persistedPersonResultDbo != null ? persistedPersonResultDbo.getOrganisation() : null;
+                    persistedPersonResultDbo != null &&
+                            Hibernate.isInitialized(persistedPersonResultDbo.getOrganisation()) ?
+                            persistedPersonResultDbo.getOrganisation() :
+                            null;
             personResultDbo.setOrganisation(OrganisationDbo.from(personResult.getOrganisation().get(),
-                    (id) -> persistedOrganisationDbo, dboResolvers));
+                    (id) -> persistedOrganisationDbo != null && persistedOrganisationDbo.getId() == id.value() ?
+                            persistedOrganisationDbo :
+                            null, dboResolvers));
         } else if (persistedPersonResultDbo != null) {
             personResultDbo.setOrganisation(persistedPersonResultDbo.getOrganisation());
         } else if (personResult.getId().isPersistent()) {
@@ -83,7 +95,8 @@ public class PersonResultDbo {
                     .stream()
                     .map(it -> {
                         PersonRaceResultDbo persistedPersonRaceResultDbo =
-                                persistedPersonResultDbo != null ?
+                                persistedPersonResultDbo != null &&
+                                        Hibernate.isInitialized(persistedPersonResultDbo.getPersonRaceResults()) ?
                                         (persistedPersonResultDbo.getPersonRaceResults()
                                                 .stream()
                                                 .filter(x -> x.getId() == it.getId().value())

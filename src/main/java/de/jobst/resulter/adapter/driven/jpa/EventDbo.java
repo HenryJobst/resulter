@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.hibernate.Hibernate;
 import org.springframework.lang.NonNull;
 
 import java.time.ZonedDateTime;
@@ -77,7 +78,8 @@ public class EventDbo {
                     .value().stream().map(it -> {
                         ClassResultDbo
                                 persistedClassResultDbo =
-                                persistedEventDbo != null ?
+                                persistedEventDbo != null &&
+                                        Hibernate.isInitialized(persistedEventDbo.getClassResults()) ?
                                         persistedEventDbo.getClassResults()
                                                 .stream()
                                                 .filter(x -> x.getId() == it.getId().value())

@@ -6,6 +6,7 @@ import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupType;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.hibernate.Hibernate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -63,7 +64,7 @@ public class CupDbo {
             cupDbo.setEvents(Objects.requireNonNull(cup.getEvents().get())
                     .value().stream().map(it -> {
                         EventDbo persistedEventDbo =
-                                persistedCupDbo != null ?
+                                persistedCupDbo != null && Hibernate.isInitialized(persistedCupDbo.getEvents()) ?
                                         (persistedCupDbo.getEvents()
                                                 .stream()
                                                 .filter(x -> x.getId() == it.getId().value())

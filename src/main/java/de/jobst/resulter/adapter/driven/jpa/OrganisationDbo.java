@@ -4,6 +4,7 @@ import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.OrganisationType;
 import jakarta.persistence.*;
+import org.hibernate.Hibernate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -76,7 +77,10 @@ public class OrganisationDbo {
         organisationDbo.setType(organisation.getType());
         organisationDbo.setCountry(CountryDbo.from(organisation.getCountry().get(),
                 (id) ->
-                        persistedOrganisationDbo != null ?
+                        persistedOrganisationDbo != null &&
+                                Hibernate.isInitialized(persistedOrganisationDbo.getCountry()) &&
+                                persistedOrganisationDbo.getCountry() != null &&
+                                persistedOrganisationDbo.getCountry().getId() == id.value() ?
                                 persistedOrganisationDbo.getCountry() : null,
                 dboResolvers));
 

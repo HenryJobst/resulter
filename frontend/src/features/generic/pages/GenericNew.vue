@@ -28,7 +28,10 @@ const formData = props.entity
 
 const entityLabel = computed(() => (props.entityLabel ? t('labels.' + props.entityLabel) : ''))
 const entityMutation = useMutation({
-  mutationFn: (entity: any) => props.entityService?.create(entity, t),
+  mutationFn: (e: any) => {
+    console.log(e)
+    return props.entityService!.create(e, t)
+  },
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: props.queryKey })
     toast.add({
@@ -43,7 +46,7 @@ const entityMutation = useMutation({
 
 const submitHandler = () => {
   if (formData) {
-    entityMutation.mutate(formData.value)
+    entityMutation.mutate(formData)
   }
 }
 const navigateToList = () => {

@@ -44,6 +44,7 @@ const cupQuery = useQuery({
 
 const reload = () => {
   cupQuery.refetch()
+  cupMutation.reset()
 }
 </script>
 

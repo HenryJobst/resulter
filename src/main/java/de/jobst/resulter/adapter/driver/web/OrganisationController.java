@@ -140,6 +140,27 @@ public class OrganisationController {
         }
     }
 
+    @DeleteMapping("/organisation/{id}")
+    public ResponseEntity<Boolean> deleteOrganisation(@PathVariable Long id) {
+        try {
+            boolean success = organisationService.deleteOrganisation(OrganisationId.of(id));
+            if (success) {
+                return ResponseEntity.ok(Boolean.TRUE);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (DataIntegrityViolationException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private static void logError(Exception e) {
         log.error(e.getMessage());
         if (Objects.nonNull(e.getCause())) {

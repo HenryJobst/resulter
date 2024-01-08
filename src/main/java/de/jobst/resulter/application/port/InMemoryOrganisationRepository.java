@@ -46,15 +46,27 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
                 .orElseGet(() -> save(organisation));
     }
 
-    @SuppressWarnings("unused") public List<Organisation> savedOrganisations() {
+    @Override
+    public void deleteOrganisation(Organisation organisation) {
+        if (ObjectUtils.isEmpty(organisation.getId()) || organisation.getId().value() == 0) {
+            return;
+        }
+        organisations.remove(organisation.getId());
+        savedOrganisations.remove(organisation);
+    }
+
+    @SuppressWarnings("unused")
+    public List<Organisation> savedOrganisations() {
         return savedOrganisations;
     }
 
-    @SuppressWarnings("unused") public int saveCount() {
+    @SuppressWarnings("unused")
+    public int saveCount() {
         return savedOrganisations.size();
     }
 
-    @SuppressWarnings("unused") public void resetSaveCount() {
+    @SuppressWarnings("unused")
+    public void resetSaveCount() {
         savedOrganisations.clear();
     }
 

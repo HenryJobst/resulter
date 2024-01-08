@@ -1,9 +1,7 @@
-package de.jobst.resulter.application;
+package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.adapter.TestConfig;
-import de.jobst.resulter.adapter.driven.jpa.EventRepositoryDataJpaAdapter;
-import de.jobst.resulter.adapter.driven.jpa.OrganisationRepositoryDataJpaAdapter;
-import de.jobst.resulter.adapter.driven.jpa.PersonRepositoryDataJpaAdapter;
+import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventName;
 import de.jobst.resulter.domain.EventTestDataGenerator;
@@ -31,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         EventService.class,
         PersonRepositoryDataJpaAdapter.class,
         OrganisationRepositoryDataJpaAdapter.class})
-class EventServiceTest {
+class EventServiceJpaTest {
 
     @Autowired
     EventService eventService;

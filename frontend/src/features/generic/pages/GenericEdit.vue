@@ -15,6 +15,7 @@ const props = defineProps({
   queryKey: Array as PropType<(string | number)[]>,
   entityId: String,
   entityLabel: String,
+  editLabel: String,
   routerPrefix: String,
   changeable: Boolean
 })
@@ -78,7 +79,7 @@ const navigateToList = () => {
 
 <template>
   <div v-bind="$attrs" v-if="changeable">
-    <h1>{{ t('messages.edit_entity', { entity: props.entityLabel }) }}</h1>
+    <h1>{{ props.editLabel }}</h1>
     <div v-if="entityQuery.status.value === 'pending' || entityMutation.status.value === 'pending'">
       {{ t('messages.loading') }}
       <Spinner />

@@ -94,6 +94,7 @@
     "notFound": "Die angefragte Ressource nicht gefunden. {name}, {message}",
     "conflict": "Die angefragte Änderung der Ressource verursacht einen Konflikt. {name}, {message}",
     "unauthorized": "Unberechtigter Zugriff abgewiesen. {name}, {message}",
+    "badRequest": "Die angefragte Änderung der Ressource war fehlerhaft aufgebaut. {name}, {message}",
     "forbidden": "Zugriff verboten. {name}, {message}",
     "internalServerError": "Interner Server Fehler. {name}, {message}",
     "unknownApiError": "Unbekannter Api-Fehler. {name}, {message}",

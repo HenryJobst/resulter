@@ -1,44 +1,46 @@
 <script setup lang="ts">
 import type { Organisation } from '@/features/organisation/model/organisation'
+import GenericNew from '@/features/generic/pages/GenericNew.vue'
+import { GenericService } from '@/features/generic/services/GenericService'
+import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { ref } from 'vue'
 
-const organisationSubmitHandler = (organisation: Omit<Organisation, 'id'>) => {
-  console.log(organisation)
-  //store.createOrganisationAction(organisation)
-}
+const { t } = useI18n()
+const authStore = useAuthStore()
+const organisationService = new GenericService<Organisation>('/organisation')
+const queryKey: string[] = ['organisations']
+const entityLabel: string = 'organisation'
+const newLabel: string = t('messages.new_entity', { entity: t('labels.organisation') })
 
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
-
-const router = useRouter()
-const redirectBack = async () => {
-  await router.replace({ name: 'organisation-list' })
-}
+const formData = ref<Organisation | Omit<Organisation, 'id'>>({
+  name: '',
+  shortName: '',
+  type: { id: 'OTHER' },
+  country: { id: 1, code: 'GER', name: 'GER' },
+  organisations: []
+})
 </script>
 
 <template>
-  <div>
-    <h2>{{ t('messages.new_organisation') }}</h2>
-
-    <!--Spinner v-if="store.loadingOrganisations"></Spinner-->
-
-    <!--OrganisationForm v-if="!store.loadingOrganisations" @organisation-submit="organisationSubmitHandler">
-      <Button
-        type="submit"
-        :label="t('labels.create')"
-        outlined
-        v-if="authStore.isAuthenticated"
-      ></Button>
-      <Button
-        class="ml-2"
-        severity="secondary"
-        type="reset"
-        :label="t('labels.back')"
-        outlined
-        @click="redirectBack"
-      ></Button>
-    </OrganisationForm-->
-  </div>
+  <GenericNew
+    :entity="formData"
+    :entity-service="organisationService"
+    :query-key="queryKey"
+    :entity-label="entityLabel"
+    :new-label="newLabel"
+    :router-prefix="'organisation'"
+    :changeable="authStore.isAdmin"
+  >
+    <template v-slot:default="{ formData }">
+      <OrganisationForm
+        :organisation="formData"
+        :entity-service="organisationService"
+        :query-key="queryKey"
+      />
+    </template>
+  </GenericNew>
 </template>
 
 <style scoped></style>

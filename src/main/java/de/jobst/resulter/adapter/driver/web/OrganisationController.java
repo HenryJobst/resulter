@@ -103,6 +103,43 @@ public class OrganisationController {
         }
     }
 
+    @PostMapping("/organisation")
+    public ResponseEntity<OrganisationDto> createOrganisation(@RequestBody OrganisationDto organisationDto) {
+        try {
+            Organisation organisation = organisationService.createOrganisation(
+                    OrganisationName.of(organisationDto.name()),
+                    OrganisationShortName.of(organisationDto.shortName()),
+                    OrganisationType.fromValue(organisationDto.type().id()),
+                    (organisationDto.countryDto() != null) ?
+                            Country.of(organisationDto.countryDto().id(),
+                                    organisationDto.countryDto().name(),
+                                    organisationDto.countryDto().code()) : null,
+                    Organisations.of(
+                            organisationDto.organisations() == null ? new ArrayList<>() :
+                                    organisationDto.organisations().stream()
+                                            .map(it -> organisationService.findById(OrganisationId.of(it.id()))
+                                                    .orElse(null))
+                                            .filter(ObjectUtils::isNotEmpty)
+                                            .toList()
+                    )
+            );
+            if (null != organisation) {
+                return ResponseEntity.ok(OrganisationDto.from(organisation));
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (DataIntegrityViolationException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private static void logError(Exception e) {
         log.error(e.getMessage());
         if (Objects.nonNull(e.getCause())) {

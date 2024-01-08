@@ -42,4 +42,14 @@ public class OrganisationService {
         organisation.update(name, shortName, type, country, organisations);
         return organisationRepository.save(organisation);
     }
+
+    public Organisation createOrganisation(OrganisationName name,
+                                           OrganisationShortName shortName,
+                                           OrganisationType type,
+                                           Country country,
+                                           Organisations organisations) {
+
+        Organisation organisation = Organisation.of(name, shortName, type, country, organisations);
+        return organisationRepository.save(organisation);
+    }
 }

@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jpa;
 import de.jobst.resulter.domain.*;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.hibernate.Hibernate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -89,7 +90,8 @@ public class PersonRaceResultDbo {
                     .stream()
                     .map(it -> {
                         SplitTimeDbo persistedSplitTimeDbo =
-                                persistedPersonRaceResultDbo != null ?
+                                persistedPersonRaceResultDbo != null &&
+                                        Hibernate.isInitialized(persistedPersonRaceResultDbo.getSplitTimes()) ?
                                         (persistedPersonRaceResultDbo.getSplitTimes()
                                                 .stream()
                                                 .filter(x -> x.getId() == it.getId().value())

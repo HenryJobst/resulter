@@ -6,6 +6,7 @@ import GenericList from '@/features/generic/pages/GenericList.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
 const authStore = useAuthStore()
 const { t } = useI18n()
@@ -13,7 +14,7 @@ const { t } = useI18n()
 const organisationService = new GenericService<Organisation>('/organisation')
 const queryKey: string[] = ['organisations']
 const entityLabel: string = 'organisation'
-const listLabel: string = t('labels.organisation', 2)
+const listLabel = computed(() => t('labels.organisation', 2))
 const columns: GenericListColumn[] = [
   { label: 'labels.no', field: 'id' },
   { label: 'labels.name', field: 'name' },

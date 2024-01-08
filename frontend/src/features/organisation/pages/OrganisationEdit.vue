@@ -5,6 +5,7 @@ import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
 const props = defineProps<{ id: string; locale?: string }>()
 
@@ -13,7 +14,7 @@ const authStore = useAuthStore()
 const organisationService = new GenericService<Organisation>('/organisation')
 const queryKey: string[] = ['organisations']
 const entityLabel: string = 'organisation'
-const editLabel: string = t('messages.edit_entity', { entity: t('labels.organisation') })
+const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.organisation') }))
 </script>
 
 <template>

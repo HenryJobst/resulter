@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.application.port.OrganisationRepository;
+import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import org.hibernate.Hibernate;
@@ -35,7 +36,10 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
         OrganisationDbo organisationDbo = OrganisationDbo.from(organisation, null, dboResolvers);
         if (organisationDbo.getCountry() != null &&
                 Hibernate.isInitialized(organisationDbo.getCountry())) {
-            organisationDbo.setCountry(countryJpaRepository.save(organisationDbo.getCountry()));
+            organisationDbo.setCountry(
+                    organisationDbo.getCountry().getId() != CountryId.empty().value() ? organisationDbo.getCountry() :
+                            countryJpaRepository.save(organisationDbo.getCountry())
+            );
         }
         if (Hibernate.isInitialized(organisationDbo.getParentOrganisations())) {
             var organisationsToSave = organisationDbo.getParentOrganisations()

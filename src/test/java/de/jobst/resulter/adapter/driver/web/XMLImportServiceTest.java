@@ -114,7 +114,7 @@ class XMLImportServiceTest {
         assertThat(firstPersonRaceResult).isPresent();
 
         assertThat(firstPersonRaceResult.get().getRaceNumber().value()).isEqualTo(1);
-        assertThat(firstPersonRaceResult.get().getPositon().value()).isEqualTo(1);
+        assertThat(firstPersonRaceResult.get().getPosition().value()).isEqualTo(1);
         assertThat(firstPersonRaceResult.get().getStartTime()).isEqualTo(DateTime.of(ZonedDateTime.of(LocalDate.of(2020,
                         1,
                         18),

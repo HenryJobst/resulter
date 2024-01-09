@@ -135,7 +135,7 @@ class EventDboMappingTest {
                                         .value());
                                 assertThat(personRaceResultDbo.getPunchTime()).isEqualTo(personRaceResult.getRuntime()
                                         .value());
-                                assertThat(personRaceResultDbo.getPosition()).isEqualTo(personRaceResult.getPositon()
+                                assertThat(personRaceResultDbo.getPosition()).isEqualTo(personRaceResult.getPosition()
                                         .value());
                                 assertThat(personRaceResultDbo.getState()).isEqualTo(personRaceResult.getState());
 

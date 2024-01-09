@@ -3,6 +3,7 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupConfig;
 import de.jobst.resulter.domain.CupId;
+import de.jobst.resulter.domain.Event;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -54,6 +55,14 @@ public class InMemoryCupRepository implements CupRepository {
         }
         cups.remove(cup.getId());
         savedCups.remove(cup);
+    }
+
+    @Override
+    public Collection<Cup> findByEvent(Event event) {
+        return this.cups.values()
+                .stream()
+                .filter(it -> it.getEvents().get().value().stream().anyMatch(x -> x.getId().equals(event.getId())))
+                .toList();
     }
 
     @SuppressWarnings("unused")

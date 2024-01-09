@@ -1,5 +1,6 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.domain.scoring.*;
 import de.jobst.resulter.domain.util.ShallowLoadProxy;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
@@ -103,5 +104,34 @@ public class Event implements Comparable<Event> {
     @Override
     public int compareTo(@NonNull Event o) {
         return name.compareTo(o.name);
+    }
+
+    public void calculate(Cup cup) {
+
+        if (invalid(cup)) {
+            return;
+        }
+
+        CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
+        switch (cup.getType()) {
+            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy();
+            case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy();
+            case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy();
+            case CupType.ADD -> cupTypeCalculationStrategy = new AddCalculationStrategy();
+        }
+
+        if (cupTypeCalculationStrategy != null) {
+            calculate(cupTypeCalculationStrategy);
+        }
+    }
+
+    private boolean invalid(Cup cup) {
+        // event is not in given cup
+        return cup.getEvents().get().value().stream().filter(it -> it.getId().equals(this.id)).findAny().isEmpty();
+    }
+
+    private void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
+        getClassResults().get().value().stream().filter(cupTypeCalculationStrategy::valid).forEach(
+                it -> it.calculate(cupTypeCalculationStrategy));
     }
 }

@@ -1,6 +1,7 @@
 import type { Event } from '@/features/event/model/event'
 import axiosInstance from '@/features/keycloak/services/api'
 import type { EventResults } from '@/features/event/model/event_results'
+import { handleApiError } from '@/utils/HandleError'
 
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'event'
 
@@ -44,5 +45,15 @@ export class EventService {
   static async deleteById(id: number | string) {
     const response = await axiosInstance.delete(url + '/' + id)
     return response.data
+  }
+
+  static async calculate(id: number | string, t: (key: string) => string) {
+    return axiosInstance
+      .put(url + '/' + id + '/calculate')
+      .then((response) => response.data)
+      .catch((error) => {
+        handleApiError(error, t)
+        return null
+      })
   }
 }

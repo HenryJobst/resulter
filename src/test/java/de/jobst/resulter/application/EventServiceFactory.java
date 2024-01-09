@@ -7,14 +7,17 @@ public class EventServiceFactory {
 
     @NotNull
     public static EventService createServiceWith(EventRepository eventRepository,
+                                                 CupRepository cupRepository,
                                                  PersonRepository personRepository,
                                                  OrganisationRepository organisationRepository) {
-        return new EventService(eventRepository, personRepository, organisationRepository);
+        return new EventService(eventRepository, personRepository, organisationRepository, cupRepository);
     }
 
     @NotNull
     public static EventService withDefaults() {
-        return createServiceWith(new InMemoryEventRepository(),
+        return createServiceWith(
+                new InMemoryEventRepository(),
+                new InMemoryCupRepository(),
                 new InMemoryPersonRepository(),
                 new InMemoryOrganisationRepository());
     }

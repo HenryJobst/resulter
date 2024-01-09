@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.PersonRepository;
@@ -7,6 +8,7 @@ import de.jobst.resulter.domain.*;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -18,12 +20,15 @@ public class EventService {
     public final OrganisationRepository organisationRepository;
     private final EventRepository eventRepository;
 
+    private final CupRepository cupRepository;
+
     public EventService(EventRepository eventRepository,
                         PersonRepository personRepository,
-                        OrganisationRepository organisationRepository) {
+                        OrganisationRepository organisationRepository, CupRepository cupRepository) {
         this.eventRepository = eventRepository;
         this.personRepository = personRepository;
         this.organisationRepository = organisationRepository;
+        this.cupRepository = cupRepository;
     }
 
     @NonNull
@@ -105,4 +110,21 @@ public class EventService {
         return true;
     }
 
+    public Event calculateEvent(EventId id) {
+        EventConfig eventConfig = getEventConfig(false,
+                false,
+                false,
+                true,
+                false,
+                false,
+                true);
+        Optional<Event> optionalEvent = findById(id, eventConfig);
+        if (optionalEvent.isEmpty()) {
+            return null;
+        }
+        Event event = optionalEvent.get();
+        Collection<Cup> cups = cupRepository.findByEvent(event);
+        cups.forEach(event::calculate);
+        return eventRepository.save(event);
+    }
 }

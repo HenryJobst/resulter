@@ -183,6 +183,24 @@ public class EventController {
         }
     }
 
+    @PutMapping("/event/{id}/calculate")
+    public ResponseEntity<EventDto> calculateEvent(@PathVariable Long id) {
+        try {
+            Event event = eventService.calculateEvent(EventId.of(id));
+            if (null != event) {
+                return ResponseEntity.ok(EventDto.from(event));
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private static void logError(Exception e) {
         log.error(e.getMessage());
         if (Objects.nonNull(e.getCause())) {

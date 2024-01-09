@@ -113,4 +113,13 @@ public class Organisation implements Comparable<Organisation> {
         this.country = ShallowLoadProxy.of(country);
         this.setParentOrganisations(ShallowLoadProxy.of(organisations));
     }
+
+    public boolean containsOrganisationWithName(String name) {
+        if (getName().value().equals(name)) {
+            return true;
+        }
+        return getParentOrganisations().get().value().stream()
+                .anyMatch(subOrg -> subOrg.containsOrganisationWithName(name));
+    }
+
 }

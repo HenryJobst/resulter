@@ -1,6 +1,6 @@
 package de.jobst.resulter.domain;
 
-public record PersonRaceResultId(long value) {
+public record PersonRaceResultId(long value) implements Comparable<PersonRaceResultId> {
 
     public static PersonRaceResultId of(long value) {
         if (value < 0L) {
@@ -20,5 +20,9 @@ public record PersonRaceResultId(long value) {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;
+    }
+
+    public int compareTo(PersonRaceResultId o) {
+        return Long.compare(value, o.value);
     }
 }

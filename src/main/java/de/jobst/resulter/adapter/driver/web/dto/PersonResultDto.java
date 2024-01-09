@@ -23,7 +23,7 @@ public record PersonResultDto(Long id,
         Double runTime = personRaceResult.getRuntime().value();
         return new PersonResultDto(
                 personResult.getId().value(),
-                personRaceResult.getPositon().value(),
+                personRaceResult.getPosition().value(),
                 personResult.getPerson().get().getPersonName().getFullName(),
                 personResult.getPerson().get().getBirthDate().value() != null ?
                         Year.from(personResult.getPerson().get().getBirthDate().value()) : null,

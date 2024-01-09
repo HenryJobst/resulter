@@ -1,7 +1,14 @@
 package de.jobst.resulter.domain;
 
-public record Position(Long value) {
+import org.springframework.lang.NonNull;
+
+public record Position(Long value) implements Comparable<Position> {
     public static Position of(Long value) {
         return new Position(value);
+    }
+
+    @Override
+    public int compareTo(@NonNull Position o) {
+        return this.value.compareTo(o.value);
     }
 }

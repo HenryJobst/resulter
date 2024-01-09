@@ -6,16 +6,20 @@ import { useI18n } from 'vue-i18n'
 import Tree from 'primevue/tree'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import Button from 'primevue/button'
 import type { ClassResult } from '@/features/event/model/class_result'
 import type { TreeNode } from 'primevue/treenode'
 import { computed } from 'vue'
 import moment from 'moment'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const props = defineProps<{ id: string; locale?: string }>()
 const store = useEventStore()
 const event = store.selectEvent(+props.id)
 
 const { t } = useI18n()
+
+const authStore = useAuthStore()
 
 function parseDurationMoment(durationString: string): moment.Duration {
   return moment.duration(durationString)
@@ -65,10 +69,15 @@ const resultColumn = (slotProps: any): string => {
 const birthYearColumn = (slotProps: any): string => {
   return slotProps.data.birthYear ? slotProps.data.birthYear.slice(-2) : ''
 }
+
+const calculate = () => {
+  EventService.calculate(props.id, t)
+}
 </script>
 
 <template>
   <h2 v-if="event">{{ event.name }}</h2>
+  <Button :label="t('labels.calculate')" @click="calculate()" v-if="authStore.isAdmin" />
   <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
   <span v-else-if="eventResultsQuery.status.value === 'error'">
     {{ t('messages.error', { message: eventResultsQuery.error.toLocaleString() }) }}
@@ -99,4 +108,8 @@ const birthYearColumn = (slotProps: any): string => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+h1 {
+  margin-bottom: 1rem;
+}
+</style>

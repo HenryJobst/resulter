@@ -4,6 +4,7 @@ import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupConfig;
 import de.jobst.resulter.domain.CupId;
+import de.jobst.resulter.domain.Event;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -112,5 +113,11 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
     @Override
     public void deleteCup(Cup cup) {
         cupJpaRepository.deleteById(cup.getId().value());
+    }
+
+    @Override
+    public List<Cup> findByEvent(Event event) {
+        List<CupDbo> cups = cupJpaRepository.findByEventId(event.getId().value());
+        return CupDbo.asCups(CupConfig.full(), cups);
     }
 }

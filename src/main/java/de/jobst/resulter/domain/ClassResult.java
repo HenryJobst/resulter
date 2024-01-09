@@ -1,5 +1,6 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
 import de.jobst.resulter.domain.util.ShallowLoadProxy;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +8,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 public class ClassResult implements Comparable<ClassResult> {
@@ -78,5 +82,35 @@ public class ClassResult implements Comparable<ClassResult> {
             value = id.compareTo(o.id);
         }
         return value;
+    }
+
+    public void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
+        Set<RaceNumber> races =
+                this.getPersonResults()
+                        .get()
+                        .value()
+                        .stream()
+                        .flatMap(it -> it.getPersonRaceResults().get().value().stream())
+                        .map(
+                                PersonRaceResult::getRaceNumber)
+                        .collect(
+                                Collectors.toSet());
+        races.forEach(raceNumber -> {
+            List<PersonResult> personResults =
+                    this.getPersonResults().get().value().stream()
+                            .filter(cupTypeCalculationStrategy::valid).sorted().toList();
+            List<PersonRaceResult> personRaceResults =
+                    personResults.stream()
+                            .flatMap(it -> it.getPersonRaceResults()
+                                    .get()
+                                    .value()
+                                    .stream())
+                            .filter(x -> x.getRaceNumber() == raceNumber)
+                            .filter(y -> y.getState().equals(ResultStatus.OK))
+                            .sorted()
+                            .toList();
+            cupTypeCalculationStrategy.calculate(personRaceResults);
+        });
+
     }
 }

@@ -77,8 +77,8 @@ public class PersonRaceResultDbo {
         if (ObjectUtils.isNotEmpty(personRaceResult.getRaceNumber())) {
             personRaceResultDbo.setRaceNumber(personRaceResult.getRaceNumber().value());
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.getPositon())) {
-            personRaceResultDbo.setPosition(personRaceResult.getPositon().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getPosition())) {
+            personRaceResultDbo.setPosition(personRaceResult.getPosition().value());
         }
         if (ObjectUtils.isNotEmpty(personRaceResult.getState())) {
             personRaceResultDbo.setState(personRaceResult.getState());

@@ -7,7 +7,39 @@ import java.util.Set;
 
 public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     public static final CupType CUP_TYPE = CupType.NOR;
-    Set<String> classesToSkip = Set.of("BK", "BL");
+    Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner");
+
+    private static double multiplyTime(double baseTime, double factor) {
+        return baseTime * factor;
+    }
+
+    public static int calculateNorPoints(double bestTime, double currentTime) {
+        if (currentTime <= bestTime) {
+            return 12;
+        } else if (currentTime <= multiplyTime(bestTime, 1.05)) {
+            return 11;
+        } else if (currentTime <= multiplyTime(bestTime, 1.10)) {
+            return 10;
+        } else if (currentTime <= multiplyTime(bestTime, 1.15)) {
+            return 9;
+        } else if (currentTime <= multiplyTime(bestTime, 1.20)) {
+            return 8;
+        } else if (currentTime <= multiplyTime(bestTime, 1.25)) {
+            return 7;
+        } else if (currentTime <= multiplyTime(bestTime, 1.35)) {
+            return 6;
+        } else if (currentTime <= multiplyTime(bestTime, 1.50)) {
+            return 5;
+        } else if (currentTime <= multiplyTime(bestTime, 1.70)) {
+            return 4;
+        } else if (currentTime <= multiplyTime(bestTime, 2.0)) {
+            return 3;
+        } else if (currentTime <= multiplyTime(bestTime, 3.0)) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
 
     @Override
     public boolean valid(ClassResult classResult) {
@@ -24,20 +56,15 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
         if (personRaceResults.isEmpty()) {
             return;
         }
-        PersonRaceResult first = personRaceResults.getFirst();
-        Position firstPosition = first.getPosition();
-        PunchTime fastestTime = first.getRuntime();
-        personRaceResults.forEach(personRaceResult -> {
-            if (personRaceResult.getPosition().equals(firstPosition)) {
-                personRaceResult.setScore(CUP_TYPE, CupScore.of(12));
-            } else {
-                personRaceResult.setScore(CUP_TYPE, calculateScore(fastestTime, personRaceResult.getRuntime()));
-            }
-        });
+        PunchTime fastestTime = personRaceResults.getFirst().getRuntime();
+        personRaceResults.forEach(personRaceResult ->
+                personRaceResult.setScore(CUP_TYPE, calculateScore(
+                        CupScoreId.of(CUP_TYPE, personRaceResult.getId().value()),
+                        fastestTime, personRaceResult.getRuntime()))
+        );
     }
 
-    private CupScore calculateScore(PunchTime fastestTime, PunchTime runtime) {
-        // TODO
-        return CupScore.of(0);
+    private CupScore calculateScore(CupScoreId id, PunchTime fastestTime, PunchTime runtime) {
+        return CupScore.of(id, calculateNorPoints(fastestTime.value(), runtime.value()));
     }
 }

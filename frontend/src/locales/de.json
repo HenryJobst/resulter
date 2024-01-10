@@ -48,7 +48,8 @@
     "cup": "Kein Cup | Cup | Cups",
     "entity_list": "{entity}",
     "country": "Land",
-    "parent_organisation": "Dach-Organisation"
+    "parent_organisation": "Dach-Organisation",
+    "calculate": "Berechne Cup-Punkte"
   },
   "messages": {
     "new_cup": "Neuer Cup",

@@ -44,6 +44,10 @@ public class PersonRaceResultDbo {
     @OneToMany(mappedBy = "personRaceResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SplitTimeDbo> splitTimes = new HashSet<>();
 
+
+    @OneToMany(mappedBy = "personRaceResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CupScoreDbo> cupScores = new HashSet<>();
+
     public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult,
                                            @NonNull PersonResultDbo personResultDbo,
                                            @Nullable DboResolver<PersonRaceResultId, PersonRaceResultDbo> dboResolver,
@@ -129,6 +133,21 @@ public class PersonRaceResultDbo {
         } else {
             splitTimesByPersonRaceResultId = null;
         }
+
+        Map<PersonRaceResultId, Map<CupType, CupScore>> cupScoresByPersonRaceResultId;
+        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CUP_SCORES)) {
+            cupScoresByPersonRaceResultId =
+                    CupScoreDbo.asCupScores(personRaceResultDbos.stream()
+                                    .flatMap(x -> x.cupScores.stream())
+                                    .sorted().toList())
+                            .stream()
+                            .collect(Collectors.groupingBy(
+                                    y -> y.id().value(),
+                                    Collectors.toMap(
+                                            z -> z.id().type(), val -> val)));
+        } else {
+            cupScoresByPersonRaceResultId = null;
+        }
         return personRaceResultDbos.stream()
                 .map(
                         it -> PersonRaceResult.of(
@@ -144,7 +163,11 @@ public class PersonRaceResultDbo {
                                 it.getState(),
                                 splitTimesByPersonRaceResultId == null ? null :
                                         splitTimesByPersonRaceResultId.getOrDefault(
-                                                PersonRaceResultId.of(it.id), new ArrayList<>())))
+                                                PersonRaceResultId.of(it.id), new ArrayList<>()),
+                                cupScoresByPersonRaceResultId == null ? null :
+                                        cupScoresByPersonRaceResultId.getOrDefault(
+                                                PersonRaceResultId.of(it.id), new HashMap<>())
+                        ))
                 .toList();
     }
 
@@ -218,5 +241,13 @@ public class PersonRaceResultDbo {
 
     public void setSplitTimes(Set<SplitTimeDbo> splitTimes) {
         this.splitTimes = splitTimes;
+    }
+
+    public Set<CupScoreDbo> getCupScores() {
+        return cupScores;
+    }
+
+    public void setCupScores(Set<CupScoreDbo> cupScores) {
+        this.cupScores = cupScores;
     }
 }

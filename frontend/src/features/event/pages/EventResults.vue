@@ -102,6 +102,13 @@ const calculate = () => {
               {{ resultColumn(slotProps) }}
             </template>
           </Column>
+          <!--Column
+            v-for="score in cupScores"
+            :key="score.type.name"
+            :header="score.type.name"
+            :field="score.score"
+          >
+          </Column-->
         </DataTable>
       </template>
     </Tree>

@@ -116,6 +116,7 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
     }
 
     @Override
+    @Transactional
     public List<Cup> findByEvent(Event event) {
         List<CupDbo> cups = cupJpaRepository.findByEventId(event.getId().value());
         return CupDbo.asCups(CupConfig.full(), cups);

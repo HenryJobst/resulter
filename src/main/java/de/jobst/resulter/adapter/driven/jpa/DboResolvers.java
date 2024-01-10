@@ -19,6 +19,7 @@ public class DboResolvers {
     private DboResolver<PersonResultId, PersonResultDbo> personResultDboResolver = null;
     private DboResolver<PersonRaceResultId, PersonRaceResultDbo> personRaceResultDboResolver = null;
     private DboResolver<SplitTimeId, SplitTimeDbo> splitTimeDboResolver = null;
+    private DboResolver<CupScoreIdDbo, CupScoreDbo> cupScoreDboResolver = null;
 
     @NonNull
     static DboResolvers empty() {

@@ -7,6 +7,8 @@ import org.springframework.lang.NonNull;
 
 import java.time.Duration;
 import java.time.Year;
+import java.util.ArrayList;
+import java.util.List;
 
 public record PersonResultDto(Long id,
                               Long position,
@@ -14,7 +16,8 @@ public record PersonResultDto(Long id,
                               Year birthYear,
                               Duration runTime,
                               String resultStatus,
-                              String organisation)
+                              String organisation,
+                              List<CupScoreDto> cupScores)
         implements Comparable<PersonResultDto> {
     static public PersonResultDto from(PersonResult personResult) {
         PersonRaceResult
@@ -30,7 +33,10 @@ public record PersonResultDto(Long id,
                 runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
                 personRaceResult.getState().value(),
                 personResult.getOrganisation().get() != null ?
-                        personResult.getOrganisation().get().getName().value() : ""
+                        personResult.getOrganisation().get().getName().value() : "",
+                personRaceResult.getCupScores().get() != null ?
+                        personRaceResult.getCupScores().get().values().stream().map(CupScoreDto::from).toList() :
+                        new ArrayList<>()
         );
     }
 

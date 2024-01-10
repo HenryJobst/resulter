@@ -9,6 +9,7 @@ import org.springframework.lang.Nullable;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class PersonRaceResult implements Comparable<PersonRaceResult> {
@@ -30,10 +31,10 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     @NonNull
     private final ResultStatus state;
     @NonNull
-    ShallowLoadProxy<SplitTimes> splitTimes;
+    private final ShallowLoadProxy<SplitTimes> splitTimes;
     @NonNull
     @Setter
-    private CupScores cupScores;
+    private ShallowLoadProxy<CupScores> cupScores;
 
     public PersonRaceResult(@NonNull PersonRaceResultId id,
                             @NonNull PersonResultId personResultId,
@@ -44,7 +45,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                             @NonNull Position position,
                             @NonNull ResultStatus state,
                             @NonNull ShallowLoadProxy<SplitTimes> splitTimes,
-                            @NonNull CupScores cupScores) {
+                            @NonNull ShallowLoadProxy<CupScores> cupScores) {
         this.id = id;
         this.personResultId = personResultId;
         this.raceNumber = raceNumber;
@@ -73,7 +74,8 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                 punchTime,
                 position,
                 resultState,
-                splitTimes);
+                splitTimes,
+                new HashMap<>());
     }
 
     public static PersonRaceResult of(
@@ -85,7 +87,8 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
             Double punchTime,
             Long position,
             ResultStatus resultState,
-            List<SplitTime> splitTimes) {
+            List<SplitTime> splitTimes,
+            Map<CupType, CupScore> cupScores) {
         return new PersonRaceResult(
                 PersonRaceResultId.of(id),
                 PersonResultId.of(personResultId),
@@ -96,7 +99,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                 Position.of(position),
                 resultState,
                 splitTimes != null ? ShallowLoadProxy.of(SplitTimes.of(splitTimes)) : ShallowLoadProxy.empty(),
-                CupScores.of(new HashMap<>()));
+                cupScores != null ? ShallowLoadProxy.of(CupScores.of(cupScores)) : ShallowLoadProxy.empty());
     }
 
     @Override
@@ -112,6 +115,6 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     }
 
     public void setScore(CupType type, CupScore score) {
-        cupScores.add(type, score);
+        cupScores.get().add(type, score);
     }
 }

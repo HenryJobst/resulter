@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @EnableJpaRepositories(basePackages = "de.jobst.resulter.adapter.driven.jpa")
 @Import({EventRepositoryDataJpaAdapter.class,
         EventService.class,
+        CupRepositoryDataJpaAdapter.class,
         PersonRepositoryDataJpaAdapter.class,
         OrganisationRepositoryDataJpaAdapter.class})
 class EventServiceJpaTest {

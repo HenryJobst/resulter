@@ -52,6 +52,8 @@ public class CupController {
             Boolean shallowPersonRaceResults,
             @RequestParam(name = "shallowSplitTimes", required = false, defaultValue = "true")
             Boolean shallowSplitTimes,
+            @RequestParam(name = "shallowCupScores", required = false, defaultValue = "true")
+            Boolean shallowCupScores,
             @RequestParam(name = "shallowPersons", required = false, defaultValue = "true")
             Boolean shallowPersons,
             @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
@@ -65,6 +67,7 @@ public class CupController {
                     shallowPersonResults,
                     shallowPersonRaceResults,
                     shallowSplitTimes,
+                    shallowCupScores,
                     shallowPersons,
                     shallowOrganisations,
                     shallowEventOrganisations);
@@ -90,6 +93,8 @@ public class CupController {
             Boolean shallowPersonRaceResults,
             @RequestParam(name = "shallowSplitTimes", required = false, defaultValue = "true")
             Boolean shallowSplitTimes,
+            @RequestParam(name = "shallowCupScores", required = false, defaultValue = "true")
+            Boolean shallowCupScores,
             @RequestParam(name = "shallowPersons", required = false, defaultValue = "true")
             Boolean shallowPersons,
             @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
@@ -103,6 +108,7 @@ public class CupController {
                     shallowPersonResults,
                     shallowPersonRaceResults,
                     shallowSplitTimes,
+                    shallowCupScores,
                     shallowPersons,
                     shallowOrganisations,
                     shallowEventOrganisations);

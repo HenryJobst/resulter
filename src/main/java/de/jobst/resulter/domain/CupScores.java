@@ -3,6 +3,7 @@ package de.jobst.resulter.domain;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import org.springframework.lang.NonNull;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class CupScores {
@@ -27,6 +28,10 @@ public class CupScores {
             return this.cupScores.get(cupType);
         }
         return null;
+    }
+
+    public Collection<CupScore> values() {
+        return this.cupScores.values();
     }
 
 }

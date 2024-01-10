@@ -136,6 +136,9 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
                     if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.SPLIT_TIMES)) {
                         personRaceResultSubgraph.addSubgraph(PersonRaceResultDbo_.splitTimes);
                     }
+                    if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CUP_SCORES)) {
+                        personRaceResultSubgraph.addSubgraph(PersonRaceResultDbo_.cupScores);
+                    }
                 }
                 if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSONS)) {
                     personResultSubgraph.addAttributeNodes(PersonResultDbo_.person.getName());

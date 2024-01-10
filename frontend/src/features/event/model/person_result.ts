@@ -1,3 +1,5 @@
+import type { CupScore } from '@/features/event/model/cup_score'
+
 export interface PersonResult {
   id: number
   position: number
@@ -6,4 +8,5 @@ export interface PersonResult {
   runTime: string
   resultStatus: string
   organisation: string
+  cupScores?: CupScore[]
 }

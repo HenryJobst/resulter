@@ -36,6 +36,7 @@ public class EventService {
                                              Boolean shallowPersonResults,
                                              Boolean shallowPersonRaceResults,
                                              Boolean shallowSplitTimes,
+                                             Boolean shallowCupScores,
                                              Boolean shallowPersons,
                                              Boolean shallowOrganisations,
                                              Boolean shallowEventOrganisations) {
@@ -54,19 +55,24 @@ public class EventService {
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
+            shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
             shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
         } else if (shallowPersonResults) {
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
+            shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
             shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
         } else if (shallowPersonRaceResults) {
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
+            shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
         } else if (shallowSplitTimes) {
             shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
+        } else if (shallowCupScores) {
+            shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
         }
         return EventConfig.of(shallowLoads);
     }
@@ -85,6 +91,7 @@ public class EventService {
 
     public Event updateEvent(EventId id, EventName name, DateTime startDate, Organisations organisations) {
         EventConfig eventConfig = getEventConfig(true,
+                true,
                 true,
                 true,
                 true,
@@ -117,7 +124,8 @@ public class EventService {
                 true,
                 false,
                 false,
-                true);
+                false,
+                false);
         Optional<Event> optionalEvent = findById(id, eventConfig);
         if (optionalEvent.isEmpty()) {
             return null;

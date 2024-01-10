@@ -25,6 +25,7 @@ public record EventConfig(EnumSet<ShallowEventLoads> shallowLoads) {
             shallowLoads.add(ShallowEventLoads.PERSON_RESULTS);
             shallowLoads.add(ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
+            shallowLoads.add(ShallowEventLoads.CUP_SCORES);
         } else if (event.getClassResults()
                 .get().value()
                 .stream()
@@ -32,6 +33,7 @@ public record EventConfig(EnumSet<ShallowEventLoads> shallowLoads) {
             shallowLoads.add(ShallowEventLoads.PERSON_RESULTS);
             shallowLoads.add(ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
+            shallowLoads.add(ShallowEventLoads.CUP_SCORES);
         } else if (event.getClassResults()
                 .get()
                 .value()
@@ -40,6 +42,7 @@ public record EventConfig(EnumSet<ShallowEventLoads> shallowLoads) {
                 .noneMatch(y -> y.getPersonRaceResults().isLoaded())) {
             shallowLoads.add(ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
+            shallowLoads.add(ShallowEventLoads.CUP_SCORES);
         } else if (Objects.requireNonNull(event.getClassResults())
                 .get().value()
                 .stream()
@@ -50,6 +53,15 @@ public record EventConfig(EnumSet<ShallowEventLoads> shallowLoads) {
                         .flatMap(z -> z.getPersonRaceResults().get().value()
                                 .stream())).noneMatch(u -> u.getSplitTimes().isLoaded())) {
             shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
+            shallowLoads.add(ShallowEventLoads.CUP_SCORES);
+        } else if (Objects.requireNonNull(event.getClassResults())
+                .get().value().stream().flatMap(x -> x.getPersonResults()
+                        .get().value()
+                        .stream()
+                        .filter(y -> y.getPersonRaceResults().isLoaded())
+                        .flatMap(z -> z.getPersonRaceResults().get().value()
+                                .stream())).noneMatch(u -> u.getCupScores().isLoaded())) {
+            shallowLoads.add(ShallowEventLoads.CUP_SCORES);
         }
         if (event.getOrganisations().isEmpty()) {
             shallowLoads.add(ShallowEventLoads.EVENT_ORGANISATIONS);
@@ -62,6 +74,7 @@ public record EventConfig(EnumSet<ShallowEventLoads> shallowLoads) {
         PERSON_RESULTS,
         PERSON_RACE_RESULTS,
         SPLIT_TIMES,
+        CUP_SCORES,
         PERSONS,
         ORGANISATIONS,
         EVENT_ORGANISATIONS

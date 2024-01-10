@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000019_cup_score
+      author: Henry Jobst
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: CUP_SCORE
+      comment: Table cup_score with sequence, indexes and keys
+      changes:
+        - createTable:
+            tableName: CUP_SCORE
+            columns:
+              - column:
+                  name: CUP_TYPE
+                  type: VARCHAR(60)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_CUP_SCORE
+              - column:
+                  name: PERSON_RACE_RESULT_ID
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: PK_CUP_SCORE
+                    foreignKeyName: FK_CUP_SCORE_PERSON_RACE_RESULT
+              - column:
+                  name: SCORE
+                  type: DOUBLE
+        - addForeignKeyConstraint:
+            baseTableName: CUP_SCORE
+            baseColumnNames: PERSON_RACE_RESULT_ID
+            constraintName: FK_CUP_SCORE_PERSON_RACE_RESULT
+            referencedTableName: PERSON_RACE_RESULT
+            referencedColumnNames: ID
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - createIndex:
+            tableName: CUP_SCORE
+            columns:
+              - column:
+                  name: CUP_TYPE
+              - column:
+                  name: PERSON_RACE_RESULT_ID
+            indexName: IDX_CUP_SCORE_PK

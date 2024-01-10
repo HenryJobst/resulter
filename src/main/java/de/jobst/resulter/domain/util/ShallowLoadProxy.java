@@ -1,11 +1,14 @@
 package de.jobst.resulter.domain.util;
 
+import lombok.Setter;
+
 import java.util.function.Supplier;
 
 public class ShallowLoadProxy<T> {
 
     private T value = null;
-    final private Supplier<T> loader;
+    @Setter
+    private Supplier<T> loader;
     private boolean isLoaded = false;
 
     public ShallowLoadProxy() {

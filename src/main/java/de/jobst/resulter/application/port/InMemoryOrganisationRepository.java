@@ -55,6 +55,16 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
         savedOrganisations.remove(organisation);
     }
 
+    @Override
+    public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet, boolean deep) {
+        return null;
+    }
+
+    @Override
+    public Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet) {
+        return null;
+    }
+
     @SuppressWarnings("unused")
     public List<Organisation> savedOrganisations() {
         return savedOrganisations;

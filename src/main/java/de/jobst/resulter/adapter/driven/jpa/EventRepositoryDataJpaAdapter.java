@@ -145,6 +145,11 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
                 }
                 if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.ORGANISATIONS)) {
                     personResultSubgraph.addAttributeNodes(PersonResultDbo_.organisation.getName());
+                    if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PARENT_ORGANISATIONS)) {
+                        Subgraph<OrganisationDbo> organisationSubgraph =
+                                personResultSubgraph.addSubgraph(PersonResultDbo_.organisation.getName());
+                        organisationSubgraph.addAttributeNodes(OrganisationDbo_.parentOrganisations.getName());
+                    }
                 }
             }
         }

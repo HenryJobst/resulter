@@ -7,11 +7,9 @@ import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.*;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class EventService {
@@ -32,25 +30,18 @@ public class EventService {
     }
 
     @NonNull
-    public static EventConfig getEventConfig(Boolean shallowClassResults,
-                                             Boolean shallowPersonResults,
-                                             Boolean shallowPersonRaceResults,
-                                             Boolean shallowSplitTimes,
-                                             Boolean shallowCupScores,
-                                             Boolean shallowPersons,
-                                             Boolean shallowOrganisations,
-                                             Boolean shallowEventOrganisations) {
+    public static EventConfig getEventConfig(EventShallowProxyConfig eventShallowProxyConfig) {
         EnumSet<EventConfig.ShallowEventLoads> shallowLoads = EnumSet.noneOf(EventConfig.ShallowEventLoads.class);
-        if (shallowEventOrganisations) {
+        if (eventShallowProxyConfig.shallowEventOrganisations()) {
             shallowLoads.add(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS);
         }
-        if (shallowPersons) {
+        if (eventShallowProxyConfig.shallowPersons()) {
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
         }
-        if (shallowOrganisations) {
+        if (eventShallowProxyConfig.shallowOrganisations()) {
             shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
         }
-        if (shallowClassResults) {
+        if (eventShallowProxyConfig.shallowClassResults()) {
             shallowLoads.add(EventConfig.ShallowEventLoads.CLASS_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
@@ -58,20 +49,20 @@ public class EventService {
             shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
             shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
-        } else if (shallowPersonResults) {
+        } else if (eventShallowProxyConfig.shallowPersonResults()) {
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
             shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
             shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
-        } else if (shallowPersonRaceResults) {
+        } else if (eventShallowProxyConfig.shallowPersonRaceResults()) {
             shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
             shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
-        } else if (shallowSplitTimes) {
+        } else if (eventShallowProxyConfig.shallowSplitTimes()) {
             shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
-        } else if (shallowCupScores) {
+        } else if (eventShallowProxyConfig.shallowCupScores()) {
             shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
         }
         return EventConfig.of(shallowLoads);
@@ -90,14 +81,8 @@ public class EventService {
     }
 
     public Event updateEvent(EventId id, EventName name, DateTime startDate, Organisations organisations) {
-        EventConfig eventConfig = getEventConfig(true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                false);
+        EventConfig eventConfig = getEventConfig(
+                new EventShallowProxyConfig(true, true, true, true, true, true, true, false));
         Optional<Event> optionalEvent = findById(id, eventConfig);
         if (optionalEvent.isEmpty()) {
             return null;
@@ -117,22 +102,26 @@ public class EventService {
         return true;
     }
 
+    @Transactional
     public Event calculateEvent(EventId id) {
-        EventConfig eventConfig = getEventConfig(false,
-                false,
-                false,
-                true,
-                false,
-                false,
-                false,
-                false);
+        Collection<Cup> cups = cupRepository.findByEvent(id);
+        if (cups.isEmpty()) {
+            // no cups for this event
+            return null;
+        }
+
+        EventConfig eventConfig = getEventConfig(
+                new EventShallowProxyConfig(false, false, false, true, false, false, false, false));
         Optional<Event> optionalEvent = findById(id, eventConfig);
         if (optionalEvent.isEmpty()) {
+            // no event
             return null;
         }
         Event event = optionalEvent.get();
-        Collection<Cup> cups = cupRepository.findByEvent(event);
+        Map<OrganisationId, Organisation> organisationById =
+                organisationRepository.loadOrganisationTree(event.getReferencedOrganisationIds());
         cups.forEach(event::calculate);
         return eventRepository.save(event);
     }
+
 }

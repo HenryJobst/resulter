@@ -3,7 +3,7 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupConfig;
 import de.jobst.resulter.domain.CupId;
-import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventId;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,5 +20,5 @@ public interface CupRepository {
 
     void deleteCup(Cup cup);
 
-    Collection<Cup> findByEvent(Event event);
+    Collection<Cup> findByEvent(EventId eventId);
 }

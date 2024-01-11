@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.application.EventService;
+import de.jobst.resulter.application.EventShallowProxyConfig;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
@@ -50,14 +51,15 @@ public class EventController {
             Boolean shallowEventOrganisations
     ) {
         try {
-            List<Event> events = eventService.findAll(EventService.getEventConfig(shallowClassResults,
-                    shallowPersonResults,
-                    shallowPersonRaceResults,
-                    shallowSplitTimes,
-                    shallowCupScores,
-                    shallowPersons,
-                    shallowOrganisations,
-                    shallowEventOrganisations));
+            List<Event> events = eventService.findAll(EventService.getEventConfig(
+                    new EventShallowProxyConfig(shallowClassResults,
+                            shallowPersonResults,
+                            shallowPersonRaceResults,
+                            shallowSplitTimes,
+                            shallowCupScores,
+                            shallowPersons,
+                            shallowOrganisations,
+                            shallowEventOrganisations)));
             return ResponseEntity.ok(events.stream().map(EventDto::from).toList());
         } catch (Exception e) {
             logError(e);
@@ -86,14 +88,15 @@ public class EventController {
             Boolean shallowEventOrganisations
     ) {
         try {
-            EventConfig eventConfig = EventService.getEventConfig(shallowClassResults,
-                    shallowPersonResults,
-                    shallowPersonRaceResults,
-                    shallowSplitTimes,
-                    shallowCupScores,
-                    shallowPersons,
-                    shallowOrganisations,
-                    shallowEventOrganisations);
+            EventConfig eventConfig = EventService.getEventConfig(
+                    new EventShallowProxyConfig(shallowClassResults,
+                            shallowPersonResults,
+                            shallowPersonRaceResults,
+                            shallowSplitTimes,
+                            shallowCupScores,
+                            shallowPersons,
+                            shallowOrganisations,
+                            shallowEventOrganisations));
             Optional<Event> event = eventService.findById(EventId.of(id), eventConfig);
             return event.map(value -> ResponseEntity.ok(EventDto.from(value)))
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -173,14 +176,15 @@ public class EventController {
             Boolean shallowEventOrganisations
     ) {
         try {
-            EventConfig eventConfig = EventService.getEventConfig(shallowClassResults,
-                    shallowPersonResults,
-                    shallowPersonRaceResults,
-                    shallowSplitTimes,
-                    shallowCupScores,
-                    shallowPersons,
-                    shallowOrganisations,
-                    shallowEventOrganisations);
+            EventConfig eventConfig = EventService.getEventConfig(
+                    new EventShallowProxyConfig(shallowClassResults,
+                            shallowPersonResults,
+                            shallowPersonRaceResults,
+                            shallowSplitTimes,
+                            shallowCupScores,
+                            shallowPersons,
+                            shallowOrganisations,
+                            shallowEventOrganisations));
             Optional<Event> event = eventService.findById(EventId.of(id), eventConfig);
 
             return event.map(value -> ResponseEntity.ok(EventResultsDto.from(value)))

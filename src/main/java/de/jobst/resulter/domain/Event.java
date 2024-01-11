@@ -11,6 +11,8 @@ import org.springframework.lang.Nullable;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -92,6 +94,18 @@ public class Event implements Comparable<Event> {
                         ShallowLoadProxy.of(Organisations.of(organisations)) :
                         ShallowLoadProxy.empty(),
                 eventState);
+    }
+
+    @NonNull
+    public Set<OrganisationId> getReferencedOrganisationIds() {
+        return getClassResults()
+                .get()
+                .value()
+                .stream()
+                .flatMap(it -> it.getPersonResults().get().value().stream())
+                .map(x -> x.getOrganisation().get().getId())
+                .collect(
+                        Collectors.toSet());
     }
 
     public void update(EventName eventName, DateTime startTime, Organisations organisations) {

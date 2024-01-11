@@ -4,7 +4,7 @@ import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupConfig;
 import de.jobst.resulter.domain.CupId;
-import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventId;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -117,8 +117,10 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
 
     @Override
     @Transactional
-    public List<Cup> findByEvent(Event event) {
-        List<CupDbo> cups = cupJpaRepository.findByEventId(event.getId().value());
+    public List<Cup> findByEvent(EventId eventId) {
+        List<CupDbo> cups = cupJpaRepository.findByEventId(eventId.value());
         return CupDbo.asCups(CupConfig.full(), cups);
     }
+
+
 }

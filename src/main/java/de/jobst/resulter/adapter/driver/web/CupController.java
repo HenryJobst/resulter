@@ -4,6 +4,7 @@ import de.jobst.resulter.adapter.driver.web.dto.CupDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.application.CupService;
 import de.jobst.resulter.application.EventService;
+import de.jobst.resulter.application.EventShallowProxyConfig;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -63,14 +64,14 @@ public class CupController {
     ) {
         try {
             EventConfig eventConfig = EventService.getEventConfig(
-                    shallowClassResults,
-                    shallowPersonResults,
-                    shallowPersonRaceResults,
-                    shallowSplitTimes,
-                    shallowCupScores,
-                    shallowPersons,
-                    shallowOrganisations,
-                    shallowEventOrganisations);
+                    new EventShallowProxyConfig(shallowClassResults,
+                            shallowPersonResults,
+                            shallowPersonRaceResults,
+                            shallowSplitTimes,
+                            shallowCupScores,
+                            shallowPersons,
+                            shallowOrganisations,
+                            shallowEventOrganisations));
             CupConfig cupConfig = CupService.getCupConfig(shallowEvents, eventConfig);
             List<Cup> cups = cupService.findAll(cupConfig);
             return ResponseEntity.ok(cups.stream().map(CupDto::from).toList());
@@ -104,14 +105,14 @@ public class CupController {
     ) {
         try {
             EventConfig eventConfig = EventService.getEventConfig(
-                    shallowClassResults,
-                    shallowPersonResults,
-                    shallowPersonRaceResults,
-                    shallowSplitTimes,
-                    shallowCupScores,
-                    shallowPersons,
-                    shallowOrganisations,
-                    shallowEventOrganisations);
+                    new EventShallowProxyConfig(shallowClassResults,
+                            shallowPersonResults,
+                            shallowPersonRaceResults,
+                            shallowSplitTimes,
+                            shallowCupScores,
+                            shallowPersons,
+                            shallowOrganisations,
+                            shallowEventOrganisations));
             CupConfig cupConfig = CupService.getCupConfig(shallowEvents, eventConfig);
             Optional<Cup> cup = cupService.findById(CupId.of(id), cupConfig);
             return cup.map(value -> ResponseEntity.ok(CupDto.from(value)))

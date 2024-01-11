@@ -77,6 +77,7 @@ public record EventConfig(EnumSet<ShallowEventLoads> shallowLoads) {
         CUP_SCORES,
         PERSONS,
         ORGANISATIONS,
+        PARENT_ORGANISATIONS,
         EVENT_ORGANISATIONS
     }
 }

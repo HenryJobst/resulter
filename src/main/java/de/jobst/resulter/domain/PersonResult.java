@@ -10,6 +10,7 @@ import java.util.Collection;
 
 @Getter
 public class PersonResult {
+
     @NonNull
     @Setter
     private PersonResultId id;
@@ -17,59 +18,55 @@ public class PersonResult {
     private final ClassResultId classResultId;
     @NonNull
     private final ShallowLoadProxy<Person> person;
-    @NonNull
-    private final ShallowLoadProxy<Organisation> organisation;
+    @Nullable
+    private final OrganisationId organisationId;
     @NonNull
     private final ShallowLoadProxy<PersonRaceResults> personRaceResults;
 
     public PersonResult(@NonNull PersonResultId id,
                         @NonNull ClassResultId classResultId,
                         @NonNull ShallowLoadProxy<Person> person,
-                        @NonNull ShallowLoadProxy<Organisation> organisation,
+                        @Nullable OrganisationId organisationId,
                         @NonNull ShallowLoadProxy<PersonRaceResults> personRaceResults) {
         this.id = id;
         this.classResultId = classResultId;
         this.person = person;
-        this.organisation = organisation;
+        this.organisationId = organisationId;
         this.personRaceResults = personRaceResults;
     }
 
-    public static PersonResult of(
-            @Nullable Person person,
-            @Nullable Organisation organisation,
-            @Nullable Collection<PersonRaceResult> personRaceResults) {
-        return PersonResult.of(
-                PersonResultId.empty().value(),
-                ClassResultId.empty().value(),
-                person, organisation,
-                personRaceResults);
+    public static PersonResult of(@Nullable Person person,
+                                  @Nullable OrganisationId organisationId,
+                                  @Nullable Collection<PersonRaceResult> personRaceResults) {
+        return PersonResult.of(PersonResultId.empty().value(),
+            ClassResultId.empty().value(),
+            person,
+            organisationId,
+            personRaceResults);
     }
 
-    public static PersonResult of(
-            @NonNull Long classResultId,
-            @Nullable Person person,
-            @Nullable Organisation organisation,
-            @Nullable Collection<PersonRaceResult> personRaceResults) {
-        return PersonResult.of(
-                PersonResultId.empty().value(),
-                classResultId,
-                person, organisation,
-                personRaceResults);
+    public static PersonResult of(@NonNull Long classResultId,
+                                  @Nullable Person person,
+                                  @Nullable OrganisationId organisationId,
+                                  @Nullable Collection<PersonRaceResult> personRaceResults) {
+        return PersonResult.of(PersonResultId.empty().value(),
+            classResultId,
+            person,
+            organisationId,
+            personRaceResults);
     }
 
-    public static PersonResult of(
-            long id,
-            long classResultId,
-            @Nullable Person person,
-            @Nullable Organisation organisation,
-            @Nullable Collection<PersonRaceResult> personRaceResults) {
-        return new PersonResult(
-                PersonResultId.of(id),
-                ClassResultId.of(classResultId),
-                ShallowLoadProxy.of(person),
-                ShallowLoadProxy.of(organisation),
-                (personRaceResults != null) ?
-                        ShallowLoadProxy.of(PersonRaceResults.of(personRaceResults)) :
-                        ShallowLoadProxy.empty());
+    public static PersonResult of(long id,
+                                  long classResultId,
+                                  @Nullable Person person,
+                                  @Nullable OrganisationId organisationId,
+                                  @Nullable Collection<PersonRaceResult> personRaceResults) {
+        return new PersonResult(PersonResultId.of(id),
+            ClassResultId.of(classResultId),
+            ShallowLoadProxy.of(person),
+            organisationId,
+            (personRaceResults != null) ?
+            ShallowLoadProxy.of(PersonRaceResults.of(personRaceResults)) :
+            ShallowLoadProxy.empty());
     }
 }

@@ -23,8 +23,8 @@ class EventDboMappingTest {
         assertThat(event.getName().value()).isEqualTo(EventTestDataGenerator.A_EVENT_NAME);
         assertThat(event.getStartTime()).isNotNull();
         assertThat(event.getStartTime().value()).isNull();
-        assertThat(event.getOrganisations().isLoaded()).isTrue();
-        assertThat(event.getOrganisations().get().value()).isEmpty();
+        assertThat(event.getOrganisationIds().isLoaded()).isTrue();
+        assertThat(event.getOrganisationIds().get().value()).isEmpty();
         assertThat(event.getClassResults().isLoaded()).isTrue();
         assertThat(event.getClassResults().get().value()).isEmpty();
         assertThat(event.getEventState()).isNull();
@@ -57,16 +57,14 @@ class EventDboMappingTest {
                 if (classResult.getPersonResults().isLoaded()) {
                     assertThat(classResultDbo.getPersonResults()).isNotEmpty();
                     assertThat(classResultDbo.getPersonResults()).hasSize(classResult.getPersonResults()
-                            .get()
-                            .value()
-                            .size());
+                        .get()
+                        .value()
+                        .size());
 
-                    PersonResult
-                            personResult =
-                            classResult.getPersonResults().get().value().stream().findFirst().orElse(null);
-                    PersonResultDbo
-                            personResultDbo =
-                            classResultDbo.getPersonResults().stream().findFirst().orElse(null);
+                    PersonResult personResult =
+                        classResult.getPersonResults().get().value().stream().findFirst().orElse(null);
+                    PersonResultDbo personResultDbo =
+                        classResultDbo.getPersonResults().stream().findFirst().orElse(null);
 
                     if (ObjectUtils.isNotEmpty(personResult)) {
                         assertThat(personResultDbo).isNotNull();
@@ -79,8 +77,8 @@ class EventDboMappingTest {
                             PersonDbo personDbo = personResultDbo.getPerson();
 
                             assertThat(personDbo.getFamilyName()).isEqualTo(person.getPersonName()
-                                    .familyName()
-                                    .value());
+                                .familyName()
+                                .value());
                             assertThat(personDbo.getGivenName()).isEqualTo(person.getPersonName().givenName().value());
                             assertThat(personDbo.getBirthDate()).isEqualTo(person.getBirthDate().value());
                         } else {
@@ -98,13 +96,13 @@ class EventDboMappingTest {
                             assertThat(organisationDbo.getShortName()).isEqualTo(organisation.getShortName().value());
                             assertThat(organisationDbo.getCountry()).isNotNull();
                             assertThat(organisationDbo.getCountry().getName()).isEqualTo(organisation.getCountry()
-                                    .get()
-                                    .getName()
-                                    .value());
+                                .get()
+                                .getName()
+                                .value());
                             assertThat(organisationDbo.getCountry().getCode()).isEqualTo(organisation.getCountry()
-                                    .get()
-                                    .getCode()
-                                    .value());
+                                .get()
+                                .getCode()
+                                .value());
 
                         } else {
                             assertThat(personResultDbo.getOrganisation()).isNull();
@@ -113,60 +111,55 @@ class EventDboMappingTest {
                         if (personResult.getPersonRaceResults().isLoaded()) {
                             assertThat(personResultDbo.getPersonRaceResults()).isNotEmpty();
                             assertThat(personResultDbo.getPersonRaceResults()).hasSize(personResult.getPersonRaceResults()
-                                    .get()
-                                    .value()
-                                    .size());
+                                .get()
+                                .value()
+                                .size());
 
-                            PersonRaceResult
-                                    personRaceResult =
-                                    personResult.getPersonRaceResults().get().value().stream().findFirst().orElse(null);
-                            PersonRaceResultDbo
-                                    personRaceResultDbo =
-                                    personResultDbo.getPersonRaceResults().stream().findFirst().orElse(null);
+                            PersonRaceResult personRaceResult =
+                                personResult.getPersonRaceResults().get().value().stream().findFirst().orElse(null);
+                            PersonRaceResultDbo personRaceResultDbo =
+                                personResultDbo.getPersonRaceResults().stream().findFirst().orElse(null);
 
                             if (ObjectUtils.isNotEmpty(personRaceResult)) {
                                 assertThat(personRaceResultDbo).isNotNull();
 
                                 assertThat(personRaceResultDbo.getRaceNumber()).isEqualTo(personRaceResult.getRaceNumber()
-                                        .value());
+                                    .value());
                                 assertThat(personRaceResultDbo.getStartTime()).isEqualTo(personRaceResult.getStartTime()
-                                        .value());
+                                    .value());
                                 assertThat(personRaceResultDbo.getFinishTime()).isEqualTo(personRaceResult.getFinishTime()
-                                        .value());
+                                    .value());
                                 assertThat(personRaceResultDbo.getPunchTime()).isEqualTo(personRaceResult.getRuntime()
-                                        .value());
+                                    .value());
                                 assertThat(personRaceResultDbo.getPosition()).isEqualTo(personRaceResult.getPosition()
-                                        .value());
+                                    .value());
                                 assertThat(personRaceResultDbo.getState()).isEqualTo(personRaceResult.getState());
 
                                 if (personRaceResult.getSplitTimes().isLoaded()) {
                                     assertThat(personRaceResultDbo.getSplitTimes()).isNotEmpty();
                                     assertThat(personRaceResultDbo.getSplitTimes()).hasSize(personRaceResult.getSplitTimes()
-                                            .get()
-                                            .value()
-                                            .size());
+                                        .get()
+                                        .value()
+                                        .size());
 
-                                    SplitTime
-                                            splitTime =
-                                            personRaceResult.getSplitTimes()
-                                                    .get()
-                                                    .value()
-                                                    .stream()
-                                                    .findFirst()
-                                                    .orElse(null);
+                                    SplitTime splitTime = personRaceResult.getSplitTimes()
+                                        .get()
+                                        .value()
+                                        .stream()
+                                        .findFirst()
+                                        .orElse(null);
                                     if (ObjectUtils.isNotEmpty(splitTime)) {
-                                        SplitTimeDbo
-                                                splitTimeDbo =
-                                                personRaceResultDbo.getSplitTimes().stream()
-                                                        .filter(x -> x.getControlCode()
-                                                                .equals(splitTime.getControlCode().value()))
-                                                        .findFirst().orElse(null);
+                                        SplitTimeDbo splitTimeDbo = personRaceResultDbo.getSplitTimes()
+                                            .stream()
+                                            .filter(x -> x.getControlCode().equals(splitTime.getControlCode().value()))
+                                            .findFirst()
+                                            .orElse(null);
                                         assertThat(splitTimeDbo).isNotNull();
 
                                         assertThat(splitTimeDbo.getControlCode()).isEqualTo(splitTime.getControlCode()
-                                                .value());
+                                            .value());
                                         assertThat(splitTimeDbo.getPunchTime()).isEqualTo(splitTime.getPunchTime()
-                                                .value());
+                                            .value());
                                     }
                                 } else {
                                     assertThat(personRaceResultDbo.getSplitTimes()).isEmpty();

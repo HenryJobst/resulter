@@ -7,6 +7,7 @@ import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.CountryName;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +26,10 @@ public class CountryService {
 
     public Country findOrCreate(Country country) {
         return countryRepository.findOrCreate(country);
+    }
+
+    public Collection<Country> findOrCreate(Collection<Country> countries) {
+        return countryRepository.findOrCreate(countries);
     }
 
     public Optional<Country> findById(CountryId id) {

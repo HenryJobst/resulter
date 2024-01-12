@@ -1,6 +1,5 @@
 package de.jobst.resulter.domain;
 
-import de.jobst.resulter.domain.util.ShallowLoadProxy;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +9,6 @@ import org.springframework.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@SuppressWarnings("FieldMayBeFinal")
 @Getter
 public class Organisation implements Comparable<Organisation> {
 
@@ -23,40 +21,39 @@ public class Organisation implements Comparable<Organisation> {
     private OrganisationShortName shortName;
     @NonNull
     private OrganisationType type;
-    @NonNull
+    @Nullable
     @Setter
-    private ShallowLoadProxy<Country> country;
+    private CountryId countryId;
 
     @NonNull
     @Setter
-    private ShallowLoadProxy<Organisations> parentOrganisations = ShallowLoadProxy.empty();
+    private Collection<OrganisationId> parentOrganisationIds;
 
     public Organisation(@NonNull OrganisationId id,
                         @NonNull OrganisationName name,
                         @NonNull OrganisationShortName shortName,
                         @NonNull OrganisationType type,
-                        @NonNull ShallowLoadProxy<Country> country,
-                        @NonNull ShallowLoadProxy<Organisations> parentOrganisations
-    ) {
+                        @Nullable CountryId countryId,
+                        @NonNull Collection<OrganisationId> parentOrganisationIds) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;
         this.type = type;
-        this.country = country;
-        this.parentOrganisations = parentOrganisations;
+        this.countryId = countryId;
+        this.parentOrganisationIds = parentOrganisationIds;
     }
 
     public static Organisation of(String name, String shortName) {
         return Organisation.of(name, shortName, null);
     }
 
-    public static Organisation of(String name, String shortName, Country country) {
+    public static Organisation of(String name, String shortName, CountryId countryId) {
         return Organisation.of(OrganisationId.empty().value(),
-                name,
-                shortName,
-                OrganisationType.OTHER.value(),
-                country,
-                new ArrayList<>());
+            name,
+            shortName,
+            OrganisationType.OTHER.value(),
+            countryId,
+            new ArrayList<>());
     }
 
     public static Organisation of(long id, String name, String shortName) {
@@ -67,29 +64,22 @@ public class Organisation implements Comparable<Organisation> {
                                   @NonNull String name,
                                   @NonNull String shortName,
                                   @NonNull String type,
-                                  @Nullable Country country,
-                                  @Nullable Collection<Organisation> parentOrganisations) {
+                                  @Nullable CountryId countryId,
+                                  @NonNull Collection<OrganisationId> parentOrganisationIds) {
         return new Organisation(OrganisationId.of(id),
-                OrganisationName.of(name),
-                OrganisationShortName.of(shortName),
-                OrganisationType.fromValue(type),
-                ShallowLoadProxy.of(country),
-                (parentOrganisations != null) ?
-                        ShallowLoadProxy.of(Organisations.of(parentOrganisations)) :
-                        ShallowLoadProxy.empty()
-        );
+            OrganisationName.of(name),
+            OrganisationShortName.of(shortName),
+            OrganisationType.fromValue(type),
+            countryId,
+            parentOrganisationIds);
     }
 
     public static Organisation of(OrganisationName name,
                                   OrganisationShortName shortName,
                                   OrganisationType type,
-                                  Country country,
-                                  Organisations organisations) {
-        return new Organisation(OrganisationId.empty(), name, shortName, type,
-                ShallowLoadProxy.of(country),
-                (organisations != null) ?
-                        ShallowLoadProxy.of(Organisations.of(organisations.value())) :
-                        ShallowLoadProxy.empty());
+                                  CountryId countryId,
+                                  Collection<OrganisationId> parentOrganisationIds) {
+        return new Organisation(OrganisationId.empty(), name, shortName, type, countryId, parentOrganisationIds);
     }
 
     @Override
@@ -104,22 +94,24 @@ public class Organisation implements Comparable<Organisation> {
     public void update(OrganisationName name,
                        OrganisationShortName shortName,
                        OrganisationType type,
-                       Country country,
-                       Organisations organisations) {
+                       CountryId countryId,
+                       Collection<OrganisationId> parentOrganisationIds) {
         ValueObjectChecks.requireNotNull(name);
         this.name = name;
         this.shortName = shortName;
         this.type = type;
-        this.country = ShallowLoadProxy.of(country);
-        this.setParentOrganisations(ShallowLoadProxy.of(organisations));
+        this.countryId = countryId;
+        this.parentOrganisationIds = parentOrganisationIds;
     }
 
+    /*
     public boolean containsOrganisationWithName(String name) {
         if (getName().value().equals(name)) {
             return true;
         }
-        return getParentOrganisations().get().value().stream()
+        return parentOrganisationIds.stream()
                 .anyMatch(subOrg -> subOrg.containsOrganisationWithName(name));
     }
+    */
 
 }

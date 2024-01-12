@@ -1,5 +1,6 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.scoring.*;
 import de.jobst.resulter.domain.util.ShallowLoadProxy;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
@@ -17,6 +18,13 @@ import java.util.stream.Collectors;
 
 @Getter
 public class Event implements Comparable<Event> {
+
+    @NonNull
+    private final DateTime endTime;
+    @NonNull
+    private final ShallowLoadProxy<ClassResults> classResults;
+    @Nullable
+    private final EventStatus eventState;
     @NonNull
     @Setter
     private EventId id;
@@ -25,27 +33,21 @@ public class Event implements Comparable<Event> {
     @NonNull
     private DateTime startTime;
     @NonNull
-    private final DateTime endTime;
-    @NonNull
-    private final ShallowLoadProxy<ClassResults> classResults;
-    @NonNull
-    private ShallowLoadProxy<Organisations> organisations;
-    @Nullable
-    private final EventStatus eventState;
+    private Collection<OrganisationId> organisationIds;
 
     public Event(@NonNull EventId id,
                  @NonNull EventName eventName,
                  @NonNull DateTime startTime,
                  @NonNull DateTime endTime,
                  @NonNull ShallowLoadProxy<ClassResults> classResults,
-                 @NonNull ShallowLoadProxy<Organisations> organisations,
+                 @NonNull Collection<OrganisationId> organisationIds,
                  @Nullable EventStatus eventState) {
         this.id = id;
         this.name = eventName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.classResults = classResults;
-        this.organisations = organisations;
+        this.organisationIds = organisationIds;
         this.eventState = eventState;
     }
 
@@ -62,20 +64,13 @@ public class Event implements Comparable<Event> {
     }
 
     public static Event of(long id, @NonNull String name, @Nullable Collection<ClassResult> classResults) {
-        return Event.of(id, name, null, null, classResults,
-                new ArrayList<>(), null);
+        return Event.of(id, name, null, null, classResults, new ArrayList<>(), null);
     }
 
     public static Event of(@NonNull String name,
                            @Nullable Collection<ClassResult> classResults,
-                           @Nullable Collection<Organisation> organisations) {
-        return Event.of(EventId.empty().value(),
-                name,
-                null,
-                null,
-                classResults,
-                organisations,
-                null);
+                           @Nullable Collection<OrganisationId> organisations) {
+        return Event.of(EventId.empty().value(), name, null, null, classResults, organisations, null);
     }
 
     static public Event of(long id,
@@ -83,36 +78,32 @@ public class Event implements Comparable<Event> {
                            @Nullable ZonedDateTime startTime,
                            @Nullable ZonedDateTime endTime,
                            @Nullable Collection<ClassResult> classResults,
-                           @Nullable Collection<Organisation> organisations,
+                           @Nullable Collection<OrganisationId> organisations,
                            @Nullable EventStatus eventState) {
         return new Event(EventId.of(id),
-                EventName.of(eventName),
-                DateTime.of(startTime),
-                DateTime.of(endTime),
-                (classResults != null) ? ShallowLoadProxy.of(ClassResults.of(classResults)) : ShallowLoadProxy.empty(),
-                (organisations != null) ?
-                        ShallowLoadProxy.of(Organisations.of(organisations)) :
-                        ShallowLoadProxy.empty(),
-                eventState);
+            EventName.of(eventName),
+            DateTime.of(startTime),
+            DateTime.of(endTime),
+            (classResults != null) ? ShallowLoadProxy.of(ClassResults.of(classResults)) : ShallowLoadProxy.empty(),
+            (organisations != null) ? organisations : new ArrayList<>(),
+            eventState);
     }
 
     @NonNull
     public Set<OrganisationId> getReferencedOrganisationIds() {
-        return getClassResults()
-                .get()
-                .value()
-                .stream()
-                .flatMap(it -> it.getPersonResults().get().value().stream())
-                .map(x -> x.getOrganisation().get().getId())
-                .collect(
-                        Collectors.toSet());
+        return getClassResults().get()
+            .value()
+            .stream()
+            .flatMap(it -> it.getPersonResults().get().value().stream())
+            .map(PersonResult::getOrganisationId)
+            .collect(Collectors.toSet());
     }
 
-    public void update(EventName eventName, DateTime startTime, Organisations organisations) {
+    public void update(EventName eventName, DateTime startTime, Collection<OrganisationId> organisationIds) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
-        this.organisations = organisations != null ? ShallowLoadProxy.of(organisations) : ShallowLoadProxy.empty();
+        this.organisationIds = organisationIds != null ? organisationIds : new ArrayList<>();
     }
 
     @Override
@@ -120,7 +111,7 @@ public class Event implements Comparable<Event> {
         return name.compareTo(o.name);
     }
 
-    public void calculate(Cup cup) {
+    public void calculate(Cup cup, OrganisationRepository organisationRepository) {
 
         if (invalid(cup)) {
             return;
@@ -128,7 +119,7 @@ public class Event implements Comparable<Event> {
 
         CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
         switch (cup.getType()) {
-            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy();
+            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy(organisationRepository);
             case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy();
             case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy();
             case CupType.ADD -> cupTypeCalculationStrategy = new AddCalculationStrategy();
@@ -145,7 +136,10 @@ public class Event implements Comparable<Event> {
     }
 
     private void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
-        getClassResults().get().value().stream().filter(cupTypeCalculationStrategy::valid).forEach(
-                it -> it.calculate(cupTypeCalculationStrategy));
+        getClassResults().get()
+            .value()
+            .stream()
+            .filter(cupTypeCalculationStrategy::valid)
+            .forEach(it -> it.calculate(cupTypeCalculationStrategy));
     }
 }

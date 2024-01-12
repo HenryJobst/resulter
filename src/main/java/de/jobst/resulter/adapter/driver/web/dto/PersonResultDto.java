@@ -10,34 +10,26 @@ import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
-public record PersonResultDto(Long id,
-                              Long position,
-                              String personName,
-                              Year birthYear,
-                              Duration runTime,
-                              String resultStatus,
-                              String organisation,
-                              List<CupScoreDto> cupScores)
-        implements Comparable<PersonResultDto> {
+public record PersonResultDto(Long id, Long position, String personName, Year birthYear, Duration runTime,
+                              String resultStatus, Long organisationId, List<CupScoreDto> cupScores)
+    implements Comparable<PersonResultDto> {
+
     static public PersonResultDto from(PersonResult personResult) {
-        PersonRaceResult
-                personRaceResult =
-                personResult.getPersonRaceResults().get().value().stream().findFirst().orElseThrow();
+        PersonRaceResult personRaceResult =
+            personResult.getPersonRaceResults().get().value().stream().findFirst().orElseThrow();
         Double runTime = personRaceResult.getRuntime().value();
-        return new PersonResultDto(
-                personResult.getId().value(),
-                personRaceResult.getPosition().value(),
-                personResult.getPerson().get().getPersonName().getFullName(),
-                personResult.getPerson().get().getBirthDate().value() != null ?
-                        Year.from(personResult.getPerson().get().getBirthDate().value()) : null,
-                runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
-                personRaceResult.getState().value(),
-                personResult.getOrganisation().get() != null ?
-                        personResult.getOrganisation().get().getName().value() : "",
-                personRaceResult.getCupScores().get() != null ?
-                        personRaceResult.getCupScores().get().values().stream().map(CupScoreDto::from).toList() :
-                        new ArrayList<>()
-        );
+        return new PersonResultDto(personResult.getId().value(),
+            personRaceResult.getPosition().value(),
+            personResult.getPerson().get().getPersonName().getFullName(),
+            personResult.getPerson().get().getBirthDate().value() != null ?
+            Year.from(personResult.getPerson().get().getBirthDate().value()) :
+            null,
+            runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
+            personRaceResult.getState().value(),
+            personResult.getOrganisationId() != null ? personResult.getOrganisationId().value() : null,
+            personRaceResult.getCupScores().get() != null ?
+            personRaceResult.getCupScores().get().values().stream().map(CupScoreDto::from).toList() :
+            new ArrayList<>());
     }
 
     @Override

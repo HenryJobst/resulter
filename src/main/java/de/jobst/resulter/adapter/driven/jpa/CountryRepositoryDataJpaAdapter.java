@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,9 +25,7 @@ public class CountryRepositoryDataJpaAdapter implements CountryRepository {
     @Transactional
     public Country save(Country country) {
         DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setCountryDboResolver(
-                (id) -> countryJpaRepository.findById(id.value()).orElseThrow()
-        );
+        dboResolvers.setCountryDboResolver((id) -> countryJpaRepository.findById(id.value()).orElseThrow());
         CountryDbo countryEntity = CountryDbo.from(country, null, dboResolvers);
         CountryDbo savedCountryEntity = countryJpaRepository.save(countryEntity);
         return savedCountryEntity.asCountry();
@@ -35,28 +34,30 @@ public class CountryRepositoryDataJpaAdapter implements CountryRepository {
     @Override
     @Transactional
     public List<Country> findAll() {
-        return countryJpaRepository.findAll().stream()
-                .map(CountryDbo::asCountry)
-                .toList();
+        return countryJpaRepository.findAll().stream().map(CountryDbo::asCountry).toList();
     }
 
     @Override
     @Transactional
     public Optional<Country> findById(CountryId countryId) {
-        Optional<CountryDbo> countryEntity =
-                countryJpaRepository.findById(countryId.value());
+        Optional<CountryDbo> countryEntity = countryJpaRepository.findById(countryId.value());
         return countryEntity.map(CountryDbo::asCountry);
     }
 
     @Override
     @Transactional
     public Country findOrCreate(Country country) {
-        Optional<CountryDbo> countryEntity =
-                countryJpaRepository.findByName(country.getName().value());
+        Optional<CountryDbo> countryEntity = countryJpaRepository.findByName(country.getName().value());
         if (countryEntity.isEmpty()) {
             return save(country);
         }
         CountryDbo entity = countryEntity.get();
         return entity.asCountry();
+    }
+
+    @Override
+    @Transactional
+    public Collection<Country> findOrCreate(Collection<Country> countries) {
+        return countries.stream().map(this::findOrCreate).toList();
     }
 }

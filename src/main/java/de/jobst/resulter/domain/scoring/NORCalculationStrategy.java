@@ -1,13 +1,20 @@
 package de.jobst.resulter.domain.scoring;
 
+import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
 
 import java.util.List;
 import java.util.Set;
 
 public class NORCalculationStrategy implements CupTypeCalculationStrategy {
+
     public static final CupType CUP_TYPE = CupType.NOR;
+    private final OrganisationRepository organisationRepository;
     Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner");
+
+    public NORCalculationStrategy(OrganisationRepository organisationRepository) {
+        this.organisationRepository = organisationRepository;
+    }
 
     private static double multiplyTime(double baseTime, double factor) {
         return baseTime * factor;
@@ -48,7 +55,12 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
 
     @Override
     public boolean valid(PersonResult personResult) {
-        return personResult.getOrganisation().get().containsOrganisationWithName(CupType.NOR.value());
+        /*
+        Optional<Organisation> optionalOrganisation = organisationRepository.findById(personResult.getOrganisationId());
+        return optionalOrganisation.isPresent() && optionalOrganisation
+            .get().containsOrganisationWithName(CupType.NOR.value());
+        */
+        return true;
     }
 
     @Override
@@ -57,11 +69,10 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
             return;
         }
         PunchTime fastestTime = personRaceResults.getFirst().getRuntime();
-        personRaceResults.forEach(personRaceResult ->
-                personRaceResult.setScore(CUP_TYPE, calculateScore(
-                        CupScoreId.of(CUP_TYPE, personRaceResult.getId().value()),
-                        fastestTime, personRaceResult.getRuntime()))
-        );
+        personRaceResults.forEach(personRaceResult -> personRaceResult.setScore(CUP_TYPE,
+            calculateScore(CupScoreId.of(CUP_TYPE, personRaceResult.getId().value()),
+                fastestTime,
+                personRaceResult.getRuntime())));
     }
 
     private CupScore calculateScore(CupScoreId id, PunchTime fastestTime, PunchTime runtime) {

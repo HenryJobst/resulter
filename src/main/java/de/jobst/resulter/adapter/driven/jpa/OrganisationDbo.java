@@ -1,19 +1,18 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
+import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.OrganisationType;
 import jakarta.persistence.*;
-import org.hibernate.Hibernate;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
+@SuppressWarnings({"LombokGetterMayBeUsed", "LombokSetterMayBeUsed"})
 @Entity
 @Table(name = "ORGANISATION")
 public class OrganisationDbo {
@@ -40,6 +39,7 @@ public class OrganisationDbo {
     private CountryDbo country;
     @OneToMany(mappedBy = "organisation", fetch = FetchType.LAZY)
     private Set<PersonResultDbo> personResults = new HashSet<>();
+    @SuppressWarnings("unused")
     @ManyToMany(mappedBy = "organisations", fetch = FetchType.LAZY)
     private Set<EventDbo> events = new HashSet<>();
     @ManyToMany(fetch = FetchType.LAZY)
@@ -49,82 +49,40 @@ public class OrganisationDbo {
     @ManyToMany(mappedBy = "parentOrganisations", fetch = FetchType.LAZY)
     private Set<OrganisationDbo> childOrganisations = new HashSet<>();
 
-    public static OrganisationDbo from(Organisation organisation,
-                                       @Nullable DboResolver<OrganisationId, OrganisationDbo> dboResolver,
-                                       @NonNull DboResolvers dboResolvers) {
+    public static OrganisationDbo from(Organisation organisation, @NonNull DboResolvers dboResolvers) {
         if (null == organisation) {
             return null;
         }
-        OrganisationDbo organisationDbo = null;
-        OrganisationDbo persistedOrganisationDbo;
-        if (organisation.getId().value() != OrganisationId.empty().value()) {
-            if (dboResolver != null) {
-                organisationDbo = dboResolver.findDboById(organisation.getId());
-            }
-            if (organisationDbo == null) {
-                organisationDbo = dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId());
-            }
-            persistedOrganisationDbo = organisationDbo;
+        OrganisationDbo organisationDbo;
+        if (organisation.getId().isPersistent()) {
+            organisationDbo = dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId());
         } else {
             organisationDbo = new OrganisationDbo();
-            persistedOrganisationDbo = null;
         }
 
         organisationDbo.setName(organisation.getName().value());
         organisationDbo.setShortName(organisation.getShortName().value());
 
         organisationDbo.setType(organisation.getType());
-        organisationDbo.setCountry(CountryDbo.from(organisation.getCountry().get(),
-            (id) ->
-                persistedOrganisationDbo != null && Hibernate.isInitialized(persistedOrganisationDbo.getCountry()) &&
-                persistedOrganisationDbo.getCountry() != null &&
-                persistedOrganisationDbo.getCountry().getId() == id.value() ?
-                persistedOrganisationDbo.getCountry() :
-                null,
-            dboResolvers));
+        organisationDbo.setCountry(dboResolvers.getCountryDboResolver().findDboById(organisation.getCountryId()));
 
-        if (organisation.getParentOrganisations().isLoaded()) {
-            organisationDbo.setParentOrganisations(Objects.requireNonNull(organisation.getParentOrganisations())
-                .get()
-                .value()
-                .stream()
-                .map(it -> {
-                    OrganisationDbo persistedParentOrganisationDbo = persistedOrganisationDbo != null ?
-                                                                     (persistedOrganisationDbo.getParentOrganisations()
-                                                                          .stream()
-                                                                          .filter(x -> x.getId() == it.getId().value())
-                                                                          .findFirst()
-                                                                          .orElse(null)) :
-                                                                     null;
-                    return OrganisationDbo.from(it, (id) -> persistedParentOrganisationDbo, dboResolvers);
-                })
-                .collect(Collectors.toSet()));
-        } else if (persistedOrganisationDbo != null) {
-            organisationDbo.setParentOrganisations(persistedOrganisationDbo.getParentOrganisations());
-        } else if (organisation.getId().isPersistent()) {
-            throw new IllegalArgumentException();
-        }
+        organisationDbo.setParentOrganisations(organisation.getParentOrganisationIds()
+            .stream()
+            .map(it -> dboResolvers.getOrganisationDboResolver().findDboById(it))
+            .collect(Collectors.toSet()));
 
         return organisationDbo;
     }
-
 
     public Organisation asOrganisation() {
         return Organisation.of(id,
             name,
             shortName,
             type.value(),
-            country != null ? country.asCountry() : null,
-            parentOrganisations == null || !Hibernate.isInitialized(parentOrganisations) ?
-            null :
-            parentOrganisations.stream()
-                .map(it -> Organisation.of(it.id,
-                    it.name,
-                    it.shortName,
-                    it.type.value(),
-                    it.country != null ? it.country.asCountry() : null,
-                    null))
-                .toList());
+            country != null ? CountryId.of(country.getId()) : null,
+            parentOrganisations == null ?
+            new ArrayList<>() :
+            parentOrganisations.stream().map(x -> OrganisationId.of(x.getId())).toList());
     }
 
     public Long getId() {
@@ -190,4 +148,5 @@ public class OrganisationDbo {
     public void setPersonResults(Set<PersonResultDbo> personResults) {
         this.personResults = personResults;
     }
+
 }

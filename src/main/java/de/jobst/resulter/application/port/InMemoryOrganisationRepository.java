@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
 public class InMemoryOrganisationRepository implements OrganisationRepository {
+
     private final Map<OrganisationId, Organisation> organisations = new ConcurrentHashMap<>();
     private final AtomicLong sequence = new AtomicLong(0);
     private final List<Organisation> savedOrganisations = new ArrayList<>();
@@ -40,10 +41,15 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
     @Override
     public Organisation findOrCreate(Organisation organisation) {
         return organisations.values()
-                .stream()
-                .filter(it -> Objects.equals(it.getName(), organisation.getName()))
-                .findAny()
-                .orElseGet(() -> save(organisation));
+            .stream()
+            .filter(it -> Objects.equals(it.getName(), organisation.getName()))
+            .findAny()
+            .orElseGet(() -> save(organisation));
+    }
+
+    @Override
+    public Collection<Organisation> findOrCreate(Collection<Organisation> organisations) {
+        return organisations.stream().map(this::findOrCreate).toList();
     }
 
     @Override

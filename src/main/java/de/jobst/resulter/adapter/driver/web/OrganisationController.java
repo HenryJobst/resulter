@@ -5,7 +5,6 @@ import de.jobst.resulter.adapter.driver.web.dto.OrganisationTypeDto;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -26,6 +25,13 @@ public class OrganisationController {
         this.organisationService = organisationService;
     }
 
+    private static void logError(Exception e) {
+        log.error(e.getMessage());
+        if (Objects.nonNull(e.getCause())) {
+            log.error(e.getCause().getMessage());
+        }
+    }
+
     @GetMapping("/organisation")
     public ResponseEntity<List<OrganisationDto>> handleOrganisations() {
         try {
@@ -38,13 +44,11 @@ public class OrganisationController {
     }
 
     @GetMapping("/organisation/{id}")
-    public ResponseEntity<OrganisationDto> getOrganisation(
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<OrganisationDto> getOrganisation(@PathVariable Long id) {
         try {
             Optional<Organisation> organisation = organisationService.findById(OrganisationId.of(id));
             return organisation.map(value -> ResponseEntity.ok(OrganisationDto.from(value)))
-                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -54,9 +58,8 @@ public class OrganisationController {
     @GetMapping("/organisation_types")
     public ResponseEntity<List<OrganisationTypeDto>> handleOrganisationTypes() {
         try {
-            List<OrganisationTypeDto>
-                    organisationTypes =
-                    Arrays.stream(OrganisationType.values()).map(OrganisationTypeDto::from).toList();
+            List<OrganisationTypeDto> organisationTypes =
+                Arrays.stream(OrganisationType.values()).map(OrganisationTypeDto::from).toList();
             return ResponseEntity.ok(organisationTypes);
         } catch (Exception e) {
             logError(e);
@@ -68,24 +71,14 @@ public class OrganisationController {
     public ResponseEntity<OrganisationDto> updateOrganisation(@PathVariable Long id,
                                                               @RequestBody OrganisationDto organisationDto) {
         try {
-            Organisation organisation = organisationService.updateOrganisation(
-                    OrganisationId.of(id),
-                    OrganisationName.of(organisationDto.name()),
-                    OrganisationShortName.of(organisationDto.shortName()),
-                    OrganisationType.fromValue(organisationDto.type().id()),
-                    (organisationDto.country() != null) ?
-                            Country.of(organisationDto.country().id(),
-                                    organisationDto.country().name(),
-                                    organisationDto.country().code()) : null,
-                    Organisations.of(
-                            organisationDto.organisations() == null ? new ArrayList<>() :
-                                    organisationDto.organisations().stream()
-                                            .map(it -> organisationService.findById(OrganisationId.of(it.id()))
-                                                    .orElse(null))
-                                            .filter(ObjectUtils::isNotEmpty)
-                                            .toList()
-                    )
-            );
+            Organisation organisation = organisationService.updateOrganisation(OrganisationId.of(id),
+                OrganisationName.of(organisationDto.name()),
+                OrganisationShortName.of(organisationDto.shortName()),
+                OrganisationType.fromValue(organisationDto.type().id()),
+                (organisationDto.countryId() != null) ? CountryId.of(organisationDto.countryId()) : null,
+                organisationDto.organisationIds() == null ?
+                new ArrayList<>() :
+                organisationDto.organisationIds().stream().map(OrganisationId::of).toList());
             if (null != organisation) {
                 return ResponseEntity.ok(OrganisationDto.from(organisation));
             } else {
@@ -106,23 +99,14 @@ public class OrganisationController {
     @PostMapping("/organisation")
     public ResponseEntity<OrganisationDto> createOrganisation(@RequestBody OrganisationDto organisationDto) {
         try {
-            Organisation organisation = organisationService.createOrganisation(
-                    OrganisationName.of(organisationDto.name()),
+            Organisation organisation =
+                organisationService.createOrganisation(OrganisationName.of(organisationDto.name()),
                     OrganisationShortName.of(organisationDto.shortName()),
                     OrganisationType.fromValue(organisationDto.type().id()),
-                    (organisationDto.country() != null) ?
-                            Country.of(organisationDto.country().id(),
-                                    organisationDto.country().name(),
-                                    organisationDto.country().code()) : null,
-                    Organisations.of(
-                            organisationDto.organisations() == null ? new ArrayList<>() :
-                                    organisationDto.organisations().stream()
-                                            .map(it -> organisationService.findById(OrganisationId.of(it.id()))
-                                                    .orElse(null))
-                                            .filter(ObjectUtils::isNotEmpty)
-                                            .toList()
-                    )
-            );
+                    (organisationDto.countryId() != null) ? CountryId.of(organisationDto.countryId()) : null,
+                    organisationDto.organisationIds() == null ?
+                    new ArrayList<>() :
+                    organisationDto.organisationIds().stream().map(OrganisationId::of).toList());
             if (null != organisation) {
                 return ResponseEntity.ok(OrganisationDto.from(organisation));
             } else {
@@ -158,13 +142,6 @@ public class OrganisationController {
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private static void logError(Exception e) {
-        log.error(e.getMessage());
-        if (Objects.nonNull(e.getCause())) {
-            log.error(e.getCause().getMessage());
         }
     }
 }

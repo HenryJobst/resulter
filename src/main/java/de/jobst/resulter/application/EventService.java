@@ -22,7 +22,8 @@ public class EventService {
 
     public EventService(EventRepository eventRepository,
                         PersonRepository personRepository,
-                        OrganisationRepository organisationRepository, CupRepository cupRepository) {
+                        OrganisationRepository organisationRepository,
+                        CupRepository cupRepository) {
         this.eventRepository = eventRepository;
         this.personRepository = personRepository;
         this.organisationRepository = organisationRepository;
@@ -80,15 +81,18 @@ public class EventService {
         return eventRepository.findAll(eventConfig);
     }
 
-    public Event updateEvent(EventId id, EventName name, DateTime startDate, Organisations organisations) {
-        EventConfig eventConfig = getEventConfig(
-                new EventShallowProxyConfig(true, true, true, true, true, true, true, false));
+    public Event updateEvent(EventId id,
+                             EventName name,
+                             DateTime startDate,
+                             Collection<OrganisationId> organisationIds) {
+        EventConfig eventConfig =
+            getEventConfig(new EventShallowProxyConfig(true, true, true, true, true, true, true, false));
         Optional<Event> optionalEvent = findById(id, eventConfig);
         if (optionalEvent.isEmpty()) {
             return null;
         }
         Event event = optionalEvent.get();
-        event.update(name, startDate, organisations);
+        event.update(name, startDate, organisationIds);
         return eventRepository.save(event);
     }
 
@@ -110,8 +114,8 @@ public class EventService {
             return null;
         }
 
-        EventConfig eventConfig = getEventConfig(
-                new EventShallowProxyConfig(false, false, false, true, false, false, false, false));
+        EventConfig eventConfig =
+            getEventConfig(new EventShallowProxyConfig(false, false, false, true, false, false, false, false));
         Optional<Event> optionalEvent = findById(id, eventConfig);
         if (optionalEvent.isEmpty()) {
             // no event
@@ -119,8 +123,8 @@ public class EventService {
         }
         Event event = optionalEvent.get();
         Map<OrganisationId, Organisation> organisationById =
-                organisationRepository.loadOrganisationTree(event.getReferencedOrganisationIds());
-        cups.forEach(event::calculate);
+            organisationRepository.loadOrganisationTree(event.getReferencedOrganisationIds());
+        cups.forEach(cup -> event.calculate(cup, organisationRepository));
         return eventRepository.save(event);
     }
 

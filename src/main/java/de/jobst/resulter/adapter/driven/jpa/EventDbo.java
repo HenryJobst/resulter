@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "EVENT")
 public class EventDbo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_event")
     @SequenceGenerator(name = "entity_generator_event", sequenceName = "SEQ_EVENT_ID", allocationSize = 1)
@@ -31,10 +32,8 @@ public class EventDbo {
 
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "EVENT_ORGANISATION",
-            joinColumns = @JoinColumn(name = "EVENT_ID"),
-            inverseJoinColumns = @JoinColumn(name = "ORGANISATION_ID"))
+    @JoinTable(name = "EVENT_ORGANISATION", joinColumns = @JoinColumn(name = "EVENT_ID"),
+               inverseJoinColumns = @JoinColumn(name = "ORGANISATION_ID"))
     private Set<OrganisationDbo> organisations = new HashSet<>();
 
 
@@ -74,45 +73,27 @@ public class EventDbo {
 
         if (event.getClassResults().isLoaded()) {
             EventDbo finalEventDbo = eventDbo;
-            eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults().get())
-                    .value().stream().map(it -> {
-                        ClassResultDbo
-                                persistedClassResultDbo =
-                                persistedEventDbo != null &&
-                                        Hibernate.isInitialized(persistedEventDbo.getClassResults()) ?
-                                        persistedEventDbo.getClassResults()
-                                                .stream()
-                                                .filter(x -> x.getId() == it.getId().value())
-                                                .findFirst()
-                                                .orElse(null) :
-                                        null;
-                        return ClassResultDbo.from(it, finalEventDbo, (id) -> persistedClassResultDbo,
-                                dboResolvers);
-                    }).collect(Collectors.toSet()));
+            eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults().get()).value().stream().map(it -> {
+                ClassResultDbo persistedClassResultDbo =
+                    persistedEventDbo != null && Hibernate.isInitialized(persistedEventDbo.getClassResults()) ?
+                    persistedEventDbo.getClassResults()
+                        .stream()
+                        .filter(x -> x.getId() == it.getId().value())
+                        .findFirst()
+                        .orElse(null) :
+                    null;
+                return ClassResultDbo.from(it, finalEventDbo, (id) -> persistedClassResultDbo, dboResolvers);
+            }).collect(Collectors.toSet()));
         } else if (persistedEventDbo != null) {
             eventDbo.setClassResults(persistedEventDbo.getClassResults());
         } else if (event.getId().isPersistent()) {
             throw new IllegalArgumentException();
         }
 
-        if (event.getOrganisations().isLoaded()) {
-            eventDbo.setOrganisations(Objects.requireNonNull(event.getOrganisations().get())
-                    .value().stream().map(it -> {
-                        OrganisationDbo persistedOrganisationDbo =
-                                persistedEventDbo != null ?
-                                        (persistedEventDbo.getOrganisations()
-                                                .stream()
-                                                .filter(x -> x.getId() == it.getId().value())
-                                                .findFirst()
-                                                .orElse(null))
-                                        : null;
-                        return OrganisationDbo.from(it, (id) -> persistedOrganisationDbo, dboResolvers);
-                    }).collect(Collectors.toSet()));
-        } else if (persistedEventDbo != null) {
-            eventDbo.setOrganisations(persistedEventDbo.getOrganisations());
-        } else if (event.getId().isPersistent()) {
-            throw new IllegalArgumentException();
-        }
+        eventDbo.setOrganisations(event.getOrganisationIds()
+            .stream()
+            .map(it -> dboResolvers.getOrganisationDboResolver().findDboById(it))
+            .collect(Collectors.toSet()));
 
         if (ObjectUtils.isNotEmpty(event.getEventState())) {
             eventDbo.setState(event.getEventState());
@@ -124,29 +105,30 @@ public class EventDbo {
     static public List<Event> asEvents(@NonNull EventConfig eventConfig, @NonNull List<EventDbo> eventDbos) {
         Map<EventId, List<ClassResult>> classResultsByEventId;
         if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CLASS_RESULTS)) {
-            classResultsByEventId =
-                    ClassResultDbo.asClassResults(eventConfig,
-                                    eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
-                            .stream()
-                            .collect(Collectors.groupingBy(ClassResult::getEventId));
+            classResultsByEventId = ClassResultDbo.asClassResults(eventConfig,
+                    eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
+                .stream()
+                .collect(Collectors.groupingBy(ClassResult::getEventId));
         } else {
             classResultsByEventId = null;
         }
 
         return eventDbos.stream()
-                .map(it -> Event.of(it.id,
-                        it.name,
-                        it.startTime,
-                        it.endTime,
-                        classResultsByEventId == null ? null :
-                                classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>()),
-                        eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS) ? null :
-                                it.organisations.stream()
-                                        .map(x -> ObjectUtils.isNotEmpty(x) ? x.asOrganisation() : null)
-                                        .toList(),
-                        it.state)
-                )
-                .toList();
+            .map(it -> Event.of(it.id,
+                it.name,
+                it.startTime,
+                it.endTime,
+                classResultsByEventId == null ?
+                null :
+                classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>()),
+                eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS) ?
+                null :
+                it.organisations.stream()
+                    .map(x -> Objects.nonNull(x) ? OrganisationId.of(x.getId()) : null)
+                    .filter(Objects::nonNull)
+                    .toList(),
+                it.state))
+            .toList();
     }
 
     static public Event asEvent(@NonNull EventConfig eventConfig, @NonNull EventDbo eventDbo) {

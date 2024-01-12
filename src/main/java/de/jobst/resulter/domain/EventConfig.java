@@ -26,44 +26,47 @@ public record EventConfig(EnumSet<ShallowEventLoads> shallowLoads) {
             shallowLoads.add(ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
             shallowLoads.add(ShallowEventLoads.CUP_SCORES);
-        } else if (event.getClassResults()
-                .get().value()
-                .stream()
-                .anyMatch(y -> y.getPersonResults().isEmpty())) {
+        } else if (event.getClassResults().get().value().stream().anyMatch(y -> y.getPersonResults().isEmpty())) {
             shallowLoads.add(ShallowEventLoads.PERSON_RESULTS);
             shallowLoads.add(ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
             shallowLoads.add(ShallowEventLoads.CUP_SCORES);
         } else if (event.getClassResults()
-                .get()
-                .value()
-                .stream()
-                .flatMap(x -> x.getPersonResults().get().value().stream())
-                .noneMatch(y -> y.getPersonRaceResults().isLoaded())) {
+            .get()
+            .value()
+            .stream()
+            .flatMap(x -> x.getPersonResults().get().value().stream())
+            .noneMatch(y -> y.getPersonRaceResults().isLoaded())) {
             shallowLoads.add(ShallowEventLoads.PERSON_RACE_RESULTS);
             shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
             shallowLoads.add(ShallowEventLoads.CUP_SCORES);
         } else if (Objects.requireNonNull(event.getClassResults())
-                .get().value()
+            .get()
+            .value()
+            .stream()
+            .flatMap(x -> x.getPersonResults()
+                .get()
+                .value()
                 .stream()
-                .flatMap(x -> x.getPersonResults()
-                        .get().value()
-                        .stream()
-                        .filter(y -> y.getPersonRaceResults().isLoaded())
-                        .flatMap(z -> z.getPersonRaceResults().get().value()
-                                .stream())).noneMatch(u -> u.getSplitTimes().isLoaded())) {
+                .filter(y -> y.getPersonRaceResults().isLoaded())
+                .flatMap(z -> z.getPersonRaceResults().get().value().stream()))
+            .noneMatch(u -> u.getSplitTimes().isLoaded())) {
             shallowLoads.add(ShallowEventLoads.SPLIT_TIMES);
             shallowLoads.add(ShallowEventLoads.CUP_SCORES);
         } else if (Objects.requireNonNull(event.getClassResults())
-                .get().value().stream().flatMap(x -> x.getPersonResults()
-                        .get().value()
-                        .stream()
-                        .filter(y -> y.getPersonRaceResults().isLoaded())
-                        .flatMap(z -> z.getPersonRaceResults().get().value()
-                                .stream())).noneMatch(u -> u.getCupScores().isLoaded())) {
+            .get()
+            .value()
+            .stream()
+            .flatMap(x -> x.getPersonResults()
+                .get()
+                .value()
+                .stream()
+                .filter(y -> y.getPersonRaceResults().isLoaded())
+                .flatMap(z -> z.getPersonRaceResults().get().value().stream()))
+            .noneMatch(u -> u.getCupScores().isLoaded())) {
             shallowLoads.add(ShallowEventLoads.CUP_SCORES);
         }
-        if (event.getOrganisations().isEmpty()) {
+        if (event.getOrganisationIds().isEmpty()) {
             shallowLoads.add(ShallowEventLoads.EVENT_ORGANISATIONS);
         }
         return EventConfig.of(shallowLoads);

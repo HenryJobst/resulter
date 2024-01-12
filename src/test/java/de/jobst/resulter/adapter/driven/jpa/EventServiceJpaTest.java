@@ -18,18 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest(properties = {"spring.test.database.replace=NONE",
-        "resulter.repository.inmemory=false"})
-@ContextConfiguration(
-        classes = {TestConfig.class},
-        loader = AnnotationConfigContextLoader.class)
+@DataJpaTest(properties = {"spring.test.database.replace=NONE", "resulter.repository.inmemory=false"})
+@ContextConfiguration(classes = {TestConfig.class}, loader = AnnotationConfigContextLoader.class)
 @EntityScan(basePackages = {"de.jobst.resulter.adapter.driven.jpa"})
 @EnableJpaRepositories(basePackages = "de.jobst.resulter.adapter.driven.jpa")
-@Import({EventRepositoryDataJpaAdapter.class,
-        EventService.class,
-        CupRepositoryDataJpaAdapter.class,
-        PersonRepositoryDataJpaAdapter.class,
-        OrganisationRepositoryDataJpaAdapter.class})
+@Import({EventRepositoryDataJpaAdapter.class, EventService.class, CupRepositoryDataJpaAdapter.class,
+    PersonRepositoryDataJpaAdapter.class, OrganisationRepositoryDataJpaAdapter.class})
 class EventServiceJpaTest {
 
     @Autowired
@@ -45,16 +39,15 @@ class EventServiceJpaTest {
         Event event = EventTestDataGenerator.getTestEvent();
         Event savedEvent = eventService.findOrCreate(event);
 
-        Event changedEvent =
-                eventService.updateEvent(savedEvent.getId(),
-                        EventName.of("ChangedEvent"),
-                        savedEvent.getStartTime(),
-                        savedEvent.getOrganisations().get());
+        Event changedEvent = eventService.updateEvent(savedEvent.getId(),
+            EventName.of("ChangedEvent"),
+            savedEvent.getStartTime(),
+            savedEvent.getOrganisationIds());
 
         assertThat(changedEvent).isNotNull();
-        assertThat(changedEvent.getClassResults().isEmpty() ||
-                (changedEvent.getClassResults().isLoaded() &&
-                        changedEvent.getClassResults().get().value().size() == 1)).isTrue();
+        assertThat(changedEvent.getClassResults().isEmpty() || (changedEvent.getClassResults().isLoaded() &&
+                                                                changedEvent.getClassResults().get().value().size() ==
+                                                                1)).isTrue();
 
     }
 

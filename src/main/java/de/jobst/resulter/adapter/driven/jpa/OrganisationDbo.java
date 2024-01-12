@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "ORGANISATION")
 public class OrganisationDbo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_organisation")
-    @SequenceGenerator(name = "entity_generator_organisation",
-            sequenceName = "SEQ_ORGANISATION_ID",
-            allocationSize = 10)
+    @SequenceGenerator(name = "entity_generator_organisation", sequenceName = "SEQ_ORGANISATION_ID",
+                       allocationSize = 10)
     @Column(name = "ID", nullable = false, unique = true)
     private Long id;
 
@@ -43,9 +43,8 @@ public class OrganisationDbo {
     @ManyToMany(mappedBy = "organisations", fetch = FetchType.LAZY)
     private Set<EventDbo> events = new HashSet<>();
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "ORGANISATION_ORGANISATION",
-            joinColumns = @JoinColumn(name = "ORGANISATION_ID"),
-            inverseJoinColumns = @JoinColumn(name = "PARENT_ORGANISATION_ID"))
+    @JoinTable(name = "ORGANISATION_ORGANISATION", joinColumns = @JoinColumn(name = "ORGANISATION_ID"),
+               inverseJoinColumns = @JoinColumn(name = "PARENT_ORGANISATION_ID"))
     private Set<OrganisationDbo> parentOrganisations = new HashSet<>();
     @ManyToMany(mappedBy = "parentOrganisations", fetch = FetchType.LAZY)
     private Set<OrganisationDbo> childOrganisations = new HashSet<>();
@@ -76,31 +75,30 @@ public class OrganisationDbo {
 
         organisationDbo.setType(organisation.getType());
         organisationDbo.setCountry(CountryDbo.from(organisation.getCountry().get(),
-                (id) ->
-                        persistedOrganisationDbo != null &&
-                                Hibernate.isInitialized(persistedOrganisationDbo.getCountry()) &&
-                                persistedOrganisationDbo.getCountry() != null &&
-                                persistedOrganisationDbo.getCountry().getId() == id.value() ?
-                                persistedOrganisationDbo.getCountry() : null,
-                dboResolvers));
+            (id) ->
+                persistedOrganisationDbo != null && Hibernate.isInitialized(persistedOrganisationDbo.getCountry()) &&
+                persistedOrganisationDbo.getCountry() != null &&
+                persistedOrganisationDbo.getCountry().getId() == id.value() ?
+                persistedOrganisationDbo.getCountry() :
+                null,
+            dboResolvers));
 
         if (organisation.getParentOrganisations().isLoaded()) {
-            organisationDbo.setParentOrganisations(
-                    Objects.requireNonNull(organisation.getParentOrganisations())
-                            .get().value()
-                            .stream()
-                            .map(it -> {
-                                OrganisationDbo persistedParentOrganisationDbo =
-                                        persistedOrganisationDbo != null ?
-                                                (persistedOrganisationDbo.getParentOrganisations()
-                                                        .stream()
-                                                        .filter(x -> x.getId() == it.getId().value())
-                                                        .findFirst()
-                                                        .orElse(null))
-                                                : null;
-                                return OrganisationDbo.from(it, (id) -> persistedParentOrganisationDbo, dboResolvers);
-                            })
-                            .collect(Collectors.toSet()));
+            organisationDbo.setParentOrganisations(Objects.requireNonNull(organisation.getParentOrganisations())
+                .get()
+                .value()
+                .stream()
+                .map(it -> {
+                    OrganisationDbo persistedParentOrganisationDbo = persistedOrganisationDbo != null ?
+                                                                     (persistedOrganisationDbo.getParentOrganisations()
+                                                                          .stream()
+                                                                          .filter(x -> x.getId() == it.getId().value())
+                                                                          .findFirst()
+                                                                          .orElse(null)) :
+                                                                     null;
+                    return OrganisationDbo.from(it, (id) -> persistedParentOrganisationDbo, dboResolvers);
+                })
+                .collect(Collectors.toSet()));
         } else if (persistedOrganisationDbo != null) {
             organisationDbo.setParentOrganisations(persistedOrganisationDbo.getParentOrganisations());
         } else if (organisation.getId().isPersistent()) {
@@ -112,13 +110,21 @@ public class OrganisationDbo {
 
 
     public Organisation asOrganisation() {
-        return Organisation.of(id, name, shortName, type.value(),
-                country != null ? country.asCountry() : null,
-                parentOrganisations.stream().map(it -> Organisation.of(
-                        it.id, it.name, it.shortName, it.type.value(),
-                        it.country != null ? it.country.asCountry() : null,
-                        null
-                )).toList());
+        return Organisation.of(id,
+            name,
+            shortName,
+            type.value(),
+            country != null ? country.asCountry() : null,
+            parentOrganisations == null || !Hibernate.isInitialized(parentOrganisations) ?
+            null :
+            parentOrganisations.stream()
+                .map(it -> Organisation.of(it.id,
+                    it.name,
+                    it.shortName,
+                    it.type.value(),
+                    it.country != null ? it.country.asCountry() : null,
+                    null))
+                .toList());
     }
 
     public Long getId() {

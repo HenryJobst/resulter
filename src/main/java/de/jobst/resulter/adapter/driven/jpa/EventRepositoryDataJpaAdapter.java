@@ -29,7 +29,8 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     private final OrganisationJpaRepository organisationJpaRepository;
     private final CountryJpaRepository countryJpaRepository;
 
-    public EventRepositoryDataJpaAdapter(EventJpaRepository eventJpaRepository, EntityManager entityManager,
+    public EventRepositoryDataJpaAdapter(EventJpaRepository eventJpaRepository,
+                                         EntityManager entityManager,
                                          PersonJpaRepository personJpaRepository,
                                          OrganisationJpaRepository organisationJpaRepository,
                                          CountryJpaRepository countryJpaRepository) {
@@ -55,40 +56,37 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         dboResolvers.setCountryDboResolver(id -> countryJpaRepository.findById(id.value()).orElseThrow());
         EventDbo eventEntity = EventDbo.from(event, null, dboResolvers);
         if (Hibernate.isInitialized(eventEntity.getClassResults())) {
-            var personsToSave =
-                    eventEntity.getClassResults()
-                            .stream()
-                            .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
-                            .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
-                            .filter(personResultDbo -> personResultDbo.getPerson() != null &&
-                                    Hibernate.isInitialized(personResultDbo.getPerson()))
-                            .map(PersonResultDbo::getPerson)
-                            .toList();
+            var personsToSave = eventEntity.getClassResults()
+                .stream()
+                .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
+                .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
+                .filter(personResultDbo -> personResultDbo.getPerson() != null &&
+                                           Hibernate.isInitialized(personResultDbo.getPerson()))
+                .map(PersonResultDbo::getPerson)
+                .toList();
             personJpaRepository.saveAll(personsToSave);
 
-            var countriesToSave =
-                    eventEntity.getClassResults()
-                            .stream()
-                            .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
-                            .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
-                            .filter(personResultDbo -> personResultDbo.getOrganisation() != null &&
-                                    Hibernate.isInitialized(personResultDbo.getOrganisation()))
-                            .map(PersonResultDbo::getOrganisation)
-                            .filter(organisationDbo -> organisationDbo.getCountry() != null &&
-                                    Hibernate.isInitialized(organisationDbo.getCountry()))
-                            .map(OrganisationDbo::getCountry)
-                            .toList();
+            var countriesToSave = eventEntity.getClassResults()
+                .stream()
+                .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
+                .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
+                .filter(personResultDbo -> personResultDbo.getOrganisation() != null &&
+                                           Hibernate.isInitialized(personResultDbo.getOrganisation()))
+                .map(PersonResultDbo::getOrganisation)
+                .filter(organisationDbo -> organisationDbo.getCountry() != null &&
+                                           Hibernate.isInitialized(organisationDbo.getCountry()))
+                .map(OrganisationDbo::getCountry)
+                .toList();
             countryJpaRepository.saveAll(countriesToSave);
 
-            var organisationsToSave =
-                    eventEntity.getClassResults()
-                            .stream()
-                            .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
-                            .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
-                            .filter(personResultDbo -> personResultDbo.getOrganisation() != null &&
-                                    Hibernate.isInitialized(personResultDbo.getOrganisation()))
-                            .map(PersonResultDbo::getOrganisation)
-                            .toList();
+            var organisationsToSave = eventEntity.getClassResults()
+                .stream()
+                .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
+                .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
+                .filter(personResultDbo -> personResultDbo.getOrganisation() != null &&
+                                           Hibernate.isInitialized(personResultDbo.getOrganisation()))
+                .map(PersonResultDbo::getOrganisation)
+                .toList();
             organisationJpaRepository.saveAll(organisationsToSave);
         }
         EventDbo savedEventEntity = eventJpaRepository.save(eventEntity);
@@ -126,13 +124,11 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CLASS_RESULTS)) {
             Subgraph<ClassResultDbo> classResultSubgraph = entityGraph.addSubgraph(EventDbo_.classResults.getName());
             if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSON_RESULTS)) {
-                Subgraph<PersonResultDbo>
-                        personResultSubgraph =
-                        classResultSubgraph.addSubgraph(ClassResultDbo_.personResults.getName());
+                Subgraph<PersonResultDbo> personResultSubgraph =
+                    classResultSubgraph.addSubgraph(ClassResultDbo_.personResults.getName());
                 if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS)) {
-                    Subgraph<PersonRaceResultDbo>
-                            personRaceResultSubgraph =
-                            personResultSubgraph.addSubgraph(PersonResultDbo_.personRaceResults.getName());
+                    Subgraph<PersonRaceResultDbo> personRaceResultSubgraph =
+                        personResultSubgraph.addSubgraph(PersonResultDbo_.personRaceResults.getName());
                     if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.SPLIT_TIMES)) {
                         personRaceResultSubgraph.addSubgraph(PersonRaceResultDbo_.splitTimes);
                     }
@@ -145,11 +141,6 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
                 }
                 if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.ORGANISATIONS)) {
                     personResultSubgraph.addAttributeNodes(PersonResultDbo_.organisation.getName());
-                    if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PARENT_ORGANISATIONS)) {
-                        Subgraph<OrganisationDbo> organisationSubgraph =
-                                personResultSubgraph.addSubgraph(PersonResultDbo_.organisation.getName());
-                        organisationSubgraph.addAttributeNodes(OrganisationDbo_.parentOrganisations.getName());
-                    }
                 }
             }
         }
@@ -158,12 +149,10 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
 
     @Transactional(readOnly = true)
     public Optional<EventDbo> findDboById(EventId eventId, EventConfig eventConfig) {
-        @SuppressWarnings("SqlSourceToSinkFlow")
-        TypedQuery<EventDbo> query = entityManager.createQuery(
-                MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
-                        EventDbo_.class_.getName(),
-                        EventDbo_.id.getName()),
-                EventDbo.class);
+        @SuppressWarnings("SqlSourceToSinkFlow") TypedQuery<EventDbo> query =
+            entityManager.createQuery(MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
+                EventDbo_.class_.getName(),
+                EventDbo_.id.getName()), EventDbo.class);
         query.setParameter("id", eventId.value());
         query.setHint("jakarta.persistence.loadgraph", getEntityGraph(eventConfig));
 
@@ -179,8 +168,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
     @Override
     @Transactional
     public Event findOrCreate(Event event) {
-        Optional<EventDbo> optionalEventDbo =
-                eventJpaRepository.findByName(event.getName().value());
+        Optional<EventDbo> optionalEventDbo = eventJpaRepository.findByName(event.getName().value());
         if (optionalEventDbo.isEmpty()) {
             return save(event);
         }

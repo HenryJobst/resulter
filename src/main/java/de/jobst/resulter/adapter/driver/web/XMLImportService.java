@@ -57,16 +57,7 @@ public class XMLImportService {
                 null,
                 ObjectUtils.isNotEmpty(personRaceResult.getTime()) ? personRaceResult.getTime() : null,
                 Objects.nonNull(personRaceResult.getPosition()) ? personRaceResult.getPosition().longValue() : null,
-                ResultStatus.fromValue(personRaceResult.getStatus().value()),
-                getSplitTimes(personRaceResult)))
-            .toList();
-    }
-
-    @NonNull
-    private static List<SplitTime> getSplitTimes(de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult personRaceResult) {
-        return personRaceResult.getSplitTimes()
-            .stream()
-            .map(splitTime -> SplitTime.of(splitTime.getControlCode(), splitTime.getTime()))
+                ResultStatus.fromValue(personRaceResult.getStatus().value())))
             .toList();
     }
 

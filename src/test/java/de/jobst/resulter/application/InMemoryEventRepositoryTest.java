@@ -2,7 +2,6 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.InMemoryEventRepository;
 import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventName;
 import org.junit.jupiter.api.Test;
 
@@ -22,19 +21,14 @@ class InMemoryEventRepositoryTest {
 
         Event savedEvent = inMemoryEventRepository.save(event);
 
-        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()),
-                EventConfig.full());
+        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()));
 
-        assertThat(found)
-                .isPresent()
-                .get()
-                .extracting(Event::getName)
-                .isEqualTo(EventName.of("test event"));
+        assertThat(found).isPresent().get().extracting(Event::getName).isEqualTo(EventName.of("test event"));
     }
 
     @Test
     public void newRepositoryReturnsEmptyForFindAll() {
-        List<Event> events = inMemoryEventRepository.findAll(EventConfig.full());
+        List<Event> events = inMemoryEventRepository.findAll();
 
         assertThat(events).isEmpty();
     }
@@ -47,9 +41,8 @@ class InMemoryEventRepositoryTest {
         inMemoryEventRepository.save(one);
         inMemoryEventRepository.save(two);
 
-        List<Event> allEvents = inMemoryEventRepository.findAll(EventConfig.full());
-        assertThat(allEvents)
-                .hasSize(2);
+        List<Event> allEvents = inMemoryEventRepository.findAll();
+        assertThat(allEvents).hasSize(2);
 
     }
 
@@ -59,14 +52,9 @@ class InMemoryEventRepositoryTest {
 
         Event savedEvent = inMemoryEventRepository.findOrCreate(event);
 
-        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()),
-                EventConfig.full());
+        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()));
 
-        assertThat(found)
-                .isPresent()
-                .get()
-                .extracting(Event::getName)
-                .isEqualTo(EventName.of("test event"));
+        assertThat(found).isPresent().get().extracting(Event::getName).isEqualTo(EventName.of("test event"));
     }
 
     @Test
@@ -76,13 +64,8 @@ class InMemoryEventRepositoryTest {
 
         Event savedEvent = inMemoryEventRepository.findOrCreate(event);
 
-        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()),
-                EventConfig.full());
+        Optional<Event> found = inMemoryEventRepository.findById(Objects.requireNonNull(savedEvent.getId()));
 
-        assertThat(found)
-                .isPresent()
-                .get()
-                .extracting(Event::getName)
-                .isEqualTo(EventName.of("test event"));
+        assertThat(found).isPresent().get().extracting(Event::getName).isEqualTo(EventName.of("test event"));
     }
 }

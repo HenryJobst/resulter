@@ -1,25 +1,27 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
-import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.PersonRaceResult;
+import de.jobst.resulter.domain.PersonRaceResultId;
+import de.jobst.resulter.domain.PersonResultId;
+import de.jobst.resulter.domain.ResultStatus;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
-import org.hibernate.Hibernate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.List;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
 @Table(name = "PERSON_RACE_RESULT")
 public class PersonRaceResultDbo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_person_race_result")
-    @SequenceGenerator(name = "entity_generator_person_race_result",
-            sequenceName = "SEQ_PERSON_RACE_RESULT_ID",
-            allocationSize = 10)
+    @SequenceGenerator(name = "entity_generator_person_race_result", sequenceName = "SEQ_PERSON_RACE_RESULT_ID",
+                       allocationSize = 10)
     @Column(name = "ID", nullable = false)
     private Long id;
 
@@ -41,31 +43,21 @@ public class PersonRaceResultDbo {
     @Enumerated(value = EnumType.STRING)
     private ResultStatus state;
 
-    @OneToMany(mappedBy = "personRaceResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<SplitTimeDbo> splitTimes = new HashSet<>();
-
-
-    @OneToMany(mappedBy = "personRaceResultDbo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CupScoreDbo> cupScores = new HashSet<>();
-
     public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult,
                                            @NonNull PersonResultDbo personResultDbo,
                                            @Nullable DboResolver<PersonRaceResultId, PersonRaceResultDbo> dboResolver,
                                            @NonNull DboResolvers dboResolvers) {
         PersonRaceResultDbo personRaceResultDbo = null;
-        PersonRaceResultDbo persistedPersonRaceResultDbo;
         if (personRaceResult.getId().value() != PersonRaceResultId.empty().value()) {
             if (dboResolver != null) {
                 personRaceResultDbo = dboResolver.findDboById(personRaceResult.getId());
             }
             if (personRaceResultDbo == null) {
                 personRaceResultDbo =
-                        dboResolvers.getPersonRaceResultDboResolver().findDboById(personRaceResult.getId());
+                    dboResolvers.getPersonRaceResultDboResolver().findDboById(personRaceResult.getId());
             }
-            persistedPersonRaceResultDbo = personRaceResultDbo;
         } else {
             personRaceResultDbo = new PersonRaceResultDbo();
-            persistedPersonRaceResultDbo = null;
         }
 
         personRaceResultDbo.setPersonResultDbo(personResultDbo);
@@ -87,88 +79,22 @@ public class PersonRaceResultDbo {
         if (ObjectUtils.isNotEmpty(personRaceResult.getState())) {
             personRaceResultDbo.setState(personRaceResult.getState());
         }
-        if (personRaceResult.getSplitTimes().isLoaded()) {
-            PersonRaceResultDbo finalPersonRaceResultDbo = personRaceResultDbo;
-            personRaceResultDbo.setSplitTimes(personRaceResult.getSplitTimes().get()
-                    .value()
-                    .stream()
-                    .map(it -> {
-                        SplitTimeDbo persistedSplitTimeDbo =
-                                persistedPersonRaceResultDbo != null &&
-                                        Hibernate.isInitialized(persistedPersonRaceResultDbo.getSplitTimes()) ?
-                                        (persistedPersonRaceResultDbo.getSplitTimes()
-                                                .stream()
-                                                .filter(x -> x.getId() == it.getId().value())
-                                                .findFirst()
-                                                .orElse(null))
-                                        : null;
-                        return SplitTimeDbo.from(it,
-                                finalPersonRaceResultDbo,
-                                (id) -> persistedSplitTimeDbo,
-                                dboResolvers);
-                    })
-                    .collect(Collectors.toSet()));
-        } else if (persistedPersonRaceResultDbo != null) {
-            personRaceResultDbo.setSplitTimes(persistedPersonRaceResultDbo.getSplitTimes());
-
-        } else if (personRaceResult.getId().isPersistent()) {
-            throw new IllegalArgumentException();
-        }
 
         return personRaceResultDbo;
     }
 
-    public static Collection<PersonRaceResult> asPersonRaceResults(@NonNull EventConfig eventConfig,
-                                                                   @NonNull
-                                                                   List<PersonRaceResultDbo> personRaceResultDbos) {
-        Map<PersonRaceResultId, List<SplitTime>> splitTimesByPersonRaceResultId;
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.SPLIT_TIMES)) {
-            splitTimesByPersonRaceResultId =
-                    SplitTimeDbo.asSplitTimes(personRaceResultDbos.stream()
-                                    .flatMap(x -> x.splitTimes.stream())
-                                    .sorted()
-                                    .toList())
-                            .stream()
-                            .collect(Collectors.groupingBy(SplitTime::getPersonRaceResultId));
-        } else {
-            splitTimesByPersonRaceResultId = null;
-        }
-
-        Map<PersonRaceResultId, Map<CupType, CupScore>> cupScoresByPersonRaceResultId;
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CUP_SCORES)) {
-            cupScoresByPersonRaceResultId =
-                    CupScoreDbo.asCupScores(personRaceResultDbos.stream()
-                                    .flatMap(x -> x.cupScores.stream())
-                                    .sorted().toList())
-                            .stream()
-                            .collect(Collectors.groupingBy(
-                                    y -> y.id().value(),
-                                    Collectors.toMap(
-                                            z -> z.id().type(), val -> val)));
-        } else {
-            cupScoresByPersonRaceResultId = null;
-        }
+    public static Collection<PersonRaceResult> asPersonRaceResults(
+        @NonNull List<PersonRaceResultDbo> personRaceResultDbos) {
         return personRaceResultDbos.stream()
-                .map(
-                        it -> PersonRaceResult.of(
-                                it.id,
-                                it.getPersonResultDbo() != null ?
-                                        it.getPersonResultDbo().getId() :
-                                        PersonResultId.empty().value(),
-                                it.raceNumber,
-                                it.getStartTime(),
-                                it.getFinishTime(),
-                                it.getPunchTime(),
-                                it.getPosition(),
-                                it.getState(),
-                                splitTimesByPersonRaceResultId == null ? null :
-                                        splitTimesByPersonRaceResultId.getOrDefault(
-                                                PersonRaceResultId.of(it.id), new ArrayList<>()),
-                                cupScoresByPersonRaceResultId == null ? null :
-                                        cupScoresByPersonRaceResultId.getOrDefault(
-                                                PersonRaceResultId.of(it.id), new HashMap<>())
-                        ))
-                .toList();
+            .map(it -> PersonRaceResult.of(it.id,
+                it.getPersonResultDbo() != null ? it.getPersonResultDbo().getId() : PersonResultId.empty().value(),
+                it.raceNumber,
+                it.getStartTime(),
+                it.getFinishTime(),
+                it.getPunchTime(),
+                it.getPosition(),
+                it.getState()))
+            .toList();
     }
 
     public long getId() {
@@ -235,19 +161,4 @@ public class PersonRaceResultDbo {
         this.personResultDbo = personResultDbo;
     }
 
-    public Set<SplitTimeDbo> getSplitTimes() {
-        return splitTimes;
-    }
-
-    public void setSplitTimes(Set<SplitTimeDbo> splitTimes) {
-        this.splitTimes = splitTimes;
-    }
-
-    public Set<CupScoreDbo> getCupScores() {
-        return cupScores;
-    }
-
-    public void setCupScores(Set<CupScoreDbo> cupScores) {
-        this.cupScores = cupScores;
-    }
 }

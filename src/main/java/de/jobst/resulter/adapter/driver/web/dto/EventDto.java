@@ -13,17 +13,8 @@ public record EventDto(Long id, String name, String startTime, Integer classes, 
             ObjectUtils.isNotEmpty(event.getStartTime()) && ObjectUtils.isNotEmpty(event.getStartTime().value()) ?
             event.getStartTime().value().toString() :
             null,
-            event.getClassResults().isLoaded() ? event.getClassResults().get().value().size() : 0,
-            event.getClassResults().isLoaded() ?
-            event.getClassResults()
-                .get()
-                .value()
-                .stream()
-                .filter(it -> it.getPersonResults().isLoaded())
-                .mapToLong(it -> it.getPersonResults().get().value().size())
-                .sum() :
-            0,
-
+            event.getClassResults().value().size(),
+            event.getClassResults().value().stream().mapToLong(it -> it.getPersonResults().value().size()).sum(),
             event.getOrganisationIds().stream().map(OrganisationId::value).toArray(Long[]::new));
     }
 }

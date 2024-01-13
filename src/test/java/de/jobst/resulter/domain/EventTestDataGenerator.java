@@ -34,8 +34,7 @@ public class EventTestDataGenerator {
             finishTime,
             punchTime,
             position,
-            resultStatus,
-            splitTimes));
+            resultStatus));
 
         Collection<PersonResult> personResults = new ArrayList<>();
         String familyName = "Knopf";

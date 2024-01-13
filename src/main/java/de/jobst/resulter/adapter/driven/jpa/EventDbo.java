@@ -71,24 +71,18 @@ public class EventDbo {
             eventDbo.setEndTime(event.getEndTime().value());
         }
 
-        if (event.getClassResults().isLoaded()) {
-            EventDbo finalEventDbo = eventDbo;
-            eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults().get()).value().stream().map(it -> {
-                ClassResultDbo persistedClassResultDbo =
-                    persistedEventDbo != null && Hibernate.isInitialized(persistedEventDbo.getClassResults()) ?
-                    persistedEventDbo.getClassResults()
-                        .stream()
-                        .filter(x -> x.getId() == it.getId().value())
-                        .findFirst()
-                        .orElse(null) :
-                    null;
-                return ClassResultDbo.from(it, finalEventDbo, (id) -> persistedClassResultDbo, dboResolvers);
-            }).collect(Collectors.toSet()));
-        } else if (persistedEventDbo != null) {
-            eventDbo.setClassResults(persistedEventDbo.getClassResults());
-        } else if (event.getId().isPersistent()) {
-            throw new IllegalArgumentException();
-        }
+        EventDbo finalEventDbo = eventDbo;
+        eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults()).value().stream().map(it -> {
+            ClassResultDbo persistedClassResultDbo =
+                persistedEventDbo != null && Hibernate.isInitialized(persistedEventDbo.getClassResults()) ?
+                persistedEventDbo.getClassResults()
+                    .stream()
+                    .filter(x -> x.getId() == it.getId().value())
+                    .findFirst()
+                    .orElse(null) :
+                null;
+            return ClassResultDbo.from(it, finalEventDbo, (id) -> persistedClassResultDbo, dboResolvers);
+        }).collect(Collectors.toSet()));
 
         eventDbo.setOrganisations(event.getOrganisationIds()
             .stream()
@@ -102,27 +96,19 @@ public class EventDbo {
         return eventDbo;
     }
 
-    static public List<Event> asEvents(@NonNull EventConfig eventConfig, @NonNull List<EventDbo> eventDbos) {
+    static public List<Event> asEvents(@NonNull List<EventDbo> eventDbos) {
         Map<EventId, List<ClassResult>> classResultsByEventId;
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CLASS_RESULTS)) {
-            classResultsByEventId = ClassResultDbo.asClassResults(eventConfig,
-                    eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
+        classResultsByEventId =
+            ClassResultDbo.asClassResults(eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
                 .stream()
                 .collect(Collectors.groupingBy(ClassResult::getEventId));
-        } else {
-            classResultsByEventId = null;
-        }
 
         return eventDbos.stream()
             .map(it -> Event.of(it.id,
                 it.name,
                 it.startTime,
                 it.endTime,
-                classResultsByEventId == null ?
-                null :
                 classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>()),
-                eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS) ?
-                null :
                 it.organisations.stream()
                     .map(x -> Objects.nonNull(x) ? OrganisationId.of(x.getId()) : null)
                     .filter(Objects::nonNull)
@@ -131,8 +117,8 @@ public class EventDbo {
             .toList();
     }
 
-    static public Event asEvent(@NonNull EventConfig eventConfig, @NonNull EventDbo eventDbo) {
-        return asEvents(eventConfig, List.of(eventDbo)).getFirst();
+    static public Event asEvent(@NonNull EventDbo eventDbo) {
+        return asEvents(List.of(eventDbo)).getFirst();
     }
 
     public long getId() {
@@ -190,14 +176,4 @@ public class EventDbo {
     public void setState(EventStatus state) {
         this.state = state;
     }
-
-    /*
-    public Set<CupDbo> getCups() {
-        return cups;
-    }
-
-    public void setCups(Set<CupDbo> cups) {
-        this.cups = cups;
-    }
-    */
 }

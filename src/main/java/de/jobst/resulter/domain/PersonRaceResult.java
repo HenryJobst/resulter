@@ -1,18 +1,14 @@
 package de.jobst.resulter.domain;
 
-import de.jobst.resulter.domain.util.ShallowLoadProxy;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Getter
 public class PersonRaceResult implements Comparable<PersonRaceResult> {
+
     @NonNull
     @Setter
     private PersonRaceResultId id;
@@ -30,11 +26,6 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     private final Position position;
     @NonNull
     private final ResultStatus state;
-    @NonNull
-    private final ShallowLoadProxy<SplitTimes> splitTimes;
-    @NonNull
-    @Setter
-    private ShallowLoadProxy<CupScores> cupScores;
 
     public PersonRaceResult(@NonNull PersonRaceResultId id,
                             @NonNull PersonResultId personResultId,
@@ -43,9 +34,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                             @NonNull DateTime finishTime,
                             @NonNull PunchTime runtime,
                             @NonNull Position position,
-                            @NonNull ResultStatus state,
-                            @NonNull ShallowLoadProxy<SplitTimes> splitTimes,
-                            @NonNull ShallowLoadProxy<CupScores> cupScores) {
+                            @NonNull ResultStatus state) {
         this.id = id;
         this.personResultId = personResultId;
         this.raceNumber = raceNumber;
@@ -54,8 +43,6 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
         this.runtime = runtime;
         this.position = position;
         this.state = state;
-        this.splitTimes = splitTimes;
-        this.cupScores = cupScores;
     }
 
     public static PersonRaceResult of(Long raceNumber,
@@ -63,43 +50,33 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                                       ZonedDateTime finishTime,
                                       Double punchTime,
                                       Long position,
-                                      @NonNull ResultStatus resultState,
-                                      @Nullable List<SplitTime> splitTimes) {
-        return PersonRaceResult.of(
-                PersonRaceResultId.empty().value(),
-                PersonResultId.empty().value(),
-                raceNumber,
-                startTime,
-                finishTime,
-                punchTime,
-                position,
-                resultState,
-                splitTimes,
-                new HashMap<>());
+                                      @NonNull ResultStatus resultState) {
+        return PersonRaceResult.of(PersonRaceResultId.empty().value(),
+            PersonResultId.empty().value(),
+            raceNumber,
+            startTime,
+            finishTime,
+            punchTime,
+            position,
+            resultState);
     }
 
-    public static PersonRaceResult of(
-            @NonNull Long id,
-            @NonNull Long personResultId,
-            Long raceNumber,
-            ZonedDateTime startTime,
-            ZonedDateTime finishTime,
-            Double punchTime,
-            Long position,
-            ResultStatus resultState,
-            List<SplitTime> splitTimes,
-            Map<CupType, CupScore> cupScores) {
-        return new PersonRaceResult(
-                PersonRaceResultId.of(id),
-                PersonResultId.of(personResultId),
-                RaceNumber.of(raceNumber),
-                DateTime.of(startTime),
-                DateTime.of(finishTime),
-                PunchTime.of(punchTime),
-                Position.of(position),
-                resultState,
-                splitTimes != null ? ShallowLoadProxy.of(SplitTimes.of(splitTimes)) : ShallowLoadProxy.empty(),
-                cupScores != null ? ShallowLoadProxy.of(CupScores.of(cupScores)) : ShallowLoadProxy.empty());
+    public static PersonRaceResult of(@NonNull Long id,
+                                      @NonNull Long personResultId,
+                                      Long raceNumber,
+                                      ZonedDateTime startTime,
+                                      ZonedDateTime finishTime,
+                                      Double punchTime,
+                                      Long position,
+                                      ResultStatus resultState) {
+        return new PersonRaceResult(PersonRaceResultId.of(id),
+            PersonResultId.of(personResultId),
+            RaceNumber.of(raceNumber),
+            DateTime.of(startTime),
+            DateTime.of(finishTime),
+            PunchTime.of(punchTime),
+            Position.of(position),
+            resultState);
     }
 
     @Override
@@ -112,9 +89,5 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
             val = this.id.compareTo(o.id);
         }
         return val;
-    }
-
-    public void setScore(CupType type, CupScore score) {
-        cupScores.get().add(type, score);
     }
 }

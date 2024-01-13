@@ -6,25 +6,20 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.lang.NonNull;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 public record PersonResultDto(Long id, Long position, Long personId, Duration runTime, String resultStatus,
-                              Long organisationId, List<CupScoreDto> cupScores) implements Comparable<PersonResultDto> {
+                              Long organisationId) implements Comparable<PersonResultDto> {
 
     static public PersonResultDto from(PersonResult personResult) {
         PersonRaceResult personRaceResult =
-            personResult.getPersonRaceResults().get().value().stream().findFirst().orElseThrow();
+            personResult.getPersonRaceResults().value().stream().findFirst().orElseThrow();
         Double runTime = personRaceResult.getRuntime().value();
         return new PersonResultDto(personResult.getId().value(),
             personRaceResult.getPosition().value(),
             personResult.getPersonId() != null ? personResult.getPersonId().value() : null,
             runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
             personRaceResult.getState().value(),
-            personResult.getOrganisationId() != null ? personResult.getOrganisationId().value() : null,
-            personRaceResult.getCupScores().get() != null ?
-            personRaceResult.getCupScores().get().values().stream().map(CupScoreDto::from).toList() :
-            new ArrayList<>());
+            personResult.getOrganisationId() != null ? personResult.getOrganisationId().value() : null);
     }
 
     @Override

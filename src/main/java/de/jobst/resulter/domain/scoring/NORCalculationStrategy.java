@@ -69,10 +69,12 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
             return;
         }
         PunchTime fastestTime = personRaceResults.getFirst().getRuntime();
+        /*
         personRaceResults.forEach(personRaceResult -> personRaceResult.setScore(CUP_TYPE,
             calculateScore(CupScoreId.of(CUP_TYPE, personRaceResult.getId().value()),
                 fastestTime,
                 personRaceResult.getRuntime())));
+        */
     }
 
     private CupScore calculateScore(CupScoreId id, PunchTime fastestTime, PunchTime runtime) {

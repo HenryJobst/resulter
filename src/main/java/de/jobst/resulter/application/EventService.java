@@ -5,11 +5,13 @@ import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.*;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class EventService {
@@ -30,64 +32,23 @@ public class EventService {
         this.cupRepository = cupRepository;
     }
 
-    @NonNull
-    public static EventConfig getEventConfig(EventShallowProxyConfig eventShallowProxyConfig) {
-        EnumSet<EventConfig.ShallowEventLoads> shallowLoads = EnumSet.noneOf(EventConfig.ShallowEventLoads.class);
-        if (eventShallowProxyConfig.shallowEventOrganisations()) {
-            shallowLoads.add(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS);
-        }
-        if (eventShallowProxyConfig.shallowPersons()) {
-            shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
-        }
-        if (eventShallowProxyConfig.shallowOrganisations()) {
-            shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
-        }
-        if (eventShallowProxyConfig.shallowClassResults()) {
-            shallowLoads.add(EventConfig.ShallowEventLoads.CLASS_RESULTS);
-            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RESULTS);
-            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
-            shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
-            shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
-            shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
-        } else if (eventShallowProxyConfig.shallowPersonResults()) {
-            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RESULTS);
-            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
-            shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
-            shallowLoads.add(EventConfig.ShallowEventLoads.PERSONS);
-            shallowLoads.add(EventConfig.ShallowEventLoads.ORGANISATIONS);
-        } else if (eventShallowProxyConfig.shallowPersonRaceResults()) {
-            shallowLoads.add(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS);
-            shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
-            shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
-        } else if (eventShallowProxyConfig.shallowSplitTimes()) {
-            shallowLoads.add(EventConfig.ShallowEventLoads.SPLIT_TIMES);
-        } else if (eventShallowProxyConfig.shallowCupScores()) {
-            shallowLoads.add(EventConfig.ShallowEventLoads.CUP_SCORES);
-        }
-        return EventConfig.of(shallowLoads);
-    }
-
     public Event findOrCreate(Event event) {
         return eventRepository.findOrCreate(event);
     }
 
-    public Optional<Event> findById(EventId eventId, EventConfig eventConfig) {
-        return eventRepository.findById(eventId, eventConfig);
+    public Optional<Event> findById(EventId eventId) {
+        return eventRepository.findById(eventId);
     }
 
-    public List<Event> findAll(EventConfig eventConfig) {
-        return eventRepository.findAll(eventConfig);
+    public List<Event> findAll() {
+        return eventRepository.findAll();
     }
 
     public Event updateEvent(EventId id,
                              EventName name,
                              DateTime startDate,
                              Collection<OrganisationId> organisationIds) {
-        EventConfig eventConfig =
-            getEventConfig(new EventShallowProxyConfig(true, true, true, true, true, true, true, false));
-        Optional<Event> optionalEvent = findById(id, eventConfig);
+        Optional<Event> optionalEvent = findById(id);
         if (optionalEvent.isEmpty()) {
             return null;
         }
@@ -97,7 +58,7 @@ public class EventService {
     }
 
     public boolean deleteEvent(EventId eventId) {
-        Optional<Event> optionalEvent = findById(eventId, EventConfig.full());
+        Optional<Event> optionalEvent = findById(eventId);
         if (optionalEvent.isEmpty()) {
             return false;
         }
@@ -114,9 +75,7 @@ public class EventService {
             return null;
         }
 
-        EventConfig eventConfig =
-            getEventConfig(new EventShallowProxyConfig(false, false, false, true, false, false, false, false));
-        Optional<Event> optionalEvent = findById(id, eventConfig);
+        Optional<Event> optionalEvent = findById(id);
         if (optionalEvent.isEmpty()) {
             // no event
             return null;

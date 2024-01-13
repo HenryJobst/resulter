@@ -3,8 +3,6 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.adapter.driver.web.dto.CupDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.application.CupService;
-import de.jobst.resulter.application.EventService;
-import de.jobst.resulter.application.EventShallowProxyConfig;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -47,30 +45,8 @@ public class CupController {
     }
 
     @GetMapping("/cup")
-    public ResponseEntity<List<CupDto>> handleCups(
-        @RequestParam(name = "shallowEvents", required = false, defaultValue = "false") Boolean shallowEvents,
-        @RequestParam(name = "shallowClassResults", required = false, defaultValue = "false")
-        Boolean shallowClassResults,
-        @RequestParam(name = "shallowPersonResults", required = false, defaultValue = "false")
-        Boolean shallowPersonResults,
-        @RequestParam(name = "shallowPersonRaceResults", required = false, defaultValue = "true")
-        Boolean shallowPersonRaceResults,
-        @RequestParam(name = "shallowSplitTimes", required = false, defaultValue = "true") Boolean shallowSplitTimes,
-        @RequestParam(name = "shallowCupScores", required = false, defaultValue = "true") Boolean shallowCupScores,
-        @RequestParam(name = "shallowPersons", required = false, defaultValue = "true") Boolean shallowPersons,
-        @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
-        Boolean shallowOrganisations,
-        @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "true")
-        Boolean shallowEventOrganisations) {
+    public ResponseEntity<List<CupDto>> handleCups() {
         try {
-            EventConfig eventConfig = EventService.getEventConfig(new EventShallowProxyConfig(shallowClassResults,
-                shallowPersonResults,
-                shallowPersonRaceResults,
-                shallowSplitTimes,
-                shallowCupScores,
-                shallowPersons,
-                shallowOrganisations,
-                shallowEventOrganisations));
             List<Cup> cups = cupService.findAll();
             return ResponseEntity.ok(cups.stream().map(CupDto::from).toList());
         } catch (Exception e) {

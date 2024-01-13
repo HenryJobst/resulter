@@ -1,14 +1,12 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.Cup;
-import de.jobst.resulter.domain.CupConfig;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupType;
+import de.jobst.resulter.domain.EventId;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ObjectUtils;
-import org.hibernate.Hibernate;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +18,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "CUP")
 public class CupDbo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_cup")
     @SequenceGenerator(name = "entity_generator_cup", sequenceName = "SEQ_CUP_ID", allocationSize = 1)
@@ -30,54 +29,29 @@ public class CupDbo {
     private String name;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "CUP_EVENT",
-            joinColumns = @JoinColumn(name = "CUP_ID"),
-            inverseJoinColumns = @JoinColumn(name = "EVENT_ID"))
+    @JoinTable(name = "CUP_EVENT", joinColumns = @JoinColumn(name = "CUP_ID"),
+               inverseJoinColumns = @JoinColumn(name = "EVENT_ID"))
     private Set<EventDbo> events = new HashSet<>();
 
     @Column(name = "TYPE")
     @Enumerated(value = EnumType.STRING)
     private CupType type;
 
-    public static CupDbo from(@NonNull Cup cup,
-                              @Nullable DboResolver<CupId, CupDbo> dboResolver,
-                              @NonNull DboResolvers dboResolvers) {
-        CupDbo cupDbo = null;
+    public static CupDbo from(@NonNull Cup cup, @NonNull DboResolvers dboResolvers) {
+        CupDbo cupDbo;
         CupDbo persistedCupDbo;
         if (cup.getId().value() != CupId.empty().value()) {
-            if (dboResolver != null) {
-                cupDbo = dboResolver.findDboById(cup.getId());
-            }
-            if (cupDbo == null) {
-                cupDbo = dboResolvers.getCupDboDboResolver().findDboById(cup.getId());
-            }
-            persistedCupDbo = cupDbo;
+            cupDbo = dboResolvers.getCupDboDboResolver().findDboById(cup.getId());
         } else {
             cupDbo = new CupDbo();
-            persistedCupDbo = null;
         }
 
         cupDbo.setName(cup.getName().value());
 
-        if (cup.getEvents().isLoaded()) {
-            cupDbo.setEvents(Objects.requireNonNull(cup.getEvents().get())
-                    .value().stream().map(it -> {
-                        EventDbo persistedEventDbo =
-                                persistedCupDbo != null && Hibernate.isInitialized(persistedCupDbo.getEvents()) ?
-                                        (persistedCupDbo.getEvents()
-                                                .stream()
-                                                .filter(x -> x.getId() == it.getId().value())
-                                                .findFirst()
-                                                .orElse(null))
-                                        : null;
-                        return EventDbo.from(it, (id) -> persistedEventDbo, dboResolvers);
-                    }).collect(Collectors.toSet()));
-        } else if (persistedCupDbo != null) {
-            cupDbo.setEvents(persistedCupDbo.getEvents());
-        } else if (cup.getId().isPersistent()) {
-            throw new IllegalArgumentException();
-        }
+        cupDbo.setEvents(Objects.requireNonNull(cup.getEventIds()
+            .stream()
+            .map(it -> dboResolvers.getEventDboResolver().findDboById(it))
+            .collect(Collectors.toSet())));
 
         if (ObjectUtils.isNotEmpty(cup.getType())) {
             cupDbo.setType(cup.getType());
@@ -85,24 +59,14 @@ public class CupDbo {
         return cupDbo;
     }
 
-    static public List<Cup> asCups(@NonNull CupConfig cupConfig, @NonNull List<CupDbo> cupDbos) {
+    static public List<Cup> asCups(@NonNull List<CupDbo> cupDbos) {
         return cupDbos.stream()
-                .map(it -> Cup.of(
-                        it.id,
-                        it.name,
-                        it.type,
-                        cupConfig.shallowLoads().contains(CupConfig.ShallowCupLoads.EVENTS) ? null :
-                                it.events.stream()
-                                        .map(x -> ObjectUtils.isNotEmpty(x) ?
-                                                EventDbo.asEvent(cupConfig.eventConfig(), x) :
-                                                null)
-                                        .toList())
-                )
-                .toList();
+            .map(it -> Cup.of(it.id, it.name, it.type, it.events.stream().map(x -> EventId.of(x.getId())).toList()))
+            .toList();
     }
 
-    static public Cup asCup(@NonNull CupConfig cupConfig, @NonNull CupDbo cupDbo) {
-        return asCups(cupConfig, List.of(cupDbo)).getFirst();
+    static public Cup asCup(@NonNull CupDbo cupDbo) {
+        return asCups(List.of(cupDbo)).getFirst();
     }
 
     public long getId() {

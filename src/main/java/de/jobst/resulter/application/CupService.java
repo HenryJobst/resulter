@@ -2,10 +2,9 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.domain.*;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import java.util.EnumSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,47 +17,37 @@ public class CupService {
         this.cupRepository = cupRepository;
     }
 
-    public List<Cup> findAll(CupConfig cupConfig) {
-        return cupRepository.findAll(cupConfig);
+    public List<Cup> findAll() {
+        return cupRepository.findAll();
     }
 
     public Cup findOrCreate(Cup cup) {
         return cupRepository.findOrCreate(cup);
     }
 
-    public Optional<Cup> findById(CupId cupId, CupConfig cupConfig) {
-        return cupRepository.findById(cupId, cupConfig);
+    public Optional<Cup> findById(CupId cupId) {
+        return cupRepository.findById(cupId);
     }
 
-    @NonNull
-    public static CupConfig getCupConfig(Boolean shallowEvents, EventConfig eventConfig) {
-        EnumSet<CupConfig.ShallowCupLoads> shallowLoads = EnumSet.noneOf(CupConfig.ShallowCupLoads.class);
-        if (shallowEvents) {
-            shallowLoads.add(CupConfig.ShallowCupLoads.EVENTS);
-        }
-        return CupConfig.of(shallowLoads, eventConfig);
-    }
 
-    public Cup updateCup(CupId id, CupName name, CupType type, Events events) {
+    public Cup updateCup(CupId id, CupName name, CupType type, Collection<EventId> eventIds) {
 
-        EventConfig eventConfig = EventConfig.empty();
-        CupConfig cupConfig = getCupConfig(false, eventConfig);
-        Optional<Cup> optionalCup = findById(id, cupConfig);
+        Optional<Cup> optionalCup = findById(id);
         if (optionalCup.isEmpty()) {
             return null;
         }
         Cup cup = optionalCup.get();
-        cup.update(name, type, events);
+        cup.update(name, type, eventIds);
         return cupRepository.save(cup);
     }
 
-    public Cup createCup(String name, CupType type, Events events) {
-        Cup cup = Cup.of(CupId.empty().value(), name, type, events.value());
+    public Cup createCup(String name, CupType type, Collection<EventId> eventIds) {
+        Cup cup = Cup.of(CupId.empty().value(), name, type, eventIds);
         return cupRepository.save(cup);
     }
 
     public boolean deleteCup(CupId cupId) {
-        Optional<Cup> optionalCup = findById(cupId, CupConfig.full());
+        Optional<Cup> optionalCup = findById(cupId);
         if (optionalCup.isEmpty()) {
             return false;
         }

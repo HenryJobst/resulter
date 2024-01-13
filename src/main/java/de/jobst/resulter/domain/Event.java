@@ -132,7 +132,7 @@ public class Event implements Comparable<Event> {
 
     private boolean invalid(Cup cup) {
         // event is not in given cup
-        return cup.getEvents().get().value().stream().filter(it -> it.getId().equals(this.id)).findAny().isEmpty();
+        return cup.getEventIds().stream().filter(it -> it.equals(this.id)).findAny().isEmpty();
     }
 
     private void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {

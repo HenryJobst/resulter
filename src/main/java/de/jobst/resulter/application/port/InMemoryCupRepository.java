@@ -1,7 +1,6 @@
 package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Cup;
-import de.jobst.resulter.domain.CupConfig;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.EventId;
 import org.apache.commons.lang3.ObjectUtils;
@@ -15,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
 public class InMemoryCupRepository implements CupRepository {
+
     private final Map<CupId, Cup> cups = new ConcurrentHashMap<>();
     private final AtomicLong sequence = new AtomicLong(0);
     private final List<Cup> savedCups = new ArrayList<>();
@@ -30,22 +30,22 @@ public class InMemoryCupRepository implements CupRepository {
     }
 
     @Override
-    public List<Cup> findAll(CupConfig cupConfig) {
+    public List<Cup> findAll() {
         return List.copyOf(cups.values());
     }
 
     @Override
-    public Optional<Cup> findById(CupId cupId, CupConfig cupConfig) {
+    public Optional<Cup> findById(CupId cupId) {
         return Optional.ofNullable(cups.get(cupId));
     }
 
     @Override
     public Cup findOrCreate(Cup cup) {
         return cups.values()
-                .stream()
-                .filter(it -> Objects.equals(it.getName(), cup.getName()))
-                .findAny()
-                .orElseGet(() -> save(cup));
+            .stream()
+            .filter(it -> Objects.equals(it.getName(), cup.getName()))
+            .findAny()
+            .orElseGet(() -> save(cup));
     }
 
     @Override
@@ -60,9 +60,9 @@ public class InMemoryCupRepository implements CupRepository {
     @Override
     public Collection<Cup> findByEvent(EventId eventId) {
         return this.cups.values()
-                .stream()
-                .filter(it -> it.getEvents().get().value().stream().anyMatch(x -> x.getId().equals(eventId)))
-                .toList();
+            .stream()
+            .filter(it -> it.getEventIds().stream().anyMatch(x -> x.equals(eventId)))
+            .toList();
     }
 
     @SuppressWarnings("unused")

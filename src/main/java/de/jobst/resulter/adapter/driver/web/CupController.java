@@ -22,12 +22,17 @@ import java.util.*;
 public class CupController {
 
     private final CupService cupService;
-    private final EventService eventService;
 
     @Autowired
-    public CupController(CupService cupService, EventService eventService) {
+    public CupController(CupService cupService) {
         this.cupService = cupService;
-        this.eventService = eventService;
+    }
+
+    private static void logError(Exception e) {
+        log.error(e.getMessage());
+        if (Objects.nonNull(e.getCause())) {
+            log.error(e.getCause().getMessage());
+        }
     }
 
     @GetMapping("/cup_types")
@@ -43,37 +48,30 @@ public class CupController {
 
     @GetMapping("/cup")
     public ResponseEntity<List<CupDto>> handleCups(
-            @RequestParam(name = "shallowEvents", required = false, defaultValue = "false")
-            Boolean shallowEvents,
-            @RequestParam(name = "shallowClassResults", required = false, defaultValue = "false")
-            Boolean shallowClassResults,
-            @RequestParam(name = "shallowPersonResults", required = false, defaultValue = "false")
-            Boolean shallowPersonResults,
-            @RequestParam(name = "shallowPersonRaceResults", required = false, defaultValue = "true")
-            Boolean shallowPersonRaceResults,
-            @RequestParam(name = "shallowSplitTimes", required = false, defaultValue = "true")
-            Boolean shallowSplitTimes,
-            @RequestParam(name = "shallowCupScores", required = false, defaultValue = "true")
-            Boolean shallowCupScores,
-            @RequestParam(name = "shallowPersons", required = false, defaultValue = "true")
-            Boolean shallowPersons,
-            @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
-            Boolean shallowOrganisations,
-            @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "true")
-            Boolean shallowEventOrganisations
-    ) {
+        @RequestParam(name = "shallowEvents", required = false, defaultValue = "false") Boolean shallowEvents,
+        @RequestParam(name = "shallowClassResults", required = false, defaultValue = "false")
+        Boolean shallowClassResults,
+        @RequestParam(name = "shallowPersonResults", required = false, defaultValue = "false")
+        Boolean shallowPersonResults,
+        @RequestParam(name = "shallowPersonRaceResults", required = false, defaultValue = "true")
+        Boolean shallowPersonRaceResults,
+        @RequestParam(name = "shallowSplitTimes", required = false, defaultValue = "true") Boolean shallowSplitTimes,
+        @RequestParam(name = "shallowCupScores", required = false, defaultValue = "true") Boolean shallowCupScores,
+        @RequestParam(name = "shallowPersons", required = false, defaultValue = "true") Boolean shallowPersons,
+        @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
+        Boolean shallowOrganisations,
+        @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "true")
+        Boolean shallowEventOrganisations) {
         try {
-            EventConfig eventConfig = EventService.getEventConfig(
-                    new EventShallowProxyConfig(shallowClassResults,
-                            shallowPersonResults,
-                            shallowPersonRaceResults,
-                            shallowSplitTimes,
-                            shallowCupScores,
-                            shallowPersons,
-                            shallowOrganisations,
-                            shallowEventOrganisations));
-            CupConfig cupConfig = CupService.getCupConfig(shallowEvents, eventConfig);
-            List<Cup> cups = cupService.findAll(cupConfig);
+            EventConfig eventConfig = EventService.getEventConfig(new EventShallowProxyConfig(shallowClassResults,
+                shallowPersonResults,
+                shallowPersonRaceResults,
+                shallowSplitTimes,
+                shallowCupScores,
+                shallowPersons,
+                shallowOrganisations,
+                shallowEventOrganisations));
+            List<Cup> cups = cupService.findAll();
             return ResponseEntity.ok(cups.stream().map(CupDto::from).toList());
         } catch (Exception e) {
             logError(e);
@@ -82,41 +80,11 @@ public class CupController {
     }
 
     @GetMapping("/cup/{id}")
-    public ResponseEntity<CupDto> getCup(
-            @PathVariable Long id,
-            @RequestParam(name = "shallowEvents", required = false, defaultValue = "false")
-            Boolean shallowEvents,
-            @RequestParam(name = "shallowClassResults", required = false, defaultValue = "true")
-            Boolean shallowClassResults,
-            @RequestParam(name = "shallowPersonResults", required = false, defaultValue = "true")
-            Boolean shallowPersonResults,
-            @RequestParam(name = "shallowPersonRaceResults", required = false, defaultValue = "true")
-            Boolean shallowPersonRaceResults,
-            @RequestParam(name = "shallowSplitTimes", required = false, defaultValue = "true")
-            Boolean shallowSplitTimes,
-            @RequestParam(name = "shallowCupScores", required = false, defaultValue = "true")
-            Boolean shallowCupScores,
-            @RequestParam(name = "shallowPersons", required = false, defaultValue = "true")
-            Boolean shallowPersons,
-            @RequestParam(name = "shallowOrganisations", required = false, defaultValue = "true")
-            Boolean shallowOrganisations,
-            @RequestParam(name = "shallowEventOrganisations", required = false, defaultValue = "true")
-            Boolean shallowEventOrganisations
-    ) {
+    public ResponseEntity<CupDto> getCup(@PathVariable Long id) {
         try {
-            EventConfig eventConfig = EventService.getEventConfig(
-                    new EventShallowProxyConfig(shallowClassResults,
-                            shallowPersonResults,
-                            shallowPersonRaceResults,
-                            shallowSplitTimes,
-                            shallowCupScores,
-                            shallowPersons,
-                            shallowOrganisations,
-                            shallowEventOrganisations));
-            CupConfig cupConfig = CupService.getCupConfig(shallowEvents, eventConfig);
-            Optional<Cup> cup = cupService.findById(CupId.of(id), cupConfig);
+            Optional<Cup> cup = cupService.findById(CupId.of(id));
             return cup.map(value -> ResponseEntity.ok(CupDto.from(value)))
-                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -126,19 +94,10 @@ public class CupController {
     @PutMapping("/cup/{id}")
     public ResponseEntity<CupDto> updateCup(@PathVariable Long id, @RequestBody CupDto cupDto) {
         try {
-            Cup cup = cupService.updateCup(
-                    CupId.of(id),
-                    CupName.of(cupDto.name()),
-                    CupType.fromValue(cupDto.type().id()),
-                    Events.of(
-                            cupDto.events() == null ? new ArrayList<>() :
-                                    cupDto.events().stream()
-                                            .map(it -> eventService.findById(EventId.of(it.id()), EventConfig.empty())
-                                                    .orElse(null))
-                                            .filter(ObjectUtils::isNotEmpty)
-                                            .toList()
-                    )
-            );
+            Cup cup = cupService.updateCup(CupId.of(id),
+                CupName.of(cupDto.name()),
+                CupType.fromValue(cupDto.type().id()),
+                cupDto.eventIds() == null ? new ArrayList<>() : cupDto.eventIds().stream().map(EventId::of).toList());
             if (null != cup) {
                 return ResponseEntity.ok(CupDto.from(cup));
             } else {
@@ -159,18 +118,11 @@ public class CupController {
     @PostMapping("/cup")
     public ResponseEntity<CupDto> createCup(@RequestBody CupDto cupDto) {
         try {
-            Cup cup = cupService.createCup(
-                    cupDto.name(),
-                    CupType.fromValue(cupDto.type().id()),
-                    Events.of(
-                            cupDto.events() == null ? new ArrayList<>() :
-                                    cupDto.events().stream()
-                                            .map(it -> eventService.findById(EventId.of(it.id()), EventConfig.empty())
-                                                    .orElse(null))
-                                            .filter(ObjectUtils::isNotEmpty)
-                                            .toList()
-                    )
-            );
+            Cup cup = cupService.createCup(cupDto.name(),
+                CupType.fromValue(cupDto.type().id()),
+                cupDto.eventIds() == null ?
+                new ArrayList<>() :
+                cupDto.eventIds().stream().map(EventId::of).filter(ObjectUtils::isNotEmpty).toList());
             if (null != cup) {
                 return ResponseEntity.ok(CupDto.from(cup));
             } else {
@@ -206,13 +158,6 @@ public class CupController {
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private static void logError(Exception e) {
-        log.error(e.getMessage());
-        if (Objects.nonNull(e.getCause())) {
-            log.error(e.getCause().getMessage());
         }
     }
 }

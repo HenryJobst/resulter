@@ -1,15 +1,14 @@
 package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.domain.Country;
-import de.jobst.resulter.domain.CountryId;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 @SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
 @Entity
 @Table(name = "COUNTRY")
 public class CountryDbo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_country")
     @SequenceGenerator(name = "entity_generator_country", sequenceName = "SEQ_COUNTRY_ID", allocationSize = 1)
@@ -22,20 +21,13 @@ public class CountryDbo {
     @Column(name = "NAME", nullable = false)
     private String name;
 
-    public static CountryDbo from(Country country,
-                                  @Nullable DboResolver<CountryId, CountryDbo> dboResolver,
-                                  @NonNull DboResolvers dboResolvers) {
+    public static CountryDbo from(Country country, @NonNull DboResolvers dboResolvers) {
         if (null == country) {
             return null;
         }
-        CountryDbo countryDbo = null;
-        if (country.getId().value() != CountryId.empty().value()) {
-            if (dboResolver != null) {
-                countryDbo = dboResolver.findDboById(country.getId());
-            }
-            if (countryDbo == null) {
-                countryDbo = dboResolvers.getCountryDboResolver().findDboById(country.getId());
-            }
+        CountryDbo countryDbo;
+        if (country.getId().isPersistent()) {
+            countryDbo = dboResolvers.getCountryDboResolver().findDboById(country.getId());
         } else {
             countryDbo = new CountryDbo();
         }

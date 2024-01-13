@@ -86,11 +86,23 @@ public class XMLImportService {
         ResultList resultList = xmlParser.parseXmlFile(inputStream);
 
         // countries
-        Collection<Country> countries = resultList.getEvent()
-            .getOrganisers()
-            .stream()
-            .map(o -> o.getCountry() == null ? null : Country.of(o.getCountry().getCode(), o.getCountry().getValue()))
-            .toList();
+        Collection<Country> countries = Stream.concat(
+            // countries from event
+            resultList.getEvent()
+                .getOrganisers()
+                .stream()
+                .map(o -> o.getCountry() == null ?
+                          null :
+                          Country.of(o.getCountry().getCode(), o.getCountry().getValue())),
+            // countries from persons
+            resultList.getClassResults()
+                .stream()
+                .flatMap(x -> x.getPersonResults().stream())
+                .map(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult::getOrganisation)
+                .map(o -> o.getCountry() == null ?
+                          null :
+                          Country.of(o.getCountry().getCode(), o.getCountry().getValue()))).collect(Collectors.toSet());
+
         countries = this.countryService.findOrCreate(countries);
         Map<String, Country> countriesByCode =
             countries.stream().collect(Collectors.toMap(x -> x.getCode().value(), x -> x));
@@ -116,7 +128,7 @@ public class XMLImportService {
                     o.getShortName(),
                     OrganisationType.OTHER.value(),
                     (o.getCountry() == null ? null : countriesByCode.get(o.getCountry().getCode()).getId()),
-                    new ArrayList<>()))).toList();
+                    new ArrayList<>()))).collect(Collectors.toSet());
 
         organisations = organisationService.findOrCreate(organisations);
         Map<String, Organisation> organisationByName =

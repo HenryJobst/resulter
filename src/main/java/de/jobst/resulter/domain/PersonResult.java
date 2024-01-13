@@ -1,6 +1,5 @@
 package de.jobst.resulter.domain;
 
-import de.jobst.resulter.domain.util.ShallowLoadProxy;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
@@ -21,13 +20,13 @@ public class PersonResult {
     @Nullable
     private final OrganisationId organisationId;
     @NonNull
-    private final ShallowLoadProxy<PersonRaceResults> personRaceResults;
+    private final PersonRaceResults personRaceResults;
 
     public PersonResult(@NonNull PersonResultId id,
                         @NonNull ClassResultId classResultId,
                         @Nullable PersonId personId,
                         @Nullable OrganisationId organisationId,
-                        @NonNull ShallowLoadProxy<PersonRaceResults> personRaceResults) {
+                        @NonNull PersonRaceResults personRaceResults) {
         this.id = id;
         this.classResultId = classResultId;
         this.personId = personId;
@@ -65,8 +64,6 @@ public class PersonResult {
             ClassResultId.of(classResultId),
             personId,
             organisationId,
-            (personRaceResults != null) ?
-            ShallowLoadProxy.of(PersonRaceResults.of(personRaceResults)) :
-            ShallowLoadProxy.empty());
+            PersonRaceResults.of(personRaceResults));
     }
 }

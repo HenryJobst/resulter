@@ -2,7 +2,6 @@ package de.jobst.resulter.domain;
 
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.scoring.*;
-import de.jobst.resulter.domain.util.ShallowLoadProxy;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +21,7 @@ public class Event implements Comparable<Event> {
     @NonNull
     private final DateTime endTime;
     @NonNull
-    private final ShallowLoadProxy<ClassResults> classResults;
+    private final ClassResults classResults;
     @Nullable
     private final EventStatus eventState;
     @NonNull
@@ -39,7 +38,7 @@ public class Event implements Comparable<Event> {
                  @NonNull EventName eventName,
                  @NonNull DateTime startTime,
                  @NonNull DateTime endTime,
-                 @NonNull ShallowLoadProxy<ClassResults> classResults,
+                 @NonNull ClassResults classResults,
                  @NonNull Collection<OrganisationId> organisationIds,
                  @Nullable EventStatus eventState) {
         this.id = id;
@@ -84,17 +83,16 @@ public class Event implements Comparable<Event> {
             EventName.of(eventName),
             DateTime.of(startTime),
             DateTime.of(endTime),
-            (classResults != null) ? ShallowLoadProxy.of(ClassResults.of(classResults)) : ShallowLoadProxy.empty(),
+            ClassResults.of(classResults),
             (organisations != null) ? organisations : new ArrayList<>(),
             eventState);
     }
 
     @NonNull
     public Set<OrganisationId> getReferencedOrganisationIds() {
-        return getClassResults().get()
-            .value()
+        return getClassResults().value()
             .stream()
-            .flatMap(it -> it.getPersonResults().get().value().stream())
+            .flatMap(it -> it.getPersonResults().value().stream())
             .map(PersonResult::getOrganisationId)
             .collect(Collectors.toSet());
     }
@@ -136,8 +134,7 @@ public class Event implements Comparable<Event> {
     }
 
     private void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
-        getClassResults().get()
-            .value()
+        getClassResults().value()
             .stream()
             .filter(cupTypeCalculationStrategy::valid)
             .forEach(it -> it.calculate(cupTypeCalculationStrategy));

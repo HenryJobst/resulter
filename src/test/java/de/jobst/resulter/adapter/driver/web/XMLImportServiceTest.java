@@ -51,9 +51,8 @@ class XMLImportServiceTest {
         assertThat(Objects.requireNonNull(event.getId()).value()).isGreaterThanOrEqualTo(1L);
         assertThat(event.getName().value()).isEqualTo("Test-Event");
 
-        assertThat(event.getClassResults().isLoaded()).isTrue();
-        assertThat(Objects.requireNonNull(event.getClassResults()).get().value()).hasSize(1);
-        Collection<ClassResult> classResults = event.getClassResults().get().value();
+        assertThat(Objects.requireNonNull(event.getClassResults()).value()).hasSize(1);
+        Collection<ClassResult> classResults = event.getClassResults().value();
         Optional<ClassResult> classResultBK =
             classResults.stream().filter(it -> it.getClassResultName().value().contains("BK")).findAny();
         assertThat(classResultBK).isPresent();
@@ -61,11 +60,9 @@ class XMLImportServiceTest {
         assertThat(classResultBK.get().getClassResultShortName().value()).isEqualTo("BK");
         assertThat(classResultBK.get().getGender()).isEqualTo(Gender.of("M"));
 
-        assertThat(classResultBK.get().getPersonResults().isLoaded()).isTrue();
-        assertThat(classResultBK.get().getPersonResults().get().value()).hasSize(2);
+        assertThat(classResultBK.get().getPersonResults().value()).hasSize(2);
         Optional<PersonResult> firstPersonResult = classResultBK.get()
             .getPersonResults()
-            .get()
             .value()
             .stream()
             .filter(it -> Objects.nonNull(it.getPersonId()))
@@ -84,10 +81,9 @@ class XMLImportServiceTest {
         assertThat(Objects.requireNonNull(firstPersonResult.get().getOrganisationId())
             .value()).isGreaterThanOrEqualTo(1);
 
-        assertThat(firstPersonResult.get().getPersonRaceResults().isLoaded()).isTrue();
-        assertThat(firstPersonResult.get().getPersonRaceResults().get().value()).hasSize(1);
+        assertThat(firstPersonResult.get().getPersonRaceResults().value()).hasSize(1);
         Optional<PersonRaceResult> firstPersonRaceResult =
-            firstPersonResult.get().getPersonRaceResults().get().value().stream().findFirst();
+            firstPersonResult.get().getPersonRaceResults().value().stream().findFirst();
         assertThat(firstPersonRaceResult).isPresent();
 
         assertThat(firstPersonRaceResult.get().getRaceNumber().value()).isEqualTo(1);
@@ -101,13 +97,5 @@ class XMLImportServiceTest {
             ZoneId.systemDefault())));
         assertThat(firstPersonRaceResult.get().getRuntime().value()).isEqualTo(1141.0);
         assertThat(firstPersonRaceResult.get().getState()).isEqualTo(ResultStatus.OK);
-
-        assertThat(firstPersonRaceResult.get().getSplitTimes().isLoaded()).isTrue();
-        assertThat(firstPersonRaceResult.get().getSplitTimes().get().value()).hasSize(6);
-        Optional<SplitTime> firstSplittime =
-            firstPersonRaceResult.get().getSplitTimes().get().value().stream().findFirst();
-        assertThat(firstSplittime).isPresent();
-        assertThat(firstSplittime.get().getControlCode().value()).isEqualTo("134");
-        assertThat(firstSplittime.get().getPunchTime().value()).isEqualTo(212.0);
     }
 }

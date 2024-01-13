@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventId;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
@@ -43,7 +42,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
 
     @Transactional
     public DboResolver<EventId, EventDbo> getIdResolver() {
-        return (EventId id) -> findDboById(id, EventConfig.full()).orElseThrow();
+        return (EventId id) -> findDboById(id).orElseThrow();
     }
 
     @Override
@@ -90,7 +89,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
             organisationJpaRepository.saveAll(organisationsToSave);
         }
         EventDbo savedEventEntity = eventJpaRepository.save(eventEntity);
-        return EventDbo.asEvent(EventConfig.fromEvent(event), savedEventEntity);
+        return EventDbo.asEvent(savedEventEntity);
     }
 
     @Override
@@ -100,8 +99,8 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Event> findAll(EventConfig eventConfig) {
-        EntityGraph<?> entityGraph = getEntityGraph(eventConfig);
+    public List<Event> findAll() {
+        EntityGraph<?> entityGraph = getEntityGraph();
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<EventDbo> query = cb.createQuery(EventDbo.class);
@@ -111,58 +110,37 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         typedQuery.setHint("jakarta.persistence.loadgraph", entityGraph);
 
         List<EventDbo> resultList = typedQuery.getResultList();
-        return EventDbo.asEvents(eventConfig, resultList);
+        return EventDbo.asEvents(resultList);
     }
 
-    private EntityGraph<EventDbo> getEntityGraph(EventConfig eventConfig) {
+    private EntityGraph<EventDbo> getEntityGraph() {
         EntityGraph<EventDbo> entityGraph = entityManager.createEntityGraph(EventDbo.class);
-
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.EVENT_ORGANISATIONS)) {
-            entityGraph.addSubgraph(EventDbo_.organisations);
-        }
-
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CLASS_RESULTS)) {
-            Subgraph<ClassResultDbo> classResultSubgraph = entityGraph.addSubgraph(EventDbo_.classResults.getName());
-            if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSON_RESULTS)) {
-                Subgraph<PersonResultDbo> personResultSubgraph =
-                    classResultSubgraph.addSubgraph(ClassResultDbo_.personResults.getName());
-                if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSON_RACE_RESULTS)) {
-                    Subgraph<PersonRaceResultDbo> personRaceResultSubgraph =
-                        personResultSubgraph.addSubgraph(PersonResultDbo_.personRaceResults.getName());
-                    if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.SPLIT_TIMES)) {
-                        personRaceResultSubgraph.addSubgraph(PersonRaceResultDbo_.splitTimes);
-                    }
-                    if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.CUP_SCORES)) {
-                        personRaceResultSubgraph.addSubgraph(PersonRaceResultDbo_.cupScores);
-                    }
-                }
-                if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSONS)) {
-                    personResultSubgraph.addAttributeNodes(PersonResultDbo_.person.getName());
-                }
-                if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.ORGANISATIONS)) {
-                    personResultSubgraph.addAttributeNodes(PersonResultDbo_.organisation.getName());
-                }
-            }
-        }
+        entityGraph.addSubgraph(EventDbo_.organisations);
+        Subgraph<ClassResultDbo> classResultSubgraph = entityGraph.addSubgraph(EventDbo_.classResults.getName());
+        Subgraph<PersonResultDbo> personResultSubgraph =
+            classResultSubgraph.addSubgraph(ClassResultDbo_.personResults.getName());
+        personResultSubgraph.addAttributeNodes(PersonResultDbo_.personRaceResults.getName());
+        personResultSubgraph.addAttributeNodes(PersonResultDbo_.person.getName());
+        personResultSubgraph.addAttributeNodes(PersonResultDbo_.organisation.getName());
         return entityGraph;
     }
 
     @Transactional(readOnly = true)
-    public Optional<EventDbo> findDboById(EventId eventId, EventConfig eventConfig) {
+    public Optional<EventDbo> findDboById(EventId eventId) {
         @SuppressWarnings("SqlSourceToSinkFlow") TypedQuery<EventDbo> query =
             entityManager.createQuery(MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
                 EventDbo_.class_.getName(),
                 EventDbo_.id.getName()), EventDbo.class);
         query.setParameter("id", eventId.value());
-        query.setHint("jakarta.persistence.loadgraph", getEntityGraph(eventConfig));
+        query.setHint("jakarta.persistence.loadgraph", getEntityGraph());
 
         return query.getResultStream().findFirst();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Event> findById(EventId eventId, EventConfig eventConfig) {
-        return findDboById(eventId, eventConfig).map(it -> EventDbo.asEvent(eventConfig, it));
+    public Optional<Event> findById(EventId eventId) {
+        return findDboById(eventId).map(EventDbo::asEvent);
     }
 
     @Override
@@ -172,7 +150,7 @@ public class EventRepositoryDataJpaAdapter implements EventRepository {
         if (optionalEventDbo.isEmpty()) {
             return save(event);
         }
-        return EventDbo.asEvent(EventConfig.fromEvent(event), optionalEventDbo.get());
+        return EventDbo.asEvent(optionalEventDbo.get());
     }
 
 }

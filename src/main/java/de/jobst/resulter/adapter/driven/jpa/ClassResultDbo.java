@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "CLASS_RESULT")
 public class ClassResultDbo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "class_result_generator")
     @SequenceGenerator(name = "class_result_generator", sequenceName = "SEQ_CLASS_RESULT_ID")
@@ -61,58 +62,40 @@ public class ClassResultDbo {
             classResultDbo.setShortName(classResult.getClassResultShortName().value());
         }
         classResultDbo.setGender(classResult.getGender());
-        if (classResult.getPersonResults().isLoaded()) {
-            ClassResultDbo finalClassResultDbo = classResultDbo;
-            classResultDbo.setPersonResults(
-                    Objects.requireNonNull(classResult.getPersonResults())
-                            .get().value()
-                            .stream()
-                            .map(it -> {
-                                PersonResultDbo persistedPersonResultDbo =
-                                        persistedClassResultDbo != null &&
-                                                Hibernate.isInitialized(persistedClassResultDbo.getPersonResults()) ?
-                                                (persistedClassResultDbo.getPersonResults()
-                                                        .stream()
-                                                        .filter(x -> x.getId() == it.getId().value())
-                                                        .findFirst()
-                                                        .orElse(null))
-                                                : null;
-                                return PersonResultDbo.from(it,
-                                        finalClassResultDbo,
-                                        (id) -> persistedPersonResultDbo,
-                                        dboResolvers);
-                            })
-                            .collect(Collectors.toSet()));
-        } else if (persistedClassResultDbo != null) {
-            classResultDbo.setPersonResults(persistedClassResultDbo.getPersonResults());
-        } else if (classResult.getId().isPersistent()) {
-            throw new IllegalArgumentException();
-        }
+        ClassResultDbo finalClassResultDbo = classResultDbo;
+        classResultDbo.setPersonResults(Objects.requireNonNull(classResult.getPersonResults())
+            .value()
+            .stream()
+            .map(it -> {
+                PersonResultDbo persistedPersonResultDbo = persistedClassResultDbo != null &&
+                                                           Hibernate.isInitialized(persistedClassResultDbo.getPersonResults()) ?
+                                                           (persistedClassResultDbo.getPersonResults()
+                                                                .stream()
+                                                                .filter(x -> x.getId() == it.getId().value())
+                                                                .findFirst()
+                                                                .orElse(null)) :
+                                                           null;
+                return PersonResultDbo.from(it, finalClassResultDbo, (id) -> persistedPersonResultDbo, dboResolvers);
+            })
+            .collect(Collectors.toSet()));
         return classResultDbo;
     }
 
-    static public Collection<ClassResult> asClassResults(EventConfig eventConfig,
-                                                         Collection<ClassResultDbo> classResultDbos) {
+    static public Collection<ClassResult> asClassResults(Collection<ClassResultDbo> classResultDbos) {
 
         Map<ClassResultId, List<PersonResult>> personResultsByClassResultId;
-        if (!eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSON_RESULTS)) {
-            personResultsByClassResultId =
-                    PersonResultDbo.asPersonResults(eventConfig,
-                                    classResultDbos.stream().flatMap(x -> x.personResults.stream()).toList())
-                            .stream()
-                            .collect(Collectors.groupingBy(PersonResult::getClassResultId));
-        } else {
-            personResultsByClassResultId = null;
-        }
+        personResultsByClassResultId =
+            PersonResultDbo.asPersonResults(classResultDbos.stream().flatMap(x -> x.personResults.stream()).toList())
+                .stream()
+                .collect(Collectors.groupingBy(PersonResult::getClassResultId));
         return classResultDbos.stream()
-                .map(
-                        it -> ClassResult.of(it.id,
-                                it.eventDbo != null ? it.eventDbo.getId() : EventId.empty().value(),
-                                it.name, it.shortName, it.gender,
-                                personResultsByClassResultId == null ? null :
-                                        personResultsByClassResultId.getOrDefault(ClassResultId.of(it.id),
-                                                new ArrayList<>())))
-                .toList();
+            .map(it -> ClassResult.of(it.id,
+                it.eventDbo != null ? it.eventDbo.getId() : EventId.empty().value(),
+                it.name,
+                it.shortName,
+                it.gender,
+                personResultsByClassResultId.getOrDefault(ClassResultId.of(it.id), new ArrayList<>())))
+            .toList();
     }
 
     public long getId() {

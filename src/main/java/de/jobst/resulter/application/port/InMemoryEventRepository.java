@@ -1,7 +1,6 @@
 package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.EventConfig;
 import de.jobst.resulter.domain.EventId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
 public class InMemoryEventRepository implements EventRepository {
+
     private final Map<EventId, Event> events = new ConcurrentHashMap<>();
     private final AtomicLong sequence = new AtomicLong(0);
     private final List<Event> savedEvents = new ArrayList<>();
@@ -38,22 +38,22 @@ public class InMemoryEventRepository implements EventRepository {
     }
 
     @Override
-    public List<Event> findAll(EventConfig eventConfig) {
+    public List<Event> findAll() {
         return List.copyOf(events.values());
     }
 
     @Override
-    public Optional<Event> findById(EventId EventId, EventConfig eventConfig) {
+    public Optional<Event> findById(EventId EventId) {
         return Optional.ofNullable(events.get(EventId));
     }
 
     @Override
     public Event findOrCreate(Event event) {
         return events.values()
-                .stream()
-                .filter(it -> Objects.equals(it.getName(), event.getName()))
-                .findAny()
-                .orElseGet(() -> save(event));
+            .stream()
+            .filter(it -> Objects.equals(it.getName(), event.getName()))
+            .findAny()
+            .orElseGet(() -> save(event));
     }
 
     @SuppressWarnings("unused")

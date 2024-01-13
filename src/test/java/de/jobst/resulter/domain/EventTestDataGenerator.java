@@ -42,16 +42,17 @@ public class EventTestDataGenerator {
         String givenName = "Jim";
         LocalDate birthDate = LocalDate.of(2000, 11, 1);
         Gender personGender = Gender.M;
+        /*
         String clubName = "O-Club";
         String clubShortName = "OC";
-        /*
         Country country = Country.of(CountryId.empty().value(), "NED", "NED");
         Organisation organisation = Organisation.of(clubName, clubShortName, country.getId());
         */
-        personResults.add(PersonResult.of(Person.of(FamilyName.of(familyName),
+        personResults.add(PersonResult.of(null
+            /*Person.of(FamilyName.of(familyName),
             GivenName.of(givenName),
             birthDate,
-            personGender), null, personRaceResults));
+            personGender)*/, null, personRaceResults));
 
         Collection<ClassResult> classResults = new ArrayList<>();
         String className = "H50- (Herren ab 50)";

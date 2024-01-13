@@ -6,13 +6,11 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.lang.NonNull;
 
 import java.time.Duration;
-import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
-public record PersonResultDto(Long id, Long position, String personName, Year birthYear, Duration runTime,
-                              String resultStatus, Long organisationId, List<CupScoreDto> cupScores)
-    implements Comparable<PersonResultDto> {
+public record PersonResultDto(Long id, Long position, Long personId, Duration runTime, String resultStatus,
+                              Long organisationId, List<CupScoreDto> cupScores) implements Comparable<PersonResultDto> {
 
     static public PersonResultDto from(PersonResult personResult) {
         PersonRaceResult personRaceResult =
@@ -20,10 +18,7 @@ public record PersonResultDto(Long id, Long position, String personName, Year bi
         Double runTime = personRaceResult.getRuntime().value();
         return new PersonResultDto(personResult.getId().value(),
             personRaceResult.getPosition().value(),
-            personResult.getPerson().get().getPersonName().getFullName(),
-            personResult.getPerson().get().getBirthDate().value() != null ?
-            Year.from(personResult.getPerson().get().getBirthDate().value()) :
-            null,
+            personResult.getPersonId() != null ? personResult.getPersonId().value() : null,
             runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
             personRaceResult.getState().value(),
             personResult.getOrganisationId() != null ? personResult.getOrganisationId().value() : null,
@@ -42,7 +37,7 @@ public record PersonResultDto(Long id, Long position, String personName, Year bi
             value = ObjectUtils.compare(resultStatus, o.resultStatus);
         }
         if (value == 0) {
-            value = ObjectUtils.compare(personName, o.personName);
+            value = ObjectUtils.compare(personId, o.personId);
         }
         if (value == 0) {
             value = ObjectUtils.compare(id, o.id);

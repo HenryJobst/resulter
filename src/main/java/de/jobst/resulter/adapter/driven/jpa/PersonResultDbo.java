@@ -42,7 +42,7 @@ public class PersonResultDbo {
                                        @NonNull DboResolvers dboResolvers) {
         PersonResultDbo personResultDbo = null;
         PersonResultDbo persistedPersonResultDbo;
-        if (personResult.getId().value() != PersonResultId.empty().value()) {
+        if (personResult.getId().isPersistent()) {
             if (dboResolver != null) {
                 personResultDbo = dboResolver.findDboById(personResult.getId());
             }
@@ -56,21 +56,9 @@ public class PersonResultDbo {
         }
         personResultDbo.setClassResultDbo(classResultDbo);
 
-        if (personResult.getPerson().isLoaded()) {
-            PersonDbo persistedPersonDbo =
-                persistedPersonResultDbo != null && Hibernate.isInitialized(persistedPersonResultDbo.person) ?
-                persistedPersonResultDbo.person :
-                null;
-            personResultDbo.setPerson(PersonDbo.from(personResult.getPerson().get(),
-                (id) -> persistedPersonDbo != null && persistedPersonDbo.getId() == id.value() ?
-                        persistedPersonDbo :
-                        null,
-                dboResolvers));
-        } else if (persistedPersonResultDbo != null) {
-            personResultDbo.setPerson(persistedPersonResultDbo.getPerson());
-        } else if (personResult.getId().isPersistent()) {
-            throw new IllegalArgumentException();
-        }
+        personResultDbo.setPerson(personResult.getPersonId() != null ?
+                                  dboResolvers.getPersonDboResolver().findDboById(personResult.getPersonId()) :
+                                  null);
 
         personResultDbo.setOrganisation(personResult.getOrganisationId() != null ?
                                         dboResolvers.getOrganisationDboResolver()
@@ -117,7 +105,7 @@ public class PersonResultDbo {
                 it.getClassResultDbo() != null ? it.getClassResultDbo().getId() : ClassResultId.empty().value(),
                 eventConfig.shallowLoads().contains(EventConfig.ShallowEventLoads.PERSONS) ?
                 null :
-                (it.person != null ? it.person.asPerson() : null),
+                it.person != null ? PersonId.of(it.person.getId()) : null,
                 it.organisation != null ? OrganisationId.of(it.organisation.getId()) : null,
                 personRaceResultsByPersonResultId == null ?
                 null :

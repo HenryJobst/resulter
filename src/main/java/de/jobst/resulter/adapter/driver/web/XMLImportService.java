@@ -70,19 +70,12 @@ public class XMLImportService {
             .toList();
     }
 
-    @NonNull
-    private Person getPerson(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult) {
-        de.jobst.resulter.adapter.driver.web.jaxb.Person person = personResult.getPerson();
-        return personService.findOrCreate(Person.of(PersonName.of(person.getName().getFamily(),
-                person.getName().getGiven()),
-            BirthDate.of(ObjectUtils.isNotEmpty(person.getBirthDate()) ?
-                         LocalDate.ofInstant(person.getBirthDate().toGregorianCalendar().toInstant(),
-                             ZoneId.systemDefault()) :
-                         null),
-            Gender.of(person.getSex())));
+    public record ImportResult(Event event, Map<String, Country> countryMap, Map<String, Organisation> organisationMap,
+                               Map<Person.DomainKey, Person> personMap) {
+
     }
 
-    Event importFile(InputStream inputStream) throws Exception {
+    ImportResult importFile(InputStream inputStream) throws Exception {
         ResultList resultList = xmlParser.parseXmlFile(inputStream);
 
         // countries
@@ -134,30 +127,58 @@ public class XMLImportService {
         Map<String, Organisation> organisationByName =
             organisations.stream().collect(Collectors.toMap(x -> x.getName().value(), x -> x));
 
+        Collection<Person> persons = resultList.getClassResults()
+            .stream()
+            .flatMap(x -> x.getPersonResults().stream())
+            .map(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult::getPerson)
+            .map(p -> Person.of(PersonName.of(p.getName().getFamily(), p.getName().getGiven()),
+                BirthDate.of(ObjectUtils.isNotEmpty(p.getBirthDate()) ?
+                             LocalDate.ofInstant(p.getBirthDate().toGregorianCalendar().toInstant(),
+                                 ZoneId.systemDefault()) :
+                             null),
+                Gender.of(p.getSex())))
+            .collect(Collectors.toSet());
+        persons = personService.findOrCreate(persons);
+        Map<Person.DomainKey, Person> personByDomainKey =
+            persons.stream().collect(Collectors.toMap(Person::getDomainKey, x -> x));
+
+
         // Result list
         Collection<ClassResult> classResults = resultList.getClassResults().stream().map(classResult -> {
             Class clazz = classResult.getClazz();
             return ClassResult.of(clazz.getName(),
                 clazz.getShortName(),
                 Gender.of(clazz.getSex()),
-                getPersonResults(classResult, organisationByName));
+                getPersonResults(classResult, organisationByName, personByDomainKey));
         }).toList();
 
-        return eventService.findOrCreate(Event.of(resultList.getEvent().getName(),
+        return new ImportResult(eventService.findOrCreate(Event.of(resultList.getEvent().getName(),
             classResults,
             resultList.getEvent()
                 .getOrganisers()
                 .stream()
                 .map(x -> OrganisationId.of(organisationByName.get(x.getName()).getId().value()))
-                .toList()));
+                .toList())), countriesByCode, organisationByName, personByDomainKey);
+    }
+
+    private Person.DomainKey createPersonDomainKey(de.jobst.resulter.adapter.driver.web.jaxb.Person p) {
+        return new Person.DomainKey(p.getName().getFamily(),
+            p.getName().getGiven(),
+            ObjectUtils.isNotEmpty(p.getBirthDate()) ?
+            LocalDate.ofInstant(p.getBirthDate().toGregorianCalendar().toInstant(), ZoneId.systemDefault()) :
+            null);
     }
 
     @NonNull
     private List<PersonResult> getPersonResults(de.jobst.resulter.adapter.driver.web.jaxb.ClassResult classResult,
-                                                Map<String, Organisation> organisationByName) {
+                                                Map<String, Organisation> organisationByName,
+                                                Map<Person.DomainKey, Person> personByDomainKey) {
         return classResult.getPersonResults()
             .stream()
-            .map(personResult -> PersonResult.of(getPerson(personResult),
+            .map(personResult -> PersonResult.of(Objects.nonNull(personResult.getPerson()) ?
+                                                 personByDomainKey.get(createPersonDomainKey(personResult.getPerson()))
+                                                     .getId() :
+                                                 null,
                 Objects.nonNull(personResult.getOrganisation()) ?
                 organisationByName.get(personResult.getOrganisation().getName()).getId() :
                 null,

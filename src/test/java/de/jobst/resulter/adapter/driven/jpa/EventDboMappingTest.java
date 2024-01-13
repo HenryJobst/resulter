@@ -23,8 +23,8 @@ class EventDboMappingTest {
         assertThat(event.getName().value()).isEqualTo(EventTestDataGenerator.A_EVENT_NAME);
         assertThat(event.getStartTime()).isNotNull();
         assertThat(event.getStartTime().value()).isNull();
-        assertThat(event.getOrganisationIds().isLoaded()).isTrue();
-        assertThat(event.getOrganisationIds().get().value()).isEmpty();
+        assertThat(event.getOrganisationIds()).isNotNull();
+        assertThat(event.getOrganisationIds()).isEmpty();
         assertThat(event.getClassResults().isLoaded()).isTrue();
         assertThat(event.getClassResults().get().value()).isEmpty();
         assertThat(event.getEventState()).isNull();
@@ -85,25 +85,8 @@ class EventDboMappingTest {
                             assertThat(personResultDbo.getPerson()).isNull();
                         }
 
-                        if (personResult.getOrganisation().isLoaded()) {
-                            assertThat(personResultDbo).isNotNull();
+                        if (personResult.getOrganisationId() != null) {
                             assertThat(personResultDbo.getOrganisation()).isNotNull();
-
-                            Organisation organisation = personResult.getOrganisation().get();
-                            OrganisationDbo organisationDbo = personResultDbo.getOrganisation();
-
-                            assertThat(organisationDbo.getName()).isEqualTo(organisation.getName().value());
-                            assertThat(organisationDbo.getShortName()).isEqualTo(organisation.getShortName().value());
-                            assertThat(organisationDbo.getCountry()).isNotNull();
-                            assertThat(organisationDbo.getCountry().getName()).isEqualTo(organisation.getCountry()
-                                .get()
-                                .getName()
-                                .value());
-                            assertThat(organisationDbo.getCountry().getCode()).isEqualTo(organisation.getCountry()
-                                .get()
-                                .getCode()
-                                .value());
-
                         } else {
                             assertThat(personResultDbo.getOrganisation()).isNull();
                         }

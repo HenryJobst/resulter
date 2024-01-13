@@ -1,11 +1,9 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
-import jakarta.persistence.EntityGraph;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -22,18 +20,15 @@ import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
-public class OrganisationRepositoryDataJpaAdapter implements OrganisationRepository {
+public class OrganisationRepositoryDataJdbcAdapter implements OrganisationRepository {
 
-    private final OrganisationJpaRepository organisationJpaRepository;
-    private final CountryJpaRepository countryJpaRepository;
-    private final EntityManager entityManager;
+    private final OrganisationJdbcRepository organisationJpaRepository;
+    private final CountryJdbcRepository countryJpaRepository;
 
-    public OrganisationRepositoryDataJpaAdapter(OrganisationJpaRepository organisationJpaRepository,
-                                                CountryJpaRepository countryJpaRepository,
-                                                EntityManager entityManager) {
+    public OrganisationRepositoryDataJdbcAdapter(OrganisationJdbcRepository organisationJpaRepository,
+                                                 CountryJdbcRepository countryJpaRepository) {
         this.organisationJpaRepository = organisationJpaRepository;
         this.countryJpaRepository = countryJpaRepository;
-        this.entityManager = entityManager;
     }
 
     @Override
@@ -95,18 +90,9 @@ public class OrganisationRepositoryDataJpaAdapter implements OrganisationReposit
         organisationJpaRepository.deleteById(organisation.getId().value());
     }
 
-    private EntityGraph<OrganisationDbo> getEntityGraph(boolean deep) {
-        EntityGraph<OrganisationDbo> entityGraph = entityManager.createEntityGraph(OrganisationDbo.class);
-        if (deep) {
-            entityGraph.addSubgraph(OrganisationDbo_.parentOrganisations);
-        }
-        return entityGraph;
-    }
-
     @Override
     @Transactional(readOnly = true)
     public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet, boolean deep) {
-        EntityGraph<?> entityGraph = getEntityGraph(deep);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<OrganisationDbo> query = cb.createQuery(OrganisationDbo.class);

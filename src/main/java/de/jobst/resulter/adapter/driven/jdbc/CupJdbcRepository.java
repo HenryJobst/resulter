@@ -1,7 +1,8 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CupJpaRepository extends JpaRepository<CupDbo, Long> {
+public interface CupJdbcRepository extends CrudRepository<CupDbo, Long>, PagingAndSortingRepository<CupDbo, Long> {
+
     Optional<CupDbo> findByName(String name);
 
     @Query("SELECT c FROM CupDbo c JOIN c.events e WHERE e.id = :eventId")

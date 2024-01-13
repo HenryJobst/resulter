@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.PersonRaceResultId;
 import de.jobst.resulter.domain.SplitTime;
@@ -15,6 +15,7 @@ import static de.jobst.resulter.domain.util.CompareUtils.compareNullable;
 @Entity
 @Table(name = "SPLIT_TIME")
 public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_split_time")
     @SequenceGenerator(name = "entity_generator_split_time", sequenceName = "SEQ_SPLIT_TIME_ID", allocationSize = 10)
@@ -29,7 +30,8 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
     @Column(name = "PUNCH_TIME")
     private Double punchTime;
 
-    public static SplitTimeDbo from(SplitTime splitTime, PersonRaceResultDbo personRaceResultDbo,
+    public static SplitTimeDbo from(SplitTime splitTime,
+                                    PersonRaceResultDbo personRaceResultDbo,
                                     @Nullable DboResolver<SplitTimeId, SplitTimeDbo> dboResolver,
                                     @NonNull DboResolvers dboResolvers) {
         SplitTimeDbo splitTimeDbo = null;
@@ -50,11 +52,12 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
     }
 
     static public List<SplitTime> asSplitTimes(List<SplitTimeDbo> splitTimeDbos) {
-        return splitTimeDbos.stream().map(it ->
-                SplitTime.of(it.id,
-                        it.personRaceResultDbo != null ? it.personRaceResultDbo.getId() : PersonRaceResultId.empty()
-                                .value(),
-                        it.controlCode, it.punchTime)).toList();
+        return splitTimeDbos.stream()
+            .map(it -> SplitTime.of(it.id,
+                it.personRaceResultDbo != null ? it.personRaceResultDbo.getId() : PersonRaceResultId.empty().value(),
+                it.controlCode,
+                it.punchTime))
+            .toList();
     }
 
     public String getControlCode() {
@@ -67,9 +70,9 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
 
     public SplitTime asSplitTime() {
         return SplitTime.of(id,
-                personRaceResultDbo != null ? personRaceResultDbo.getId() : PersonRaceResultId.empty().value(),
-                controlCode,
-                punchTime);
+            personRaceResultDbo != null ? personRaceResultDbo.getId() : PersonRaceResultId.empty().value(),
+            controlCode,
+            punchTime);
     }
 
     public long getId() {

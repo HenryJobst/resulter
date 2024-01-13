@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.Event;
@@ -20,19 +20,19 @@ import java.util.Optional;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
-public class EventRepositoryDataJpaAdapter implements EventRepository {
+public class EventRepositoryDataJdbcAdapter implements EventRepository {
 
-    private final EventJpaRepository eventJpaRepository;
+    private final EventJdbcRepository eventJpaRepository;
     private final EntityManager entityManager;
-    private final PersonJpaRepository personJpaRepository;
-    private final OrganisationJpaRepository organisationJpaRepository;
-    private final CountryJpaRepository countryJpaRepository;
+    private final PersonJdbcRepository personJpaRepository;
+    private final OrganisationJdbcRepository organisationJpaRepository;
+    private final CountryJdbcRepository countryJpaRepository;
 
-    public EventRepositoryDataJpaAdapter(EventJpaRepository eventJpaRepository,
-                                         EntityManager entityManager,
-                                         PersonJpaRepository personJpaRepository,
-                                         OrganisationJpaRepository organisationJpaRepository,
-                                         CountryJpaRepository countryJpaRepository) {
+    public EventRepositoryDataJdbcAdapter(EventJdbcRepository eventJpaRepository,
+                                          EntityManager entityManager,
+                                          PersonJdbcRepository personJpaRepository,
+                                          OrganisationJdbcRepository organisationJpaRepository,
+                                          CountryJdbcRepository countryJpaRepository) {
         this.eventJpaRepository = eventJpaRepository;
         this.entityManager = entityManager;
         this.personJpaRepository = personJpaRepository;

@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.domain.Cup;
@@ -19,15 +19,15 @@ import java.util.Optional;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
-public class CupRepositoryDataJpaAdapter implements CupRepository {
+public class CupRepositoryDataJdbcAdapter implements CupRepository {
 
-    private final CupJpaRepository cupJpaRepository;
+    private final CupJdbcRepository cupJpaRepository;
     private final EntityManager entityManager;
-    private final EventJpaRepository eventJpaRepository;
+    private final EventJdbcRepository eventJpaRepository;
 
-    public CupRepositoryDataJpaAdapter(CupJpaRepository cupJpaRepository,
-                                       EntityManager entityManager,
-                                       EventJpaRepository eventJpaRepository) {
+    public CupRepositoryDataJdbcAdapter(CupJdbcRepository cupJpaRepository,
+                                        EntityManager entityManager,
+                                        EventJdbcRepository eventJpaRepository) {
         this.cupJpaRepository = cupJpaRepository;
         this.entityManager = entityManager;
         this.eventJpaRepository = eventJpaRepository;

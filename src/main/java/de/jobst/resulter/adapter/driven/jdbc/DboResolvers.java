@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.*;
 import lombok.Getter;
@@ -10,6 +10,7 @@ import org.springframework.lang.NonNull;
 @Getter
 @Setter
 public class DboResolvers {
+
     private DboResolver<CupId, CupDbo> cupDboDboResolver = null;
     private DboResolver<EventId, EventDbo> eventDboResolver = null;
     private DboResolver<PersonId, PersonDbo> personDboResolver = null;

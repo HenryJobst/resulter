@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.Person;
@@ -13,38 +13,38 @@ import java.util.Optional;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
-public class PersonRepositoryDataJpaAdapter implements PersonRepository {
+public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
-    private final PersonJpaRepository personJpaRepository;
+    private final PersonJdbcRepository personJdbcRepository;
 
-    public PersonRepositoryDataJpaAdapter(PersonJpaRepository personJpaRepository) {
-        this.personJpaRepository = personJpaRepository;
+    public PersonRepositoryDataJdbcAdapter(PersonJdbcRepository personJdbcRepository) {
+        this.personJdbcRepository = personJdbcRepository;
     }
 
     @Override
     public Person save(Person person) {
         DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setPersonDboResolver(id -> personJpaRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setPersonDboResolver(id -> personJdbcRepository.findById(id.value()).orElseThrow());
         PersonDbo personEntity = PersonDbo.from(person, null, dboResolvers);
-        PersonDbo savedPersonEntity = personJpaRepository.save(personEntity);
+        PersonDbo savedPersonEntity = personJdbcRepository.save(personEntity);
         return savedPersonEntity.asPerson();
     }
 
     @Override
     public List<Person> findAll() {
-        return personJpaRepository.findAll().stream().map(PersonDbo::asPerson).sorted().toList();
+        return personJdbcRepository.findAll().stream().map(PersonDbo::asPerson).sorted().toList();
     }
 
     @Override
     public Optional<Person> findById(PersonId personId) {
-        Optional<PersonDbo> personEntity = personJpaRepository.findById(personId.value());
+        Optional<PersonDbo> personEntity = personJdbcRepository.findById(personId.value());
         return personEntity.map(PersonDbo::asPerson);
     }
 
     @Override
     public Person findOrCreate(Person person) {
         Optional<PersonDbo> personEntity =
-            personJpaRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(person.getPersonName()
+            personJdbcRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(person.getPersonName()
                     .familyName()
                     .value(),
                 person.getPersonName().givenName().value(),

@@ -20,10 +20,10 @@ const columns: GenericListColumn[] = [
   { label: 'labels.name', field: 'name' },
   { label: 'labels.short_name', field: 'shortName' },
   { label: 'labels.type', field: 'type.id' },
-  { label: 'labels.country', field: 'country.name' },
+  { label: 'labels.country', field: 'countryId', type: 'id', queryKey: 'coutries' },
   {
     label: 'labels.parent_organisation',
-    field: 'organisations',
+    field: 'organisationIds',
     type: 'list',
     listElemField: 'shortName'
   }

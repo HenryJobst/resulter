@@ -126,7 +126,7 @@ const formSubmitHandler = () => {
               :options="organisationQuery.data.value"
               filter
               optionLabel="name"
-              option-value="id"
+              optionValue="id"
               :placeholder="t('messages.select')"
               class="w-full md:w-20rem"
             />

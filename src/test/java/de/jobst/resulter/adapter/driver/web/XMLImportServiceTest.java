@@ -42,7 +42,10 @@ class XMLImportServiceTest {
 
         FileSystemResource fileSystemResource = new FileSystemResource(new File(filePath));
 
-        Event event = importService.importFile(fileSystemResource.getInputStream());
+        XMLImportService.ImportResult importResult = importService.importFile(fileSystemResource.getInputStream());
+        Event event = importResult.event();
+        Person firstPerson =
+            importResult.personMap().get(new Person.DomainKey("Mustermann", "Max", LocalDate.of(1960, 10, 11)));
 
         assertThat(event).isNotNull();
         assertThat(Objects.requireNonNull(event.getId()).value()).isGreaterThanOrEqualTo(1L);
@@ -65,25 +68,17 @@ class XMLImportServiceTest {
             .get()
             .value()
             .stream()
-            .filter(it -> it.getPerson().isLoaded())
-            .filter(it -> it.getPerson().get().getPersonName().familyName().value().contains("Mustermann"))
+            .filter(it -> Objects.nonNull(it.getPersonId()))
+            .filter(it -> it.getPersonId().value() == 1)
             .findAny();
         assertThat(firstPersonResult).isPresent();
 
-        assertThat(Objects.requireNonNull(firstPersonResult.get().getPerson()).isLoaded()).isTrue();
-        assertThat(Objects.requireNonNull(firstPersonResult.get().getPerson().get().getId())
-            .value()).isGreaterThanOrEqualTo(1);
-        assertThat(firstPersonResult.get().getPerson().get().getPersonName().familyName()).isEqualTo(FamilyName.of(
-            "Mustermann"));
-        assertThat(firstPersonResult.get()
-            .getPerson()
-            .get()
-            .getPersonName()
-            .givenName()).isEqualTo(GivenName.of("Max"));
-        assertThat(firstPersonResult.get().getPerson().get().getBirthDate().value()).isEqualTo(LocalDate.of(1960,
-            10,
-            11));
-        assertThat(firstPersonResult.get().getPerson().get().getGender()).isEqualTo(Gender.M);
+        assertThat(firstPerson).isNotNull();
+        assertThat(firstPerson.getId().value()).isGreaterThanOrEqualTo(1);
+        assertThat(firstPerson.getPersonName().familyName()).isEqualTo(FamilyName.of("Mustermann"));
+        assertThat(firstPerson.getPersonName().givenName()).isEqualTo(GivenName.of("Max"));
+        assertThat(firstPerson.getBirthDate().value()).isEqualTo(LocalDate.of(1960, 10, 11));
+        assertThat(firstPerson.getGender()).isEqualTo(Gender.M);
 
         assertThat(firstPersonResult.get().getOrganisationId()).isNotNull();
         assertThat(Objects.requireNonNull(firstPersonResult.get().getOrganisationId())

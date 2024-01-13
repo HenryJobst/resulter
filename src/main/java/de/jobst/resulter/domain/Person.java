@@ -18,6 +18,21 @@ public class Person implements Comparable<Person> {
     private BirthDate birthDate;
     private Gender gender;
 
+    public record DomainKey(String familyName, String givenName, LocalDate birthday) implements Comparable<DomainKey> {
+
+        @Override
+        public int compareTo(@NonNull DomainKey o) {
+            int val = familyName.compareTo(o.familyName);
+            if (val == 0) {
+                val = givenName.compareTo(o.givenName);
+            }
+            if (val == 0) {
+                val = birthday.compareTo(o.birthday);
+            }
+            return val;
+        }
+    }
+
     public Person(@NonNull PersonId id, PersonName personName, BirthDate birthDate, Gender gender) {
         this.id = id;
         this.personName = personName;
@@ -34,13 +49,17 @@ public class Person implements Comparable<Person> {
     }
 
     public static Person of(String familyName, String givenName, LocalDate birthDate, Gender gender) {
-        return new Person(PersonId.empty(), PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
-                BirthDate.of(birthDate), gender);
+        return new Person(PersonId.empty(),
+            PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
+            BirthDate.of(birthDate),
+            gender);
     }
 
     public static Person of(long id, String familyName, String givenName, LocalDate birthDate, Gender gender) {
-        return new Person(PersonId.of(id), PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
-                BirthDate.of(birthDate), gender);
+        return new Person(PersonId.of(id),
+            PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
+            BirthDate.of(birthDate),
+            gender);
     }
 
     @Override
@@ -50,5 +69,9 @@ public class Person implements Comparable<Person> {
             val = this.personName.givenName().compareTo(o.personName.givenName());
         }
         return val;
+    }
+
+    public DomainKey getDomainKey() {
+        return new DomainKey(personName.familyName().value(), personName.givenName().value(), birthDate.value());
     }
 }

@@ -5,6 +5,7 @@ import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,5 +28,9 @@ public class PersonService {
 
     public List<Person> findAll() {
         return personRepository.findAll();
+    }
+
+    public Collection<Person> findOrCreate(Collection<Person> persons) {
+        return personRepository.findOrCreate(persons);
     }
 }

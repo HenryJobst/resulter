@@ -16,8 +16,8 @@ public class PersonResult {
     private PersonResultId id;
     @NonNull
     private final ClassResultId classResultId;
-    @NonNull
-    private final ShallowLoadProxy<Person> person;
+    @Nullable
+    private final PersonId personId;
     @Nullable
     private final OrganisationId organisationId;
     @NonNull
@@ -25,45 +25,45 @@ public class PersonResult {
 
     public PersonResult(@NonNull PersonResultId id,
                         @NonNull ClassResultId classResultId,
-                        @NonNull ShallowLoadProxy<Person> person,
+                        @Nullable PersonId personId,
                         @Nullable OrganisationId organisationId,
                         @NonNull ShallowLoadProxy<PersonRaceResults> personRaceResults) {
         this.id = id;
         this.classResultId = classResultId;
-        this.person = person;
+        this.personId = personId;
         this.organisationId = organisationId;
         this.personRaceResults = personRaceResults;
     }
 
-    public static PersonResult of(@Nullable Person person,
+    public static PersonResult of(@Nullable PersonId personId,
                                   @Nullable OrganisationId organisationId,
                                   @Nullable Collection<PersonRaceResult> personRaceResults) {
         return PersonResult.of(PersonResultId.empty().value(),
             ClassResultId.empty().value(),
-            person,
+            personId,
             organisationId,
             personRaceResults);
     }
 
     public static PersonResult of(@NonNull Long classResultId,
-                                  @Nullable Person person,
+                                  @Nullable PersonId personId,
                                   @Nullable OrganisationId organisationId,
                                   @Nullable Collection<PersonRaceResult> personRaceResults) {
         return PersonResult.of(PersonResultId.empty().value(),
             classResultId,
-            person,
+            personId,
             organisationId,
             personRaceResults);
     }
 
     public static PersonResult of(long id,
                                   long classResultId,
-                                  @Nullable Person person,
+                                  @Nullable PersonId personId,
                                   @Nullable OrganisationId organisationId,
                                   @Nullable Collection<PersonRaceResult> personRaceResults) {
         return new PersonResult(PersonResultId.of(id),
             ClassResultId.of(classResultId),
-            ShallowLoadProxy.of(person),
+            personId,
             organisationId,
             (personRaceResults != null) ?
             ShallowLoadProxy.of(PersonRaceResults.of(personRaceResults)) :

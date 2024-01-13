@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
 public class InMemoryPersonRepository implements PersonRepository {
+
     private final Map<PersonId, Person> persons = new ConcurrentHashMap<>();
     private final AtomicLong sequence = new AtomicLong(0);
     private final List<Person> savedPersons = new ArrayList<>();
@@ -40,23 +41,31 @@ public class InMemoryPersonRepository implements PersonRepository {
     @Override
     public Person findOrCreate(Person person) {
         return persons.values()
-                .stream()
-                .filter(it -> Objects.equals(it.getPersonName(), person.getPersonName()) &&
-                        Objects.equals(it.getBirthDate(), person.getBirthDate()) &&
-                        Objects.equals(it.getGender(), person.getGender()))
-                .findAny()
-                .orElseGet(() -> save(person));
+            .stream()
+            .filter(it -> Objects.equals(it.getPersonName(), person.getPersonName()) &&
+                          Objects.equals(it.getBirthDate(), person.getBirthDate()) &&
+                          Objects.equals(it.getGender(), person.getGender()))
+            .findAny()
+            .orElseGet(() -> save(person));
     }
 
-    @SuppressWarnings("unused") public List<Person> savedPersons() {
+    @Override
+    public Collection<Person> findOrCreate(Collection<Person> persons) {
+        return persons.stream().map(this::findOrCreate).toList();
+    }
+
+    @SuppressWarnings("unused")
+    public List<Person> savedPersons() {
         return savedPersons;
     }
 
-    @SuppressWarnings("unused") public int saveCount() {
+    @SuppressWarnings("unused")
+    public int saveCount() {
         return savedPersons.size();
     }
 
-    @SuppressWarnings("unused") public void resetSaveCount() {
+    @SuppressWarnings("unused")
+    public void resetSaveCount() {
         savedPersons.clear();
     }
 

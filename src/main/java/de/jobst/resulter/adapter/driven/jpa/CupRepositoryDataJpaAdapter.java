@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driven.jpa;
 
 import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.domain.Cup;
-import de.jobst.resulter.domain.CupConfig;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.EventId;
 import jakarta.persistence.EntityGraph;
@@ -26,7 +25,8 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
     private final EntityManager entityManager;
     private final EventJpaRepository eventJpaRepository;
 
-    public CupRepositoryDataJpaAdapter(CupJpaRepository cupJpaRepository, EntityManager entityManager,
+    public CupRepositoryDataJpaAdapter(CupJpaRepository cupJpaRepository,
+                                       EntityManager entityManager,
                                        EventJpaRepository eventJpaRepository) {
         this.cupJpaRepository = cupJpaRepository;
         this.entityManager = entityManager;
@@ -35,7 +35,7 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
 
     @Transactional
     public DboResolver<CupId, CupDbo> getIdResolver() {
-        return (CupId id) -> findDboById(id, CupConfig.full()).orElse(null);
+        return (CupId id) -> findDboById(id).orElse(null);
     }
 
     @Override
@@ -43,20 +43,18 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
     public Cup save(Cup cup) {
 
         DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setCupDboDboResolver(
-                id -> cupJpaRepository.findById(id.value()).orElseThrow());
-        dboResolvers.setEventDboResolver(
-                id -> eventJpaRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setCupDboDboResolver(id -> cupJpaRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setEventDboResolver(id -> eventJpaRepository.findById(id.value()).orElseThrow());
 
-        CupDbo cupDbo = CupDbo.from(cup, null, dboResolvers);
+        CupDbo cupDbo = CupDbo.from(cup, dboResolvers);
         CupDbo savedCupEntity = cupJpaRepository.save(cupDbo);
-        return CupDbo.asCup(CupConfig.empty(), savedCupEntity);
+        return CupDbo.asCup(savedCupEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Cup> findAll(CupConfig cupConfig) {
-        EntityGraph<?> entityGraph = getEntityGraph(cupConfig);
+    public List<Cup> findAll() {
+        EntityGraph<?> entityGraph = getEntityGraph();
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<CupDbo> query = cb.createQuery(CupDbo.class);
@@ -66,48 +64,42 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
         typedQuery.setHint("jakarta.persistence.loadgraph", entityGraph);
 
         List<CupDbo> resultList = typedQuery.getResultList();
-        return CupDbo.asCups(cupConfig, resultList);
+        return CupDbo.asCups(resultList);
     }
 
-    private EntityGraph<CupDbo> getEntityGraph(CupConfig cupConfig) {
+    private EntityGraph<CupDbo> getEntityGraph() {
         EntityGraph<CupDbo> entityGraph = entityManager.createEntityGraph(CupDbo.class);
-
-        if (!cupConfig.shallowLoads().contains(CupConfig.ShallowCupLoads.EVENTS)) {
-            entityGraph.addSubgraph(CupDbo_.events);
-        }
+        entityGraph.addSubgraph(CupDbo_.events);
         return entityGraph;
     }
 
     @Transactional(readOnly = true)
-    public Optional<CupDbo> findDboById(CupId cupId, CupConfig cupConfig) {
-        @SuppressWarnings("SqlSourceToSinkFlow")
-        TypedQuery<CupDbo> query = entityManager.createQuery(
-                MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
-                        CupDbo_.class_.getName(),
-                        CupDbo_.id.getName()),
-                CupDbo.class);
+    public Optional<CupDbo> findDboById(CupId cupId) {
+        @SuppressWarnings("SqlSourceToSinkFlow") TypedQuery<CupDbo> query =
+            entityManager.createQuery(MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
+                CupDbo_.class_.getName(),
+                CupDbo_.id.getName()), CupDbo.class);
         query.setParameter("id", cupId.value());
-        query.setHint("jakarta.persistence.loadgraph", getEntityGraph(cupConfig));
+        query.setHint("jakarta.persistence.loadgraph", getEntityGraph());
 
         return query.getResultStream().findFirst();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Cup> findById(CupId cupId, CupConfig cupConfig) {
-        return findDboById(cupId, cupConfig).map(it -> CupDbo.asCup(cupConfig, it));
+    public Optional<Cup> findById(CupId cupId) {
+        return findDboById(cupId).map(CupDbo::asCup);
     }
 
     @Override
     @Transactional
     public Cup findOrCreate(Cup cup) {
-        Optional<CupDbo> cupEntity =
-                cupJpaRepository.findByName(cup.getName().value());
+        Optional<CupDbo> cupEntity = cupJpaRepository.findByName(cup.getName().value());
         if (cupEntity.isEmpty()) {
             return save(cup);
         }
         CupDbo entity = cupEntity.get();
-        return CupDbo.asCup(CupConfig.empty(), entity);
+        return CupDbo.asCup(entity);
     }
 
     @Override
@@ -119,8 +111,6 @@ public class CupRepositoryDataJpaAdapter implements CupRepository {
     @Transactional
     public List<Cup> findByEvent(EventId eventId) {
         List<CupDbo> cups = cupJpaRepository.findByEventId(eventId.value());
-        return CupDbo.asCups(CupConfig.full(), cups);
+        return CupDbo.asCups(cups);
     }
-
-
 }

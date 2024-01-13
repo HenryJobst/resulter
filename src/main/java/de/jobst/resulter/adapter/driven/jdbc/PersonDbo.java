@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
@@ -15,6 +15,7 @@ import java.util.Set;
 @Entity
 @Table(name = "PERSON")
 public class PersonDbo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_person")
     @SequenceGenerator(name = "entity_generator_person", sequenceName = "SEQ_PERSON_ID", allocationSize = 10)

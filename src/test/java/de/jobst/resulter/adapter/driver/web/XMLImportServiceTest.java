@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +27,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest(properties = {"spring.test.database.replace=NONE", "resulter.repository.inmemory=false"})
 @ContextConfiguration(classes = {TestConfig.class}, loader = AnnotationConfigContextLoader.class)
 @ComponentScan(basePackages = {"de.jobst.resulter.application", "de.jobst.resulter.adapter.driver.web",
-    "de.jobst.resulter.adapter.driven.jpa"})
+    "de.jobst.resulter.adapter.driven.jdbc"})
 @EntityScan(basePackages = {"de.jobst.resulter.adapter.driver.web", "de.jobst.resulter.adapter.driven.jpa"})
-@EnableJpaRepositories(basePackages = {"de.jobst.resulter.adapter.driven.jpa"})
+@EnableJdbcRepositories(basePackages = {"de.jobst.resulter.adapter.driven.jpa"})
 class XMLImportServiceTest {
 
     @Autowired

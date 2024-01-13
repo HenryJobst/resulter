@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.CupScoreId;
 import de.jobst.resulter.domain.CupType;
@@ -11,6 +11,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class CupScoreIdDbo implements Serializable, Comparable<CupScoreIdDbo> {
+
     private CupType type;
     private Long personRaceResultDbo;
 

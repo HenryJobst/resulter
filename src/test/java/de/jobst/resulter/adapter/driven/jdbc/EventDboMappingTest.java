@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.*;
 import org.apache.commons.lang3.ObjectUtils;

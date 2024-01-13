@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Country;
 import jakarta.persistence.*;

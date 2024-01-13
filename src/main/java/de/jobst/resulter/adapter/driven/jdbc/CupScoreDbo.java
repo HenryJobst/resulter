@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driven.jpa;
+package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.CupScore;
 import de.jobst.resulter.domain.CupScoreId;
@@ -14,6 +14,7 @@ import java.util.List;
 @Table(name = "CUP_SCORE")
 @IdClass(CupScoreIdDbo.class)
 public class CupScoreDbo implements Comparable<CupScoreDbo> {
+
     @Id
     @Column(name = "CUP_TYPE")
     @Enumerated(value = EnumType.STRING)
@@ -32,7 +33,8 @@ public class CupScoreDbo implements Comparable<CupScoreDbo> {
         return 0;
     }
 
-    public static CupScoreDbo from(CupScore cupScore, PersonRaceResultDbo personRaceResultDbo,
+    public static CupScoreDbo from(CupScore cupScore,
+                                   PersonRaceResultDbo personRaceResultDbo,
                                    @Nullable DboResolver<CupScoreIdDbo, CupScoreDbo> dboResolver,
                                    @NonNull DboResolvers dboResolvers) {
         CupScoreDbo cupScoreDbo = null;
@@ -41,8 +43,7 @@ public class CupScoreDbo implements Comparable<CupScoreDbo> {
                 cupScoreDbo = dboResolver.findDboById(CupScoreIdDbo.from(cupScore.id()));
             }
             if (cupScoreDbo == null) {
-                cupScoreDbo = dboResolvers.getCupScoreDboResolver().findDboById(
-                        CupScoreIdDbo.from(cupScore.id()));
+                cupScoreDbo = dboResolvers.getCupScoreDboResolver().findDboById(CupScoreIdDbo.from(cupScore.id()));
             }
         } else {
             cupScoreDbo = new CupScoreDbo();
@@ -53,9 +54,9 @@ public class CupScoreDbo implements Comparable<CupScoreDbo> {
     }
 
     static public List<CupScore> asCupScores(List<CupScoreDbo> cupScoreDbos) {
-        return cupScoreDbos.stream().map(it ->
-                CupScore.of(CupScoreId.of(it.type, it.personRaceResultDbo.getId()),
-                        it.score)).toList();
+        return cupScoreDbos.stream()
+            .map(it -> CupScore.of(CupScoreId.of(it.type, it.personRaceResultDbo.getId()), it.score))
+            .toList();
     }
 
     public CupScore asCupScore() {

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class EventTestDataGenerator {
+
     public static final String A_EVENT_NAME = "A event name";
     public static final long A_EVENT_ID = 19L;
 
@@ -28,14 +29,13 @@ public class EventTestDataGenerator {
         double punchTime = 1000.0;
         long position = 2L;
         ResultStatus resultStatus = ResultStatus.OK;
-        personRaceResults.add(PersonRaceResult.of(
-                raceNumber,
-                startTime,
-                finishTime,
-                punchTime,
-                position,
-                resultStatus,
-                splitTimes));
+        personRaceResults.add(PersonRaceResult.of(raceNumber,
+            startTime,
+            finishTime,
+            punchTime,
+            position,
+            resultStatus,
+            splitTimes));
 
         Collection<PersonResult> personResults = new ArrayList<>();
         String familyName = "Knopf";
@@ -44,21 +44,19 @@ public class EventTestDataGenerator {
         Gender personGender = Gender.M;
         String clubName = "O-Club";
         String clubShortName = "OC";
-        personResults.add(PersonResult.of(
-                Person.of(
-                        FamilyName.of(familyName), GivenName.of(givenName),
-                        birthDate,
-                        personGender),
-                Organisation.of(clubName, clubShortName,
-                        Country.of(CountryId.empty().value(), "NED", "NED")), // need to be a not existing one
-                personRaceResults));
+        Country country = Country.of(CountryId.empty().value(), "NED", "NED");
+        Organisation organisation = Organisation.of(clubName, clubShortName, country.getId());
+        personResults.add(PersonResult.of(Person.of(FamilyName.of(familyName),
+                GivenName.of(givenName),
+                birthDate,
+                personGender), organisation.getId(), // need to be a not existing one
+            personRaceResults));
 
         Collection<ClassResult> classResults = new ArrayList<>();
         String className = "H50- (Herren ab 50)";
         String classShortName = "H50-";
         Gender classGender = Gender.M;
-        classResults.add(ClassResult.of(className, classShortName,
-                classGender, personResults));
+        classResults.add(ClassResult.of(className, classShortName, classGender, personResults));
 
         return Event.of(A_EVENT_NAME, classResults);
 

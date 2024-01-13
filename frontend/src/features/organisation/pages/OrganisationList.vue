@@ -25,7 +25,7 @@ const columns: GenericListColumn[] = [
     label: 'labels.parent_organisation',
     field: 'organisationIds',
     type: 'list',
-    listElemField: 'shortName'
+    listElemField: 'id'
   }
 ]
 </script>

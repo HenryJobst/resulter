@@ -97,11 +97,7 @@ const reload = () => {
         >
           <template v-slot:body="slotProps" v-if="col.type === 'list'">
             <div>
-              <Chip
-                v-for="(item, index) in slotProps.data[col.field]"
-                :key="index"
-                :label="item[col.listElemField!]"
-              />
+              <Chip v-for="(item, index) in slotProps.data[col.field]" :key="index" :label="item" />
             </div>
           </template>
           <template v-slot:body="slotProps" v-if="col.type === 'id'">

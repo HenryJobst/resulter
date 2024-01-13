@@ -8,6 +8,7 @@ import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 @Getter
 public class Organisation implements Comparable<Organisation> {
@@ -102,6 +103,23 @@ public class Organisation implements Comparable<Organisation> {
         this.type = type;
         this.countryId = countryId;
         this.parentOrganisationIds = parentOrganisationIds;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Organisation that = (Organisation) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
     }
 
     /*

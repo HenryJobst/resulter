@@ -14,7 +14,7 @@ const { t } = useI18n()
 const formData = ref<Cup | Omit<Cup, 'id'>>({
   name: '',
   type: { id: 'ADD' },
-  events: []
+  eventIds: []
 })
 
 const props = defineProps<{ cup?: Cup }>()
@@ -81,11 +81,12 @@ const formSubmitHandler = () => {
           <div v-else-if="eventQuery.data" class="card">
             <MultiSelect
               id="events"
-              v-model="formData.events"
+              v-model="formData.eventIds"
               :options="eventQuery.data.value"
               data-key="id"
               filter
               optionLabel="name"
+              optionValue="id"
               :placeholder="t('messages.select')"
               class="w-full md:w-20rem"
             />

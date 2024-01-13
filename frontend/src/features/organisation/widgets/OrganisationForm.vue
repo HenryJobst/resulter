@@ -81,6 +81,7 @@ const countryQuery = useQuery({
           v-model="props.organisation.country"
           :options="countryQuery.data.value"
           optionLabel="name"
+          optionValue="id"
           data-key="id"
           :placeholder="t('messages.select')"
           class="w-full md:w-14rem"
@@ -105,6 +106,7 @@ const countryQuery = useQuery({
             data-key="id"
             filter
             optionLabel="name"
+            optionValue="id"
             :placeholder="t('messages.select')"
             class="w-full md:w-20rem"
           />

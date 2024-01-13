@@ -104,6 +104,9 @@ const reload = () => {
               />
             </div>
           </template>
+          <template v-slot:body="slotProps" v-if="col.type === 'id'">
+            {{ slotProps.data[col.field] }}
+          </template>
         </Column>
         <!-- ... Other columns ... -->
         <Column class="text-right">

@@ -37,6 +37,7 @@
     - CountryName (VO)
 
 - ResultList (RE)
+    - ResultListId (VO)
     - EventId (VO)
     - List of ClassResult (E) +
         - ClassResultName (VO)
@@ -52,12 +53,22 @@
                 - PunchTime (VO)
                 - Position (VO)
                 - ResultStatus (VO)
-                - List of SplitTime (E) +
-                    - ControlCode (VO)
-                    - PunchTime (VO)
+
+- SplitTimeList (RE)
+    - SplitTimeListId (VO)
+    - EventId (VO)
+    - List of ClassResultBase (E) +
+        - ClassResultName (VO)
+        - List of PersonResultBase (E) +
+            - PersonId (VO)
+            - List of PersonResultBase (E) +
+                - RaceNumber (VO)
+                    - List of SplitTime (E) +
+                        - ControlCode (VO)
+                        - PunchTime (VO)
 
 - CupScoreList (RE)
-    - EventId (VO)
+    - ResultListId (VO)
     - List of ClassResultBase (E) +
         - ClassResultName (VO)
         - List of PersonResultBase (E) +

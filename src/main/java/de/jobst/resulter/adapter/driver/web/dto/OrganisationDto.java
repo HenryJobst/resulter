@@ -15,6 +15,6 @@ public record OrganisationDto(Long id, String name, String shortName, Organisati
             organisation.getShortName().value(),
             OrganisationTypeDto.from(organisation.getType()),
             organisation.getCountryId() != null ? organisation.getCountryId().value() : null,
-            organisation.getParentOrganisationIds().stream().map(OrganisationId::value).toList());
+            organisation.getChildOrganisationIds().stream().map(OrganisationId::value).toList());
     }
 }

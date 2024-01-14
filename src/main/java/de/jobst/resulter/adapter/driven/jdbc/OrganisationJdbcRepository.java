@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface OrganisationJdbcRepository
     extends CrudRepository<OrganisationDbo, Long>, PagingAndSortingRepository<OrganisationDbo, Long> {
 
+    //Collection<OrganisationDbo> findAllById()
     @NonNull
     Collection<OrganisationDbo> findAll();
 

@@ -22,7 +22,7 @@ public interface OrganisationRepository {
     void deleteOrganisation(Organisation organisation);
 
     @Transactional(readOnly = true)
-    Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet, boolean deep);
+    Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet);
 
     @Transactional
     Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet);

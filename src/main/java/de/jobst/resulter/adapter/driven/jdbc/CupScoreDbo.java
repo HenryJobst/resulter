@@ -1,18 +1,14 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.CupScore;
-import de.jobst.resulter.domain.CupScoreId;
 import de.jobst.resulter.domain.CupType;
 import jakarta.persistence.*;
+import lombok.Data;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import java.util.List;
-
-@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
-@Entity
+@Data
 @Table(name = "CUP_SCORE")
-@IdClass(CupScoreIdDbo.class)
 public class CupScoreDbo implements Comparable<CupScoreDbo> {
 
     @Id
@@ -51,16 +47,6 @@ public class CupScoreDbo implements Comparable<CupScoreDbo> {
         cupScoreDbo.setPersonRaceResultDbo(personRaceResultDbo);
         cupScoreDbo.setScore(cupScore.value());
         return cupScoreDbo;
-    }
-
-    static public List<CupScore> asCupScores(List<CupScoreDbo> cupScoreDbos) {
-        return cupScoreDbos.stream()
-            .map(it -> CupScore.of(CupScoreId.of(it.type, it.personRaceResultDbo.getId()), it.score))
-            .toList();
-    }
-
-    public CupScore asCupScore() {
-        return CupScore.of(CupScoreId.of(type, personRaceResultDbo.getId()), score);
     }
 
     public CupType getType() {

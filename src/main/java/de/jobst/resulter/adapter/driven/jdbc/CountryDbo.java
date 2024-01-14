@@ -1,25 +1,33 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Country;
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.With;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.lang.NonNull;
 
-@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
-@Entity
+@Data
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "COUNTRY")
 public class CountryDbo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_country")
-    @SequenceGenerator(name = "entity_generator_country", sequenceName = "SEQ_COUNTRY_ID", allocationSize = 1)
-    @Column(name = "ID", nullable = false, unique = true)
+    @With
     private Long id;
 
-    @Column(name = "CODE", nullable = false)
     private String code;
 
-    @Column(name = "NAME", nullable = false)
     private String name;
+
+    public CountryDbo(String code) {
+        this.id = null;
+        this.code = code;
+        this.name = code;
+    }
 
     public static CountryDbo from(Country country, @NonNull DboResolvers dboResolvers) {
         if (null == country) {
@@ -28,10 +36,10 @@ public class CountryDbo {
         CountryDbo countryDbo;
         if (country.getId().isPersistent()) {
             countryDbo = dboResolvers.getCountryDboResolver().findDboById(country.getId());
+            countryDbo.setCode(country.getCode().value());
         } else {
-            countryDbo = new CountryDbo();
+            countryDbo = new CountryDbo(country.getCode().value());
         }
-        countryDbo.setCode(country.getCode().value());
         countryDbo.setName(country.getName().value());
         return countryDbo;
     }
@@ -39,29 +47,4 @@ public class CountryDbo {
     public Country asCountry() {
         return Country.of(id, code, name);
     }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
 }

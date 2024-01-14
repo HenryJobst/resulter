@@ -4,16 +4,11 @@ import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.EventId;
-import jakarta.persistence.EntityGraph;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,14 +17,10 @@ import java.util.Optional;
 public class CupRepositoryDataJdbcAdapter implements CupRepository {
 
     private final CupJdbcRepository cupJpaRepository;
-    private final EntityManager entityManager;
     private final EventJdbcRepository eventJpaRepository;
 
-    public CupRepositoryDataJdbcAdapter(CupJdbcRepository cupJpaRepository,
-                                        EntityManager entityManager,
-                                        EventJdbcRepository eventJpaRepository) {
+    public CupRepositoryDataJdbcAdapter(CupJdbcRepository cupJpaRepository, EventJdbcRepository eventJpaRepository) {
         this.cupJpaRepository = cupJpaRepository;
-        this.entityManager = entityManager;
         this.eventJpaRepository = eventJpaRepository;
     }
 
@@ -54,35 +45,13 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Cup> findAll() {
-        EntityGraph<?> entityGraph = getEntityGraph();
-
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<CupDbo> query = cb.createQuery(CupDbo.class);
-        query.select(query.from(CupDbo.class));
-
-        TypedQuery<CupDbo> typedQuery = entityManager.createQuery(query);
-        typedQuery.setHint("jakarta.persistence.loadgraph", entityGraph);
-
-        List<CupDbo> resultList = typedQuery.getResultList();
+        List<CupDbo> resultList = new ArrayList<>();
         return CupDbo.asCups(resultList);
-    }
-
-    private EntityGraph<CupDbo> getEntityGraph() {
-        EntityGraph<CupDbo> entityGraph = entityManager.createEntityGraph(CupDbo.class);
-        entityGraph.addSubgraph(CupDbo_.events);
-        return entityGraph;
     }
 
     @Transactional(readOnly = true)
     public Optional<CupDbo> findDboById(CupId cupId) {
-        @SuppressWarnings("SqlSourceToSinkFlow") TypedQuery<CupDbo> query =
-            entityManager.createQuery(MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
-                CupDbo_.class_.getName(),
-                CupDbo_.id.getName()), CupDbo.class);
-        query.setParameter("id", cupId.value());
-        query.setHint("jakarta.persistence.loadgraph", getEntityGraph());
-
-        return query.getResultStream().findFirst();
+        return Optional.empty();
     }
 
     @Override

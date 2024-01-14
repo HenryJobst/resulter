@@ -1,0 +1,47 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000006_class_result
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : CLASS_RESULT
+            comment : Table class_result with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : CLASS_RESULT
+                        columns :
+                            -   column :
+                                    name : NAME
+                                    type : VARCHAR(255)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : SHORT_NAME
+                                    type : VARCHAR(20)
+                            -   column :
+                                    name : GENDER
+                                    type : VARCHAR(3)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : RESULT_LIST_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_CLASS_RESULT_RESULT_LIST
+                -   addForeignKeyConstraint :
+                        baseTableName : CLASS_RESULT
+                        baseColumnNames : RESULT_LIST_ID
+                        constraintName : FK_CLASS_RESULT_RESULT_LIST
+                        referencedTableName : RESULT_LIST
+                        referencedColumnNames : ID
+                        onDelete : RESTRICT
+                        onUpdate : RESTRICT
+                -   createIndex :
+                        tableName : CLASS_RESULT
+                        columns :
+                            -   column :
+                                    name : RESULT_LIST_ID
+                        indexName : IDX_CLASS_RESULT_RESULT_LIST_ID

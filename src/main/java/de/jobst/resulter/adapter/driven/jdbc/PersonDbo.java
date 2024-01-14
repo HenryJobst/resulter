@@ -3,108 +3,63 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.With;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
-@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
-@Entity
+@Data
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "PERSON")
 public class PersonDbo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_person")
-    @SequenceGenerator(name = "entity_generator_person", sequenceName = "SEQ_PERSON_ID", allocationSize = 10)
-    @Column(name = "ID", nullable = false, unique = true)
+    @With
     private Long id;
 
-    @Column(name = "FAMILY_NAME", nullable = false)
     private String familyName;
 
-    @Column(name = "GIVEN_NAME", nullable = false)
     private String givenName;
 
-    @Column(name = "GENDER", nullable = false)
-    @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(name = "BIRTH_DATE")
     private LocalDate birthDate;
 
-    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
-    private Set<PersonResultDbo> personResults = new HashSet<>();
+    public PersonDbo(String familyName, String givenName) {
+        this.id = null;
+        this.familyName = familyName;
+        this.givenName = givenName;
+    }
 
-    public static PersonDbo from(Person person,
-                                 @Nullable DboResolver<PersonId, PersonDbo> dboResolver,
-                                 @NonNull DboResolvers dboResolvers) {
+    public static PersonDbo from(Person person, @NonNull DboResolvers dboResolvers) {
         if (null == person) {
             return null;
         }
-        PersonDbo personDbo = null;
+        PersonDbo personDbo;
         if (person.getId().value() != PersonId.empty().value()) {
-            if (dboResolver != null) {
-                personDbo = dboResolver.findDboById(person.getId());
-            }
-            if (personDbo == null) {
-                personDbo = dboResolvers.getPersonDboResolver().findDboById(person.getId());
-            }
+            personDbo = dboResolvers.getPersonDboResolver().findDboById(person.getId());
+            personDbo.setFamilyName(person.getPersonName().familyName().value());
+            personDbo.setGivenName(person.getPersonName().givenName().value());
         } else {
-            personDbo = new PersonDbo();
+            personDbo =
+                new PersonDbo(person.getPersonName().familyName().value(), person.getPersonName().givenName().value());
         }
-        personDbo.setFamilyName(person.getPersonName().familyName().value());
-        personDbo.setGivenName(person.getPersonName().givenName().value());
         personDbo.setGender(person.getGender());
         if (person.getBirthDate() != null) {
             personDbo.setBirthDate(person.getBirthDate().value());
+        } else {
+            personDbo.setBirthDate(null);
         }
         return personDbo;
     }
 
     public Person asPerson() {
         return Person.of(id, familyName, givenName, birthDate, gender);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getFamilyName() {
-        return familyName;
-    }
-
-    public void setFamilyName(String familyName) {
-        this.familyName = familyName;
-    }
-
-    public String getGivenName() {
-        return givenName;
-    }
-
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
     }
 }

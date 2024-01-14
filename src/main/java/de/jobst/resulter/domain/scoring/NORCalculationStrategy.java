@@ -50,7 +50,7 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
 
     @Override
     public boolean valid(ClassResult classResult) {
-        return classesToSkip.stream().noneMatch(it -> classResult.getClassResultShortName().value().equals(it));
+        return classesToSkip.stream().noneMatch(it -> classResult.classResultShortName().value().equals(it));
     }
 
     @Override
@@ -68,7 +68,7 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
         if (personRaceResults.isEmpty()) {
             return;
         }
-        PunchTime fastestTime = personRaceResults.getFirst().getRuntime();
+        PunchTime fastestTime = personRaceResults.getFirst().runtime();
         /*
         personRaceResults.forEach(personRaceResult -> personRaceResult.setScore(CUP_TYPE,
             calculateScore(CupScoreId.of(CUP_TYPE, personRaceResult.getId().value()),

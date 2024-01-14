@@ -1,0 +1,42 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000004_organisation_organisation
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : ORGANISATION_ORGANISATION
+            comment : Table organisation_organisation with indexes and keys
+            changes :
+                -   createTable :
+                        tableName : ORGANISATION_ORGANISATION
+                        columns :
+                            -   column :
+                                    name : ORGANISATION_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_ORGANISATION_ORGANISATION_ORGANISATION
+                            -   column :
+                                    name : PARENT_ORGANISATION_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_ORGANISATION_ORGANISATION_PARENT_ORGANISATION
+                -   addForeignKeyConstraint :
+                        baseTableName : ORGANISATION_ORGANISATION
+                        baseColumnNames : ORGANISATION_ID
+                        constraintName : FK_ORGANISATION_ORGANISATION_ORGANISATION
+                        referencedTableName : ORGANISATION
+                        referencedColumnNames : ID
+                        onDelete : RESTRICT
+                        onUpdate : RESTRICT
+                -   addForeignKeyConstraint :
+                        baseTableName : ORGANISATION_ORGANISATION
+                        baseColumnNames : PARENT_ORGANISATION_ID
+                        constraintName : FK_ORGANISATION_ORGANISATION_PARENT_ORGANISATION
+                        referencedTableName : ORGANISATION
+                        referencedColumnNames : ID
+                        onDelete : RESTRICT
+                        onUpdate : RESTRICT

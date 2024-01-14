@@ -2,10 +2,12 @@ package de.jobst.resulter.domain;
 
 import org.springframework.lang.NonNull;
 
-public record ClassResultId(long value) {
+import java.util.Objects;
 
-    public static ClassResultId of(long value) {
-        if (value < 0L) {
+public record ClassResultId(Long value) {
+
+    public static ClassResultId of(Long value) {
+        if (value != null && value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0.");
         }
         return new ClassResultId(value);
@@ -16,7 +18,7 @@ public record ClassResultId(long value) {
     }
 
     public boolean isPersistent() {
-        return value != empty().value;
+        return !Objects.equals(value, empty().value);
     }
 
     @Override

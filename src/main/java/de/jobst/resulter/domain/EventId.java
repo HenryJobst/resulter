@@ -1,10 +1,12 @@
 package de.jobst.resulter.domain;
 
-public record EventId(long value) {
+import java.util.Objects;
 
-    public static EventId of(long value) {
-        if (value < 0L) {
-            throw new IllegalArgumentException("Id must be greater or equal 0.");
+public record EventId(Long value) {
+
+    public static EventId of(Long value) {
+        if (value != null && value < 0L) {
+            throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new EventId(value);
     }
@@ -14,7 +16,7 @@ public record EventId(long value) {
     }
 
     public boolean isPersistent() {
-        return value != empty().value;
+        return !Objects.equals(value, empty().value);
     }
 
     @Override

@@ -1,9 +1,12 @@
 package de.jobst.resulter.domain;
 
-public record OrganisationId(long value) {
-    public static OrganisationId of(long value) {
-        if (value < 0L) {
-            throw new IllegalArgumentException("Id must be greater or equal 0.");
+import java.util.Objects;
+
+public record OrganisationId(Long value) {
+
+    public static OrganisationId of(Long value) {
+        if (value != null && value < 0L) {
+            throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new OrganisationId(value);
     }
@@ -13,6 +16,6 @@ public record OrganisationId(long value) {
     }
 
     public boolean isPersistent() {
-        return value != empty().value;
+        return !Objects.equals(value, empty().value);
     }
 }

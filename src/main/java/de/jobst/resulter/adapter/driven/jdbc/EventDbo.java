@@ -1,116 +1,103 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.*;
-import jakarta.persistence.*;
+import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventStatus;
+import de.jobst.resulter.domain.OrganisationId;
+import de.jobst.resulter.domain.ResultListId;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.With;
 import org.apache.commons.lang3.ObjectUtils;
-import org.hibernate.Hibernate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
-@Entity
+@Data
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "EVENT")
 public class EventDbo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_event")
-    @SequenceGenerator(name = "entity_generator_event", sequenceName = "SEQ_EVENT_ID", allocationSize = 1)
-    @Column(name = "ID", nullable = false, unique = true)
-    private Long id;
+    @With
+    private final Long id;
 
-    @Column(name = "NAME", nullable = false, unique = true)
     private String name;
-    @Column(name = "START_TIME")
-    private ZonedDateTime startTime;
-    @Column(name = "END_TIME")
-    private ZonedDateTime endTime;
-    @OneToMany(mappedBy = "eventDbo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ClassResultDbo> classResults = new HashSet<>();
-
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "EVENT_ORGANISATION", joinColumns = @JoinColumn(name = "EVENT_ID"),
-               inverseJoinColumns = @JoinColumn(name = "ORGANISATION_ID"))
-    private Set<OrganisationDbo> organisations = new HashSet<>();
-
-
-    @Column(name = "STATE")
-    @Enumerated(value = EnumType.STRING)
+    private ZonedDateTime startTime, endTime;
     private EventStatus state;
 
-    //@ManyToMany(mappedBy = "events", fetch = FetchType.LAZY)
-    //private Set<CupDbo> cups = new HashSet<>();
+    @MappedCollection(idColumn = "EVENT_ID")
+    private Set<EventResultListDbo> resultLists = new HashSet<>();
 
-    public static EventDbo from(@NonNull Event event,
-                                DboResolver<EventId, EventDbo> dboResolver,
-                                @NonNull DboResolvers dboResolvers) {
-        EventDbo eventDbo = null;
-        EventDbo persistedEventDbo;
-        if (event.getId().value() != EventId.empty().value()) {
-            if (dboResolver != null) {
-                eventDbo = dboResolver.findDboById(event.getId());
-            }
-            if (eventDbo == null) {
-                eventDbo = dboResolvers.getEventDboResolver().findDboById(event.getId());
-            }
-            persistedEventDbo = eventDbo;
+    @MappedCollection(idColumn = "EVENT_ID")
+    private Set<EventOrganisationDbo> organisations = new HashSet<>();
+
+    public EventDbo(String name) {
+        this.id = null;
+        this.name = name;
+    }
+
+    public static EventDbo from(@NonNull Event event, @NonNull DboResolvers dboResolvers) {
+        EventDbo eventDbo;
+        if (event.getId().isPersistent()) {
+            eventDbo = dboResolvers.getEventDboResolver().findDboById(event.getId());
+            eventDbo.setName(event.getName().value());
         } else {
-            eventDbo = new EventDbo();
-            persistedEventDbo = null;
+            eventDbo = new EventDbo(event.getName().value());
         }
-
-        eventDbo.setName(event.getName().value());
 
         if (ObjectUtils.isNotEmpty(event.getStartTime())) {
             eventDbo.setStartTime(event.getStartTime().value());
+        } else {
+            eventDbo.setStartTime(null);
         }
+
         if (ObjectUtils.isNotEmpty(event.getEndTime())) {
             eventDbo.setEndTime(event.getEndTime().value());
+        } else {
+            eventDbo.setEndTime(null);
         }
-
-        EventDbo finalEventDbo = eventDbo;
-        eventDbo.setClassResults(Objects.requireNonNull(event.getClassResults()).value().stream().map(it -> {
-            ClassResultDbo persistedClassResultDbo =
-                persistedEventDbo != null && Hibernate.isInitialized(persistedEventDbo.getClassResults()) ?
-                persistedEventDbo.getClassResults()
-                    .stream()
-                    .filter(x -> x.getId() == it.getId().value())
-                    .findFirst()
-                    .orElse(null) :
-                null;
-            return ClassResultDbo.from(it, finalEventDbo, (id) -> persistedClassResultDbo, dboResolvers);
-        }).collect(Collectors.toSet()));
-
-        eventDbo.setOrganisations(event.getOrganisationIds()
-            .stream()
-            .map(it -> dboResolvers.getOrganisationDboResolver().findDboById(it))
-            .collect(Collectors.toSet()));
 
         if (ObjectUtils.isNotEmpty(event.getEventState())) {
             eventDbo.setState(event.getEventState());
+        } else {
+            eventDbo.setState(null);
         }
+
+        eventDbo.setOrganisations(event.getReferencedOrganisationIds()
+            .stream()
+            .map(x -> new EventOrganisationDbo(x.value()))
+            .collect(Collectors.toSet()));
+        eventDbo.setResultLists(event.getResultListIds()
+            .stream()
+            .map(x -> new EventResultListDbo(x.value()))
+            .collect(Collectors.toSet()));
 
         return eventDbo;
     }
 
     static public List<Event> asEvents(@NonNull List<EventDbo> eventDbos) {
-        Map<EventId, List<ClassResult>> classResultsByEventId;
-        classResultsByEventId =
-            ClassResultDbo.asClassResults(eventDbos.stream().flatMap(x -> x.classResults.stream()).toList())
-                .stream()
-                .collect(Collectors.groupingBy(ClassResult::getEventId));
 
         return eventDbos.stream()
             .map(it -> Event.of(it.id,
                 it.name,
                 it.startTime,
                 it.endTime,
-                classResultsByEventId.getOrDefault(EventId.of(it.id), new ArrayList<>()),
+                it.resultLists.stream()
+                    .map(x -> Objects.nonNull(x) ? ResultListId.of(x.id.getId()) : null)
+                    .filter(Objects::nonNull)
+                    .toList(),
                 it.organisations.stream()
-                    .map(x -> Objects.nonNull(x) ? OrganisationId.of(x.getId()) : null)
+                    .map(x -> Objects.nonNull(x) ? OrganisationId.of(x.id.getId()) : null)
                     .filter(Objects::nonNull)
                     .toList(),
                 it.state))
@@ -121,59 +108,4 @@ public class EventDbo {
         return asEvents(List.of(eventDbo)).getFirst();
     }
 
-    public long getId() {
-        return id != null ? id : EventId.empty().value();
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public Set<ClassResultDbo> getClassResults() {
-        return classResults;
-    }
-
-    public void setClassResults(Set<ClassResultDbo> classResults) {
-        this.classResults = classResults;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public ZonedDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(ZonedDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public ZonedDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(ZonedDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public Set<OrganisationDbo> getOrganisations() {
-        return organisations;
-    }
-
-    public void setOrganisations(Set<OrganisationDbo> organisations) {
-        this.organisations = organisations;
-    }
-
-    public EventStatus getState() {
-        return state;
-    }
-
-    public void setState(EventStatus state) {
-        this.state = state;
-    }
 }

@@ -1,69 +1,49 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.OrganisationRepository;
-import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import org.hibernate.Hibernate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
 public class OrganisationRepositoryDataJdbcAdapter implements OrganisationRepository {
 
-    private final OrganisationJdbcRepository organisationJpaRepository;
-    private final CountryJdbcRepository countryJpaRepository;
+    private final OrganisationJdbcRepository organisationJdbcRepository;
+    private final CountryJdbcRepository countryJdbcRepository;
 
-    public OrganisationRepositoryDataJdbcAdapter(OrganisationJdbcRepository organisationJpaRepository,
-                                                 CountryJdbcRepository countryJpaRepository) {
-        this.organisationJpaRepository = organisationJpaRepository;
-        this.countryJpaRepository = countryJpaRepository;
+    public OrganisationRepositoryDataJdbcAdapter(OrganisationJdbcRepository organisationJdbcRepository,
+                                                 CountryJdbcRepository countryJdbcRepository) {
+        this.organisationJdbcRepository = organisationJdbcRepository;
+        this.countryJdbcRepository = countryJdbcRepository;
     }
 
     @Override
     @Transactional
     public Organisation save(Organisation organisation) {
         DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setOrganisationDboResolver(id -> organisationJpaRepository.findById(id.value()).orElseThrow());
-        dboResolvers.setCountryDboResolver(id -> countryJpaRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setOrganisationDboResolver(id -> organisationJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setCountryDboResolver(id -> countryJdbcRepository.findById(id.value()).orElseThrow());
         OrganisationDbo organisationDbo = OrganisationDbo.from(organisation, dboResolvers);
-        if (organisationDbo.getCountry() != null && Hibernate.isInitialized(organisationDbo.getCountry())) {
-            organisationDbo.setCountry(organisationDbo.getCountry().getId() != CountryId.empty().value() ?
-                                       organisationDbo.getCountry() :
-                                       countryJpaRepository.save(organisationDbo.getCountry()));
-        }
-        if (Hibernate.isInitialized(organisationDbo.getParentOrganisations())) {
-            var organisationsToSave = organisationDbo.getParentOrganisations()
-                .stream()
-                .filter(it -> it != null && Hibernate.isInitialized(it))
-                .toList();
-            organisationJpaRepository.saveAll(organisationsToSave);
-        }
-        OrganisationDbo savedOrganisationEntity = organisationJpaRepository.save(organisationDbo);
+        OrganisationDbo savedOrganisationEntity = organisationJdbcRepository.save(organisationDbo);
         return savedOrganisationEntity.asOrganisation();
     }
 
     @Override
     @Transactional
     public List<Organisation> findAll() {
-        return organisationJpaRepository.findAll().stream().map(OrganisationDbo::asOrganisation).sorted().toList();
+        return organisationJdbcRepository.findAll().stream().map(OrganisationDbo::asOrganisation).sorted().toList();
     }
 
     @Override
     @Transactional
     public Optional<Organisation> findById(OrganisationId organisationId) {
-        Optional<OrganisationDbo> organisationEntity = organisationJpaRepository.findById(organisationId.value());
+        Optional<OrganisationDbo> organisationEntity = organisationJdbcRepository.findById(organisationId.value());
         return organisationEntity.map(OrganisationDbo::asOrganisation);
     }
 
@@ -71,7 +51,7 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Transactional
     public Organisation findOrCreate(Organisation organisation) {
         Optional<OrganisationDbo> organisationEntity =
-            organisationJpaRepository.findByName(organisation.getName().value());
+            organisationJdbcRepository.findByName(organisation.getName().value());
         if (organisationEntity.isEmpty()) {
             return save(organisation);
         }
@@ -87,41 +67,29 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
 
     @Override
     public void deleteOrganisation(Organisation organisation) {
-        organisationJpaRepository.deleteById(organisation.getId().value());
+        organisationJdbcRepository.deleteById(organisation.getId().value());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet, boolean deep) {
-
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<OrganisationDbo> query = cb.createQuery(OrganisationDbo.class);
-
-        Root<OrganisationDbo> root = query.from(OrganisationDbo.class);
-
-        Predicate idPredicate =
-            root.get("id").in(idSet.stream().map(OrganisationId::value).collect(Collectors.toSet()));
-        query.select(root).where(idPredicate);
-
-        TypedQuery<OrganisationDbo> typedQuery = entityManager.createQuery(query);
-        typedQuery.setHint("jakarta.persistence.loadgraph", entityGraph);
-
-        List<OrganisationDbo> resultList = typedQuery.getResultList();
-        return resultList.stream()
-            .map(OrganisationDbo::asOrganisation)
-            .collect(Collectors.toMap(Organisation::getId, it -> it));
+    public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet) {
+        //organisationJdbcRepository.findAllById(idSet.stream().map(OrganisationId::value).toList());
+        return null;
     }
 
     @Override
     @Transactional
     public Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet) {
-
+/*
         @SuppressWarnings({"unchecked"}) List<Long> resultList =
             entityManager.createNativeQuery(getCteQuery(), Long.class)
                 .setParameter("idSet", idSet.stream().map(OrganisationId::value).toList())
                 .getResultList();
 
         return findAllById(resultList.stream().map(OrganisationId::of).collect(Collectors.toSet()), true);
+
+ */
+        return null;
     }
 
     @NonNull

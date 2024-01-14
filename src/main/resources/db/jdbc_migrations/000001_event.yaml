@@ -1,0 +1,46 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000001_event
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : EVENT
+            comment : Tables event with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : EVENT
+                        columns :
+                            -   column :
+                                    name : ID
+                                    type : BIGINT
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : PK_EVENT
+                            -   column :
+                                    name : NAME
+                                    type : VARCHAR(255)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : START_TIME
+                                    type : TIMESTAMPTZ
+                            -   column :
+                                    name : END_TIME
+                                    type : TIMESTAMPTZ
+                            -   column :
+                                    name : STATE
+                                    type : VARCHAR(20)
+                            -   column :
+                                    name : ORGANISATIONS
+                                    type : VARCHAR
+
+                -   createIndex :
+                        tableName : EVENT
+                        columns :
+                            -   column :
+                                    name : ID
+                        indexName : IDX_EVENT_ID

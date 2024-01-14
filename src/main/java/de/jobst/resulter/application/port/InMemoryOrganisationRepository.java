@@ -62,7 +62,7 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
     }
 
     @Override
-    public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet, boolean deep) {
+    public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet) {
         return null;
     }
 

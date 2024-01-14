@@ -1,4 +1,4 @@
-databaseChangeLog:
-  - includeAll:
-      path: ../migrations
-      relativeToChangelogFile: true
+databaseChangeLog :
+    -   includeAll :
+            path : ../jdbc_migrations
+            relativeToChangelogFile : true

@@ -21,7 +21,7 @@ class EventServiceFindInMemoryTest {
             new InMemoryPersonRepository(),
             new InMemoryOrganisationRepository());
 
-        assertThat(eventService.findById(EventId.of(9999))).isEmpty();
+        assertThat(eventService.findById(EventId.of(9999L))).isEmpty();
     }
 
     @Test

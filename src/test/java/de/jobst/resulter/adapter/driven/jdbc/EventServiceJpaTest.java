@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.test.context.ContextConfiguration;
@@ -18,10 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest(properties = {"spring.test.database.replace=NONE", "resulter.repository.inmemory=false"})
+@DataJdbcTest(properties = {"spring.test.database.replace=NONE", "resulter.repository.inmemory=false"})
 @ContextConfiguration(classes = {TestConfig.class}, loader = AnnotationConfigContextLoader.class)
-@EntityScan(basePackages = {"de.jobst.resulter.adapter.driven.jpa"})
-@EnableJdbcRepositories(basePackages = "de.jobst.resulter.adapter.driven.jpa")
+@EntityScan(basePackages = {"de.jobst.resulter.adapter.driven.jdbc"})
+@EnableJdbcRepositories(basePackages = "de.jobst.resulter.adapter.driven.jdbc")
 @Import({EventRepositoryDataJdbcAdapter.class, EventService.class, CupRepositoryDataJdbcAdapter.class,
     PersonRepositoryDataJdbcAdapter.class, OrganisationRepositoryDataJdbcAdapter.class})
 class EventServiceJpaTest {

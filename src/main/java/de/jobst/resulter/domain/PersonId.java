@@ -1,10 +1,12 @@
 package de.jobst.resulter.domain;
 
-public record PersonId(long value) {
+import java.util.Objects;
 
-    public static PersonId of(long value) {
-        if (value < 0L) {
-            throw new IllegalArgumentException("Id must be greater or equal 0.");
+public record PersonId(Long value) {
+
+    public static PersonId of(Long value) {
+        if (value != null && value < 0L) {
+            throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new PersonId(value);
     }
@@ -14,7 +16,7 @@ public record PersonId(long value) {
     }
 
     public boolean isPersistent() {
-        return value != empty().value;
+        return !Objects.equals(value, empty().value);
     }
 
     @Override

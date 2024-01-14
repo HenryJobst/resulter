@@ -4,17 +4,17 @@ import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
-public record ClassResultId(Long value) {
+public record ResultListId(Long value) {
 
-    public static ClassResultId of(Long value) {
+    public static ResultListId of(Long value) {
         if (value != null && value < 0L) {
-            throw new IllegalArgumentException("Id must be greater or equal 0.");
+            throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
-        return new ClassResultId(value);
+        return new ResultListId(value);
     }
 
-    public static ClassResultId empty() {
-        return new ClassResultId(0L);
+    public static ResultListId empty() {
+        return new ResultListId(0L);
     }
 
     public boolean isPersistent() {
@@ -26,7 +26,7 @@ public record ClassResultId(Long value) {
         return this.getClass().getSimpleName() + "=" + value;
     }
 
-    public int compareTo(@NonNull ClassResultId o) {
+    public int compareTo(@NonNull ResultListId o) {
         return Long.compare(value, o.value);
     }
 }

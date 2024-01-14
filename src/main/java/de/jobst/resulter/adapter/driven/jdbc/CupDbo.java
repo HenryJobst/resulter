@@ -4,100 +4,67 @@ import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupType;
 import de.jobst.resulter.domain.EventId;
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.lang.NonNull;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"LombokSetterMayBeUsed", "LombokGetterMayBeUsed", "unused"})
-@Entity
+@Data
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "CUP")
 public class CupDbo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_cup")
-    @SequenceGenerator(name = "entity_generator_cup", sequenceName = "SEQ_CUP_ID", allocationSize = 1)
-    @Column(name = "ID", nullable = false, unique = true)
     private Long id;
 
-    @Column(name = "NAME", nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "CUP_EVENT", joinColumns = @JoinColumn(name = "CUP_ID"),
-               inverseJoinColumns = @JoinColumn(name = "EVENT_ID"))
-    private Set<EventDbo> events = new HashSet<>();
+    @MappedCollection(idColumn = "EVENT_ID")
+    private Set<CupEventDbo> events = new HashSet<>();
 
-    @Column(name = "TYPE")
-    @Enumerated(value = EnumType.STRING)
     private CupType type;
+
+    public CupDbo(String name) {
+        this.id = null;
+        this.name = name;
+    }
 
     public static CupDbo from(@NonNull Cup cup, @NonNull DboResolvers dboResolvers) {
         CupDbo cupDbo;
-        CupDbo persistedCupDbo;
         if (cup.getId().value() != CupId.empty().value()) {
             cupDbo = dboResolvers.getCupDboDboResolver().findDboById(cup.getId());
+            cupDbo.setName(cup.getName().value());
         } else {
-            cupDbo = new CupDbo();
+            cupDbo = new CupDbo(cup.getName().value());
         }
 
-        cupDbo.setName(cup.getName().value());
-
-        cupDbo.setEvents(Objects.requireNonNull(cup.getEventIds()
-            .stream()
-            .map(it -> dboResolvers.getEventDboResolver().findDboById(it))
-            .collect(Collectors.toSet())));
+        cupDbo.setEvents(cup.getEventIds().stream().map(it -> new CupEventDbo(it.value())).collect(Collectors.toSet()));
 
         if (ObjectUtils.isNotEmpty(cup.getType())) {
             cupDbo.setType(cup.getType());
+        } else {
+            cupDbo.setType(null);
         }
         return cupDbo;
     }
 
     static public List<Cup> asCups(@NonNull List<CupDbo> cupDbos) {
         return cupDbos.stream()
-            .map(it -> Cup.of(it.id, it.name, it.type, it.events.stream().map(x -> EventId.of(x.getId())).toList()))
+            .map(it -> Cup.of(it.id, it.name, it.type, it.events.stream().map(x -> EventId.of(x.id.getId())).toList()))
             .toList();
     }
 
     static public Cup asCup(@NonNull CupDbo cupDbo) {
         return asCups(List.of(cupDbo)).getFirst();
-    }
-
-    public long getId() {
-        return id != null ? id : CupId.empty().value();
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<EventDbo> getEvents() {
-        return events;
-    }
-
-    public void setEvents(Set<EventDbo> events) {
-        this.events = events;
-    }
-
-    public CupType getType() {
-        return type;
-    }
-
-    public void setType(CupType type) {
-        this.type = type;
     }
 }

@@ -4,7 +4,15 @@ import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.OrganisationType;
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.With;
+import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
@@ -12,42 +20,30 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"LombokGetterMayBeUsed", "LombokSetterMayBeUsed"})
-@Entity
+@Data
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "ORGANISATION")
 public class OrganisationDbo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_generator_organisation")
-    @SequenceGenerator(name = "entity_generator_organisation", sequenceName = "SEQ_ORGANISATION_ID",
-                       allocationSize = 10)
-    @Column(name = "ID", nullable = false, unique = true)
+    @With
     private Long id;
 
-    @Column(name = "NAME", nullable = false)
     private String name;
 
-    @Column(name = "SHORT_NAME", nullable = false)
     private String shortName;
 
-    @Column(name = "TYPE", nullable = false)
-    @Enumerated(value = EnumType.STRING)
     private OrganisationType type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "COUNTRY_ID")
-    private CountryDbo country;
-    @OneToMany(mappedBy = "organisation", fetch = FetchType.LAZY)
-    private Set<PersonResultDbo> personResults = new HashSet<>();
-    @SuppressWarnings("unused")
-    @ManyToMany(mappedBy = "organisations", fetch = FetchType.LAZY)
-    private Set<EventDbo> events = new HashSet<>();
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "ORGANISATION_ORGANISATION", joinColumns = @JoinColumn(name = "ORGANISATION_ID"),
-               inverseJoinColumns = @JoinColumn(name = "PARENT_ORGANISATION_ID"))
-    private Set<OrganisationDbo> parentOrganisations = new HashSet<>();
-    @ManyToMany(mappedBy = "parentOrganisations", fetch = FetchType.LAZY)
-    private Set<OrganisationDbo> childOrganisations = new HashSet<>();
+    @MappedCollection(idColumn = "PARENT_ORGANISATION_ID")
+    private Set<OrganisationOrganisationDbo> childOrganisations = new HashSet<>();
+
+    private AggregateReference<CountryDbo, Long> country;
+
+    public OrganisationDbo(String name) {
+        this.id = null;
+        this.name = name;
+    }
 
     public static OrganisationDbo from(Organisation organisation, @NonNull DboResolvers dboResolvers) {
         if (null == organisation) {
@@ -56,19 +52,19 @@ public class OrganisationDbo {
         OrganisationDbo organisationDbo;
         if (organisation.getId().isPersistent()) {
             organisationDbo = dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId());
+            organisationDbo.setName(organisation.getName().value());
         } else {
-            organisationDbo = new OrganisationDbo();
+            organisationDbo = new OrganisationDbo(organisation.getName().value());
         }
 
-        organisationDbo.setName(organisation.getName().value());
         organisationDbo.setShortName(organisation.getShortName().value());
 
         organisationDbo.setType(organisation.getType());
-        organisationDbo.setCountry(dboResolvers.getCountryDboResolver().findDboById(organisation.getCountryId()));
+        organisationDbo.setCountry(AggregateReference.to(organisation.getCountryId().value()));
 
-        organisationDbo.setParentOrganisations(organisation.getParentOrganisationIds()
+        organisationDbo.setChildOrganisations(organisation.getChildOrganisationIds()
             .stream()
-            .map(it -> dboResolvers.getOrganisationDboResolver().findDboById(it))
+            .map(it -> new OrganisationOrganisationDbo(it.value()))
             .collect(Collectors.toSet()));
 
         return organisationDbo;
@@ -80,73 +76,9 @@ public class OrganisationDbo {
             shortName,
             type.value(),
             country != null ? CountryId.of(country.getId()) : null,
-            parentOrganisations == null ?
+            childOrganisations == null ?
             new ArrayList<>() :
-            parentOrganisations.stream().map(x -> OrganisationId.of(x.getId())).toList());
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
-    }
-
-    public OrganisationType getType() {
-        return type;
-    }
-
-    public void setType(OrganisationType type) {
-        this.type = type;
-    }
-
-    public CountryDbo getCountry() {
-        return country;
-    }
-
-    public void setCountry(CountryDbo country) {
-        this.country = country;
-    }
-
-    public Set<OrganisationDbo> getParentOrganisations() {
-        return parentOrganisations;
-    }
-
-    public void setParentOrganisations(Set<OrganisationDbo> parentOrganisations) {
-        this.parentOrganisations = parentOrganisations;
-    }
-
-    public Set<OrganisationDbo> getChildOrganisations() {
-        return childOrganisations;
-    }
-
-    public void setChildOrganisations(Set<OrganisationDbo> childOrganisations) {
-        this.childOrganisations = childOrganisations;
-    }
-
-    public Set<PersonResultDbo> getPersonResults() {
-        return personResults;
-    }
-
-    public void setPersonResults(Set<PersonResultDbo> personResults) {
-        this.personResults = personResults;
+            childOrganisations.stream().map(x -> OrganisationId.of(x.id.getId())).toList());
     }
 
 }

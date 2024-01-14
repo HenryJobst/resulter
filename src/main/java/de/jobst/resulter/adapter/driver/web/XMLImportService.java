@@ -87,7 +87,7 @@ public class XMLImportService {
                           null :
                           Country.of(o.getCountry().getCode(), o.getCountry().getValue()))).collect(Collectors.toSet());
 
-        countries = this.countryService.findOrCreate(countries);
+        //countries = this.countryService.findOrCreate(countries);
         Map<String, Country> countriesByCode =
             countries.stream().collect(Collectors.toMap(x -> x.getCode().value(), x -> x));
 
@@ -114,7 +114,7 @@ public class XMLImportService {
                     (o.getCountry() == null ? null : countriesByCode.get(o.getCountry().getCode()).getId()),
                     new ArrayList<>()))).collect(Collectors.toSet());
 
-        organisations = organisationService.findOrCreate(organisations);
+        //organisations = organisationService.findOrCreate(organisations);
         Map<String, Organisation> organisationByName =
             organisations.stream().collect(Collectors.toMap(x -> x.getName().value(), x -> x));
 
@@ -129,7 +129,7 @@ public class XMLImportService {
                              null),
                 Gender.of(p.getSex())))
             .collect(Collectors.toSet());
-        persons = personService.findOrCreate(persons);
+        //persons = personService.findOrCreate(persons);
         Map<Person.DomainKey, Person> personByDomainKey =
             persons.stream().collect(Collectors.toMap(Person::getDomainKey, x -> x));
 

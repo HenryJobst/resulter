@@ -7,19 +7,17 @@ import org.springframework.lang.NonNull;
 
 import java.time.Duration;
 
-public record PersonResultDto(Long id, Long position, Long personId, Duration runTime, String resultStatus,
-                              Long organisationId) implements Comparable<PersonResultDto> {
+public record PersonResultDto(Long position, Long personId, Duration runTime, String resultStatus, Long organisationId)
+    implements Comparable<PersonResultDto> {
 
     static public PersonResultDto from(PersonResult personResult) {
-        PersonRaceResult personRaceResult =
-            personResult.getPersonRaceResults().value().stream().findFirst().orElseThrow();
-        Double runTime = personRaceResult.getRuntime().value();
-        return new PersonResultDto(personResult.getId().value(),
-            personRaceResult.getPosition().value(),
-            personResult.getPersonId() != null ? personResult.getPersonId().value() : null,
+        PersonRaceResult personRaceResult = personResult.personRaceResults().value().stream().findFirst().orElseThrow();
+        Double runTime = personRaceResult.runtime().value();
+        return new PersonResultDto(personRaceResult.position().value(),
+            personResult.personId() != null ? personResult.personId().value() : null,
             runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
-            personRaceResult.getState().value(),
-            personResult.getOrganisationId() != null ? personResult.getOrganisationId().value() : null);
+            personRaceResult.state().value(),
+            personResult.organisationId() != null ? personResult.organisationId().value() : null);
     }
 
     @Override
@@ -33,9 +31,6 @@ public record PersonResultDto(Long id, Long position, Long personId, Duration ru
         }
         if (value == 0) {
             value = ObjectUtils.compare(personId, o.personId);
-        }
-        if (value == 0) {
-            value = ObjectUtils.compare(id, o.id);
         }
         return value;
     }

@@ -3,18 +3,11 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
-import jakarta.persistence.EntityGraph;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Subgraph;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import org.hibernate.Hibernate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,22 +15,19 @@ import java.util.Optional;
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
 public class EventRepositoryDataJdbcAdapter implements EventRepository {
 
-    private final EventJdbcRepository eventJpaRepository;
-    private final EntityManager entityManager;
-    private final PersonJdbcRepository personJpaRepository;
-    private final OrganisationJdbcRepository organisationJpaRepository;
-    private final CountryJdbcRepository countryJpaRepository;
+    private final EventJdbcRepository eventJdbcRepository;
+    private final PersonJdbcRepository personJdbcRepository;
+    private final OrganisationJdbcRepository organisationJdbcRepository;
+    private final CountryJdbcRepository countryJdbcRepository;
 
-    public EventRepositoryDataJdbcAdapter(EventJdbcRepository eventJpaRepository,
-                                          EntityManager entityManager,
-                                          PersonJdbcRepository personJpaRepository,
-                                          OrganisationJdbcRepository organisationJpaRepository,
-                                          CountryJdbcRepository countryJpaRepository) {
-        this.eventJpaRepository = eventJpaRepository;
-        this.entityManager = entityManager;
-        this.personJpaRepository = personJpaRepository;
-        this.organisationJpaRepository = organisationJpaRepository;
-        this.countryJpaRepository = countryJpaRepository;
+    public EventRepositoryDataJdbcAdapter(EventJdbcRepository eventJdbcRepository,
+                                          PersonJdbcRepository personJdbcRepository,
+                                          OrganisationJdbcRepository organisationJdbcRepository,
+                                          CountryJdbcRepository countryJdbcRepository) {
+        this.eventJdbcRepository = eventJdbcRepository;
+        this.personJdbcRepository = personJdbcRepository;
+        this.organisationJdbcRepository = organisationJdbcRepository;
+        this.countryJdbcRepository = countryJdbcRepository;
     }
 
     @Transactional
@@ -50,10 +40,11 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     public Event save(Event event) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setEventDboResolver(getIdResolver());
-        dboResolvers.setPersonDboResolver(id -> personJpaRepository.findById(id.value()).orElseThrow());
-        dboResolvers.setOrganisationDboResolver(id -> organisationJpaRepository.findById(id.value()).orElseThrow());
-        dboResolvers.setCountryDboResolver(id -> countryJpaRepository.findById(id.value()).orElseThrow());
-        EventDbo eventEntity = EventDbo.from(event, null, dboResolvers);
+        dboResolvers.setPersonDboResolver(id -> personJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setOrganisationDboResolver(id -> organisationJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setCountryDboResolver(id -> countryJdbcRepository.findById(id.value()).orElseThrow());
+        EventDbo eventEntity = EventDbo.from(event, dboResolvers);
+        /*
         if (Hibernate.isInitialized(eventEntity.getClassResults())) {
             var personsToSave = eventEntity.getClassResults()
                 .stream()
@@ -63,7 +54,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
                                            Hibernate.isInitialized(personResultDbo.getPerson()))
                 .map(PersonResultDbo::getPerson)
                 .toList();
-            personJpaRepository.saveAll(personsToSave);
+            personJdbcRepository.saveAll(personsToSave);
 
             var countriesToSave = eventEntity.getClassResults()
                 .stream()
@@ -76,7 +67,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
                                            Hibernate.isInitialized(organisationDbo.getCountry()))
                 .map(OrganisationDbo::getCountry)
                 .toList();
-            countryJpaRepository.saveAll(countriesToSave);
+            countryJdbcRepository.saveAll(countriesToSave);
 
             var organisationsToSave = eventEntity.getClassResults()
                 .stream()
@@ -86,55 +77,29 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
                                            Hibernate.isInitialized(personResultDbo.getOrganisation()))
                 .map(PersonResultDbo::getOrganisation)
                 .toList();
-            organisationJpaRepository.saveAll(organisationsToSave);
+            organisationJdbcRepository.saveAll(organisationsToSave);
         }
-        EventDbo savedEventEntity = eventJpaRepository.save(eventEntity);
+
+         */
+        EventDbo savedEventEntity = eventJdbcRepository.save(eventEntity);
         return EventDbo.asEvent(savedEventEntity);
     }
 
     @Override
     public void deleteEvent(Event event) {
-        eventJpaRepository.deleteById(event.getId().value());
+        eventJdbcRepository.deleteById(event.getId().value());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Event> findAll() {
-        EntityGraph<?> entityGraph = getEntityGraph();
-
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<EventDbo> query = cb.createQuery(EventDbo.class);
-        query.select(query.from(EventDbo.class));
-
-        TypedQuery<EventDbo> typedQuery = entityManager.createQuery(query);
-        typedQuery.setHint("jakarta.persistence.loadgraph", entityGraph);
-
-        List<EventDbo> resultList = typedQuery.getResultList();
+        List<EventDbo> resultList = new ArrayList<>();
         return EventDbo.asEvents(resultList);
-    }
-
-    private EntityGraph<EventDbo> getEntityGraph() {
-        EntityGraph<EventDbo> entityGraph = entityManager.createEntityGraph(EventDbo.class);
-        entityGraph.addSubgraph(EventDbo_.organisations);
-        Subgraph<ClassResultDbo> classResultSubgraph = entityGraph.addSubgraph(EventDbo_.classResults.getName());
-        Subgraph<PersonResultDbo> personResultSubgraph =
-            classResultSubgraph.addSubgraph(ClassResultDbo_.personResults.getName());
-        personResultSubgraph.addAttributeNodes(PersonResultDbo_.personRaceResults.getName());
-        personResultSubgraph.addAttributeNodes(PersonResultDbo_.person.getName());
-        personResultSubgraph.addAttributeNodes(PersonResultDbo_.organisation.getName());
-        return entityGraph;
     }
 
     @Transactional(readOnly = true)
     public Optional<EventDbo> findDboById(EventId eventId) {
-        @SuppressWarnings("SqlSourceToSinkFlow") TypedQuery<EventDbo> query =
-            entityManager.createQuery(MessageFormat.format("SELECT e FROM {0} e WHERE e.{1} = :id",
-                EventDbo_.class_.getName(),
-                EventDbo_.id.getName()), EventDbo.class);
-        query.setParameter("id", eventId.value());
-        query.setHint("jakarta.persistence.loadgraph", getEntityGraph());
-
-        return query.getResultStream().findFirst();
+        return Optional.empty();
     }
 
     @Override
@@ -146,7 +111,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Override
     @Transactional
     public Event findOrCreate(Event event) {
-        Optional<EventDbo> optionalEventDbo = eventJpaRepository.findByName(event.getName().value());
+        Optional<EventDbo> optionalEventDbo = eventJdbcRepository.findByName(event.getName().value());
         if (optionalEventDbo.isEmpty()) {
             return save(event);
         }

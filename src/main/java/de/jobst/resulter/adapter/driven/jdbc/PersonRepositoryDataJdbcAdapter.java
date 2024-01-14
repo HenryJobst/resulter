@@ -25,7 +25,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     public Person save(Person person) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setPersonDboResolver(id -> personJdbcRepository.findById(id.value()).orElseThrow());
-        PersonDbo personEntity = PersonDbo.from(person, null, dboResolvers);
+        PersonDbo personEntity = PersonDbo.from(person, dboResolvers);
         PersonDbo savedPersonEntity = personJdbcRepository.save(personEntity);
         return savedPersonEntity.asPerson();
     }

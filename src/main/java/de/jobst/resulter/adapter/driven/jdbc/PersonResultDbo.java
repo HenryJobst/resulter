@@ -4,8 +4,11 @@ import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.PersonResult;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
@@ -16,11 +19,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
+@NoArgsConstructor
 @Table(name = "PERSON_RESULT")
 public class PersonResultDbo {
-
-    @Id
-    private Long id;
 
     private AggregateReference<PersonDbo, Long> person;
 

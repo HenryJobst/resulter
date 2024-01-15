@@ -2,8 +2,12 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.ResultStatus;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
@@ -12,6 +16,8 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
+@NoArgsConstructor
 @Table(name = "PERSON_RACE_RESULT")
 public class PersonRaceResultDbo {
 

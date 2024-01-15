@@ -21,8 +21,6 @@ import java.util.List;
 @Table(name = "PERSON_RACE_RESULT")
 public class PersonRaceResultDbo {
 
-    private PersonResultDbo personResultDbo;
-
     private Long raceNumber;
     private ZonedDateTime startTime;
     private ZonedDateTime finishTime;
@@ -34,7 +32,6 @@ public class PersonRaceResultDbo {
                                            @NonNull PersonResultDbo personResultDbo) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
 
-        personRaceResultDbo.setPersonResultDbo(personResultDbo);
         if (ObjectUtils.isNotEmpty(personRaceResult.startTime())) {
             personRaceResultDbo.setStartTime(personRaceResult.startTime().value());
         } else {

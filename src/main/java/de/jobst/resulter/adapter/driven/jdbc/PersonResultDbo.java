@@ -4,10 +4,10 @@ import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.PersonResult;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 import java.util.Collection;

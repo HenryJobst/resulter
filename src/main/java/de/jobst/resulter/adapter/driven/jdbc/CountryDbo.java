@@ -1,13 +1,13 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Country;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 @Data

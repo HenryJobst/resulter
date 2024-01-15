@@ -1,0 +1,74 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000003_organisation
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : ORGANISATION
+            comment : Table organisation with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : ORGANISATION
+                        columns :
+                            -   column :
+                                    name : ID
+                                    type : BIGINT
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : PK_ORGANISATION
+                            -   column :
+                                    name : NAME
+                                    type : VARCHAR(255)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : SHORT_NAME
+                                    type : VARCHAR(60)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : TYPE
+                                    type : VARCHAR(60)
+                                    defaultValue : 'OTHER'
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : COUNTRY_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_ORGANISATION_COUNTRY
+                -   createIndex :
+                        tableName : ORGANISATION
+                        columns :
+                            -   column :
+                                    name : ID
+                        indexName : IDX_ORGANISATION_ID
+                -   createIndex :
+                        tableName : ORGANISATION
+                        columns :
+                            -   column :
+                                    name : TYPE
+                        indexName : IDX_ORGANISATION_TYPE
+                -   addForeignKeyConstraint :
+                        baseTableName : ORGANISATION
+                        baseColumnNames : COUNTRY_ID
+                        constraintName : FK_ORGANISATION_COUNTRY
+                        referencedTableName : COUNTRY
+                        referencedColumnNames : ID
+                        onDelete : RESTRICT
+                        onUpdate : RESTRICT
+                -   addUniqueConstraint :
+                        columnNames : NAME, COUNTRY_ID
+                        constraintName : UK_ORGANISATION_NAME_COUNTRY
+                        tableName : ORGANISATION
+                        validate : true
+                -   addUniqueConstraint :
+                        columnNames : SHORT_NAME, COUNTRY_ID
+                        constraintName : UK_ORGANISATION_SHORT_NAME_COUNTRY
+                        tableName : ORGANISATION
+                        validate : true

@@ -3,13 +3,13 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;

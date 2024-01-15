@@ -4,14 +4,15 @@ import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupType;
 import de.jobst.resulter.domain.EventId;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.With;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class CupDbo {
 
     @Id
+    @With
     private Long id;
 
     private String name;

@@ -1,6 +1,6 @@
 databaseChangeLog :
     -   changeSet :
-            id : 000004_organisation_organisation
+            id : 000005_organisation_organisation
             author : Henry Jobst
             preConditions :
                 -   onFail : MARK_RAN
@@ -40,3 +40,8 @@ databaseChangeLog :
                         referencedColumnNames : ID
                         onDelete : RESTRICT
                         onUpdate : RESTRICT
+                -   addUniqueConstraint :
+                        columnNames : ORGANISATION_ID, PARENT_ORGANISATION_ID
+                        constraintName : UK_ORGANISATION_ORGANISATION
+                        tableName : ORGANISATION_ORGANISATION
+                        validate : true

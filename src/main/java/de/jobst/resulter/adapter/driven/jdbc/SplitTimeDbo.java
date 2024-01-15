@@ -2,8 +2,8 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.SplitTime;
 import de.jobst.resulter.domain.SplitTimeId;
-import jakarta.persistence.Table;
 import lombok.Data;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 

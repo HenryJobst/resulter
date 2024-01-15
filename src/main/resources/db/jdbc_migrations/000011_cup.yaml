@@ -1,16 +1,16 @@
 databaseChangeLog :
     -   changeSet :
-            id : 000002_organisation
+            id : 000011_cup
             author : Henry Jobst
             preConditions :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : ORGANISATION
+                                tableName : CUP
             comment : Table organisation with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : ORGANISATION
+                        tableName : CUP
                         columns :
                             -   column :
                                     name : ID
@@ -19,20 +19,22 @@ databaseChangeLog :
                                     constraints :
                                         primaryKey : true
                                         nullable : false
-                                        primaryKeyName : PK_ORGANISATION
+                                        primaryKeyName : PK_CUP
                             -   column :
                                     name : NAME
                                     type : VARCHAR(255)
                                     constraints :
                                         nullable : false
+                                        unique : true
                             -   column :
-                                    name : SHORT_NAME
+                                    name : TYPE
                                     type : VARCHAR(60)
+                                    defaultValue : 'ADD'
                                     constraints :
                                         nullable : false
                 -   createIndex :
-                        tableName : ORGANISATION
+                        tableName : CUP
                         columns :
                             -   column :
                                     name : ID
-                        indexName : IDX_ORGANISATION_ID
+                        indexName : IDX_CUP_ID

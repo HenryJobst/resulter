@@ -58,11 +58,11 @@ public class Event implements Comparable<Event> {
         return Event.of(EventId.empty().value(), name, resultListIds);
     }
 
-    public static Event of(long id, @NonNull String name) {
+    public static Event of(Long id, @NonNull String name) {
         return Event.of(id, name, new ArrayList<>());
     }
 
-    public static Event of(long id, @NonNull String name, @Nullable Collection<ResultListId> resultListIds) {
+    public static Event of(Long id, @NonNull String name, @Nullable Collection<ResultListId> resultListIds) {
         return Event.of(id, name, null, null, resultListIds, new ArrayList<>(), null);
     }
 
@@ -72,7 +72,7 @@ public class Event implements Comparable<Event> {
         return Event.of(EventId.empty().value(), name, null, null, resultListIds, organisations, null);
     }
 
-    static public Event of(long id,
+    static public Event of(Long id,
                            @NonNull String eventName,
                            @Nullable ZonedDateTime startTime,
                            @Nullable ZonedDateTime endTime,

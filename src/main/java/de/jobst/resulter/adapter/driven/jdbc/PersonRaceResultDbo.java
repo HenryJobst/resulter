@@ -2,9 +2,9 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.ResultStatus;
-import jakarta.persistence.Table;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 import java.time.ZonedDateTime;

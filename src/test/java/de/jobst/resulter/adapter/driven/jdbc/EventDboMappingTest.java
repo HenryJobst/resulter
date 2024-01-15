@@ -5,7 +5,6 @@ import de.jobst.resulter.domain.EventTestDataGenerator;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,7 +16,7 @@ class EventDboMappingTest {
 
         Event event = EventDbo.asEvents(List.of(eventDbo)).getFirst();
 
-        assertThat(Objects.requireNonNull(event.getId()).value()).isEqualTo(EventTestDataGenerator.A_EVENT_ID);
+        assertThat(event.getId().value()).isNull();
         assertThat(event.getName().value()).isEqualTo(EventTestDataGenerator.A_EVENT_NAME);
         assertThat(event.getStartTime()).isNotNull();
         assertThat(event.getStartTime().value()).isNull();

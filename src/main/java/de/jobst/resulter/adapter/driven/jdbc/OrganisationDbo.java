@@ -4,15 +4,16 @@ import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.OrganisationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class OrganisationDbo {
     @MappedCollection(idColumn = "PARENT_ORGANISATION_ID")
     private Set<OrganisationOrganisationDbo> childOrganisations = new HashSet<>();
 
+    @Column(value = "COUNTRY_ID")
     private AggregateReference<CountryDbo, Long> country;
 
     public OrganisationDbo(String name) {

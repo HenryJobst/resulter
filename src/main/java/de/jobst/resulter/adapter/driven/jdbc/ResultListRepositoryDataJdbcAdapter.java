@@ -1,0 +1,62 @@
+package de.jobst.resulter.adapter.driven.jdbc;
+
+import de.jobst.resulter.application.port.ResultListRepository;
+import de.jobst.resulter.domain.ResultList;
+import de.jobst.resulter.domain.ResultListId;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+@ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
+public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository {
+
+    private final ResultListJdbcRepository resultListJdbcRepository;
+
+    public ResultListRepositoryDataJdbcAdapter(ResultListJdbcRepository resultListJdbcRepository) {
+        this.resultListJdbcRepository = resultListJdbcRepository;
+    }
+
+    @Override
+    public ResultList save(ResultList resultList) {
+        DboResolvers dboResolvers = DboResolvers.empty();
+        dboResolvers.setResultListDboResolver(id -> resultListJdbcRepository.findById(id.value()).orElseThrow());
+        ResultListDbo resultListEntity = ResultListDbo.from(resultList, dboResolvers);
+        ResultListDbo savedResultListEntity = resultListJdbcRepository.save(resultListEntity);
+        return ResultListDbo.asResultLists(List.of(savedResultListEntity)).stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public List<ResultList> findAll() {
+        return ResultListDbo.asResultLists(resultListJdbcRepository.findAll()).stream().sorted().toList();
+    }
+
+    @Override
+    public Optional<ResultList> findById(ResultListId resultListId) {
+        Optional<ResultListDbo> resultListEntity = resultListJdbcRepository.findById(resultListId.value());
+        return resultListEntity.isPresent() ?
+               ResultListDbo.asResultLists(List.of(resultListEntity.orElse(null))).stream().findFirst() :
+               Optional.empty();
+    }
+
+    @Override
+    public ResultList findOrCreate(ResultList resultList) {
+        Optional<ResultListDbo> resultListEntity =
+            resultListJdbcRepository.findByCreatorAndCreateTime(resultList.getCreator(), resultList.getCreateTime());
+        if (resultListEntity.isEmpty()) {
+            return save(resultList);
+        }
+        ResultListDbo entity = resultListEntity.get();
+        return ResultListDbo.asResultLists(List.of(entity)).stream().findFirst().orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public Collection<ResultList> findOrCreate(Collection<ResultList> resultLists) {
+        return resultLists.stream().map(this::findOrCreate).toList();
+    }
+}

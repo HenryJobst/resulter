@@ -1,42 +1,47 @@
 databaseChangeLog :
     -   changeSet :
-            id : 000003_event_result_list
+            id : 000004_event_organisation
             author : Henry Jobst
             preConditions :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : EVENT_RESULT_LIST
-            comment : Table event_result_list with sequence, indexes and keys
+                                tableName : EVENT_ORGANISATION
+            comment : Table event_organisation with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : EVENT_RESULT_LIST
+                        tableName : EVENT_ORGANISATION
                         columns :
                             -   column :
                                     name : EVENT_ID
                                     type : BIGINT
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_EVENT_RESULT_LIST_EVENT
+                                        foreignKeyName : FK_EVENT_ORGANISATION_EVENT
                             -   column :
-                                    name : RESULT_LIST_ID
+                                    name : ORGANISATION_ID
                                     type : BIGINT
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_EVENT_RESULT_LIST_RESULT_LIST
+                                        foreignKeyName : FK_EVENT_ORGANISATION_ORGANISATION
                 -   addForeignKeyConstraint :
-                        baseTableName : EVENT_RESULT_LIST
+                        baseTableName : EVENT_ORGANISATION
                         baseColumnNames : EVENT_ID
-                        constraintName : FK_EVENT_RESULT_LIST_EVENT
+                        constraintName : FK_EVENT_ORGANISATION_EVENT
                         referencedTableName : EVENT
                         referencedColumnNames : ID
                         onDelete : RESTRICT
                         onUpdate : RESTRICT
                 -   addForeignKeyConstraint :
-                        baseTableName : EVENT_RESULT_LIST
-                        baseColumnNames : RESULT_LIST_ID
-                        constraintName : FK_EVENT_RESULT_LIST_RESULT_LIST
-                        referencedTableName : RESULT_LIST
+                        baseTableName : EVENT_ORGANISATION
+                        baseColumnNames : ORGANISATION_ID
+                        constraintName : FK_EVENT_ORGANISATION_ORGANISATION
+                        referencedTableName : ORGANISATION
                         referencedColumnNames : ID
                         onDelete : RESTRICT
                         onUpdate : RESTRICT
+                -   addUniqueConstraint :
+                        columnNames : EVENT_ID, ORGANISATION_ID
+                        constraintName : UK_EVENT_ORGANISATION
+                        tableName : EVENT_ORGANISATION
+                        validate : true

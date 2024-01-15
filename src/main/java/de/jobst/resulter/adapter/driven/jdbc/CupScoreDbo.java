@@ -2,8 +2,9 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.CupScore;
 import de.jobst.resulter.domain.CupType;
-import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -12,16 +13,10 @@ import org.springframework.lang.Nullable;
 public class CupScoreDbo implements Comparable<CupScoreDbo> {
 
     @Id
-    @Column(name = "CUP_TYPE")
-    @Enumerated(value = EnumType.STRING)
     private CupType type;
 
-    @Id
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "PERSON_RACE_RESULT_ID", nullable = false)
     private PersonRaceResultDbo personRaceResultDbo;
 
-    @Column(name = "SCORE")
     private Double score;
 
     @Override

@@ -1,0 +1,40 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 0000002_country
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : COUNTRY
+            comment : Tables country with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : COUNTRY
+                        columns :
+                            -   column :
+                                    name : ID
+                                    type : BIGINT
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : PK_COUNTRY
+                            -   column :
+                                    name : NAME
+                                    type : VARCHAR(255)
+                                    constraints :
+                                        nullable : false
+                                        unique : true
+                            -   column :
+                                    name : CODE
+                                    type : VARCHAR(3)
+                                    constraints :
+                                        nullable : false
+                                        unique : true
+                -   createIndex :
+                        tableName : COUNTRY
+                        columns :
+                            -   column :
+                                    name : ID
+                        indexName : IDX_COUNTRY_ID

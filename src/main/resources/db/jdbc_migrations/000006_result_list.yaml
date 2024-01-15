@@ -1,6 +1,6 @@
 databaseChangeLog :
     -   changeSet :
-            id : 000005_result_list
+            id : 000006_result_list
             author : Henry Jobst
             preConditions :
                 -   onFail : MARK_RAN

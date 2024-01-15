@@ -5,9 +5,7 @@ import de.jobst.resulter.domain.Gender;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.With;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
@@ -22,10 +20,6 @@ import java.util.stream.Collectors;
 @Table(name = "CLASS_RESULT")
 public class ClassResultDbo {
 
-    @Id
-    @With
-    private Long id;
-
     private String name;
 
     private String shortName;
@@ -33,7 +27,6 @@ public class ClassResultDbo {
     private Gender gender;
 
     public ClassResultDbo(String name) {
-        this.id = null;
         this.name = name;
     }
 

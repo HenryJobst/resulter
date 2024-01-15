@@ -59,7 +59,14 @@ public class EventTestDataGenerator {
         Gender classGender = Gender.M;
         classResults.add(ClassResult.of(className, classShortName, classGender, personResults));
 
-        return Event.of(A_EVENT_NAME, classResults);
+        ResultList resultList = new ResultList(ResultListId.empty(),
+            EventId.empty(),
+            "test",
+            ZonedDateTime.now(),
+            "completed",
+            classResults);
+
+        return Event.of(A_EVENT_NAME, List.of(resultList.getId()));
 
     }
 }

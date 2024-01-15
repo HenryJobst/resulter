@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.application.EventService;
+import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -21,10 +22,12 @@ import java.util.*;
 public class EventController {
 
     private final EventService eventService;
+    private final ResultListService resultListService;
 
     @Autowired
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService, ResultListService resultListService) {
         this.eventService = eventService;
+        this.resultListService = resultListService;
     }
 
     private static void logError(Exception e) {
@@ -105,7 +108,7 @@ public class EventController {
         try {
             Optional<Event> event = eventService.findById(EventId.of(id));
 
-            return event.map(value -> ResponseEntity.ok(EventResultsDto.from(value)))
+            return event.map(value -> ResponseEntity.ok(EventResultsDto.from(value, resultListService)))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
         } catch (Exception e) {

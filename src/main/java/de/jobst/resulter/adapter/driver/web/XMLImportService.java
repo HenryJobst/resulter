@@ -1,11 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
-import de.jobst.resulter.adapter.driver.web.jaxb.Class;
-import de.jobst.resulter.adapter.driver.web.jaxb.ResultList;
-import de.jobst.resulter.application.CountryService;
-import de.jobst.resulter.application.EventService;
-import de.jobst.resulter.application.OrganisationService;
-import de.jobst.resulter.application.PersonService;
+import de.jobst.resulter.application.*;
 import de.jobst.resulter.domain.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.lang.NonNull;
@@ -14,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,20 +20,24 @@ public class XMLImportService {
     private final XmlParser xmlParser;
 
     private final EventService eventService;
-    private final PersonService personService;
-    private final OrganisationService organisationService;
     private final CountryService countryService;
+
+    private final OrganisationService organisationService;
+    private final PersonService personService;
+    private final ResultListService resultListService;
 
     public XMLImportService(XmlParser xmlParser,
                             EventService eventService,
-                            PersonService personService,
+                            CountryService countryService,
                             OrganisationService organisationService,
-                            CountryService countryService) {
+                            PersonService personService,
+                            ResultListService resultListService) {
         this.xmlParser = xmlParser;
         this.eventService = eventService;
-        this.personService = personService;
-        this.organisationService = organisationService;
         this.countryService = countryService;
+        this.organisationService = organisationService;
+        this.personService = personService;
+        this.resultListService = resultListService;
     }
 
     @NonNull
@@ -62,12 +62,12 @@ public class XMLImportService {
     }
 
     public record ImportResult(Event event, Map<String, Country> countryMap, Map<String, Organisation> organisationMap,
-                               Map<Person.DomainKey, Person> personMap) {
+                               Map<Person.DomainKey, Person> personMap, ResultList resultLists) {
 
     }
 
     ImportResult importFile(InputStream inputStream) throws Exception {
-        ResultList resultList = xmlParser.parseXmlFile(inputStream);
+        var resultList = xmlParser.parseXmlFile(inputStream);
 
         // countries
         Collection<Country> countries = Stream.concat(
@@ -87,7 +87,7 @@ public class XMLImportService {
                           null :
                           Country.of(o.getCountry().getCode(), o.getCountry().getValue()))).collect(Collectors.toSet());
 
-        //countries = this.countryService.findOrCreate(countries);
+        countries = this.countryService.findOrCreate(countries);
         Map<String, Country> countriesByCode =
             countries.stream().collect(Collectors.toMap(x -> x.getCode().value(), x -> x));
 
@@ -100,7 +100,9 @@ public class XMLImportService {
                     o.getName(),
                     o.getShortName(),
                     OrganisationType.OTHER.value(),
-                    (o.getCountry() == null ? null : countriesByCode.get(o.getCountry().getCode()).getId()),
+                    (o.getCountry() == null ?
+                     CountryId.empty() :
+                     countriesByCode.get(o.getCountry().getCode()).getId()),
                     new ArrayList<>())),
             // organisations from persons
             resultList.getClassResults()
@@ -111,10 +113,12 @@ public class XMLImportService {
                     o.getName(),
                     o.getShortName(),
                     OrganisationType.OTHER.value(),
-                    (o.getCountry() == null ? null : countriesByCode.get(o.getCountry().getCode()).getId()),
+                    (o.getCountry() == null ?
+                     CountryId.empty() :
+                     countriesByCode.get(o.getCountry().getCode()).getId()),
                     new ArrayList<>()))).collect(Collectors.toSet());
 
-        //organisations = organisationService.findOrCreate(organisations);
+        organisations = organisationService.findOrCreate(organisations);
         Map<String, Organisation> organisationByName =
             organisations.stream().collect(Collectors.toMap(x -> x.getName().value(), x -> x));
 
@@ -129,27 +133,39 @@ public class XMLImportService {
                              null),
                 Gender.of(p.getSex())))
             .collect(Collectors.toSet());
-        //persons = personService.findOrCreate(persons);
+        persons = personService.findOrCreate(persons);
         Map<Person.DomainKey, Person> personByDomainKey =
             persons.stream().collect(Collectors.toMap(Person::getDomainKey, x -> x));
 
+        // Event
+        Event event = Event.of(resultList.getEvent().getName(),
+            new ArrayList<>(),
+            resultList.getEvent()
+                .getOrganisers()
+                .stream()
+                .map(x -> OrganisationId.of(organisationByName.get(x.getName()).getId().value()))
+                .toList());
+        event = eventService.findOrCreate(event);
 
-        // Result list
         Collection<ClassResult> classResults = resultList.getClassResults().stream().map(classResult -> {
-            Class clazz = classResult.getClazz();
+            var clazz = classResult.getClazz();
             return ClassResult.of(clazz.getName(),
                 clazz.getShortName(),
                 Gender.of(clazz.getSex()),
                 getPersonResults(classResult, organisationByName, personByDomainKey));
         }).toList();
 
-        return new ImportResult(eventService.findOrCreate(Event.of(resultList.getEvent().getName(),
-            classResults,
-            resultList.getEvent()
-                .getOrganisers()
-                .stream()
-                .map(x -> OrganisationId.of(organisationByName.get(x.getName()).getId().value()))
-                .toList())), countriesByCode, organisationByName, personByDomainKey);
+        // Result list
+        ResultList domainResultList = new ResultList(ResultListId.empty(),
+            event.getId(),
+            resultList.getCreator(),
+            ZonedDateTime.ofInstant(resultList.getCreateTime().toInstant(),
+                resultList.getCreateTime().getTimeZone().toZoneId()),
+            resultList.getStatus(),
+            classResults);
+        domainResultList = resultListService.findOrCreate(domainResultList);
+
+        return new ImportResult(event, countriesByCode, organisationByName, personByDomainKey, domainResultList);
     }
 
     private Person.DomainKey createPersonDomainKey(de.jobst.resulter.adapter.driver.web.jaxb.Person p) {

@@ -11,7 +11,8 @@ import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,23 +23,27 @@ import java.util.List;
 public class PersonRaceResultDbo {
 
     private Long raceNumber;
-    private ZonedDateTime startTime;
-    private ZonedDateTime finishTime;
+    private OffsetDateTime startTime;
+    private String startTimeZone;
+    private OffsetDateTime finishTime;
+    private String finishTimeZone;
     private Double punchTime;
     private Long position;
     private ResultStatus state;
 
-    public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult,
-                                           @NonNull PersonResultDbo personResultDbo) {
+    public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
 
-        if (ObjectUtils.isNotEmpty(personRaceResult.startTime())) {
-            personRaceResultDbo.setStartTime(personRaceResult.startTime().value());
+        if (personRaceResult.startTime().value() != null) {
+            personRaceResultDbo.setStartTime(personRaceResult.startTime().value().toOffsetDateTime());
+            personRaceResultDbo.setStartTimeZone(personRaceResult.startTime().value().getZone().getId());
         } else {
             personRaceResultDbo.setStartTime(null);
+            personRaceResultDbo.setStartTimeZone(null);
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.finishTime())) {
-            personRaceResultDbo.setFinishTime(personRaceResult.finishTime().value());
+        if (personRaceResult.finishTime().value() != null) {
+            personRaceResultDbo.setFinishTime(personRaceResult.finishTime().value().toOffsetDateTime());
+            personRaceResultDbo.setFinishTimeZone(personRaceResult.finishTime().value().getZone().getId());
         } else {
             personRaceResultDbo.setFinishTime(null);
         }
@@ -70,8 +75,8 @@ public class PersonRaceResultDbo {
         @NonNull List<PersonRaceResultDbo> personRaceResultDbos) {
         return personRaceResultDbos.stream()
             .map(it -> PersonRaceResult.of(it.raceNumber,
-                it.getStartTime(),
-                it.getFinishTime(),
+                it.startTime != null ? it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)) : null,
+                it.finishTime != null ? it.finishTime.atZoneSameInstant(ZoneId.of(it.finishTimeZone)) : null,
                 it.getPunchTime(),
                 it.getPosition(),
                 it.getState()))

@@ -1,0 +1,58 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000014_person_race_result
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : PERSON_RACE_RESULT
+            comment : Table person_race_result with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : PERSON_RACE_RESULT
+                        columns :
+                            -   column :
+                                    name : START_TIME
+                                    type : TIMESTAMPTZ
+                            -   column :
+                                    name : START_TIME_ZONE
+                                    type : VARCHAR(60)
+                            -   column :
+                                    name : FINISH_TIME
+                                    type : TIMESTAMPTZ
+                            -   column :
+                                    name : FINISH_TIME_ZONE
+                                    type : VARCHAR(60)
+                            -   column :
+                                    name : PUNCH_TIME
+                                    type : DOUBLE
+                            -   column :
+                                    name : POSITION
+                                    type : bigint
+                            -   column :
+                                    name : RACE_NUMBER
+                                    type : bigint
+                            -   column :
+                                    name : STATE
+                                    type : varchar(20)
+                            -   column :
+                                    name : RESULT_LIST_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_PERSON_RACE_RESULT_RESULT_LIST
+                            -   addForeignKeyConstraint :
+                                    baseTableName : PERSON_RACE_RESULT
+                                    baseColumnNames : RESULT_LIST_ID
+                                    constraintName : FK_PERSON_RACE_RESULT_RESULT_LIST
+                                    referencedTableName : RESULT_LIST
+                                    referencedColumnNames : ID
+                                    onDelete : RESTRICT
+                                    onUpdate : RESTRICT
+                            -   createIndex :
+                                    tableName : PERSON_RACE_RESULT
+                                    columns :
+                                        -   column :
+                                                name : RESULT_LIST_ID
+                                            indexName : IDX_PERSON_RACE_RESULT_RESULT_LIST_ID

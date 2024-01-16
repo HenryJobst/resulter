@@ -27,6 +27,9 @@ databaseChangeLog :
                                     name : CREATE_TIME
                                     type : TIMESTAMPTZ
                             -   column :
+                                    name : CREATE_TIME_ZONE
+                                    type : VARCHAR(60)
+                            -   column :
                                     name : STATUS
                                     type : VARCHAR(60)
                                     constraints :

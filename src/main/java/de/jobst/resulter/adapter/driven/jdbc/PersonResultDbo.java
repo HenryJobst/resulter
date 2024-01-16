@@ -10,9 +10,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,13 +27,16 @@ import java.util.stream.Collectors;
 @Table(name = "PERSON_RESULT")
 public class PersonResultDbo {
 
+    @Column("PERSON_ID")
     private AggregateReference<PersonDbo, Long> person;
 
+    @Column("ORGANISATION_ID")
     private AggregateReference<OrganisationDbo, Long> organisation;
 
+    @MappedCollection(idColumn = "RESULT_LIST_ID")
     private Set<PersonRaceResultDbo> personRaceResults = new HashSet<>();
 
-    public static PersonResultDbo from(@NonNull PersonResult personResult, @NonNull DboResolvers dboResolvers) {
+    public static PersonResultDbo from(@NonNull PersonResult personResult) {
         PersonResultDbo personResultDbo = new PersonResultDbo();
 
         personResultDbo.setPerson(
@@ -43,7 +49,7 @@ public class PersonResultDbo {
         personResultDbo.setPersonRaceResults(personResult.personRaceResults()
             .value()
             .stream()
-            .map(x -> PersonRaceResultDbo.from(x, personResultDbo))
+            .map(PersonRaceResultDbo::from)
             .collect(Collectors.toSet()));
 
         return personResultDbo;
@@ -56,8 +62,12 @@ public class PersonResultDbo {
                 it.getPersonRaceResults()
                     .stream()
                     .map(x -> PersonRaceResult.of(x.getRaceNumber(),
-                        x.getStartTime(),
-                        x.getFinishTime(),
+                        x.getStartTime() != null ?
+                        x.getStartTime().atZoneSameInstant(ZoneId.of(x.getStartTimeZone())) :
+                        null,
+                        x.getFinishTime() != null ?
+                        x.getFinishTime().atZoneSameInstant(ZoneId.of(x.getFinishTimeZone())) :
+                        null,
                         x.getPunchTime(),
                         x.getPosition(),
                         x.getState()))

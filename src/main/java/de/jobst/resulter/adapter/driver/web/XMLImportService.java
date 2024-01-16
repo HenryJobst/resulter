@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -159,8 +158,9 @@ public class XMLImportService {
         ResultList domainResultList = new ResultList(ResultListId.empty(),
             event.getId(),
             resultList.getCreator(),
-            ZonedDateTime.ofInstant(resultList.getCreateTime().toInstant(),
-                resultList.getCreateTime().getTimeZone().toZoneId()),
+            ObjectUtils.isNotEmpty(resultList.getCreateTime()) ?
+            resultList.getCreateTime().toInstant().atZone(resultList.getCreateTime().getTimeZone().toZoneId()) :
+            null,
             resultList.getStatus(),
             classResults);
         domainResultList = resultListService.findOrCreate(domainResultList);

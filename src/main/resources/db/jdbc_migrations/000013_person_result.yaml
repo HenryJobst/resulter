@@ -1,0 +1,62 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000013_person_result
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : PERSON_RESULT
+            comment : Table person_result with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : PERSON_RESULT
+                        columns :
+                            -   column :
+                                    name : PERSON_ID
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_PERSON_RESULT_PERSON
+                            -   column :
+                                    name : ORGANISATION_ID
+                                    type : bigint
+                                    constraints :
+                                        nullable : true
+                                        foreignKeyName : FK_PERSON_RESULT_ORGANISATION
+                            -   column :
+                                    name : RESULT_LIST_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_PERSON_RESULT_RESULT_LIST
+                -   addForeignKeyConstraint :
+                        baseTableName : PERSON_RESULT
+                        baseColumnNames : RESULT_LIST_ID
+                        constraintName : FK_PERSON_RESULT_RESULT_LIST
+                        referencedTableName : RESULT_LIST
+                        referencedColumnNames : ID
+                        onDelete : RESTRICT
+                        onUpdate : RESTRICT
+                -   addForeignKeyConstraint :
+                        baseTableName : PERSON_RESULT
+                        baseColumnNames : PERSON_ID
+                        constraintName : FK_PERSON_RESULT_PERSON
+                        referencedTableName : PERSON
+                        referencedColumnNames : ID
+                        onDelete : RESTRICT
+                        onUpdate : RESTRICT
+                -   addForeignKeyConstraint :
+                        baseTableName : PERSON_RESULT
+                        baseColumnNames : ORGANISATION_ID
+                        constraintName : FK_PERSON_RESULT_ORGANISATION
+                        referencedTableName : ORGANISATION
+                        referencedColumnNames : ID
+                        onDelete : RESTRICT
+                        onUpdate : RESTRICT
+                -   createIndex :
+                        tableName : PERSON_RESULT
+                        columns :
+                            -   column :
+                                    name : RESULT_LIST_ID
+                        indexName : IDX_PERSON_RESULT_RESULT_LIST_ID

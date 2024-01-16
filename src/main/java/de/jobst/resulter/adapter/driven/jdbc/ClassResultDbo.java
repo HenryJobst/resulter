@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,9 +30,10 @@ public class ClassResultDbo {
         this.name = name;
     }
 
+    @MappedCollection(idColumn = "RESULT_LIST_ID")
     private Set<PersonResultDbo> personResults = new HashSet<>();
 
-    public static ClassResultDbo from(ClassResult classResult, @NonNull DboResolvers dboResolvers) {
+    public static ClassResultDbo from(ClassResult classResult) {
         ClassResultDbo classResultDbo = new ClassResultDbo(classResult.classResultName().value());
         if (StringUtils.isNotEmpty(classResult.classResultShortName().value())) {
             classResultDbo.setShortName(classResult.classResultShortName().value());
@@ -41,7 +42,7 @@ public class ClassResultDbo {
         classResultDbo.setPersonResults(classResult.personResults()
             .value()
             .stream()
-            .map(x -> PersonResultDbo.from(x, dboResolvers))
+            .map(PersonResultDbo::from)
             .collect(Collectors.toSet()));
         return classResultDbo;
     }

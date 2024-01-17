@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
@@ -60,8 +61,8 @@ public class CupDbo {
         return cupDbo;
     }
 
-    static public List<Cup> asCups(@NonNull List<CupDbo> cupDbos) {
-        return cupDbos.stream()
+    static public List<Cup> asCups(@NonNull Iterable<CupDbo> cupDbos) {
+        return StreamSupport.stream(cupDbos.spliterator(), true)
             .map(it -> Cup.of(it.id, it.name, it.type, it.events.stream().map(x -> EventId.of(x.id.getId())).toList()))
             .toList();
     }

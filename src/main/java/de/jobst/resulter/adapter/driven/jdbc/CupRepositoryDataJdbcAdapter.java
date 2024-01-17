@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,8 +44,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Cup> findAll() {
-        List<CupDbo> resultList = new ArrayList<>();
-        return CupDbo.asCups(resultList);
+        return CupDbo.asCups(this.cupJpaRepository.findAll());
     }
 
     @Transactional(readOnly = true)

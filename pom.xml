@@ -30,6 +30,7 @@
         <lombok.version>1.18.30</lombok.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.3.0
         </springdoc-openapi-starter-webmvc-ui.version>
+        <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
     </properties>
     <dependencies>
         <dependency>
@@ -57,6 +58,11 @@
         <dependency>
             <groupId>org.springframework.modulith</groupId>
             <artifactId>spring-modulith-starter-core</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-docker-compose -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-docker-compose</artifactId>
         </dependency>
         <!--dependency>
             <groupId>org.springframework.modulith</groupId>
@@ -110,6 +116,12 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
             <version>${jakarta.xml.bind-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>${jaxb-runtime.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit</artifactId>

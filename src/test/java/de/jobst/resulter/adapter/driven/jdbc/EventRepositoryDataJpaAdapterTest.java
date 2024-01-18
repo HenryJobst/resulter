@@ -86,7 +86,6 @@ class EventRepositoryDataJpaAdapterTest {
     @Transactional
     void findOrCreateWithExisting() {
         Event event = Event.of(EventTestDataGenerator.A_EVENT_NAME);
-        eventRepository.save(event);
 
         Event savedEvent = eventRepository.findOrCreate(event);
 

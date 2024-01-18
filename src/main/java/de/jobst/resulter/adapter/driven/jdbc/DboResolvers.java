@@ -17,11 +17,8 @@ public class DboResolvers {
     private DboResolver<OrganisationId, OrganisationDbo> organisationDboResolver = null;
     private DboResolver<CountryId, CountryDbo> countryDboResolver = null;
     private DboResolver<ResultListId, ResultListDbo> resultListDboResolver = null;
-    private DboResolver<ClassResultId, ClassResultDbo> classResultDboResolver = null;
-    private DboResolver<PersonResultId, PersonResultDbo> personResultDboResolver = null;
-    private DboResolver<PersonRaceResultId, PersonRaceResultDbo> personRaceResultDboResolver = null;
-    private DboResolver<SplitTimeId, SplitTimeDbo> splitTimeDboResolver = null;
     private DboResolver<CupScoreIdDbo, CupScoreDbo> cupScoreDboResolver = null;
+    private DboResolver<SplitTimeListId, SplitTimeListDbo> splitTimeListDboResolver = null;
 
     @NonNull
     static DboResolvers empty() {

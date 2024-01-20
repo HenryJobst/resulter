@@ -1,0 +1,37 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000016_split_time
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : SPLIT_TIME
+            comment : Table split_times with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : SPLIT_TIME
+                        columns :
+                            -   column :
+                                    name : SPLIT_TIME_LIST_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_SPLIT_TIME_SPLIT_TIME_LIST
+                                        referencedTableName : SPLIT_TIME_LIST
+                                        referencedColumnNames : ID
+                                        onDelete : RESTRICT
+                                        onUpdate : RESTRICT
+                            -   column :
+                                    name : CONTROL_CODE
+                                    type : VARCHAR(3)
+                            -   column :
+                                    name : PUNCH_TIME
+                                    type : DOUBLE
+                -   createIndex :
+                        tableName : SPLIT_TIME
+                        columns :
+                            -   column :
+                                    name : SPLIT_TIME_LIST_ID
+                        indexName : IDX_SPLIT_TIME_SPLIT_TIME_ID
+

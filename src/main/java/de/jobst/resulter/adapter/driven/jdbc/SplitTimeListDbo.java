@@ -1,9 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.ResultListId;
-import de.jobst.resulter.domain.SplitTimeList;
-import de.jobst.resulter.domain.SplitTimeListId;
+import de.jobst.resulter.domain.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,8 +14,8 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
@@ -35,14 +32,28 @@ public class SplitTimeListDbo {
     @Column("RESULT_LIST_ID")
     private AggregateReference<ResultListDbo, Long> resultList;
 
+    @Column("PERSON_ID")
+    private AggregateReference<PersonDbo, Long> person;
+
+    private String classResultShortName;
+    private Long raceNumber;
+
     @MappedCollection(idColumn = "SPLIT_TIME_LIST_ID")
-    private Set<ClassResultDbo> classResults = new HashSet<>();
+    private Set<SplitTimeDbo> splitTimes;
 
     public SplitTimeListDbo(AggregateReference<EventDbo, Long> event,
-                            AggregateReference<ResultListDbo, Long> resultList) {
+                            AggregateReference<ResultListDbo, Long> resultList,
+                            String classResultShortName,
+                            AggregateReference<PersonDbo, Long> person,
+                            Long raceNumber,
+                            Set<SplitTimeDbo> splitTimes) {
         this.id = null;
         this.event = event;
         this.resultList = resultList;
+        this.person = person;
+        this.classResultShortName = classResultShortName;
+        this.raceNumber = raceNumber;
+        this.splitTimes = splitTimes;
     }
 
     public static SplitTimeListDbo from(SplitTimeList splitTimeList, @NonNull DboResolvers dboResolvers) {
@@ -51,10 +62,20 @@ public class SplitTimeListDbo {
             splitTimeListDbo = dboResolvers.getSplitTimeListDboResolver().findDboById(splitTimeList.getId());
             splitTimeListDbo.setEvent(AggregateReference.to(splitTimeList.getEventId().value()));
             splitTimeListDbo.setResultList(AggregateReference.to(splitTimeList.getResultListId().value()));
+            splitTimeListDbo.setClassResultShortName(splitTimeList.getClassResultShortName().value());
+            splitTimeListDbo.setPerson(AggregateReference.to(splitTimeList.getPersonId().value()));
+            splitTimeListDbo.setRaceNumber(splitTimeList.getRaceNumber().value());
+            splitTimeListDbo.setSplitTimes(splitTimeList.getSplitTimes()
+                .stream()
+                .map(SplitTimeDbo::from)
+                .collect(Collectors.toSet()));
         } else {
             splitTimeListDbo = new SplitTimeListDbo(AggregateReference.to(splitTimeList.getEventId().value()),
-                AggregateReference.to(splitTimeList.getResultListId().value()));
-
+                AggregateReference.to(splitTimeList.getResultListId().value()),
+                splitTimeList.getClassResultShortName().value(),
+                AggregateReference.to(splitTimeList.getPersonId().value()),
+                splitTimeList.getRaceNumber().value(),
+                splitTimeList.getSplitTimes().stream().map(SplitTimeDbo::from).collect(Collectors.toSet()));
         }
         return splitTimeListDbo;
     }
@@ -63,7 +84,11 @@ public class SplitTimeListDbo {
         return splitTimeListDbos.stream()
             .map(it -> new SplitTimeList(SplitTimeListId.of(it.id),
                 EventId.of(it.event.getId()),
-                ResultListId.of(it.resultList.getId())))
+                ResultListId.of(it.resultList.getId()),
+                ClassResultShortName.of(it.classResultShortName),
+                PersonId.of(it.person.getId()),
+                RaceNumber.of(it.raceNumber),
+                it.getSplitTimes().stream().map(x -> SplitTime.of(x.getControlCode(), x.getPunchTime())).toList()))
             .toList();
     }
 }

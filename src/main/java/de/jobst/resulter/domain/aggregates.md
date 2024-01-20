@@ -4,7 +4,7 @@
     - CupId (VO)
     - CupName (VO)
     - CupType (VO)
-    - List of EventId
+    - List of EventId *
 
 - Event (RE)
     - EventId (VO)
@@ -12,8 +12,8 @@
     - startTime (VO)
     - endTime (VO)
     - EventState (VO)
-    - List of OrganisationId
-    - List of ResultListId
+    - List of OrganisationId *
+    - List of ResultListId *
 
 - Person (RE)
     - PersonId (VO)
@@ -29,7 +29,7 @@
     - OrganisationShortName (VO)
     - OrganisationType (VO)
     - CountryId
-    - List of OrganisationId (VO)
+    - List of OrganisationId (VO) *
 
 - Country (RE)
     - CountryId
@@ -38,14 +38,14 @@
 
 - ResultList (RE)
     - ResultListId (VO)
-    - EventId (VO)
+    - EventId (VO) *
     - List of ClassResult (E) +
         - ClassResultName (VO)
         - ClassResultShortName (VO)
         - Gender (VO)
         - List of PersonResult (E) +
-            - PersonId (VO)
-            - OrganisationId (VO)
+            - PersonId (VO) *
+            - OrganisationId (VO) *
             - List of PersonRaceResult (E) +
                 - RaceNumber (VO)
                 - startTime (VO)
@@ -53,28 +53,27 @@
                 - PunchTime (VO)
                 - Position (VO)
                 - ResultStatus (VO)
+                - SplitTimeListId (VO) *
+                - CupScoreListId (VO) *
 
 - SplitTimeList (RE)
     - SplitTimeListId (VO)
-    - EventId (VO)
-    - List of ClassResultBase (E) +
-        - ClassResultName (VO)
-        - List of PersonResultBase (E) +
-            - PersonId (VO)
-            - List of PersonResultBase (E) +
-                - RaceNumber (VO)
-                    - List of SplitTime (E) +
-                        - ControlCode (VO)
-                        - PunchTime (VO)
+    - EventId (VO) *
+    - ResultListId (VO) *
+    - PersonId (VO) *
+    - ClassResultShortName (VO)
+    - RaceNumber (VO)
+    - List of SplitTime (E) +
+        - ControlCode (VO)
+        - PunchTime (VO)
 
 - CupScoreList (RE)
-    - ResultListId (VO)
-    - List of ClassResultBase (E) +
-        - ClassResultName (VO)
-        - List of PersonResultBase (E) +
-            - PersonId (VO)
-            - List of PersonResultBase (E) +
-                - RaceNumber (VO)
-                - Map of CupScore by CupType (E) +
-                    - CupType (VO)
-                    - Score (VO)
+    - CupScoreListId (VO)
+    - EventId (VO) *
+    - ResultListId (VO) *
+    - ClassResultShortName (VO)
+    - PersonId (VO) *
+    - RaceNumber (VO)
+    - Map of CupScore by CupType (E) +
+        - CupType (VO)
+        - Score (VO)

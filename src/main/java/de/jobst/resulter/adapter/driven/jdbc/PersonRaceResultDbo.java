@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
@@ -30,6 +32,9 @@ public class PersonRaceResultDbo {
     private Double punchTime;
     private Long position;
     private ResultStatus state;
+
+    @Column("SPLIT_TIME_LIST_ID")
+    private AggregateReference<SplitTimeListDbo, Long> splitTimeList;
 
     public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();

@@ -1,0 +1,85 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000015_split_time_list
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : SPLIT_TIME_LIST
+            comment : Table split_time_list with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : SPLIT_TIME_LIST
+                        columns :
+                            -   column :
+                                    name : ID
+                                    type : BIGINT
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : PK_SPLIT_TIME_LIST
+                            -   column :
+                                    name : EVENT_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_SPLIT_TIME_LIST_EVENT
+                            -   column :
+                                    name : PERSON_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_SPLIT_TIME_LIST_PERSON
+                            -   column :
+                                    name : RESULT_LIST_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_SPLIT_TIME_LIST_CLASS_RESULT_RESULT_LIST
+                            -   column :
+                                    name : CLASS_LIST_SHORT_NAME
+                                    type : VARCHAR(20)
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_SPLIT_TIME_LIST_CLASS_RESULT_RESULT_LIST
+                -   addForeignKeyConstraint :
+                        baseTableName : SPLIT_TIME_LIST
+                        baseColumnNames : EVENT_ID
+                        constraintName : FK_SPLIT_TIME_LIST_EVENT
+                        referencedTableName : EVENT
+                        referencedColumnNames : ID
+                        onDelete : RESTRICT
+                        onUpdate : RESTRICT
+                -   addForeignKeyConstraint :
+                        baseTableName : SPLIT_TIME_LIST
+                        baseColumnNames : PERSON_ID
+                        constraintName : FK_SPLIT_TIME_LIST_PERSON
+                        referencedTableName : PERSON
+                        referencedColumnNames : ID
+                        onDelete : RESTRICT
+                        onUpdate : RESTRICT
+                -   addUniqueConstraint :
+                        tableName : SPLIT_TIME_LIST
+                        columnNames : RESULT_LIST_ID, CLASS_LIST_SHORT_NAME
+                        constraintName : UK_SPLIT_TIME_LIST_CLASS_RESULT_RESULT_LIST
+                        validate : true
+                -   createIndex :
+                        tableName : SPLIT_TIME_LIST
+                        columns :
+                            -   column :
+                                    name : ID
+                        indexName : IDX_SPLIT_TIME_LIST_ID
+                -   createIndex :
+                        tableName : SPLIT_TIME_LIST
+                        columns :
+                            -   column :
+                                    name : EVENT_ID
+                        indexName : IDX_SPLIT_TIME_LIST_EVENT_ID
+                -   createIndex :
+                        tableName : SPLIT_TIME_LIST
+                        columns :
+                            -   column :
+                                    name : PERSON_ID
+                        indexName : IDX_SPLIT_TIME_LIST_PERSON_ID

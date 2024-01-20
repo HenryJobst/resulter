@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
 
+import java.util.List;
+
 @Getter
 public class SplitTimeList {
 
@@ -14,10 +16,28 @@ public class SplitTimeList {
     private final EventId eventId;
     @NonNull
     private final ResultListId resultListId;
+    @NonNull
+    private final ClassResultShortName classResultShortName;
+    @NonNull
+    private final PersonId personId;
+    @NonNull
+    private final RaceNumber raceNumber;
+    @NonNull
+    private final List<SplitTime> splitTimes;
 
-    public SplitTimeList(@NonNull SplitTimeListId id, @NonNull EventId eventId, @NonNull ResultListId resultListId) {
+    public SplitTimeList(@NonNull SplitTimeListId id,
+                         @NonNull EventId eventId,
+                         @NonNull ResultListId resultListId,
+                         @NonNull ClassResultShortName classResultShortName,
+                         @NonNull PersonId personId,
+                         @NonNull RaceNumber raceNumber,
+                         @NonNull List<SplitTime> splitTimes) {
         this.id = id;
         this.eventId = eventId;
         this.resultListId = resultListId;
+        this.classResultShortName = classResultShortName;
+        this.personId = personId;
+        this.raceNumber = raceNumber;
+        this.splitTimes = splitTimes;
     }
 }

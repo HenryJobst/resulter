@@ -19,7 +19,7 @@ databaseChangeLog :
                                     constraints :
                                         primaryKey : true
                                         nullable : false
-                                        primaryKeyName : PK_CLASS_RESULT
+                                        primaryKeyName : PK_RESULT_LIST
                             -   column :
                                     name : CREATOR
                                     type : VARCHAR(255)

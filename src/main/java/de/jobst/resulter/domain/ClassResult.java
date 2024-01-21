@@ -33,15 +33,15 @@ public record ClassResult(@NonNull ClassResultName classResultName, @NonNull Cla
             .value()
             .stream()
             .flatMap(it -> it.personRaceResults().value().stream())
-            .map(PersonRaceResult::raceNumber)
+            .map(PersonRaceResult::getRaceNumber)
             .collect(Collectors.toSet());
         races.forEach(raceNumber -> {
             List<PersonResult> personResults =
                 this.personResults().value().stream().filter(cupTypeCalculationStrategy::valid).sorted().toList();
             List<PersonRaceResult> personRaceResults = personResults.stream()
                 .flatMap(it -> it.personRaceResults().value().stream())
-                .filter(x -> x.raceNumber() == raceNumber)
-                .filter(y -> y.state().equals(ResultStatus.OK))
+                .filter(x -> x.getRaceNumber() == raceNumber)
+                .filter(y -> y.getState().equals(ResultStatus.OK))
                 .sorted()
                 .toList();
             cupTypeCalculationStrategy.calculate(personRaceResults);

@@ -2,7 +2,6 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,6 +17,7 @@ public interface ResultListRepository {
 
     ResultList findOrCreate(ResultList resultList);
 
-    @Transactional
     Collection<ResultList> findOrCreate(Collection<ResultList> resultLists);
+
+    ResultList update(ResultList resultList);
 }

@@ -22,6 +22,7 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
+    @Transactional
     public ResultList save(ResultList resultList) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setResultListDboResolver(id -> resultListJdbcRepository.findById(id.value()).orElseThrow());
@@ -31,11 +32,13 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ResultList> findAll() {
         return ResultListDbo.asResultLists(resultListJdbcRepository.findAll()).stream().sorted().toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ResultList> findById(ResultListId resultListId) {
         Optional<ResultListDbo> resultListEntity = resultListJdbcRepository.findById(resultListId.value());
         return resultListEntity.isPresent() ?
@@ -44,19 +47,25 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
+    @Transactional
     public ResultList findOrCreate(ResultList resultList) {
         Optional<ResultListDbo> resultListEntity =
             resultListJdbcRepository.findByCreatorAndCreateTime(resultList.getCreator(), resultList.getCreateTime());
         if (resultListEntity.isEmpty()) {
             return save(resultList);
         }
-        ResultListDbo entity = resultListEntity.get();
-        return ResultListDbo.asResultLists(List.of(entity)).stream().findFirst().orElse(null);
+        return ResultListDbo.asResultLists(List.of(resultListEntity.get())).stream().findFirst().orElse(null);
     }
 
     @Override
     @Transactional
     public Collection<ResultList> findOrCreate(Collection<ResultList> resultLists) {
         return resultLists.stream().map(this::findOrCreate).toList();
+    }
+
+    @Override
+    @Transactional
+    public ResultList update(ResultList resultList) {
+        return save(resultList);
     }
 }

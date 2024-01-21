@@ -12,11 +12,11 @@ public record PersonResultDto(Long position, Long personId, Duration runTime, St
 
     static public PersonResultDto from(PersonResult personResult) {
         PersonRaceResult personRaceResult = personResult.personRaceResults().value().stream().findFirst().orElseThrow();
-        Double runTime = personRaceResult.runtime().value();
-        return new PersonResultDto(personRaceResult.position().value(),
+        Double runTime = personRaceResult.getRuntime().value();
+        return new PersonResultDto(personRaceResult.getPosition().value(),
             personResult.personId() != null ? personResult.personId().value() : null,
             runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
-            personRaceResult.state().value(),
+            personRaceResult.getState().value(),
             personResult.organisationId() != null ? personResult.organisationId().value() : null);
     }
 

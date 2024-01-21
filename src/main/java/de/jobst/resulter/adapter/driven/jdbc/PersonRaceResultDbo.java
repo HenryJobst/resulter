@@ -2,10 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.ResultStatus;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
@@ -34,41 +31,42 @@ public class PersonRaceResultDbo {
     private ResultStatus state;
 
     @Column("SPLIT_TIME_LIST_ID")
+    @Setter
     private AggregateReference<SplitTimeListDbo, Long> splitTimeList;
 
     public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
 
-        if (personRaceResult.startTime().value() != null) {
-            personRaceResultDbo.setStartTime(personRaceResult.startTime().value().toOffsetDateTime());
-            personRaceResultDbo.setStartTimeZone(personRaceResult.startTime().value().getZone().getId());
+        if (personRaceResult.getStartTime().value() != null) {
+            personRaceResultDbo.setStartTime(personRaceResult.getStartTime().value().toOffsetDateTime());
+            personRaceResultDbo.setStartTimeZone(personRaceResult.getStartTime().value().getZone().getId());
         } else {
             personRaceResultDbo.setStartTime(null);
             personRaceResultDbo.setStartTimeZone(null);
         }
-        if (personRaceResult.finishTime().value() != null) {
-            personRaceResultDbo.setFinishTime(personRaceResult.finishTime().value().toOffsetDateTime());
-            personRaceResultDbo.setFinishTimeZone(personRaceResult.finishTime().value().getZone().getId());
+        if (personRaceResult.getFinishTime().value() != null) {
+            personRaceResultDbo.setFinishTime(personRaceResult.getFinishTime().value().toOffsetDateTime());
+            personRaceResultDbo.setFinishTimeZone(personRaceResult.getFinishTime().value().getZone().getId());
         } else {
             personRaceResultDbo.setFinishTime(null);
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.runtime())) {
-            personRaceResultDbo.setPunchTime(personRaceResult.runtime().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getRuntime())) {
+            personRaceResultDbo.setPunchTime(personRaceResult.getRuntime().value());
         } else {
             personRaceResultDbo.setPunchTime(null);
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.raceNumber())) {
-            personRaceResultDbo.setRaceNumber(personRaceResult.raceNumber().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getRaceNumber())) {
+            personRaceResultDbo.setRaceNumber(personRaceResult.getRaceNumber().value());
         } else {
             personRaceResultDbo.setRaceNumber(null);
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.position())) {
-            personRaceResultDbo.setPosition(personRaceResult.position().value());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getPosition())) {
+            personRaceResultDbo.setPosition(personRaceResult.getPosition().value());
         } else {
             personRaceResultDbo.setPosition(null);
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.state())) {
-            personRaceResultDbo.setState(personRaceResult.state());
+        if (ObjectUtils.isNotEmpty(personRaceResult.getState())) {
+            personRaceResultDbo.setState(personRaceResult.getState());
         } else {
             personRaceResultDbo.setState(null);
         }

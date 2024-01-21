@@ -40,4 +40,11 @@ public class SplitTimeList {
         this.raceNumber = raceNumber;
         this.splitTimes = splitTimes;
     }
+
+    public DomainKey getDomainKey() {
+        return new DomainKey(eventId, resultListId, classResultShortName, personId, raceNumber);
+    }
+
+    public record DomainKey(EventId eventId, ResultListId resultListId, ClassResultShortName classResultShortName,
+                            PersonId personId, RaceNumber raceNumber) {}
 }

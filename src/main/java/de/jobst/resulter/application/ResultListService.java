@@ -28,4 +28,8 @@ public class ResultListService {
     public List<ResultList> findAll() {
         return resultListRepository.findAll();
     }
+
+    public ResultList update(ResultList resultList) {
+        return resultListRepository.update(resultList);
+    }
 }

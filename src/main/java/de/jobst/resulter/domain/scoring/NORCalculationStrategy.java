@@ -68,7 +68,7 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
         if (personRaceResults.isEmpty()) {
             return;
         }
-        PunchTime fastestTime = personRaceResults.getFirst().runtime();
+        PunchTime fastestTime = personRaceResults.getFirst().getRuntime();
         /*
         personRaceResults.forEach(personRaceResult -> personRaceResult.setScore(CUP_TYPE,
             calculateScore(CupScoreId.of(CUP_TYPE, personRaceResult.getId().value()),

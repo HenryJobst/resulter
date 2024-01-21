@@ -1,12 +1,32 @@
 package de.jobst.resulter.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 
-public record PersonRaceResult(@NonNull RaceNumber raceNumber, @NonNull DateTime startTime,
-                               @NonNull DateTime finishTime, @NonNull PunchTime runtime, @NonNull Position position,
-                               @NonNull ResultStatus state) implements Comparable<PersonRaceResult> {
+@Getter
+@AllArgsConstructor
+public class PersonRaceResult implements Comparable<PersonRaceResult> {
+
+    @NonNull
+    RaceNumber raceNumber;
+    @NonNull
+    DateTime startTime;
+    @NonNull
+    DateTime finishTime;
+    @NonNull
+    PunchTime runtime;
+    @NonNull
+    Position position;
+    @NonNull
+    ResultStatus state;
+    @Setter
+    @Nullable
+    SplitTimeListId splitTimeListId;
 
     public static PersonRaceResult of(Long raceNumber,
                                       ZonedDateTime startTime,
@@ -19,7 +39,8 @@ public record PersonRaceResult(@NonNull RaceNumber raceNumber, @NonNull DateTime
             DateTime.of(finishTime),
             PunchTime.of(punchTime),
             Position.of(position),
-            resultState);
+            resultState,
+            null);
     }
 
     @Override

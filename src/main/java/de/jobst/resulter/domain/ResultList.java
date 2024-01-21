@@ -26,15 +26,16 @@ public class ResultList {
     @Nullable
     private final String status;
 
-    @NonNull
-    private final Collection<ClassResult> classResults;
+    @Nullable
+    @Setter
+    private Collection<ClassResult> classResults;
 
     public ResultList(@NonNull ResultListId id,
                       @NonNull EventId eventId,
                       @Nullable String creator,
                       @Nullable ZonedDateTime createTime,
                       @Nullable String status,
-                      @NonNull Collection<ClassResult> classResults) {
+                      @Nullable Collection<ClassResult> classResults) {
         this.id = id;
         this.eventId = eventId;
         this.creator = creator;

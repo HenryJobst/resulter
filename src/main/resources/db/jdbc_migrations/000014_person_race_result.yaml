@@ -32,7 +32,9 @@ databaseChangeLog :
                                     type : bigint
                             -   column :
                                     name : RACE_NUMBER
-                                    type : bigint
+                                    type : TINYINT
+                                    constraints :
+                                        nullable : false
                             -   column :
                                     name : STATE
                                     type : varchar(20)
@@ -41,12 +43,24 @@ databaseChangeLog :
                                     type : BIGINT
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_PERSON_RACE_RESULT_RESULT_LIST
+                            -   column :
+                                    name : SPLIT_TIME_LIST_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : true
                             -   addForeignKeyConstraint :
                                     baseTableName : PERSON_RACE_RESULT
                                     baseColumnNames : RESULT_LIST_ID
                                     constraintName : FK_PERSON_RACE_RESULT_RESULT_LIST
                                     referencedTableName : RESULT_LIST
+                                    referencedColumnNames : ID
+                                    onDelete : RESTRICT
+                                    onUpdate : RESTRICT
+                            -   addForeignKeyConstraint :
+                                    baseTableName : PERSON_RACE_RESULT
+                                    baseColumnNames : SPLIT_TIME_LIST_ID
+                                    constraintName : FK_PERSON_RACE_RESULT_SPLIT_TIME_LIST
+                                    referencedTableName : SPLIT_TIME_LIST
                                     referencedColumnNames : ID
                                     onDelete : RESTRICT
                                     onUpdate : RESTRICT
@@ -56,3 +70,9 @@ databaseChangeLog :
                                         -   column :
                                                 name : RESULT_LIST_ID
                                             indexName : IDX_PERSON_RACE_RESULT_RESULT_LIST_ID
+                            -   createIndex :
+                                    tableName : PERSON_RACE_RESULT
+                                    columns :
+                                        -   column :
+                                                name : SPLIT_TIME_LIST_ID
+                                            indexName : IDX_PERSON_RACE_RESULT_SPLIT_TIME_LIST_ID

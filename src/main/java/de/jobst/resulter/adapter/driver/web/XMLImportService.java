@@ -238,17 +238,21 @@ public class XMLImportService {
             resultList.getEvent()
                 .getOrganisers()
                 .stream()
+                .filter(Objects::nonNull)
                 .map(o -> o.getCountry() == null ?
                           null :
-                          Country.of(o.getCountry().getCode(), o.getCountry().getValue())),
+                          Country.of(o.getCountry().getCode(), o.getCountry().getValue()))
+                .filter(Objects::nonNull),
             // countries from persons
             resultList.getClassResults()
                 .stream()
                 .flatMap(x -> x.getPersonResults().stream())
                 .map(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult::getOrganisation)
+                .filter(Objects::nonNull)
                 .map(o -> o.getCountry() == null ?
                           null :
-                          Country.of(o.getCountry().getCode(), o.getCountry().getValue()))).collect(Collectors.toSet());
+                          Country.of(o.getCountry().getCode(), o.getCountry().getValue()))
+                .filter(Objects::nonNull)).collect(Collectors.toSet());
 
         countries = this.countryService.findOrCreate(countries);
         return countries.stream().collect(Collectors.toMap(x -> x.getCode().value(), x -> x));

@@ -72,10 +72,12 @@ public class ResultListDbo {
                 resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
 
         }
-        resultListDbo.setClassResults(resultList.getClassResults()
-            .stream()
-            .map(x -> ClassResultDbo.from(x))
-            .collect(Collectors.toSet()));
+        if (resultList.getClassResults() != null) {
+            resultListDbo.setClassResults(resultList.getClassResults()
+                .stream()
+                .map(ClassResultDbo::from)
+                .collect(Collectors.toSet()));
+        }
         return resultListDbo;
     }
 

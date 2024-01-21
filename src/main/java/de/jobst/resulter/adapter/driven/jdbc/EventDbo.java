@@ -16,10 +16,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -85,7 +82,7 @@ public class EventDbo {
         return eventDbo;
     }
 
-    static public List<Event> asEvents(@NonNull List<EventDbo> eventDbos) {
+    static public List<Event> asEvents(@NonNull Collection<EventDbo> eventDbos) {
 
         return eventDbos.stream()
             .map(it -> Event.of(it.id,

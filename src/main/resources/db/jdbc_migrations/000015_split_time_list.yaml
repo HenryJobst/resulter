@@ -27,23 +27,28 @@ databaseChangeLog :
                                         nullable : false
                                         foreignKeyName : FK_SPLIT_TIME_LIST_EVENT
                             -   column :
-                                    name : PERSON_ID
-                                    type : BIGINT
-                                    constraints :
-                                        nullable : false
-                                        foreignKeyName : FK_SPLIT_TIME_LIST_PERSON
-                            -   column :
                                     name : RESULT_LIST_ID
                                     type : BIGINT
                                     constraints :
                                         nullable : false
                                         foreignKeyName : FK_SPLIT_TIME_LIST_CLASS_RESULT_RESULT_LIST
                             -   column :
-                                    name : CLASS_LIST_SHORT_NAME
+                                    name : CLASS_RESULT_SHORT_NAME
                                     type : VARCHAR(20)
                                     constraints :
                                         nullable : false
                                         foreignKeyName : FK_SPLIT_TIME_LIST_CLASS_RESULT_RESULT_LIST
+                            -   column :
+                                    name : PERSON_ID
+                                    type : BIGINT
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : FK_SPLIT_TIME_LIST_PERSON
+                            -   column :
+                                    name : RACE_NUMBER
+                                    type : TINYINT
+                                    constraints :
+                                        nullable : false
                 -   addForeignKeyConstraint :
                         baseTableName : SPLIT_TIME_LIST
                         baseColumnNames : EVENT_ID
@@ -62,8 +67,8 @@ databaseChangeLog :
                         onUpdate : RESTRICT
                 -   addUniqueConstraint :
                         tableName : SPLIT_TIME_LIST
-                        columnNames : RESULT_LIST_ID, CLASS_LIST_SHORT_NAME
-                        constraintName : UK_SPLIT_TIME_LIST_CLASS_RESULT_RESULT_LIST
+                        columnNames : RESULT_LIST_ID, CLASS_RESULT_SHORT_NAME, PERSON_ID, RACE_NUMBER
+                        constraintName : UK_SPLIT_TIME_LIST_RESULT_LIST_CLASS_RESULT_PERSON_RACE
                         validate : true
                 -   createIndex :
                         tableName : SPLIT_TIME_LIST

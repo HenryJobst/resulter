@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,43 +44,6 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         dboResolvers.setOrganisationDboResolver(id -> organisationJdbcRepository.findById(id.value()).orElseThrow());
         dboResolvers.setCountryDboResolver(id -> countryJdbcRepository.findById(id.value()).orElseThrow());
         EventDbo eventEntity = EventDbo.from(event, dboResolvers);
-        /*
-        if (Hibernate.isInitialized(eventEntity.getClassResults())) {
-            var personsToSave = eventEntity.getClassResults()
-                .stream()
-                .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
-                .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
-                .filter(personResultDbo -> personResultDbo.getPerson() != null &&
-                                           Hibernate.isInitialized(personResultDbo.getPerson()))
-                .map(PersonResultDbo::getPerson)
-                .toList();
-            personJdbcRepository.saveAll(personsToSave);
-
-            var countriesToSave = eventEntity.getClassResults()
-                .stream()
-                .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
-                .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
-                .filter(personResultDbo -> personResultDbo.getOrganisation() != null &&
-                                           Hibernate.isInitialized(personResultDbo.getOrganisation()))
-                .map(PersonResultDbo::getOrganisation)
-                .filter(organisationDbo -> organisationDbo.getCountry() != null &&
-                                           Hibernate.isInitialized(organisationDbo.getCountry()))
-                .map(OrganisationDbo::getCountry)
-                .toList();
-            countryJdbcRepository.saveAll(countriesToSave);
-
-            var organisationsToSave = eventEntity.getClassResults()
-                .stream()
-                .filter(classResultDbo -> Hibernate.isInitialized(classResultDbo.getPersonResults()))
-                .flatMap(classResultDbo -> classResultDbo.getPersonResults().stream())
-                .filter(personResultDbo -> personResultDbo.getOrganisation() != null &&
-                                           Hibernate.isInitialized(personResultDbo.getOrganisation()))
-                .map(PersonResultDbo::getOrganisation)
-                .toList();
-            organisationJdbcRepository.saveAll(organisationsToSave);
-        }
-
-         */
         EventDbo savedEventEntity = eventJdbcRepository.save(eventEntity);
         return EventDbo.asEvent(savedEventEntity);
     }
@@ -93,13 +56,13 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Event> findAll() {
-        List<EventDbo> resultList = new ArrayList<>();
+        Collection<EventDbo> resultList = eventJdbcRepository.findAll();
         return EventDbo.asEvents(resultList);
     }
 
     @Transactional(readOnly = true)
     public Optional<EventDbo> findDboById(EventId eventId) {
-        return Optional.empty();
+        return eventJdbcRepository.findById(eventId.value());
     }
 
     @Override

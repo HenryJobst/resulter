@@ -26,8 +26,8 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     public ResultList save(ResultList resultList) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setResultListDboResolver(id -> resultListJdbcRepository.findById(id.value()).orElseThrow());
-        ResultListDbo resultListEntity = ResultListDbo.from(resultList, dboResolvers);
-        ResultListDbo savedResultListEntity = resultListJdbcRepository.save(resultListEntity);
+        ResultListDbo savedResultListEntity =
+            resultListJdbcRepository.save(ResultListDbo.from(resultList, dboResolvers));
         return ResultListDbo.asResultLists(List.of(savedResultListEntity)).stream().findFirst().orElse(null);
     }
 

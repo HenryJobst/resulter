@@ -9,7 +9,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 @Data
-@Table(name = "CUP_SCORE")
+@Table(name = "cup_score")
 public class CupScoreDbo implements Comparable<CupScoreDbo> {
 
     @Id

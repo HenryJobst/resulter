@@ -6,73 +6,73 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : PERSON_RACE_RESULT
+                                tableName : person_race_result
             comment : Table person_race_result with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : PERSON_RACE_RESULT
+                        tableName : person_race_result
                         columns :
                             -   column :
-                                    name : START_TIME
-                                    type : TIMESTAMPTZ
+                                    name : start_time
+                                    type : timestamptz
                             -   column :
-                                    name : START_TIME_ZONE
-                                    type : VARCHAR(60)
+                                    name : start_time_zone
+                                    type : varchar(60)
                             -   column :
-                                    name : FINISH_TIME
-                                    type : TIMESTAMPTZ
+                                    name : finish_time
+                                    type : timestamptz
                             -   column :
-                                    name : FINISH_TIME_ZONE
-                                    type : VARCHAR(60)
+                                    name : finish_time_zone
+                                    type : varchar(60)
                             -   column :
-                                    name : PUNCH_TIME
-                                    type : DOUBLE
+                                    name : punch_time
+                                    type : double
                             -   column :
-                                    name : POSITION
+                                    name : position
                                     type : bigint
                             -   column :
-                                    name : RACE_NUMBER
-                                    type : TINYINT
+                                    name : race_number
+                                    type : tinyint
                                     constraints :
                                         nullable : false
                             -   column :
-                                    name : STATE
+                                    name : state
                                     type : varchar(20)
                             -   column :
-                                    name : RESULT_LIST_ID
-                                    type : BIGINT
+                                    name : result_list_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
                             -   column :
-                                    name : SPLIT_TIME_LIST_ID
-                                    type : BIGINT
+                                    name : split_time_list_id
+                                    type : bigint
                                     constraints :
                                         nullable : true
                             -   addForeignKeyConstraint :
-                                    baseTableName : PERSON_RACE_RESULT
-                                    baseColumnNames : RESULT_LIST_ID
-                                    constraintName : FK_PERSON_RACE_RESULT_RESULT_LIST
-                                    referencedTableName : RESULT_LIST
-                                    referencedColumnNames : ID
-                                    onDelete : RESTRICT
-                                    onUpdate : RESTRICT
+                                    baseTableName : person_race_result
+                                    baseColumnNames : result_list_id
+                                    constraintName : fk_person_race_result_result_list
+                                    referencedTableName : result_list
+                                    referencedColumnNames : id
+                                    onDelete : restrict
+                                    onUpdate : restrict
                             -   addForeignKeyConstraint :
-                                    baseTableName : PERSON_RACE_RESULT
-                                    baseColumnNames : SPLIT_TIME_LIST_ID
-                                    constraintName : FK_PERSON_RACE_RESULT_SPLIT_TIME_LIST
-                                    referencedTableName : SPLIT_TIME_LIST
-                                    referencedColumnNames : ID
-                                    onDelete : RESTRICT
-                                    onUpdate : RESTRICT
+                                    baseTableName : person_race_result
+                                    baseColumnNames : split_time_list_id
+                                    constraintName : fk_person_race_result_split_time_list
+                                    referencedTableName : split_time_list
+                                    referencedColumnNames : id
+                                    onDelete : restrict
+                                    onUpdate : restrict
                             -   createIndex :
-                                    tableName : PERSON_RACE_RESULT
+                                    tableName : person_race_result
                                     columns :
                                         -   column :
-                                                name : RESULT_LIST_ID
-                                            indexName : IDX_PERSON_RACE_RESULT_RESULT_LIST_ID
+                                                name : result_list_id
+                                            indexName : idx_person_race_result_result_list_id
                             -   createIndex :
-                                    tableName : PERSON_RACE_RESULT
+                                    tableName : person_race_result
                                     columns :
                                         -   column :
-                                                name : SPLIT_TIME_LIST_ID
-                                            indexName : IDX_PERSON_RACE_RESULT_SPLIT_TIME_LIST_ID
+                                                name : split_time_list_id
+                                            indexName : idx_person_race_result_split_time_list_id

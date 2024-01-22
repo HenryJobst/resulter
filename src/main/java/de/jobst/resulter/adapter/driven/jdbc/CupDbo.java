@@ -23,7 +23,7 @@ import java.util.stream.StreamSupport;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "CUP")
+@Table(name = "cup")
 public class CupDbo {
 
     @Id
@@ -32,7 +32,7 @@ public class CupDbo {
 
     private String name;
 
-    @MappedCollection(idColumn = "EVENT_ID")
+    @MappedCollection(idColumn = "event_id")
     private Set<CupEventDbo> events = new HashSet<>();
 
     private CupType type;

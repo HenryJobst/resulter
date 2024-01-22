@@ -8,14 +8,14 @@ databaseChangeLog :
                 -   not :
                         -   sqlCheck :
                                 expectedResult : 1
-                                sql : SELECT COUNT(1) FROM COUNTRY WHERE CODE = 'GER'
+                                sql : select count(1) from country where code = 'GER'
             changes :
                 -   insert :
-                        tableName : COUNTRY
+                        tableName : country
                         columns :
                             -   column :
-                                    name : CODE
+                                    name : code
                                     value : "GER"
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "GER"

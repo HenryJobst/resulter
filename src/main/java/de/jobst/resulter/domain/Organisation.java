@@ -95,6 +95,9 @@ public class Organisation implements Comparable<Organisation> {
         if (val == 0) {
             val = name.compareTo(o.name);
         }
+        if (val == 0) {
+            val = countryId.compareTo(o.countryId);
+        }
         return val;
     }
 

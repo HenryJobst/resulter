@@ -6,37 +6,37 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : EVENT_RESULT_LIST
+                                tableName : event_result_list
             comment : Table event_result_list with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : EVENT_RESULT_LIST
+                        tableName : event_result_list
                         columns :
                             -   column :
-                                    name : EVENT_ID
-                                    type : BIGINT
+                                    name : event_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_EVENT_RESULT_LIST_EVENT
+                                        foreignKeyName : fk_event_result_list_event
                             -   column :
-                                    name : RESULT_LIST_ID
-                                    type : BIGINT
+                                    name : result_list_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_EVENT_RESULT_LIST_RESULT_LIST
+                                        foreignKeyName : fk_event_result_list_result_list
                 -   addForeignKeyConstraint :
-                        baseTableName : EVENT_RESULT_LIST
-                        baseColumnNames : EVENT_ID
-                        constraintName : FK_EVENT_RESULT_LIST_EVENT
-                        referencedTableName : EVENT
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : event_result_list
+                        baseColumnNames : event_id
+                        constraintName : fk_event_result_list_event
+                        referencedTableName : event
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   addForeignKeyConstraint :
-                        baseTableName : EVENT_RESULT_LIST
-                        baseColumnNames : RESULT_LIST_ID
-                        constraintName : FK_EVENT_RESULT_LIST_RESULT_LIST
-                        referencedTableName : RESULT_LIST
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : event_result_list
+                        baseColumnNames : result_list_id
+                        constraintName : fk_event_result_list_result_list
+                        referencedTableName : result_list
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict

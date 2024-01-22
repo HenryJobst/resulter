@@ -6,57 +6,57 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : PERSON_RESULT
+                                tableName : person_result
             comment : Table person_result with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : PERSON_RESULT
+                        tableName : person_result
                         columns :
                             -   column :
-                                    name : PERSON_ID
+                                    name : person_id
                                     type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_PERSON_RESULT_PERSON
+                                        foreignKeyName : fk_person_result_person
                             -   column :
-                                    name : ORGANISATION_ID
+                                    name : organisation_id
                                     type : bigint
                                     constraints :
                                         nullable : true
-                                        foreignKeyName : FK_PERSON_RESULT_ORGANISATION
+                                        foreignKeyName : fk_person_result_organisation
                             -   column :
-                                    name : RESULT_LIST_ID
-                                    type : BIGINT
+                                    name : result_list_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_PERSON_RESULT_RESULT_LIST
+                                        foreignKeyName : fk_person_result_result_list
                 -   addForeignKeyConstraint :
-                        baseTableName : PERSON_RESULT
-                        baseColumnNames : RESULT_LIST_ID
-                        constraintName : FK_PERSON_RESULT_RESULT_LIST
-                        referencedTableName : RESULT_LIST
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : person_result
+                        baseColumnNames : result_list_id
+                        constraintName : fk_person_result_result_list
+                        referencedTableName : result_list
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   addForeignKeyConstraint :
-                        baseTableName : PERSON_RESULT
-                        baseColumnNames : PERSON_ID
-                        constraintName : FK_PERSON_RESULT_PERSON
-                        referencedTableName : PERSON
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : person_result
+                        baseColumnNames : person_id
+                        constraintName : fk_person_result_person
+                        referencedTableName : person
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   addForeignKeyConstraint :
-                        baseTableName : PERSON_RESULT
-                        baseColumnNames : ORGANISATION_ID
-                        constraintName : FK_PERSON_RESULT_ORGANISATION
-                        referencedTableName : ORGANISATION
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : person_result
+                        baseColumnNames : organisation_id
+                        constraintName : fk_person_result_organisation
+                        referencedTableName : organisation
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   createIndex :
-                        tableName : PERSON_RESULT
+                        tableName : person_result
                         columns :
                             -   column :
-                                    name : RESULT_LIST_ID
-                        indexName : IDX_PERSON_RESULT_RESULT_LIST_ID
+                                    name : result_list_id
+                        indexName : idx_person_result_result_list_id

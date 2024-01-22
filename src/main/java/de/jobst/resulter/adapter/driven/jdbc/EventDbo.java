@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "EVENT")
+@Table(name = "event")
 public class EventDbo {
 
     @Id
@@ -32,10 +32,10 @@ public class EventDbo {
     private ZonedDateTime startTime, endTime;
     private EventStatus state;
 
-    @MappedCollection(idColumn = "EVENT_ID")
+    @MappedCollection(idColumn = "event_id")
     private Set<EventResultListDbo> resultLists = new HashSet<>();
 
-    @MappedCollection(idColumn = "EVENT_ID")
+    @MappedCollection(idColumn = "event_id")
     private Set<EventOrganisationDbo> organisations = new HashSet<>();
 
     public EventDbo(String name) {

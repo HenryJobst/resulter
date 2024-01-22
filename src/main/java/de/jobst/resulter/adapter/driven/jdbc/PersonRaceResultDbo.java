@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @NoArgsConstructor
-@Table(name = "PERSON_RACE_RESULT")
+@Table(name = "person_race_result")
 public class PersonRaceResultDbo {
 
     private Long raceNumber;
@@ -30,7 +30,7 @@ public class PersonRaceResultDbo {
     private Long position;
     private ResultStatus state;
 
-    @Column("SPLIT_TIME_LIST_ID")
+    @Column("split_time_list_id")
     @Setter
     private AggregateReference<SplitTimeListDbo, Long> splitTimeList;
 

@@ -6,35 +6,35 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : COUNTRY
+                                tableName : country
             comment : Tables country with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : COUNTRY
+                        tableName : country
                         columns :
                             -   column :
-                                    name : ID
-                                    type : BIGINT
+                                    name : id
+                                    type : bigint
                                     autoIncrement : true
                                     constraints :
                                         primaryKey : true
                                         nullable : false
-                                        primaryKeyName : PK_COUNTRY
+                                        primaryKeyName : pk_country
                             -   column :
-                                    name : NAME
-                                    type : VARCHAR(255)
+                                    name : name
+                                    type : varchar(255)
                                     constraints :
                                         nullable : false
                                         unique : true
                             -   column :
-                                    name : CODE
-                                    type : VARCHAR(3)
+                                    name : code
+                                    type : varchar(3)
                                     constraints :
                                         nullable : false
                                         unique : true
                 -   createIndex :
-                        tableName : COUNTRY
+                        tableName : country
                         columns :
                             -   column :
-                                    name : ID
-                        indexName : IDX_COUNTRY_ID
+                                    name : id
+                        indexName : idx_country_id

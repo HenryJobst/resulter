@@ -6,42 +6,42 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : EVENT_ORGANISATION
+                                tableName : event_organisation
             comment : Table event_organisation with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : EVENT_ORGANISATION
+                        tableName : event_organisation
                         columns :
                             -   column :
-                                    name : EVENT_ID
-                                    type : BIGINT
+                                    name : event_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_EVENT_ORGANISATION_EVENT
+                                        foreignKeyName : fk_event_organisation_event
                             -   column :
-                                    name : ORGANISATION_ID
-                                    type : BIGINT
+                                    name : organisation_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_EVENT_ORGANISATION_ORGANISATION
+                                        foreignKeyName : fk_event_organisation_organisation
                 -   addForeignKeyConstraint :
-                        baseTableName : EVENT_ORGANISATION
-                        baseColumnNames : EVENT_ID
-                        constraintName : FK_EVENT_ORGANISATION_EVENT
-                        referencedTableName : EVENT
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : event_organisation
+                        baseColumnNames : event_id
+                        constraintName : fk_event_organisation_event
+                        referencedTableName : event
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   addForeignKeyConstraint :
-                        baseTableName : EVENT_ORGANISATION
-                        baseColumnNames : ORGANISATION_ID
-                        constraintName : FK_EVENT_ORGANISATION_ORGANISATION
-                        referencedTableName : ORGANISATION
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : event_organisation
+                        baseColumnNames : organisation_id
+                        constraintName : fk_event_organisation_organisation
+                        referencedTableName : organisation
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   addUniqueConstraint :
-                        columnNames : EVENT_ID, ORGANISATION_ID
-                        constraintName : UK_EVENT_ORGANISATION
-                        tableName : EVENT_ORGANISATION
+                        columnNames : event_id, organisation_id
+                        constraintName : uk_event_organisation
+                        tableName : event_organisation
                         validate : true

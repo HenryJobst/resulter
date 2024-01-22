@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "CLASS_RESULT")
+@Table(name = "class_result")
 public class ClassResultDbo {
 
     private String name;
@@ -30,7 +30,7 @@ public class ClassResultDbo {
         this.name = name;
     }
 
-    @MappedCollection(idColumn = "RESULT_LIST_ID")
+    @MappedCollection(idColumn = "result_list_id")
     private Set<PersonResultDbo> personResults = new HashSet<>();
 
     public static ClassResultDbo from(ClassResult classResult) {

@@ -14,7 +14,7 @@ import static de.jobst.resulter.domain.util.CompareUtils.compareNullable;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "SPLIT_TIME")
+@Table(name = "split_time")
 public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
 
     private String controlCode;

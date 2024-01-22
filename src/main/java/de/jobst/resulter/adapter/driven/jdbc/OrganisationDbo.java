@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "ORGANISATION")
+@Table(name = "organisation")
 public class OrganisationDbo {
 
     @Id
@@ -36,10 +36,10 @@ public class OrganisationDbo {
 
     private OrganisationType type;
 
-    @MappedCollection(idColumn = "PARENT_ORGANISATION_ID")
+    @MappedCollection(idColumn = "parent_organisation_id")
     private Set<OrganisationOrganisationDbo> childOrganisations = new HashSet<>();
 
-    @Column(value = "COUNTRY_ID")
+    @Column(value = "country_id")
     private AggregateReference<CountryDbo, Long> country;
 
     public OrganisationDbo(String name) {

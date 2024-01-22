@@ -4,10 +4,10 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table(value = "CUP_EVENT")
+@Table(value = "cup_event")
 public class CupEventDbo {
 
-    @Column("EVENT_ID")
+    @Column("event_id")
     AggregateReference<EventDbo, Long> id;
 
     CupEventDbo(Long id) {

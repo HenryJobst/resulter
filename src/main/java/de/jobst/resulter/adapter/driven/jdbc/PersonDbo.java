@@ -16,7 +16,7 @@ import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "PERSON")
+@Table(name = "person")
 public class PersonDbo {
 
     @Id

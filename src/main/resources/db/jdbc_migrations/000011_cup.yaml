@@ -6,35 +6,35 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : CUP
+                                tableName : cup
             comment : Table organisation with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : ID
-                                    type : BIGINT
+                                    name : id
+                                    type : bigint
                                     autoIncrement : true
                                     constraints :
                                         primaryKey : true
                                         nullable : false
-                                        primaryKeyName : PK_CUP
+                                        primaryKeyName : pk_cup
                             -   column :
-                                    name : NAME
-                                    type : VARCHAR(255)
+                                    name : name
+                                    type : varchar(255)
                                     constraints :
                                         nullable : false
                                         unique : true
                             -   column :
-                                    name : TYPE
-                                    type : VARCHAR(60)
+                                    name : type
+                                    type : varchar(60)
                                     defaultValue : 'ADD'
                                     constraints :
                                         nullable : false
                 -   createIndex :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : ID
-                        indexName : IDX_CUP_ID
+                                    name : id
+                        indexName : idx_cup_id

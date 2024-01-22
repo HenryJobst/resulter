@@ -6,41 +6,38 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : EVENT
+                                tableName : event
             comment : Tables event with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : EVENT
+                        tableName : event
                         columns :
                             -   column :
-                                    name : ID
-                                    type : BIGINT
+                                    name : id
+                                    type : bigint
                                     autoIncrement : true
                                     constraints :
                                         primaryKey : true
                                         nullable : false
-                                        primaryKeyName : PK_EVENT
+                                        primaryKeyName : pk_event
                             -   column :
-                                    name : NAME
-                                    type : VARCHAR(255)
+                                    name : name
+                                    type : varchar(255)
                                     constraints :
                                         nullable : false
                             -   column :
-                                    name : START_TIME
-                                    type : TIMESTAMPTZ
+                                    name : start_time
+                                    type : timestamptz
                             -   column :
-                                    name : END_TIME
-                                    type : TIMESTAMPTZ
+                                    name : end_time
+                                    type : timestamptz
                             -   column :
-                                    name : STATE
-                                    type : VARCHAR(20)
-                            -   column :
-                                    name : ORGANISATIONS
-                                    type : VARCHAR
+                                    name : state
+                                    type : varchar(20)
 
                 -   createIndex :
-                        tableName : EVENT
+                        tableName : event
                         columns :
                             -   column :
-                                    name : ID
-                        indexName : IDX_EVENT_ID
+                                    name : id
+                        indexName : idx_event_id

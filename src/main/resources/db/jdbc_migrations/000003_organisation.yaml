@@ -6,69 +6,69 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : ORGANISATION
+                                tableName : organisation
             comment : Table organisation with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : ORGANISATION
+                        tableName : organisation
                         columns :
                             -   column :
-                                    name : ID
-                                    type : BIGINT
+                                    name : id
+                                    type : bigint
                                     autoIncrement : true
                                     constraints :
                                         primaryKey : true
                                         nullable : false
-                                        primaryKeyName : PK_ORGANISATION
+                                        primaryKeyName : pk_organisation
                             -   column :
-                                    name : NAME
-                                    type : VARCHAR(255)
+                                    name : name
+                                    type : varchar(255)
                                     constraints :
                                         nullable : false
                             -   column :
-                                    name : SHORT_NAME
-                                    type : VARCHAR(60)
+                                    name : short_name
+                                    type : varchar(60)
                                     constraints :
                                         nullable : false
                             -   column :
-                                    name : TYPE
-                                    type : VARCHAR(60)
+                                    name : type
+                                    type : varchar(60)
                                     defaultValue : 'OTHER'
                                     constraints :
                                         nullable : false
                             -   column :
-                                    name : COUNTRY_ID
-                                    type : BIGINT
+                                    name : country_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_ORGANISATION_COUNTRY
+                                        foreignKeyName : fk_organisation_country
                 -   createIndex :
-                        tableName : ORGANISATION
+                        tableName : organisation
                         columns :
                             -   column :
-                                    name : ID
-                        indexName : IDX_ORGANISATION_ID
+                                    name : id
+                        indexName : idx_organisation_id
                 -   createIndex :
-                        tableName : ORGANISATION
+                        tableName : organisation
                         columns :
                             -   column :
-                                    name : TYPE
-                        indexName : IDX_ORGANISATION_TYPE
+                                    name : type
+                        indexName : idx_organisation_type
                 -   addForeignKeyConstraint :
-                        baseTableName : ORGANISATION
-                        baseColumnNames : COUNTRY_ID
-                        constraintName : FK_ORGANISATION_COUNTRY
-                        referencedTableName : COUNTRY
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : organisation
+                        baseColumnNames : country_id
+                        constraintName : fk_organisation_country
+                        referencedTableName : country
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   addUniqueConstraint :
-                        columnNames : NAME, COUNTRY_ID
-                        constraintName : UK_ORGANISATION_NAME_COUNTRY
-                        tableName : ORGANISATION
+                        columnNames : name, country_id
+                        constraintName : uk_organisation_name_country
+                        tableName : organisation
                         validate : true
                 -   addUniqueConstraint :
-                        columnNames : SHORT_NAME, COUNTRY_ID
-                        constraintName : UK_ORGANISATION_SHORT_NAME_COUNTRY
-                        tableName : ORGANISATION
+                        columnNames : short_name, country_id
+                        constraintName : uk_organisation_short_name_country
+                        tableName : organisation
                         validate : true

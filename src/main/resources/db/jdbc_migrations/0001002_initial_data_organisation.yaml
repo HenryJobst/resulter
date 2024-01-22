@@ -8,67 +8,67 @@ databaseChangeLog :
                 -   not :
                         -   sqlCheck :
                                 expectedResult : 1
-                                sql : SELECT COUNT(1) FROM ORGANISATION WHERE SHORT_NAME = 'NOR'
+                                sql : select count(1) from organisation where short_name = 'NOR'
             changes :
                 -   insert :
-                        tableName : ORGANISATION
+                        tableName : organisation
                         columns :
                             -   column :
-                                    name : SHORT_NAME
+                                    name : short_name
                                     value : "NOR"
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Nord-Ost-Rangliste"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "NATIONAL_REGION"
                             -   column :
-                                    name : COUNTRY_ID
+                                    name : country_id
                                     value : "1"
                 -   insert :
-                        tableName : ORGANISATION
+                        tableName : organisation
                         columns :
                             -   column :
-                                    name : SHORT_NAME
+                                    name : short_name
                                     value : "LV_BE"
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Landesverband Berlin"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "NATIONAL_REGION"
                             -   column :
-                                    name : COUNTRY_ID
+                                    name : country_id
                                     value : "1"
                 -   insert :
-                        tableName : ORGANISATION
+                        tableName : organisation
                         columns :
                             -   column :
-                                    name : SHORT_NAME
+                                    name : short_name
                                     value : "LV_BB"
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Landesverband Brandenburg"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "NATIONAL_REGION"
                             -   column :
-                                    name : COUNTRY_ID
+                                    name : country_id
                                     value : "1"
                 -   insert :
-                        tableName : ORGANISATION
+                        tableName : organisation
                         columns :
                             -   column :
-                                    name : SHORT_NAME
+                                    name : short_name
                                     value : "LV_MV"
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Landesverband Mecklenburg-Vorpommern"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "NATIONAL_REGION"
                             -   column :
-                                    name : COUNTRY_ID
+                                    name : country_id
                                     value : "1"
                 -   sqlFile :
                         splitStatements : true

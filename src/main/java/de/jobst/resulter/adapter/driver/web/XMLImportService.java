@@ -204,6 +204,8 @@ public class XMLImportService {
             resultList.getEvent()
                 .getOrganisers()
                 .stream()
+                .filter(Objects::nonNull)
+                .sorted()
                 .map(o -> Organisation.of(OrganisationId.empty().value(),
                     o.getName(),
                     o.getShortName(),
@@ -217,6 +219,8 @@ public class XMLImportService {
                 .stream()
                 .flatMap(x -> x.getPersonResults().stream())
                 .map(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult::getOrganisation)
+                .filter(Objects::nonNull)
+                .sorted()
                 .map(o -> Organisation.of(OrganisationId.empty().value(),
                     o.getName(),
                     o.getShortName(),

@@ -6,42 +6,42 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : ORGANISATION_ORGANISATION
+                                tableName : organisation_organisation
             comment : Table organisation_organisation with indexes and keys
             changes :
                 -   createTable :
-                        tableName : ORGANISATION_ORGANISATION
+                        tableName : organisation_organisation
                         columns :
                             -   column :
-                                    name : ORGANISATION_ID
-                                    type : BIGINT
+                                    name : organisation_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_ORGANISATION_ORGANISATION_ORGANISATION
+                                        foreignKeyName : fk_organisation_organisation_organisation
                             -   column :
-                                    name : PARENT_ORGANISATION_ID
-                                    type : BIGINT
+                                    name : parent_organisation_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_ORGANISATION_ORGANISATION_PARENT_ORGANISATION
+                                        foreignKeyName : fk_organisation_organisation_parent_organisation
                 -   addForeignKeyConstraint :
-                        baseTableName : ORGANISATION_ORGANISATION
-                        baseColumnNames : ORGANISATION_ID
-                        constraintName : FK_ORGANISATION_ORGANISATION_ORGANISATION
-                        referencedTableName : ORGANISATION
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : organisation_organisation
+                        baseColumnNames : organisation_id
+                        constraintName : fk_organisation_organisation_organisation
+                        referencedTableName : organisation
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   addForeignKeyConstraint :
-                        baseTableName : ORGANISATION_ORGANISATION
-                        baseColumnNames : PARENT_ORGANISATION_ID
-                        constraintName : FK_ORGANISATION_ORGANISATION_PARENT_ORGANISATION
-                        referencedTableName : ORGANISATION
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : organisation_organisation
+                        baseColumnNames : parent_organisation_id
+                        constraintName : fk_organisation_organisation_parent_organisation
+                        referencedTableName : organisation
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   addUniqueConstraint :
-                        columnNames : ORGANISATION_ID, PARENT_ORGANISATION_ID
-                        constraintName : UK_ORGANISATION_ORGANISATION
-                        tableName : ORGANISATION_ORGANISATION
+                        columnNames : organisation_id, parent_organisation_id
+                        constraintName : uk_organisation_organisation
+                        tableName : organisation_organisation
                         validate : true

@@ -6,49 +6,49 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : PERSON
+                                tableName : person
             comment : Tables person with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : PERSON
+                        tableName : person
                         columns :
                             -   column :
-                                    name : ID
-                                    type : BIGINT
+                                    name : id
+                                    type : bigint
                                     autoIncrement : true
                                     constraints :
                                         primaryKey : true
                                         nullable : false
-                                        primaryKeyName : PK_PERSON
+                                        primaryKeyName : pk_person
                             -   column :
-                                    name : FAMILY_NAME
-                                    type : VARCHAR(255)
+                                    name : family_name
+                                    type : varchar(255)
                                     constraints :
                                         nullable : false
                             -   column :
-                                    name : GIVEN_NAME
-                                    type : VARCHAR(255)
+                                    name : given_name
+                                    type : varchar(255)
                                     constraints :
                                         nullable : false
                             -   column :
-                                    name : BIRTH_DATE
-                                    type : DATE
+                                    name : birth_date
+                                    type : date
                             -   column :
-                                    name : GENDER
+                                    name : gender
                                     type : varchar(3)
                                     constraints :
                                         nullable : false
                 -   createIndex :
-                        tableName : PERSON
+                        tableName : person
                         columns :
                             -   column :
-                                    name : ID
-                        indexName : IDX_PERSON_ID
+                                    name : id
+                        indexName : idx_person_id
                 -   createIndex :
-                        tableName : PERSON
+                        tableName : person
                         columns :
                             -   column :
-                                    name : FAMILY_NAME
+                                    name : family_name
                             -   column :
-                                    name : GIVEN_NAME
-                        indexName : IDX_PERSON_FAMILY_NAME_GIVEN_NAME
+                                    name : given_name
+                        indexName : idx_person_family_name_given_name

@@ -6,57 +6,57 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : RESULT_LIST
+                                tableName : result_list
             comment : Table result_list with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : RESULT_LIST
+                        tableName : result_list
                         columns :
                             -   column :
-                                    name : ID
-                                    type : BIGINT
+                                    name : id
+                                    type : bigint
                                     autoIncrement : true
                                     constraints :
                                         primaryKey : true
                                         nullable : false
-                                        primaryKeyName : PK_RESULT_LIST
+                                        primaryKeyName : pk_result_list
                             -   column :
-                                    name : CREATOR
-                                    type : VARCHAR(255)
+                                    name : creator
+                                    type : varchar(255)
                             -   column :
-                                    name : CREATE_TIME
-                                    type : TIMESTAMPTZ
+                                    name : create_time
+                                    type : timestamptz
                             -   column :
-                                    name : CREATE_TIME_ZONE
-                                    type : VARCHAR(60)
+                                    name : create_time_zone
+                                    type : varchar(60)
                             -   column :
-                                    name : STATUS
-                                    type : VARCHAR(60)
+                                    name : status
+                                    type : varchar(60)
                                     constraints :
                                         nullable : false
                             -   column :
-                                    name : EVENT_ID
-                                    type : BIGINT
+                                    name : event_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_RESULT_LIST_EVENT
+                                        foreignKeyName : fk_result_list_event
                 -   addForeignKeyConstraint :
-                        baseTableName : RESULT_LIST
-                        baseColumnNames : EVENT_ID
-                        constraintName : FK_RESULT_LIST_EVENT
-                        referencedTableName : EVENT
-                        referencedColumnNames : ID
-                        onDelete : RESTRICT
-                        onUpdate : RESTRICT
+                        baseTableName : result_list
+                        baseColumnNames : event_id
+                        constraintName : fk_result_list_event
+                        referencedTableName : event
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
                 -   createIndex :
-                        tableName : RESULT_LIST
+                        tableName : result_list
                         columns :
                             -   column :
-                                    name : ID
-                        indexName : IDX_RESULT_LIST_ID
+                                    name : id
+                        indexName : idx_result_list_id
                 -   createIndex :
-                        tableName : RESULT_LIST
+                        tableName : result_list
                         columns :
                             -   column :
-                                    name : EVENT_ID
-                        indexName : IDX_RESULT_LIST_EVENT_ID
+                                    name : event_id
+                        indexName : idx_result_list_event_id

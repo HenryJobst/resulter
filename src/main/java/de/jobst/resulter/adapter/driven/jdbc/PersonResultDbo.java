@@ -24,16 +24,16 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @NoArgsConstructor
-@Table(name = "PERSON_RESULT")
+@Table(name = "person_result")
 public class PersonResultDbo {
 
-    @Column("PERSON_ID")
+    @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
 
-    @Column("ORGANISATION_ID")
+    @Column("organisation_id")
     private AggregateReference<OrganisationDbo, Long> organisation;
 
-    @MappedCollection(idColumn = "RESULT_LIST_ID")
+    @MappedCollection(idColumn = "result_list_id")
     private Set<PersonRaceResultDbo> personRaceResults = new HashSet<>();
 
     public static PersonResultDbo from(@NonNull PersonResult personResult) {

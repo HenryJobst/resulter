@@ -19,26 +19,26 @@ import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "SPLIT_TIME_LIST")
+@Table(name = "split_time_list")
 public class SplitTimeListDbo {
 
     @Id
     @With
     private Long id;
 
-    @Column("EVENT_ID")
+    @Column("event_id")
     private AggregateReference<EventDbo, Long> event;
 
-    @Column("RESULT_LIST_ID")
+    @Column("result_list_id")
     private AggregateReference<ResultListDbo, Long> resultList;
 
-    @Column("PERSON_ID")
+    @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
 
     private String classResultShortName;
     private Long raceNumber;
 
-    @MappedCollection(idColumn = "SPLIT_TIME_LIST_ID")
+    @MappedCollection(idColumn = "split_time_list_id")
     private Set<SplitTimeDbo> splitTimes;
 
     public SplitTimeListDbo(AggregateReference<EventDbo, Long> event,

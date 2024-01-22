@@ -8,77 +8,77 @@ databaseChangeLog :
                 -   not :
                         -   sqlCheck :
                                 expectedResult : 1
-                                sql : SELECT COUNT(1) FROM CUP WHERE NAME like '%NOR%'
+                                sql : select count(1) from cup where name like '%NOR%'
             changes :
                 -   insert :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Nord-Ost-Rangliste (NOR) 2022"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "NOR"
                 -   insert :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Nord-Ost-Rangliste (NOR) 2023"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "NOR"
                 -   insert :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Nord-Ost-Rangliste (NOR) 2024"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "NOR"
                 -   insert :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Kristall-Cup 2022/23"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "KRISTALL"
                 -   insert :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Kristall-Cup 2023/24"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "KRISTALL"
                 -   insert :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Kristall-Cup 2024/25"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "KRISTALL"
                 -   insert :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Nebel-Cup 2023"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "NEBEL"
                 -   insert :
-                        tableName : CUP
+                        tableName : cup
                         columns :
                             -   column :
-                                    name : NAME
+                                    name : name
                                     value : "Nebel-Cup 2024"
                             -   column :
-                                    name : TYPE
+                                    name : type
                                     value : "NEBEL"

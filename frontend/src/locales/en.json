@@ -53,9 +53,9 @@
   },
   "messages": {
     "new_cup": "New cup",
-    "edit_cup": "Edit cup with ID {id}",
+    "edit_cup": "Edit cup with id {id}",
     "new_event": "New event",
-    "edit_event": "Edit event with ID {id}",
+    "edit_event": "Edit event with id {id}",
     "import_event": "Import new event",
     "loading": "Loading...",
     "error": "Error: {message}",

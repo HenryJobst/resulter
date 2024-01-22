@@ -12,7 +12,7 @@ import org.springframework.lang.NonNull;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "COUNTRY")
+@Table(name = "country")
 public class CountryDbo {
 
     @Id

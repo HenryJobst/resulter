@@ -6,32 +6,32 @@ databaseChangeLog :
                 -   onFail : MARK_RAN
                 -   not :
                         -   tableExists :
-                                tableName : SPLIT_TIME
+                                tableName : split_time
             comment : Table split_times with sequence, indexes and keys
             changes :
                 -   createTable :
-                        tableName : SPLIT_TIME
+                        tableName : split_time
                         columns :
                             -   column :
-                                    name : SPLIT_TIME_LIST_ID
-                                    type : BIGINT
+                                    name : split_time_list_id
+                                    type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : FK_SPLIT_TIME_SPLIT_TIME_LIST
-                                        referencedTableName : SPLIT_TIME_LIST
-                                        referencedColumnNames : ID
-                                        onDelete : RESTRICT
-                                        onUpdate : RESTRICT
+                                        foreignKeyName : fk_split_time_split_time_list
+                                        referencedTableName : split_time_list
+                                        referencedColumnNames : id
+                                        onDelete : restrict
+                                        onUpdate : restrict
                             -   column :
-                                    name : CONTROL_CODE
-                                    type : VARCHAR(3)
+                                    name : control_code
+                                    type : varchar(3)
                             -   column :
-                                    name : PUNCH_TIME
-                                    type : DOUBLE
+                                    name : punch_time
+                                    type : double
                 -   createIndex :
-                        tableName : SPLIT_TIME
+                        tableName : split_time
                         columns :
                             -   column :
-                                    name : SPLIT_TIME_LIST_ID
-                        indexName : IDX_SPLIT_TIME_SPLIT_TIME_ID
+                                    name : split_time_list_id
+                        indexName : idx_split_time_split_time_id
 

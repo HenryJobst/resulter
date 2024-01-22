@@ -40,7 +40,7 @@ databaseChangeLog :
                                     name : country_id
                                     type : bigint
                                     constraints :
-                                        nullable : false
+                                        nullable : true
                                         foreignKeyName : fk_organisation_country
                 -   createIndex :
                         tableName : organisation

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.With;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
@@ -19,8 +20,10 @@ public class CountryDbo {
     @With
     private Long id;
 
+    @Column("code")
     private String code;
 
+    @Column("name")
     private String name;
 
     public CountryDbo(String code) {

@@ -205,30 +205,26 @@ public class XMLImportService {
                 .getOrganisers()
                 .stream()
                 .filter(Objects::nonNull)
-                .sorted()
                 .map(o -> Organisation.of(OrganisationId.empty().value(),
                     o.getName(),
                     o.getShortName(),
                     OrganisationType.OTHER.value(),
-                    (o.getCountry() == null ?
-                     CountryId.empty() :
-                     countriesByCode.get(o.getCountry().getCode()).getId()),
-                    new ArrayList<>())),
+                    (null == o.getCountry() ? null : countriesByCode.get(o.getCountry().getCode()).getId()),
+                    new ArrayList<>()))
+                .sorted(),
             // organisations from persons
             resultList.getClassResults()
                 .stream()
                 .flatMap(x -> x.getPersonResults().stream())
                 .map(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult::getOrganisation)
                 .filter(Objects::nonNull)
-                .sorted()
                 .map(o -> Organisation.of(OrganisationId.empty().value(),
                     o.getName(),
                     o.getShortName(),
                     OrganisationType.OTHER.value(),
-                    (o.getCountry() == null ?
-                     CountryId.empty() :
-                     countriesByCode.get(o.getCountry().getCode()).getId()),
-                    new ArrayList<>()))).collect(Collectors.toSet());
+                    (null == o.getCountry() ? null : countriesByCode.get(o.getCountry().getCode()).getId()),
+                    new ArrayList<>()))
+                .sorted()).collect(Collectors.toSet());
 
         organisations = organisationService.findOrCreate(organisations);
         return organisations.stream().collect(Collectors.toMap(x -> x.getName().value(), x -> x));

@@ -62,7 +62,12 @@ public class OrganisationDbo {
         organisationDbo.setShortName(organisation.getShortName().value());
 
         organisationDbo.setType(organisation.getType());
-        organisationDbo.setCountry(AggregateReference.to(organisation.getCountryId().value()));
+
+        if (organisation.getCountryId() != null) {
+            organisationDbo.setCountry(AggregateReference.to(organisation.getCountryId().value()));
+        } else {
+            organisationDbo.setCountry(null);
+        }
 
         organisationDbo.setChildOrganisations(organisation.getChildOrganisationIds()
             .stream()

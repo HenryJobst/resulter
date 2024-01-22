@@ -11,6 +11,7 @@ import lombok.With;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
@@ -28,8 +29,13 @@ public class EventDbo {
     @With
     private final Long id;
 
+    @Column("name")
     private String name;
-    private ZonedDateTime startTime, endTime;
+    @Column("start_time")
+    private ZonedDateTime startTime;
+    @Column("end_time")
+    private ZonedDateTime endTime;
+    @Column("state")
     private EventStatus state;
 
     @MappedCollection(idColumn = "event_id")

@@ -12,8 +12,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
@@ -35,10 +34,7 @@ public class PersonDbo {
     private Gender gender;
 
     @Column("birth_date")
-    private OffsetDateTime birthDate;
-
-    @Column("birth_date_time_zone")
-    private String birthDateTimeZone;
+    private LocalDate birthDate;
 
     public PersonDbo(String familyName, String givenName) {
         this.id = null;
@@ -61,20 +57,14 @@ public class PersonDbo {
         }
         personDbo.setGender(person.getGender());
         if (person.getBirthDate() != null) {
-            personDbo.setBirthDate(person.getBirthDate().value().toOffsetDateTime());
-            personDbo.setBirthDateTimeZone(person.getBirthDate().value().getZone().getId());
+            personDbo.setBirthDate(person.getBirthDate().value());
         } else {
             personDbo.setBirthDate(null);
-            personDbo.setBirthDateTimeZone(null);
         }
         return personDbo;
     }
 
     public Person asPerson() {
-        return Person.of(id,
-            familyName,
-            givenName,
-            birthDate != null ? birthDate.atZoneSameInstant(ZoneId.of(birthDateTimeZone)) : null,
-            gender);
+        return Person.of(id, familyName, givenName, birthDate, gender);
     }
 }

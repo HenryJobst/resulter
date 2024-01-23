@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @SuppressWarnings("FieldMayBeFinal")
 @Getter
@@ -18,7 +18,8 @@ public class Person implements Comparable<Person> {
     private BirthDate birthDate;
     private Gender gender;
 
-    public record DomainKey(String familyName, String givenName, LocalDate birthday) implements Comparable<DomainKey> {
+    public record DomainKey(String familyName, String givenName, ZonedDateTime birthday)
+        implements Comparable<DomainKey> {
 
         @Override
         public int compareTo(@NonNull DomainKey o) {
@@ -44,18 +45,18 @@ public class Person implements Comparable<Person> {
         return new Person(PersonId.empty(), personName, birthDate, gender);
     }
 
-    public static Person of(FamilyName familyName, GivenName givenName, LocalDate birthDate, Gender gender) {
+    public static Person of(FamilyName familyName, GivenName givenName, ZonedDateTime birthDate, Gender gender) {
         return new Person(PersonId.empty(), PersonName.of(familyName, givenName), BirthDate.of(birthDate), gender);
     }
 
-    public static Person of(String familyName, String givenName, LocalDate birthDate, Gender gender) {
+    public static Person of(String familyName, String givenName, ZonedDateTime birthDate, Gender gender) {
         return new Person(PersonId.empty(),
             PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
             BirthDate.of(birthDate),
             gender);
     }
 
-    public static Person of(long id, String familyName, String givenName, LocalDate birthDate, Gender gender) {
+    public static Person of(long id, String familyName, String givenName, ZonedDateTime birthDate, Gender gender) {
         return new Person(PersonId.of(id),
             PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
             BirthDate.of(birthDate),

@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
@@ -17,7 +18,10 @@ import static de.jobst.resulter.domain.util.CompareUtils.compareNullable;
 @Table(name = "split_time")
 public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
 
+    @Column("control_code")
     private String controlCode;
+
+    @Column("punch_time")
     private Double punchTime;
 
     public static SplitTimeDbo from(SplitTime splitTime) {

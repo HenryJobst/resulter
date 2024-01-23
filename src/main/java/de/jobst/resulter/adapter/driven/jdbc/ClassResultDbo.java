@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -20,10 +21,13 @@ import java.util.stream.Collectors;
 @Table(name = "class_result")
 public class ClassResultDbo {
 
+    @Column("name")
     private String name;
 
+    @Column("short_name")
     private String shortName;
 
+    @Column("gender")
     private Gender gender;
 
     public ClassResultDbo(String name) {

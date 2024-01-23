@@ -4,6 +4,7 @@ import de.jobst.resulter.domain.CupScore;
 import de.jobst.resulter.domain.CupType;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -13,10 +14,12 @@ import org.springframework.lang.Nullable;
 public class CupScoreDbo implements Comparable<CupScoreDbo> {
 
     @Id
+    @Column("type")
     private CupType type;
 
     private PersonRaceResultDbo personRaceResultDbo;
 
+    @Column("score")
     private Double score;
 
     @Override

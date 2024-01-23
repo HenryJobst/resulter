@@ -8,8 +8,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -187,8 +186,10 @@ public class XMLImportService {
             .map(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult::getPerson)
             .map(p -> Person.of(PersonName.of(p.getName().getFamily(), p.getName().getGiven()),
                 BirthDate.of(ObjectUtils.isNotEmpty(p.getBirthDate()) ?
-                             LocalDate.ofInstant(p.getBirthDate().toGregorianCalendar().toInstant(),
-                                 ZoneId.systemDefault()) :
+                             p.getBirthDate()
+                                 .toGregorianCalendar()
+                                 .toInstant()
+                                 .atZone(p.getBirthDate().toGregorianCalendar().getTimeZone().toZoneId()) :
                              null),
                 Gender.of(p.getSex())))
             .collect(Collectors.toSet());
@@ -262,7 +263,8 @@ public class XMLImportService {
         return new Person.DomainKey(p.getName().getFamily(),
             p.getName().getGiven(),
             ObjectUtils.isNotEmpty(p.getBirthDate()) ?
-            LocalDate.ofInstant(p.getBirthDate().toGregorianCalendar().toInstant(), ZoneId.systemDefault()) :
+            ZonedDateTime.ofInstant(p.getBirthDate().toGregorianCalendar().toInstant(),
+                p.getBirthDate().toGregorianCalendar().getTimeZone().toZoneId()) :
             null);
     }
 

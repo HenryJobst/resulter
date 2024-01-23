@@ -32,10 +32,7 @@ databaseChangeLog :
                                         nullable : false
                             -   column :
                                     name : birth_date
-                                    type : timestamptz
-                            -   column :
-                                    name : birth_date_time_zone
-                                    type : varchar(60)
+                                    type : date
                             -   column :
                                     name : gender
                                     type : varchar(3)

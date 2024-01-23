@@ -1,10 +1,10 @@
 package de.jobst.resulter.domain;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 
-public record BirthDate(ZonedDateTime value) {
+public record BirthDate(LocalDate value) {
 
-    public static BirthDate of(ZonedDateTime birthDate) {
+    public static BirthDate of(LocalDate birthDate) {
         return new BirthDate(birthDate);
     }
 }

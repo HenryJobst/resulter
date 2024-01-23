@@ -15,6 +15,8 @@ public class JdbcConfiguration {
     @Bean
     public JdbcCustomConversions jdbcCustomConversions() {
         List<Converter<?, ?>> converterList = new ArrayList<>();
+        converterList.add(new TimestampToLocalDateConverter());
+        converterList.add(new LocalDateToTimestampConverter());
         converterList.add(new TimestampToOffsetDateTimeConverter());
         converterList.add(new OffsetDateTimeToTimestampConverter());
         return new JdbcCustomConversions(converterList);

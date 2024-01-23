@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -21,6 +21,6 @@ public interface PersonJdbcRepository
 
     Optional<PersonDbo> findByFamilyNameAndGivenNameAndBirthDateAndGender(String familyName,
                                                                           String givenName,
-                                                                          LocalDate birthDate,
+                                                                          ZonedDateTime birthDate,
                                                                           Gender gender);
 }

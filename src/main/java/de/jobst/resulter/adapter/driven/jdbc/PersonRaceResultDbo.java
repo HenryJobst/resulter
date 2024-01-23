@@ -21,13 +21,21 @@ import java.util.List;
 @Table(name = "person_race_result")
 public class PersonRaceResultDbo {
 
+    @Column("race_number")
     private Long raceNumber;
+    @Column("start_time")
     private OffsetDateTime startTime;
+    @Column("start_time_zone")
     private String startTimeZone;
+    @Column("finish_time")
     private OffsetDateTime finishTime;
+    @Column("finish_time_zone")
     private String finishTimeZone;
+    @Column("punch_time")
     private Double punchTime;
+    @Column("position")
     private Long position;
+    @Column("state")
     private ResultStatus state;
 
     @Column("split_time_list_id")

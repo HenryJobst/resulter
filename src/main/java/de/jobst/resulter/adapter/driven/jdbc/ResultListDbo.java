@@ -29,16 +29,21 @@ public class ResultListDbo {
 
     @Id
     @With
+    @Column("id")
     private Long id;
 
     @Column("event_id")
     private AggregateReference<EventDbo, Long> event;
 
+    @Column("creator")
     private String creator;
 
+    @Column("create_time")
     private OffsetDateTime createTime;
+    @Column("create_time_zone")
     private String createTimeZone;
 
+    @Column("status")
     private String status = "COMPLETE";
 
     @MappedCollection(idColumn = "result_list_id")
@@ -62,33 +67,33 @@ public class ResultListDbo {
             resultListDbo.setEvent(AggregateReference.to(resultList.getEventId().value()));
             resultListDbo.setCreator(resultList.getCreator());
             resultListDbo.setCreateTime(
-                    resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null);
+                resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null);
             resultListDbo.setCreateTimeZone(
-                    resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
+                resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
         } else {
             resultListDbo = new ResultListDbo(AggregateReference.to(resultList.getEventId().value()),
-                    resultList.getCreator(),
-                    resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null,
-                    resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
+                resultList.getCreator(),
+                resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null,
+                resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
 
         }
         if (resultList.getClassResults() != null) {
             resultListDbo.setClassResults(resultList.getClassResults()
-                    .stream()
-                    .map(ClassResultDbo::from)
-                    .collect(Collectors.toSet()));
+                .stream()
+                .map(ClassResultDbo::from)
+                .collect(Collectors.toSet()));
         }
         return resultListDbo;
     }
 
     static public Collection<ResultList> asResultLists(Collection<ResultListDbo> resultListDbos) {
         return resultListDbos.stream()
-                .map(it -> new ResultList(ResultListId.of(it.id),
-                        EventId.of(it.event.getId()),
-                        it.creator,
-                        it.createTime != null ? it.createTime.atZoneSameInstant(ZoneId.of(it.createTimeZone)) : null,
-                        it.status,
-                        ClassResultDbo.asClassResults(it.getClassResults())))
-                .toList();
+            .map(it -> new ResultList(ResultListId.of(it.id),
+                EventId.of(it.event.getId()),
+                it.creator,
+                it.createTime != null ? it.createTime.atZoneSameInstant(ZoneId.of(it.createTimeZone)) : null,
+                it.status,
+                ClassResultDbo.asClassResults(it.getClassResults())))
+            .toList();
     }
 }

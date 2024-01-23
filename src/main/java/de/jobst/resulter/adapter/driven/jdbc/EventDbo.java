@@ -27,6 +27,7 @@ public class EventDbo {
 
     @Id
     @With
+    @Column("id")
     private final Long id;
 
     @Column("name")

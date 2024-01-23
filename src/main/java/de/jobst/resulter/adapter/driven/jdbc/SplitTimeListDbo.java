@@ -24,6 +24,7 @@ public class SplitTimeListDbo {
 
     @Id
     @With
+    @Column("id")
     private Long id;
 
     @Column("event_id")
@@ -35,7 +36,10 @@ public class SplitTimeListDbo {
     @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
 
+    @Column("class_result_short_name")
     private String classResultShortName;
+
+    @Column("race_number")
     private Long raceNumber;
 
     @MappedCollection(idColumn = "split_time_list_id")

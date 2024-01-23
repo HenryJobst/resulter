@@ -28,12 +28,16 @@ public class OrganisationDbo {
 
     @Id
     @With
+    @Column("id")
     private Long id;
 
+    @Column("name")
     private String name;
 
+    @Column("short_name")
     private String shortName;
 
+    @Column("type")
     private OrganisationType type;
 
     @MappedCollection(idColumn = "parent_organisation_id")

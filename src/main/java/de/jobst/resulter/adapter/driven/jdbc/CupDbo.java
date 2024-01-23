@@ -11,6 +11,7 @@ import lombok.With;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
@@ -28,13 +29,16 @@ public class CupDbo {
 
     @Id
     @With
+    @Column("id")
     private Long id;
 
+    @Column("name")
     private String name;
 
     @MappedCollection(idColumn = "event_id")
     private Set<CupEventDbo> events = new HashSet<>();
 
+    @Column("type")
     private CupType type;
 
     public CupDbo(String name) {

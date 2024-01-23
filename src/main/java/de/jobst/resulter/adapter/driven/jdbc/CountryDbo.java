@@ -18,6 +18,7 @@ public class CountryDbo {
 
     @Id
     @With
+    @Column("id")
     private Long id;
 
     @Column("code")

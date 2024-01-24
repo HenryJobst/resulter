@@ -16,7 +16,8 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,9 +34,13 @@ public class EventDbo {
     @Column("name")
     private String name;
     @Column("start_time")
-    private ZonedDateTime startTime;
+    private OffsetDateTime startTime;
+    @Column("start_time_zone")
+    private String startTimeZone;
     @Column("end_time")
-    private ZonedDateTime endTime;
+    private OffsetDateTime endTime;
+    @Column("end_time_zone")
+    private String endTimeZone;
     @Column("state")
     private EventStatus state;
 
@@ -59,16 +64,20 @@ public class EventDbo {
             eventDbo = new EventDbo(event.getName().value());
         }
 
-        if (ObjectUtils.isNotEmpty(event.getStartTime())) {
-            eventDbo.setStartTime(event.getStartTime().value());
+        if (null != event.getStartTime().value()) {
+            eventDbo.setStartTime(event.getStartTime().value().toOffsetDateTime());
+            eventDbo.setStartTimeZone(event.getStartTime().value().getZone().getId());
         } else {
             eventDbo.setStartTime(null);
+            eventDbo.setStartTimeZone(null);
         }
 
-        if (ObjectUtils.isNotEmpty(event.getEndTime())) {
-            eventDbo.setEndTime(event.getEndTime().value());
+        if (null != event.getEndTime().value()) {
+            eventDbo.setEndTime(event.getEndTime().value().toOffsetDateTime());
+            eventDbo.setEndTimeZone(event.getEndTime().value().getZone().getId());
         } else {
             eventDbo.setEndTime(null);
+            eventDbo.setEndTimeZone(null);
         }
 
         if (ObjectUtils.isNotEmpty(event.getEventState())) {
@@ -94,8 +103,8 @@ public class EventDbo {
         return eventDbos.stream()
             .map(it -> Event.of(it.id,
                 it.name,
-                it.startTime,
-                it.endTime,
+                it.startTime != null ? it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)) : null,
+                it.endTime != null ? it.endTime.atZoneSameInstant(ZoneId.of(it.endTimeZone)) : null,
                 it.resultLists.stream()
                     .map(x -> Objects.nonNull(x) ? ResultListId.of(x.id.getId()) : null)
                     .filter(Objects::nonNull)

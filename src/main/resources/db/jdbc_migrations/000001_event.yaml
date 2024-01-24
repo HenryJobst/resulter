@@ -29,8 +29,14 @@ databaseChangeLog :
                                     name : start_time
                                     type : timestamptz
                             -   column :
+                                    name : start_time_zone
+                                    type : varchar(60)
+                            -   column :
                                     name : end_time
                                     type : timestamptz
+                            -   column :
+                                    name : end_time_zone
+                                    type : varchar(60)
                             -   column :
                                     name : state
                                     type : varchar(20)

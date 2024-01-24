@@ -45,18 +45,19 @@ public class PersonRaceResultDbo {
     public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
 
-        if (personRaceResult.getStartTime().value() != null) {
+        if (null != personRaceResult.getStartTime().value()) {
             personRaceResultDbo.setStartTime(personRaceResult.getStartTime().value().toOffsetDateTime());
             personRaceResultDbo.setStartTimeZone(personRaceResult.getStartTime().value().getZone().getId());
         } else {
             personRaceResultDbo.setStartTime(null);
             personRaceResultDbo.setStartTimeZone(null);
         }
-        if (personRaceResult.getFinishTime().value() != null) {
+        if (null != personRaceResult.getFinishTime().value()) {
             personRaceResultDbo.setFinishTime(personRaceResult.getFinishTime().value().toOffsetDateTime());
             personRaceResultDbo.setFinishTimeZone(personRaceResult.getFinishTime().value().getZone().getId());
         } else {
             personRaceResultDbo.setFinishTime(null);
+            personRaceResultDbo.setFinishTimeZone(null);
         }
         if (ObjectUtils.isNotEmpty(personRaceResult.getRuntime())) {
             personRaceResultDbo.setPunchTime(personRaceResult.getRuntime().value());

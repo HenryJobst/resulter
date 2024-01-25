@@ -67,14 +67,14 @@ public class ResultListDbo {
             resultListDbo.setEvent(AggregateReference.to(resultList.getEventId().value()));
             resultListDbo.setCreator(resultList.getCreator());
             resultListDbo.setCreateTime(
-                resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null);
+                null != resultList.getCreateTime() ? resultList.getCreateTime().toOffsetDateTime() : null);
             resultListDbo.setCreateTimeZone(
-                resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
+                null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
         } else {
             resultListDbo = new ResultListDbo(AggregateReference.to(resultList.getEventId().value()),
                 resultList.getCreator(),
-                resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null,
-                resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
+                null != resultList.getCreateTime() ? resultList.getCreateTime().toOffsetDateTime() : null,
+                null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
 
         }
         if (resultList.getClassResults() != null) {

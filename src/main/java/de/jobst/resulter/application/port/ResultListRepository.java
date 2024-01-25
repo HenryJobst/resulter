@@ -20,4 +20,6 @@ public interface ResultListRepository {
     Collection<ResultList> findOrCreate(Collection<ResultList> resultLists);
 
     ResultList update(ResultList resultList);
+
+    void deleteResultLists(Collection<ResultListId> resultListIds);
 }

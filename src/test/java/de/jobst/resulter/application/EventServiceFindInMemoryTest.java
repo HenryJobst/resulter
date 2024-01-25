@@ -18,6 +18,7 @@ class EventServiceFindInMemoryTest {
     public void whenRepositoryIsEmptyFindReturnsEmptyOptional() {
         EventService eventService = EventServiceFactory.createServiceWith(new InMemoryEventRepository(),
             new InMemoryCupRepository(),
+            new InMemoryResultListRepository(),
             new InMemoryPersonRepository(),
             new InMemoryOrganisationRepository());
 
@@ -28,10 +29,12 @@ class EventServiceFindInMemoryTest {
     public void whenRepositoryIsEmptyFindOrCreateReturnsIt() {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
         InMemoryCupRepository cupRepository = new InMemoryCupRepository();
+        InMemoryResultListRepository resultListRepository = new InMemoryResultListRepository();
         InMemoryPersonRepository personRepository = new InMemoryPersonRepository();
         InMemoryOrganisationRepository organisationRepository = new InMemoryOrganisationRepository();
         EventService eventService = EventServiceFactory.createServiceWith(eventRepository,
             cupRepository,
+            resultListRepository,
             personRepository,
             organisationRepository);
 
@@ -44,11 +47,13 @@ class EventServiceFindInMemoryTest {
     public void whenRepositoryIsNotEmptyFindOrCreateReturnsItAgain() {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
         InMemoryCupRepository cupRepository = new InMemoryCupRepository();
+        InMemoryResultListRepository resultListRepository = new InMemoryResultListRepository();
         InMemoryPersonRepository personRepository = new InMemoryPersonRepository();
         InMemoryOrganisationRepository organisationRepository = new InMemoryOrganisationRepository();
         Event savedEvent = eventRepository.findOrCreate(Event.of("Test"));
         EventService eventService = EventServiceFactory.createServiceWith(eventRepository,
             cupRepository,
+            resultListRepository,
             personRepository,
             organisationRepository);
 
@@ -62,10 +67,12 @@ class EventServiceFindInMemoryTest {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
         InMemoryCupRepository cupRepository = new InMemoryCupRepository();
         InMemoryPersonRepository personRepository = new InMemoryPersonRepository();
+        InMemoryResultListRepository resultListRepository = new InMemoryResultListRepository();
         InMemoryOrganisationRepository organisationRepository = new InMemoryOrganisationRepository();
         Event savedEvent = eventRepository.save(Event.of("Test"));
         EventService eventService = EventServiceFactory.createServiceWith(eventRepository,
             cupRepository,
+            resultListRepository,
             personRepository,
             organisationRepository);
 

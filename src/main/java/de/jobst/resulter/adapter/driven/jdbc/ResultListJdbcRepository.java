@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -18,5 +18,7 @@ public interface ResultListJdbcRepository
     @NonNull
     Collection<ResultListDbo> findAll();
 
-    Optional<ResultListDbo> findByCreatorAndCreateTime(String creator, ZonedDateTime createTime);
+    Optional<ResultListDbo> findByCreatorAndCreateTimeAndCreateTimeZone(String creator,
+                                                                        OffsetDateTime createTime,
+                                                                        String createTimeZone);
 }

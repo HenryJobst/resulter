@@ -49,8 +49,10 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     @Override
     @Transactional
     public ResultList findOrCreate(ResultList resultList) {
-        Optional<ResultListDbo> resultListEntity =
-            resultListJdbcRepository.findByCreatorAndCreateTime(resultList.getCreator(), resultList.getCreateTime());
+        Optional<ResultListDbo> resultListEntity = resultListJdbcRepository.findByCreatorAndCreateTimeAndCreateTimeZone(
+            resultList.getCreator(),
+            null != resultList.getCreateTime() ? resultList.getCreateTime().toOffsetDateTime() : null,
+            null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
         if (resultListEntity.isEmpty()) {
             return save(resultList);
         }

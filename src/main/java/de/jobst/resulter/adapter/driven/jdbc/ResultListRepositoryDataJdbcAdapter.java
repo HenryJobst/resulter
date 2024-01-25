@@ -70,4 +70,9 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     public ResultList update(ResultList resultList) {
         return save(resultList);
     }
+
+    @Override
+    public void deleteResultLists(Collection<ResultListId> resultListIds) {
+        resultListJdbcRepository.deleteAllById(resultListIds.stream().map(ResultListId::value).toList());
+    }
 }

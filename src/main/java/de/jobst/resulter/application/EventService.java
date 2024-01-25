@@ -1,9 +1,6 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.application.port.CupRepository;
-import de.jobst.resulter.application.port.EventRepository;
-import de.jobst.resulter.application.port.OrganisationRepository;
-import de.jobst.resulter.application.port.PersonRepository;
+import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,16 +16,19 @@ public class EventService {
     public final PersonRepository personRepository;
     public final OrganisationRepository organisationRepository;
     private final EventRepository eventRepository;
+    private final ResultListRepository resultListRepository;
 
     private final CupRepository cupRepository;
 
     public EventService(EventRepository eventRepository,
                         PersonRepository personRepository,
                         OrganisationRepository organisationRepository,
+                        ResultListRepository resultListRepository,
                         CupRepository cupRepository) {
         this.eventRepository = eventRepository;
         this.personRepository = personRepository;
         this.organisationRepository = organisationRepository;
+        this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
     }
 
@@ -63,6 +63,7 @@ public class EventService {
             return false;
         }
         Event event = optionalEvent.get();
+        resultListRepository.deleteResultLists(event.getResultListIds());
         eventRepository.deleteEvent(event);
         return true;
     }

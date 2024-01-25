@@ -45,7 +45,7 @@ public class EventDbo {
     private EventStatus state;
 
     @MappedCollection(idColumn = "event_id")
-    private Set<EventResultListDbo> resultLists = new HashSet<>();
+    private Set<ResultListDbo> resultLists = new HashSet<>();
 
     @MappedCollection(idColumn = "event_id")
     private Set<EventOrganisationDbo> organisations = new HashSet<>();
@@ -92,7 +92,7 @@ public class EventDbo {
             .collect(Collectors.toSet()));
         eventDbo.setResultLists(event.getResultListIds()
             .stream()
-            .map(x -> new EventResultListDbo(x.value()))
+            .map(x -> dboResolvers.getResultListDboResolver().findDboById(x))
             .collect(Collectors.toSet()));
 
         return eventDbo;
@@ -106,7 +106,7 @@ public class EventDbo {
                 it.startTime != null ? it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)) : null,
                 it.endTime != null ? it.endTime.atZoneSameInstant(ZoneId.of(it.endTimeZone)) : null,
                 it.resultLists.stream()
-                    .map(x -> Objects.nonNull(x) ? ResultListId.of(x.id.getId()) : null)
+                    .map(x -> Objects.nonNull(x) ? ResultListId.of(x.getId()) : null)
                     .filter(Objects::nonNull)
                     .toList(),
                 it.organisations.stream()

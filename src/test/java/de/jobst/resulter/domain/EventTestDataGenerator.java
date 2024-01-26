@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public class EventTestDataGenerator {
 
@@ -63,7 +64,7 @@ public class EventTestDataGenerator {
             "completed",
             classResults);
 
-        return new TestEventResult(Event.of(A_EVENT_NAME, List.of(resultList.getId())),
+        return new TestEventResult(Event.of(A_EVENT_NAME, Set.of(resultList.getId())),
             country,
             organisation,
             person,

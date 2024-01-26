@@ -108,11 +108,11 @@ public class EventDbo {
                 it.resultLists.stream()
                     .map(x -> Objects.nonNull(x) ? ResultListId.of(x.getId()) : null)
                     .filter(Objects::nonNull)
-                    .toList(),
+                    .collect(Collectors.toSet()),
                 it.organisations.stream()
                     .map(x -> Objects.nonNull(x) ? OrganisationId.of(x.id.getId()) : null)
                     .filter(Objects::nonNull)
-                    .toList(),
+                    .collect(Collectors.toSet()),
                 it.state))
             .toList();
     }

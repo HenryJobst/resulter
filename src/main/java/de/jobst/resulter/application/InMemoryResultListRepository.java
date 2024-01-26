@@ -30,7 +30,7 @@ public class InMemoryResultListRepository implements ResultListRepository {
     }
 
     @Override
-    public void deleteResultLists(Collection<ResultListId> resultListIds) {
+    public void deleteResultLists(Set<ResultListId> resultListIds) {
         resultListIds.forEach(resultLists::remove);
         savedResultLists.removeIf(it -> resultListIds.contains(it.getId()));
     }

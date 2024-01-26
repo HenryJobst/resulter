@@ -5,10 +5,7 @@ import de.jobst.resulter.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class EventService {
@@ -17,6 +14,7 @@ public class EventService {
     public final OrganisationRepository organisationRepository;
     private final EventRepository eventRepository;
     private final ResultListRepository resultListRepository;
+    private final SplitTimeListRepository splitTimeListRepository;
 
     private final CupRepository cupRepository;
 
@@ -24,11 +22,13 @@ public class EventService {
                         PersonRepository personRepository,
                         OrganisationRepository organisationRepository,
                         ResultListRepository resultListRepository,
+                        SplitTimeListRepository splitTimeListRepository,
                         CupRepository cupRepository) {
         this.eventRepository = eventRepository;
         this.personRepository = personRepository;
         this.organisationRepository = organisationRepository;
         this.resultListRepository = resultListRepository;
+        this.splitTimeListRepository = splitTimeListRepository;
         this.cupRepository = cupRepository;
     }
 
@@ -44,10 +44,7 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-    public Event updateEvent(EventId id,
-                             EventName name,
-                             DateTime startDate,
-                             Collection<OrganisationId> organisationIds) {
+    public Event updateEvent(EventId id, EventName name, DateTime startDate, Set<OrganisationId> organisationIds) {
         Optional<Event> optionalEvent = findById(id);
         if (optionalEvent.isEmpty()) {
             return null;
@@ -57,6 +54,7 @@ public class EventService {
         return eventRepository.save(event);
     }
 
+    @Transactional
     public boolean deleteEvent(EventId eventId) {
         Optional<Event> optionalEvent = findById(eventId);
         if (optionalEvent.isEmpty()) {
@@ -64,6 +62,7 @@ public class EventService {
         }
         Event event = optionalEvent.get();
         resultListRepository.deleteResultLists(event.getResultListIds());
+        splitTimeListRepository.deleteAllByEventId(event.getId());
         eventRepository.deleteEvent(event);
         return true;
     }

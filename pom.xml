@@ -244,13 +244,14 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>target/generated-sources/annotations</source>
+                                <source>target/generated-sources</source>
+                                <!--source>target/generated-sources/annotations</source-->
                             </sources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${maven-clean-plugin.version}</version>
@@ -275,7 +276,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

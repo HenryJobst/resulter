@@ -71,7 +71,7 @@ public class XMLImportService {
                     RaceNumber.of(personRaceResult.getRaceNumber().longValue()),
                     personRaceResult.getSplitTimes()
                         .stream()
-                        .map(x -> new SplitTime(ControlCode.of(x.getControlCode()), PunchTime.of(x.getTime())))
+                        .map(x -> new SplitTime(ControlCode.of(x.getControlCode()), PunchTime.of(x.getTime()), null))
                         .toList())))
             .toList();
     }
@@ -105,12 +105,13 @@ public class XMLImportService {
     }
 
     private ResultList importResultListBody(Event event,
-                                            ResultList domainResultList,
+                                            ResultList partialResultList,
                                             de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList,
                                             Map<String, Organisation> organisationByName,
                                             Map<Person.DomainKey, Person> personByDomainKey) {
-        ResultList finalDomainResultList = domainResultList;
-        List<Pair<ClassResult, List<List<SplitTimeList>>>> classResultsTemp =
+        @SuppressWarnings("UnnecessaryLocalVariable") ResultList finalDomainResultList = partialResultList;
+
+        List<Pair<ClassResult, List<List<SplitTimeList>>>> listOfPairsOfClassResultAndGroupedSplitTimeLists =
             resultList.getClassResults().stream().map(classResult -> {
                 var clazz = classResult.getClazz();
                 var personResults = convertListPairToListsPair(getPersonResults(classResult,
@@ -124,29 +125,32 @@ public class XMLImportService {
                     Gender.of(clazz.getSex()),
                     personResults.getFirst()), personResults.getSecond());
             }).toList();
-        var classResults = convertListPairToListsPair(classResultsTemp);
+        var pairOfClassResultListAndGroupedSplitTimeLists =
+            convertListPairToListsPair(listOfPairsOfClassResultAndGroupedSplitTimeLists);
 
         // collect and persist split time lists
+        var groupedSplitTimeLists = pairOfClassResultListAndGroupedSplitTimeLists.getSecond();
         Collection<SplitTimeList> splitTimeLists =
-            classResults.getSecond().stream().flatMap(Collection::stream).flatMap(Collection::stream).toList();
+            groupedSplitTimeLists.stream().flatMap(Collection::stream).flatMap(Collection::stream).toList();
         splitTimeLists = splitTimeListService.findOrCreate(splitTimeLists);
+
         Map<SplitTimeList.DomainKey, SplitTimeList> splitTimeListByDomainKey =
             splitTimeLists.stream().collect(Collectors.toMap(SplitTimeList::getDomainKey, x -> x));
 
-        classResults.getFirst()
-            .forEach(x -> x.personResults()
-                .value()
-                .forEach(y -> y.personRaceResults()
-                    .value()
-                    .forEach(z -> z.setSplitTimeListId(splitTimeListByDomainKey.get(new SplitTimeList.DomainKey(event.getId(),
+        var classResults = pairOfClassResultListAndGroupedSplitTimeLists.getFirst();
+        for (ClassResult x : classResults) {
+            for (PersonResult y : x.personResults().value()) {
+                for (PersonRaceResult z : y.personRaceResults().value()) {
+                    z.setSplitTimeListId(splitTimeListByDomainKey.get(new SplitTimeList.DomainKey(event.getId(),
                         finalDomainResultList.getId(),
                         x.classResultShortName(),
                         y.personId(),
-                        z.getRaceNumber())).getId()))));
-
-        domainResultList.setClassResults(classResults.getFirst());
-        domainResultList = resultListService.update(domainResultList);
-        return domainResultList;
+                        z.getRaceNumber())).getId());
+                }
+            }
+        }
+        finalDomainResultList.setClassResults(classResults);
+        return resultListService.update(finalDomainResultList);
     }
 
     private ResultList importResultListHead(Event event,
@@ -161,20 +165,19 @@ public class XMLImportService {
             resultList.getStatus(),
             null);
         // Create without class results to get a pk
-        domainResultList = resultListService.findOrCreate(domainResultList);
-        return domainResultList;
+        return resultListService.findOrCreate(domainResultList);
     }
 
     private Event importEvent(de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList,
                               Map<String, Organisation> organisationByName) {
         // Event
         Event event = Event.of(resultList.getEvent().getName(),
-            new ArrayList<>(),
+            new HashSet<>(),
             resultList.getEvent()
                 .getOrganisers()
                 .stream()
                 .map(x -> OrganisationId.of(organisationByName.get(x.getName()).getId().value()))
-                .toList());
+                .collect(Collectors.toSet()));
         event = eventService.findOrCreate(event);
         return event;
     }
@@ -258,10 +261,10 @@ public class XMLImportService {
     }
 
     private Person.DomainKey createPersonDomainKey(de.jobst.resulter.adapter.driver.web.jaxb.Person p) {
-        return new Person.DomainKey(p.getName().getFamily(),
-            p.getName().getGiven(),
-            ObjectUtils.isNotEmpty(p.getBirthDate()) ?
-            p.getBirthDate().toGregorianCalendar().toZonedDateTime().toLocalDate() :
+        return new Person.DomainKey(PersonName.of(FamilyName.of(p.getName().getFamily()),
+            GivenName.of(p.getName().getGiven())),
+            null != p.getBirthDate() ?
+            BirthDate.of(p.getBirthDate().toGregorianCalendar().toZonedDateTime().toLocalDate()) :
             null);
     }
 
@@ -273,9 +276,13 @@ public class XMLImportService {
                                                                            Map<String, Organisation> organisationByName,
                                                                            Map<Person.DomainKey, Person> personByDomainKey) {
         return classResult.getPersonResults().stream().map(personResult -> {
-            PersonId personId = Objects.nonNull(personResult.getPerson()) ?
-                                personByDomainKey.get(createPersonDomainKey(personResult.getPerson())).getId() :
-                                null;
+            PersonId personId;
+            if (Objects.nonNull(personResult.getPerson())) {
+                Person.DomainKey personDomainKey = createPersonDomainKey(personResult.getPerson());
+                personId = personByDomainKey.get(personDomainKey).getId();
+            } else {
+                personId = null;
+            }
             Pair<List<PersonRaceResult>, List<SplitTimeList>> personRaceResults =
                 convertListPairToListsPair(getPersonRaceResults(personResult,
                     eventId,

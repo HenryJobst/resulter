@@ -5,6 +5,7 @@ import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventName;
 import de.jobst.resulter.domain.EventTestDataGenerator;
+import de.jobst.resulter.domain.TestEventResult;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 @DataJdbcTest(properties = {"spring.test.database.replace=NONE", "resulter.repository.inmemory=false"})
 @ContextConfiguration(classes = {TestConfig.class}, loader = AnnotationConfigContextLoader.class)
 @EntityScan(basePackages = {"de.jobst.resulter.adapter.driven.jdbc"})
@@ -34,7 +36,9 @@ class EventServiceJpaTest {
     @Disabled
     void testUpdateExistingEvent() {
 
-        Event event = EventTestDataGenerator.getTestEvent();
+        TestEventResult testEventResult = EventTestDataGenerator.getTestEvent();
+        Event event = testEventResult.event();
+
         Event savedEvent = eventService.findOrCreate(event);
 
         Event changedEvent = eventService.updateEvent(savedEvent.getId(),

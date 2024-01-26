@@ -9,8 +9,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,16 +28,16 @@ public class Event implements Comparable<Event> {
     @Nullable
     private final EventStatus eventState;
     @NonNull
-    private Collection<OrganisationId> organisationIds;
+    private Set<OrganisationId> organisationIds;
     @NonNull
-    private Collection<ResultListId> resultListIds;
+    private Set<ResultListId> resultListIds;
 
     public Event(@NonNull EventId id,
                  @NonNull EventName eventName,
                  @NonNull DateTime startTime,
                  @NonNull DateTime endTime,
-                 @NonNull Collection<ResultListId> resultListIds,
-                 @NonNull Collection<OrganisationId> organisationIds,
+                 @NonNull Set<ResultListId> resultListIds,
+                 @NonNull Set<OrganisationId> organisationIds,
                  @Nullable EventStatus eventState) {
         this.id = id;
         this.name = eventName;
@@ -51,24 +49,24 @@ public class Event implements Comparable<Event> {
     }
 
     public static Event of(@NonNull String name) {
-        return Event.of(name, new ArrayList<>());
+        return Event.of(name, new HashSet<>());
     }
 
-    public static Event of(@NonNull String name, @Nullable Collection<ResultListId> resultListIds) {
+    public static Event of(@NonNull String name, @Nullable Set<ResultListId> resultListIds) {
         return Event.of(EventId.empty().value(), name, resultListIds);
     }
 
     public static Event of(Long id, @NonNull String name) {
-        return Event.of(id, name, new ArrayList<>());
+        return Event.of(id, name, new HashSet<>());
     }
 
-    public static Event of(Long id, @NonNull String name, @Nullable Collection<ResultListId> resultListIds) {
-        return Event.of(id, name, null, null, resultListIds, new ArrayList<>(), null);
+    public static Event of(Long id, @NonNull String name, @Nullable Set<ResultListId> resultListIds) {
+        return Event.of(id, name, null, null, resultListIds, new HashSet<>(), null);
     }
 
     public static Event of(@NonNull String name,
-                           @Nullable Collection<ResultListId> resultListIds,
-                           @Nullable Collection<OrganisationId> organisations) {
+                           @Nullable Set<ResultListId> resultListIds,
+                           @Nullable Set<OrganisationId> organisations) {
         return Event.of(EventId.empty().value(), name, null, null, resultListIds, organisations, null);
     }
 
@@ -76,15 +74,15 @@ public class Event implements Comparable<Event> {
                            @NonNull String eventName,
                            @Nullable ZonedDateTime startTime,
                            @Nullable ZonedDateTime endTime,
-                           @Nullable Collection<ResultListId> resultListIds,
-                           @Nullable Collection<OrganisationId> organisationIds,
+                           @Nullable Set<ResultListId> resultListIds,
+                           @Nullable Set<OrganisationId> organisationIds,
                            @Nullable EventStatus eventState) {
         return new Event(EventId.of(id),
             EventName.of(eventName),
             DateTime.of(startTime),
             DateTime.of(endTime),
-            (resultListIds != null) ? resultListIds : new ArrayList<>(),
-            (organisationIds != null) ? organisationIds : new ArrayList<>(),
+            (resultListIds != null) ? resultListIds : new HashSet<>(),
+            (organisationIds != null) ? organisationIds : new HashSet<>(),
             eventState);
     }
 
@@ -99,11 +97,11 @@ public class Event implements Comparable<Event> {
         return new HashSet<>();
     }
 
-    public void update(EventName eventName, DateTime startTime, Collection<OrganisationId> organisationIds) {
+    public void update(EventName eventName, DateTime startTime, Set<OrganisationId> organisationIds) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
-        this.organisationIds = organisationIds != null ? organisationIds : new ArrayList<>();
+        this.organisationIds = organisationIds != null ? organisationIds : new HashSet<>();
     }
 
     @Override

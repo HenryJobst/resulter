@@ -1,9 +1,6 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.application.port.InMemoryCupRepository;
-import de.jobst.resulter.application.port.InMemoryEventRepository;
-import de.jobst.resulter.application.port.InMemoryOrganisationRepository;
-import de.jobst.resulter.application.port.InMemoryPersonRepository;
+import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
 import org.junit.jupiter.api.Test;
@@ -20,7 +17,8 @@ class EventServiceFindInMemoryTest {
             new InMemoryCupRepository(),
             new InMemoryResultListRepository(),
             new InMemoryPersonRepository(),
-            new InMemoryOrganisationRepository());
+            new InMemoryOrganisationRepository(),
+            new InMemorySplitTimeListRepository());
 
         assertThat(eventService.findById(EventId.of(9999L))).isEmpty();
     }
@@ -32,11 +30,13 @@ class EventServiceFindInMemoryTest {
         InMemoryResultListRepository resultListRepository = new InMemoryResultListRepository();
         InMemoryPersonRepository personRepository = new InMemoryPersonRepository();
         InMemoryOrganisationRepository organisationRepository = new InMemoryOrganisationRepository();
+        InMemorySplitTimeListRepository splitTimeListRepository = new InMemorySplitTimeListRepository();
         EventService eventService = EventServiceFactory.createServiceWith(eventRepository,
             cupRepository,
             resultListRepository,
             personRepository,
-            organisationRepository);
+            organisationRepository,
+            splitTimeListRepository);
 
         Event savedEvent = eventService.findOrCreate(Event.of("Test"));
 
@@ -50,12 +50,14 @@ class EventServiceFindInMemoryTest {
         InMemoryResultListRepository resultListRepository = new InMemoryResultListRepository();
         InMemoryPersonRepository personRepository = new InMemoryPersonRepository();
         InMemoryOrganisationRepository organisationRepository = new InMemoryOrganisationRepository();
+        InMemorySplitTimeListRepository splitTimeListRepository = new InMemorySplitTimeListRepository();
         Event savedEvent = eventRepository.findOrCreate(Event.of("Test"));
         EventService eventService = EventServiceFactory.createServiceWith(eventRepository,
             cupRepository,
             resultListRepository,
             personRepository,
-            organisationRepository);
+            organisationRepository,
+            splitTimeListRepository);
 
         Event foundEvent = eventService.findOrCreate(savedEvent);
 
@@ -69,12 +71,14 @@ class EventServiceFindInMemoryTest {
         InMemoryPersonRepository personRepository = new InMemoryPersonRepository();
         InMemoryResultListRepository resultListRepository = new InMemoryResultListRepository();
         InMemoryOrganisationRepository organisationRepository = new InMemoryOrganisationRepository();
+        InMemorySplitTimeListRepository splitTimeListRepository = new InMemorySplitTimeListRepository();
         Event savedEvent = eventRepository.save(Event.of("Test"));
         EventService eventService = EventServiceFactory.createServiceWith(eventRepository,
             cupRepository,
             resultListRepository,
             personRepository,
-            organisationRepository);
+            organisationRepository,
+            splitTimeListRepository);
 
         Optional<Event> foundEvent = eventService.findById(savedEvent.getId());
 

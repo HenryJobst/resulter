@@ -10,11 +10,13 @@ public class EventServiceFactory {
                                                  CupRepository cupRepository,
                                                  ResultListRepository resultListRepository,
                                                  PersonRepository personRepository,
-                                                 OrganisationRepository organisationRepository) {
+                                                 OrganisationRepository organisationRepository,
+                                                 SplitTimeListRepository splitTimeListRepository) {
         return new EventService(eventRepository,
             personRepository,
             organisationRepository,
             resultListRepository,
+            splitTimeListRepository,
             cupRepository);
     }
 
@@ -24,7 +26,8 @@ public class EventServiceFactory {
             new InMemoryCupRepository(),
             new InMemoryResultListRepository(),
             new InMemoryPersonRepository(),
-            new InMemoryOrganisationRepository());
+            new InMemoryOrganisationRepository(),
+            new InMemorySplitTimeListRepository());
     }
 
 }

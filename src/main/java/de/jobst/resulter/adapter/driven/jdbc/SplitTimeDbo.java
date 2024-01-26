@@ -1,10 +1,12 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.SplitTime;
+import de.jobst.resulter.domain.SplitTimeListId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
@@ -24,12 +26,19 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
     @Column("punch_time")
     private Double punchTime;
 
-    public static SplitTimeDbo from(SplitTime splitTime) {
-        return new SplitTimeDbo(splitTime.getControlCode().value(), splitTime.getPunchTime().value());
+    @Column("split_time_list_id")
+    private AggregateReference<SplitTimeListDbo, Long> splitTimeList;
+
+    public static SplitTimeDbo from(SplitTime splitTime, SplitTimeListId splitTimeListId) {
+        return new SplitTimeDbo(splitTime.getControlCode().value(),
+            splitTime.getPunchTime().value(),
+            AggregateReference.to(splitTimeListId.value()));
     }
 
     static public List<SplitTime> asSplitTimes(List<SplitTimeDbo> splitTimeDbos) {
-        return splitTimeDbos.stream().map(it -> SplitTime.of(it.controlCode, it.punchTime)).toList();
+        return splitTimeDbos.stream()
+            .map(it -> SplitTime.of(it.controlCode, it.punchTime, SplitTimeListId.of(it.getSplitTimeList().getId())))
+            .toList();
     }
 
     @Override

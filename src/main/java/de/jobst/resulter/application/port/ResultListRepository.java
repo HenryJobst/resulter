@@ -6,6 +6,7 @@ import de.jobst.resulter.domain.ResultListId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ResultListRepository {
 
@@ -21,5 +22,5 @@ public interface ResultListRepository {
 
     ResultList update(ResultList resultList);
 
-    void deleteResultLists(Collection<ResultListId> resultListIds);
+    void deleteResultLists(Set<ResultListId> resultListIds);
 }

@@ -1,8 +1,10 @@
 package de.jobst.resulter.domain;
 
+import org.springframework.lang.NonNull;
+
 import java.text.MessageFormat;
 
-public record PersonName(FamilyName familyName, GivenName givenName) {
+public record PersonName(FamilyName familyName, GivenName givenName) implements Comparable<PersonName> {
 
     public String getFullName() {
         return MessageFormat.format("{1} {0}", familyName.value(), givenName.value());
@@ -14,5 +16,14 @@ public record PersonName(FamilyName familyName, GivenName givenName) {
 
     public static PersonName of(String familyName, String givenName) {
         return new PersonName(FamilyName.of(familyName), GivenName.of(givenName));
+    }
+
+    @Override
+    public int compareTo(@NonNull PersonName o) {
+        int val = familyName.compareTo(o.familyName);
+        if (val == 0) {
+            val = givenName.compareTo(o.givenName);
+        }
+        return val;
     }
 }

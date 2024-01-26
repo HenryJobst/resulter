@@ -24,8 +24,8 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     Position position;
     @NonNull
     ResultStatus state;
-    @Setter
     @Nullable
+    @Setter
     SplitTimeListId splitTimeListId;
 
     public static PersonRaceResult of(Long raceNumber,
@@ -34,13 +34,23 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                                       Double punchTime,
                                       Long position,
                                       @NonNull ResultStatus resultState) {
+        return PersonRaceResult.of(raceNumber, startTime, finishTime, punchTime, position, resultState, null);
+    }
+
+    public static PersonRaceResult of(Long raceNumber,
+                                      ZonedDateTime startTime,
+                                      ZonedDateTime finishTime,
+                                      Double punchTime,
+                                      Long position,
+                                      @NonNull ResultStatus resultState,
+                                      @Nullable SplitTimeListId splitTimeListId) {
         return new PersonRaceResult(RaceNumber.of(raceNumber),
             DateTime.of(startTime),
             DateTime.of(finishTime),
             PunchTime.of(punchTime),
             Position.of(position),
             resultState,
-            null);
+            splitTimeListId);
     }
 
     @Override

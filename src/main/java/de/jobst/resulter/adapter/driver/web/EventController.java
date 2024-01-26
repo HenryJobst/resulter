@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -69,8 +70,8 @@ public class EventController {
                 DateTime.of(ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME)) :
                 null,
                 eventDto.organisations() == null ?
-                new ArrayList<>() :
-                Arrays.stream(eventDto.organisations()).map(OrganisationId::of).toList());
+                new HashSet<>() :
+                Arrays.stream(eventDto.organisations()).map(OrganisationId::of).collect(Collectors.toSet()));
             if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
             } else {

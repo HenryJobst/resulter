@@ -18,16 +18,13 @@ public class Person implements Comparable<Person> {
     private BirthDate birthDate;
     private Gender gender;
 
-    public record DomainKey(String familyName, String givenName, LocalDate birthday) implements Comparable<DomainKey> {
+    public record DomainKey(PersonName personName, BirthDate birthDate) implements Comparable<DomainKey> {
 
         @Override
         public int compareTo(@NonNull DomainKey o) {
-            int val = familyName.compareTo(o.familyName);
+            int val = personName.compareTo(o.personName);
             if (val == 0) {
-                val = givenName.compareTo(o.givenName);
-            }
-            if (val == 0) {
-                val = birthday.compareTo(o.birthday);
+                val = birthDate.compareTo(o.birthDate);
             }
             return val;
         }
@@ -72,6 +69,6 @@ public class Person implements Comparable<Person> {
     }
 
     public DomainKey getDomainKey() {
-        return new DomainKey(personName.familyName().value(), personName.givenName().value(), birthDate.value());
+        return new DomainKey(personName, birthDate);
     }
 }

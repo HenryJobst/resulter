@@ -46,17 +46,15 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
                Optional.empty();
     }
 
+
     @Override
     @Transactional
     public ResultList findOrCreate(ResultList resultList) {
-        Optional<ResultListDbo> resultListEntity = resultListJdbcRepository.findByCreatorAndCreateTimeAndCreateTimeZone(
-            resultList.getCreator(),
-            null != resultList.getCreateTime() ? resultList.getCreateTime().toOffsetDateTime() : null,
-            null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
-        if (resultListEntity.isEmpty()) {
-            return save(resultList);
-        }
-        return ResultListDbo.asResultLists(List.of(resultListEntity.get())).stream().findFirst().orElse(null);
+        return resultListJdbcRepository.findByCreatorAndCreateTimeAndCreateTimeZone(resultList.getCreator(),
+                resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null,
+                resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null)
+            .map(x -> ResultListDbo.asResultLists(List.of(x)).stream().findFirst().orElseThrow())
+            .orElseGet(() -> save(resultList));
     }
 
     @Override

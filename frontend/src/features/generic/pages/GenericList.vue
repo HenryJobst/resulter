@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, type PropType } from 'vue'
+import { computed, defineProps, type PropType } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -23,7 +23,7 @@ const props = defineProps({
   changeable: Boolean
 })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const queryClient = useQueryClient()
 
@@ -55,6 +55,45 @@ const reload = () => {
   entityQuery.refetch()
   deleteMutation.reset()
 }
+
+const dateOptions: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}
+
+const timeOptions: Intl.DateTimeFormatOptions = {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false
+}
+
+const formatDateFunction = computed(() => {
+  return (date: string | Date) => {
+    if (!date) return ''
+    if (typeof date === 'string') {
+      return new Date(date).toLocaleDateString(locale.value, dateOptions)
+    }
+    return date.toLocaleDateString(locale.value, dateOptions)
+  }
+})
+
+const formatTimeFunction = computed(() => {
+  return (time: string | Date) => {
+    if (!time) return ''
+    if (typeof time === 'string') {
+      return new Date(time).toLocaleTimeString(locale.value, timeOptions)
+    }
+    return time.toLocaleTimeString(locale.value, timeOptions)
+  }
+})
+
+const formatDate = (date: string) => {
+  return formatDateFunction.value(date)
+}
+const formatTime = (time: string) => {
+  return formatTimeFunction.value(time)
+}
 </script>
 
 <template>
@@ -65,6 +104,7 @@ const reload = () => {
         <router-link :to="{ name: `${props.routerPrefix}-new` }" v-if="changeable">
           <Button icon="pi pi-plus" :label="t('labels.new')" outlined></Button>
         </router-link>
+        <slot name="extra_list_actions" />
       </div>
       <Button
         icon="pi pi-refresh"
@@ -93,7 +133,7 @@ const reload = () => {
           v-for="col in props.columns"
           :key="col.label"
           :field="col.field"
-          :header="t(col.label)"
+          :header="col.label_count ? t(col.label, col.label_count) : t(col.label)"
         >
           <template v-slot:body="slotProps" v-if="col.type === 'list'">
             <div>
@@ -102,6 +142,12 @@ const reload = () => {
           </template>
           <template v-slot:body="slotProps" v-if="col.type === 'id'">
             {{ slotProps.data[col.field] }}
+          </template>
+          <template v-slot:body="slotProps" v-if="col.type === 'date'">
+            {{ formatDate(slotProps.data[col.field]) }}
+          </template>
+          <template v-slot:body="slotProps" v-if="col.type === 'time'">
+            {{ formatTime(slotProps.data[col.field]) }}
           </template>
         </Column>
         <!-- ... Other columns ... -->

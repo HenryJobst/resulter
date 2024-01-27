@@ -1,24 +1,41 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
-import { useEventStore } from '@/features/event/store/event.store'
-import Spinner from '@/components/SpinnerComponent.vue'
 import type { Event } from '@/features/event/model/event'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
+import { EventService } from '@/features/event/services/event.service'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { toastDisplayDuration } from '@/utils/constants'
+import { useToast } from 'primevue/usetoast'
 
-const store = useEventStore()
+const { t } = useI18n()
 
-const eventSubmitHandler = (event: Omit<Event, 'id'>) => {
-  console.log(event)
-  //store.createEventAction(event)
-}
+const queryClient = useQueryClient()
 
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
+const toast = useToast()
 
 const router = useRouter()
 const redirectBack = async () => {
   await router.replace({ name: 'event-list' })
+}
+
+const eventMutation = useMutation({
+  mutationFn: (event: Omit<Event, 'id'>) => EventService.create(event, t),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['events'] })
+    toast.add({
+      severity: 'info',
+      summary: t('messages.success'),
+      detail: t('messages.cup_created'),
+      life: toastDisplayDuration
+    })
+    redirectBack()
+  }
+})
+
+const eventSubmitHandler = (event: Omit<Event, 'id'>) => {
+  eventMutation.mutate(event)
 }
 </script>
 
@@ -26,10 +43,7 @@ const redirectBack = async () => {
   <div>
     <h2>{{ t('messages.import_event') }}</h2>
 
-    <Spinner v-if="store.loadingEvents"></Spinner>
-
-    <EventImportForm v-if="!store.loadingEvents" @event-submit="eventSubmitHandler">
-      <!--Button type="submit" :label="t('labels.create')" outlined></Button-->
+    <EventImportForm @event-submit="eventSubmitHandler">
       <Button
         class="ml-2"
         severity="secondary"

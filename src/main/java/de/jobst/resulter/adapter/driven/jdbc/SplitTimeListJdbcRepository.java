@@ -24,10 +24,4 @@ public interface SplitTimeListJdbcRepository
         String classResultShortName,
         AggregateReference<PersonDbo, Long> personId,
         Long raceNumber);
-
-    Collection<SplitTimeListDbo> findAllByEventId(AggregateReference<EventDbo, Long> eventId);
-
-    void deleteAllByResultListIdIn(Collection<AggregateReference<ResultListDbo, Long>> resultListIds);
-
-    void deleteAllByEventId(AggregateReference<EventDbo, Long> eventId);
 }

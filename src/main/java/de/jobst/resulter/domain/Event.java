@@ -29,59 +29,43 @@ public class Event implements Comparable<Event> {
     private final EventStatus eventState;
     @NonNull
     private Set<OrganisationId> organisationIds;
-    @NonNull
-    private Set<ResultListId> resultListIds;
 
     public Event(@NonNull EventId id,
                  @NonNull EventName eventName,
                  @NonNull DateTime startTime,
                  @NonNull DateTime endTime,
-                 @NonNull Set<ResultListId> resultListIds,
                  @NonNull Set<OrganisationId> organisationIds,
                  @Nullable EventStatus eventState) {
         this.id = id;
         this.name = eventName;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.resultListIds = resultListIds;
         this.organisationIds = organisationIds;
         this.eventState = eventState;
     }
 
     public static Event of(@NonNull String name) {
-        return Event.of(name, new HashSet<>());
-    }
-
-    public static Event of(@NonNull String name, @Nullable Set<ResultListId> resultListIds) {
-        return Event.of(EventId.empty().value(), name, resultListIds);
+        return Event.of(EventId.empty().value(), name);
     }
 
     public static Event of(Long id, @NonNull String name) {
-        return Event.of(id, name, new HashSet<>());
+        return Event.of(id, name, null, null, new HashSet<>(), null);
     }
 
-    public static Event of(Long id, @NonNull String name, @Nullable Set<ResultListId> resultListIds) {
-        return Event.of(id, name, null, null, resultListIds, new HashSet<>(), null);
-    }
-
-    public static Event of(@NonNull String name,
-                           @Nullable Set<ResultListId> resultListIds,
-                           @Nullable Set<OrganisationId> organisations) {
-        return Event.of(EventId.empty().value(), name, null, null, resultListIds, organisations, null);
+    public static Event of(@NonNull String name, @Nullable Set<OrganisationId> organisations) {
+        return Event.of(EventId.empty().value(), name, null, null, organisations, null);
     }
 
     static public Event of(Long id,
                            @NonNull String eventName,
                            @Nullable ZonedDateTime startTime,
                            @Nullable ZonedDateTime endTime,
-                           @Nullable Set<ResultListId> resultListIds,
                            @Nullable Set<OrganisationId> organisationIds,
                            @Nullable EventStatus eventState) {
         return new Event(EventId.of(id),
             EventName.of(eventName),
             DateTime.of(startTime),
             DateTime.of(endTime),
-            (resultListIds != null) ? resultListIds : new HashSet<>(),
             (organisationIds != null) ? organisationIds : new HashSet<>(),
             eventState);
     }

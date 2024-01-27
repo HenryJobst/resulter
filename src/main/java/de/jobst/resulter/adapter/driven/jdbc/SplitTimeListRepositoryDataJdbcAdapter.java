@@ -1,8 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.SplitTimeListRepository;
-import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -69,17 +66,4 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
         return splitTimeLists.stream().map(this::findOrCreate).toList();
     }
 
-    @Override
-    public void deleteAllByResultListId(Set<ResultListId> resultListIds) {
-        splitTimeListJdbcRepository.deleteAllByResultListIdIn(resultListIds.stream()
-            .map(x -> AggregateReference.<ResultListDbo, Long>to(x.value()))
-            .toList());
-    }
-
-    @Override
-    public void deleteAllByEventId(EventId id) {
-        Collection<SplitTimeListDbo> splitTimeListsByEvent =
-            splitTimeListJdbcRepository.findAllByEventId(AggregateReference.to(id.value()));
-        splitTimeListJdbcRepository.deleteAll(splitTimeListsByEvent);
-    }
 }

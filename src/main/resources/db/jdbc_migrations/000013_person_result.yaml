@@ -36,7 +36,7 @@ databaseChangeLog :
                         constraintName : fk_person_result_result_list
                         referencedTableName : result_list
                         referencedColumnNames : id
-                        onDelete : restrict
+                        onDelete : cascade
                         onUpdate : restrict
                 -   addForeignKeyConstraint :
                         baseTableName : person_result

@@ -41,9 +41,11 @@ public class SplitTime implements Comparable<SplitTime> {
         if (value == 0) {
             if (splitTimeListId != null && o.splitTimeListId != null) {
                 value = splitTimeListId.compareTo(o.splitTimeListId);
-            } else if (splitTimeListId == null && o.splitTimeListId != null) {
+            } else if (splitTimeListId == null && o.splitTimeListId == null) {
+                value = 0;
+            } else if (splitTimeListId == null) {
                 value = -1;
-            } else if (splitTimeListId != null) {
+            } else {
                 value = 1;
             }
         }

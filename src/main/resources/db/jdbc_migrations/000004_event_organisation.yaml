@@ -30,7 +30,7 @@ databaseChangeLog :
                         constraintName : fk_event_organisation_event
                         referencedTableName : event
                         referencedColumnNames : id
-                        onDelete : restrict
+                        onDelete : cascade
                         onUpdate : restrict
                 -   addForeignKeyConstraint :
                         baseTableName : event_organisation

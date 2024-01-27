@@ -1,12 +1,12 @@
 package de.jobst.resulter.application.port;
 
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface ResultListRepository {
 
@@ -22,5 +22,5 @@ public interface ResultListRepository {
 
     ResultList update(ResultList resultList);
 
-    void deleteResultLists(Set<ResultListId> resultListIds);
+    Collection<ResultList> findByEventId(EventId id);
 }

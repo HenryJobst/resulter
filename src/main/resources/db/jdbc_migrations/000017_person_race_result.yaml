@@ -1,6 +1,6 @@
 databaseChangeLog :
     -   changeSet :
-            id : 000014_person_race_result
+            id : 000017_person_race_result
             author : Henry Jobst
             preConditions :
                 -   onFail : MARK_RAN
@@ -43,36 +43,38 @@ databaseChangeLog :
                                     type : bigint
                                     constraints :
                                         nullable : false
+                                        foreignKeyName : fk_person_race_result_result_list
                             -   column :
                                     name : split_time_list_id
                                     type : bigint
                                     constraints :
                                         nullable : true
-                            -   addForeignKeyConstraint :
-                                    baseTableName : person_race_result
-                                    baseColumnNames : result_list_id
-                                    constraintName : fk_person_race_result_result_list
-                                    referencedTableName : result_list
-                                    referencedColumnNames : id
-                                    onDelete : restrict
-                                    onUpdate : restrict
-                            -   addForeignKeyConstraint :
-                                    baseTableName : person_race_result
-                                    baseColumnNames : split_time_list_id
-                                    constraintName : fk_person_race_result_split_time_list
-                                    referencedTableName : split_time_list
-                                    referencedColumnNames : id
-                                    onDelete : restrict
-                                    onUpdate : restrict
-                            -   createIndex :
-                                    tableName : person_race_result
-                                    columns :
-                                        -   column :
-                                                name : result_list_id
-                                            indexName : idx_person_race_result_result_list_id
-                            -   createIndex :
-                                    tableName : person_race_result
-                                    columns :
-                                        -   column :
-                                                name : split_time_list_id
-                                            indexName : idx_person_race_result_split_time_list_id
+                                        foreignKeyName : fk_person_race_result_split_time_list
+                -   addForeignKeyConstraint :
+                        baseTableName : person_race_result
+                        baseColumnNames : result_list_id
+                        constraintName : fk_person_race_result_result_list
+                        referencedTableName : result_list
+                        referencedColumnNames : id
+                        onDelete : cascade
+                        onUpdate : restrict
+                -   addForeignKeyConstraint :
+                        baseTableName : person_race_result
+                        baseColumnNames : split_time_list_id
+                        constraintName : fk_person_race_result_split_time_list
+                        referencedTableName : split_time_list
+                        referencedColumnNames : id
+                        onDelete : set null
+                        onUpdate : restrict
+                -   createIndex :
+                        tableName : person_race_result
+                        columns :
+                            -   column :
+                                    name : result_list_id
+                                indexName : idx_person_race_result_result_list_id
+                -   createIndex :
+                        tableName : person_race_result
+                        columns :
+                            -   column :
+                                    name : split_time_list_id
+                                indexName : idx_person_race_result_split_time_list_id

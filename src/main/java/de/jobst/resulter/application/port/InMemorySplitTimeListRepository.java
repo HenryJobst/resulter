@@ -1,7 +1,5 @@
 package de.jobst.resulter.application.port;
 
-import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
 import org.apache.commons.lang3.ObjectUtils;
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -58,28 +55,6 @@ public class InMemorySplitTimeListRepository implements SplitTimeListRepository 
     @Override
     public Collection<SplitTimeList> findOrCreate(Collection<SplitTimeList> splitTimeLists) {
         return null;
-    }
-
-    @Override
-    public void deleteAllByResultListId(Set<ResultListId> resultListIds) {
-        var splitTimeListIdsToDelete = splitTimeLists.values()
-            .stream()
-            .filter(splitTimeList -> resultListIds.contains(splitTimeList.getResultListId()))
-            .map(x -> x.getId())
-            .collect(Collectors.toSet());
-        splitTimeLists.keySet().removeAll(splitTimeListIdsToDelete);
-        savedSplitTimeLists.removeIf(splitTimeList -> splitTimeListIdsToDelete.contains(splitTimeList.getId()));
-    }
-
-    @Override
-    public void deleteAllByEventId(EventId id) {
-        var splitTimeListIdsToDelete = splitTimeLists.values()
-            .stream()
-            .filter(splitTimeList -> splitTimeList.getEventId().equals(id))
-            .map(x -> x.getId())
-            .collect(Collectors.toSet());
-        splitTimeLists.keySet().removeAll(splitTimeListIdsToDelete);
-        savedSplitTimeLists.removeIf(splitTimeList -> splitTimeListIdsToDelete.contains(splitTimeList.getId()));
     }
 
     @SuppressWarnings("unused")

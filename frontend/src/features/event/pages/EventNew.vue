@@ -1,52 +1,42 @@
 <script setup lang="ts">
-import EventForm from '@/features/event/widgets/EventForm.vue'
-import Button from 'primevue/button'
-import { useEventStore } from '@/features/event/store/event.store'
-import Spinner from '@/components/SpinnerComponent.vue'
-import type { Event } from '@/features/event/model/event'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { computed, ref } from 'vue'
+import { GenericService } from '@/features/generic/services/GenericService'
+import EventForm from '@/features/event/widgets/EventForm.vue'
+import GenericNew from '@/features/generic/pages/GenericNew.vue'
+import type { Event } from '@/features/event/model/event'
 
-const store = useEventStore()
+const { t } = useI18n()
 const authStore = useAuthStore()
+const eventService = new GenericService<Event>('/event')
+const queryKey: string[] = ['events']
+const entityLabel: string = 'event'
+const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.event') }))
 
-const eventSubmitHandler = (event: Omit<Event, 'id'>) => {
-  console.log(event)
-  store.createEventAction(event)
-}
-
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
-
-const router = useRouter()
-const redirectBack = async () => {
-  await router.replace({ name: 'event-list' })
-}
+const formData = ref<Event | Omit<Event, 'id'>>({
+  name: '',
+  startTime: new Date(),
+  classes: 0,
+  participants: 0,
+  organisations: []
+})
 </script>
 
 <template>
-  <div>
-    <h2>{{ t('messages.new_event') }}</h2>
-
-    <Spinner v-if="store.loadingEvents"></Spinner>
-
-    <EventForm v-if="!store.loadingEvents" @event-submit="eventSubmitHandler">
-      <Button
-        type="submit"
-        :label="t('labels.create')"
-        outlined
-        v-if="authStore.isAuthenticated"
-      ></Button>
-      <Button
-        class="ml-2"
-        severity="secondary"
-        type="reset"
-        :label="t('labels.back')"
-        outlined
-        @click="redirectBack"
-      ></Button>
-    </EventForm>
-  </div>
+  <GenericNew
+    :entity="formData"
+    :entity-service="eventService"
+    :query-key="queryKey"
+    :entity-label="entityLabel"
+    :new-label="newLabel"
+    :router-prefix="'event'"
+    :changeable="authStore.isAdmin"
+  >
+    <template v-slot:default="{ formData }">
+      <EventForm :event="formData" :entity-service="eventService" :query-key="queryKey" />
+    </template>
+  </GenericNew>
 </template>
 
 <style scoped></style>

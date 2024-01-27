@@ -61,6 +61,30 @@ public class EventController {
         }
     }
 
+    @PostMapping("/event/{id}")
+    public ResponseEntity<EventDto> createEvent(@RequestBody EventDto eventDto) {
+        try {
+            Event event = eventService.createEvent(eventDto.name(),
+                ObjectUtils.isNotEmpty(eventDto.startTime()) ?
+                ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME) :
+                null,
+                eventDto.organisations() == null ?
+                new HashSet<>() :
+                Arrays.stream(eventDto.organisations()).map(OrganisationId::of).collect(Collectors.toSet()));
+            if (null != event) {
+                return ResponseEntity.ok(EventDto.from(event));
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PutMapping("/event/{id}")
     public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
         try {

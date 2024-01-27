@@ -5,6 +5,7 @@ import de.jobst.resulter.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -60,10 +61,7 @@ public class EventService {
         if (optionalEvent.isEmpty()) {
             return false;
         }
-        Event event = optionalEvent.get();
-        //resultListRepository.deleteAllByEventId(event.getId());
-        //splitTimeListRepository.deleteAllByEventId(event.getId());
-        eventRepository.deleteEvent(event);
+        eventRepository.deleteEvent(optionalEvent.get());
         return true;
     }
 
@@ -87,4 +85,9 @@ public class EventService {
         return eventRepository.save(event);
     }
 
+    public Event createEvent(String eventName, ZonedDateTime dateTime, Set<OrganisationId> organisationIds) {
+        Event event =
+            Event.of(EventId.empty().value(), eventName, dateTime, dateTime, organisationIds, EventStatus.PLANNED);
+        return eventRepository.save(event);
+    }
 }

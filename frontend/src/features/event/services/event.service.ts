@@ -32,9 +32,15 @@ export class EventService {
     return response.data
   }
 
-  static async create(event: Omit<Event, 'id'>): Promise<Event> {
+  static async create(event: Omit<Event, 'id'>, t: (key: string) => string): Promise<Event> {
     const response = await axiosInstance.post(url, event)
-    return response.data
+    return await axiosInstance
+      .post(url, event)
+      .then((response) => response.data)
+      .catch((error) => {
+        handleApiError(error, t)
+        return null
+      })
   }
 
   static async update(event: Event): Promise<Event> {

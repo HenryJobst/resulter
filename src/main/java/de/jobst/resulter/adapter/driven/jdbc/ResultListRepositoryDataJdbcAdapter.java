@@ -1,29 +1,26 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.ResultListRepository;
-import de.jobst.resulter.application.port.SplitTimeListRepository;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
 public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository {
 
     private final ResultListJdbcRepository resultListJdbcRepository;
-    private final SplitTimeListRepository splitTimeListRepository;
 
-    public ResultListRepositoryDataJdbcAdapter(ResultListJdbcRepository resultListJdbcRepository,
-                                               SplitTimeListRepository splitTimeListRepository) {
+    public ResultListRepositoryDataJdbcAdapter(ResultListJdbcRepository resultListJdbcRepository) {
         this.resultListJdbcRepository = resultListJdbcRepository;
-        this.splitTimeListRepository = splitTimeListRepository;
     }
 
     @Override
@@ -75,9 +72,8 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
-    @Transactional
-    public void deleteResultLists(Set<ResultListId> resultListIds) {
-        splitTimeListRepository.deleteAllByResultListId(resultListIds);
-        resultListJdbcRepository.deleteAllById(resultListIds.stream().map(ResultListId::value).toList());
+    public Collection<ResultList> findByEventId(EventId id) {
+        return ResultListDbo.asResultLists(resultListJdbcRepository.findByEventId(AggregateReference.to(id.value())));
     }
+
 }

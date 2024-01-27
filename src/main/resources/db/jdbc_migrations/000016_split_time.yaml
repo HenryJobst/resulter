@@ -17,17 +17,20 @@ databaseChangeLog :
                                     type : bigint
                                     constraints :
                                         nullable : false
-                                        foreignKeyName : fk_split_time_split_time_list
-                                        referencedTableName : split_time_list
-                                        referencedColumnNames : id
-                                        onDelete : restrict
-                                        onUpdate : restrict
                             -   column :
                                     name : control_code
                                     type : varchar(3)
                             -   column :
                                     name : punch_time
                                     type : double
+                -   addForeignKeyConstraint :
+                        baseTableName : split_time
+                        baseColumnNames : split_time_list_id
+                        constraintName : fk_split_time_split_time_list
+                        referencedTableName : split_time_list
+                        referencedColumnNames : id
+                        onDelete : cascade
+                        onUpdate : restrict
                 -   createIndex :
                         tableName : split_time
                         columns :

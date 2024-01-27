@@ -8,12 +8,10 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public class EventTestDataGenerator {
 
     public static final String A_EVENT_NAME = "A event name";
-    public static final long A_EVENT_ID = 19L;
 
     @NonNull
     public static TestEventResult getTestEvent() {
@@ -64,11 +62,7 @@ public class EventTestDataGenerator {
             "completed",
             classResults);
 
-        return new TestEventResult(Event.of(A_EVENT_NAME, Set.of(resultList.getId())),
-            country,
-            organisation,
-            person,
-            resultList);
+        return new TestEventResult(Event.of(A_EVENT_NAME), country, organisation, person, resultList);
 
     }
 }

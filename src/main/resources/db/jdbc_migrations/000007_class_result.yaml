@@ -1,66 +1,66 @@
-databaseChangeLog:
-  - changeSet:
-      id: 000007_class_result
-      author: Henry Jobst
-      preConditions:
-        - onFail: MARK_RAN
-        - not:
-            - tableExists:
-                tableName: class_result
-      comment: Table class_result with sequence, indexes and keys
-      changes:
-        - createTable:
-            tableName: class_result
-            columns:
-              - column:
-                  name: result_list_id
-                  type: bigint
-                  constraints:
-                    nullable: false
-                    primaryKey: true
-                    primaryKeyName: pk_class_result
-                    foreignKeyName: fk_class_result_result_list
-              - column:
-                  name: short_name
-                  type: varchar(20)
-                  constraints:
-                    nullable: false
-                    primaryKey: true
-                    primaryKeyName: pk_class_result
-              - column:
-                  name: name
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: gender
-                  type: varchar(3)
-                  constraints:
-                    nullable: false
-        - addForeignKeyConstraint:
-            baseTableName: class_result
-            baseColumnNames: result_list_id
-            constraintName: fk_class_result_result_list
-            referencedTableName: result_list
-            referencedColumnNames: id
-            onDelete: restrict
-            onUpdate: restrict
-        - addUniqueConstraint:
-            columnNames: name, result_list_id
-            constraintName: uk_class_result_name_result_list_id
-            tableName: class_result
-            validate: true
-        - createIndex:
-            tableName: class_result
-            columns:
-              - column:
-                  name: result_list_id
-            indexName: idx_class_result_result_list_id
-        - createIndex:
-            tableName: class_result
-            columns:
-              - column:
-                  name: result_list_id
-              - column:
-                  name: short_name
-            indexName: idx_class_result_short_name_result_list_id
+databaseChangeLog :
+    -   changeSet :
+            id : 000007_class_result
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : class_result
+            comment : Table class_result with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : class_result
+                        columns :
+                            -   column :
+                                    name : result_list_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        primaryKey : true
+                                        primaryKeyName : pk_class_result
+                                        foreignKeyName : fk_class_result_result_list
+                            -   column :
+                                    name : short_name
+                                    type : varchar(20)
+                                    constraints :
+                                        nullable : false
+                                        primaryKey : true
+                                        primaryKeyName : pk_class_result
+                            -   column :
+                                    name : name
+                                    type : varchar(255)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : gender
+                                    type : varchar(3)
+                                    constraints :
+                                        nullable : false
+                -   addForeignKeyConstraint :
+                        baseTableName : class_result
+                        baseColumnNames : result_list_id
+                        constraintName : fk_class_result_result_list
+                        referencedTableName : result_list
+                        referencedColumnNames : id
+                        onDelete : cascade
+                        onUpdate : restrict
+                -   addUniqueConstraint :
+                        columnNames : name, result_list_id
+                        constraintName : uk_class_result_name_result_list_id
+                        tableName : class_result
+                        validate : true
+                -   createIndex :
+                        tableName : class_result
+                        columns :
+                            -   column :
+                                    name : result_list_id
+                        indexName : idx_class_result_result_list_id
+                -   createIndex :
+                        tableName : class_result
+                        columns :
+                            -   column :
+                                    name : result_list_id
+                            -   column :
+                                    name : short_name
+                        indexName : idx_class_result_short_name_result_list_id

@@ -55,7 +55,7 @@ databaseChangeLog :
                         constraintName : fk_split_time_list_event
                         referencedTableName : event
                         referencedColumnNames : id
-                        onDelete : restrict
+                        onDelete : cascade
                         onUpdate : restrict
                 -   addForeignKeyConstraint :
                         baseTableName : split_time_list

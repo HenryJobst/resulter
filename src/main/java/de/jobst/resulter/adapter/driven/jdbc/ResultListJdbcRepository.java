@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -21,4 +22,6 @@ public interface ResultListJdbcRepository
     Optional<ResultListDbo> findByCreatorAndCreateTimeAndCreateTimeZone(String creator,
                                                                         OffsetDateTime createTime,
                                                                         String createTimeZone);
+
+    Collection<ResultListDbo> findByEventId(AggregateReference<EventDbo, Long> eventId);
 }

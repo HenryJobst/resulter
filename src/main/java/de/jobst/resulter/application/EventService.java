@@ -61,8 +61,8 @@ public class EventService {
             return false;
         }
         Event event = optionalEvent.get();
-        resultListRepository.deleteResultLists(event.getResultListIds());
-        splitTimeListRepository.deleteAllByEventId(event.getId());
+        //resultListRepository.deleteAllByEventId(event.getId());
+        //splitTimeListRepository.deleteAllByEventId(event.getId());
         eventRepository.deleteEvent(event);
         return true;
     }

@@ -33,7 +33,7 @@ public class ResultListDbo {
     private Long id;
 
     @Column("event_id")
-    private AggregateReference<EventDbo, Long> event;
+    private AggregateReference<EventDbo, Long> eventId;
 
     @Column("creator")
     private String creator;
@@ -49,12 +49,12 @@ public class ResultListDbo {
     @MappedCollection(idColumn = "result_list_id")
     private Set<ClassResultDbo> classResults = new HashSet<>();
 
-    public ResultListDbo(AggregateReference<EventDbo, Long> event,
+    public ResultListDbo(AggregateReference<EventDbo, Long> eventId,
                          String creator,
                          OffsetDateTime createTime,
                          String createTimeZone) {
         this.id = null;
-        this.event = event;
+        this.eventId = eventId;
         this.creator = creator;
         this.createTime = createTime;
         this.createTimeZone = createTimeZone;
@@ -64,7 +64,7 @@ public class ResultListDbo {
         ResultListDbo resultListDbo;
         if (resultList.getId().isPersistent()) {
             resultListDbo = dboResolvers.getResultListDboResolver().findDboById(resultList.getId());
-            resultListDbo.setEvent(AggregateReference.to(resultList.getEventId().value()));
+            resultListDbo.setEventId(AggregateReference.to(resultList.getEventId().value()));
             resultListDbo.setCreator(resultList.getCreator());
             resultListDbo.setCreateTime(
                 null != resultList.getCreateTime() ? resultList.getCreateTime().toOffsetDateTime() : null);
@@ -89,7 +89,7 @@ public class ResultListDbo {
     static public Collection<ResultList> asResultLists(Collection<ResultListDbo> resultListDbos) {
         return resultListDbos.stream()
             .map(it -> new ResultList(ResultListId.of(it.id),
-                EventId.of(it.event.getId()),
+                EventId.of(it.eventId.getId()),
                 it.creator,
                 it.createTime != null ? it.createTime.atZoneSameInstant(ZoneId.of(it.createTimeZone)) : null,
                 it.status,

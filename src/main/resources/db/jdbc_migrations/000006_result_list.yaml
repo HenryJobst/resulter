@@ -46,7 +46,7 @@ databaseChangeLog :
                         constraintName : fk_result_list_event
                         referencedTableName : event
                         referencedColumnNames : id
-                        onDelete : restrict
+                        onDelete : cascade
                         onUpdate : restrict
                 -   createIndex :
                         tableName : result_list

@@ -1,6 +1,7 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.ResultListRepository;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
 import org.apache.commons.lang3.ObjectUtils;
@@ -29,11 +30,6 @@ public class InMemoryResultListRepository implements ResultListRepository {
         return resultList;
     }
 
-    @Override
-    public void deleteResultLists(Set<ResultListId> resultListIds) {
-        resultListIds.forEach(resultLists::remove);
-        savedResultLists.removeIf(it -> resultListIds.contains(it.getId()));
-    }
 
     @Override
     public List<ResultList> findAll() {
@@ -65,6 +61,10 @@ public class InMemoryResultListRepository implements ResultListRepository {
         return save(resultList);
     }
 
+    @Override
+    public Collection<ResultList> findByEventId(EventId id) {
+        return resultLists.values().stream().filter(it -> Objects.equals(it.getEventId(), id)).toList();
+    }
 
     @SuppressWarnings("unused")
     public List<ResultList> savedResultLists() {

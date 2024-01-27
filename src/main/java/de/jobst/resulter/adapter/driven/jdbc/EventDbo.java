@@ -3,7 +3,6 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventStatus;
 import de.jobst.resulter.domain.OrganisationId;
-import de.jobst.resulter.domain.ResultListId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,9 +42,6 @@ public class EventDbo {
     private String endTimeZone;
     @Column("state")
     private EventStatus state;
-
-    @MappedCollection(idColumn = "event_id")
-    private Set<ResultListDbo> resultLists = new HashSet<>();
 
     @MappedCollection(idColumn = "event_id")
     private Set<EventOrganisationDbo> organisations = new HashSet<>();
@@ -90,10 +86,6 @@ public class EventDbo {
             .stream()
             .map(x -> new EventOrganisationDbo(x.value()))
             .collect(Collectors.toSet()));
-        eventDbo.setResultLists(event.getResultListIds()
-            .stream()
-            .map(x -> dboResolvers.getResultListDboResolver().findDboById(x))
-            .collect(Collectors.toSet()));
 
         return eventDbo;
     }
@@ -105,10 +97,6 @@ public class EventDbo {
                 it.name,
                 it.startTime != null ? it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)) : null,
                 it.endTime != null ? it.endTime.atZoneSameInstant(ZoneId.of(it.endTimeZone)) : null,
-                it.resultLists.stream()
-                    .map(x -> Objects.nonNull(x) ? ResultListId.of(x.getId()) : null)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet()),
                 it.organisations.stream()
                     .map(x -> Objects.nonNull(x) ? OrganisationId.of(x.id.getId()) : null)
                     .filter(Objects::nonNull)

@@ -1,10 +1,12 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.ResultListRepository;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,5 +33,9 @@ public class ResultListService {
 
     public ResultList update(ResultList resultList) {
         return resultListRepository.update(resultList);
+    }
+
+    public Collection<ResultList> findByEventId(EventId id) {
+        return resultListRepository.findByEventId(id);
     }
 }

@@ -25,7 +25,6 @@ class EventDboMappingTest {
         assertThat(event.getStartTime().value()).isNull();
         assertThat(event.getOrganisationIds()).isNotNull();
         assertThat(event.getOrganisationIds()).isEmpty();
-        assertThat(event.getResultListIds()).isEmpty();
         assertThat(event.getEventState()).isNull();
     }
 
@@ -40,9 +39,6 @@ class EventDboMappingTest {
         assertThat(entity.getName()).isEqualTo(event.getName().value());
         assertThat(entity.getStartTime()).isEqualTo(event.getStartTime().value());
         assertThat(entity.getState()).isEqualTo(event.getEventState());
-
-        assertThat(entity.getResultLists()).isNotEmpty();
-        assertThat(entity.getResultLists()).hasSize(event.getResultListIds().size());
 
         /* TODO Transform test to new domain and dbo structure
         ResultListId resultListId = event.getResultListIds().stream().findFirst().orElse(null);

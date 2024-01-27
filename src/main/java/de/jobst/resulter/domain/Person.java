@@ -24,7 +24,15 @@ public class Person implements Comparable<Person> {
         public int compareTo(@NonNull DomainKey o) {
             int val = personName.compareTo(o.personName);
             if (val == 0) {
-                val = birthDate.compareTo(o.birthDate);
+                if (birthDate != null && o.birthDate != null) {
+                    val = birthDate.compareTo(o.birthDate);
+                } else if (birthDate == null && o.birthDate == null) {
+                    val = 0;
+                } else if (birthDate == null) {
+                    val = -1;
+                } else {
+                    val = 1;
+                }
             }
             return val;
         }

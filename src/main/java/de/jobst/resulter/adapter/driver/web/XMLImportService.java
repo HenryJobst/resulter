@@ -172,7 +172,6 @@ public class XMLImportService {
                               Map<String, Organisation> organisationByName) {
         // Event
         Event event = Event.of(resultList.getEvent().getName(),
-            new HashSet<>(),
             resultList.getEvent()
                 .getOrganisers()
                 .stream()
@@ -265,7 +264,7 @@ public class XMLImportService {
             GivenName.of(p.getName().getGiven())),
             null != p.getBirthDate() ?
             BirthDate.of(p.getBirthDate().toGregorianCalendar().toZonedDateTime().toLocalDate()) :
-            null);
+            BirthDate.of(null));
     }
 
     @NonNull
@@ -279,7 +278,12 @@ public class XMLImportService {
             PersonId personId;
             if (Objects.nonNull(personResult.getPerson())) {
                 Person.DomainKey personDomainKey = createPersonDomainKey(personResult.getPerson());
-                personId = personByDomainKey.get(personDomainKey).getId();
+                Person person = personByDomainKey.get(personDomainKey);
+                if (person != null) {
+                    personId = person.getId();
+                } else {
+                    personId = null;
+                }
             } else {
                 personId = null;
             }

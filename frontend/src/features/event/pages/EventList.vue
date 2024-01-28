@@ -16,9 +16,9 @@ const entityLabel: string = 'event'
 const listLabel = computed(() => t('labels.event', 2))
 const columns: GenericListColumn[] = [
   { label: 'labels.name', field: 'name' },
-  { label: 'labels.date', field: 'startDate', type: 'date' },
+  { label: 'labels.date', field: 'startTime', type: 'date' },
   { label: 'labels.time', field: 'startTime', type: 'time' },
-  { label: 'labels.class', label_count: 2, field: 'classes' }
+  { label: 'labels.state', field: 'state', type: 'enum' }
 ]
 </script>
 
@@ -31,6 +31,7 @@ const columns: GenericListColumn[] = [
     :router-prefix="'event'"
     :columns="columns"
     :changeable="authStore.isAdmin"
+    :enum-type-label-prefixes="new Map([['state', 'event_state.']])"
   >
     <template v-slot:extra_list_actions>
       <router-link class="ml-2" :to="{ name: 'event-import' }" v-if="authStore.isAuthenticated">

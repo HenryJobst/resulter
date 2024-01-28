@@ -25,8 +25,8 @@ public class Event implements Comparable<Event> {
     private DateTime startTime;
     @NonNull
     private final DateTime endTime;
-    @Nullable
-    private final EventStatus eventState;
+    @NonNull
+    private EventStatus eventState;
     @NonNull
     private Set<OrganisationId> organisationIds;
 
@@ -35,7 +35,7 @@ public class Event implements Comparable<Event> {
                  @NonNull DateTime startTime,
                  @NonNull DateTime endTime,
                  @NonNull Set<OrganisationId> organisationIds,
-                 @Nullable EventStatus eventState) {
+                 @NonNull EventStatus eventState) {
         this.id = id;
         this.name = eventName;
         this.startTime = startTime;
@@ -49,11 +49,11 @@ public class Event implements Comparable<Event> {
     }
 
     public static Event of(Long id, @NonNull String name) {
-        return Event.of(id, name, null, null, new HashSet<>(), null);
+        return Event.of(id, name, null, null, new HashSet<>(), EventStatus.getDefault());
     }
 
     public static Event of(@NonNull String name, @Nullable Set<OrganisationId> organisations) {
-        return Event.of(EventId.empty().value(), name, null, null, organisations, null);
+        return Event.of(EventId.empty().value(), name, null, null, organisations, EventStatus.getDefault());
     }
 
     static public Event of(Long id,
@@ -61,7 +61,7 @@ public class Event implements Comparable<Event> {
                            @Nullable ZonedDateTime startTime,
                            @Nullable ZonedDateTime endTime,
                            @Nullable Set<OrganisationId> organisationIds,
-                           @Nullable EventStatus eventState) {
+                           @NonNull EventStatus eventState) {
         return new Event(EventId.of(id),
             EventName.of(eventName),
             DateTime.of(startTime),
@@ -81,10 +81,14 @@ public class Event implements Comparable<Event> {
         return new HashSet<>();
     }
 
-    public void update(EventName eventName, DateTime startTime, Set<OrganisationId> organisationIds) {
+    public void update(EventName eventName,
+                       DateTime startTime,
+                       EventStatus status,
+                       Set<OrganisationId> organisationIds) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
+        this.eventState = status;
         this.organisationIds = organisationIds != null ? organisationIds : new HashSet<>();
     }
 

@@ -44,6 +44,7 @@ class EventServiceJpaTest {
         Event changedEvent = eventService.updateEvent(savedEvent.getId(),
             EventName.of("ChangedEvent"),
             savedEvent.getStartTime(),
+            savedEvent.getEventState(),
             savedEvent.getOrganisationIds());
 
         assertThat(changedEvent).isNotNull();

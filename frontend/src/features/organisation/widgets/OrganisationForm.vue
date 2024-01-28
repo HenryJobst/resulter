@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { OrganisationService } from '@/features/organisation/services/organisation.service'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
 import { CountryService } from '@/features/country/services/country.service'
+import { computed } from 'vue'
 
 const { t } = useI18n()
 
@@ -27,24 +28,41 @@ const organisationTypesQuery = useQuery({
   queryFn: () => OrganisationService.getOrganisationTypes(t)
 })
 
+const localizedOrganisationTypeOptions = computed(() => {
+  if (organisationTypesQuery.data.value) {
+    return organisationTypesQuery.data.value.map((option) => ({
+      ...option,
+      label: t(`organisation_type.${option.id.toLocaleUpperCase()}`)
+    }))
+  }
+  return []
+})
+
 const countryQuery = useQuery({
   queryKey: ['countries'],
   queryFn: () => CountryService.getAll(t)
 })
+
+const emit = defineEmits(['update:modelValue'])
+
+const organisation = computed({
+  get: () => props.organisation,
+  set: (value) => emit('update:modelValue', value)
+})
 </script>
 
 <template>
-  <div v-if="props.organisation" class="flex flex-col">
+  <div v-if="organisation" class="flex flex-col">
     <div class="flex flex-row">
       <label for="name" class="col-fixed w-40">{{ t('labels.name') }}</label>
       <div class="col">
-        <InputText v-model="props.organisation.name" type="text" id="name"></InputText>
+        <InputText v-model="organisation.name" type="text" id="name"></InputText>
       </div>
     </div>
     <div class="flex flex-row">
       <label for="shortname" class="col-fixed w-40">{{ t('labels.short_name') }}</label>
       <div class="col">
-        <InputText v-model="props.organisation.shortName" type="text" id="shortname"></InputText>
+        <InputText v-model="organisation.shortName" type="text" id="shortname"></InputText>
       </div>
     </div>
     <div class="flex flex-row">
@@ -59,9 +77,9 @@ const countryQuery = useQuery({
         <Dropdown
           v-else-if="organisationTypesQuery.data"
           id="type"
-          v-model="props.organisation.type"
-          :options="organisationTypesQuery.data.value"
-          optionLabel="id"
+          v-model="organisation.type"
+          :options="localizedOrganisationTypeOptions"
+          optionLabel="label"
           data-key="id"
           :placeholder="t('messages.select')"
           class="w-full md:w-14rem"
@@ -78,7 +96,7 @@ const countryQuery = useQuery({
         <Dropdown
           v-else-if="countryQuery.data"
           id="country"
-          v-model="props.organisation.country"
+          v-model="organisation.countryId"
           :options="countryQuery.data.value"
           optionLabel="name"
           optionValue="id"
@@ -101,7 +119,7 @@ const countryQuery = useQuery({
         <div v-else-if="organisationQuery.data" class="card">
           <MultiSelect
             id="organisations"
-            v-model="props.organisation.organisations"
+            v-model="organisation.organisationIds"
             :options="organisationQuery.data.value"
             data-key="id"
             filter

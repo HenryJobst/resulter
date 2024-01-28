@@ -18,8 +18,8 @@ const formData = ref<Organisation | Omit<Organisation, 'id'>>({
   name: '',
   shortName: '',
   type: { id: 'Other' },
-  country: { id: 1, code: 'GER', name: 'GER' },
-  organisations: []
+  countryId: 1,
+  organisationIds: []
 })
 </script>
 
@@ -38,6 +38,7 @@ const formData = ref<Organisation | Omit<Organisation, 'id'>>({
         :organisation="formData"
         :entity-service="organisationService"
         :query-key="queryKey"
+        :v-model="formData"
       />
     </template>
   </GenericNew>

@@ -19,8 +19,8 @@ const columns: GenericListColumn[] = [
   { label: 'labels.no', field: 'id' },
   { label: 'labels.name', field: 'name' },
   { label: 'labels.short_name', field: 'shortName' },
-  { label: 'labels.type', field: 'type.id' },
-  { label: 'labels.country', field: 'countryId', type: 'id', queryKey: 'coutries' },
+  { label: 'labels.type', field: 'type', type: 'enum' },
+  { label: 'labels.country', field: 'countryId', type: 'id', queryKey: 'countries' },
   {
     label: 'labels.parent_organisation',
     field: 'organisationIds',
@@ -39,6 +39,7 @@ const columns: GenericListColumn[] = [
     :router-prefix="'organisation'"
     :columns="columns"
     :changeable="authStore.isAdmin"
+    :enum-type-label-prefixes="new Map([['type', 'organisation_type.']])"
   />
 </template>
 

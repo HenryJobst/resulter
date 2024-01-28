@@ -4,7 +4,7 @@ import { handleApiError } from '@/utils/HandleError'
 import type { OrganisationType } from '@/features/organisation/model/organisationtype'
 
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'organisation'
-const organistionTypeUrl: string = import.meta.env.VITE_API_ENDPOINT + 'organisation_types'
+const organisationTypeUrl: string = import.meta.env.VITE_API_ENDPOINT + 'organisation_types'
 
 export class OrganisationService {
   static async getAll(t: (key: string) => string): Promise<Organisation[] | null> {
@@ -21,7 +21,7 @@ export class OrganisationService {
     t: (key: string) => string
   ): Promise<OrganisationType[] | null> {
     return await axiosInstance
-      .get<OrganisationType[]>(organistionTypeUrl)
+      .get<OrganisationType[]>(organisationTypeUrl)
       .then((response) => response.data)
       .catch((error) => {
         handleApiError(error, t)

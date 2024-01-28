@@ -20,7 +20,8 @@ const props = defineProps({
   entityLabel: String,
   routerPrefix: String,
   columns: Array as () => GenericListColumn[],
-  changeable: Boolean
+  changeable: Boolean,
+  enumTypeLabelPrefixes: Map<string, string>
 })
 
 const { t, locale } = useI18n()
@@ -148,6 +149,14 @@ const formatTime = (time: string) => {
           </template>
           <template v-slot:body="slotProps" v-if="col.type === 'time'">
             {{ formatTime(slotProps.data[col.field]) }}
+          </template>
+          <template v-slot:body="slotProps" v-if="col.type === 'enum'">
+            {{
+              t(
+                (enumTypeLabelPrefixes ? enumTypeLabelPrefixes.get(col.field) : '') +
+                  slotProps.data[col.field].id.toUpperCase()
+              )
+            }}
           </template>
         </Column>
         <!-- ... Other columns ... -->

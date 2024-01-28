@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
+import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.domain.*;
@@ -49,19 +50,18 @@ public class EventController {
         }
     }
 
-    @GetMapping("/event/{id}")
-    public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
+    @GetMapping("/event_status")
+    public ResponseEntity<List<EventStatusDto>> handleEventTypes() {
         try {
-            Optional<Event> event = eventService.findById(EventId.of(id));
-            return event.map(value -> ResponseEntity.ok(EventDto.from(value)))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            List<EventStatusDto> eventStatus = Arrays.stream(EventStatus.values()).map(EventStatusDto::from).toList();
+            return ResponseEntity.ok(eventStatus);
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping("/event/{id}")
+    @PostMapping("/event")
     public ResponseEntity<EventDto> createEvent(@RequestBody EventDto eventDto) {
         try {
             Event event = eventService.createEvent(eventDto.name(),
@@ -85,6 +85,19 @@ public class EventController {
         }
     }
 
+
+    @GetMapping("/event/{id}")
+    public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
+        try {
+            Optional<Event> event = eventService.findById(EventId.of(id));
+            return event.map(value -> ResponseEntity.ok(EventDto.from(value)))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PutMapping("/event/{id}")
     public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
         try {
@@ -93,6 +106,7 @@ public class EventController {
                 ObjectUtils.isNotEmpty(eventDto.startTime()) ?
                 DateTime.of(ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME)) :
                 null,
+                EventStatus.fromValue(eventDto.state().id()),
                 eventDto.organisations() == null ?
                 new HashSet<>() :
                 Arrays.stream(eventDto.organisations()).map(OrganisationId::of).collect(Collectors.toSet()));

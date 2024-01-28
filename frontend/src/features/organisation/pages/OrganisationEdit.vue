@@ -32,6 +32,7 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.o
         :organisation="formData"
         :entity-service="organisationService"
         :query-key="queryKey"
+        :v-model="formData"
       />
     </template>
   </GenericEdit>

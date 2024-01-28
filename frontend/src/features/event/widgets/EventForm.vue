@@ -9,22 +9,23 @@ import MultiSelect from 'primevue/multiselect'
 import { OrganisationService } from '@/features/organisation/services/organisation.service'
 import { useQuery } from '@tanstack/vue-query'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
+import { EventService } from '@/features/event/services/event.service'
+import Dropdown from 'primevue/dropdown'
 
 const { t } = useI18n()
 
-const formData = ref<Event | Omit<Event, 'id'>>({
-  name: '',
-  startTime: new Date(),
-  classes: 0,
-  participants: 0,
-  organisations: []
-})
-
 const props = defineProps<{
-  event?: Event
+  event: Event
   entityService: IGenericService<Event>
   queryKey: string[]
 }>()
+
+const emit = defineEmits(['update:modelValue'])
+
+const event = computed({
+  get: () => props.event,
+  set: (value) => emit('update:modelValue', value)
+})
 
 const organisationQuery = useQuery({
   queryKey: ['organisations'],
@@ -32,7 +33,23 @@ const organisationQuery = useQuery({
   select: (data) => data ?? []
 })
 
-const dateTime = ref(new Date(formData.value ? formData.value.startTime : new Date()))
+const eventStatusQuery = useQuery({
+  queryKey: ['event_status'],
+  queryFn: () => EventService.getEventStatus(t)
+})
+
+const localizedEventStatusOptions = computed(() => {
+  if (eventStatusQuery.data.value) {
+    return eventStatusQuery.data.value.map((option) => ({
+      ...option,
+      label: t(`event_state.${option.id.toLocaleUpperCase()}`)
+    }))
+  }
+  return []
+})
+
+const dateTime = ref(new Date(event.value ? event.value.startTime : new Date()))
+
 const datePart = computed({
   get: () =>
     new Date(dateTime.value.getFullYear(), dateTime.value.getMonth(), dateTime.value.getDate()),
@@ -68,26 +85,25 @@ const timePart = computed({
       newTime.getHours(),
       newTime.getMinutes()
     )
-    if (formData.value) {
-      formData.value.startTime = dateTime.value.toISOString()
+    if (event.value) {
+      event.value.startTime = dateTime.value.toISOString()
     }
   }
 })
 
 onMounted(() => {
   if (props.event) {
-    formData.value = { ...props.event }
     dateTime.value = new Date(props.event.startTime)
   }
 })
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div v-if="event" class="flex flex-col">
     <div class="flex flex-row">
       <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
       <div class="col">
-        <InputText v-model="formData.name" type="text" id="name"></InputText>
+        <InputText v-model="event.name" type="text" id="name"></InputText>
       </div>
     </div>
     <div class="flex flex-row">
@@ -107,6 +123,25 @@ onMounted(() => {
       </div>
     </div>
     <div class="flex flex-row">
+      <label for="type" class="col-fixed w-40">{{ t('labels.state') }}</label>
+      <div class="col">
+        <span v-if="eventStatusQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+        <span v-else-if="eventStatusQuery.status.value === 'error'">
+          {{ t('messages.error', { message: eventStatusQuery.error.toLocaleString() }) }}
+        </span>
+        <Dropdown
+          v-else-if="eventStatusQuery.data.value"
+          id="state"
+          v-model="event.state"
+          :options="localizedEventStatusOptions"
+          optionLabel="label"
+          data-key="id"
+          :placeholder="t('messages.select')"
+          class="w-full md:w-14rem"
+        />
+      </div>
+    </div>
+    <div class="flex flex-row">
       <label for="organisations" class="col-fixed w-32">{{ t('labels.organisation', 2) }}</label>
       <div class="col">
         <span v-if="organisationQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
@@ -117,7 +152,7 @@ onMounted(() => {
         <div v-else-if="organisationQuery.data" class="card">
           <MultiSelect
             id="organisations"
-            v-model="formData.organisations"
+            v-model="event.organisations"
             :options="organisationQuery.data.value"
             filter
             optionLabel="name"

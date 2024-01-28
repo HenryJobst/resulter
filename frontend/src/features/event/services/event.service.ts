@@ -1,9 +1,10 @@
 import type { Event } from '@/features/event/model/event'
 import axiosInstance from '@/features/keycloak/services/api'
-import type { EventResults } from '@/features/event/model/event_results'
 import { handleApiError } from '@/utils/HandleError'
+import type { EventStatus } from '@/features/event/model/event_status'
 
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'event'
+const eventStatusUrl: string = import.meta.env.VITE_API_ENDPOINT + 'event_status'
 
 export class EventService {
   static async getAll(): Promise<Event[] | void> {
@@ -22,20 +23,9 @@ export class EventService {
       })
   }
 
-  static async getById(id: string): Promise<Event> {
-    const response = await axiosInstance.get(url + '/' + id)
-    return response.data
-  }
-
-  static async getResultsById(id: string): Promise<EventResults> {
-    const response = await axiosInstance.get(url + '/' + id + '/results')
-    return response.data
-  }
-
-  static async create(event: Omit<Event, 'id'>, t: (key: string) => string): Promise<Event> {
-    const response = await axiosInstance.post(url, event)
-    return await axiosInstance
-      .post(url, event)
+  static async calculate(id: number | string, t: (key: string) => string) {
+    return axiosInstance
+      .put(url + '/' + id + '/calculate')
       .then((response) => response.data)
       .catch((error) => {
         handleApiError(error, t)
@@ -43,19 +33,9 @@ export class EventService {
       })
   }
 
-  static async update(event: Event): Promise<Event> {
-    const response = await axiosInstance.put(url + '/' + event.id, event)
-    return response.data
-  }
-
-  static async deleteById(id: number | string) {
-    const response = await axiosInstance.delete(url + '/' + id)
-    return response.data
-  }
-
-  static async calculate(id: number | string, t: (key: string) => string) {
-    return axiosInstance
-      .put(url + '/' + id + '/calculate')
+  static async getEventStatus(t: (key: string) => string): Promise<EventStatus[] | null> {
+    return await axiosInstance
+      .get<EventStatus[]>(eventStatusUrl)
       .then((response) => response.data)
       .catch((error) => {
         handleApiError(error, t)

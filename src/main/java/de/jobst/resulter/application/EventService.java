@@ -45,13 +45,17 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-    public Event updateEvent(EventId id, EventName name, DateTime startDate, Set<OrganisationId> organisationIds) {
+    public Event updateEvent(EventId id,
+                             EventName name,
+                             DateTime startDate,
+                             EventStatus status,
+                             Set<OrganisationId> organisationIds) {
         Optional<Event> optionalEvent = findById(id);
         if (optionalEvent.isEmpty()) {
             return null;
         }
         Event event = optionalEvent.get();
-        event.update(name, startDate, organisationIds);
+        event.update(name, startDate, status, organisationIds);
         return eventRepository.save(event);
     }
 

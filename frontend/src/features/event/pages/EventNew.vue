@@ -17,8 +17,7 @@ const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.eve
 const formData = ref<Event | Omit<Event, 'id'>>({
   name: '',
   startTime: new Date(),
-  classes: 0,
-  participants: 0,
+  state: { id: 'Planned' },
   organisations: []
 })
 </script>
@@ -34,7 +33,12 @@ const formData = ref<Event | Omit<Event, 'id'>>({
     :changeable="authStore.isAdmin"
   >
     <template v-slot:default="{ formData }">
-      <EventForm :event="formData" :entity-service="eventService" :query-key="queryKey" />
+      <EventForm
+        :event="formData"
+        :entity-service="eventService"
+        :query-key="queryKey"
+        :v-model="formData"
+      />
     </template>
   </GenericNew>
 </template>

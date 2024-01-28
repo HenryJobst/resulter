@@ -82,7 +82,7 @@ public class EventDbo {
             eventDbo.setState(null);
         }
 
-        eventDbo.setOrganisations(event.getReferencedOrganisationIds()
+        eventDbo.setOrganisations(event.getOrganisationIds()
             .stream()
             .map(x -> new EventOrganisationDbo(x.value()))
             .collect(Collectors.toSet()));

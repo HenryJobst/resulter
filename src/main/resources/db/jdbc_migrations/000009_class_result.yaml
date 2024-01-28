@@ -1,6 +1,6 @@
 databaseChangeLog :
     -   changeSet :
-            id : 000007_class_result
+            id : 000009_class_result
             author : Henry Jobst
             preConditions :
                 -   onFail : MARK_RAN
@@ -37,6 +37,11 @@ databaseChangeLog :
                                     type : varchar(3)
                                     constraints :
                                         nullable : false
+                            -   column :
+                                    name : course_id
+                                    type : bigint
+                                    constraints :
+                                        foreignKeyName : fk_class_result_course
                 -   addForeignKeyConstraint :
                         baseTableName : class_result
                         baseColumnNames : result_list_id
@@ -44,6 +49,14 @@ databaseChangeLog :
                         referencedTableName : result_list
                         referencedColumnNames : id
                         onDelete : cascade
+                        onUpdate : restrict
+                -   addForeignKeyConstraint :
+                        baseTableName : class_result
+                        baseColumnNames : course_id
+                        constraintName : fk_class_result_course
+                        referencedTableName : course
+                        referencedColumnNames : id
+                        onDelete : restrict
                         onUpdate : restrict
                 -   addUniqueConstraint :
                         columnNames : name, result_list_id

@@ -1,0 +1,67 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000008_course
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : course
+            comment : Table course with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : course
+                        columns :
+                            -   column :
+                                    name : id
+                                    type : bigint
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : pk_course
+                            -   column :
+                                    name : name
+                                    type : varchar(255)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : length
+                                    type : double
+                            -   column :
+                                    name : climb
+                                    type : double
+                            -   column :
+                                    name : controls
+                                    type : integer
+                            -   column :
+                                    name : event_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_course_event
+                -   addForeignKeyConstraint :
+                        baseTableName : course
+                        baseColumnNames : event_id
+                        constraintName : fk_course_event
+                        referencedTableName : event
+                        referencedColumnNames : id
+                        onDelete : cascade
+                        onUpdate : restrict
+                -   addUniqueConstraint :
+                        columnNames : name, event_id
+                        constraintName : uk_course_name_event_id
+                        tableName : course
+                        validate : true
+                -   createIndex :
+                        tableName : course
+                        columns :
+                            -   column :
+                                    name : id
+                        indexName : idx_course_id
+                -   createIndex :
+                        tableName : course
+                        columns :
+                            -   column :
+                                    name : name
+                        indexName : idx_course_name

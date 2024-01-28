@@ -1,8 +1,10 @@
 package de.jobst.resulter.domain;
 
+import org.springframework.lang.NonNull;
+
 import java.util.Objects;
 
-public record EventId(Long value) {
+public record EventId(Long value) implements Comparable<EventId> {
 
     public static EventId of(Long value) {
         if (value != null && value < 0L) {
@@ -13,6 +15,11 @@ public record EventId(Long value) {
 
     public static EventId empty() {
         return new EventId(0L);
+    }
+
+    @Override
+    public int compareTo(@NonNull EventId o) {
+        return value.compareTo(o.value);
     }
 
     public boolean isPersistent() {

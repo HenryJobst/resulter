@@ -53,7 +53,7 @@ public class EventTestDataGenerator {
         String className = "H50- (Herren ab 50)";
         String classShortName = "H50-";
         Gender classGender = Gender.M;
-        classResults.add(ClassResult.of(className, classShortName, classGender, personResults));
+        classResults.add(ClassResult.of(className, classShortName, classGender, personResults, CourseId.empty()));
 
         ResultList resultList = new ResultList(ResultListId.empty(),
             EventId.empty(),

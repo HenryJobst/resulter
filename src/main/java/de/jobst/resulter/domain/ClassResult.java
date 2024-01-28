@@ -10,17 +10,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public record ClassResult(@NonNull ClassResultName classResultName, @NonNull ClassResultShortName classResultShortName,
-                          @NonNull Gender gender, @NonNull PersonResults personResults)
+                          @NonNull Gender gender, @NonNull PersonResults personResults, @Nullable CourseId courseId)
     implements Comparable<ClassResult> {
 
     public static ClassResult of(@NonNull String name,
                                  @NonNull String shortName,
                                  @NonNull Gender gender,
-                                 @Nullable Collection<PersonResult> personResults) {
+                                 @Nullable Collection<PersonResult> personResults,
+                                 @Nullable CourseId courseId) {
         return new ClassResult(ClassResultName.of(name),
             ClassResultShortName.of(shortName),
             gender,
-            PersonResults.of(personResults));
+            PersonResults.of(personResults),
+            courseId);
     }
 
     @Override

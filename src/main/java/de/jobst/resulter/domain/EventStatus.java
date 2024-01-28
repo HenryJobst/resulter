@@ -27,7 +27,7 @@ public enum EventStatus {
     }
 
     static public EventStatus getDefault() {
-        return EventStatus.APPLIED;
+        return EventStatus.SANCTIONED;
     }
 
 }

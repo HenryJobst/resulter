@@ -4,22 +4,17 @@ import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
-public record EventId(Long value) implements Comparable<EventId> {
+public record CourseId(Long value) implements Comparable<CourseId> {
 
-    public static EventId of(Long value) {
+    public static CourseId of(Long value) {
         if (value != null && value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
-        return new EventId(value);
+        return new CourseId(value);
     }
 
-    public static EventId empty() {
-        return new EventId(0L);
-    }
-
-    @Override
-    public int compareTo(@NonNull EventId o) {
-        return value.compareTo(o.value);
+    public static CourseId empty() {
+        return new CourseId(0L);
     }
 
     public boolean isPersistent() {
@@ -29,5 +24,10 @@ public record EventId(Long value) implements Comparable<EventId> {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;
+    }
+
+    @Override
+    public int compareTo(@NonNull CourseId o) {
+        return value.compareTo(o.value);
     }
 }

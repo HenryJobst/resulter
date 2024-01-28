@@ -23,6 +23,7 @@ public class XMLImportService {
 
     private final OrganisationService organisationService;
     private final PersonService personService;
+    private final CourseService courseService;
     private final ResultListService resultListService;
     private final SplitTimeListService splitTimeListService;
 
@@ -31,6 +32,7 @@ public class XMLImportService {
                             CountryService countryService,
                             OrganisationService organisationService,
                             PersonService personService,
+                            CourseService courseService,
                             ResultListService resultListService,
                             SplitTimeListService splitTimeListService) {
         this.xmlParser = xmlParser;
@@ -38,6 +40,7 @@ public class XMLImportService {
         this.countryService = countryService;
         this.organisationService = organisationService;
         this.personService = personService;
+        this.courseService = courseService;
         this.resultListService = resultListService;
         this.splitTimeListService = splitTimeListService;
     }
@@ -95,20 +98,27 @@ public class XMLImportService {
 
         Event event = importEvent(resultList, organisationByName);
 
-
         ResultList domainResultList = importResultListHead(event, resultList);
 
-        domainResultList =
-            importResultListBody(event, domainResultList, resultList, organisationByName, personByDomainKey);
+        Map<Course.DomainKey, Course> courseByDomainKey = importCourses(event, resultList);
+
+        domainResultList = importResultListBody(event,
+            domainResultList,
+            resultList,
+            organisationByName,
+            personByDomainKey,
+            courseByDomainKey);
 
         return new ImportResult(event, countriesByCode, organisationByName, personByDomainKey, domainResultList);
     }
+
 
     private ResultList importResultListBody(Event event,
                                             ResultList partialResultList,
                                             de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList,
                                             Map<String, Organisation> organisationByName,
-                                            Map<Person.DomainKey, Person> personByDomainKey) {
+                                            Map<Person.DomainKey, Person> personByDomainKey,
+                                            Map<Course.DomainKey, Course> courseByDomainKey) {
         @SuppressWarnings("UnnecessaryLocalVariable") ResultList finalDomainResultList = partialResultList;
 
         List<Pair<ClassResult, List<List<SplitTimeList>>>> listOfPairsOfClassResultAndGroupedSplitTimeLists =
@@ -121,9 +131,12 @@ public class XMLImportService {
                     organisationByName,
                     personByDomainKey));
                 return Pair.of(ClassResult.of(clazz.getName(),
-                    clazz.getShortName(),
-                    Gender.of(clazz.getSex()),
-                    personResults.getFirst()), personResults.getSecond());
+                        clazz.getShortName(),
+                        Gender.of(clazz.getSex()),
+                        personResults.getFirst(),
+                        courseByDomainKey.get(new Course.DomainKey(event.getId(),
+                            CourseName.of(classResult.getCourses().getFirst().getName()))).getId()),
+                    personResults.getSecond());
             }).toList();
         var pairOfClassResultListAndGroupedSplitTimeLists =
             convertListPairToListsPair(listOfPairsOfClassResultAndGroupedSplitTimeLists);
@@ -195,6 +208,22 @@ public class XMLImportService {
             .collect(Collectors.toSet());
         persons = personService.findOrCreate(persons);
         return persons.stream().collect(Collectors.toMap(Person::getDomainKey, x -> x));
+    }
+
+    private Map<Course.DomainKey, Course> importCourses(Event event,
+                                                        de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList) {
+        Collection<Course> courses = resultList.getClassResults()
+            .stream()
+            .flatMap(x -> x.getCourses().stream())
+            .filter(Objects::nonNull)
+            .map(c -> Course.of(event.getId(),
+                CourseName.of(c.getName()),
+                CourseLength.of(c.getLength()),
+                CourseClimb.of(c.getClimb()),
+                NumberOfControls.of(c.getNumberOfControls().intValue())))
+            .collect(Collectors.toSet());
+        courses = this.courseService.findOrCreate(courses);
+        return courses.stream().collect(Collectors.toMap(Course::getDomainKey, x -> x));
     }
 
     @NonNull
@@ -282,10 +311,10 @@ public class XMLImportService {
                 if (person != null) {
                     personId = person.getId();
                 } else {
-                    personId = null;
+                    throw new RuntimeException("Person not found: " + personDomainKey);
                 }
             } else {
-                personId = null;
+                throw new RuntimeException("Person not found: " + personResult);
             }
             Pair<List<PersonRaceResult>, List<SplitTimeList>> personRaceResults =
                 convertListPairToListsPair(getPersonRaceResults(personResult,

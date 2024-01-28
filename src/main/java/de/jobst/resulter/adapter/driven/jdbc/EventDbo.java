@@ -60,7 +60,7 @@ public class EventDbo {
             eventDbo = new EventDbo(event.getName().value());
         }
 
-        if (null != event.getStartTime().value()) {
+        if (null != event.getStartTime() && null != event.getStartTime().value()) {
             eventDbo.setStartTime(event.getStartTime().value().toOffsetDateTime());
             eventDbo.setStartTimeZone(event.getStartTime().value().getZone().getId());
         } else {
@@ -68,7 +68,7 @@ public class EventDbo {
             eventDbo.setStartTimeZone(null);
         }
 
-        if (null != event.getEndTime().value()) {
+        if (null != event.getEndTime() && null != event.getEndTime().value()) {
             eventDbo.setEndTime(event.getEndTime().value().toOffsetDateTime());
             eventDbo.setEndTimeZone(event.getEndTime().value().getZone().getId());
         } else {

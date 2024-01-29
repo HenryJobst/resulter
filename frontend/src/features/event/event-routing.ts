@@ -27,13 +27,13 @@ export const eventRouting = [
         component: EventImport
       },
       {
-        path: 'edit/:id',
+        path: ':id/edit',
         name: 'event-edit',
         props: true,
         component: EventEdit
       },
       {
-        path: 'results/:id',
+        path: ':id/results',
         name: 'event-results',
         props: true,
         component: EventResults

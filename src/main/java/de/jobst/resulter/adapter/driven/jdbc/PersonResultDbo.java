@@ -1,9 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.OrganisationId;
-import de.jobst.resulter.domain.PersonId;
-import de.jobst.resulter.domain.PersonRaceResult;
-import de.jobst.resulter.domain.PersonResult;
+import de.jobst.resulter.domain.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,6 +24,9 @@ import java.util.stream.Collectors;
 @Table(name = "person_result")
 public class PersonResultDbo {
 
+    @Column("class_result_short_name")
+    private String classResultShortName;
+
     @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
 
@@ -38,7 +38,7 @@ public class PersonResultDbo {
 
     public static PersonResultDbo from(@NonNull PersonResult personResult) {
         PersonResultDbo personResultDbo = new PersonResultDbo();
-
+        personResultDbo.setClassResultShortName(personResult.classResultShortName().value());
         personResultDbo.setPerson(
             personResult.personId() != null ? AggregateReference.to(personResult.personId().value()) : null);
 
@@ -57,7 +57,8 @@ public class PersonResultDbo {
 
     static public Collection<PersonResult> asPersonResults(@NonNull Collection<PersonResultDbo> personResultDbos) {
         return personResultDbos.stream()
-            .map(it -> PersonResult.of(it.person != null ? PersonId.of(it.person.getId()) : null,
+            .map(it -> PersonResult.of(ClassResultShortName.of(it.classResultShortName),
+                it.person != null ? PersonId.of(it.person.getId()) : null,
                 it.organisation != null ? OrganisationId.of(it.organisation.getId()) : null,
                 it.getPersonRaceResults()
                     .stream()

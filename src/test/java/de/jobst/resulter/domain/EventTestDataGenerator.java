@@ -46,13 +46,17 @@ public class EventTestDataGenerator {
         Country country = Country.of(CountryId.empty().value(), "NED", "NED");
         Organisation organisation = Organisation.of(clubName, clubShortName, country.getId());
 
-        Person person = Person.of(FamilyName.of(familyName), GivenName.of(givenName), birthDate, personGender);
-        personResults.add(PersonResult.of(person.getId(), organisation.getId(), personRaceResults));
-
-        Collection<ClassResult> classResults = new ArrayList<>();
         String className = "H50- (Herren ab 50)";
         String classShortName = "H50-";
         Gender classGender = Gender.M;
+
+        Person person = Person.of(FamilyName.of(familyName), GivenName.of(givenName), birthDate, personGender);
+        personResults.add(PersonResult.of(ClassResultShortName.of(classShortName),
+            person.getId(),
+            organisation.getId(),
+            personRaceResults));
+
+        Collection<ClassResult> classResults = new ArrayList<>();
         classResults.add(ClassResult.of(className, classShortName, classGender, personResults, CourseId.empty()));
 
         ResultList resultList = new ResultList(ResultListId.empty(),

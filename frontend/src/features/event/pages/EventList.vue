@@ -6,6 +6,8 @@ import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { GenericService } from '@/features/generic/services/GenericService'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import GenericList from '@/features/generic/pages/GenericList.vue'
+import { useQuery } from '@tanstack/vue-query'
+import { OrganisationService } from '@/features/organisation/services/organisation.service'
 
 const authStore = useAuthStore()
 const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
@@ -18,8 +20,15 @@ const columns: GenericListColumn[] = [
   { label: 'labels.name', field: 'name' },
   { label: 'labels.date', field: 'startTime', type: 'date' },
   { label: 'labels.time', field: 'startTime', type: 'time' },
-  { label: 'labels.state', field: 'state', type: 'enum' }
+  { label: 'labels.state', field: 'state', type: 'enum' },
+  { label: 'labels.organisation', field: 'organisations', type: 'list' }
 ]
+
+const organisationQuery = useQuery({
+  queryKey: ['organisations'],
+  queryFn: () => OrganisationService.getAll(t),
+  select: (data) => data ?? []
+})
 </script>
 
 <template>
@@ -33,6 +42,9 @@ const columns: GenericListColumn[] = [
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['state', 'event_state.']])"
   >
+    <template v-slot:organisations="{ value }" v-if="organisationQuery.data.value">
+      <div>{{ organisationQuery.data.value.find((org) => org.id === value)?.name }}</div>
+    </template>
     <template v-slot:extra_list_actions>
       <router-link class="ml-2" :to="{ name: 'event-import' }" v-if="authStore.isAuthenticated">
         <Button icon="pi pi-upload" :label="t('labels.import')" outlined></Button>

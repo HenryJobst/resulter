@@ -48,7 +48,7 @@
         "cup" : "Kein Cup | Cup | Cups",
         "entity_list" : "{entity}",
         "country" : "Land",
-        "parent_organisation" : "Dach-Organisation",
+        "child_organisation" : "Unter-Organisation | Unter-Organisationen",
         "calculate" : "Berechne Cup-Punkte",
         "state" : "Status"
     },

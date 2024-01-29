@@ -48,7 +48,7 @@
         "cup" : "No cup | Cup | Cups",
         "entity_list" : "{entity}",
         "country" : "Country",
-        "parent_organisation" : "Parent organisation",
+        "child_organisation" : "Child organisation | Child organisations",
         "calculate" : "Calculate cups scores",
         "state" : "State"
     },

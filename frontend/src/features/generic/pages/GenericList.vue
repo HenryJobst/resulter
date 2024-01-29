@@ -137,20 +137,30 @@ const formatTime = (time: string) => {
           :header="col.label_count ? t(col.label, col.label_count) : t(col.label)"
         >
           <template v-slot:body="slotProps" v-if="col.type === 'list'">
-            <div>
-              <Chip v-for="(item, index) in slotProps.data[col.field]" :key="index" :label="item" />
+            <div v-for="(item, index) in slotProps.data[col.field]">
+              <template v-if="$slots[col.field]">
+                <slot :name="col.field" :value="item" />
+              </template>
+              <template v-else>
+                <Chip :key="index" :label="item" />
+              </template>
             </div>
           </template>
-          <template v-slot:body="slotProps" v-if="col.type === 'id'">
-            {{ slotProps.data[col.field] }}
+          <template v-slot:body="slotProps" v-else-if="col.type === 'id'">
+            <template v-if="$slots[col.field]">
+              <slot :name="col.field" :value="slotProps.data[col.field]" />
+            </template>
+            <template v-else>
+              {{ slotProps.data[col.field] }}
+            </template>
           </template>
-          <template v-slot:body="slotProps" v-if="col.type === 'date'">
+          <template v-slot:body="slotProps" v-else-if="col.type === 'date'">
             {{ formatDate(slotProps.data[col.field]) }}
           </template>
-          <template v-slot:body="slotProps" v-if="col.type === 'time'">
+          <template v-slot:body="slotProps" v-else-if="col.type === 'time'">
             {{ formatTime(slotProps.data[col.field]) }}
           </template>
-          <template v-slot:body="slotProps" v-if="col.type === 'enum'">
+          <template v-slot:body="slotProps" v-else-if="col.type === 'enum'">
             {{
               t(
                 (enumTypeLabelPrefixes ? enumTypeLabelPrefixes.get(col.field) : '') +

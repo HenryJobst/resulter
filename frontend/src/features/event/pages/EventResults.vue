@@ -24,8 +24,8 @@ const formatTime = (time: string): string => {
 }
 
 const eventResultsQuery = useQuery({
-  queryKey: ['eventResults'],
-  queryFn: () => EventService.getResultsById(props.id)
+  queryKey: ['eventResults', props.id],
+  queryFn: () => EventService.getResultsById(props.id, t)
 })
 
 const createTreeNodes = (aList: ClassResult[] | undefined): TreeNode[] => {
@@ -71,42 +71,42 @@ const calculate = () => {
 
 <template>
   <!--h2 v-if="event">{{ event.name }}</h2>
-    <Button :label="t('labels.calculate')" @click="calculate()" v-if="authStore.isAdmin" />
-    <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-    <span v-else-if="eventResultsQuery.status.value === 'error'">
-      {{ t('messages.error', { message: eventResultsQuery.error.toLocaleString() }) }}
-    </span>
-    <div v-else-if="eventResultsQuery.data" class="card flex justify-content-start">
-      <Tree :value="treeNodes" class="w-full">
-        <template #default="slotProps">
-          <b>{{ slotProps.node.label }}</b>
-        </template>
-        <template #dataTable="slotProps">
-          <DataTable :value="slotProps.node.data">
-            <Column field="position" :header="t('labels.position')" />
-            <Column field="personName" :header="t('labels.name')" />
-            <Column :header="t('labels.birth_year')">
-              <template #body="slotProps">
-                {{ birthYearColumn(slotProps) }}
-              </template>
-            </Column>
-            <Column field="organisation" :header="t('labels.organisation')" />
-            <Column :header="t('labels.time')">
-              <template #body="slotProps">
-                {{ resultColumn(slotProps) }}
-              </template>
-            </Column>
-            <Column
-              v-for="score in cupScores"
-              :key="score.type.name"
-              :header="score.type.name"
-              :field="score.score"
-            >
-            </Column>
-          </DataTable>
-        </template>
-      </Tree>
-    </div-->
+      <Button :label="t('labels.calculate')" @click="calculate()" v-if="authStore.isAdmin" />
+      <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+      <span v-else-if="eventResultsQuery.status.value === 'error'">
+        {{ t('messages.error', { message: eventResultsQuery.error.toLocaleString() }) }}
+      </span>
+      <div v-else-if="eventResultsQuery.data" class="card flex justify-content-start">
+        <Tree :value="treeNodes" class="w-full">
+          <template #default="slotProps">
+            <b>{{ slotProps.node.label }}</b>
+          </template>
+          <template #dataTable="slotProps">
+            <DataTable :value="slotProps.node.data">
+              <Column field="position" :header="t('labels.position')" />
+              <Column field="personName" :header="t('labels.name')" />
+              <Column :header="t('labels.birth_year')">
+                <template #body="slotProps">
+                  {{ birthYearColumn(slotProps) }}
+                </template>
+              </Column>
+              <Column field="organisation" :header="t('labels.organisation')" />
+              <Column :header="t('labels.time')">
+                <template #body="slotProps">
+                  {{ resultColumn(slotProps) }}
+                </template>
+              </Column>
+              <Column
+                v-for="score in cupScores"
+                :key="score.type.name"
+                :header="score.type.name"
+                :field="score.score"
+              >
+              </Column>
+            </DataTable>
+          </template>
+        </Tree>
+      </div-->
 </template>
 
 <style scoped>

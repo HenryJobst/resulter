@@ -50,6 +50,11 @@ const organisationQuery = useQuery({
         <Button icon="pi pi-upload" :label="t('labels.import')" outlined></Button>
       </router-link>
     </template>
+    <template v-slot:extra_row_actions="{ value }">
+      <router-link :to="{ name: 'event-results', params: { id: value.id } }">
+        <Button icon="pi pi-list" class="mr-2" :label="t('labels.results')" outlined />
+      </router-link>
+    </template>
   </GenericList>
 </template>
 

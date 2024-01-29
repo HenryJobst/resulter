@@ -25,8 +25,8 @@ const formatTime = (time: string): string => {
 }
 
 const cupResultsQuery = useQuery({
-  queryKey: ['cupResults'],
-  queryFn: () => CupService.getResultsById(props.id)
+  queryKey: ['cupResults', props.id],
+  queryFn: () => CupService.getResultsById(props.id, t)
 })
 
 const createTreeNodes = (aList: ClassResult[] | undefined): TreeNode[] => {

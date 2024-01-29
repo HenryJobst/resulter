@@ -3,7 +3,6 @@ import { computed, defineProps, type PropType } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import Chip from 'primevue/chip'
 import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Button from 'primevue/button'
@@ -137,21 +136,15 @@ const formatTime = (time: string) => {
           :header="col.label_count ? t(col.label, col.label_count) : t(col.label)"
         >
           <template v-slot:body="slotProps" v-if="col.type === 'list'">
-            <div v-for="(item, index) in slotProps.data[col.field]">
+            <div v-for="item in slotProps.data[col.field]">
               <template v-if="$slots[col.field]">
                 <slot :name="col.field" :value="item" />
-              </template>
-              <template v-else>
-                <Chip :key="index" :label="item" />
               </template>
             </div>
           </template>
           <template v-slot:body="slotProps" v-else-if="col.type === 'id'">
             <template v-if="$slots[col.field]">
               <slot :name="col.field" :value="slotProps.data[col.field]" />
-            </template>
-            <template v-else>
-              {{ slotProps.data[col.field] }}
             </template>
           </template>
           <template v-slot:body="slotProps" v-else-if="col.type === 'date'">
@@ -172,6 +165,7 @@ const formatTime = (time: string) => {
         <!-- ... Other columns ... -->
         <Column class="text-right">
           <template #body="{ data }">
+            <slot name="extra_row_actions" :value="data" />
             <router-link :to="{ name: `${props.routerPrefix}-edit`, params: { id: data.id } }">
               <Button
                 v-if="changeable"

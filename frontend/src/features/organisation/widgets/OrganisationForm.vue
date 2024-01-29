@@ -108,7 +108,7 @@ const organisation = computed({
     </div>
     <div class="flex flex-row">
       <label for="organisations" class="col-fixed w-40">{{
-        t('labels.parent_organisation')
+        t('labels.child_organisation', 2)
       }}</label>
       <div class="col">
         <span v-if="organisationQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>

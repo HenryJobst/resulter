@@ -322,7 +322,8 @@ public class XMLImportService {
                     resultListId,
                     classResultShortName,
                     personId));
-            return Pair.of(PersonResult.of(personId,
+            return Pair.of(PersonResult.of(classResultShortName,
+                personId,
                 Objects.nonNull(personResult.getOrganisation()) ?
                 organisationByName.get(personResult.getOrganisation().getName()).getId() :
                 null,

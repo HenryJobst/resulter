@@ -5,10 +5,10 @@ import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -73,7 +73,9 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
 
     @Override
     public Collection<ResultList> findByEventId(EventId id) {
-        return ResultListDbo.asResultLists(resultListJdbcRepository.findByEventId(AggregateReference.to(id.value())));
+        Collection<PersonRaceResultJdbcDto> resultListDboResultSetExtractors =
+            resultListJdbcRepository.findPersonRaceResultsByEventId(id.value());
+        return new ArrayList<>();
     }
 
 }

@@ -71,7 +71,7 @@ public class SplitTimeListDbo {
             splitTimeListDbo.setRaceNumber(splitTimeList.getRaceNumber().value());
             splitTimeListDbo.setSplitTimes(splitTimeList.getSplitTimes()
                 .stream()
-                .map((SplitTime splitTime) -> SplitTimeDbo.from(splitTime, splitTimeList.getId()))
+                .map((SplitTime splitTime) -> SplitTimeDbo.from(splitTime))
                 .collect(Collectors.toSet()));
         } else {
             splitTimeListDbo = new SplitTimeListDbo(AggregateReference.to(splitTimeList.getEventId().value()),
@@ -81,7 +81,7 @@ public class SplitTimeListDbo {
                 splitTimeList.getRaceNumber().value(),
                 splitTimeList.getSplitTimes()
                     .stream()
-                    .map((SplitTime splitTime) -> SplitTimeDbo.from(splitTime, splitTimeList.getId()))
+                    .map((SplitTime splitTime) -> SplitTimeDbo.from(splitTime))
                     .collect(Collectors.toSet()));
         }
         return splitTimeListDbo;
@@ -97,9 +97,7 @@ public class SplitTimeListDbo {
                 RaceNumber.of(it.raceNumber),
                 it.getSplitTimes()
                     .stream()
-                    .map(x -> SplitTime.of(x.getControlCode(),
-                        x.getPunchTime(),
-                        SplitTimeListId.of(x.getSplitTimeList().getId())))
+                    .map(x -> SplitTime.of(x.getControlCode(), x.getPunchTime(), SplitTimeListId.of(it.getId())))
                     .toList()))
             .toList();
     }

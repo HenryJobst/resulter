@@ -15,6 +15,9 @@ public class EventTestDataGenerator {
 
     @NonNull
     public static TestEventResult getTestEvent() {
+        String className = "H50- (Herren ab 50)";
+        String classShortName = "H50-";
+        Gender classGender = Gender.M;
         List<SplitTime> splitTimes = new ArrayList<>();
         String controlCode1 = "134";
         double punchTime1 = 120.0;
@@ -28,7 +31,9 @@ public class EventTestDataGenerator {
         double punchTime = 1000.0;
         long position = 2L;
         ResultStatus resultStatus = ResultStatus.OK;
-        personRaceResults.add(PersonRaceResult.of(raceNumber,
+        personRaceResults.add(PersonRaceResult.of(classShortName,
+            1L,
+            raceNumber,
             startTime,
             finishTime,
             punchTime,
@@ -46,9 +51,6 @@ public class EventTestDataGenerator {
         Country country = Country.of(CountryId.empty().value(), "NED", "NED");
         Organisation organisation = Organisation.of(clubName, clubShortName, country.getId());
 
-        String className = "H50- (Herren ab 50)";
-        String classShortName = "H50-";
-        Gender classGender = Gender.M;
 
         Person person = Person.of(FamilyName.of(familyName), GivenName.of(givenName), birthDate, personGender);
         personResults.add(PersonResult.of(ClassResultShortName.of(classShortName),

@@ -13,7 +13,11 @@ import java.time.ZonedDateTime;
 public class PersonRaceResult implements Comparable<PersonRaceResult> {
 
     @NonNull
-    RaceNumber raceNumber;
+    private ClassResultShortName classResultShortName;
+    @NonNull
+    private PersonId personId;
+    @NonNull
+    private RaceNumber raceNumber;
     @NonNull
     DateTime startTime;
     @NonNull
@@ -28,23 +32,37 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     @Setter
     SplitTimeListId splitTimeListId;
 
-    public static PersonRaceResult of(Long raceNumber,
+    public static PersonRaceResult of(String classResultShortName,
+                                      Long personId,
+                                      Long raceNumber,
                                       ZonedDateTime startTime,
                                       ZonedDateTime finishTime,
                                       Double punchTime,
                                       Long position,
                                       @NonNull ResultStatus resultState) {
-        return PersonRaceResult.of(raceNumber, startTime, finishTime, punchTime, position, resultState, null);
+        return PersonRaceResult.of(classResultShortName,
+            personId,
+            raceNumber,
+            startTime,
+            finishTime,
+            punchTime,
+            position,
+            resultState,
+            null);
     }
 
-    public static PersonRaceResult of(Long raceNumber,
+    public static PersonRaceResult of(String classResultShortName,
+                                      Long personId,
+                                      Long raceNumber,
                                       ZonedDateTime startTime,
                                       ZonedDateTime finishTime,
                                       Double punchTime,
                                       Long position,
                                       @NonNull ResultStatus resultState,
                                       @Nullable SplitTimeListId splitTimeListId) {
-        return new PersonRaceResult(RaceNumber.of(raceNumber),
+        return new PersonRaceResult(ClassResultShortName.of(classResultShortName),
+            PersonId.of(personId),
+            RaceNumber.of(raceNumber),
             DateTime.of(startTime),
             DateTime.of(finishTime),
             PunchTime.of(punchTime),
@@ -53,11 +71,18 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
             splitTimeListId);
     }
 
+
     @Override
     public int compareTo(@NonNull PersonRaceResult o) {
-        int val = this.raceNumber.compareTo(o.raceNumber);
+        int val = this.position.compareTo(o.position);
         if (val == 0) {
-            val = this.position.compareTo(o.position);
+            val = this.raceNumber.compareTo(o.raceNumber);
+        }
+        if (val == 0) {
+            val = this.personId.compareTo(o.personId);
+        }
+        if (val == 0) {
+            val = this.classResultShortName.compareTo(o.classResultShortName);
         }
         return val;
     }

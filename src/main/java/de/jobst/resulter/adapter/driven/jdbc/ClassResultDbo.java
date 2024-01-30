@@ -6,15 +6,16 @@ import de.jobst.resulter.domain.Gender;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ public class ClassResultDbo {
     @Column("name")
     private String name;
 
+    @NonNull
     @Column("short_name")
     private String shortName;
 
@@ -44,9 +46,8 @@ public class ClassResultDbo {
 
     public static ClassResultDbo from(ClassResult classResult) {
         ClassResultDbo classResultDbo = new ClassResultDbo(classResult.classResultName().value());
-        if (StringUtils.isNotEmpty(classResult.classResultShortName().value())) {
-            classResultDbo.setShortName(classResult.classResultShortName().value());
-        }
+        classResultDbo.setShortName(Objects.requireNonNull(Objects.requireNonNull(classResult.classResultShortName())
+            .value()));
         classResultDbo.setGender(classResult.gender());
         classResultDbo.setPersonResults(classResult.personResults()
             .value()

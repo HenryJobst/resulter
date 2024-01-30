@@ -9,11 +9,13 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
@@ -21,6 +23,13 @@ import java.util.List;
 @Table(name = "person_race_result")
 public class PersonRaceResultDbo {
 
+    @NonNull
+    @Column("class_result_short_name")
+    private String classResultShortName;
+    @NonNull
+    @Column("person_id")
+    private AggregateReference<PersonDbo, Long> person;
+    @NonNull
     @Column("race_number")
     private Long raceNumber;
     @Column("start_time")
@@ -38,12 +47,16 @@ public class PersonRaceResultDbo {
     @Column("state")
     private ResultStatus state;
 
+    @Nullable
     @Column("split_time_list_id")
     @Setter
     private AggregateReference<SplitTimeListDbo, Long> splitTimeList;
 
     public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
+        personRaceResultDbo.setClassResultShortName(Objects.requireNonNull(Objects.requireNonNull(personRaceResult.getClassResultShortName())
+            .value()));
+        personRaceResultDbo.setPerson(AggregateReference.to(personRaceResult.getPersonId().value()));
 
         if (null != personRaceResult.getStartTime().value()) {
             personRaceResultDbo.setStartTime(personRaceResult.getStartTime().value().toOffsetDateTime());
@@ -67,7 +80,7 @@ public class PersonRaceResultDbo {
         if (ObjectUtils.isNotEmpty(personRaceResult.getRaceNumber())) {
             personRaceResultDbo.setRaceNumber(personRaceResult.getRaceNumber().value());
         } else {
-            personRaceResultDbo.setRaceNumber(null);
+            personRaceResultDbo.setRaceNumber(1L);
         }
         if (ObjectUtils.isNotEmpty(personRaceResult.getPosition())) {
             personRaceResultDbo.setPosition(personRaceResult.getPosition().value());
@@ -86,7 +99,9 @@ public class PersonRaceResultDbo {
     public static Collection<PersonRaceResult> asPersonRaceResults(
         @NonNull List<PersonRaceResultDbo> personRaceResultDbos) {
         return personRaceResultDbos.stream()
-            .map(it -> PersonRaceResult.of(it.raceNumber,
+            .map(it -> PersonRaceResult.of(it.classResultShortName,
+                it.person.getId(),
+                it.raceNumber,
                 it.startTime != null ? it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)) : null,
                 it.finishTime != null ? it.finishTime.atZoneSameInstant(ZoneId.of(it.finishTimeZone)) : null,
                 it.getPunchTime(),

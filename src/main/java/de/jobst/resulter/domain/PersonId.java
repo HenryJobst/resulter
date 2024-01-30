@@ -1,8 +1,10 @@
 package de.jobst.resulter.domain;
 
+import org.springframework.lang.NonNull;
+
 import java.util.Objects;
 
-public record PersonId(Long value) {
+public record PersonId(Long value) implements Comparable<PersonId> {
 
     public static PersonId of(Long value) {
         if (value != null && value < 0L) {
@@ -22,5 +24,10 @@ public record PersonId(Long value) {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "=" + value;
+    }
+
+    @Override
+    public int compareTo(@NonNull PersonId o) {
+        return value.compareTo(o.value);
     }
 }

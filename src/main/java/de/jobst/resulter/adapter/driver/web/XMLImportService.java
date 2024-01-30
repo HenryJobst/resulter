@@ -52,7 +52,9 @@ public class XMLImportService {
                                                                                     PersonId personId) {
         return personResult.getResults()
             .stream()
-            .map(personRaceResult -> Pair.of(PersonRaceResult.of(personRaceResult.getRaceNumber().longValue(),
+            .map(personRaceResult -> Pair.of(PersonRaceResult.of(classResultShortName.value(),
+                    personId.value(),
+                    personRaceResult.getRaceNumber().longValue(),
                     ObjectUtils.isNotEmpty(personRaceResult.getStartTime()) ?
                     personRaceResult.getStartTime()
                         .toInstant()

@@ -15,6 +15,7 @@ import org.springframework.lang.NonNull;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,9 +25,11 @@ import java.util.stream.Collectors;
 @Table(name = "person_result")
 public class PersonResultDbo {
 
+    @NonNull
     @Column("class_result_short_name")
     private String classResultShortName;
 
+    @NonNull
     @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
 
@@ -38,9 +41,10 @@ public class PersonResultDbo {
 
     public static PersonResultDbo from(@NonNull PersonResult personResult) {
         PersonResultDbo personResultDbo = new PersonResultDbo();
-        personResultDbo.setClassResultShortName(personResult.classResultShortName().value());
-        personResultDbo.setPerson(
-            personResult.personId() != null ? AggregateReference.to(personResult.personId().value()) : null);
+        personResultDbo.setClassResultShortName(Objects.requireNonNull(Objects.requireNonNull(personResult.classResultShortName())
+            .value()));
+        personResultDbo.setPerson(AggregateReference.to(Objects.requireNonNull(Objects.requireNonNull(personResult.personId())
+            .value())));
 
         personResultDbo.setOrganisation(personResult.organisationId() != null ?
                                         AggregateReference.to(personResult.organisationId().value()) :
@@ -58,11 +62,13 @@ public class PersonResultDbo {
     static public Collection<PersonResult> asPersonResults(@NonNull Collection<PersonResultDbo> personResultDbos) {
         return personResultDbos.stream()
             .map(it -> PersonResult.of(ClassResultShortName.of(it.classResultShortName),
-                it.person != null ? PersonId.of(it.person.getId()) : null,
+                PersonId.of(it.person.getId()),
                 it.organisation != null ? OrganisationId.of(it.organisation.getId()) : null,
                 it.getPersonRaceResults()
                     .stream()
-                    .map(x -> PersonRaceResult.of(x.getRaceNumber(),
+                    .map(x -> PersonRaceResult.of(it.classResultShortName,
+                        it.person.getId(),
+                        x.getRaceNumber(),
                         x.getStartTime() != null ?
                         x.getStartTime().atZoneSameInstant(ZoneId.of(x.getStartTimeZone())) :
                         null,

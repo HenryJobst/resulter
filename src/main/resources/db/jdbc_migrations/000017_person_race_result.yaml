@@ -45,6 +45,16 @@ databaseChangeLog :
                                         nullable : false
                                         foreignKeyName : fk_person_race_result_result_list
                             -   column :
+                                    name : class_result_short_name
+                                    type : varchar(20)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : person_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                            -   column :
                                     name : split_time_list_id
                                     type : bigint
                                     constraints :
@@ -66,15 +76,38 @@ databaseChangeLog :
                         referencedColumnNames : id
                         onDelete : set null
                         onUpdate : restrict
+                -   addForeignKeyConstraint :
+                        baseTableName : person_race_result
+                        baseColumnNames : person_id, class_result_short_name, result_list_id
+                        constraintName : fk_person_race_result_person_result
+                        referencedTableName : person_result
+                        referencedColumnNames : person_id, class_result_short_name, result_list_id
+                        onDelete : no action
+                        onUpdate : no action
+                -   addUniqueConstraint :
+                        tableName : person_race_result
+                        columnNames : result_list_id, class_result_short_name, person_id, race_number
+                        constraintName : uk_person_race_result_result_list_class_result_person_race
+                        validate : true
                 -   createIndex :
                         tableName : person_race_result
                         columns :
                             -   column :
                                     name : result_list_id
-                                indexName : idx_person_race_result_result_list_id
+                        indexName : idx_person_race_result_result_list_id
                 -   createIndex :
                         tableName : person_race_result
                         columns :
                             -   column :
                                     name : split_time_list_id
-                                indexName : idx_person_race_result_split_time_list_id
+                        indexName : idx_person_race_result_split_time_list_id
+                -   createIndex :
+                        tableName : person_race_result
+                        columns :
+                            -   column :
+                                    name : person_id
+                            -   column :
+                                    name : class_result_short_name
+                            -   column :
+                                    name : result_list_id
+                        indexName : idx_person_race_result_person_result

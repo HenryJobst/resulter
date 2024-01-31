@@ -25,7 +25,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     @Query("""
            SELECT
            rl.id as result_list_id, rl.create_time, rl.create_time_zone, rl.status as result_list_status,
-           cl.short_name as class_list_short_name, cl.name as class_list_name, cl.course_id,
+           cl.short_name as class_list_short_name, cl.name as class_list_name, cl.gender as class_gender, cl.course_id,
            pr.person_id, pr.organisation_id,
            prr.start_time, prr.start_time_zone, prr.punch_time, prr.race_number, prr.position, prr.state
            FROM result_list rl

@@ -21,8 +21,8 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, OffsetDat
         Map<Long, List<PersonRaceResultJdbcDto>> resultListGroups =
             personRaceResultJdbcDtos.stream().collect(Collectors.groupingBy(PersonRaceResultJdbcDto::resultListId));
 
-        List<ResultList> resultLists = resultListGroups.entrySet().stream().map(entry -> {
-            Long resultListId = entry.getKey();
+        return resultListGroups.entrySet().stream().map(entry -> {
+            Long resultListId1 = entry.getKey();
             List<PersonRaceResultJdbcDto> resultListDtos = entry.getValue();
             PersonRaceResultJdbcDto sampleDto = resultListDtos.getFirst(); // Ein Beispiel-DTO für
             // gemeinsame Daten
@@ -31,9 +31,8 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, OffsetDat
             Map<String, List<PersonRaceResultJdbcDto>> classResultGroups =
                 resultListDtos.stream().collect(Collectors.groupingBy(PersonRaceResultJdbcDto::classListShortName));
 
-            Collection<ClassResult> classResults = classResultGroups.entrySet().stream().map(classEntry -> {
-                String classShortName = classEntry.getKey();
-                List<PersonRaceResultJdbcDto> classDtos = classEntry.getValue();
+            Collection<ClassResult> classResults = classResultGroups.values().stream().map(classDtos -> {
+                PersonRaceResultJdbcDto sampleClassListDto = classDtos.getFirst();
 
                 // Schritt 3: Gruppierung nach personId
                 Map<Long, PersonResult> personResults = classDtos.stream()
@@ -64,14 +63,14 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, OffsetDat
                                 new PersonRaceResults(raceResults));
                         })));
 
-                return ClassResult.of(sampleDto.classListName(),
-                    sampleDto.classListShortName(),
-                    Gender.of(sampleDto.classGender()),
+                return ClassResult.of(sampleClassListDto.classListName(),
+                    sampleClassListDto.classListShortName(),
+                    Gender.of(sampleClassListDto.classGender()),
                     personResults.values(),
-                    CourseId.of(sampleDto.courseId()));
+                    CourseId.of(sampleClassListDto.courseId()));
             }).collect(Collectors.toList());
 
-            return new ResultList(new ResultListId(resultListId),
+            return new ResultList(new ResultListId(resultListId1),
                 new EventId(sampleDto.eventId()),
                 "",
                 sampleDto.createTime() == null ?
@@ -80,6 +79,5 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, OffsetDat
                 sampleDto.resultListStatus(),
                 classResults);
         }).toList();
-        return resultLists;
     }
 }

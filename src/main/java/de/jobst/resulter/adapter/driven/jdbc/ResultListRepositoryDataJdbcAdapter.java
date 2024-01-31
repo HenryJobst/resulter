@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -73,9 +72,10 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
 
     @Override
     public Collection<ResultList> findByEventId(EventId id) {
-        Collection<PersonRaceResultJdbcDto> resultListDboResultSetExtractors =
+        Collection<PersonRaceResultJdbcDto> personRaceResultJdbcDtos =
             resultListJdbcRepository.findPersonRaceResultsByEventId(id.value());
-        return new ArrayList<>();
+
+        return PersonRaceResultJdbcDto.asResultLists(personRaceResultJdbcDtos);
     }
 
 }

@@ -1,7 +1,7 @@
 import type { PersonResult } from '@/features/event/model/person_result'
 
 export interface ClassResult {
-  id: number
+  shortName: string
   name: string
   personResults: PersonResult[]
 }

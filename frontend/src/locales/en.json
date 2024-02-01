@@ -50,7 +50,8 @@
         "country" : "Country",
         "child_organisation" : "Child organisation | Child organisations",
         "calculate" : "Calculate cups scores",
-        "state" : "State"
+        "state" : "State",
+        "created" : "Created"
     },
     "messages" : {
         "new_cup" : "New cup",

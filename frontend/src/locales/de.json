@@ -50,7 +50,8 @@
         "country" : "Land",
         "child_organisation" : "Unter-Organisation | Unter-Organisationen",
         "calculate" : "Berechne Cup-Punkte",
-        "state" : "Status"
+        "state" : "Status",
+        "created" : "Erstellt"
     },
     "result_state" : {
         "OK" : "OK",

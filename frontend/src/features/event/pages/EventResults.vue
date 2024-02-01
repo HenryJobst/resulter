@@ -7,9 +7,15 @@ import type { TreeNode } from 'primevue/treenode'
 import { computed } from 'vue'
 import moment from 'moment'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import type { ResultList } from '@/features/event/model/result_list'
+import Tree from 'primevue/tree'
+import Button from 'primevue/button'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import { PersonService } from '@/features/person/services/person.service'
+import { OrganisationService } from '@/features/organisation/services/organisation.service'
 
 const props = defineProps<{ id: string; locale?: string }>()
-//const event = store.selectEvent(+props.id)
 
 const { t } = useI18n()
 
@@ -28,17 +34,54 @@ const eventResultsQuery = useQuery({
   queryFn: () => EventService.getResultsById(props.id, t)
 })
 
-const createTreeNodes = (aList: ClassResult[] | undefined): TreeNode[] => {
+const personQuery = useQuery({
+  queryKey: ['persons'],
+  queryFn: () => PersonService.getAll(t)
+})
+
+const organisationQuery = useQuery({
+  queryKey: ['organisations'],
+  queryFn: () => OrganisationService.getAll(t)
+})
+
+const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] => {
+  if (!aList) {
+    return []
+  }
+  if (aList.length >= 2) {
+    const treeNodes: TreeNode[] = []
+    for (let i = 0; i < aList.length; i++) {
+      treeNodes.push({
+        key: aList[i].id.toString(),
+        label: aList[i].status + ' ' + aList[i].createTime,
+        children: [
+          {
+            key: `${aList[i].status}-table`,
+            data: createClassResultTreeNodes(aList[i].classResults),
+            type: 'dataTable',
+            leaf: true
+          }
+        ]
+      })
+    }
+    return treeNodes
+  } else if (aList.length === 1) {
+    return createClassResultTreeNodes(aList[0].classResults)
+  }
+  return []
+}
+
+const createClassResultTreeNodes = (aList: ClassResult[] | undefined): TreeNode[] => {
   if (!aList) {
     return []
   }
   return aList.map(
     (a): TreeNode => ({
-      key: a.id.toString(),
+      key: a.shortName.toString(),
       label: a.name,
       children: [
         {
-          key: `${a.id}-table`,
+          key: `${a.shortName}-table`,
           data: a.personResults,
           type: 'dataTable',
           leaf: true
@@ -50,7 +93,7 @@ const createTreeNodes = (aList: ClassResult[] | undefined): TreeNode[] => {
 
 const treeNodes = computed(() => {
   if (eventResultsQuery.isFetched) {
-    return createTreeNodes(eventResultsQuery.data.value?.classResultDtos)
+    return createResultListTreeNodes(eventResultsQuery.data.value?.resultLists)
   }
   return null
 })
@@ -60,8 +103,43 @@ const resultColumn = (slotProps: any): string => {
     ? formatTime(slotProps.data.runTime)
     : t('result_state.' + slotProps.data.resultStatus)
 }
+
 const birthYearColumn = (slotProps: any): string => {
-  return slotProps.data.birthYear ? slotProps.data.birthYear.slice(-2) : ''
+  const person = findPerson(slotProps)
+  if (person) {
+    return person.birthDate ? person.birthDate.slice(2, 4) : ''
+  }
+  return ''
+}
+
+const findPerson = (slotProps: any) => {
+  if (slotProps.data.personId && personQuery.data.value) {
+    return personQuery.data.value.find((p) => p.id === slotProps.data.personId)
+  }
+  return null
+}
+
+const personNameColumn = (slotProps: any): string => {
+  const person = findPerson(slotProps)
+  if (person) {
+    return person.name
+  }
+  return ''
+}
+
+const findOrganisation = (slotProps: any) => {
+  if (slotProps.data.organisationId && organisationQuery.data.value) {
+    return organisationQuery.data.value.find((o) => o.id === slotProps.data.organisationId)
+  }
+  return null
+}
+
+const organisationNameColumn = (slotProps: any): string => {
+  const organisation = findOrganisation(slotProps)
+  if (organisation) {
+    return organisation.name
+  }
+  return ''
 }
 
 const calculate = () => {
@@ -70,43 +148,63 @@ const calculate = () => {
 </script>
 
 <template>
-  <!--h2 v-if="event">{{ event.name }}</h2>
-      <Button :label="t('labels.calculate')" @click="calculate()" v-if="authStore.isAdmin" />
-      <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-      <span v-else-if="eventResultsQuery.status.value === 'error'">
-        {{ t('messages.error', { message: eventResultsQuery.error.toLocaleString() }) }}
-      </span>
-      <div v-else-if="eventResultsQuery.data" class="card flex justify-content-start">
-        <Tree :value="treeNodes" class="w-full">
-          <template #default="slotProps">
-            <b>{{ slotProps.node.label }}</b>
-          </template>
-          <template #dataTable="slotProps">
-            <DataTable :value="slotProps.node.data">
-              <Column field="position" :header="t('labels.position')" />
-              <Column field="personName" :header="t('labels.name')" />
-              <Column :header="t('labels.birth_year')">
-                <template #body="slotProps">
-                  {{ birthYearColumn(slotProps) }}
-                </template>
-              </Column>
-              <Column field="organisation" :header="t('labels.organisation')" />
-              <Column :header="t('labels.time')">
-                <template #body="slotProps">
-                  {{ resultColumn(slotProps) }}
-                </template>
-              </Column>
-              <Column
-                v-for="score in cupScores"
-                :key="score.type.name"
-                :header="score.type.name"
-                :field="score.score"
-              >
-              </Column>
-            </DataTable>
-          </template>
-        </Tree>
-      </div-->
+  <Button :label="t('labels.calculate')" @click="calculate()" v-if="authStore.isAdmin" />
+  <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+  <span v-else-if="eventResultsQuery.status.value === 'error'">
+    {{ t('messages.error', { message: eventResultsQuery.error.toLocaleString() }) }}
+  </span>
+  <div v-else-if="eventResultsQuery.data" class="card flex justify-content-start">
+    <div class="flex flex-col flex-grow">
+      <div v-if="eventResultsQuery.data.value?.resultLists?.length === 1" class="flex flex-row">
+        <div>
+          {{ t('labels.created') }}
+        </div>
+        <div class="ml-2">
+          {{ eventResultsQuery.data.value?.resultLists[0]?.createTime.slice(0, 10) }}
+        </div>
+        <div class="ml-2">
+          {{ eventResultsQuery.data.value?.resultLists[0]?.status }}
+        </div>
+      </div>
+      <Tree :value="treeNodes" class="w-full">
+        <template #default="slotProps">
+          <b>{{ slotProps?.node?.label }}</b>
+        </template>
+        <template #dataTable="slotProps">
+          <DataTable :value="slotProps?.node?.data">
+            <Column field="position" :header="t('labels.position')" />
+            <Column :header="t('labels.name')">
+              <template #body="slotProps">
+                {{ personNameColumn(slotProps) }}
+              </template>
+            </Column>
+            <Column :header="t('labels.birth_year')">
+              <template #body="slotProps">
+                {{ birthYearColumn(slotProps) }}
+              </template>
+            </Column>
+            <Column :header="t('labels.organisation')">
+              <template #body="slotProps">
+                {{ organisationNameColumn(slotProps) }}
+              </template>
+            </Column>
+            <Column :header="t('labels.time')">
+              <template #body="slotProps">
+                {{ resultColumn(slotProps) }}
+              </template>
+            </Column>
+            <!--Column
+                                                                                                                                                    v-for="score in cupScores"
+                                                                                                                                                    :key="score.type.name"
+                                                                                                                                                    :header="score.type.name"
+                                                                                                                                                    :field="score.score"
+                                                                                                                                                  >
+                                                                                                                                                  </Column-->
+          </DataTable>
+        </template>
+      </Tree>
+    </div>
+  </div>
 </template>
 
 <style scoped>

@@ -6,7 +6,7 @@ import de.jobst.resulter.domain.ResultList;
 
 import java.util.Collection;
 
-public record EventResultsDto(Collection<ResultListDto> resultListDtos) {
+public record EventResultsDto(Collection<ResultListDto> resultLists) {
 
     static public EventResultsDto from(Event event, ResultListService resultListService) {
         Collection<ResultList> resultLists = resultListService.findByEventId(event.getId());

@@ -5,11 +5,13 @@ import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 
-public record ClassResultDto(String name, Collection<PersonResultDto> personResults)
+public record ClassResultDto(String shortName, String name, Collection<PersonResultDto> personResults)
     implements Comparable<ClassResultDto> {
 
     static public ClassResultDto from(ClassResult classResult) {
-        return new ClassResultDto(classResult.classResultName().value(),
+        return new ClassResultDto(
+            classResult.classResultShortName().value(),
+            classResult.classResultName().value(),
             classResult.personResults().value().stream().map(PersonResultDto::from).sorted().toList());
     }
 

@@ -51,7 +51,10 @@
         "child_organisation" : "Child organisation | Child organisations",
         "calculate" : "Calculate cups scores",
         "state" : "State",
-        "created" : "Created"
+        "created" : "Created",
+        "length_abbreviation" : "km",
+        "climb_abbreviation" : "m climb",
+        "control_abbreviation" : "controls"
     },
     "messages" : {
         "new_cup" : "New cup",

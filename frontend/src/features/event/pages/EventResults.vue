@@ -14,6 +14,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { PersonService } from '@/features/person/services/person.service'
 import { OrganisationService } from '@/features/organisation/services/organisation.service'
+import { CourseService } from '@/features/course/services/course.seirvice'
 
 const props = defineProps<{ id: string; locale?: string }>()
 
@@ -44,6 +45,11 @@ const organisationQuery = useQuery({
   queryFn: () => OrganisationService.getAll(t)
 })
 
+const courseQuery = useQuery({
+  queryKey: ['courses'],
+  queryFn: () => CourseService.getAll(t)
+})
+
 const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] => {
   if (!aList) {
     return []
@@ -71,6 +77,27 @@ const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] 
   return []
 }
 
+function getClassResultLabel(a: ClassResult) {
+  return (
+    a.name +
+    ' (' +
+    a.personResults.length +
+    ')' +
+    ' - ' +
+    courseLengthColumn(a) +
+    ' ' +
+    t('labels.length_abbreviation') +
+    ' - ' +
+    courseClimbColumn(a) +
+    ' ' +
+    t('labels.climb_abbreviation') +
+    ' - ' +
+    courseControlsColumn(a) +
+    ' ' +
+    t('labels.control_abbreviation')
+  )
+}
+
 const createClassResultTreeNodes = (aList: ClassResult[] | undefined): TreeNode[] => {
   if (!aList) {
     return []
@@ -78,7 +105,7 @@ const createClassResultTreeNodes = (aList: ClassResult[] | undefined): TreeNode[
   return aList.map(
     (a): TreeNode => ({
       key: a.shortName.toString(),
-      label: a.name,
+      label: getClassResultLabel(a),
       children: [
         {
           key: `${a.shortName}-table`,
@@ -142,6 +169,45 @@ const organisationNameColumn = (slotProps: any): string => {
   return ''
 }
 
+const findCourse = (slotProps: any) => {
+  if (slotProps.courseId && courseQuery.data.value) {
+    return courseQuery.data.value.find((c) => c.id === slotProps.courseId)
+  }
+  return null
+}
+
+const courseNameColumn = (slotProps: any): string => {
+  const course = findCourse(slotProps)
+  if (course) {
+    return course.name
+  }
+  return ''
+}
+
+const courseLengthColumn = (slotProps: any): string => {
+  const course = findCourse(slotProps)
+  if (course) {
+    return (course.length / 1000.0).toFixed(1)
+  }
+  return ''
+}
+
+const courseClimbColumn = (slotProps: any): string => {
+  const course = findCourse(slotProps)
+  if (course) {
+    return course.climb.toFixed(0)
+  }
+  return ''
+}
+
+const courseControlsColumn = (slotProps: any): string => {
+  const course = findCourse(slotProps)
+  if (course) {
+    return course.controls.toFixed(0)
+  }
+  return ''
+}
+
 const calculate = () => {
   EventService.calculate(props.id, t)
 }
@@ -194,12 +260,12 @@ const calculate = () => {
               </template>
             </Column>
             <!--Column
-                                                                                                                                                    v-for="score in cupScores"
-                                                                                                                                                    :key="score.type.name"
-                                                                                                                                                    :header="score.type.name"
-                                                                                                                                                    :field="score.score"
-                                                                                                                                                  >
-                                                                                                                                                  </Column-->
+                                                                                                                                                                                                                                                                            v-for="score in cupScores"
+                                                                                                                                                                                                                                                                            :key="score.type.name"
+                                                                                                                                                                                                                                                                            :header="score.type.name"
+                                                                                                                                                                                                                                                                            :field="score.score"
+                                                                                                                                                                                                                                                                          >
+                                                                                                                                                                                                                                                                          </Column-->
           </DataTable>
         </template>
       </Tree>

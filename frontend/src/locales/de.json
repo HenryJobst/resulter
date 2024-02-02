@@ -51,7 +51,10 @@
         "child_organisation" : "Unter-Organisation | Unter-Organisationen",
         "calculate" : "Berechne Cup-Punkte",
         "state" : "Status",
-        "created" : "Erstellt"
+        "created" : "Erstellt",
+        "length_abbreviation" : "km",
+        "climb_abbreviation" : "Hm",
+        "control_abbreviation" : "P"
     },
     "result_state" : {
         "OK" : "OK",

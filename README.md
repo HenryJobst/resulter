@@ -18,11 +18,11 @@ Architecture.
 
 ## Technologies
 
-- **Backend**: Java, SpringBoot, Hibernate
+- **Backend**: Java, SpringBoot, Spring Data JDBC
 - **Frontend**: Typescript, Vue.js 3, Vite, Pina, Primevue, Tailwind, Tanstack Query
 - **Communication**: REST API
 - **Authentication/Authorisation**: Keycloak
-- **Database**: Postgresql, H2
+- **Database**: PostgreSQL, H2
 
 ## Prerequisites
 
@@ -66,9 +66,7 @@ developments.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
-
-© 2024
+Resulter © 2024 by Henry Jobst is licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) - see [LICENSE.txt](LICENSE.txt) for details.
 
 -----
 
@@ -90,11 +88,11 @@ implementiert ist.
 
 ## Technologien
 
-- **Backend**: Java, SpringBoot, Hibernate
+- **Backend**: Java, SpringBoot, Spring Data JDBC
 - **Frontend**: Typescript, Vue.js 3, Vite, Pina, Primevue, Tailwind, Tanstack Query
 - **Kommunikation**: REST API
 - **Authentifizierung/Berechtigung**: Keycloak
-- **Datenbank**: Postgresql, H2
+- **Datenbank**: PostgreSQL, H2
 
 ## Voraussetzungen
 
@@ -138,6 +136,4 @@ vermeiden.
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe die [LICENSE.txt](LICENSE.txt) Datei für Details.
-
-© 2024
+Das Projekt Resulter © 2024 von Henry Jobst ist unter der Lizenz [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) lizenziert - siehe [LICENSE.txt](LICENSE.txt) für Details.

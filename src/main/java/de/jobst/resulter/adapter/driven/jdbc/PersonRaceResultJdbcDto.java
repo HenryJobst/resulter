@@ -52,7 +52,7 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, OffsetDat
                                     // Finish Time ist hier ausgelassen
                                     dto.punchTime(),
                                     dto.position != null ? dto.position().longValue() : null,
-                                    ResultStatus.valueOf(dto.state())))
+                                    dto.state != null ? ResultStatus.valueOf(dto.state()) : ResultStatus.DID_NOT_START))
                                 .collect(Collectors.toList());
 
                             return new PersonResult(new ClassResultShortName(personSampleDto.classListShortName()),

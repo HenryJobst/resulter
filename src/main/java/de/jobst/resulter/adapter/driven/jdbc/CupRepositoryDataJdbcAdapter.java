@@ -49,7 +49,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
 
     @Transactional(readOnly = true)
     public Optional<CupDbo> findDboById(CupId cupId) {
-        return Optional.empty();
+        return cupJpaRepository.findById(cupId.value());
     }
 
     @Override

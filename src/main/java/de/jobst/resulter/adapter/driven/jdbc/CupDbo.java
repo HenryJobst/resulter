@@ -35,7 +35,7 @@ public class CupDbo {
     @Column("name")
     private String name;
 
-    @MappedCollection(idColumn = "event_id")
+    @MappedCollection(idColumn = "cup_id")
     private Set<CupEventDbo> events = new HashSet<>();
 
     @Column("type")

@@ -2,7 +2,7 @@ import type { Event } from '@/features/event/model/event'
 import axiosInstance from '@/features/keycloak/services/api'
 import { handleApiError } from '@/utils/HandleError'
 import type { EventStatus } from '@/features/event/model/event_status'
-import type { EventResult } from '@/features/event/model/event_results'
+import type { EventResult } from '@/features/event/model/event_result'
 
 const url: string = import.meta.env.VITE_API_ENDPOINT + 'event'
 const eventStatusUrl: string = import.meta.env.VITE_API_ENDPOINT + 'event_status'

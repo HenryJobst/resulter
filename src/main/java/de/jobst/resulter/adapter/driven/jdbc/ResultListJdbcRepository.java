@@ -33,6 +33,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
            LEFT JOIN person_result pr ON rl.id = cl.result_list_id and pr.class_result_short_name = cl.short_name
            LEFT JOIN person_race_result prr ON rl.id = prr.result_list_id and prr.class_result_short_name = pr.class_result_short_name and prr.person_id = pr.person_id
            WHERE rl.event_id = :eventId
+           AND prr.state != 'DID_NOT_START'
            ORDER BY rl.id, cl.short_name, prr.position, pr.person_id, prr.race_number
            """)
     Collection<PersonRaceResultJdbcDto> findPersonRaceResultsByEventId(@Param("eventId") Long eventId);

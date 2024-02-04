@@ -1,48 +1,39 @@
 <script setup lang="ts">
-import type { Event } from '@/features/event/model/event'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import PersonForm from '@/features/person/widgets/PersonForm.vue'
+import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
+import { personService } from '@/features/person/services/person.service'
 
 const props = defineProps<{ id: string; locale?: string }>()
+
+const { t } = useI18n()
 const authStore = useAuthStore()
-
-const eventSubmitHandler = (event: Event) => {
-  //  store.updateEventAction(event)
-}
-
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
-
-const router = useRouter()
-const redirectBack = async () => {
-  await router.replace({ name: 'event-list' })
-}
+const queryKey: string[] = ['persons']
+const entityLabel: string = 'person'
+const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.person') }))
 </script>
 
 <template>
-  <div v-bind="$attrs">
-    <h2>{{ t('messages.edit_event', { id: props.id }) }}</h2>
-
-    <!--Spinner v-if="store.loadingEvents"></Spinner-->
-
-    <!--EventForm v-if="!store.loadingEvents" :event="event" @event-submit="eventSubmitHandler">
-      <Button
-        v-if="authStore.isAdmin"
-        class="mt-2"
-        type="submit"
-        :label="t('labels.save')"
-        outlined
-      ></Button>
-      <Button
-        class="ml-2"
-        severity="secondary"
-        type="reset"
-        :label="t('labels.back')"
-        outlined
-        @click="redirectBack"
-      ></Button>
-    </EventForm-->
-  </div>
+  <GenericEdit
+    :entity-service="personService"
+    :query-key="queryKey"
+    :entity-id="props.id"
+    :entity-label="entityLabel"
+    :edit-label="editLabel"
+    :router-prefix="'person'"
+    :changeable="authStore.isAdmin"
+  >
+    <template v-slot:default="{ formData }">
+      <PersonForm
+        :person="formData"
+        :entity-service="personService"
+        :query-key="queryKey"
+        :v-model="formData"
+      />
+    </template>
+  </GenericEdit>
 </template>
 
 <style scoped></style>

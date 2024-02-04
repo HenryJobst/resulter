@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { CupService } from '@/features/cup/services/cup.service'
+import { cupService } from '@/features/cup/services/cup.service'
 import CupForm from '@/features/cup/widgets/CupForm.vue'
 import Button from 'primevue/button'
 import ErrorMessage from '@/components/ErrorMessage.vue'
@@ -28,7 +28,7 @@ const queryClient = useQueryClient()
 const toast = useToast()
 
 const cupMutation = useMutation({
-  mutationFn: (cup: Omit<Cup, 'id'>) => CupService.create(cup, t),
+  mutationFn: (cup: Omit<Cup, 'id'>) => cupService.create(cup, t),
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['cups'] })
     toast.add({

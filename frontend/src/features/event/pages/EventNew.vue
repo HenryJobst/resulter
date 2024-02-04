@@ -2,14 +2,13 @@
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { computed, ref } from 'vue'
-import { GenericService } from '@/features/generic/services/GenericService'
 import EventForm from '@/features/event/widgets/EventForm.vue'
 import GenericNew from '@/features/generic/pages/GenericNew.vue'
 import type { Event } from '@/features/event/model/event'
+import { eventService } from '@/features/event/services/event.service'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const eventService = new GenericService<Event>('/event')
 const queryKey: string[] = ['events']
 const entityLabel: string = 'event'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.event') }))

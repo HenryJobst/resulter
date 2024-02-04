@@ -6,17 +6,16 @@ import { useI18n } from 'vue-i18n'
 
 import Calendar from 'primevue/calendar'
 import MultiSelect from 'primevue/multiselect'
-import { OrganisationService } from '@/features/organisation/services/organisation.service'
 import { useQuery } from '@tanstack/vue-query'
-import type { IGenericService } from '@/features/generic/services/IGenericService'
 import { EventService } from '@/features/event/services/event.service'
 import Dropdown from 'primevue/dropdown'
+import { organisationService } from '@/features/organisation/services/organisation.service'
 
 const { t } = useI18n()
 
 const props = defineProps<{
   event: Event
-  entityService: IGenericService<Event>
+  entityService: EventService
   queryKey: string[]
 }>()
 
@@ -29,7 +28,7 @@ const event = computed({
 
 const organisationQuery = useQuery({
   queryKey: ['organisations'],
-  queryFn: () => OrganisationService.getAll(t),
+  queryFn: () => organisationService.getAll(t),
   select: (data) => data ?? []
 })
 

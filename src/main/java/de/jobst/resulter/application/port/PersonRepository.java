@@ -18,4 +18,5 @@ public interface PersonRepository {
     Person findOrCreate(Person person);
 
     Collection<Person> findOrCreate(Collection<Person> persons);
+
 }

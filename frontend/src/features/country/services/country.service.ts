@@ -1,17 +1,12 @@
-import axiosInstance from '@/features/keycloak/services/api'
-import { handleApiError } from '@/utils/HandleError'
 import type { Country } from '@/features/country/models/country'
+import { GenericService } from '@/features/generic/services/GenericService'
 
-const url: string = import.meta.env.VITE_API_ENDPOINT + 'country'
+const countryUrl: string = '/country'
 
-export class CountryService {
-  static async getAll(t: (key: string) => string): Promise<Country[] | null> {
-    return await axiosInstance
-      .get<Country[]>(url)
-      .then((response) => response.data)
-      .catch((error) => {
-        handleApiError(error, t)
-        return null
-      })
+export class CountryService extends GenericService<Country> {
+  constructor() {
+    super(countryUrl)
   }
 }
+
+export const countryService = new CountryService()

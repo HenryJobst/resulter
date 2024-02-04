@@ -6,12 +6,12 @@ import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
+import { organisationService } from '@/features/organisation/services/organisation.service'
 
 const props = defineProps<{ id: string; locale?: string }>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const organisationService = new GenericService<Organisation>('/organisation')
 const queryKey: string[] = ['organisations']
 const entityLabel: string = 'organisation'
 const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.organisation') }))

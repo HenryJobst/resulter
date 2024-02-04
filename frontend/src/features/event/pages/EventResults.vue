@@ -12,9 +12,9 @@ import Tree from 'primevue/tree'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import { PersonService } from '@/features/person/services/person.service'
-import { OrganisationService } from '@/features/organisation/services/organisation.service'
-import { CourseService } from '@/features/course/services/course.seirvice'
+import { personService } from '@/features/person/services/person.service'
+import { organisationService } from '@/features/organisation/services/organisation.service'
+import { courseService } from '@/features/course/services/course.service'
 
 const props = defineProps<{ id: string; locale?: string }>()
 
@@ -37,17 +37,17 @@ const eventResultsQuery = useQuery({
 
 const personQuery = useQuery({
   queryKey: ['persons'],
-  queryFn: () => PersonService.getAll(t)
+  queryFn: () => personService.getAll(t)
 })
 
 const organisationQuery = useQuery({
   queryKey: ['organisations'],
-  queryFn: () => OrganisationService.getAll(t)
+  queryFn: () => organisationService.getAll(t)
 })
 
 const courseQuery = useQuery({
   queryKey: ['courses'],
-  queryFn: () => CourseService.getAll(t)
+  queryFn: () => courseService.getAll(t)
 })
 
 const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] => {
@@ -134,7 +134,7 @@ const resultColumn = (slotProps: any): string => {
 const birthYearColumn = (slotProps: any): string => {
   const person = findPerson(slotProps)
   if (person) {
-    return person.birthDate ? person.birthDate.slice(2, 4) : ''
+    return person.birthDate ? person.birthDate.toLocaleString() : ''
   }
   return ''
 }
@@ -149,7 +149,7 @@ const findPerson = (slotProps: any) => {
 const personNameColumn = (slotProps: any): string => {
   const person = findPerson(slotProps)
   if (person) {
-    return person.name
+    return person.givenName + ' ' + person.familyName
   }
   return ''
 }
@@ -226,7 +226,7 @@ const calculate = () => {
           {{ t('labels.created') }}
         </div>
         <div class="ml-2">
-          {{ eventResultsQuery.data.value?.resultLists[0]?.createTime.slice(0, 10) }}
+          {{ eventResultsQuery.data.value?.resultLists[0]?.createTime.toLocaleString() }}
         </div>
         <div class="ml-2">
           {{ eventResultsQuery.data.value?.resultLists[0]?.status }}
@@ -260,12 +260,12 @@ const calculate = () => {
               </template>
             </Column>
             <!--Column
-                                                                                                                                                                                                                                                                            v-for="score in cupScores"
-                                                                                                                                                                                                                                                                            :key="score.type.name"
-                                                                                                                                                                                                                                                                            :header="score.type.name"
-                                                                                                                                                                                                                                                                            :field="score.score"
-                                                                                                                                                                                                                                                                          >
-                                                                                                                                                                                                                                                                          </Column-->
+                                                                                                                                                                                                                                                                                        v-for="score in cupScores"
+                                                                                                                                                                                                                                                                                        :key="score.type.name"
+                                                                                                                                                                                                                                                                                        :header="score.type.name"
+                                                                                                                                                                                                                                                                                        :field="score.score"
+                                                                                                                                                                                                                                                                                      >
+                                                                                                                                                                                                                                                                                      </Column-->
           </DataTable>
         </template>
       </Tree>

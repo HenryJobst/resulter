@@ -41,7 +41,7 @@
         "clear" : "Leeren",
         "results" : "Ergebnisse",
         "position" : "Platz",
-        "birth_year" : "Jg.",
+        "birth_year" : "Jahrgang",
         "gender" : "Geschlecht",
         "birth_date" : "Geburtsdatum",
         "type" : "Typ",
@@ -54,7 +54,9 @@
         "created" : "Erstellt",
         "length_abbreviation" : "km",
         "climb_abbreviation" : "Hm",
-        "control_abbreviation" : "P"
+        "control_abbreviation" : "P",
+        "family_name" : "Familienname",
+        "given_name" : "Vorname"
     },
     "result_state" : {
         "OK" : "OK",
@@ -91,6 +93,11 @@
         "COMPANY" : "Firma",
         "MILITARY" : "Militär",
         "OTHER" : "Andere"
+    },
+    "gender" : {
+        "M" : "M",
+        "F" : "W",
+        "B" : "D"
     },
     "messages" : {
         "new_cup" : "Neuer Cup",

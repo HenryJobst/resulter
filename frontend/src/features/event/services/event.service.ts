@@ -3,30 +3,34 @@ import axiosInstance from '@/features/keycloak/services/api'
 import { handleApiError } from '@/utils/HandleError'
 import type { EventStatus } from '@/features/event/model/event_status'
 import type { EventResult } from '@/features/event/model/event_result'
+import { GenericService } from '@/features/generic/services/GenericService'
+import type { ResultList } from '@/features/event/model/result_list'
 
-const url: string = import.meta.env.VITE_API_ENDPOINT + 'event'
-const eventStatusUrl: string = import.meta.env.VITE_API_ENDPOINT + 'event_status'
+const eventUrl: string = '/event'
+const eventStatusUrl: string = '/event_status'
 
-export class EventService {
-  static async getAll(): Promise<Event[] | void> {
-    return await axiosInstance
-      .get<Event[]>(url)
-      .then((response) => {
-        return response.data.map((element) => {
+export class EventService extends GenericService<Event> {
+  constructor() {
+    super(eventUrl)
+  }
+
+  async getAll(t: (key: string) => string): Promise<Event[] | null> {
+    return await super.getAll(t).then((response) => {
+      if (response) {
+        return response.map((element) => {
           if (element.startTime) {
             element.startTime = new Date(element.startTime)
           }
           return element
         })
-      })
-      .catch((error) => {
-        console.error('Fehler bei der Anfrage:', error)
-      })
+      }
+      return null
+    })
   }
 
   static async calculate(id: number | string, t: (key: string) => string) {
     return axiosInstance
-      .put(`${url}/${id}/calculate`)
+      .put(`${eventUrl}/${id}/calculate`)
       .then((response) => response.data)
       .catch((error) => {
         handleApiError(error, t)
@@ -44,13 +48,27 @@ export class EventService {
       })
   }
 
-  static async getResultsById(id: string, t: (key: string) => string): Promise<EventResult> {
+  static async getResultsById(id: string, t: (key: string) => string): Promise<EventResult | null> {
     return await axiosInstance
-      .get(`${url}/${id}/results`)
-      .then((response) => response.data)
+      .get(`${eventUrl}/${id}/results`)
+      .then((response) => {
+        if (response) {
+          return response.data.map((element: EventResult) => {
+            return element.resultLists.map((resultList: ResultList) => {
+              if (resultList.createTime) {
+                resultList.createTime = new Date(resultList.createTime)
+              }
+              return resultList
+            })
+          })
+        }
+        return null
+      })
       .catch((error) => {
         handleApiError(error, t)
         return null
       })
   }
 }
+
+export const eventService = new EventService()

@@ -6,7 +6,7 @@ import CupForm from '@/features/cup/widgets/CupForm.vue'
 import type { Cup } from '@/features/cup/model/cup'
 import Button from 'primevue/button'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { CupService } from '@/features/cup/services/cup.service'
+import { cupService } from '@/features/cup/services/cup.service'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
 import { useToast } from 'primevue/usetoast'
@@ -28,7 +28,7 @@ const queryClient = useQueryClient()
 
 const cupQuery = useQuery({
   queryKey: ['cups', { id: props.id }],
-  queryFn: () => CupService.getById(props.id, t),
+  queryFn: () => cupService.getById(props.id, t),
   initialData: () => queryClient.getQueryData<Cup[]>(['cups'])?.find((cup) => cup.id === props.id),
   initialDataUpdatedAt: () => queryClient.getQueryState(['cups'])?.dataUpdatedAt
 })
@@ -36,7 +36,7 @@ const cupQuery = useQuery({
 const toast = useToast()
 
 const cupMutation = useMutation({
-  mutationFn: (cup: Cup) => CupService.update(cup, t),
+  mutationFn: (cup: Cup) => cupService.update(cup, t),
   onSuccess: (cup) => {
     queryClient.setQueryData(['cups', { id: props.id }], cup)
     queryClient.invalidateQueries({ queryKey: ['cups'] })

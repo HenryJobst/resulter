@@ -1,6 +1,9 @@
+import type { Gender } from '@/features/person/model/gender'
+
 export interface Person {
   id: number
-  name: string
-  gender: string
-  birthDate: string
+  familyName: string
+  givenName: string
+  gender: Gender
+  birthDate: string | Date
 }

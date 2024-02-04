@@ -30,7 +30,10 @@ export class GenericService<T> implements IGenericService<T> {
       })
   }
 
-  async create<T extends GenericEntity>(entity: T, t: (key: string) => string): Promise<T> {
+  async create<T extends GenericEntity>(
+    entity: Omit<T, 'id'>,
+    t: (key: string) => string
+  ): Promise<T> {
     console.log(entity)
     return await axiosInstance
       .post(this.endpoint, entity)

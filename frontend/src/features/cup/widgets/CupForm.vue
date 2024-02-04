@@ -6,7 +6,7 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MultiSelect from 'primevue/multiselect'
 import { useQuery } from '@tanstack/vue-query'
-import { EventService } from '@/features/event/services/event.service'
+import { eventService } from '@/features/event/services/event.service'
 import { CupService } from '@/features/cup/services/cup.service'
 
 const { t } = useI18n()
@@ -27,7 +27,7 @@ onMounted(() => {
 
 const eventQuery = useQuery({
   queryKey: ['events'],
-  queryFn: () => EventService.getAll()
+  queryFn: () => eventService.getAll(t)
 })
 
 const cupTypesQuery = useQuery({

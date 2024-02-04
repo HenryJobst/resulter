@@ -7,7 +7,7 @@ import ErrorMessage from '@/components/ErrorMessage.vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { CupService } from '@/features/cup/services/cup.service'
+import { cupService } from '@/features/cup/services/cup.service'
 import { useToast } from 'primevue/usetoast'
 
 import { toastDisplayDuration } from '@/utils/constants'
@@ -21,7 +21,7 @@ const queryClient = useQueryClient()
 const toast = useToast()
 
 const cupMutation = useMutation({
-  mutationFn: (id: number) => CupService.deleteById(id, t),
+  mutationFn: (id: number) => cupService.deleteById(id, t),
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['cups'] })
     toast.add({
@@ -39,7 +39,7 @@ const deleteCup = (id: number) => {
 
 const cupQuery = useQuery({
   queryKey: ['cups'],
-  queryFn: () => CupService.getAll(t)
+  queryFn: () => cupService.getAll(t)
 })
 
 const reload = () => {

@@ -62,6 +62,12 @@ const dateOptions: Intl.DateTimeFormatOptions = {
   day: 'numeric'
 }
 
+const yearOptions: Intl.DateTimeFormatOptions = {
+  year: '2-digit',
+  month: undefined,
+  day: undefined
+}
+
 const timeOptions: Intl.DateTimeFormatOptions = {
   hour: '2-digit',
   minute: '2-digit',
@@ -78,6 +84,16 @@ const formatDateFunction = computed(() => {
   }
 })
 
+const formatYearFunction = computed(() => {
+  return (date: string | Date) => {
+    if (!date) return ''
+    if (typeof date === 'string') {
+      return new Date(date).toLocaleDateString(locale.value, yearOptions)
+    }
+    return date.toLocaleDateString(locale.value, yearOptions)
+  }
+})
+
 const formatTimeFunction = computed(() => {
   return (time: string | Date) => {
     if (!time) return ''
@@ -90,6 +106,9 @@ const formatTimeFunction = computed(() => {
 
 const formatDate = (date: string) => {
   return formatDateFunction.value(date)
+}
+const formatYear = (date: string) => {
+  return formatYearFunction.value(date)
 }
 const formatTime = (time: string) => {
   return formatTimeFunction.value(time)
@@ -149,6 +168,9 @@ const formatTime = (time: string) => {
           </template>
           <template v-slot:body="slotProps" v-else-if="col.type === 'date'">
             {{ formatDate(slotProps.data[col.field]) }}
+          </template>
+          <template v-slot:body="slotProps" v-else-if="col.type === 'year'">
+            {{ formatYear(slotProps.data[col.field]) }}
           </template>
           <template v-slot:body="slotProps" v-else-if="col.type === 'time'">
             {{ formatTime(slotProps.data[col.field]) }}

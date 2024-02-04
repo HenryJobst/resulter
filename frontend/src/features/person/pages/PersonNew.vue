@@ -1,47 +1,45 @@
 <script setup lang="ts">
 import type { Person } from '@/features/person/model/person'
+import GenericNew from '@/features/generic/pages/GenericNew.vue'
+import PersonForm from '@/features/person/widgets/PersonForm.vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { computed, ref } from 'vue'
+import { personService } from '@/features/person/services/person.service'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
+const queryKey: string[] = ['persons']
+const entityLabel: string = 'person'
+const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.person') }))
 
-const personSubmitHandler = (person: Omit<Person, 'id'>) => {
-  console.log(person)
-  //store.createPersonAction(person)
-}
-
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
-
-const router = useRouter()
-const redirectBack = async () => {
-  await router.replace({ name: 'person-list' })
-}
+const formData = ref<Person | Omit<Person, 'id'>>({
+  familyName: '',
+  givenName: '',
+  gender: { id: 'M' },
+  birthDate: ''
+})
 </script>
 
 <template>
-  <div>
-    <h2>{{ t('messages.new_person') }}</h2>
-
-    <!--Spinner v-if="store.loadingPersons"></Spinner-->
-
-    <!--PersonForm v-if="!store.loadingPersons" @person-submit="personSubmitHandler">
-      <Button
-        type="submit"
-        :label="t('labels.create')"
-        outlined
-        v-if="authStore.isAuthenticated"
-      ></Button>
-      <Button
-        class="ml-2"
-        severity="secondary"
-        type="reset"
-        :label="t('labels.back')"
-        outlined
-        @click="redirectBack"
-      ></Button>
-    </PersonForm-->
-  </div>
+  <GenericNew
+    :entity="formData"
+    :entity-service="personService"
+    :query-key="queryKey"
+    :entity-label="entityLabel"
+    :new-label="newLabel"
+    :router-prefix="'person'"
+    :changeable="authStore.isAdmin"
+  >
+    <template v-slot:default="{ formData }">
+      <PersonForm
+        :person="formData"
+        :entity-service="personService"
+        :query-key="queryKey"
+        :v-model="formData"
+      />
+    </template>
+  </GenericNew>
 </template>
 
 <style scoped></style>

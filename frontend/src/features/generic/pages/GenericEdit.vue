@@ -35,7 +35,7 @@ onMounted(() => {
 
 const entityQuery = useQuery({
   queryKey: [props.queryKey, props.entityId],
-  queryFn: () => props.entityService?.getById(props.entityId)
+  queryFn: () => props.entityService?.getById(props.entityId, t)
 })
 
 // Watcher, der auf Änderungen in entityQuery.data reagiert

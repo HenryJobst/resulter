@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import type { Organisation } from '@/features/organisation/model/organisation'
 import GenericNew from '@/features/generic/pages/GenericNew.vue'
-import { GenericService } from '@/features/generic/services/GenericService'
 import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { computed, ref } from 'vue'
+import { organisationService } from '@/features/organisation/services/organisation.service'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const organisationService = new GenericService<Organisation>('/organisation')
 const queryKey: string[] = ['organisations']
 const entityLabel: string = 'organisation'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.organisation') }))

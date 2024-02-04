@@ -6,15 +6,14 @@ import { useI18n } from 'vue-i18n'
 import type { Organisation } from '@/features/organisation/model/organisation'
 import { useQuery } from '@tanstack/vue-query'
 import { OrganisationService } from '@/features/organisation/services/organisation.service'
-import type { IGenericService } from '@/features/generic/services/IGenericService'
-import { CountryService } from '@/features/country/services/country.service'
+import { countryService } from '@/features/country/services/country.service'
 import { computed } from 'vue'
 
 const { t } = useI18n()
 
 const props = defineProps<{
   organisation?: Organisation
-  entityService: IGenericService<Organisation>
+  entityService: OrganisationService
   queryKey: string[]
 }>()
 
@@ -40,7 +39,7 @@ const localizedOrganisationTypeOptions = computed(() => {
 
 const countryQuery = useQuery({
   queryKey: ['countries'],
-  queryFn: () => CountryService.getAll(t)
+  queryFn: () => countryService.getAll(t)
 })
 
 const emit = defineEmits(['update:modelValue'])

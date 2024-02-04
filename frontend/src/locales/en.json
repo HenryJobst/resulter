@@ -54,7 +54,9 @@
         "created" : "Created",
         "length_abbreviation" : "km",
         "climb_abbreviation" : "m climb",
-        "control_abbreviation" : "controls"
+        "control_abbreviation" : "controls",
+        "family_name" : "Family name",
+        "given_name" : "Given name"
     },
     "messages" : {
         "new_cup" : "New cup",
@@ -114,6 +116,11 @@
         "COMPANY" : "Company",
         "MILITARY" : "Military",
         "OTHER" : "Other"
+    },
+    "gender" : {
+        "M" : "M",
+        "F" : "F",
+        "B" : "B"
     },
     "errors" : {
         "notFound" : "Requested ressource not found. {name}, {message}",

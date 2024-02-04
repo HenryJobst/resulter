@@ -1,20 +1,16 @@
 <script setup lang="ts">
-import { GenericService } from '@/features/generic/services/GenericService'
-import type { Organisation } from '@/features/organisation/model/organisation'
-
 import GenericList from '@/features/generic/pages/GenericList.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { OrganisationService } from '@/features/organisation/services/organisation.service'
+import { organisationService } from '@/features/organisation/services/organisation.service'
 import { CountryService } from '@/features/country/services/country.service'
 
 const authStore = useAuthStore()
 const { t } = useI18n()
 
-const organisationService = new GenericService<Organisation>('/organisation')
 const queryKey: string[] = ['organisations']
 const entityLabel: string = 'organisation'
 const listLabel = computed(() => t('labels.organisation', 2))
@@ -29,7 +25,7 @@ const columns: GenericListColumn[] = [
 
 const organisationQuery = useQuery({
   queryKey: ['organisations'],
-  queryFn: () => OrganisationService.getAll(t),
+  queryFn: () => organisationService.getAll(t),
   select: (data) => data ?? []
 })
 

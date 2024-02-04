@@ -18,6 +18,12 @@ public class Person implements Comparable<Person> {
     private BirthDate birthDate;
     private Gender gender;
 
+    public void update(@NonNull PersonName personName, @NonNull BirthDate birthDate, @NonNull Gender gender) {
+        this.personName = personName;
+        this.birthDate = birthDate;
+        this.gender = gender;
+    }
+
     public record DomainKey(PersonName personName, BirthDate birthDate) implements Comparable<DomainKey> {
 
         @Override

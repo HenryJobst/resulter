@@ -4,7 +4,7 @@ import type { Event } from '@/features/event/model/event'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
-import { EventService } from '@/features/event/services/event.service'
+import { eventService } from '@/features/event/services/event.service'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toastDisplayDuration } from '@/utils/constants'
 import { useToast } from 'primevue/usetoast'
@@ -21,7 +21,7 @@ const redirectBack = async () => {
 }
 
 const eventMutation = useMutation({
-  mutationFn: (event: Omit<Event, 'id'>) => EventService.create(event, t),
+  mutationFn: (event: Omit<Event, 'id'>) => eventService.create(event, t),
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['events'] })
     toast.add({

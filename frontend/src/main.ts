@@ -33,7 +33,7 @@ const router = setupRouter(i18n)
 
 const renderApp = () => {
   const app = createApp(App)
-  app.use(PrimeVue, { ripple: true })
+  app.use(PrimeVue, { ripple: true, locale: i18n.global.locale })
   app.use(AuthStorePlugin, { pinia })
   app.use(VueQueryPlugin)
   app.use(ToastService)

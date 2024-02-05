@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @Slf4j
+@PreAuthorize("hasRole('ADMIN')")
 public class CountryController {
 
     private final CountryService countryService;
@@ -41,13 +42,11 @@ public class CountryController {
     }
 
     @GetMapping("/country/{id}")
-    public ResponseEntity<CountryDto> getCountry(
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<CountryDto> getCountry(@PathVariable Long id) {
         try {
             Optional<Country> country = countryService.findById(CountryId.of(id));
             return country.map(value -> ResponseEntity.ok(CountryDto.from(value)))
-                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -55,14 +54,11 @@ public class CountryController {
     }
 
     @PutMapping("/country/{id}")
-    public ResponseEntity<CountryDto> updateCountry(@PathVariable Long id,
-                                                    @RequestBody CountryDto countryDto) {
+    public ResponseEntity<CountryDto> updateCountry(@PathVariable Long id, @RequestBody CountryDto countryDto) {
         try {
-            Country country = countryService.updateCountry(
-                    CountryId.of(id),
-                    CountryCode.of(countryDto.code()),
-                    CountryName.of(countryDto.name())
-            );
+            Country country = countryService.updateCountry(CountryId.of(id),
+                CountryCode.of(countryDto.code()),
+                CountryName.of(countryDto.name()));
             if (null != country) {
                 return ResponseEntity.ok(CountryDto.from(country));
             } else {
@@ -83,10 +79,8 @@ public class CountryController {
     @PostMapping("/country")
     public ResponseEntity<CountryDto> createCountry(@RequestBody CountryDto countryDto) {
         try {
-            Country country = countryService.createCountry(
-                    CountryCode.of(countryDto.code()),
-                    CountryName.of(countryDto.name())
-            );
+            Country country =
+                countryService.createCountry(CountryCode.of(countryDto.code()), CountryName.of(countryDto.name()));
             if (null != country) {
                 return ResponseEntity.ok(CountryDto.from(country));
             } else {

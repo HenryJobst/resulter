@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Repository
-@RepositoryRestResource(path = "split_time_lists")
 public interface SplitTimeListJdbcRepository
     extends CrudRepository<SplitTimeListDbo, Long>, PagingAndSortingRepository<SplitTimeListDbo, Long> {
 

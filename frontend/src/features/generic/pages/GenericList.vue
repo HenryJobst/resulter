@@ -155,7 +155,7 @@ const formatTime = (time: string) => {
           :header="col.label_count ? t(col.label, col.label_count) : t(col.label)"
         >
           <template v-slot:body="slotProps" v-if="col.type === 'list'">
-            <div v-for="item in slotProps.data[col.field]">
+            <div v-for="(item, index) in slotProps.data[col.field]" :key="`item-${index}`">
               <template v-if="$slots[col.field]">
                 <slot :name="col.field" :value="item" />
               </template>

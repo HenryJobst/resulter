@@ -176,6 +176,7 @@ const findCourse = (slotProps: any) => {
   return null
 }
 
+/*
 const courseNameColumn = (slotProps: any): string => {
   const course = findCourse(slotProps)
   if (course) {
@@ -183,6 +184,7 @@ const courseNameColumn = (slotProps: any): string => {
   }
   return ''
 }
+*/
 
 const courseLengthColumn = (slotProps: any): string => {
   const course = findCourse(slotProps)
@@ -260,12 +262,12 @@ const calculate = () => {
               </template>
             </Column>
             <!--Column
-                                                                                                                                                                                                                                                                                        v-for="score in cupScores"
-                                                                                                                                                                                                                                                                                        :key="score.type.name"
-                                                                                                                                                                                                                                                                                        :header="score.type.name"
-                                                                                                                                                                                                                                                                                        :field="score.score"
-                                                                                                                                                                                                                                                                                      >
-                                                                                                                                                                                                                                                                                      </Column-->
+                                                                                                                                                                                                                                                                                                    v-for="score in cupScores"
+                                                                                                                                                                                                                                                                                                    :key="score.type.name"
+                                                                                                                                                                                                                                                                                                    :header="score.type.name"
+                                                                                                                                                                                                                                                                                                    :field="score.score"
+                                                                                                                                                                                                                                                                                                  >
+                                                                                                                                                                                                                                                                                                  </Column-->
           </DataTable>
         </template>
       </Tree>

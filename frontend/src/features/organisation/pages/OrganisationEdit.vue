@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { GenericService } from '@/features/generic/services/GenericService'
-import type { Organisation } from '@/features/organisation/model/organisation'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'

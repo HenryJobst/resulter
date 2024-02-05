@@ -61,7 +61,7 @@ const datePart = computed({
       dateTime.value.getMinutes()
     )
     if (props.event) {
-      props.event.startTime = dateTime.value.toISOString()
+      event.value.startTime = dateTime.value.toISOString()
     }
   }
 })

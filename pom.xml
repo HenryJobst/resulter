@@ -20,17 +20,18 @@
         <archunit.version>1.2.1</archunit.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
+        <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
         <jaxb2-maven-plugin.version>3.1.0</jaxb2-maven-plugin.version>
         <jsr305.version>3.0.2</jsr305.version>
         <junit-jupiter-api.version>5.10.1</junit-jupiter-api.version>
+        <lombok.version>1.18.30</lombok.version>
         <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <p6spy-spring-boot-starter.version>1.9.1</p6spy-spring-boot-starter.version>
         <spring-modulith.version>1.1.1</spring-modulith.version>
         <spring-oxm.version>6.1.2</spring-oxm.version>
-        <lombok.version>1.18.30</lombok.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.3.0
         </springdoc-openapi-starter-webmvc-ui.version>
-        <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
     </properties>
     <dependencies>
         <dependency>
@@ -50,6 +51,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
@@ -153,7 +162,7 @@
         <dependency>
             <groupId>com.github.gavlyukovskiy</groupId>
             <artifactId>p6spy-spring-boot-starter</artifactId>
-            <version>1.9.1</version>
+            <version>${p6spy-spring-boot-starter.version}</version>
         </dependency>
 
     </dependencies>

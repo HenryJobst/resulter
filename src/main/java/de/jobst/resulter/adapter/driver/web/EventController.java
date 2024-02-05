@@ -11,6 +11,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
@@ -62,6 +63,7 @@ public class EventController {
     }
 
     @PostMapping("/event")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> createEvent(@RequestBody EventDto eventDto) {
         try {
             Event event = eventService.createEvent(eventDto.name(),
@@ -99,6 +101,7 @@ public class EventController {
     }
 
     @PutMapping("/event/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
         try {
             Event event = eventService.updateEvent(EventId.of(id),
@@ -125,6 +128,7 @@ public class EventController {
     }
 
     @DeleteMapping("/event/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> deleteEvent(@PathVariable Long id) {
         try {
             boolean success = eventService.deleteEvent(EventId.of(id));
@@ -157,6 +161,7 @@ public class EventController {
     }
 
     @PutMapping("/event/{id}/calculate")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> calculateEvent(@PathVariable Long id) {
         try {
             Event event = eventService.calculateEvent(EventId.of(id));

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -68,6 +69,7 @@ public class CupController {
     }
 
     @PutMapping("/cup/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CupDto> updateCup(@PathVariable Long id, @RequestBody CupDto cupDto) {
         try {
             Cup cup = cupService.updateCup(CupId.of(id),
@@ -92,6 +94,7 @@ public class CupController {
     }
 
     @PostMapping("/cup")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CupDto> createCup(@RequestBody CupDto cupDto) {
         try {
             Cup cup = cupService.createCup(cupDto.name(),
@@ -117,6 +120,7 @@ public class CupController {
     }
 
     @DeleteMapping("/cup/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> deleteCup(@PathVariable Long id) {
         try {
             boolean success = cupService.deleteCup(CupId.of(id));

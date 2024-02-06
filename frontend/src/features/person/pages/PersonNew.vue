@@ -33,10 +33,11 @@ const formData = ref<Person | Omit<Person, 'id'>>({
   >
     <template v-slot:default="{ formData }">
       <PersonForm
-        :person="formData"
+        :person="formData as Person"
         :entity-service="personService"
         :query-key="queryKey"
         :v-model="formData"
+        v-if="formData"
       />
     </template>
   </GenericNew>

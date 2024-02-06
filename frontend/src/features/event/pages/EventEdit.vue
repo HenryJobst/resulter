@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import EventForm from '@/features/event/widgets/EventForm.vue'
 import { eventService } from '@/features/event/services/event.service'
+import type { SportEvent } from '@/features/event/model/sportEvent'
 
 const props = defineProps<{ id: string; locale?: string }>()
 
@@ -27,7 +28,8 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.e
   >
     <template v-slot:default="{ formData }">
       <EventForm
-        :event="formData"
+        :v-if="formData"
+        :event="formData as SportEvent"
         :entity-service="eventService"
         :query-key="queryKey"
         :v-model="formData"

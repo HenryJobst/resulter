@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Event } from '@/features/event/model/event'
+import type { SportEvent } from '@/features/event/model/sportEvent'
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Upload } from '@/features/event/model/upload'
@@ -23,7 +23,7 @@ const formData = ref<Upload>({
   name: ''
 })
 
-const props = defineProps<{ event?: Event }>()
+const props = defineProps<{ event?: SportEvent }>()
 
 onMounted(() => {
   if (props.event) {
@@ -53,11 +53,13 @@ const onRemoveTemplatingFile = (
   totalSizePercent.value = totalSize.value / 10
 }
 
+/*
 const onClearTemplatingUpload = (clear: () => void) => {
   clear()
   totalSize.value = 0
   totalSizePercent.value = 0
 }
+*/
 
 const onSelectedFiles = (event: { files: File[] }) => {
   files.value = event.files
@@ -112,7 +114,7 @@ const formatSize = (bytes: number): string => {
           name="file"
           :url="url"
           @upload="onTemplatedUpload"
-          :multiple="false"
+          :multiple="true"
           accept="text/xml"
           @select="onSelectedFiles"
           :custom-upload="false"

@@ -60,7 +60,7 @@ const formSubmitHandler = () => {
             {{ t('messages.error', { message: cupTypesQuery.error.toLocaleString() }) }}
           </span>
           <Dropdown
-            v-else-if="cupTypesQuery.data"
+            v-else-if="cupTypesQuery.data && cupTypesQuery.data.value"
             id="type"
             v-model="formData.type"
             :options="cupTypesQuery.data.value"
@@ -78,7 +78,7 @@ const formSubmitHandler = () => {
           <span v-else-if="eventQuery.status.value === 'error'">
             {{ t('messages.error', { message: eventQuery.error.toLocaleString() }) }}
           </span>
-          <div v-else-if="eventQuery.data" class="card">
+          <div v-else-if="eventQuery.data && eventQuery.data.value" class="card">
             <MultiSelect
               id="events"
               v-model="formData.eventIds"

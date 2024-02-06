@@ -5,6 +5,7 @@ import PersonForm from '@/features/person/widgets/PersonForm.vue'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { personService } from '@/features/person/services/person.service'
+import type { Person } from '@/features/person/model/person'
 
 const props = defineProps<{ id: string; locale?: string }>()
 
@@ -27,10 +28,11 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.p
   >
     <template v-slot:default="{ formData }">
       <PersonForm
-        :person="formData"
+        :person="formData as Person"
         :entity-service="personService"
         :query-key="queryKey"
         :v-model="formData"
+        v-if="formData"
       />
     </template>
   </GenericEdit>

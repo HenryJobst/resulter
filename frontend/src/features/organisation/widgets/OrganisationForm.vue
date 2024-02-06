@@ -93,7 +93,7 @@ const organisation = computed({
           {{ t('messages.error', { message: countryQuery.error.toLocaleString() }) }}
         </span>
         <Dropdown
-          v-else-if="countryQuery.data"
+          v-else-if="countryQuery.data && countryQuery.data.value"
           id="country"
           v-model="organisation.countryId"
           :options="countryQuery.data.value"
@@ -115,7 +115,7 @@ const organisation = computed({
           {{ t('messages.error', { message: organisationQuery.error.toLocaleString() }) }}
         </span>
 
-        <div v-else-if="organisationQuery.data" class="card">
+        <div v-else-if="organisationQuery.data && organisationQuery.data.value" class="card">
           <MultiSelect
             id="organisations"
             v-model="organisation.organisationIds"

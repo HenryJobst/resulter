@@ -122,7 +122,7 @@ const treeNodes = computed(() => {
   if (eventResultsQuery.isFetched) {
     return createResultListTreeNodes(eventResultsQuery.data.value?.resultLists)
   }
-  return null
+  return undefined
 })
 
 const resultColumn = (slotProps: any): string => {
@@ -262,12 +262,12 @@ const calculate = () => {
               </template>
             </Column>
             <!--Column
-                                                                                                                                                                                                                                                                                                    v-for="score in cupScores"
-                                                                                                                                                                                                                                                                                                    :key="score.type.name"
-                                                                                                                                                                                                                                                                                                    :header="score.type.name"
-                                                                                                                                                                                                                                                                                                    :field="score.score"
-                                                                                                                                                                                                                                                                                                  >
-                                                                                                                                                                                                                                                                                                  </Column-->
+                                                                                                                                                                                                                                                                                                                v-for="score in cupScores"
+                                                                                                                                                                                                                                                                                                                :key="score.type.name"
+                                                                                                                                                                                                                                                                                                                :header="score.type.name"
+                                                                                                                                                                                                                                                                                                                :field="score.score"
+                                                                                                                                                                                                                                                                                                              >
+                                                                                                                                                                                                                                                                                                              </Column-->
           </DataTable>
         </template>
       </Tree>

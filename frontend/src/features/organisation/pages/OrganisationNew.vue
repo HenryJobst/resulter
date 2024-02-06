@@ -34,10 +34,11 @@ const formData = ref<Organisation | Omit<Organisation, 'id'>>({
   >
     <template v-slot:default="{ formData }">
       <OrganisationForm
-        :organisation="formData"
+        :organisation="formData as Organisation"
         :entity-service="organisationService"
         :query-key="queryKey"
         :v-model="formData"
+        v-if="formData"
       />
     </template>
   </GenericNew>

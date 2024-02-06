@@ -1,4 +1,4 @@
-import type { Event } from '@/features/event/model/event'
+import type { SportEvent } from '@/features/event/model/sportEvent'
 import axiosInstance from '@/features/keycloak/services/api'
 import { handleApiError } from '@/utils/HandleError'
 import type { EventStatus } from '@/features/event/model/event_status'
@@ -9,12 +9,12 @@ import type { ResultList } from '@/features/event/model/result_list'
 const eventUrl: string = '/event'
 const eventStatusUrl: string = '/event_status'
 
-export class EventService extends GenericService<Event> {
+export class EventService extends GenericService<SportEvent> {
   constructor() {
     super(eventUrl)
   }
 
-  async getAll(t: (key: string) => string): Promise<Event[] | null> {
+  async getAll(t: (key: string) => string): Promise<SportEvent[] | null> {
     return await super.getAll(t).then((response) => {
       if (response) {
         return response.map((element) => {

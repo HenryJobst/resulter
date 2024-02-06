@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
-import type { Event } from '@/features/event/model/event'
+import type { SportEvent } from '@/features/event/model/sportEvent'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
@@ -21,7 +21,7 @@ const redirectBack = async () => {
 }
 
 const eventMutation = useMutation({
-  mutationFn: (event: Omit<Event, 'id'>) => eventService.create(event, t),
+  mutationFn: (event: Omit<SportEvent, 'id'>) => eventService.create(event, t),
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['events'] })
     toast.add({
@@ -34,7 +34,7 @@ const eventMutation = useMutation({
   }
 })
 
-const eventSubmitHandler = (event: Omit<Event, 'id'>) => {
+const eventSubmitHandler = (event: Omit<SportEvent, 'id'>) => {
   eventMutation.mutate(event)
 }
 </script>

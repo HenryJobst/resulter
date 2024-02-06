@@ -4,7 +4,7 @@ import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { computed, ref } from 'vue'
 import EventForm from '@/features/event/widgets/EventForm.vue'
 import GenericNew from '@/features/generic/pages/GenericNew.vue'
-import type { Event } from '@/features/event/model/event'
+import type { SportEvent } from '@/features/event/model/sportEvent'
 import { eventService } from '@/features/event/services/event.service'
 
 const { t } = useI18n()
@@ -13,7 +13,7 @@ const queryKey: string[] = ['events']
 const entityLabel: string = 'event'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.event') }))
 
-const formData = ref<Event | Omit<Event, 'id'>>({
+const formData = ref<SportEvent | Omit<SportEvent, 'id'>>({
   name: '',
   startTime: new Date(),
   state: { id: 'Planned' },
@@ -33,10 +33,11 @@ const formData = ref<Event | Omit<Event, 'id'>>({
   >
     <template v-slot:default="{ formData }">
       <EventForm
-        :event="formData"
+        :event="formData as SportEvent"
         :entity-service="eventService"
         :query-key="queryKey"
         :v-model="formData"
+        v-if="formData"
       />
     </template>
   </GenericNew>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
-import type { Event } from '@/features/event/model/event'
+import type { SportEvent } from '@/features/event/model/sportEvent'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -14,7 +14,7 @@ import { organisationService } from '@/features/organisation/services/organisati
 const { t } = useI18n()
 
 const props = defineProps<{
-  event: Event
+  event: SportEvent
   entityService: EventService
   queryKey: string[]
 }>()

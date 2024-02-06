@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { organisationService } from '@/features/organisation/services/organisation.service'
-import { CountryService } from '@/features/country/services/country.service'
+import { countryService } from '@/features/country/services/country.service'
 
 const authStore = useAuthStore()
 const { t } = useI18n()
@@ -31,7 +31,7 @@ const organisationQuery = useQuery({
 
 const countryQuery = useQuery({
   queryKey: ['countries'],
-  queryFn: () => CountryService.getAll(t)
+  queryFn: () => countryService.getAll(t)
 })
 </script>
 

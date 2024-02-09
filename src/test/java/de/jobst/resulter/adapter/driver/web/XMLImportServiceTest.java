@@ -3,13 +3,17 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.adapter.TestConfig;
 import de.jobst.resulter.domain.Event;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +28,19 @@ import static org.assertj.core.api.Assertions.assertThat;
     "de.jobst.resulter.adapter.driven.jdbc"})
 @EntityScan(basePackages = {"de.jobst.resulter.adapter.driver.web", "de.jobst.resulter.adapter.driven.jdbc"})
 @EnableJdbcRepositories(basePackages = {"de.jobst.resulter.adapter.driven.jdbc"})
+@ExtendWith(SpringExtension.class)
 class XMLImportServiceTest {
 
     @Autowired
     XMLImportService importService;
 
+    @MockBean
+    private JwtDecoder jwtDecoder;
+
     @Test
     @Transactional
+        //@WithMockUser(username = "admin", roles = "ADMIN")
+        // Mock a u
     void importFile() throws Exception {
         String filePath = "import_files/XMLImportServiceTest.xml";
 

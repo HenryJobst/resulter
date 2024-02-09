@@ -1,6 +1,5 @@
 package de.jobst.resulter.domain.scoring;
 
-import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
 
 import java.util.List;
@@ -9,11 +8,9 @@ import java.util.Set;
 public class NORCalculationStrategy implements CupTypeCalculationStrategy {
 
     public static final CupType CUP_TYPE = CupType.NOR;
-    private final OrganisationRepository organisationRepository;
     Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner");
 
-    public NORCalculationStrategy(OrganisationRepository organisationRepository) {
-        this.organisationRepository = organisationRepository;
+    public NORCalculationStrategy() {
     }
 
     private static double multiplyTime(double baseTime, double factor) {

@@ -48,6 +48,18 @@ services :
             timeout : 5s
             retries : 3
             start_period : 30s
+        labels :
+            - "traefik.enable=true"
+            - "traefik.http.routers.resulter-api.rule=Host(`${API_HOSTNAME}`)"
+            - "traefik.http.routers.resulter-api.service=resulter"
+            - "traefik.http.routers.resulter-api.entrypoints=https"
+            - "traefik.http.services.resulter-api.loadbalancer.server.port=${API_SERVER_PORT}"
+            - "traefik.http.routers.resulter-api.tls=true"
+            - "traefik.http.routers.resulter-api.tls.certresolver=http"
+            - "traefik.http.services.resulter-api.loadbalancer.passhostheader=true"
+            - "traefik.http.routers.resulter-api.middlewares=compresstraefik"
+            - "traefik.http.middlewares.compresstraefik.compress=true"
+            - "traefik.docker.network=proxy"
         restart : unless-stopped
 
     resulter :

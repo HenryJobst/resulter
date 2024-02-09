@@ -6,13 +6,33 @@ interface KeycloakOptions {
   realm: string
 }
 
-const options: KeycloakOptions = {
-  url: import.meta.env.VITE_KEYCLOAK_URL as string,
-  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID as string,
-  realm: import.meta.env.VITE_KEYCLOAK_REALM as string
+function getOptions() {
+  console.log(
+    import.meta.env.VITE_KEYCLOAK_URL,
+    import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
+    import.meta.env.VITE_KEYCLOAK_REALM
+  )
+  return {
+    url: import.meta.env.VITE_KEYCLOAK_URL as string,
+    clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID as string,
+    realm: import.meta.env.VITE_KEYCLOAK_REALM as string
+  }
 }
 
-const keycloak = new Keycloak(options)
+const options: KeycloakOptions = getOptions()
+
+function getKeycloak() {
+  if (!options.url) {
+    // use the default keycloak instance
+    options.url = 'https://keycloak.jobst24.de'
+    // use the default client id and realm
+    options.clientId = 'resulter-prod'
+    options.realm = 'resulter-prod'
+  }
+  return new Keycloak(options)
+}
+
+const keycloak = getKeycloak()
 
 let authenticated: boolean = false
 let store: any = null // Define the store type based on your store structure
@@ -21,6 +41,7 @@ let store: any = null // Define the store type based on your store structure
 function handleError(error: Error, message: string): void {
   console.error(message)
   console.error(error)
+  console.error(options)
   // Implement additional logging or user feedback mechanisms here
 }
 

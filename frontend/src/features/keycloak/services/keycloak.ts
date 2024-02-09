@@ -23,11 +23,13 @@ const options: KeycloakOptions = getOptions()
 
 function getKeycloak() {
   if (!options.url) {
-    // use the default keycloak instance
-    options.url = 'https://keycloak.jobst24.de'
-    // use the default client id and realm
-    options.clientId = 'resulter-prod'
-    options.realm = 'resulter-prod'
+    console.log('Missing options.url')
+  }
+  if (!options.clientId) {
+    console.log('Missing options.clientId')
+  }
+  if (!options.realm) {
+    console.log('Missing options.realm')
   }
   return new Keycloak(options)
 }

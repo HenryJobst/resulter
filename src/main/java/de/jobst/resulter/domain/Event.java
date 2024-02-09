@@ -1,6 +1,5 @@
 package de.jobst.resulter.domain;
 
-import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.scoring.*;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
@@ -97,7 +96,7 @@ public class Event implements Comparable<Event> {
         return name.compareTo(o.name);
     }
 
-    public void calculate(Cup cup, OrganisationRepository organisationRepository) {
+    public void calculate(Cup cup) {
 
         if (invalid(cup)) {
             return;
@@ -105,7 +104,7 @@ public class Event implements Comparable<Event> {
 
         CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
         switch (cup.getType()) {
-            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy(organisationRepository);
+            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy();
             case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy();
             case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy();
             case CupType.ADD -> cupTypeCalculationStrategy = new AddCalculationStrategy();

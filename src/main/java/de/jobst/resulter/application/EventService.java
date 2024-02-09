@@ -85,7 +85,7 @@ public class EventService {
         Event event = optionalEvent.get();
         Map<OrganisationId, Organisation> organisationById =
             organisationRepository.loadOrganisationTree(event.getReferencedOrganisationIds());
-        cups.forEach(cup -> event.calculate(cup, organisationRepository));
+        cups.forEach(cup -> event.calculate(cup));
         return eventRepository.save(event);
     }
 

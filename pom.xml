@@ -191,6 +191,16 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <image>
+                        <name>nksdaoxxso/resulter-api:latest</name>
+                        <env>
+                            <RESULTER_DB_URL>${RESULTER_DB_URL}</RESULTER_DB_URL>
+                            <RESULTER_DB_USERNAME>${RESULTER_DB_USERNAME}</RESULTER_DB_USERNAME>
+                            <RESULTER_DB_PASSWORD>${RESULTER_DB_PASSWORD}</RESULTER_DB_PASSWORD>
+                            <RESULTER_DB_DRIVER>${RESULTER_DB_DRIVER}</RESULTER_DB_DRIVER>
+                            <RESULTER_LOG_LEVEL>${RESULTER_LOG_LEVEL}</RESULTER_LOG_LEVEL>
+                        </env>
+                    </image>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

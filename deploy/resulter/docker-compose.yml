@@ -14,14 +14,12 @@ services :
         image : ${RESULTER_POSTGRES_IMAGE_TAG}
         volumes :
             - resulter-postgres:/var/lib/postgresql/data
-        environment :
-            POSTGRES_DB : ${RESULTER_DB_NAME}
-            POSTGRES_USER : ${RESULTER_DB_USER}
-            POSTGRES_PASSWORD : ${RESULTER_DB_PASSWORD}
+        env_file :
+            - .env
         networks :
             - resulter-network
         healthcheck :
-            test : [ "CMD", "pg_isready", "-q", "-d", "${RESULTER_DB_NAME}", "-U", "${RESULTER_DB_USER}" ]
+            test : [ "CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
             interval : 10s
             timeout : 5s
             retries : 3
@@ -30,16 +28,11 @@ services :
 
     backend :
         image : ${RESULTER_BACKEND_IMAGE_TAG}
+        env_file :
+            - .env
         environment :
             RESULTER_DATABASE_HOST : postgres
             RESULTER_DATABASE_PORT : 5432
-            RESULTER_DATABASE_NAME : ${RESULTER_DB_NAME}
-            RESULTER_DATABASE_USER : ${RESULTER_DB_USER}
-            RESULTER_DATABASE_PASSWORD : ${RESULTER_DB_PASSWORD}
-            API_OAUTH2_RESOURCE_SERVER_JWT_ISSUER_URI : ${API_OAUTH2_RESOURCE_SERVER_JWT_ISSUER_URI}
-            API_OAUTH2_RESOURCE_SERVER_JWT_JWK_SET_URI : ${API_OAUTH2_RESOURCE_SERVER_JWT_JWK_SET_URI}
-            API_CORS_ALLOWED_ORIGINS : ${API_CORS_ALLOWED_ORIGINS}
-            API_SERVER_PORT : ${API_SERVER_PORT}
         networks :
             - resulter-network
         healthcheck :
@@ -64,15 +57,8 @@ services :
 
     resulter :
         image : ${RESULTER_IMAGE_TAG}
-        environment :
-            RESULTER_DATABASE_HOST : postgres
-            #RESULTER_DATABASE_PORT: 5432
-            #RESULTER_DATABASE_NAME: ${RESULTER_DB_NAME}
-            #RESULTER_DATABASE_USER: ${RESULTER_DB_USER}
-            #RESULTER_DATABASE_PASSWORD: ${RESULTER_DB_PASSWORD}
-            #RESULTER_DATABASE_SCHEMA: public
-            #RESULTER_ADMIN_USER: ${RESULTER_ADMIN_USERNAME}
-            #RESULTER_ADMIN_PASSWORD: ${RESULTER_ADMIN_PASSWORD}
+        env_file :
+            - .env
         networks :
             - resulter-network
             - proxy
@@ -110,15 +96,8 @@ services :
         volumes :
             - resulter-postgres-backup:/var/lib/postgresql/data
             - resulter-database-backups:${RESULTER_POSTGRES_BACKUPS_PATH}
-        environment :
-            RESULTER_DB_NAME : ${RESULTER_DB_NAME}
-            RESULTER_DB_USER : ${RESULTER_DB_USER}
-            PGPASSWORD : ${RESULTER_DB_PASSWORD}
-            RESULTER_BACKUP_INIT_SLEEP : ${RESULTER_BACKUP_INIT_SLEEP}
-            RESULTER_BACKUP_INTERVAL : ${RESULTER_BACKUP_INTERVAL}
-            RESULTER_POSTGRES_BACKUP_PRUNE_DAYS : ${RESULTER_POSTGRES_BACKUP_PRUNE_DAYS}
-            RESULTER_POSTGRES_BACKUPS_PATH : ${RESULTER_POSTGRES_BACKUPS_PATH}
-            RESULTER_POSTGRES_BACKUP_NAME : ${RESULTER_POSTGRES_BACKUP_NAME}
+        env_file :
+            - .env
         networks :
             - resulter-network
         restart : unless-stopped

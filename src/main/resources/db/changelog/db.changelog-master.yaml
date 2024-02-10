@@ -1,4 +1,3 @@
 databaseChangeLog :
     -   includeAll :
-            path : ../jdbc_migrations
-            relativeToChangelogFile : true
+            path : classpath:/db/jdbc_migrations

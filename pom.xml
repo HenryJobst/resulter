@@ -192,7 +192,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <image>
-                        <name>nksdaoxxso/resulter-api:latest</name>
+                        <name>resulter-api:latest</name>
                     </image>
                     <excludes>
                         <exclude>

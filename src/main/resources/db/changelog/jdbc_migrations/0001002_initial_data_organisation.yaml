@@ -72,5 +72,5 @@ databaseChangeLog :
                                     value : "1"
                 -   sqlFile :
                         splitStatements : true
-                        path : classpath:/db/initial_sql_data/organisation_organisation.sql
+                        path : db/changelog/initial_sql_data/organisation_organisation.sql
                         stripComments : true

@@ -14,8 +14,8 @@
 
 RESULTER_CONTAINER=$(docker ps -aqf "name=resulter-resulter")
 RESULTER_BACKUPS_CONTAINER=$(docker ps -aqf "name=resulter-backups-resulter")
-RESULTER_DB_NAME="resulterdb"
-RESULTER_DB_USER="resulterdbuser"
+POSTGRES_DB="resulterdb"
+POSTGRES_USER="resulterdbuser"
 POSTGRES_PASSWORD=$(docker exec $RESULTER_BACKUPS_CONTAINER printenv PGPASSWORD)
 BACKUP_PATH="/srv/resulter-postgres/backups/"
 

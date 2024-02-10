@@ -27,7 +27,6 @@
         <lombok.version>1.18.30</lombok.version>
         <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-        <p6spy-spring-boot-starter.version>1.9.1</p6spy-spring-boot-starter.version>
         <spring-oxm.version>6.1.2</spring-oxm.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.3.0
         </springdoc-openapi-starter-webmvc-ui.version>
@@ -159,11 +158,6 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${jsr305.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.gavlyukovskiy</groupId>
-            <artifactId>p6spy-spring-boot-starter</artifactId>
-            <version>${p6spy-spring-boot-starter.version}</version>
         </dependency>
     </dependencies>
     <dependencyManagement>

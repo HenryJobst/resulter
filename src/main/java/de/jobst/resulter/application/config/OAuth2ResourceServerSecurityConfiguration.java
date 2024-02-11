@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -55,6 +56,8 @@ public class OAuth2ResourceServerSecurityConfiguration {
             .hasRole("ADMIN")
             .requestMatchers("/admin/**")
             .hasRole("ADMIN")
+            .requestMatchers(HttpMethod.GET, "/event", "/organisation", "/cup")
+            .permitAll()
             .anyRequest()
             .hasRole("ADMIN"));
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(

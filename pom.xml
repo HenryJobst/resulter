@@ -24,7 +24,7 @@
         <jaxb2-maven-plugin.version>3.1.0</jaxb2-maven-plugin.version>
         <jsr305.version>3.0.2</jsr305.version>
         <junit-jupiter-api.version>5.10.1</junit-jupiter-api.version>
-        <liquibase-core.version>4.26.0</liquibase-core.version>
+        <liquibase-core.version>4.23.0</liquibase-core.version>
         <lombok.version>1.18.30</lombok.version>
         <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>

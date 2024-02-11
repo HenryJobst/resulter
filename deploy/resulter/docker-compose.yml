@@ -46,7 +46,7 @@ services :
             - "traefik.http.routers.resulter-api.rule=Host(`${API_HOSTNAME}`)"
             - "traefik.http.routers.resulter-api.service=resulter"
             - "traefik.http.routers.resulter-api.entrypoints=https"
-            - "traefik.http.services.resulter-api.loadbalancer.server.port=${API_SERVER_PORT}"
+            - "traefik.http.services.resulter-api.loadbalancer.server.port=80"
             - "traefik.http.routers.resulter-api.tls=true"
             - "traefik.http.routers.resulter-api.tls.certresolver=http"
             - "traefik.http.services.resulter-api.loadbalancer.passhostheader=true"

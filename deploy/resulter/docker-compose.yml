@@ -36,7 +36,7 @@ services :
         networks :
             - resulter-network
         healthcheck :
-            test : wget -qO- http://localhost:8080/actuator/health/ | grep UP || exit 1
+            test : wget -qO- http://localhost:80/actuator/health/ | grep UP || exit 1
             interval : 30s
             timeout : 5s
             retries : 3

@@ -51,13 +51,13 @@
                         <version>${native.maven.plugin.version}</version>
                         <extensions>true</extensions>
                         <executions>
-                            <execution>
+                            <!--execution>
                                 <id>build-native</id>
                                 <goals>
                                     <goal>compile-no-fork</goal>
                                 </goals>
                                 <phase>package</phase>
-                            </execution>
+                            </execution-->
                             <!--execution>
                                 <id>test-native</id>
                                 <goals>

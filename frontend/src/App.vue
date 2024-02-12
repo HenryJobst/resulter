@@ -24,14 +24,23 @@ const primeVueLocales: Ref<LocaleMessages> = ref({})
 const primevue = usePrimeVue()
 
 onMounted(() => {
-  fullUrl.value = window.location.href
+  fullUrl.value = cleanUrl(window.location.href)
 })
 
 // Synchronisation, um die Lokalisierung vom Router-Pfad zu ändern
 watch(router.currentRoute, (route) => {
   currentLocale.value = route.params.locale as string
-  fullUrl.value = window.location.href
+  fullUrl.value = cleanUrl(window.location.href)
 })
+
+function cleanUrl(url: string) {
+  const urlObj = new URL(url)
+  // delete router state or error parameters
+  urlObj.hash = ''
+  // Optional: delete query parameters, if desired
+  // urlObj.search = '';
+  return urlObj.toString()
+}
 
 const switchPrimeVueLocale = async (locale: string) => {
   if (!locale) return

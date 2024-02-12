@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps, type PropType } from 'vue'
+import { computed, type PropType } from 'vue'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'

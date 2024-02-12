@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps, type PropType } from 'vue'
+import { computed, type PropType } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'

@@ -7,11 +7,6 @@ interface KeycloakOptions {
 }
 
 function getOptions() {
-  console.log(
-    import.meta.env.VITE_KEYCLOAK_URL,
-    import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
-    import.meta.env.VITE_KEYCLOAK_REALM
-  )
   return {
     url: import.meta.env.VITE_KEYCLOAK_URL as string,
     clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID as string,

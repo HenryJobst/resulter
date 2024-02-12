@@ -38,8 +38,8 @@ const switchPrimeVueLocale = async (locale: string) => {
   // noinspection SpellCheckingInspection
   if (!primeVueLocales.value[locale]) {
     try {
-      const filename = `./locales/primevue/${locale}.json`
-      const module = await import(filename)
+      // noinspection TypeScriptCheckImport
+      const module = await import(`./locales/primevue/${locale}.json`)
       primeVueLocales.value[locale] = module['default'][locale]
     } catch (error) {
       console.error('Failed to load locale:', error)
@@ -48,78 +48,6 @@ const switchPrimeVueLocale = async (locale: string) => {
 
   const primeVueLocale = primeVueLocales.value[locale]
   Object.assign(primevue.config.locale!, primeVueLocale)
-
-  /*
-    primevue.config.locale!.startsWith = primeVueLocale.startsWith
-    primevue.config.locale!.contains = primeVueLocale.contains
-    primevue.config.locale!.notContains = primeVueLocale.notContains
-    primevue.config.locale!.endsWith = primeVueLocale.endsWith
-    primevue.config.locale!.equals = primeVueLocale.equals
-    primevue.config.locale!.notEquals = primeVueLocale.notEquals
-    primevue.config.locale!.noFilter = primeVueLocale.noFilter
-    //primevue.config.locale!.filter = primeVueLocale.filter
-    primevue.config.locale!.lt = primeVueLocale.lt
-    primevue.config.locale!.lte = primeVueLocale.lte
-    primevue.config.locale!.gt = primeVueLocale.gt
-    primevue.config.locale!.gte = primeVueLocale.gte
-    primevue.config.locale!.dateIs = primeVueLocale.dateIs
-    primevue.config.locale!.dateIsNot = primeVueLocale.dateIsNot
-    primevue.config.locale!.dateBefore = primeVueLocale.dateBefore
-    primevue.config.locale!.dateAfter = primeVueLocale.dateAfter
-    //primevue.config.locale!.custom = primeVueLocale.custom
-    primevue.config.locale!.clear = primeVueLocale.clear
-    primevue.config.locale!.apply = primeVueLocale.apply
-    primevue.config.locale!.matchAll = primeVueLocale.matchAll
-    primevue.config.locale!.matchAny = primeVueLocale.matchAny
-    primevue.config.locale!.addRule = primeVueLocale.addRule
-    primevue.config.locale!.removeRule = primeVueLocale.removeRule
-    primevue.config.locale!.accept = primeVueLocale.accept
-    primevue.config.locale!.reject = primeVueLocale.reject
-    primevue.config.locale!.choose = primeVueLocale.choose
-    primevue.config.locale!.upload = primeVueLocale.upload
-    primevue.config.locale!.cancel = primeVueLocale.cancel
-    primevue.config.locale!.completed = primeVueLocale.completed
-    primevue.config.locale!.pending = primeVueLocale.pending
-    primevue.config.locale!.fileSizeTypes = primeVueLocale.fileSizeTypes
-    primevue.config.locale!.dayNames = primeVueLocale.dayNames
-    primevue.config.locale!.dayNamesShort = primeVueLocale.dayNamesShort
-    primevue.config.locale!.dayNamesMin = primeVueLocale.dayNamesMin
-    primevue.config.locale!.monthNames = primeVueLocale.monthNames
-    primevue.config.locale!.monthNamesShort = primeVueLocale.monthNamesShort
-    primevue.config.locale!.chooseYear = primeVueLocale.chooseYear
-    primevue.config.locale!.chooseMonth = primeVueLocale.chooseMonth
-    primevue.config.locale!.chooseDate = primeVueLocale.chooseDate
-    primevue.config.locale!.prevDecade = primeVueLocale.prevDecade
-    primevue.config.locale!.nextDecade = primeVueLocale.nextDecade
-    primevue.config.locale!.prevYear = primeVueLocale.prevYear
-    primevue.config.locale!.nextYear = primeVueLocale.nextYear
-    primevue.config.locale!.prevMonth = primeVueLocale.prevMonth
-    primevue.config.locale!.nextMonth = primeVueLocale.nextMonth
-    primevue.config.locale!.prevHour = primeVueLocale.prevHour
-    primevue.config.locale!.nextHour = primeVueLocale.nextHour
-    primevue.config.locale!.prevMinute = primeVueLocale.prevMinute
-    primevue.config.locale!.nextMinute = primeVueLocale.nextMinute
-    primevue.config.locale!.prevSecond = primeVueLocale.prevSecond
-    primevue.config.locale!.nextSecond = primeVueLocale.nextSecond
-    primevue.config.locale!.am = primeVueLocale.am
-    primevue.config.locale!.pm = primeVueLocale.pm
-    primevue.config.locale!.today = primeVueLocale.today
-    //primevue.config.locale!.now = primeVueLocale.now
-    primevue.config.locale!.weekHeader = primeVueLocale.weekHeader
-    primevue.config.locale!.firstDayOfWeek = primeVueLocale.firstDayOfWeek
-    primevue.config.locale!.showMonthAfterYear = primeVueLocale.showMonthAfterYear
-    primevue.config.locale!.dateFormat = primeVueLocale.dateFormat
-    primevue.config.locale!.weak = primeVueLocale.weak
-    primevue.config.locale!.medium = primeVueLocale.medium
-    primevue.config.locale!.strong = primeVueLocale.strong
-    primevue.config.locale!.passwordPrompt = primeVueLocale.passwordPrompt
-    primevue.config.locale!.emptyFilterMessage = primeVueLocale.emptyFilterMessage
-    primevue.config.locale!.searchMessage = primeVueLocale.searchMessage
-    primevue.config.locale!.selectionMessage = primeVueLocale.selectionMessage
-    primevue.config.locale!.emptySelectionMessage = primeVueLocale.emptySelectionMessage
-    primevue.config.locale!.emptySearchMessage = primeVueLocale.emptySearchMessage
-    primevue.config.locale!.emptyMessage = primeVueLocale.emptyMessage
-    */
 }
 
 watch(currentLocale, (val) => {

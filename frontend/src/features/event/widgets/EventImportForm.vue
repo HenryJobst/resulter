@@ -23,7 +23,7 @@ const formData = ref<Upload>({
   name: ''
 })
 
-const props = defineProps<{ event?: SportEvent }>()
+const props = defineProps<{ event?: SportEvent; uploader: any }>()
 
 onMounted(() => {
   if (props.event) {
@@ -114,10 +114,11 @@ const formatSize = (bytes: number): string => {
           name="file"
           :url="url"
           @upload="onTemplatedUpload"
-          :multiple="true"
+          :multiple="false"
           accept="text/xml"
           @select="onSelectedFiles"
-          :custom-upload="false"
+          customUpload
+          @uploader="props.uploader"
         >
           <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
             <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">

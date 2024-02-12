@@ -133,12 +133,13 @@ public class XMLImportService {
                     organisationByName,
                     personByDomainKey));
                 return Pair.of(ClassResult.of(clazz.getName(),
-                        clazz.getShortName(),
-                        Gender.of(clazz.getSex()),
-                        personResults.getFirst(),
-                        courseByDomainKey.get(new Course.DomainKey(event.getId(),
-                            CourseName.of(classResult.getCourses().getFirst().getName()))).getId()),
-                    personResults.getSecond());
+                    clazz.getShortName(),
+                    Gender.of(clazz.getSex()),
+                    personResults.getFirst(),
+                    classResult.getCourses().stream().findAny().isPresent() ?
+                    courseByDomainKey.get(new Course.DomainKey(event.getId(),
+                        CourseName.of(classResult.getCourses().getFirst().getName()))).getId() :
+                    null), personResults.getSecond());
             }).toList();
         var pairOfClassResultListAndGroupedSplitTimeLists =
             convertListPairToListsPair(listOfPairsOfClassResultAndGroupedSplitTimeLists);

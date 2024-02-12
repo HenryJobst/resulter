@@ -69,6 +69,20 @@ export class EventService extends GenericService<SportEvent> {
         return null
       })
   }
+
+  static async upload(formData: FormData, t: (key: string) => string) {
+    return axiosInstance
+      .post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        handleApiError(error, t)
+        return null
+      })
+  }
 }
 
 export const eventService = new EventService()

@@ -53,13 +53,11 @@ const onRemoveTemplatingFile = (
   totalSizePercent.value = totalSize.value / 10
 }
 
-/*
 const onClearTemplatingUpload = (clear: () => void) => {
-  clear()
+  console.log('clearing', clear)
   totalSize.value = 0
   totalSizePercent.value = 0
 }
-*/
 
 const onSelectedFiles = (event: { files: File[] }) => {
   files.value = event.files
@@ -73,7 +71,7 @@ const uploadEvent = (callback: () => void) => {
   callback()
 }
 
-const onTemplatedUpload = () => {
+const onTemplatedUpload = (event: { files: File[] }) => {
   toast.add({
     severity: 'info',
     summary: t('messages.success'),
@@ -119,6 +117,7 @@ const formatSize = (bytes: number): string => {
           @select="onSelectedFiles"
           customUpload
           @uploader="props.uploader"
+          @clear="onClearTemplatingUpload"
         >
           <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
             <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">

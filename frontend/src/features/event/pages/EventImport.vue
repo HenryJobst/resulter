@@ -63,9 +63,15 @@ const uploader = async (event: FileUploadUploaderEvent) => {
     await EventService.upload(formData, t)
       .then((data) => {
         console.log('File uploaded', data)
+        toast.add({
+          severity: 'info',
+          summary: t('messages.success'),
+          detail: t('messages.event_uploaded'),
+          life: toastDisplayDuration
+        })
       })
       .catch((error: any) => {
-        console.log('Error uploading file: ' + error)
+        console.log('Error uploading file: ', error)
       })
   }
 }

@@ -36,10 +36,29 @@
     - CountryCode (VO)
     - CountryName (VO)
 
+- Course (RE)
+    - CourseId
+    - EventId (VO) *
+    - CourseName (VO)
+    - CourseLength (VO)
+    - CourseClimb (VO)
+    - CourseControls (VO)
+
+- Race (RE)
+    - RaceId
+    - EventId (VO) *
+    - RaceName (VO)
+    - RaceNumber (VO)
+
 - ResultList (RE)
     - ResultListId (VO)
     - EventId (VO) *
+    - Creator (VO)
+    - CreateTime (VO)
+    - Status (VO)
+    - RaceId (VO) *
     - List of ClassResult (E) +
+        - CourseId (VO) *
         - ClassResultName (VO)
         - ClassResultShortName (VO)
         - Gender (VO)
@@ -62,7 +81,7 @@
     - ResultListId (VO) *
     - PersonId (VO) *
     - ClassResultShortName (VO)
-    - RaceNumber (VO)
+    - RaceId (VO)
     - List of SplitTime (E) +
         - ControlCode (VO)
         - PunchTime (VO)
@@ -73,7 +92,7 @@
     - ResultListId (VO) *
     - ClassResultShortName (VO)
     - PersonId (VO) *
-    - RaceNumber (VO)
+    - RaceId (VO)
     - Map of CupScore by CupType (E) +
         - CupType (VO)
         - Score (VO)

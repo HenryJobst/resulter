@@ -14,8 +14,12 @@ public class ResultList {
     @NonNull
     @Setter
     private ResultListId id;
+
     @NonNull
     private final EventId eventId;
+
+    @NonNull
+    private final RaceId raceId;
 
     @Nullable
     private final String creator;
@@ -32,12 +36,14 @@ public class ResultList {
 
     public ResultList(@NonNull ResultListId id,
                       @NonNull EventId eventId,
+                      @NonNull RaceId raceId,
                       @Nullable String creator,
                       @Nullable ZonedDateTime createTime,
                       @Nullable String status,
                       @Nullable Collection<ClassResult> classResults) {
         this.id = id;
         this.eventId = eventId;
+        this.raceId = raceId;
         this.creator = creator;
         this.createTime = createTime;
         this.status = status;

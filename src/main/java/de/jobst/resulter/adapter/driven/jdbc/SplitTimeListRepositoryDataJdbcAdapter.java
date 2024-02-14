@@ -52,7 +52,7 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
                 AggregateReference.to(splitTimeList.getResultListId().value()),
                 splitTimeList.getClassResultShortName().value(),
                 AggregateReference.to(splitTimeList.getPersonId().value()),
-                splitTimeList.getRaceNumber().value());
+                AggregateReference.to(splitTimeList.getRaceId().value()));
         if (splitTimeListEntity.isEmpty()) {
             return save(splitTimeList);
         }

@@ -30,8 +30,9 @@ public class PersonRaceResultDbo {
     @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
     @NonNull
-    @Column("race_number")
-    private Long raceNumber;
+    @Column("race_id")
+    private AggregateReference<RaceDbo, Long> race;
+    @NonNull
     @Column("start_time")
     private OffsetDateTime startTime;
     @Column("start_time_zone")
@@ -57,6 +58,7 @@ public class PersonRaceResultDbo {
         personRaceResultDbo.setClassResultShortName(Objects.requireNonNull(Objects.requireNonNull(personRaceResult.getClassResultShortName())
             .value()));
         personRaceResultDbo.setPerson(AggregateReference.to(personRaceResult.getPersonId().value()));
+        personRaceResultDbo.setRace(AggregateReference.to(personRaceResult.getRaceId().value()));
 
         if (null != personRaceResult.getStartTime().value()) {
             personRaceResultDbo.setStartTime(personRaceResult.getStartTime().value().toOffsetDateTime());
@@ -77,11 +79,6 @@ public class PersonRaceResultDbo {
         } else {
             personRaceResultDbo.setPunchTime(null);
         }
-        if (ObjectUtils.isNotEmpty(personRaceResult.getRaceNumber())) {
-            personRaceResultDbo.setRaceNumber(personRaceResult.getRaceNumber().value());
-        } else {
-            personRaceResultDbo.setRaceNumber(1L);
-        }
         if (ObjectUtils.isNotEmpty(personRaceResult.getPosition())) {
             personRaceResultDbo.setPosition(personRaceResult.getPosition().value());
         } else {
@@ -101,8 +98,8 @@ public class PersonRaceResultDbo {
         return personRaceResultDbos.stream()
             .map(it -> PersonRaceResult.of(it.classResultShortName,
                 it.person.getId(),
-                it.raceNumber,
-                it.startTime != null ? it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)) : null,
+                it.race.getId(),
+                it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)),
                 it.finishTime != null ? it.finishTime.atZoneSameInstant(ZoneId.of(it.finishTimeZone)) : null,
                 it.getPunchTime(),
                 it.getPosition(),

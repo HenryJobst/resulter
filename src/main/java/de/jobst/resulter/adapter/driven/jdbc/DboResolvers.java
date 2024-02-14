@@ -13,6 +13,7 @@ public class DboResolvers {
 
     private DboResolver<CupId, CupDbo> cupDboDboResolver = null;
     private DboResolver<EventId, EventDbo> eventDboResolver = null;
+    private DboResolver<RaceId, RaceDbo> raceDboResolver = null;
     private DboResolver<PersonId, PersonDbo> personDboResolver = null;
     private DboResolver<CourseId, CourseDbo> courseDboResolver = null;
     private DboResolver<OrganisationId, OrganisationDbo> organisationDboResolver = null;

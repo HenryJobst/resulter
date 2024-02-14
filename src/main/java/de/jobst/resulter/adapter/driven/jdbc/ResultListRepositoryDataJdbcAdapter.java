@@ -27,8 +27,8 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     public ResultList save(ResultList resultList) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setResultListDboResolver(id -> resultListJdbcRepository.findById(id.value()).orElseThrow());
-        ResultListDbo savedResultListEntity =
-            resultListJdbcRepository.save(ResultListDbo.from(resultList, dboResolvers));
+        ResultListDbo resultListDbo = ResultListDbo.from(resultList, dboResolvers);
+        ResultListDbo savedResultListEntity = resultListJdbcRepository.save(resultListDbo);
         return ResultListDbo.asResultLists(List.of(savedResultListEntity)).stream().findFirst().orElse(null);
     }
 
@@ -51,11 +51,16 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     @Override
     @Transactional
     public ResultList findOrCreate(ResultList resultList) {
-        return resultListJdbcRepository.findByCreatorAndCreateTimeAndCreateTimeZone(resultList.getCreator(),
+        Optional<ResultListId> resultListId =
+            resultListJdbcRepository.findResultListIdByDomainKey(resultList.getEventId().value(),
+                resultList.getCreator(),
                 resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null,
-                resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null)
-            .map(x -> ResultListDbo.asResultLists(List.of(x)).stream().findFirst().orElseThrow())
-            .orElseGet(() -> save(resultList));
+                resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
+        if (resultListId.isPresent()) {
+            return findById(resultListId.get()).orElseThrow();
+        }
+        ResultList savedResultList = save(resultList);
+        return savedResultList;
     }
 
     @Override

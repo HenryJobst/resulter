@@ -40,6 +40,7 @@ public class ResultListDbo {
 
     @Column("create_time")
     private OffsetDateTime createTime;
+
     @Column("create_time_zone")
     private String createTimeZone;
 
@@ -77,7 +78,7 @@ public class ResultListDbo {
                 null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
 
         }
-        if (resultList.getClassResults() != null) {
+        if (resultList.getClassResults() != null && !resultList.getClassResults().isEmpty()) {
             resultListDbo.setClassResults(resultList.getClassResults()
                 .stream()
                 .map(ClassResultDbo::from)

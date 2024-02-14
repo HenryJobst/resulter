@@ -31,18 +31,18 @@ public record ClassResult(@NonNull ClassResultName classResultName, @NonNull Cla
     }
 
     public void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
-        Set<RaceNumber> races = this.personResults()
+        Set<RaceId> races = this.personResults()
             .value()
             .stream()
             .flatMap(it -> it.personRaceResults().value().stream())
-            .map(PersonRaceResult::getRaceNumber)
+            .map(PersonRaceResult::getRaceId)
             .collect(Collectors.toSet());
-        races.forEach(raceNumber -> {
+        races.forEach(raceId -> {
             List<PersonResult> personResults =
                 this.personResults().value().stream().filter(cupTypeCalculationStrategy::valid).sorted().toList();
             List<PersonRaceResult> personRaceResults = personResults.stream()
                 .flatMap(it -> it.personRaceResults().value().stream())
-                .filter(x -> x.getRaceNumber() == raceNumber)
+                .filter(x -> x.getRaceId() == raceId)
                 .filter(y -> y.getState().equals(ResultStatus.OK))
                 .sorted()
                 .toList();

@@ -21,5 +21,5 @@ public interface SplitTimeListJdbcRepository
         AggregateReference<ResultListDbo, Long> resultListId,
         String classResultShortName,
         AggregateReference<PersonDbo, Long> personId,
-        Long raceNumber);
+        AggregateReference<RaceDbo, Long> raceId);
 }

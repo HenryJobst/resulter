@@ -68,10 +68,8 @@ public class PersonResultDbo {
                     .stream()
                     .map(x -> PersonRaceResult.of(it.classResultShortName,
                         it.person.getId(),
-                        x.getRaceNumber(),
-                        x.getStartTime() != null ?
-                        x.getStartTime().atZoneSameInstant(ZoneId.of(x.getStartTimeZone())) :
-                        null,
+                        x.getRace().getId(),
+                        x.getStartTime().atZoneSameInstant(ZoneId.of(x.getStartTimeZone())),
                         x.getFinishTime() != null ?
                         x.getFinishTime().atZoneSameInstant(ZoneId.of(x.getFinishTimeZone())) :
                         null,

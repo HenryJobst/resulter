@@ -17,4 +17,7 @@ public interface CourseJdbcRepository
     Collection<CourseDbo> findAll();
 
     Optional<CourseDbo> findByEventIdAndName(AggregateReference<EventDbo, Long> eventId, String name);
+
+    Collection<CourseDbo> findAllByEventIdAndNameIn(AggregateReference<EventDbo, Long> eventId,
+                                                    Collection<String> names);
 }

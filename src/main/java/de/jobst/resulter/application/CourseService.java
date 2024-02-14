@@ -18,10 +18,6 @@ public class CourseService {
         this.courseRepository = courseRepository;
     }
 
-    public Course findOrCreate(Course course) {
-        return courseRepository.findOrCreate(course);
-    }
-
     Optional<Course> findById(CourseId courseId) {
         return courseRepository.findById(courseId);
     }

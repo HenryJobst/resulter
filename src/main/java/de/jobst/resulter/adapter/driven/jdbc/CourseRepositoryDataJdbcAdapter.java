@@ -11,6 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -57,6 +61,19 @@ public class CourseRepositoryDataJdbcAdapter implements CourseRepository {
     @Override
     @Transactional
     public Collection<Course> findOrCreate(Collection<Course> courses) {
-        return courses.stream().map(this::findOrCreate).toList();
+        var eventIds = courses.stream().map(Course::getEventId).collect(Collectors.toSet());
+        assert eventIds.size() == 1;
+        Collection<CourseDbo> existingCourses =
+            courseJdbcRepository.findAllByEventIdAndNameIn(AggregateReference.to(eventIds.stream()
+                .findFirst()
+                .orElseThrow()
+                .value()), courses.stream().map(x -> x.getCourseName().value()).sorted().toList());
+        Set<String> existingCourseNames = existingCourses.stream().map(CourseDbo::getName).collect(Collectors.toSet());
+        Iterable<CourseDbo> savedEntities = courseJdbcRepository.saveAll(courses.stream()
+            .filter(x -> !existingCourseNames.contains(x.getCourseName().value()))
+            .map(y -> CourseDbo.from(y, DboResolvers.empty()))
+            .toList());
+        return Stream.concat(StreamSupport.stream(savedEntities.spliterator(), false).map(CourseDbo::asCourse),
+            existingCourses.stream().map(CourseDbo::asCourse)).toList();
     }
 }

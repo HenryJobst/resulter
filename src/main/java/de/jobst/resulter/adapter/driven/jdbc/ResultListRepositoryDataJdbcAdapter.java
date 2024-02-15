@@ -53,6 +53,7 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     public ResultList findOrCreate(ResultList resultList) {
         Optional<ResultListId> resultListId =
             resultListJdbcRepository.findResultListIdByDomainKey(resultList.getEventId().value(),
+                resultList.getRaceId().value(),
                 resultList.getCreator(),
                 resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null,
                 resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);

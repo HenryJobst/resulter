@@ -39,9 +39,6 @@ public class SplitTimeListDbo {
     @Column("class_result_short_name")
     private String classResultShortName;
 
-    @Column("race_id")
-    private AggregateReference<RaceDbo, Long> raceId;
-
     @MappedCollection(idColumn = "split_time_list_id")
     private Set<SplitTimeDbo> splitTimes;
 
@@ -49,14 +46,12 @@ public class SplitTimeListDbo {
                             AggregateReference<ResultListDbo, Long> resultListId,
                             String classResultShortName,
                             AggregateReference<PersonDbo, Long> personId,
-                            AggregateReference<RaceDbo, Long> raceId,
                             Set<SplitTimeDbo> splitTimes) {
         this.id = null;
         this.eventId = eventId;
         this.resultListId = resultListId;
         this.personId = personId;
         this.classResultShortName = classResultShortName;
-        this.raceId = raceId;
         this.splitTimes = splitTimes;
     }
 
@@ -68,7 +63,6 @@ public class SplitTimeListDbo {
             splitTimeListDbo.setResultListId(AggregateReference.to(splitTimeList.getResultListId().value()));
             splitTimeListDbo.setClassResultShortName(splitTimeList.getClassResultShortName().value());
             splitTimeListDbo.setPersonId(AggregateReference.to(splitTimeList.getPersonId().value()));
-            splitTimeListDbo.setRaceId(AggregateReference.to(splitTimeList.getRaceId().value()));
             splitTimeListDbo.setSplitTimes(splitTimeList.getSplitTimes()
                 .stream()
                 .map(SplitTimeDbo::from)
@@ -78,7 +72,6 @@ public class SplitTimeListDbo {
                 AggregateReference.to(splitTimeList.getResultListId().value()),
                 splitTimeList.getClassResultShortName().value(),
                 AggregateReference.to(splitTimeList.getPersonId().value()),
-                AggregateReference.to(splitTimeList.getRaceId().value()),
                 splitTimeList.getSplitTimes().stream().map(SplitTimeDbo::from).collect(Collectors.toSet()));
         }
         return splitTimeListDbo;
@@ -91,7 +84,6 @@ public class SplitTimeListDbo {
                 ResultListId.of(it.resultListId.getId()),
                 ClassResultShortName.of(it.classResultShortName),
                 PersonId.of(it.personId.getId()),
-                RaceId.of(it.raceId.getId()),
                 it.getSplitTimes()
                     .stream()
                     .map(x -> SplitTime.of(x.getControlCode(), x.getPunchTime(), SplitTimeListId.of(it.getId())))

@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.RaceId;
 import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
 import lombok.AccessLevel;
@@ -35,6 +36,9 @@ public class ResultListDbo {
     @Column("event_id")
     private AggregateReference<EventDbo, Long> eventId;
 
+    @Column("race_id")
+    private AggregateReference<RaceDbo, Long> raceId;
+
     @Column("creator")
     private String creator;
 
@@ -51,11 +55,13 @@ public class ResultListDbo {
     private Set<ClassResultDbo> classResults = new HashSet<>();
 
     public ResultListDbo(AggregateReference<EventDbo, Long> eventId,
+                         AggregateReference<RaceDbo, Long> raceId,
                          String creator,
                          OffsetDateTime createTime,
                          String createTimeZone) {
         this.id = null;
         this.eventId = eventId;
+        this.raceId = raceId;
         this.creator = creator;
         this.createTime = createTime;
         this.createTimeZone = createTimeZone;
@@ -66,6 +72,7 @@ public class ResultListDbo {
         if (resultList.getId().isPersistent()) {
             resultListDbo = dboResolvers.getResultListDboResolver().findDboById(resultList.getId());
             resultListDbo.setEventId(AggregateReference.to(resultList.getEventId().value()));
+            resultListDbo.setRaceId(AggregateReference.to(resultList.getRaceId().value()));
             resultListDbo.setCreator(resultList.getCreator());
             resultListDbo.setCreateTime(
                 null != resultList.getCreateTime() ? resultList.getCreateTime().toOffsetDateTime() : null);
@@ -73,6 +80,7 @@ public class ResultListDbo {
                 null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
         } else {
             resultListDbo = new ResultListDbo(AggregateReference.to(resultList.getEventId().value()),
+                AggregateReference.to(resultList.getRaceId().value()),
                 resultList.getCreator(),
                 null != resultList.getCreateTime() ? resultList.getCreateTime().toOffsetDateTime() : null,
                 null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
@@ -91,6 +99,7 @@ public class ResultListDbo {
         return resultListDbos.stream()
             .map(it -> new ResultList(ResultListId.of(it.id),
                 EventId.of(it.eventId.getId()),
+                RaceId.of(it.raceId.getId()),
                 it.creator,
                 it.createTime != null ? it.createTime.atZoneSameInstant(ZoneId.of(it.createTimeZone)) : null,
                 it.status,

@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, OffsetDateTime createTime, String createTimeZone,
-                                      String resultListStatus, String classListShortName, String classListName,
-                                      String classGender, Long courseId, Long personId, Long organisationId,
-                                      OffsetDateTime startTime, String startTimeZone, Double punchTime, Long raceNumber,
-                                      Integer position, String state) {
+public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, Long raceId, OffsetDateTime createTime,
+                                      String createTimeZone, String resultListStatus, String classListShortName,
+                                      String classListName, String classGender, Long courseId, Long personId,
+                                      Long organisationId, OffsetDateTime startTime, String startTimeZone,
+                                      Double punchTime, Integer position, String state) {
 
     static @NonNull List<ResultList> asResultLists(Collection<PersonRaceResultJdbcDto> personRaceResultJdbcDtos) {
         // Schritt 1: Gruppierung nach resultListId
@@ -44,7 +44,6 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, OffsetDat
                             List<PersonRaceResult> raceResults = personRaceResultDtos.stream()
                                 .map(dto -> PersonRaceResult.of(dto.classListShortName(),
                                     dto.personId(),
-                                    dto.raceNumber(),
                                     dto.startTime() == null ?
                                     null :
                                     dto.startTime().atZoneSameInstant(ZoneId.of(dto.startTimeZone())),
@@ -70,8 +69,9 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, OffsetDat
                     CourseId.of(sampleClassListDto.courseId()));
             }).collect(Collectors.toList());
 
-            return new ResultList(new ResultListId(resultListId1),
-                new EventId(sampleDto.eventId()),
+            return new ResultList(ResultListId.of(resultListId1),
+                EventId.of(sampleDto.eventId()),
+                RaceId.of(sampleDto.raceId()),
                 "",
                 sampleDto.createTime() == null ?
                 null :

@@ -1,6 +1,6 @@
 databaseChangeLog :
     -   changeSet :
-            id : 000006_result_list
+            id : 000007_result_list
             author : Henry Jobst
             preConditions :
                 -   onFail : MARK_RAN
@@ -40,11 +40,25 @@ databaseChangeLog :
                                     constraints :
                                         nullable : false
                                         foreignKeyName : fk_result_list_event
+                            -   column :
+                                    name : race_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_result_list_race
                 -   addForeignKeyConstraint :
                         baseTableName : result_list
                         baseColumnNames : event_id
                         constraintName : fk_result_list_event
                         referencedTableName : event
+                        referencedColumnNames : id
+                        onDelete : cascade
+                        onUpdate : restrict
+                -   addForeignKeyConstraint :
+                        baseTableName : result_list
+                        baseColumnNames : race_id
+                        constraintName : fk_result_list_race
+                        referencedTableName : race
                         referencedColumnNames : id
                         onDelete : cascade
                         onUpdate : restrict

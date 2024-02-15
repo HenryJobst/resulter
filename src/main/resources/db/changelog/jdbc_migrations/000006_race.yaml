@@ -1,0 +1,56 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000006_race
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : race
+            comment : Tables race with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : race
+                        columns :
+                            -   column :
+                                    name : id
+                                    type : bigint
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : pk_race
+                            -   column :
+                                    name : name
+                                    type : varchar(255)
+                            -   column :
+                                    name : number
+                                    type : tinyint
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : event_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_race_event
+                -   addForeignKeyConstraint :
+                        baseTableName : race
+                        baseColumnNames : event_id
+                        constraintName : fk_race_event
+                        referencedTableName : event
+                        referencedColumnNames : id
+                        onDelete : cascade
+                        onUpdate : restrict
+                -   createIndex :
+                        tableName : race
+                        columns :
+                            -   column :
+                                    name : id
+                        indexName : idx_race_id
+                -   createIndex :
+                        tableName : race
+                        columns :
+                            -   column :
+                                    name : number
+                        indexName : idx_race_number

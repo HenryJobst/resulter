@@ -31,11 +31,6 @@ databaseChangeLog :
                                     name : position
                                     type : bigint
                             -   column :
-                                    name : race_number
-                                    type : tinyint
-                                    constraints :
-                                        nullable : false
-                            -   column :
                                     name : state
                                     type : varchar(20)
                             -   column :
@@ -86,7 +81,7 @@ databaseChangeLog :
                         onUpdate : no action
                 -   addUniqueConstraint :
                         tableName : person_race_result
-                        columnNames : result_list_id, class_result_short_name, person_id, race_number
+                        columnNames : result_list_id, class_result_short_name, person_id
                         constraintName : uk_person_race_result_result_list_class_result_person_race
                         validate : true
                 -   createIndex :

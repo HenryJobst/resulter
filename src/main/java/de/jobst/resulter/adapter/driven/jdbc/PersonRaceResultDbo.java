@@ -30,9 +30,6 @@ public class PersonRaceResultDbo {
     @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
     @NonNull
-    @Column("race_id")
-    private AggregateReference<RaceDbo, Long> race;
-    @NonNull
     @Column("start_time")
     private OffsetDateTime startTime;
     @Column("start_time_zone")
@@ -58,7 +55,6 @@ public class PersonRaceResultDbo {
         personRaceResultDbo.setClassResultShortName(Objects.requireNonNull(Objects.requireNonNull(personRaceResult.getClassResultShortName())
             .value()));
         personRaceResultDbo.setPerson(AggregateReference.to(personRaceResult.getPersonId().value()));
-        personRaceResultDbo.setRace(AggregateReference.to(personRaceResult.getRaceId().value()));
 
         if (null != personRaceResult.getStartTime().value()) {
             personRaceResultDbo.setStartTime(personRaceResult.getStartTime().value().toOffsetDateTime());
@@ -98,7 +94,6 @@ public class PersonRaceResultDbo {
         return personRaceResultDbos.stream()
             .map(it -> PersonRaceResult.of(it.classResultShortName,
                 it.person.getId(),
-                it.race.getId(),
                 it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)),
                 it.finishTime != null ? it.finishTime.atZoneSameInstant(ZoneId.of(it.finishTimeZone)) : null,
                 it.getPunchTime(),

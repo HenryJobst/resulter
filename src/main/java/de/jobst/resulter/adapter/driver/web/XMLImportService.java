@@ -50,7 +50,6 @@ public class XMLImportService {
 
     private static List<Pair<PersonRaceResult, SplitTimeList>> getPersonRaceResults(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult,
                                                                                     EventId eventId,
-                                                                                    RaceId raceId,
                                                                                     ResultListId resultListId,
                                                                                     ClassResultShortName classResultShortName,
                                                                                     PersonId personId) {
@@ -58,7 +57,6 @@ public class XMLImportService {
             .stream()
             .map(personRaceResult -> Pair.of(PersonRaceResult.of(classResultShortName.value(),
                     personId.value(),
-                    personRaceResult.getRaceNumber().longValue(),
                     ObjectUtils.isNotEmpty(personRaceResult.getStartTime()) ?
                     personRaceResult.getStartTime()
                         .toInstant()
@@ -77,7 +75,6 @@ public class XMLImportService {
                     resultListId,
                     classResultShortName,
                     personId,
-                    raceId,
                     personRaceResult.getSplitTimes()
                         .stream()
                         .map(x -> new SplitTime(ControlCode.of(x.getControlCode()), PunchTime.of(x.getTime()), null))
@@ -178,8 +175,7 @@ public class XMLImportService {
                     z.setSplitTimeListId(splitTimeListByDomainKey.get(new SplitTimeList.DomainKey(event.getId(),
                         finalDomainResultList.getId(),
                         x.classResultShortName(),
-                        y.personId(),
-                        z.getRaceId())).getId());
+                        y.personId())).getId());
                 }
             }
         }
@@ -346,7 +342,6 @@ public class XMLImportService {
             Pair<List<PersonRaceResult>, List<SplitTimeList>> personRaceResults =
                 convertListPairToListsPair(getPersonRaceResults(personResult,
                     eventId,
-                    raceId,
                     resultListId,
                     classResultShortName,
                     personId));

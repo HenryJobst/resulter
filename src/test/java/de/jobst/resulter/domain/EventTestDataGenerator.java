@@ -33,7 +33,6 @@ public class EventTestDataGenerator {
         ResultStatus resultStatus = ResultStatus.OK;
         personRaceResults.add(PersonRaceResult.of(classShortName,
             1L,
-            raceNumber,
             startTime,
             finishTime,
             punchTime,
@@ -63,6 +62,7 @@ public class EventTestDataGenerator {
 
         ResultList resultList = new ResultList(ResultListId.empty(),
             EventId.empty(),
+            RaceId.empty(),
             "test",
             ZonedDateTime.now(),
             "completed",

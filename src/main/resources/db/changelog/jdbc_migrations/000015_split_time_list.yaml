@@ -44,11 +44,6 @@ databaseChangeLog :
                                     constraints :
                                         nullable : false
                                         foreignKeyName : fk_split_time_list_person
-                            -   column :
-                                    name : race_number
-                                    type : tinyint
-                                    constraints :
-                                        nullable : false
                 -   addForeignKeyConstraint :
                         baseTableName : split_time_list
                         baseColumnNames : event_id
@@ -67,7 +62,7 @@ databaseChangeLog :
                         onUpdate : restrict
                 -   addUniqueConstraint :
                         tableName : split_time_list
-                        columnNames : result_list_id, class_result_short_name, person_id, race_number
+                        columnNames : result_list_id, class_result_short_name, person_id
                         constraintName : uk_split_time_list_result_list_class_result_person_race
                         validate : true
                 -   createIndex :

@@ -47,7 +47,6 @@ public class InMemorySplitTimeListRepository implements SplitTimeListRepository 
             .filter(it -> Objects.equals(it.getResultListId(), splitTimeList.getResultListId()))
             .filter(it -> Objects.equals(it.getClassResultShortName(), splitTimeList.getClassResultShortName()))
             .filter(it -> Objects.equals(it.getPersonId(), splitTimeList.getPersonId()))
-            .filter(it -> Objects.equals(it.getRaceId(), splitTimeList.getRaceId()))
             .findAny()
             .orElseGet(() -> save(splitTimeList));
     }

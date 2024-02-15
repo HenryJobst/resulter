@@ -51,12 +51,12 @@
     - RaceNumber (VO)
 
 - ResultList (RE)
-    - ResultListId (VO)
+    - ResultListId (VO) *
     - EventId (VO) *
+    - RaceId (VO) *
     - Creator (VO)
     - CreateTime (VO)
     - Status (VO)
-    - RaceId (VO) *
     - List of ClassResult (E) +
         - CourseId (VO) *
         - ClassResultName (VO)
@@ -66,7 +66,6 @@
             - PersonId (VO) *
             - OrganisationId (VO) *
             - List of PersonRaceResult (E) +
-                - RaceNumber (VO)
                 - startTime (VO)
                 - finishTime (VO)
                 - PunchTime (VO)
@@ -81,7 +80,6 @@
     - ResultListId (VO) *
     - PersonId (VO) *
     - ClassResultShortName (VO)
-    - RaceId (VO)
     - List of SplitTime (E) +
         - ControlCode (VO)
         - PunchTime (VO)
@@ -92,7 +90,6 @@
     - ResultListId (VO) *
     - ClassResultShortName (VO)
     - PersonId (VO) *
-    - RaceId (VO)
     - Map of CupScore by CupType (E) +
         - CupType (VO)
         - Score (VO)

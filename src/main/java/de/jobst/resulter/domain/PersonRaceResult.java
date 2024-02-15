@@ -17,8 +17,6 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     @NonNull
     private PersonId personId;
     @NonNull
-    private RaceId raceId;
-    @NonNull
     DateTime startTime;
     @NonNull
     DateTime finishTime;
@@ -34,7 +32,6 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
 
     public static PersonRaceResult of(String classResultShortName,
                                       Long personId,
-                                      Long raceId,
                                       ZonedDateTime startTime,
                                       ZonedDateTime finishTime,
                                       Double punchTime,
@@ -42,7 +39,6 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                                       @NonNull ResultStatus resultState) {
         return PersonRaceResult.of(classResultShortName,
             personId,
-            raceId,
             startTime,
             finishTime,
             punchTime,
@@ -53,7 +49,6 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
 
     public static PersonRaceResult of(String classResultShortName,
                                       Long personId,
-                                      Long raceId,
                                       ZonedDateTime startTime,
                                       ZonedDateTime finishTime,
                                       Double punchTime,
@@ -62,7 +57,6 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                                       @Nullable SplitTimeListId splitTimeListId) {
         return new PersonRaceResult(ClassResultShortName.of(classResultShortName),
             PersonId.of(personId),
-            RaceId.of(raceId),
             DateTime.of(startTime),
             DateTime.of(finishTime),
             PunchTime.of(punchTime),
@@ -75,9 +69,6 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     @Override
     public int compareTo(@NonNull PersonRaceResult o) {
         int val = this.position.compareTo(o.position);
-        if (val == 0) {
-            val = this.raceId.compareTo(o.raceId);
-        }
         if (val == 0) {
             val = this.personId.compareTo(o.personId);
         }

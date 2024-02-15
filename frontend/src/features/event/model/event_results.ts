@@ -1,5 +1,5 @@
 import type { ResultList } from '@/features/event/model/result_list'
 
-export interface EventResult {
+export interface EventResults {
   resultLists: ResultList[]
 }

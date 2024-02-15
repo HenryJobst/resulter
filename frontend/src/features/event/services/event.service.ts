@@ -2,7 +2,7 @@ import type { SportEvent } from '@/features/event/model/sportEvent'
 import axiosInstance from '@/features/keycloak/services/api'
 import { handleApiError } from '@/utils/HandleError'
 import type { EventStatus } from '@/features/event/model/event_status'
-import type { EventResult } from '@/features/event/model/event_result'
+import type { EventResults } from '@/features/event/model/event_results'
 import { GenericService } from '@/features/generic/services/GenericService'
 import type { ResultList } from '@/features/event/model/result_list'
 
@@ -48,19 +48,23 @@ export class EventService extends GenericService<SportEvent> {
       })
   }
 
-  static async getResultsById(id: string, t: (key: string) => string): Promise<EventResult | null> {
+  static async getResultsById(
+    id: string,
+    t: (key: string) => string
+  ): Promise<EventResults | null> {
     return await axiosInstance
       .get(`${eventUrl}/${id}/results`)
       .then((response) => {
         if (response) {
-          return response.data.map((element: EventResult) => {
-            return element.resultLists.map((resultList: ResultList) => {
-              if (resultList.createTime) {
-                resultList.createTime = new Date(resultList.createTime)
-              }
-              return resultList
-            })
+          response.data.resultLists = response.data.resultLists.map((resultList: ResultList) => {
+            if (resultList.createTime && typeof resultList.createTime === 'string') {
+              // Entfernen des Zeitzone-Identifikators, da dieser nicht von Date.parse() unterstützt wird
+              const dateStringWithoutTimezone = resultList.createTime.split('[')[0]
+              resultList.createTime = new Date(dateStringWithoutTimezone)
+            }
+            return resultList
           })
+          return response.data
         }
         return null
       })

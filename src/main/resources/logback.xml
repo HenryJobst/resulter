@@ -7,13 +7,13 @@
         </encoder>
     </appender>
 
-    <logger name="org.hibernate.SQL" level="debug" additivity="false">
+    <logger name="org.hibernate.SQL" level="warn" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.hibernate.orm.jdbc.bind" level="trace" additivity="false">
+    <logger name="org.hibernate.orm.jdbc.bind" level="warn" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.hibernate.stat" level="debug" additivity="false">
+    <logger name="org.hibernate.stat" level="warn" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
     <logger name="org.hibernate.engine" level="info" additivity="false">
@@ -25,7 +25,8 @@
     <logger name="org.hibernate.cache" level="warn" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator" level="ERROR"/>
+    <logger name="org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator"
+            level="ERROR"/>
 
     <root level="warn">
         <appender-ref ref="STDOUT"/>

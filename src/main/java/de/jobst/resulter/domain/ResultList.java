@@ -7,9 +7,10 @@ import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Objects;
 
 @Getter
-public class ResultList {
+public class ResultList implements Comparable<ResultList> {
 
     @NonNull
     @Setter
@@ -48,5 +49,14 @@ public class ResultList {
         this.createTime = createTime;
         this.status = status;
         this.classResults = classResults;
+    }
+
+    @Override
+    public int compareTo(@NonNull ResultList o) {
+        int var = Objects.compare(this.createTime, o.createTime, ZonedDateTime::compareTo);
+        if (var == 0) {
+            var = this.raceId.compareTo(o.raceId);
+        }
+        return var;
     }
 }

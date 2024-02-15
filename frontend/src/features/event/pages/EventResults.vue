@@ -59,13 +59,13 @@ const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] 
     for (let i = 0; i < aList.length; i++) {
       treeNodes.push({
         key: aList[i].id.toString(),
-        label: aList[i].status + ' ' + aList[i].createTime,
+        label: aList[i].raceId + ' ' + aList[i].status + ' ' + aList[i].createTime,
         children: [
           {
-            key: `${aList[i].status}-table`,
+            key: `${aList[i].id.toString()}-table`,
             data: createClassResultTreeNodes(aList[i].classResults),
-            type: 'dataTable',
-            leaf: true
+            type: 'tree',
+            leaf: false
           }
         ]
       })
@@ -238,6 +238,45 @@ const calculate = () => {
         <template #default="slotProps">
           <b>{{ slotProps?.node?.label }}</b>
         </template>
+        <template #tree="slotProps">
+          <Tree :value="slotProps?.node?.data">
+            <template #default="slotProps">
+              <b>{{ slotProps?.node?.label }}</b>
+            </template>
+            <template #dataTable="slotProps">
+              <DataTable :value="slotProps?.node?.data">
+                <Column field="position" :header="t('labels.position')" />
+                <Column :header="t('labels.name')">
+                  <template #body="slotProps">
+                    {{ personNameColumn(slotProps) }}
+                  </template>
+                </Column>
+                <Column :header="t('labels.birth_year')">
+                  <template #body="slotProps">
+                    {{ birthYearColumn(slotProps) }}
+                  </template>
+                </Column>
+                <Column :header="t('labels.organisation')">
+                  <template #body="slotProps">
+                    {{ organisationNameColumn(slotProps) }}
+                  </template>
+                </Column>
+                <Column :header="t('labels.time')">
+                  <template #body="slotProps">
+                    {{ resultColumn(slotProps) }}
+                  </template>
+                </Column>
+                <!--Column
+                                                                                                                                                                                                                                                                                                                                                                                                                                        v-for="score in cupScores"
+                                                                                                                                                                                                                                                                                                                                                                                                                                        :key="score.type.name"
+                                                                                                                                                                                                                                                                                                                                                                                                                                        :header="score.type.name"
+                                                                                                                                                                                                                                                                                                                                                                                                                                        :field="score.score"
+                                                                                                                                                                                                                                                                                                                                                                                                                                      >
+                                                                                                                                                                                                                                                                                                                                                                                                                                      </Column-->
+              </DataTable>
+            </template>
+          </Tree>
+        </template>
         <template #dataTable="slotProps">
           <DataTable :value="slotProps?.node?.data">
             <Column field="position" :header="t('labels.position')" />
@@ -262,12 +301,12 @@ const calculate = () => {
               </template>
             </Column>
             <!--Column
-                                                                                                                                                                                                                                                                                                                v-for="score in cupScores"
-                                                                                                                                                                                                                                                                                                                :key="score.type.name"
-                                                                                                                                                                                                                                                                                                                :header="score.type.name"
-                                                                                                                                                                                                                                                                                                                :field="score.score"
-                                                                                                                                                                                                                                                                                                              >
-                                                                                                                                                                                                                                                                                                              </Column-->
+                                                                                                                                                                                                                                                                                                                                                                                                                            v-for="score in cupScores"
+                                                                                                                                                                                                                                                                                                                                                                                                                            :key="score.type.name"
+                                                                                                                                                                                                                                                                                                                                                                                                                            :header="score.type.name"
+                                                                                                                                                                                                                                                                                                                                                                                                                            :field="score.score"
+                                                                                                                                                                                                                                                                                                                                                                                                                          >
+                                                                                                                                                                                                                                                                                                                                                                                                                          </Column-->
           </DataTable>
         </template>
       </Tree>

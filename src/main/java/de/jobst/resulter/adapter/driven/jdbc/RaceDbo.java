@@ -31,10 +31,10 @@ public class RaceDbo {
     private String name;
 
     @Column("number")
-    private Long number;
+    private Byte number;
 
 
-    public RaceDbo(Long eventId, String name, Long number) {
+    public RaceDbo(Long eventId, String name, Byte number) {
         this.id = null;
         this.eventId = AggregateReference.to(eventId);
         this.name = name;

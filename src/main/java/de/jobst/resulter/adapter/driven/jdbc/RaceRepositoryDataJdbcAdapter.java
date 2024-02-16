@@ -4,6 +4,7 @@ import de.jobst.resulter.application.port.RaceRepository;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +45,8 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
     @Override
     public Race findOrCreate(Race race) {
         Optional<RaceDbo> raceEntity =
-            raceJdbcRepository.findByEventIdAndNumber(race.getEventId().value(), race.getRaceNumber().value());
+            raceJdbcRepository.findByEventIdAndNumber(AggregateReference.to(race.getEventId().value()),
+                race.getRaceNumber().value());
         if (raceEntity.isEmpty()) {
             return save(race);
         }

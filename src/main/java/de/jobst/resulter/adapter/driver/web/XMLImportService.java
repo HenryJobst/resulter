@@ -123,7 +123,7 @@ public class XMLImportService {
         var raceOfResult = resultList.getEvent().getRaces().stream().findAny().orElse(null);
         var race = Race.of(event.getId(),
             raceOfResult != null ? raceOfResult.getName() : null,
-            raceOfResult != null ? raceOfResult.getRaceNumber().longValue() : RaceNumber.empty().value());
+            raceOfResult != null ? raceOfResult.getRaceNumber().byteValue() : RaceNumber.empty().value());
         return raceService.findOrCreate(race);
     }
 

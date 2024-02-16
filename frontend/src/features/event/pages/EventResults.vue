@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query'
-import { EventService } from '@/features/event/services/event.service'
+import { eventService, EventService } from '@/features/event/services/event.service'
 import { useI18n } from 'vue-i18n'
 import type { ClassResult } from '@/features/event/model/class_result'
 import type { TreeNode } from 'primevue/treenode'
@@ -11,16 +11,32 @@ import Tree from 'primevue/tree'
 import { courseService } from '@/features/course/services/course.service'
 import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
 import { raceService } from '@/features/race/services/race.service'
+import Button from 'primevue/button'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{ id: string; locale?: string }>()
 
 const { t } = useI18n()
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const eventResultsQuery = useQuery({
   queryKey: ['eventResults', props.id],
   queryFn: () => EventService.getResultsById(props.id, t)
+})
+
+const resultList0 = computed(() => {
+  return eventResultsQuery.data.value?.resultLists[0]
+})
+
+const eventQuery = useQuery({
+  queryKey: ['events'],
+  queryFn: () => eventService.getAll(t)
+})
+
+const event = computed(() => {
+  return eventQuery.data.value?.find((e) => e.id === resultList0.value?.eventId)
 })
 
 const courseQuery = useQuery({
@@ -132,7 +148,7 @@ const courseLengthColumn = (slotProps: any): string => {
 
 const courseClimbColumn = (slotProps: any): string => {
   const course = findCourse(slotProps)
-  if (course) {
+  if (course && course.climb != null) {
     return course.climb.toFixed(0)
   }
   return ''
@@ -150,12 +166,20 @@ const calculate = () => {
   EventService.calculate(props.id, t)
 }
 
-const resultList0 = computed(() => {
-  return eventResultsQuery.data.value?.resultLists[0]
-})
+const navigateToList = () => {
+  router.replace({ name: `event-list` })
+}
 </script>
 
 <template>
+  <Button
+    class="ml-2"
+    severity="secondary"
+    type="reset"
+    :label="t('labels.back')"
+    outlined
+    @click="navigateToList"
+  />
   <!--Button v-if="authStore.isAdmin" :label="t('labels.calculate')" @click="calculate()" /-->
   <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
   <span v-else-if="eventResultsQuery.status.value === 'error'">
@@ -163,9 +187,7 @@ const resultList0 = computed(() => {
   </span>
   <div v-else-if="eventResultsQuery.data" class="card flex justify-content-start">
     <div class="flex flex-col flex-grow">
-      <div v-if="eventResultsQuery.data.value?.resultLists?.length === 1" class="flex flex-row">
-        <!--ResultListHeader :resultList="resultList0" :race="getRace(resultList0?.raceId)" /-->
-      </div>
+      <h1 class="mt-3 font-extrabold">{{ event?.name }} - {{ t('labels.results', 2) }}</h1>
       <Tree :value="treeNodes" class="w-full">
         <template #default="slotProps">
           <b>{{ slotProps?.node?.label }}</b>

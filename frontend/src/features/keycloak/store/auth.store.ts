@@ -13,7 +13,7 @@ export const useAuthStore = defineStore(
     const isAdmin = computed(() => user.value.roles?.includes('admin'))
 
     function takeCredentials(keycloak: any) {
-      authenticated.value = keycloak.authenticated
+      authenticated.value = keycloak != null && keycloak.authenticated
 
       if (authenticated.value) {
         user.value.subject = keycloak.subject

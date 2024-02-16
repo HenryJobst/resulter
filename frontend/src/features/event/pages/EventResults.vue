@@ -8,9 +8,8 @@ import { computed } from 'vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { ResultList } from '@/features/event/model/result_list'
 import Tree from 'primevue/tree'
-import Button from 'primevue/button'
 import { courseService } from '@/features/course/services/course.service'
-import EventResultTable from '@/features/event/pages/EventResultTable.vue'
+import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
 import { raceService } from '@/features/race/services/race.service'
 
 const props = defineProps<{ id: string; locale?: string }>()
@@ -35,41 +34,37 @@ const raceQuery = useQuery({
 })
 
 function getResultListLabel(resultList: ResultList) {
-  return (
-    raceQuery.data.value?.find((r) => r.id === resultList.raceId)?.name +
-    ' ' +
-    resultList.status +
-    ' ' +
-    resultList.createTime
-  )
+  const name = raceQuery.data.value?.find((r) => r.id === resultList.raceId)?.name
+  return name
+    ? name
+    : t('labels.created') + ' ' + resultList.createTime.toLocaleString() + ' ' + resultList.status
+}
+
+function getRace(raceId: number | undefined) {
+  return raceQuery.data.value?.find((r) => r.id === raceId)
 }
 
 const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] => {
   if (!aList) {
     return []
   }
-  if (aList.length >= 2) {
-    const treeNodes: TreeNode[] = []
-    for (let i = 0; i < aList.length; i++) {
-      const resultList = aList[i]
-      treeNodes.push({
-        key: resultList.id.toString(),
-        label: getResultListLabel(resultList),
-        children: [
-          {
-            key: `${resultList.id.toString()}-table`,
-            data: createClassResultTreeNodes(resultList.classResults),
-            type: 'tree',
-            leaf: false
-          }
-        ]
-      })
-    }
-    return treeNodes
-  } else if (aList.length === 1) {
-    return createClassResultTreeNodes(aList[0].classResults)
+  const treeNodes: TreeNode[] = []
+  for (let i = 0; i < aList.length; i++) {
+    const resultList = aList[i]
+    treeNodes.push({
+      key: resultList.id.toString(),
+      label: getResultListLabel(resultList),
+      children: [
+        {
+          key: `${resultList.id.toString()}-table`,
+          data: createClassResultTreeNodes(resultList.classResults),
+          type: 'tree',
+          leaf: false
+        }
+      ]
+    })
   }
-  return []
+  return treeNodes
 }
 
 function getClassResultLabel(a: ClassResult) {
@@ -154,10 +149,14 @@ const courseControlsColumn = (slotProps: any): string => {
 const calculate = () => {
   EventService.calculate(props.id, t)
 }
+
+const resultList0 = computed(() => {
+  return eventResultsQuery.data.value?.resultLists[0]
+})
 </script>
 
 <template>
-  <Button v-if="authStore.isAdmin" :label="t('labels.calculate')" @click="calculate()" />
+  <!--Button v-if="authStore.isAdmin" :label="t('labels.calculate')" @click="calculate()" /-->
   <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
   <span v-else-if="eventResultsQuery.status.value === 'error'">
     {{ t('messages.error', { message: eventResultsQuery.error.toLocaleString() }) }}
@@ -165,15 +164,7 @@ const calculate = () => {
   <div v-else-if="eventResultsQuery.data" class="card flex justify-content-start">
     <div class="flex flex-col flex-grow">
       <div v-if="eventResultsQuery.data.value?.resultLists?.length === 1" class="flex flex-row">
-        <div>
-          {{ t('labels.created') }}
-        </div>
-        <div class="ml-2">
-          {{ eventResultsQuery.data.value?.resultLists[0]?.createTime.toLocaleString() }}
-        </div>
-        <div class="ml-2">
-          {{ eventResultsQuery.data.value?.resultLists[0]?.status }}
-        </div>
+        <!--ResultListHeader :resultList="resultList0" :race="getRace(resultList0?.raceId)" /-->
       </div>
       <Tree :value="treeNodes" class="w-full">
         <template #default="slotProps">

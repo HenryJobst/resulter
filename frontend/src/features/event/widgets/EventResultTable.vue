@@ -16,8 +16,20 @@ function parseDurationMoment(durationString: string): moment.Duration {
   return moment.duration(durationString)
 }
 
+function parseDateMoment(dateString: string): moment.Moment {
+  return moment(dateString)
+}
+
 const formatTime = (time: string): string => {
   return moment.utc(parseDurationMoment(time).asMilliseconds()).format('H:mm:ss')
+}
+
+const formatBirthYear = (date: string | Date): string => {
+  if (typeof date === 'string') {
+    return parseDateMoment(date).format('YY')
+  } else {
+    return moment(date).format('YY')
+  }
 }
 
 const personQuery = useQuery({
@@ -44,7 +56,7 @@ const resultColumn = (slotProps: any): string => {
 const birthYearColumn = (slotProps: any): string => {
   const person = findPerson(slotProps)
   if (person) {
-    return person.birthDate ? person.birthDate.toLocaleString() : ''
+    return person.birthDate ? formatBirthYear(person.birthDate) : ''
   }
   return ''
 }
@@ -104,11 +116,11 @@ const organisationNameColumn = (slotProps: any): string => {
       </template>
     </Column>
     <!--Column
-                                                                                                                                                                                                                                                                                                                                                                                                                                        v-for="score in cupScores"
-                                                                                                                                                                                                                                                                                                                                                                                                                                        :key="score.type.name"
-                                                                                                                                                                                                                                                                                                                                                                                                                                        :header="score.type.name"
-                                                                                                                                                                                                                                                                                                                                                                                                                                        :field="score.score"
-                                                                                                                                                                                                                                                                                                                                                                                                                                      >
-                                                                                                                                                                                                                                                                                                                                                                                                                                      </Column-->
+                                                                                                                                                                                                                                                                                                                                                                                                                                            v-for="score in cupScores"
+                                                                                                                                                                                                                                                                                                                                                                                                                                            :key="score.type.name"
+                                                                                                                                                                                                                                                                                                                                                                                                                                            :header="score.type.name"
+                                                                                                                                                                                                                                                                                                                                                                                                                                            :field="score.score"
+                                                                                                                                                                                                                                                                                                                                                                                                                                          >
+                                                                                                                                                                                                                                                                                                                                                                                                                                          </Column-->
   </DataTable>
 </template>

@@ -10,7 +10,7 @@ import { organisationService } from '@/features/organisation/services/organisati
 import { eventService } from '@/features/event/services/event.service'
 
 const authStore = useAuthStore()
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
+const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const queryKey: string[] = ['events']
 const entityLabel: string = 'event'
@@ -50,7 +50,9 @@ const organisationQuery = useQuery({
       </router-link>
     </template>
     <template v-slot:extra_row_actions="{ value }">
-      <router-link :to="{ name: 'event-results', params: { id: value.id } }">
+      <router-link
+        :to="{ name: 'event-results', params: { id: value.id, locale: locale, event: value.name } }"
+      >
         <Button icon="pi pi-list" class="mr-2" :label="t('labels.results')" outlined />
       </router-link>
     </template>

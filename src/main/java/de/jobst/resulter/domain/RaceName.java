@@ -10,9 +10,25 @@ public record RaceName(String value) implements Comparable<RaceName> {
         return new RaceName(name);
     }
 
+    public static class NullSafeStringComparator {
+
+        public static int compare(String s1, String s2) {
+            if (s1 == null && s2 == null) {
+                return 0;
+            }
+            if (s1 == null) {
+                return 1;
+            }
+            if (s2 == null) {
+                return -1;
+            }
+            return s1.compareTo(s2);
+        }
+    }
+
     @Override
     public int compareTo(@NonNull RaceName o) {
-        return Objects.compare(value, o.value, String::compareTo);
+        return Objects.compare(this.value, o.value, NullSafeStringComparator::compare);
     }
 
     @Override

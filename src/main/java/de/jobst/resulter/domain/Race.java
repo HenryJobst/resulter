@@ -34,7 +34,7 @@ public class Race implements Comparable<Race> {
         this.raceNumber = raceNumber;
     }
 
-    public static Race of(EventId eventId, Long raceNumber) {
+    public static Race of(EventId eventId, Byte raceNumber) {
         return Race.of(RaceId.empty(), eventId, null, raceNumber);
     }
 
@@ -43,11 +43,11 @@ public class Race implements Comparable<Race> {
     }
 
 
-    public static Race of(EventId eventId, String raceName, Long raceNumber) {
+    public static Race of(EventId eventId, String raceName, Byte raceNumber) {
         return Race.of(eventId, RaceName.of(raceName), RaceNumber.of(raceNumber));
     }
 
-    public static Race of(RaceId raceId, EventId eventId, String raceName, Long raceNumber) {
+    public static Race of(RaceId raceId, EventId eventId, String raceName, Byte raceNumber) {
         return new Race(raceId, eventId, RaceName.of(raceName), RaceNumber.of(raceNumber));
     }
 

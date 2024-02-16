@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.lang.NonNull;
@@ -15,5 +16,5 @@ public interface RaceJdbcRepository extends CrudRepository<RaceDbo, Long>, Pagin
     Collection<RaceDbo> findAll();
 
     @NonNull
-    Optional<RaceDbo> findByEventIdAndNumber(Long eventId, Long number);
+    Optional<RaceDbo> findByEventIdAndNumber(AggregateReference<EventDbo, Long> eventId, Byte number);
 }

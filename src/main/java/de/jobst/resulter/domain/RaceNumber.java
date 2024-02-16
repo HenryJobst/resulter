@@ -1,8 +1,8 @@
 package de.jobst.resulter.domain;
 
-public record RaceNumber(Long value) implements Comparable<RaceNumber> {
+public record RaceNumber(Byte value) implements Comparable<RaceNumber> {
 
-    public static RaceNumber of(Long value) {
+    public static RaceNumber of(Byte value) {
         return new RaceNumber(value);
     }
 
@@ -11,6 +11,6 @@ public record RaceNumber(Long value) implements Comparable<RaceNumber> {
     }
 
     public static RaceNumber empty() {
-        return of(1L);
+        return of((byte) 1);
     }
 }

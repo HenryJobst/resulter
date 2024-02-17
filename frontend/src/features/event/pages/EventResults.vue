@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query'
 import { eventService, EventService } from '@/features/event/services/event.service'
-import { useI18n } from 'vue-i18n'
+import { type Locale, useI18n } from 'vue-i18n'
 import type { ClassResult } from '@/features/event/model/class_result'
 import type { TreeNode } from 'primevue/treenode'
-import { computed } from 'vue'
+import { computed, type Ref } from 'vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { ResultList } from '@/features/event/model/result_list'
 import Tree from 'primevue/tree'
@@ -13,10 +13,11 @@ import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
 import { raceService } from '@/features/race/services/race.service'
 import Button from 'primevue/button'
 import { useRouter } from 'vue-router'
+import moment from 'moment/min/moment-with-locales'
 
 const props = defineProps<{ id: string; locale?: string }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -49,11 +50,23 @@ const raceQuery = useQuery({
   queryFn: () => raceService.getAll(t)
 })
 
+const formatCreateTime = (date: Date | string, locale: Ref<Locale>) => {
+  return computed(() => {
+    moment.locale(locale.value)
+    return moment(date).format('L')
+  })
+}
+
 function getResultListLabel(resultList: ResultList) {
   const name = raceQuery.data.value?.find((r) => r.id === resultList.raceId)?.name
-  return name
-    ? name
-    : t('labels.created') + ' ' + resultList.createTime.toLocaleString() + ' ' + resultList.status
+  return (
+    (name ? name + ', ' : '') +
+    t('labels.created') +
+    ' ' +
+    formatCreateTime(resultList.createTime, locale).value +
+    ', ' +
+    t(`result_list_state.${resultList.status.toUpperCase()}`)
+  )
 }
 
 function getRace(raceId: number | undefined) {

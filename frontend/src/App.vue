@@ -7,6 +7,7 @@ import { SUPPORT_LOCALES } from './i18n'
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import Toast from 'primevue/toast'
 import { type PrimeVueLocaleOptions, usePrimeVue } from 'primevue/config'
+import moment from 'moment/min/moment-with-locales'
 
 const router = useRouter()
 const { t, locale } = useI18n()
@@ -65,6 +66,7 @@ watch(currentLocale, (val) => {
     params: { locale: val }
   })
   switchPrimeVueLocale(val)
+  moment.locale(val)
 })
 </script>
 

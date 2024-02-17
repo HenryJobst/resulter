@@ -51,7 +51,7 @@
         "child_organisation" : "Unter-Organisation | Unter-Organisationen",
         "calculate" : "Berechne Cup-Punkte",
         "state" : "Status",
-        "created" : "Erstellt",
+        "created" : "erstellt",
         "length_abbreviation" : "km",
         "climb_abbreviation" : "Hm",
         "control_abbreviation" : "P",
@@ -82,6 +82,9 @@
         "SANCTIONED" : "Genehmigt",
         "CANCELED" : "Abgesagt",
         "RESCHEDULED" : "Verschoben"
+    },
+    "result_list_state" : {
+        "COMPLETE" : "Komplett"
     },
     "organisation_type" : {
         "IOF" : "IOF",

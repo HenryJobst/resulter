@@ -51,7 +51,7 @@
         "child_organisation" : "Child organisation | Child organisations",
         "calculate" : "Calculate cups scores",
         "state" : "State",
-        "created" : "Created",
+        "created" : "created",
         "length_abbreviation" : "km",
         "climb_abbreviation" : "m climb",
         "control_abbreviation" : "controls",
@@ -105,6 +105,9 @@
         "SANCTIONED" : "Sanctioned",
         "CANCELED" : "Cancelled",
         "RESCHEDULED" : "Rescheduled"
+    },
+    "result_list_state" : {
+        "COMPLETE" : "Complete"
     },
     "organisation_type" : {
         "IOF" : "IOF",

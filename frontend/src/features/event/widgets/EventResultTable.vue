@@ -6,7 +6,6 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { personService } from '@/features/person/services/person.service'
 import { organisationService } from '@/features/organisation/services/organisation.service'
-import { courseService } from '@/features/course/services/course.service'
 
 const props = defineProps<{ data: any }>()
 
@@ -40,11 +39,6 @@ const personQuery = useQuery({
 const organisationQuery = useQuery({
   queryKey: ['organisations'],
   queryFn: () => organisationService.getAll(t)
-})
-
-const courseQuery = useQuery({
-  queryKey: ['courses'],
-  queryFn: () => courseService.getAll(t)
 })
 
 const resultColumn = (slotProps: any): string => {
@@ -116,11 +110,11 @@ const organisationNameColumn = (slotProps: any): string => {
       </template>
     </Column>
     <!--Column
-                                                                                                                                                                                                                                                                                                                                                                                                                                            v-for="score in cupScores"
-                                                                                                                                                                                                                                                                                                                                                                                                                                            :key="score.type.name"
-                                                                                                                                                                                                                                                                                                                                                                                                                                            :header="score.type.name"
-                                                                                                                                                                                                                                                                                                                                                                                                                                            :field="score.score"
-                                                                                                                                                                                                                                                                                                                                                                                                                                          >
-                                                                                                                                                                                                                                                                                                                                                                                                                                          </Column-->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                v-for="score in cupScores"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                :key="score.type.name"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                :header="score.type.name"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                :field="score.score"
+                                                                                                                                                                                                                                                                                                                                                                                                                                              >
+                                                                                                                                                                                                                                                                                                                                                                                                                                              </Column-->
   </DataTable>
 </template>

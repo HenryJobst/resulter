@@ -4,7 +4,7 @@ import { getCurrentInstance, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Upload } from '@/features/event/model/upload'
 import { useToast } from 'primevue/usetoast'
-import FileUpload from 'primevue/fileupload'
+import FileUpload, { type FileUploadUploadEvent } from 'primevue/fileupload'
 import ProgressBar from 'primevue/progressbar'
 import Badge from 'primevue/badge'
 import Button from 'primevue/button'
@@ -53,8 +53,7 @@ const onRemoveTemplatingFile = (
   totalSizePercent.value = totalSize.value / 10
 }
 
-const onClearTemplatingUpload = (clear: () => void) => {
-  console.log('clearing', clear)
+const onClearTemplatingUpload = (event?: () => void) => {
   totalSize.value = 0
   totalSizePercent.value = 0
 }
@@ -71,7 +70,8 @@ const uploadEvent = (callback: () => void) => {
   callback()
 }
 
-const onTemplatedUpload = (event: { files: File[] }) => {
+const onTemplatedUpload = (event: FileUploadUploadEvent) => {
+  console.debug(event)
   toast.add({
     severity: 'info',
     summary: t('messages.success'),

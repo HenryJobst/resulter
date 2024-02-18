@@ -15,7 +15,7 @@ import Button from 'primevue/button'
 import { useRouter } from 'vue-router'
 import moment from 'moment/min/moment-with-locales'
 
-const props = defineProps<{ id: string; locale?: string }>()
+const props = defineProps<{ id: string }>()
 
 const { t, locale } = useI18n()
 
@@ -67,10 +67,6 @@ function getResultListLabel(resultList: ResultList) {
     ', ' +
     t(`result_list_state.${resultList.status.toUpperCase()}`)
   )
-}
-
-function getRace(raceId: number | undefined) {
-  return raceQuery.data.value?.find((r) => r.id === raceId)
 }
 
 const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] => {
@@ -205,16 +201,24 @@ const navigateToList = () => {
         <template #default="slotProps">
           <b>{{ slotProps?.node?.label }}</b>
         </template>
+        <!--suppress VueUnrecognizedSlot -->
         <template #tree="slotProps">
           <Tree :value="slotProps?.node?.data">
             <template #default="slotProps">
               <b>{{ slotProps?.node?.label }}</b>
+              <Button
+                v-if="authStore.isAdmin"
+                :label="t('labels.calculate')"
+                @click="calculate()"
+              />
             </template>
+            <!--suppress VueUnrecognizedSlot -->
             <template #dataTable="slotProps">
               <EventResultTable :data="slotProps?.node?.data" />
             </template>
           </Tree>
         </template>
+        <!--suppress VueUnrecognizedSlot -->
         <template #dataTable="slotProps">
           <EventResultTable :data="slotProps?.node?.data" />
         </template>

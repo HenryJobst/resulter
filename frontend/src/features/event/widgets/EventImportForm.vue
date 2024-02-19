@@ -53,7 +53,7 @@ const onRemoveTemplatingFile = (
   totalSizePercent.value = totalSize.value / 10
 }
 
-const onClearTemplatingUpload = (event?: () => void) => {
+const onClearTemplatingUpload = () => {
   totalSize.value = 0
   totalSizePercent.value = 0
 }

@@ -15,7 +15,7 @@ import { toastDisplayDuration } from '@/utils/constants'
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const authStore = useAuthStore()
-const url: string = import.meta.env.VITE_API_ENDPOINT + 'upload'
+const url: string = import.meta.env.VITE_API_ENDPOINT + '/upload'
 
 const internalInstance = getCurrentInstance()
 

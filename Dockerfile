@@ -23,6 +23,7 @@ ENV POSTGRES_DB=$POSTGRES_DB
 ENV POSTGRES_USER=$POSTGRES_USER
 ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 ENV RESULTER_LOG_LEVEL=$RESULTER_LOG_LEVEL
+ENV SPRING_PROFILES_ACTIVE=prod
 
 COPY mvnw .
 COPY .mvn .mvn
@@ -35,7 +36,8 @@ RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 FROM eclipse-temurin:21-jdk-alpine
 VOLUME /tmp
 ARG DEPENDENCY=/workspace/app/target/dependency
+
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java","-cp","app:app/lib/*","de.jobst.resulter.ResulterApplication"]
+ENTRYPOINT ["java","-Dspring.profiles.active=prod","-cp","app:app/lib/*","de.jobst.resulter.ResulterApplication"]

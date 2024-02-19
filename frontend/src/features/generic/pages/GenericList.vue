@@ -14,7 +14,10 @@ import type { IGenericService } from '@/features/generic/services/IGenericServic
 
 const props = defineProps({
   entityService: Object as () => IGenericService<any>,
-  queryKey: Array as PropType<(string | number)[]>,
+  queryKey: {
+    type: Array as PropType<(string | number)[]>,
+    default: () => [] // Provide an empty array as the default value
+  },
   listLabel: String,
   entityLabel: String,
   routerPrefix: String,
@@ -28,7 +31,7 @@ const { t, locale } = useI18n()
 const queryClient = useQueryClient()
 
 const entityQuery = useQuery({
-  queryKey: props.queryKey,
+  queryKey: props.queryKey || [],
   queryFn: () => props.entityService?.getAll(t)
 })
 

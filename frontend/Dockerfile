@@ -16,11 +16,14 @@ ENV VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM
 
 COPY package.json ./
 
-RUN npm install
+
+RUN corepack enable pnpm
+
+RUN pnpm install
 
 COPY . .
 
-RUN npm run build
+RUN pnpm run build
 
 # production stage
 FROM nginx AS production-stage

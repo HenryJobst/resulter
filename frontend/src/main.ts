@@ -11,6 +11,7 @@ import keycloakService from '@/features/keycloak/services/keycloak'
 import App from './App.vue'
 import { setupRouter } from './router'
 import { setupI18n } from '@/i18n'
+import en from './locales/en.json'
 import PrimeVue from 'primevue/config'
 
 import 'primevue/resources/themes/bootstrap4-light-blue/theme.css'
@@ -21,7 +22,8 @@ import ToastService from 'primevue/toastservice'
 const i18n = setupI18n({
   legacy: false,
   locale: 'en',
-  fallbackLocale: 'de'
+  fallbackLocale: 'de',
+  messages: { en }
 })
 
 const pinia = createPinia()

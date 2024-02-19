@@ -41,7 +41,7 @@
                 <activeProfile>prod</activeProfile>
             </properties>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -78,6 +78,15 @@
             <properties>
                 <activeProfile>native</activeProfile>
                 <activeProfile>prod</activeProfile>
+            </properties>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <activeProfile>dev</activeProfile>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>

@@ -195,22 +195,28 @@ const navigateToList = () => {
     {{ t('messages.error', { message: eventResultsQuery.error.toLocaleString() }) }}
   </span>
   <div v-else-if="eventResultsQuery.data" class="card flex justify-content-start">
-    <div class="flex flex-col flex-grow">
+    <div class="flex flex-col flex-grow w-full">
       <h1 class="mt-3 font-extrabold">{{ event?.name }} - {{ t('labels.results', 2) }}</h1>
-      <Tree :value="treeNodes" class="w-full">
+      <Tree :value="treeNodes" class="flex flex-col w-full">
         <template #default="slotProps">
-          <b>{{ slotProps?.node?.label }}</b>
+          <div class="flex flex-row justify-content-between w-full">
+            <div class="flex align-items-center font-bold">
+              {{ slotProps?.node?.label }}
+            </div>
+            <Button
+              class="ml-5"
+              v-if="authStore.isAdmin"
+              :label="t('labels.calculate')"
+              outlined
+              @click="calculate()"
+            />
+          </div>
         </template>
         <!--suppress VueUnrecognizedSlot -->
         <template #tree="slotProps">
           <Tree :value="slotProps?.node?.data">
             <template #default="slotProps">
               <b>{{ slotProps?.node?.label }}</b>
-              <Button
-                v-if="authStore.isAdmin"
-                :label="t('labels.calculate')"
-                @click="calculate()"
-              />
             </template>
             <!--suppress VueUnrecognizedSlot -->
             <template #dataTable="slotProps">

@@ -62,6 +62,8 @@ public class OAuth2ResourceServerSecurityConfiguration {
             .hasRole("ADMIN")
             .requestMatchers("/admin/**")
             .hasRole("ADMIN")
+            .requestMatchers(HttpMethod.POST, "/upload")
+            .hasRole("ADMIN")
             .requestMatchers(HttpMethod.GET,
                 "/event",
                 "/organisation",

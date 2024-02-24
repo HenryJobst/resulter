@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +38,21 @@ public class PersonController {
         try {
             List<Person> persons = personService.findAll();
             return ResponseEntity.ok(persons.stream().map(PersonDto::from).toList());
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/person/search")
+    public ResponseEntity<Page<PersonDto>> searchPersons(@RequestParam Optional<String> filter,
+                                                         @RequestParam Optional<Pageable> pageable) {
+        try {
+            Page<Person> persons = personService.findAll(filter.orElse(null), pageable.orElse(Pageable.unpaged()));
+            return ResponseEntity.ok(new PageImpl<>(persons.getContent().stream().map(PersonDto::from).toList(),
+                persons.getPageable(),
+                persons.getTotalElements()));
+
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

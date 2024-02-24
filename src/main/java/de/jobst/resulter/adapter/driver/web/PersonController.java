@@ -34,21 +34,10 @@ public class PersonController {
     }
 
     @GetMapping("/person")
-    public ResponseEntity<List<PersonDto>> handlePersons() {
+    public ResponseEntity<Page<PersonDto>> searchPersons(@RequestParam Optional<String> filter, Pageable pageable) {
         try {
-            List<Person> persons = personService.findAll();
-            return ResponseEntity.ok(persons.stream().map(PersonDto::from).toList());
-        } catch (Exception e) {
-            logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/person/search")
-    public ResponseEntity<Page<PersonDto>> searchPersons(@RequestParam Optional<String> filter,
-                                                         @RequestParam Optional<Pageable> pageable) {
-        try {
-            Page<Person> persons = personService.findAll(filter.orElse(null), pageable.orElse(Pageable.unpaged()));
+            Page<Person> persons =
+                personService.findAll(filter.orElse(null), pageable != null ? pageable : Pageable.unpaged());
             return ResponseEntity.ok(new PageImpl<>(persons.getContent().stream().map(PersonDto::from).toList(),
                 persons.getPageable(),
                 persons.getTotalElements()));

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, type PropType } from 'vue'
+import { computed } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import DataTable from 'primevue/datatable'
+import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
 import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
@@ -11,12 +11,17 @@ import { useToast } from 'primevue/usetoast'
 import { toastDisplayDuration } from '@/utils/constants'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
+import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
 
 const props = defineProps({
   entityService: Object as () => IGenericService<any>,
+  settingsStoreSuffix: {
+    type: String,
+    required: true
+  },
   queryKey: {
-    type: Array as PropType<(string | number)[]>,
-    default: () => [] // Provide an empty array as the default value
+    type: String,
+    required: true
   },
   listLabel: String,
   entityLabel: String,
@@ -30,9 +35,20 @@ const { t, locale } = useI18n()
 
 const queryClient = useQueryClient()
 
+const useSettingsStore = settingsStoreFactory(props.settingsStoreSuffix)
+const settingsStore = useSettingsStore()
+
+const queryKeys = computed(() => {
+  console.log('Calculate query keys ...')
+  return [props.queryKey, settingsStore.settings.page, settingsStore.settings.rows]
+})
+
 const entityQuery = useQuery({
-  queryKey: props.queryKey || [],
-  queryFn: () => props.entityService?.getAll(t)
+  queryKey: queryKeys,
+  queryFn: () => {
+    console.log('Get all ...')
+    return props.entityService?.getAll(t, settingsStore.settings)
+  }
 })
 
 const toast = useToast()
@@ -40,7 +56,7 @@ const toast = useToast()
 const deleteMutation = useMutation({
   mutationFn: (id: number) => props.entityService!.deleteById(id, t),
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: props.queryKey })
+    queryClient.invalidateQueries({ queryKey: queryKeys })
     toast.add({
       severity: 'info',
       summary: t('messages.success'),
@@ -116,6 +132,12 @@ const formatYear = (date: string) => {
 const formatTime = (time: string) => {
   return formatTimeFunction.value(time)
 }
+
+function valueChanged(e: DataTablePageEvent) {
+  console.log(e)
+  settingsStore.setPage(e.page)
+  settingsStore.settings.rows = e.rows
+}
 </script>
 
 <template>
@@ -149,7 +171,19 @@ const formatTime = (time: string) => {
       />
     </div>
     <div v-else-if="entityQuery.data" class="card">
-      <DataTable :value="entityQuery.data.value" class="p-datatable-sm">
+      <DataTable
+        :value="entityQuery.data.value.content"
+        :paginator="settingsStore.settings.paginator"
+        :rows-per-page-options="settingsStore.settings.rowsPerPageOptions"
+        :paginator-position="settingsStore.settings.paginatorPosition"
+        :first="settingsStore.settings.first"
+        :rows="settingsStore.settings.rows"
+        :page-link-size="10"
+        :total-records="entityQuery.data.value.totalElements"
+        :size="'small'"
+        class="p-datatable-sm"
+        @page="valueChanged"
+      >
         <!-- Add Columns Here -->
         <Column
           v-for="col in props.columns"

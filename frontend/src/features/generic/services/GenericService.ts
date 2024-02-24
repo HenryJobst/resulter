@@ -2,6 +2,7 @@ import type { IGenericService } from '@/features/generic/services/IGenericServic
 import axiosInstance from '@/features/keycloak/services/api'
 import { handleApiError } from '@/utils/HandleError'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
+import type { TableSettings } from '@/features/generic/models/table_settings'
 
 export class GenericService<T> implements IGenericService<T> {
   private readonly endpoint: string
@@ -10,9 +11,19 @@ export class GenericService<T> implements IGenericService<T> {
     this.endpoint = endpoint
   }
 
-  async getAll(t: (key: string) => string): Promise<T[] | null> {
+  async getAll(t: (key: string) => string, tableSettings: TableSettings): Promise<T[] | null> {
     return await axiosInstance
-      .get<T[]>(`${this.endpoint}`)
+      .get<T[]>(
+        `${this.endpoint}`,
+        tableSettings.paginator
+          ? {
+              params: {
+                page: tableSettings.page,
+                size: tableSettings.rows
+              }
+            }
+          : {}
+      )
       .then((response) => response.data)
       .catch((error) => {
         handleApiError(error, t)

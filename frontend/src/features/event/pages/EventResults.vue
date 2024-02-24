@@ -171,8 +171,9 @@ const courseControlsColumn = (slotProps: any): string => {
   return ''
 }
 
-const calculate = () => {
-  EventService.calculate(props.id, t)
+const calculate = (result_list_id: number) => {
+  console.log(result_list_id)
+  EventService.calculate(result_list_id, t)
 }
 
 const navigateToList = () => {
@@ -208,7 +209,7 @@ const navigateToList = () => {
               v-if="authStore.isAdmin"
               :label="t('labels.calculate')"
               outlined
-              @click="calculate()"
+              @click="calculate(slotProps?.node?.key)"
             />
           </div>
         </template>

@@ -1,5 +1,6 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.domain.scoring.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
@@ -8,6 +9,8 @@ import org.springframework.lang.Nullable;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 public class ResultList implements Comparable<ResultList> {
@@ -58,5 +61,47 @@ public class ResultList implements Comparable<ResultList> {
             var = this.raceId.compareTo(o.raceId);
         }
         return var;
+    }
+
+    public void calculate(Cup cup) {
+
+        if (invalid(cup)) {
+            return;
+        }
+
+        CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
+        switch (cup.getType()) {
+            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy();
+            case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy();
+            case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy();
+            case CupType.ADD -> cupTypeCalculationStrategy = new AddCalculationStrategy();
+        }
+
+        if (cupTypeCalculationStrategy != null) {
+            calculate(cupTypeCalculationStrategy);
+        }
+    }
+
+    private boolean invalid(Cup cup) {
+        // event is not in given cup
+        return cup.getEventIds().stream().filter(it -> it.equals(this.eventId)).findAny().isEmpty();
+    }
+
+    private void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
+        /*
+        getClassResults().value()
+            .stream()
+            .filter(cupTypeCalculationStrategy::valid)
+            .forEach(it -> it.calculate(cupTypeCalculationStrategy));
+         */
+    }
+
+    @NonNull
+    public Set<OrganisationId> getReferencedOrganisationIds() {
+        assert getClassResults() != null;
+        return getClassResults().stream()
+            .flatMap(x -> x.personResults().value().stream())
+            .map(PersonResult::organisationId)
+            .collect(Collectors.toSet());
     }
 }

@@ -69,25 +69,6 @@ public class EventService {
         return true;
     }
 
-    @Transactional
-    public Event calculateEvent(EventId id) {
-        Collection<Cup> cups = cupRepository.findByEvent(id);
-        if (cups.isEmpty()) {
-            // no cups for this event
-            return null;
-        }
-
-        Optional<Event> optionalEvent = findById(id);
-        if (optionalEvent.isEmpty()) {
-            // no event
-            return null;
-        }
-        Event event = optionalEvent.get();
-        Map<OrganisationId, Organisation> organisationById =
-            organisationRepository.loadOrganisationTree(event.getReferencedOrganisationIds());
-        cups.forEach(cup -> event.calculate(cup));
-        return eventRepository.save(event);
-    }
 
     public Event createEvent(String eventName, ZonedDateTime dateTime, Set<OrganisationId> organisationIds) {
         Event event =

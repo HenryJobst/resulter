@@ -80,16 +80,15 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     @Transactional
     public Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet) {
-/*
-        @SuppressWarnings({"unchecked"}) List<Long> resultList =
+        /*@SuppressWarnings({"unchecked"})
+        List<Long> resultList =
             entityManager.createNativeQuery(getCteQuery(), Long.class)
                 .setParameter("idSet", idSet.stream().map(OrganisationId::value).toList())
                 .getResultList();
 
         return findAllById(resultList.stream().map(OrganisationId::of).collect(Collectors.toSet()), true);
-
- */
-        return null;
+         */
+        return new HashMap<>();
     }
 
     @NonNull

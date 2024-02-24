@@ -1,6 +1,5 @@
 package de.jobst.resulter.domain;
 
-import de.jobst.resulter.domain.scoring.*;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,16 +68,6 @@ public class Event implements Comparable<Event> {
             eventState);
     }
 
-    @NonNull
-    public Set<OrganisationId> getReferencedOrganisationIds() {
-        /*
-        return getResultListIds()
-            .stream()
-            .flatMap(it -> it.personResults().value().stream())
-            .map(PersonResult::organisationId)
-            .collect(Collectors.toSet());*/
-        return new HashSet<>();
-    }
 
     public void update(EventName eventName,
                        DateTime startTime,
@@ -96,36 +85,4 @@ public class Event implements Comparable<Event> {
         return name.compareTo(o.name);
     }
 
-    public void calculate(Cup cup) {
-
-        if (invalid(cup)) {
-            return;
-        }
-
-        CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
-        switch (cup.getType()) {
-            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy();
-            case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy();
-            case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy();
-            case CupType.ADD -> cupTypeCalculationStrategy = new AddCalculationStrategy();
-        }
-
-        if (cupTypeCalculationStrategy != null) {
-            calculate(cupTypeCalculationStrategy);
-        }
-    }
-
-    private boolean invalid(Cup cup) {
-        // event is not in given cup
-        return cup.getEventIds().stream().filter(it -> it.equals(this.id)).findAny().isEmpty();
-    }
-
-    private void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
-        /*
-        getClassResults().value()
-            .stream()
-            .filter(cupTypeCalculationStrategy::valid)
-            .forEach(it -> it.calculate(cupTypeCalculationStrategy));
-         */
-    }
 }

@@ -2,6 +2,10 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,4 +23,5 @@ public interface PersonRepository {
 
     Collection<Person> findOrCreate(Collection<Person> persons);
 
+    Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable);
 }

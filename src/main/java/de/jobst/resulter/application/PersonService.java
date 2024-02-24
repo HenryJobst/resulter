@@ -2,6 +2,10 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -41,5 +45,9 @@ public class PersonService {
         Person person = optionalPerson.get();
         person.update(personName, birthDate, gender);
         return personRepository.save(person);
+    }
+
+    public Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+        return personRepository.findAll(filter, pageable);
     }
 }

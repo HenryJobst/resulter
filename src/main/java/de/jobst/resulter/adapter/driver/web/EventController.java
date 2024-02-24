@@ -163,7 +163,7 @@ public class EventController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> calculateEvent(@PathVariable Long id) {
         try {
-            Event event = eventService.calculateEvent(EventId.of(id));
+            Event event = null; //eventService.calculateEvent(EventId.of(id));
             if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
             } else {

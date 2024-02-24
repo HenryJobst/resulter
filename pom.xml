@@ -32,6 +32,7 @@
         <spring-oxm.version>6.1.2</spring-oxm.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.3.0
         </springdoc-openapi-starter-webmvc-ui.version>
+        <turkraft-springfilter-jpa.version>3.1.7</turkraft-springfilter-jpa.version>
     </properties>
     <profiles>
         <profile>
@@ -207,6 +208,11 @@
             <groupId>com.github.gavlyukovskiy</groupId>
             <artifactId>p6spy-spring-boot-starter</artifactId>
             <version>${p6spy-spring-boot-starter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.turkraft.springfilter</groupId>
+            <artifactId>jpa</artifactId>
+            <version>${turkraft-springfilter-jpa.version}</version>
         </dependency>
     </dependencies>
     <dependencyManagement>

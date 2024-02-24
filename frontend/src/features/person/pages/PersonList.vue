@@ -9,8 +9,9 @@ import { personService } from '@/features/person/services/person.service'
 const authStore = useAuthStore()
 const { t } = useI18n()
 
-const queryKey: string[] = ['persons']
+const queryKey: string = 'persons'
 const entityLabel: string = 'person'
+const settingStoreSuffix: string = 'person'
 const listLabel = computed(() => t('labels.person', 2))
 const columns: GenericListColumn[] = [
   { label: 'labels.no', field: 'id' },
@@ -28,6 +29,7 @@ const columns: GenericListColumn[] = [
     :list-label="listLabel"
     :entity-label="entityLabel"
     :router-prefix="'person'"
+    :settings-store-suffix="settingStoreSuffix"
     :columns="columns"
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['gender', 'gender.']])"

@@ -7,6 +7,7 @@ import { GenericService } from '@/features/generic/services/GenericService'
 import type { ResultList } from '@/features/event/model/result_list'
 
 const eventUrl: string = '/event'
+const resultListUrl: string = '/result_list'
 const eventStatusUrl: string = '/event_status'
 
 export class EventService extends GenericService<SportEvent> {
@@ -28,9 +29,9 @@ export class EventService extends GenericService<SportEvent> {
     })
   }
 
-  static async calculate(id: number | string, t: (key: string) => string) {
+  static async calculate(result_list_id: number, t: (key: string) => string) {
     return axiosInstance
-      .put(`${eventUrl}/${id}/calculate`)
+      .put(`${resultListUrl}/${result_list_id}/calculate`)
       .then((response) => response.data)
       .catch((error) => {
         handleApiError(error, t)

@@ -1,10 +1,5 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import com.turkraft.springfilter.converter.FilterSpecification;
-import com.turkraft.springfilter.converter.FilterSpecificationConverter;
-import com.turkraft.springfilter.parser.FilterParser;
-import com.turkraft.springfilter.parser.ParseContextImpl;
-import com.turkraft.springfilter.parser.node.FilterNode;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
@@ -13,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,16 +23,9 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     private final PersonJdbcRepository personJdbcRepository;
 
-    private final FilterParser filterParser;
 
-    private final FilterSpecificationConverter filterSpecificationConverter;
-
-    public PersonRepositoryDataJdbcAdapter(PersonJdbcRepository personJdbcRepository,
-                                           FilterParser filterParser,
-                                           FilterSpecificationConverter filterSpecificationConverter) {
+    public PersonRepositoryDataJdbcAdapter(PersonJdbcRepository personJdbcRepository) {
         this.personJdbcRepository = personJdbcRepository;
-        this.filterParser = filterParser;
-        this.filterSpecificationConverter = filterSpecificationConverter;
     }
 
     @Override
@@ -82,21 +71,11 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     }
 
     @Override
-    public Page<Person> findAll(String filter, @NonNull Pageable pageable) {
-        FilterNode node = filterParser.parse(filter, new ParseContextImpl(this::getPersonDboPath, null));
-        FilterSpecification<Person> spec = filterSpecificationConverter.convert(node);
-        Page<PersonDbo> page = personJdbcRepository.findAll(spec, pageable);
+    public Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+        Page<PersonDbo> page = personJdbcRepository.findAll(pageable);
         return new PageImpl<>(page.stream().map(PersonDbo::asPerson).sorted().toList(),
             page.getPageable(),
             page.getTotalElements());
     }
 
-    private String getPersonDboPath(String daoPath) {
-        return switch (daoPath) {
-            case "country" -> "location.country";
-            case "city" -> "location.city";
-            case "street" -> "location.street";
-            default -> daoPath;
-        };
-    }
 }

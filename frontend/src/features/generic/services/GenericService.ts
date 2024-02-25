@@ -4,6 +4,43 @@ import { handleApiError } from '@/utils/HandleError'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 
+function getSortParam(field: string, order: number | null | undefined) {
+  const direction = order === 1 ? 'asc' : 'desc'
+  return `${encodeURIComponent(field)},${direction}`
+}
+
+function createUrlSearchParams(tableSettings: TableSettings) {
+  const urlSearchParams = new URLSearchParams()
+  if (tableSettings.sortField) {
+    urlSearchParams.append('sort', getSortParam(tableSettings.sortField, tableSettings.sortOrder))
+  }
+  if (tableSettings.nullSortOrder != 1) {
+    urlSearchParams.append('nullSortOrder', tableSettings.nullSortOrder.toString())
+  }
+  if (tableSettings.defaultSortOrder != 1) {
+    urlSearchParams.append('defaultSortOrder', tableSettings.defaultSortOrder.toString())
+  }
+  if (tableSettings.multiSortMeta) {
+    const sortParams = tableSettings.multiSortMeta
+      .filter((meta) => meta.order !== undefined && meta.order !== null && meta.order !== 0) // Filtere Einträge ohne Sortierung
+      .map((meta) => {
+        return getSortParam(meta.field, meta.order)
+      })
+    sortParams.forEach((s) => {
+      urlSearchParams.append('sort', s)
+    })
+  }
+  if (tableSettings.paginator) {
+    if (tableSettings.page) {
+      urlSearchParams.append('page', tableSettings.page.toString())
+    }
+    if (tableSettings.rows) {
+      urlSearchParams.append('size', tableSettings.rows.toString())
+    }
+  }
+  return urlSearchParams
+}
+
 export class GenericService<T> implements IGenericService<T> {
   private readonly endpoint: string
 
@@ -12,18 +49,9 @@ export class GenericService<T> implements IGenericService<T> {
   }
 
   async getAll(t: (key: string) => string, tableSettings: TableSettings): Promise<T[] | null> {
+    const urlSearchParams = createUrlSearchParams(tableSettings)
     return await axiosInstance
-      .get<T[]>(
-        `${this.endpoint}`,
-        tableSettings.paginator
-          ? {
-              params: {
-                page: tableSettings.page,
-                size: tableSettings.rows
-              }
-            }
-          : {}
-      )
+      .get<T[]>(`${this.endpoint}`, { params: urlSearchParams })
       .then((response) => response.data)
       .catch((error) => {
         handleApiError(error, t)

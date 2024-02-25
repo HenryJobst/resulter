@@ -14,11 +14,11 @@ const entityLabel: string = 'person'
 const settingStoreSuffix: string = 'person'
 const listLabel = computed(() => t('labels.person', 2))
 const columns: GenericListColumn[] = [
-  { label: 'labels.no', field: 'id' },
-  { label: 'labels.family_name', field: 'familyName' },
-  { label: 'labels.given_name', field: 'givenName' },
-  { label: 'labels.gender', field: 'gender', type: 'enum' },
-  { label: 'labels.birth_year', field: 'birthDate', type: 'year' }
+  { label: 'labels.no', field: 'id', sortable: true },
+  { label: 'labels.family_name', field: 'familyName', sortable: true },
+  { label: 'labels.given_name', field: 'givenName', sortable: true },
+  { label: 'labels.gender', field: 'gender', type: 'enum', sortable: true },
+  { label: 'labels.birth_year', field: 'birthDate', type: 'year', sortable: true }
 ]
 </script>
 

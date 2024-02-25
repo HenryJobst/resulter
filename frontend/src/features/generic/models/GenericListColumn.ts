@@ -4,4 +4,5 @@ export interface GenericListColumn {
   field: string
   type?: string
   queryKey?: string
+  sortable?: boolean
 }

@@ -61,9 +61,9 @@ const entityQuery = useQuery({
   }
 })
 
-const dataValue = computed((): RestResult | undefined => {
+const dataValue = computed((): RestResult<any> | undefined => {
   if (entityQuery.data && entityQuery.data.value) {
-    const value = entityQuery.data.value as unknown as RestResult
+    const value = entityQuery.data.value as unknown as RestResult<any>
     console.log('Total elements: ' + value.totalElements)
     return value
   } else {

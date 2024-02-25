@@ -4,6 +4,10 @@ import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -54,6 +58,11 @@ public class InMemoryEventRepository implements EventRepository {
             .filter(it -> Objects.equals(it.getName(), event.getName()))
             .findAny()
             .orElseGet(() -> save(event));
+    }
+
+    @Override
+    public Page<Event> findAll(String filter, @NonNull Pageable pageable) {
+        return new PageImpl<>(new ArrayList<>(events.values()), pageable, events.size());
     }
 
     @SuppressWarnings("unused")

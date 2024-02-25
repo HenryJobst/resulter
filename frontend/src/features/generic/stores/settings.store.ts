@@ -9,8 +9,8 @@ export const settingsStoreFactory = (id: string) =>
       first: 0,
       page: 0,
       paginator: true,
-      paginatorPosition: 'both',
-      rows: 5,
+      paginatorPosition: 'top',
+      rows: 10,
       rowsPerPageOptions: [5, 10, 20, 50, 100, 200, 500, 1000],
       sortMode: 'multiple',
       multiSortMeta: undefined,
@@ -23,10 +23,10 @@ export const settingsStoreFactory = (id: string) =>
     const currentPage = computed(() => settings.value.first / settings.value.rows + 1)
 
     /*
-                                                function updateSettings(newSettings: Partial<TableSettings>) {
-                                                  settings.value = { ...settings, ...newSettings }
-                                                }
-                                             */
+                                                        function updateSettings(newSettings: Partial<TableSettings>) {
+                                                          settings.value = { ...settings, ...newSettings }
+                                                        }
+                                                     */
 
     function setPage(pageIndex: number) {
       settings.value.page = pageIndex

@@ -2,6 +2,10 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -69,4 +73,7 @@ public class OrganisationService {
         return true;
     }
 
+    public Page<Organisation> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+        return organisationRepository.findAll(filter, pageable);
+    }
 }

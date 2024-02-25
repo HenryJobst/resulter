@@ -2,6 +2,10 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,5 +78,9 @@ public class EventService {
         Event event =
             Event.of(EventId.empty().value(), eventName, dateTime, dateTime, organisationIds, EventStatus.PLANNED);
         return eventRepository.save(event);
+    }
+
+    public Page<Event> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+        return eventRepository.findAll(filter, pageable);
     }
 }

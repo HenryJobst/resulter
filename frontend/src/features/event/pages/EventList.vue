@@ -12,15 +12,16 @@ import { eventService } from '@/features/event/services/event.service'
 const authStore = useAuthStore()
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
-const queryKey: string[] = ['events']
+const queryKey: string = 'events'
 const entityLabel: string = 'event'
+const settingStoreSuffix: string = 'event'
 const listLabel = computed(() => t('labels.event', 2))
 const columns: GenericListColumn[] = [
-  { label: 'labels.name', field: 'name' },
-  { label: 'labels.date', field: 'startTime', type: 'date' },
-  { label: 'labels.time', field: 'startTime', type: 'time' },
-  { label: 'labels.state', field: 'state', type: 'enum' },
-  { label: 'labels.organisation', field: 'organisations', type: 'list' }
+  { label: 'labels.name', field: 'name', sortable: true },
+  { label: 'labels.date', field: 'startTime', type: 'date', sortable: true },
+  { label: 'labels.time', field: 'startTime', type: 'time', sortable: true },
+  { label: 'labels.state', field: 'state', type: 'enum', sortable: true },
+  { label: 'labels.organisation', field: 'organisations', type: 'list', sortable: true }
 ]
 
 const organisationQuery = useQuery({
@@ -37,6 +38,7 @@ const organisationQuery = useQuery({
     :list-label="listLabel"
     :entity-label="entityLabel"
     :router-prefix="'event'"
+    :settings-store-suffix="settingStoreSuffix"
     :columns="columns"
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['state', 'event_state.']])"

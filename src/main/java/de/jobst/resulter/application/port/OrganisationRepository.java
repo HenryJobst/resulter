@@ -2,6 +2,10 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
 
@@ -22,4 +26,6 @@ public interface OrganisationRepository {
     Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet);
 
     Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet);
+
+    Page<Organisation> findAll(@Nullable String filter, @NonNull Pageable pageable);
 }

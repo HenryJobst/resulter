@@ -7,6 +7,9 @@ import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,10 +37,15 @@ public class OrganisationController {
     }
 
     @GetMapping("/organisation")
-    public ResponseEntity<List<OrganisationDto>> handleOrganisations() {
+    public ResponseEntity<Page<OrganisationDto>> searchOrganisations(@RequestParam Optional<String> filter,
+                                                                     Pageable pageable) {
         try {
-            List<Organisation> organisations = organisationService.findAll();
-            return ResponseEntity.ok(organisations.stream().map(OrganisationDto::from).toList());
+            Page<Organisation> organisations =
+                organisationService.findAll(filter.orElse(null), pageable != null ? pageable : Pageable.unpaged());
+            return ResponseEntity.ok(new PageImpl<>(organisations.getContent()
+                .stream()
+                .map(OrganisationDto::from)
+                .toList(), organisations.getPageable(), organisations.getTotalElements()));
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

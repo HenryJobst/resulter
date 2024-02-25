@@ -5,6 +5,7 @@ import de.jobst.resulter.domain.PersonId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
@@ -59,7 +60,7 @@ public class InMemoryPersonRepository implements PersonRepository {
 
     @Override
     public Page<Person> findAll(String filter, @NonNull Pageable pageable) {
-        return null;
+        return new PageImpl<>(new ArrayList<>(persons.values()), pageable, persons.size());
     }
 
     @SuppressWarnings("unused")

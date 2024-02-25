@@ -11,16 +11,23 @@ import { countryService } from '@/features/country/services/country.service'
 const authStore = useAuthStore()
 const { t } = useI18n()
 
-const queryKey: string[] = ['organisations']
+const queryKey: string = 'organisations'
 const entityLabel: string = 'organisation'
+const settingStoreSuffix: string = 'organisation'
 const listLabel = computed(() => t('labels.organisation', 2))
 const columns: GenericListColumn[] = [
-  { label: 'labels.no', field: 'id' },
-  { label: 'labels.name', field: 'name' },
-  { label: 'labels.short_name', field: 'shortName' },
-  { label: 'labels.type', field: 'type', type: 'enum' },
-  { label: 'labels.country', field: 'countryId', type: 'id' },
-  { label: 'labels.child_organisation', field: 'organisationIds', type: 'list', label_count: 2 }
+  { label: 'labels.no', field: 'id', sortable: true },
+  { label: 'labels.name', field: 'name', sortable: true },
+  { label: 'labels.short_name', field: 'shortName', sortable: true },
+  { label: 'labels.type', field: 'type', type: 'enum', sortable: true },
+  { label: 'labels.country', field: 'countryId', type: 'id', sortable: true },
+  {
+    label: 'labels.child_organisation',
+    field: 'organisationIds',
+    type: 'list',
+    label_count: 2,
+    sortable: false
+  }
 ]
 
 const organisationQuery = useQuery({
@@ -42,6 +49,7 @@ const countryQuery = useQuery({
     :list-label="listLabel"
     :entity-label="entityLabel"
     :router-prefix="'organisation'"
+    :settings-store-suffix="settingStoreSuffix"
     :columns="columns"
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['type', 'organisation_type.']])"

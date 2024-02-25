@@ -5,6 +5,8 @@ import type { EventStatus } from '@/features/event/model/event_status'
 import type { EventResults } from '@/features/event/model/event_results'
 import { GenericService } from '@/features/generic/services/GenericService'
 import type { ResultList } from '@/features/event/model/result_list'
+import type { TableSettings } from '@/features/generic/models/table_settings'
+import type { RestResult } from '@/features/generic/models/rest_result'
 
 const eventUrl: string = '/event'
 const resultListUrl: string = '/result_list'
@@ -15,15 +17,20 @@ export class EventService extends GenericService<SportEvent> {
     super(eventUrl)
   }
 
-  async getAll(t: (key: string) => string): Promise<SportEvent[] | null> {
-    return await super.getAll(t).then((response) => {
+  async getAll(
+    t: (key: string) => string,
+    tableSettings?: TableSettings
+  ): Promise<RestResult<SportEvent> | null> {
+    return await super.getAll(t, tableSettings).then((response) => {
       if (response) {
-        return response.map((element) => {
+        const result = response
+        result.content = result.content.map((element) => {
           if (element.startTime) {
             element.startTime = new Date(element.startTime)
           }
           return element
         })
+        return result
       }
       return null
     })

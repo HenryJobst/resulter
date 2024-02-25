@@ -4,6 +4,10 @@ import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,4 +85,11 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         return EventDbo.asEvent(optionalEventDbo.get());
     }
 
+    @Override
+    public Page<Event> findAll(String filter, @NonNull Pageable pageable) {
+        Page<EventDbo> page = eventJdbcRepository.findAll(pageable);
+        return new PageImpl<>(page.stream().map(EventDbo::asEvent).toList(),
+            page.getPageable(),
+            page.getTotalElements());
+    }
 }

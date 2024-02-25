@@ -9,6 +9,9 @@ import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,10 +43,12 @@ public class EventController {
     }
 
     @GetMapping("/event")
-    public ResponseEntity<List<EventDto>> handleEvents() {
+    public ResponseEntity<Page<EventDto>> searchEvents(@RequestParam Optional<String> filter, Pageable pageable) {
         try {
-            List<Event> events = eventService.findAll();
-            return ResponseEntity.ok(events.stream().map(EventDto::from).toList());
+            Page<Event> events = eventService.findAll(filter.orElse(null), pageable != null ? pageable : Pageable.unpaged());
+            return ResponseEntity.ok(
+                new PageImpl<>(events.getContent().stream().map(EventDto::from).toList(),
+                events.getPageable(), events.getTotalElements()));
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

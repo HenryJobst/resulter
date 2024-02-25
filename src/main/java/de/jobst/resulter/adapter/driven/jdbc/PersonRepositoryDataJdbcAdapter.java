@@ -73,7 +73,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     @Override
     public Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable) {
         Page<PersonDbo> page = personJdbcRepository.findAll(pageable);
-        return new PageImpl<>(page.stream().map(PersonDbo::asPerson).sorted().toList(),
+        return new PageImpl<>(page.stream().map(PersonDbo::asPerson).toList(),
             page.getPageable(),
             page.getTotalElements());
     }

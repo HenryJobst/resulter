@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
+import DataTable, { type DataTablePageEvent, type DataTableSortEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
 import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
@@ -12,6 +12,7 @@ import { toastDisplayDuration } from '@/utils/constants'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
 import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
+import type { RestResult } from '@/features/generic/models/rest_result'
 
 const props = defineProps({
   entityService: Object as () => IGenericService<any>,
@@ -40,7 +41,16 @@ const settingsStore = useSettingsStore()
 
 const queryKeys = computed(() => {
   console.log('Calculate query keys ...')
-  return [props.queryKey, settingsStore.settings.page, settingsStore.settings.rows]
+  return [
+    props.queryKey,
+    settingsStore.settings.page,
+    settingsStore.settings.rows,
+    settingsStore.settings.multiSortMeta,
+    settingsStore.settings.sortMode,
+    settingsStore.settings.sortOrder,
+    settingsStore.settings.nullSortOrder,
+    settingsStore.settings.defaultSortOrder
+  ]
 })
 
 const entityQuery = useQuery({
@@ -48,6 +58,16 @@ const entityQuery = useQuery({
   queryFn: () => {
     console.log('Get all ...')
     return props.entityService?.getAll(t, settingsStore.settings)
+  }
+})
+
+const dataValue = computed((): RestResult | undefined => {
+  if (entityQuery.data && entityQuery.data.value) {
+    const value = entityQuery.data.value as unknown as RestResult
+    console.log('Total elements: ' + value.totalElements)
+    return value
+  } else {
+    return undefined
   }
 })
 
@@ -133,10 +153,26 @@ const formatTime = (time: string) => {
   return formatTimeFunction.value(time)
 }
 
-function valueChanged(e: DataTablePageEvent) {
-  console.log(e)
+function pageChanged(e: DataTablePageEvent) {
+  console.log('Page: ' + e.page)
+  console.log('Rows: ' + e.rows)
+  console.log('Multi-Sort-Meta: ' + e.multiSortMeta?.toString())
+  console.log('Pageable: ' + settingsStore.settings.paginator)
+  console.log('Paginator position: ' + settingsStore.settings.paginatorPosition)
   settingsStore.setPage(e.page)
   settingsStore.settings.rows = e.rows
+  settingsStore.settings.multiSortMeta = e.multiSortMeta
+}
+
+function sortChanged(e: DataTableSortEvent) {
+  console.log('Rows: ' + e.rows)
+  console.log('Multi-Sort-Meta: ' + e.multiSortMeta?.toString())
+  console.log('Pageable: ' + settingsStore.settings.paginator)
+  console.log('Paginator position: ' + settingsStore.settings.paginatorPosition)
+  settingsStore.settings.first = e.first
+  settingsStore.settings.page = e.first / e.rows
+  settingsStore.settings.rows = e.rows
+  settingsStore.settings.multiSortMeta = e.multiSortMeta
 }
 </script>
 
@@ -172,17 +208,25 @@ function valueChanged(e: DataTablePageEvent) {
     </div>
     <div v-else-if="entityQuery.data" class="card">
       <DataTable
-        :value="entityQuery.data.value.content"
+        :value="dataValue?.content"
         :paginator="settingsStore.settings.paginator"
+        :always-show-paginator="false"
         :rows-per-page-options="settingsStore.settings.rowsPerPageOptions"
         :paginator-position="settingsStore.settings.paginatorPosition"
         :first="settingsStore.settings.first"
         :rows="settingsStore.settings.rows"
-        :page-link-size="10"
-        :total-records="entityQuery.data.value.totalElements"
+        :total-records="dataValue?.totalElements"
+        :sort-mode="settingsStore.settings.sortMode"
+        :multi-sort-meta="settingsStore.settings.multiSortMeta"
+        :sort-field="settingsStore.settings.sortField"
+        :sort-order="settingsStore.settings.sortOrder"
+        :null-sort-order="settingsStore.settings.nullSortOrder"
+        :default-sort-order="settingsStore.settings.defaultSortOrder"
+        :lazy="true"
         :size="'small'"
         class="p-datatable-sm"
-        @page="valueChanged"
+        @page="pageChanged"
+        @sort="sortChanged"
       >
         <!-- Add Columns Here -->
         <Column
@@ -190,6 +234,7 @@ function valueChanged(e: DataTablePageEvent) {
           :key="col.label"
           :field="col.field"
           :header="col.label_count ? t(col.label, col.label_count) : t(col.label)"
+          :sortable="col.sortable ? col.sortable : true"
         >
           <template v-slot:body="slotProps" v-if="col.type === 'list'">
             <div v-for="(item, index) in slotProps.data[col.field]" :key="`item-${index}`">

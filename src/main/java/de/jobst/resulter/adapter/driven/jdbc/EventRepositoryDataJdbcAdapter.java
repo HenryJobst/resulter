@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
@@ -87,9 +88,10 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
 
     @Override
     public Page<Event> findAll(String filter, @NonNull Pageable pageable) {
-        Page<EventDbo> page = eventJdbcRepository.findAll(pageable);
+        Page<EventDbo> page = eventJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
+            EventDbo::mapOrdersDomainToDbo));
         return new PageImpl<>(page.stream().map(EventDbo::asEvent).toList(),
-            page.getPageable(),
+            FilterAndSortConverter.mapOrderProperties(page.getPageable(), EventDbo::mapOrdersDboToDomain),
             page.getTotalElements());
     }
 }

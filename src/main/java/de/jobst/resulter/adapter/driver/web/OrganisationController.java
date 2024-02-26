@@ -40,12 +40,17 @@ public class OrganisationController {
     public ResponseEntity<Page<OrganisationDto>> searchOrganisations(@RequestParam Optional<String> filter,
                                                                      Pageable pageable) {
         try {
-            Page<Organisation> organisations =
-                organisationService.findAll(filter.orElse(null), pageable != null ? pageable : Pageable.unpaged());
+            Page<Organisation> organisations = organisationService.findAll(filter.orElse(null),
+                pageable != null ?
+                FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDto::mapOrdersDtoToDomain) :
+                Pageable.unpaged());
             return ResponseEntity.ok(new PageImpl<>(organisations.getContent()
                 .stream()
                 .map(OrganisationDto::from)
-                .toList(), organisations.getPageable(), organisations.getTotalElements()));
+                .toList(),
+                FilterAndSortConverter.mapOrderProperties(organisations.getPageable(),
+                    OrganisationDto::mapOrdersDomainToDto),
+                organisations.getTotalElements()));
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

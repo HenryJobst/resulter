@@ -33,15 +33,23 @@ public class PersonController {
         this.personService = personService;
     }
 
+    private static void logError(Exception e) {
+        log.error(e.getMessage());
+        if (Objects.nonNull(e.getCause())) {
+            log.error(e.getCause().getMessage());
+        }
+    }
+
     @GetMapping("/person")
     public ResponseEntity<Page<PersonDto>> searchPersons(@RequestParam Optional<String> filter, Pageable pageable) {
         try {
-            Page<Person> persons =
-                personService.findAll(filter.orElse(null), pageable != null ? pageable : Pageable.unpaged());
+            Page<Person> persons = personService.findAll(filter.orElse(null),
+                pageable != null ?
+                FilterAndSortConverter.mapOrderProperties(pageable, PersonDto::mapOrdersDtoToDomain) :
+                Pageable.unpaged());
             return ResponseEntity.ok(new PageImpl<>(persons.getContent().stream().map(PersonDto::from).toList(),
-                persons.getPageable(),
+                FilterAndSortConverter.mapOrderProperties(persons.getPageable(), PersonDto::mapOrdersDomainToDto),
                 persons.getTotalElements()));
-
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -92,13 +100,6 @@ public class PersonController {
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private static void logError(Exception e) {
-        log.error(e.getMessage());
-        if (Objects.nonNull(e.getCause())) {
-            log.error(e.getCause().getMessage());
         }
     }
 }

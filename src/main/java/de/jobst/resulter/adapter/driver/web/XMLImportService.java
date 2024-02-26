@@ -260,7 +260,7 @@ public class XMLImportService {
                     o.getName(),
                     o.getShortName(),
                     OrganisationType.OTHER.value(),
-                    (null == o.getCountry() ? null : countriesByCode.get(o.getCountry().getCode()).getId()),
+                    (null == o.getCountry() ? null : countriesByCode.get(o.getCountry().getCode())),
                     new ArrayList<>()))
                 .sorted(),
             // organisations from persons
@@ -273,7 +273,7 @@ public class XMLImportService {
                     o.getName(),
                     o.getShortName(),
                     OrganisationType.OTHER.value(),
-                    (null == o.getCountry() ? null : countriesByCode.get(o.getCountry().getCode()).getId()),
+                    (null == o.getCountry() ? null : countriesByCode.get(o.getCountry().getCode())),
                     new ArrayList<>()))
                 .sorted()).collect(Collectors.toSet());
 

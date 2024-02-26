@@ -1,6 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.CountryId;
+import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.OrganisationType;
@@ -20,6 +20,7 @@ import org.springframework.lang.NonNull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Data
@@ -68,8 +69,8 @@ public class OrganisationDbo {
 
         organisationDbo.setType(organisation.getType());
 
-        if (organisation.getCountryId() != null) {
-            organisationDbo.setCountry(AggregateReference.to(organisation.getCountryId().value()));
+        if (organisation.getCountry() != null) {
+            organisationDbo.setCountry(AggregateReference.to(organisation.getCountry().getId().value()));
         } else {
             organisationDbo.setCountry(null);
         }
@@ -82,12 +83,12 @@ public class OrganisationDbo {
         return organisationDbo;
     }
 
-    public Organisation asOrganisation() {
+    public Organisation asOrganisation(Function<Long, Country> countryResolver) {
         return Organisation.of(id,
             name,
             shortName,
             type.value(),
-            country != null ? CountryId.of(country.getId()) : null,
+            country != null ? countryResolver.apply(country.getId()) : null,
             childOrganisations == null ?
             new ArrayList<>() :
             childOrganisations.stream().map(x -> OrganisationId.of(x.id.getId())).toList());
@@ -99,7 +100,7 @@ public class OrganisationDbo {
             case "name.value" -> "name";
             case "shortName.value" -> "shortName";
             case "type.id" -> "type";
-            case "countryId.value" -> "country";
+            case "country.name.value" -> "country.name";
             case "childOrganisationIds" -> "childOrganisations";
             default -> order.getProperty();
         };
@@ -111,7 +112,7 @@ public class OrganisationDbo {
             case "name" -> "name.value";
             case "shortName" -> "shortName.value";
             case "type" -> "type.id";
-            case "country" -> "organisation.countryId.value";
+            case "country.name" -> "country.name.value";
             case "childOrganisations" -> "childOrganisationIds";
             default -> order.getProperty();
         };

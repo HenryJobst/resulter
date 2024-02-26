@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
-public record OrganisationDto(Long id, String name, String shortName, OrganisationTypeDto type, Long countryId,
+public record OrganisationDto(Long id, String name, String shortName, OrganisationTypeDto type, CountryDto country,
                               List<Long> organisationIds) {
 
     static public OrganisationDto from(Organisation organisation) {
@@ -15,7 +15,7 @@ public record OrganisationDto(Long id, String name, String shortName, Organisati
             organisation.getName().value(),
             organisation.getShortName().value(),
             OrganisationTypeDto.from(organisation.getType()),
-            organisation.getCountryId() != null ? organisation.getCountryId().value() : null,
+            organisation.getCountry() != null ? CountryDto.from(organisation.getCountry()) : null,
             organisation.getChildOrganisationIds().stream().map(OrganisationId::value).toList());
     }
 
@@ -25,7 +25,7 @@ public record OrganisationDto(Long id, String name, String shortName, Organisati
             case "name" -> "name.value";
             case "shortName" -> "shortName.value";
             case "type" -> "type.id";
-            case "countryId" -> "organisation.countryId.value";
+            case "country.name" -> "country.name.value";
             case "organisationIds" -> "childOrganisationIds";
             default -> order.getProperty();
         };
@@ -37,7 +37,7 @@ public record OrganisationDto(Long id, String name, String shortName, Organisati
             case "name.value" -> "name";
             case "shortName.value" -> "shortName";
             case "type.id" -> "type";
-            case "organisation.countryId.value" -> "countryId";
+            case "country.name.value" -> "country.name";
             case "childOrganisationIds" -> "organisationIds";
             default -> order.getProperty();
         };

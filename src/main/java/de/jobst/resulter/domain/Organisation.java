@@ -26,7 +26,7 @@ public class Organisation implements Comparable<Organisation> {
 
     @Nullable
     @Setter
-    private CountryId countryId;
+    private Country country;
 
     @NonNull
     @Setter
@@ -36,58 +36,53 @@ public class Organisation implements Comparable<Organisation> {
                         @NonNull OrganisationName name,
                         @NonNull OrganisationShortName shortName,
                         @NonNull OrganisationType type,
-                        @Nullable CountryId countryId,
+                        @Nullable Country country,
                         @NonNull Collection<OrganisationId> childOrganisationIds) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;
         this.type = type;
-        this.countryId = countryId;
+        this.country = country;
         this.childOrganisationIds = childOrganisationIds;
     }
 
     public static Organisation of(String name, String shortName) {
-        return Organisation.of(name, shortName, CountryId.empty());
+        return Organisation.of(name, shortName, null);
     }
 
-    public static Organisation of(String name, String shortName, @Nullable CountryId countryId) {
+    public static Organisation of(String name, String shortName, @Nullable Country country) {
         return Organisation.of(OrganisationId.empty().value(),
             name,
             shortName,
             OrganisationType.OTHER.value(),
-            countryId,
+            country,
             new ArrayList<>());
     }
 
     public static Organisation of(long id, String name, String shortName) {
-        return Organisation.of(id,
-            name,
-            shortName,
-            OrganisationType.OTHER.value(),
-            CountryId.empty(),
-            new ArrayList<>());
+        return Organisation.of(id, name, shortName, OrganisationType.OTHER.value(), null, new ArrayList<>());
     }
 
     public static Organisation of(long id,
                                   @NonNull String name,
                                   @NonNull String shortName,
                                   @NonNull String type,
-                                  @Nullable CountryId countryId,
+                                  @Nullable Country country,
                                   @NonNull Collection<OrganisationId> childOrganisationIds) {
         return new Organisation(OrganisationId.of(id),
             OrganisationName.of(name),
             OrganisationShortName.of(shortName),
             OrganisationType.fromValue(type),
-            countryId,
+            country,
             childOrganisationIds);
     }
 
     public static Organisation of(@NonNull OrganisationName name,
                                   @NonNull OrganisationShortName shortName,
                                   @NonNull OrganisationType type,
-                                  @Nullable CountryId countryId,
+                                  @Nullable Country country,
                                   @NonNull Collection<OrganisationId> childOrganisationIds) {
-        return new Organisation(OrganisationId.empty(), name, shortName, type, countryId, childOrganisationIds);
+        return new Organisation(OrganisationId.empty(), name, shortName, type, country, childOrganisationIds);
     }
 
     @Override
@@ -97,13 +92,13 @@ public class Organisation implements Comparable<Organisation> {
             val = name.compareTo(o.name);
         }
         if (val == 0) {
-            if (null != countryId) {
-                if (null != o.countryId) {
-                    val = countryId.compareTo(o.countryId);
+            if (null != country) {
+                if (null != o.country) {
+                    val = country.getName().value().compareTo(o.country.getName().value());
                 } else {
                     val = 1;
                 }
-            } else if (null != o.countryId) {
+            } else if (null != o.country) {
                 val = -1;
             }
         }
@@ -113,13 +108,13 @@ public class Organisation implements Comparable<Organisation> {
     public void update(@NonNull OrganisationName name,
                        @NonNull OrganisationShortName shortName,
                        @NonNull OrganisationType type,
-                       @NonNull CountryId countryId,
+                       @NonNull Country country,
                        @NonNull Collection<OrganisationId> childOrganisationIds) {
         ValueObjectChecks.requireNotNull(name);
         this.name = name;
         this.shortName = shortName;
         this.type = type;
-        this.countryId = countryId;
+        this.country = country;
         this.childOrganisationIds = childOrganisationIds;
     }
 

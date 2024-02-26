@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
@@ -72,9 +73,10 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     @Override
     public Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable) {
-        Page<PersonDbo> page = personJdbcRepository.findAll(pageable);
+        Page<PersonDbo> page = personJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
+            PersonDbo::mapOrdersDomainToDbo));
         return new PageImpl<>(page.stream().map(PersonDbo::asPerson).toList(),
-            page.getPageable(),
+            FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
             page.getTotalElements());
     }
 

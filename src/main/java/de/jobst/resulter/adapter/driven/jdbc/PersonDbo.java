@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.With;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
@@ -66,5 +67,27 @@ public class PersonDbo {
 
     public Person asPerson() {
         return Person.of(id, familyName, givenName, birthDate, gender);
+    }
+
+    public static String mapOrdersDomainToDbo(Sort.Order order) {
+        return switch (order.getProperty()) {
+            case "id.value" -> "id";
+            case "personName.familyName.value" -> "familyName";
+            case "personName.givenName.value" -> "givenName";
+            case "gender.id" -> "gender";
+            case "birthDate.value" -> "birthDate";
+            default -> order.getProperty();
+        };
+    }
+
+    public static String mapOrdersDboToDomain(Sort.Order order) {
+        return switch (order.getProperty()) {
+            case "id" -> "id.value";
+            case "familyName" -> "personName.familyName.value";
+            case "givenName" -> "personName.givenName.value";
+            case "gender" -> "gender.id";
+            case "birthDate" -> "birthDate.value";
+            default -> order.getProperty();
+        };
     }
 }

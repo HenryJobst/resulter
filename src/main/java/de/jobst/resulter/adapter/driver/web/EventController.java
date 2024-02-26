@@ -45,10 +45,13 @@ public class EventController {
     @GetMapping("/event")
     public ResponseEntity<Page<EventDto>> searchEvents(@RequestParam Optional<String> filter, Pageable pageable) {
         try {
-            Page<Event> events = eventService.findAll(filter.orElse(null), pageable != null ? pageable : Pageable.unpaged());
-            return ResponseEntity.ok(
-                new PageImpl<>(events.getContent().stream().map(EventDto::from).toList(),
-                events.getPageable(), events.getTotalElements()));
+            Page<Event> events = eventService.findAll(filter.orElse(null),
+                pageable != null ?
+                FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain) :
+                Pageable.unpaged());
+            return ResponseEntity.ok(new PageImpl<>(events.getContent().stream().map(EventDto::from).toList(),
+                FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
+                events.getTotalElements()));
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

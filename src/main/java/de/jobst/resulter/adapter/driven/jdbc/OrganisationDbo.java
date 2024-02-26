@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.With;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
@@ -92,4 +93,27 @@ public class OrganisationDbo {
             childOrganisations.stream().map(x -> OrganisationId.of(x.id.getId())).toList());
     }
 
+    public static String mapOrdersDomainToDbo(Sort.Order order) {
+        return switch (order.getProperty()) {
+            case "id.value" -> "id";
+            case "name.value" -> "name";
+            case "shortName.value" -> "shortName";
+            case "type.id" -> "type";
+            case "countryId.value" -> "country";
+            case "childOrganisationIds" -> "childOrganisations";
+            default -> order.getProperty();
+        };
+    }
+
+    public static String mapOrdersDboToDomain(Sort.Order order) {
+        return switch (order.getProperty()) {
+            case "id" -> "id.value";
+            case "name" -> "name.value";
+            case "shortName" -> "shortName.value";
+            case "type" -> "type.id";
+            case "country" -> "organisation.countryId.value";
+            case "childOrganisations" -> "childOrganisationIds";
+            default -> order.getProperty();
+        };
+    }
 }

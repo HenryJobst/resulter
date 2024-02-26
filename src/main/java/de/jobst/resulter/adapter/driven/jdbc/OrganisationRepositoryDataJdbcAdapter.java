@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
@@ -25,6 +26,22 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
                                                  CountryJdbcRepository countryJdbcRepository) {
         this.organisationJdbcRepository = organisationJdbcRepository;
         this.countryJdbcRepository = countryJdbcRepository;
+    }
+
+    @NonNull
+    private static String getCteQuery() {
+        return """
+               WITH RECURSIVE sub_organisations AS (
+               -- Start mit den untergeordneten Organisationen
+               SELECT id FROM organisation WHERE id IN (:idSet)
+               UNION ALL
+               -- Rekursiver Schritt: Finde die übergeordneten Organisationen
+               SELECT o.id FROM organisation o
+                                INNER JOIN organisation_organisation oo ON o.id = oo.parent_organisation_id
+                                INNER JOIN sub_organisations so ON oo.organisation_id = so.id
+               )
+               SELECT DISTINCT id FROM sub_organisations
+               """;
     }
 
     @Override
@@ -97,25 +114,11 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
 
     @Override
     public Page<Organisation> findAll(@Nullable String filter, @NonNull Pageable pageable) {
-        Page<OrganisationDbo> page = organisationJdbcRepository.findAll(pageable);
+        Page<OrganisationDbo> page = organisationJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(
+            pageable,
+            OrganisationDbo::mapOrdersDomainToDbo));
         return new PageImpl<>(page.stream().map(OrganisationDbo::asOrganisation).toList(),
-            page.getPageable(),
+            FilterAndSortConverter.mapOrderProperties(page.getPageable(), OrganisationDbo::mapOrdersDboToDomain),
             page.getTotalElements());
-    }
-
-    @NonNull
-    private static String getCteQuery() {
-        return """
-               WITH RECURSIVE sub_organisations AS (
-               -- Start mit den untergeordneten Organisationen
-               SELECT id FROM organisation WHERE id IN (:idSet)
-               UNION ALL
-               -- Rekursiver Schritt: Finde die übergeordneten Organisationen
-               SELECT o.id FROM organisation o
-                                INNER JOIN organisation_organisation oo ON o.id = oo.parent_organisation_id
-                                INNER JOIN sub_organisations so ON oo.organisation_id = so.id
-               )
-               SELECT DISTINCT id FROM sub_organisations
-               """;
     }
 }

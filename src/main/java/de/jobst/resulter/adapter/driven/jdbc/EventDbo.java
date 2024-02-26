@@ -10,6 +10,7 @@ import lombok.With;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
@@ -109,4 +110,27 @@ public class EventDbo {
         return asEvents(List.of(eventDbo)).getFirst();
     }
 
+    public static String mapOrdersDomainToDbo(Sort.Order order) {
+        return switch (order.getProperty()) {
+            case "id.value" -> "id";
+            case "event.name.value" -> "name";
+            case "startTime.value" -> "startTime";
+            case "endTime.value" -> "endTime";
+            case "state.id" -> "state";
+            case "organisationIds" -> "organisations";
+            default -> order.getProperty();
+        };
+    }
+
+    public static String mapOrdersDboToDomain(Sort.Order order) {
+        return switch (order.getProperty()) {
+            case "id" -> "id.value";
+            case "name" -> "event.name.value";
+            case "startTime" -> "startTime.value";
+            case "endTime" -> "endTime.value";
+            case "state" -> "state.id";
+            case "organisations" -> "organisationIds";
+            default -> order.getProperty();
+        };
+    }
 }

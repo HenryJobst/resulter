@@ -89,7 +89,11 @@ public class OrganisationController {
                 OrganisationName.of(organisationDto.name()),
                 OrganisationShortName.of(organisationDto.shortName()),
                 OrganisationType.fromValue(organisationDto.type().id()),
-                (organisationDto.countryId() != null) ? CountryId.of(organisationDto.countryId()) : null,
+                (organisationDto.country() != null) ?
+                Country.of(organisationDto.country().id(),
+                    organisationDto.country().code(),
+                    organisationDto.country().name()) :
+                null,
                 organisationDto.organisationIds() == null ?
                 new ArrayList<>() :
                 organisationDto.organisationIds().stream().map(OrganisationId::of).toList());
@@ -117,7 +121,11 @@ public class OrganisationController {
                 organisationService.createOrganisation(OrganisationName.of(organisationDto.name()),
                     OrganisationShortName.of(organisationDto.shortName()),
                     OrganisationType.fromValue(organisationDto.type().id()),
-                    (organisationDto.countryId() != null) ? CountryId.of(organisationDto.countryId()) : null,
+                    (organisationDto.country() != null) ?
+                    Country.of(organisationDto.country().id(),
+                        organisationDto.country().code(),
+                        organisationDto.country().name()) :
+                    null,
                     organisationDto.organisationIds() == null ?
                     new ArrayList<>() :
                     organisationDto.organisationIds().stream().map(OrganisationId::of).toList());

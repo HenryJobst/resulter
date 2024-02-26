@@ -41,7 +41,7 @@ public class OrganisationService {
                                            OrganisationName name,
                                            OrganisationShortName shortName,
                                            OrganisationType type,
-                                           CountryId countryId,
+                                           Country country,
                                            Collection<OrganisationId> parentOrganisationIds) {
 
         Optional<Organisation> optionalOrganisation = findById(id);
@@ -49,17 +49,17 @@ public class OrganisationService {
             return null;
         }
         Organisation organisation = optionalOrganisation.get();
-        organisation.update(name, shortName, type, countryId, parentOrganisationIds);
+        organisation.update(name, shortName, type, country, parentOrganisationIds);
         return organisationRepository.save(organisation);
     }
 
     public Organisation createOrganisation(OrganisationName name,
                                            OrganisationShortName shortName,
                                            OrganisationType type,
-                                           CountryId countryId,
+                                           Country country,
                                            Collection<OrganisationId> parentOrganisationIds) {
 
-        Organisation organisation = Organisation.of(name, shortName, type, countryId, parentOrganisationIds);
+        Organisation organisation = Organisation.of(name, shortName, type, country, parentOrganisationIds);
         return organisationRepository.save(organisation);
     }
 

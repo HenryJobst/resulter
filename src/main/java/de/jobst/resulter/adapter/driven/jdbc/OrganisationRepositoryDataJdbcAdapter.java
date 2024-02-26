@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.OrganisationRepository;
+import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -52,20 +54,25 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
         dboResolvers.setCountryDboResolver(id -> countryJdbcRepository.findById(id.value()).orElseThrow());
         OrganisationDbo organisationDbo = OrganisationDbo.from(organisation, dboResolvers);
         OrganisationDbo savedOrganisationEntity = organisationJdbcRepository.save(organisationDbo);
-        return savedOrganisationEntity.asOrganisation();
+        return savedOrganisationEntity.asOrganisation(getCountryResolver());
+    }
+
+    @NonNull
+    private Function<Long, Country> getCountryResolver() {
+        return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
 
     @Override
     @Transactional
     public List<Organisation> findAll() {
-        return organisationJdbcRepository.findAll().stream().map(OrganisationDbo::asOrganisation).sorted().toList();
+        return organisationJdbcRepository.findAll().stream().map(x -> x.asOrganisation(getCountryResolver())).toList();
     }
 
     @Override
     @Transactional
     public Optional<Organisation> findById(OrganisationId organisationId) {
         Optional<OrganisationDbo> organisationEntity = organisationJdbcRepository.findById(organisationId.value());
-        return organisationEntity.map(OrganisationDbo::asOrganisation);
+        return organisationEntity.map(x -> x.asOrganisation(getCountryResolver()));
     }
 
     @Override
@@ -77,7 +84,7 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
             return save(organisation);
         }
         OrganisationDbo entity = organisationEntity.get();
-        return entity.asOrganisation();
+        return entity.asOrganisation(getCountryResolver());
     }
 
     @Override
@@ -117,7 +124,7 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
         Page<OrganisationDbo> page = organisationJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(
             pageable,
             OrganisationDbo::mapOrdersDomainToDbo));
-        return new PageImpl<>(page.stream().map(OrganisationDbo::asOrganisation).toList(),
+        return new PageImpl<>(page.stream().map(x -> x.asOrganisation(getCountryResolver())).toList(),
             FilterAndSortConverter.mapOrderProperties(page.getPageable(), OrganisationDbo::mapOrdersDboToDomain),
             page.getTotalElements());
     }

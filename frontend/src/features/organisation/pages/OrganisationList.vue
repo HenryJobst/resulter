@@ -4,9 +4,7 @@ import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
 import { organisationService } from '@/features/organisation/services/organisation.service'
-import { countryService } from '@/features/country/services/country.service'
 
 const authStore = useAuthStore()
 const { t } = useI18n()
@@ -20,7 +18,7 @@ const columns: GenericListColumn[] = [
   { label: 'labels.name', field: 'name', sortable: true },
   { label: 'labels.short_name', field: 'shortName', sortable: true },
   { label: 'labels.type', field: 'type', type: 'enum', sortable: true },
-  { label: 'labels.country', field: 'countryId', type: 'id', sortable: true },
+  { label: 'labels.country', field: 'country.name', sortable: true },
   {
     label: 'labels.child_organisation',
     field: 'organisationIds',
@@ -29,17 +27,6 @@ const columns: GenericListColumn[] = [
     sortable: false
   }
 ]
-
-const organisationQuery = useQuery({
-  queryKey: ['organisations'],
-  queryFn: () => organisationService.getAll(t),
-  select: (data) => data ?? []
-})
-
-const countryQuery = useQuery({
-  queryKey: ['countries'],
-  queryFn: () => countryService.getAll(t)
-})
 </script>
 
 <template v-if="authStore.isAdmin">
@@ -54,12 +41,6 @@ const countryQuery = useQuery({
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['type', 'organisation_type.']])"
   >
-    <template v-slot:organisationIds="{ value }" v-if="organisationQuery.data.value">
-      <div>{{ organisationQuery.data.value.find((org) => org.id === value)?.name }}</div>
-    </template>
-    <template v-slot:countryId="{ value }" v-if="countryQuery.data.value">
-      <div>{{ countryQuery.data.value.find((c) => c.id === value)?.name }}</div>
-    </template>
   </GenericList>
 </template>
 

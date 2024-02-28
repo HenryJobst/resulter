@@ -17,8 +17,8 @@ const formData = ref<Organisation | Omit<Organisation, 'id'>>({
   name: '',
   shortName: '',
   type: { id: 'Other' },
-  countryId: 1,
-  organisationIds: []
+  country: { id: 1, name: 'GER' },
+  childOrganisations: []
 })
 </script>
 

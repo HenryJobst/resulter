@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.Organisation;
-import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.OrganisationType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -75,15 +74,16 @@ public class OrganisationDbo {
             organisationDbo.setCountry(null);
         }
 
-        organisationDbo.setChildOrganisations(organisation.getChildOrganisationIds()
+        organisationDbo.setChildOrganisations(organisation.getChildOrganisations()
             .stream()
-            .map(it -> new OrganisationOrganisationDbo(it.value()))
+            .map(it -> new OrganisationOrganisationDbo(it.getId().value()))
             .collect(Collectors.toSet()));
 
         return organisationDbo;
     }
 
-    public Organisation asOrganisation(Function<Long, Country> countryResolver) {
+    public Organisation asOrganisation(Function<Long, Organisation> organisationResolver,
+                                       Function<Long, Country> countryResolver) {
         return Organisation.of(id,
             name,
             shortName,
@@ -91,7 +91,7 @@ public class OrganisationDbo {
             country != null ? countryResolver.apply(country.getId()) : null,
             childOrganisations == null ?
             new ArrayList<>() :
-            childOrganisations.stream().map(x -> OrganisationId.of(x.id.getId())).toList());
+            childOrganisations.stream().map(x -> organisationResolver.apply(x.id.getId())).toList());
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

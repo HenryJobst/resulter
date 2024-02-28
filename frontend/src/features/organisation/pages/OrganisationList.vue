@@ -21,7 +21,7 @@ const columns: GenericListColumn[] = [
   { label: 'labels.country', field: 'country.name', sortable: true },
   {
     label: 'labels.child_organisation',
-    field: 'organisationIds',
+    field: 'childOrganisations',
     type: 'list',
     label_count: 2,
     sortable: false
@@ -41,6 +41,9 @@ const columns: GenericListColumn[] = [
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['type', 'organisation_type.']])"
   >
+    <template v-slot:childOrganisations="{ value }">
+      <div>{{ value?.name }}</div>
+    </template>
   </GenericList>
 </template>
 

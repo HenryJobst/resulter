@@ -117,7 +117,7 @@ public class EventDbo {
             case "startTime.value" -> "startTime";
             case "endTime.value" -> "endTime";
             case "state.id" -> "state";
-            case "organisationIds" -> "organisations";
+            case "childOrganisationIds" -> "organisations";
             default -> order.getProperty();
         };
     }
@@ -129,7 +129,7 @@ public class EventDbo {
             case "startTime" -> "startTime.value";
             case "endTime" -> "endTime.value";
             case "state" -> "state.id";
-            case "organisations" -> "organisationIds";
+            case "organisations" -> "childOrganisationIds";
             default -> order.getProperty();
         };
     }

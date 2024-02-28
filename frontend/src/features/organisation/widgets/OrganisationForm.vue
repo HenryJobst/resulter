@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Dropdown from 'primevue/dropdown'
-import MultiSelect from 'primevue/multiselect'
 import InputText from 'primevue/inputtext'
 import { useI18n } from 'vue-i18n'
 import type { Organisation } from '@/features/organisation/model/organisation'
@@ -47,6 +46,13 @@ const emit = defineEmits(['update:modelValue'])
 const organisation = computed({
   get: () => props.organisation,
   set: (value) => emit('update:modelValue', value)
+})
+
+const childOrganisations = computed({
+  get: () => organisation.value?.childOrganisations.map((org) => org.id) || [],
+  set: (value) => {
+    console.log(value)
+  }
 })
 </script>
 
@@ -95,7 +101,7 @@ const organisation = computed({
         <Dropdown
           v-else-if="countryQuery.data && countryQuery.data.value"
           id="country"
-          v-model="organisation.countryId"
+          v-model="organisation.country.id"
           :options="countryQuery.data.value"
           optionLabel="name"
           optionValue="id"
@@ -116,17 +122,17 @@ const organisation = computed({
         </span>
 
         <div v-else-if="organisationQuery.data && organisationQuery.data.value" class="card">
-          <MultiSelect
-            id="organisations"
-            v-model="organisation.organisationIds"
-            :options="organisationQuery.data.value"
-            data-key="id"
-            filter
-            optionLabel="name"
-            optionValue="id"
-            :placeholder="t('messages.select')"
-            class="w-full md:w-20rem"
-          />
+          <!--MultiSelect
+                      id="organisations"
+                      v-model="childOrganisations"
+                      :options="organisationQuery.data.value"
+                      data-key="id"
+                      filter
+                      optionLabel="name"
+                      optionValue="id"
+                      :placeholder="t('messages.select')"
+                      class="w-full md:w-20rem"
+                    /-->
         </div>
       </div>
     </div>

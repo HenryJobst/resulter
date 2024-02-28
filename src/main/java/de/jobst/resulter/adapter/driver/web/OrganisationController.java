@@ -89,14 +89,10 @@ public class OrganisationController {
                 OrganisationName.of(organisationDto.name()),
                 OrganisationShortName.of(organisationDto.shortName()),
                 OrganisationType.fromValue(organisationDto.type().id()),
-                (organisationDto.country() != null) ?
-                Country.of(organisationDto.country().id(),
-                    organisationDto.country().code(),
-                    organisationDto.country().name()) :
-                null,
-                organisationDto.organisationIds() == null ?
+                (organisationDto.country() != null) ? CountryId.of(organisationDto.country().id()) : null,
+                organisationDto.childOrganisations() == null ?
                 new ArrayList<>() :
-                organisationDto.organisationIds().stream().map(OrganisationId::of).toList());
+                organisationDto.childOrganisations().stream().map(x -> OrganisationId.of(x.id())).toList());
             if (null != organisation) {
                 return ResponseEntity.ok(OrganisationDto.from(organisation));
             } else {
@@ -121,14 +117,10 @@ public class OrganisationController {
                 organisationService.createOrganisation(OrganisationName.of(organisationDto.name()),
                     OrganisationShortName.of(organisationDto.shortName()),
                     OrganisationType.fromValue(organisationDto.type().id()),
-                    (organisationDto.country() != null) ?
-                    Country.of(organisationDto.country().id(),
-                        organisationDto.country().code(),
-                        organisationDto.country().name()) :
-                    null,
-                    organisationDto.organisationIds() == null ?
+                    (organisationDto.country() != null) ? CountryId.of(organisationDto.country().id()) : null,
+                    organisationDto.childOrganisations() == null ?
                     new ArrayList<>() :
-                    organisationDto.organisationIds().stream().map(OrganisationId::of).toList());
+                    organisationDto.childOrganisations().stream().map(x -> OrganisationId.of(x.id())).toList());
             if (null != organisation) {
                 return ResponseEntity.ok(OrganisationDto.from(organisation));
             } else {

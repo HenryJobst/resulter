@@ -28,4 +28,7 @@ public interface OrganisationRepository {
     Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet);
 
     Page<Organisation> findAll(@Nullable String filter, @NonNull Pageable pageable);
+
+    @NonNull
+    List<Organisation> findByIds(Collection<OrganisationId> childOrganisations);
 }

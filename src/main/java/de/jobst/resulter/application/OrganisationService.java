@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.application.port.CountryRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
 import org.springframework.data.domain.Page;
@@ -16,9 +17,11 @@ import java.util.Optional;
 public class OrganisationService {
 
     private final OrganisationRepository organisationRepository;
+    private final CountryRepository countryRepository;
 
-    public OrganisationService(OrganisationRepository organisationRepository) {
+    public OrganisationService(OrganisationRepository organisationRepository, CountryRepository countryRepository) {
         this.organisationRepository = organisationRepository;
+        this.countryRepository = countryRepository;
     }
 
     public List<Organisation> findAll() {
@@ -37,29 +40,45 @@ public class OrganisationService {
         return organisationRepository.findById(organisationId);
     }
 
+    @NonNull
+    private List<Organisation> findByIds(Collection<OrganisationId> childOrganisations) {
+        return organisationRepository.findByIds(childOrganisations);
+    }
+
     public Organisation updateOrganisation(OrganisationId id,
                                            OrganisationName name,
                                            OrganisationShortName shortName,
                                            OrganisationType type,
-                                           Country country,
-                                           Collection<OrganisationId> parentOrganisationIds) {
+                                           CountryId countryId,
+                                           Collection<OrganisationId> childOrganisationIds) {
 
         Optional<Organisation> optionalOrganisation = findById(id);
         if (optionalOrganisation.isEmpty()) {
             return null;
         }
+        Optional<Country> optionalCountry = countryRepository.findById(countryId);
+        if (optionalCountry.isEmpty()) {
+            return null;
+        }
+        List<Organisation> childOrganisations = findByIds(childOrganisationIds);
         Organisation organisation = optionalOrganisation.get();
-        organisation.update(name, shortName, type, country, parentOrganisationIds);
+        organisation.update(name, shortName, type, optionalCountry.get(), childOrganisations);
         return organisationRepository.save(organisation);
     }
+
 
     public Organisation createOrganisation(OrganisationName name,
                                            OrganisationShortName shortName,
                                            OrganisationType type,
-                                           Country country,
-                                           Collection<OrganisationId> parentOrganisationIds) {
+                                           CountryId countryId,
+                                           Collection<OrganisationId> childOrganisationIds) {
 
-        Organisation organisation = Organisation.of(name, shortName, type, country, parentOrganisationIds);
+        Optional<Country> optionalCountry = countryRepository.findById(countryId);
+        if (optionalCountry.isEmpty()) {
+            return null;
+        }
+        List<Organisation> childOrganisations = findByIds(childOrganisationIds);
+        Organisation organisation = Organisation.of(name, shortName, type, optionalCountry.get(), childOrganisations);
         return organisationRepository.save(organisation);
     }
 

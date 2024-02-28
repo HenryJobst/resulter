@@ -81,6 +81,12 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
         return new PageImpl<>(new ArrayList<>(organisations.values()), pageable, organisations.size());
     }
 
+    @NonNull
+    @Override
+    public List<Organisation> findByIds(Collection<OrganisationId> childOrganisationIds) {
+        return childOrganisationIds.stream().map(organisations::get).toList();
+    }
+
     @SuppressWarnings("unused")
     public List<Organisation> savedOrganisations() {
         return savedOrganisations;

@@ -24,7 +24,7 @@ public record EventDto(Long id, String name, String startTime, EventStatusDto st
             case "id" -> "id.value";
             case "name" -> "event.name.value";
             case "startTime" -> "startTime.value";
-            case "state" -> "eventState.value";
+            case "state" -> "state.id";
             case "organisations" -> "childOrganisationIds";
             default -> order.getProperty();
         };
@@ -36,7 +36,7 @@ public record EventDto(Long id, String name, String startTime, EventStatusDto st
             case "id.value" -> "id";
             case "event.name.value" -> "name";
             case "startTime.value" -> "startTime";
-            case "eventState.value" -> "state";
+            case "state.id" -> "state";
             case "childOrganisationIds" -> "organisations";
             default -> order.getProperty();
         };

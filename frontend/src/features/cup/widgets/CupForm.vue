@@ -82,7 +82,7 @@ const formSubmitHandler = () => {
             <MultiSelect
               id="events"
               v-model="formData.eventIds"
-              :options="eventQuery.data.value"
+              :options="eventQuery.data.value.content"
               data-key="id"
               filter
               optionLabel="name"

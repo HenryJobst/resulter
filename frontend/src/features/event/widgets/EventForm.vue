@@ -5,16 +5,17 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import Calendar from 'primevue/calendar'
-import MultiSelect from 'primevue/multiselect'
+import MultiSelect, { type MultiSelectChangeEvent } from 'primevue/multiselect'
 import { useQuery } from '@tanstack/vue-query'
 import { EventService } from '@/features/event/services/event.service'
 import Dropdown from 'primevue/dropdown'
 import { organisationService } from '@/features/organisation/services/organisation.service'
+import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
 
 const { t } = useI18n()
 
 const props = defineProps<{
-  event: SportEvent
+  event?: SportEvent
   entityService: EventService
   queryKey: string[]
 }>()
@@ -26,10 +27,13 @@ const event = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
+const l_organisations = ref<number[]>(
+  event.value ? event.value.organisations.map((org) => org.id) : []
+)
+
 const organisationQuery = useQuery({
   queryKey: ['organisations'],
-  queryFn: () => organisationService.getAll(t),
-  select: (data) => data ?? []
+  queryFn: () => organisationService.getAll(t)
 })
 
 const eventStatusQuery = useQuery({
@@ -60,7 +64,7 @@ const datePart = computed({
       dateTime.value.getHours(),
       dateTime.value.getMinutes()
     )
-    if (props.event) {
+    if (props.event && event.value) {
       event.value.startTime = dateTime.value.toISOString()
     }
   }
@@ -95,6 +99,34 @@ onMounted(() => {
     dateTime.value = new Date(props.event.startTime)
   }
 })
+
+const getOrganisationKeysFromIds = (ids: number[]): OrganisationKey[] | null => {
+  if (!organisationQuery.data.value || !organisationQuery.data.value.content) {
+    return null
+  }
+  return ids
+    .map((id) => {
+      return organisationQuery.data.value?.content.find((b) => b.id === id)
+    })
+    .filter((org) => org !== undefined)
+    .map((org) => {
+      return {
+        id: org!.id,
+        name: org!.name
+      }
+    })
+}
+
+const handleSelectionChange = (ev: MultiSelectChangeEvent) => {
+  if (
+    ev.value &&
+    event.value &&
+    organisationQuery.data.value &&
+    organisationQuery.data.value.content
+  ) {
+    event.value.organisations = getOrganisationKeysFromIds(ev.value)!
+  }
+}
 </script>
 
 <template>
@@ -148,11 +180,13 @@ onMounted(() => {
           {{ t('messages.error', { message: organisationQuery.error.toLocaleString() }) }}
         </span>
 
-        <div v-else-if="organisationQuery.data" class="card">
+        <div v-else-if="organisationQuery.data && organisationQuery.data.value" class="card">
           <MultiSelect
             id="organisations"
-            v-model="event.organisations"
-            :options="organisationQuery.data.value"
+            v-model="l_organisations"
+            @change="handleSelectionChange"
+            :options="organisationQuery.data.value.content"
+            data-key="id"
             filter
             optionLabel="name"
             optionValue="id"

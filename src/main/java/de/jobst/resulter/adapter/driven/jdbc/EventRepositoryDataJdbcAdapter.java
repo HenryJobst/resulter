@@ -2,8 +2,10 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventRepository;
+import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.Organisation;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -40,6 +43,18 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         return (EventId id) -> findDboById(id).orElseThrow();
     }
 
+    @NonNull
+    private Function<Long, Organisation> getOrganisationResolver() {
+        return id -> organisationJdbcRepository.findById(id)
+            .orElseThrow()
+            .asOrganisation(getOrganisationResolver(), getCountryResolver());
+    }
+
+    @NonNull
+    private Function<Long, Country> getCountryResolver() {
+        return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
+    }
+
     @Override
     @Transactional
     public Event save(Event event) {
@@ -50,7 +65,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         dboResolvers.setCountryDboResolver(id -> countryJdbcRepository.findById(id.value()).orElseThrow());
         EventDbo eventEntity = EventDbo.from(event, dboResolvers);
         EventDbo savedEventEntity = eventJdbcRepository.save(eventEntity);
-        return EventDbo.asEvent(savedEventEntity);
+        return EventDbo.asEvent(savedEventEntity, getOrganisationResolver());
     }
 
     @Override
@@ -62,7 +77,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Transactional(readOnly = true)
     public List<Event> findAll() {
         Collection<EventDbo> resultList = eventJdbcRepository.findAll();
-        return EventDbo.asEvents(resultList);
+        return EventDbo.asEvents(resultList, getOrganisationResolver());
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +88,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Event> findById(EventId eventId) {
-        return findDboById(eventId).map(EventDbo::asEvent);
+        return findDboById(eventId).map(x -> EventDbo.asEvent(x, getOrganisationResolver()));
     }
 
     @Override
@@ -83,14 +98,14 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         if (optionalEventDbo.isEmpty()) {
             return save(event);
         }
-        return EventDbo.asEvent(optionalEventDbo.get());
+        return EventDbo.asEvent(optionalEventDbo.get(), getOrganisationResolver());
     }
 
     @Override
     public Page<Event> findAll(String filter, @NonNull Pageable pageable) {
         Page<EventDbo> page = eventJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
             EventDbo::mapOrdersDomainToDbo));
-        return new PageImpl<>(page.stream().map(EventDbo::asEvent).toList(),
+        return new PageImpl<>(page.stream().map(x -> EventDbo.asEvent(x, getOrganisationResolver())).toList(),
             FilterAndSortConverter.mapOrderProperties(page.getPageable(), EventDbo::mapOrdersDboToDomain),
             page.getTotalElements());
     }

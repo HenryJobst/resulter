@@ -17,14 +17,14 @@ class EventDboMappingTest {
     public void databaseEntityToDomainIsMappedCorrectly() {
         EventDbo eventDbo = new EventDbo(EventTestDataGenerator.A_EVENT_NAME);
 
-        Event event = EventDbo.asEvents(List.of(eventDbo)).getFirst();
+        Event event = EventDbo.asEvents(List.of(eventDbo), x -> null).getFirst();
 
         assertThat(event.getId().value()).isNull();
         assertThat(event.getName().value()).isEqualTo(EventTestDataGenerator.A_EVENT_NAME);
         assertThat(event.getStartTime()).isNotNull();
         assertThat(event.getStartTime().value()).isNull();
-        assertThat(event.getOrganisationIds()).isNotNull();
-        assertThat(event.getOrganisationIds()).isEmpty();
+        assertThat(event.getOrganisations()).isNotNull();
+        assertThat(event.getOrganisations()).isEmpty();
         assertThat(event.getEventState()).isNull();
     }
 

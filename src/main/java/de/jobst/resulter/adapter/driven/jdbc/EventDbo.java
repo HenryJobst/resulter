@@ -2,7 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventStatus;
-import de.jobst.resulter.domain.OrganisationId;
+import de.jobst.resulter.domain.Organisation;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +18,11 @@ import org.springframework.lang.NonNull;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Data
@@ -83,31 +87,29 @@ public class EventDbo {
             eventDbo.setState(null);
         }
 
-        eventDbo.setOrganisations(event.getOrganisationIds()
+        eventDbo.setOrganisations(event.getOrganisations()
             .stream()
-            .map(x -> new EventOrganisationDbo(x.value()))
+            .map(x -> new EventOrganisationDbo(x.getId().value()))
             .collect(Collectors.toSet()));
 
         return eventDbo;
     }
 
-    static public List<Event> asEvents(@NonNull Collection<EventDbo> eventDbos) {
+    static public List<Event> asEvents(@NonNull Collection<EventDbo> eventDbos,
+                                       Function<Long, Organisation> organisationResolver) {
 
         return eventDbos.stream()
             .map(it -> Event.of(it.id,
                 it.name,
                 it.startTime != null ? it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)) : null,
                 it.endTime != null ? it.endTime.atZoneSameInstant(ZoneId.of(it.endTimeZone)) : null,
-                it.organisations.stream()
-                    .map(x -> Objects.nonNull(x) ? OrganisationId.of(x.id.getId()) : null)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet()),
+                it.organisations.stream().map(x -> organisationResolver.apply(x.id.getId())).toList(),
                 it.state))
             .toList();
     }
 
-    static public Event asEvent(@NonNull EventDbo eventDbo) {
-        return asEvents(List.of(eventDbo)).getFirst();
+    static public Event asEvent(@NonNull EventDbo eventDbo, Function<Long, Organisation> organisationResolver) {
+        return asEvents(List.of(eventDbo), organisationResolver).getFirst();
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

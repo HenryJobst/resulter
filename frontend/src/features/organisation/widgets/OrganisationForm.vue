@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import Dropdown from 'primevue/dropdown'
 import InputText from 'primevue/inputtext'
+import MultiSelect, { type MultiSelectChangeEvent } from 'primevue/multiselect'
 import { useI18n } from 'vue-i18n'
 import type { Organisation } from '@/features/organisation/model/organisation'
 import { useQuery } from '@tanstack/vue-query'
 import { OrganisationService } from '@/features/organisation/services/organisation.service'
 import { countryService } from '@/features/country/services/country.service'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
 
 const { t } = useI18n()
 
@@ -48,12 +50,32 @@ const organisation = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-const childOrganisations = computed({
-  get: () => organisation.value?.childOrganisations.map((org) => org.id) || [],
-  set: (value) => {
-    console.log(value)
+const childOrganisations = ref<number[]>(
+  organisation.value ? organisation.value.childOrganisations.map((org) => org.id) : []
+)
+
+const getOrganisationKeysFromIds = (ids: number[]): OrganisationKey[] | null => {
+  if (!organisationQuery.data.value || !organisationQuery.data.value.content) {
+    return null
   }
-})
+  return ids
+    .map((id) => {
+      return organisationQuery.data.value?.content.find((b) => b.id === id)
+    })
+    .filter((org) => org !== undefined)
+    .map((org) => {
+      return {
+        id: org!.id,
+        name: org!.name
+      }
+    })
+}
+
+const handleSelectionChange = (event: MultiSelectChangeEvent) => {
+  if (organisation.value && organisationQuery.data.value && organisationQuery.data.value.content) {
+    organisation.value.childOrganisations = getOrganisationKeysFromIds(event.value)!
+  }
+}
 </script>
 
 <template>
@@ -122,17 +144,18 @@ const childOrganisations = computed({
         </span>
 
         <div v-else-if="organisationQuery.data && organisationQuery.data.value" class="card">
-          <!--MultiSelect
-                      id="organisations"
-                      v-model="childOrganisations"
-                      :options="organisationQuery.data.value"
-                      data-key="id"
-                      filter
-                      optionLabel="name"
-                      optionValue="id"
-                      :placeholder="t('messages.select')"
-                      class="w-full md:w-20rem"
-                    /-->
+          <MultiSelect
+            id="organisations"
+            v-model="childOrganisations"
+            @change="handleSelectionChange"
+            :options="organisationQuery.data.value.content"
+            data-key="id"
+            filter
+            optionLabel="name"
+            optionValue="id"
+            :placeholder="t('messages.select')"
+            class="w-full md:w-20rem"
+          />
         </div>
       </div>
     </div>

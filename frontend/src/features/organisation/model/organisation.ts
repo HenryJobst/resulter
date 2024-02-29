@@ -2,9 +2,7 @@ import type { OrganisationType } from '@/features/organisation/model/organisatio
 import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
 import type { CountryKey } from '@/features/country/models/country_key'
 
-export interface Organisation {
-  id: number
-  name: string
+export interface Organisation extends OrganisationKey {
   shortName: string
   type: OrganisationType
   country: CountryKey

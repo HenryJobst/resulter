@@ -44,7 +44,7 @@ const organisationQuery = useQuery({
     :enum-type-label-prefixes="new Map([['state', 'event_state.']])"
   >
     <template v-slot:organisations="{ value }" v-if="organisationQuery.data.value">
-      <div>{{ organisationQuery.data.value.find((org) => org.id === value)?.name }}</div>
+      <div>{{ value?.name }}</div>
     </template>
     <template v-slot:extra_list_actions>
       <router-link class="ml-2" :to="{ name: 'event-import' }" v-if="authStore.isAuthenticated">

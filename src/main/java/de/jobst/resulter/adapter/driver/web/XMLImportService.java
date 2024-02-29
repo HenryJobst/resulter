@@ -205,11 +205,7 @@ public class XMLImportService {
                               Map<String, Organisation> organisationByName) {
         // Event
         Event event = Event.of(resultList.getEvent().getName(),
-            resultList.getEvent()
-                .getOrganisers()
-                .stream()
-                .map(x -> OrganisationId.of(organisationByName.get(x.getName()).getId().value()))
-                .collect(Collectors.toSet()));
+            resultList.getEvent().getOrganisers().stream().map(x -> organisationByName.get(x.getName())).toList());
         event = eventService.findOrCreate(event);
         return event;
     }

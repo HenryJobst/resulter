@@ -7,8 +7,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 
 @Getter
@@ -19,26 +19,26 @@ public class Event implements Comparable<Event> {
     private EventId id;
     @NonNull
     private EventName name;
-    @NonNull
+    @Nullable
     private DateTime startTime;
     @NonNull
     private final DateTime endTime;
     @NonNull
     private EventStatus eventState;
     @NonNull
-    private Set<OrganisationId> organisationIds;
+    private Collection<Organisation> organisations;
 
     public Event(@NonNull EventId id,
                  @NonNull EventName eventName,
                  @NonNull DateTime startTime,
                  @NonNull DateTime endTime,
-                 @NonNull Set<OrganisationId> organisationIds,
+                 @NonNull Collection<Organisation> organisations,
                  @NonNull EventStatus eventState) {
         this.id = id;
         this.name = eventName;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.organisationIds = organisationIds;
+        this.organisations = organisations;
         this.eventState = eventState;
     }
 
@@ -50,7 +50,7 @@ public class Event implements Comparable<Event> {
         return Event.of(id, name, null, null, new HashSet<>(), EventStatus.getDefault());
     }
 
-    public static Event of(@NonNull String name, @Nullable Set<OrganisationId> organisations) {
+    public static Event of(@NonNull String name, @NonNull Collection<Organisation> organisations) {
         return Event.of(EventId.empty().value(), name, null, null, organisations, EventStatus.getDefault());
     }
 
@@ -58,26 +58,26 @@ public class Event implements Comparable<Event> {
                            @NonNull String eventName,
                            @Nullable ZonedDateTime startTime,
                            @Nullable ZonedDateTime endTime,
-                           @Nullable Set<OrganisationId> organisationIds,
+                           @NonNull Collection<Organisation> organisations,
                            @NonNull EventStatus eventState) {
         return new Event(EventId.of(id),
             EventName.of(eventName),
             DateTime.of(startTime),
             DateTime.of(endTime),
-            (organisationIds != null) ? organisationIds : new HashSet<>(),
+            organisations,
             eventState);
     }
 
 
-    public void update(EventName eventName,
-                       DateTime startTime,
-                       EventStatus status,
-                       Set<OrganisationId> organisationIds) {
+    public void update(@NonNull EventName eventName,
+                       @Nullable DateTime startTime,
+                       @NonNull EventStatus status,
+                       @NonNull Collection<Organisation> organisations) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
         this.eventState = status;
-        this.organisationIds = organisationIds != null ? organisationIds : new HashSet<>();
+        this.organisations = organisations;
     }
 
     @Override

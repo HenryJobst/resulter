@@ -1,12 +1,14 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.OrganisationId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 
-public record EventDto(Long id, String name, String startTime, EventStatusDto state, Long[] organisations) {
+import java.util.List;
+
+public record EventDto(Long id, String name, String startTime, EventStatusDto state,
+                       List<OrganisationKeyDto> organisations) {
 
     static public EventDto from(Event event) {
         return new EventDto(ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0,
@@ -15,7 +17,7 @@ public record EventDto(Long id, String name, String startTime, EventStatusDto st
             event.getStartTime().value().toString() :
             null,
             EventStatusDto.from(event.getEventState()),
-            event.getOrganisationIds().stream().map(OrganisationId::value).toArray(Long[]::new));
+            event.getOrganisations().stream().map(OrganisationKeyDto::from).toList());
     }
 
     @NonNull
@@ -25,7 +27,7 @@ public record EventDto(Long id, String name, String startTime, EventStatusDto st
             case "name" -> "event.name.value";
             case "startTime" -> "startTime.value";
             case "state" -> "state.id";
-            case "organisations" -> "childOrganisationIds";
+            case "organisations" -> "organisations";
             default -> order.getProperty();
         };
     }
@@ -37,7 +39,7 @@ public record EventDto(Long id, String name, String startTime, EventStatusDto st
             case "event.name.value" -> "name";
             case "startTime.value" -> "startTime";
             case "state.id" -> "state";
-            case "childOrganisationIds" -> "organisations";
+            case "organisations" -> "organisations";
             default -> order.getProperty();
         };
     }

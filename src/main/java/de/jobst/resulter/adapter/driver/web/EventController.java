@@ -79,7 +79,7 @@ public class EventController {
                 null,
                 eventDto.organisations() == null ?
                 new HashSet<>() :
-                Arrays.stream(eventDto.organisations()).map(OrganisationId::of).collect(Collectors.toSet()));
+                eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()));
             if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
             } else {
@@ -119,7 +119,7 @@ public class EventController {
                 EventStatus.fromValue(eventDto.state().id()),
                 eventDto.organisations() == null ?
                 new HashSet<>() :
-                Arrays.stream(eventDto.organisations()).map(OrganisationId::of).collect(Collectors.toSet()));
+                eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()));
             if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
             } else {

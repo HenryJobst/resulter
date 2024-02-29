@@ -41,7 +41,7 @@ public class OrganisationService {
     }
 
     @NonNull
-    private List<Organisation> findByIds(Collection<OrganisationId> childOrganisations) {
+    List<Organisation> findByIds(Collection<OrganisationId> childOrganisations) {
         return organisationRepository.findByIds(childOrganisations);
     }
 

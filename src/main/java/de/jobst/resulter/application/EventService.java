@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class EventService {
@@ -53,13 +56,14 @@ public class EventService {
                              EventName name,
                              DateTime startDate,
                              EventStatus status,
-                             Set<OrganisationId> organisationIds) {
+                             Collection<OrganisationId> organisationIds) {
         Optional<Event> optionalEvent = findById(id);
         if (optionalEvent.isEmpty()) {
             return null;
         }
         Event event = optionalEvent.get();
-        event.update(name, startDate, status, organisationIds);
+        List<Organisation> organisations = organisationRepository.findByIds(organisationIds);
+        event.update(name, startDate, status, organisations);
         return eventRepository.save(event);
     }
 
@@ -75,8 +79,9 @@ public class EventService {
 
 
     public Event createEvent(String eventName, ZonedDateTime dateTime, Set<OrganisationId> organisationIds) {
+        List<Organisation> organisations = organisationRepository.findByIds(organisationIds);
         Event event =
-            Event.of(EventId.empty().value(), eventName, dateTime, dateTime, organisationIds, EventStatus.PLANNED);
+            Event.of(EventId.empty().value(), eventName, dateTime, dateTime, organisations, EventStatus.PLANNED);
         return eventRepository.save(event);
     }
 

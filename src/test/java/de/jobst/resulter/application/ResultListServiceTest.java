@@ -1,6 +1,5 @@
 package de.jobst.resulter.application;
 
-import com.itextpdf.text.DocumentException;
 import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +18,7 @@ class ResultListServiceTest {
     }
 
     @Test
-    void createCertificate() throws DocumentException, IOException {
+    void createCertificate() throws IOException {
         Person p = Person.of("Mustermann", "Max", null, Gender.M);
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
         Event e = Event.of("Berlin-Brandenburg-Meisterschaft\nim Mittel-OL 2024");
@@ -34,8 +33,9 @@ class ResultListServiceTest {
             certificateService.createCertificate(p, Optional.of(organisation), e, prr);
 
         File file = new File(certificate.filename());
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
-        fileOutputStream.write(certificate.resource().getByteArray());
-        fileOutputStream.flush();
+        try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+            fileOutputStream.write(certificate.resource().getByteArray());
+            fileOutputStream.flush();
+        }
     }
 }

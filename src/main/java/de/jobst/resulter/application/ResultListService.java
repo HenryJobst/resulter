@@ -1,6 +1,5 @@
 package de.jobst.resulter.application;
 
-import com.itextpdf.text.DocumentException;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import org.springframework.stereotype.Service;
@@ -87,7 +86,7 @@ public class ResultListService {
     }
 
     public CertificateService.Certificate createCertificate(ResultListId resultListId, PersonId personId)
-        throws DocumentException, IOException {
+        throws IOException {
         Optional<ResultList> optionalResultList = resultListRepository.findById(resultListId);
         if (optionalResultList.isEmpty()) {
             // no result list for id

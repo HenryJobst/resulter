@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import org.springframework.stereotype.Service;

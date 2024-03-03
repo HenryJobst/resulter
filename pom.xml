@@ -20,6 +20,7 @@
         <archunit.version>1.2.1</archunit.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <itext-core.version>8.0.3</itext-core.version>
+        <jackson-databind.version>2.16.1</jackson-databind.version>
         <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
         <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
         <jaxb2-maven-plugin.version>3.1.0</jaxb2-maven-plugin.version>
@@ -209,13 +210,18 @@
             <artifactId>p6spy-spring-boot-starter</artifactId>
             <version>${p6spy-spring-boot-starter.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.itextpdf/itext-core -->
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext-core</artifactId>
             <version>${itext-core.version}</version>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
+        </dependency>
+
 
     </dependencies>
     <dependencyManagement>

@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
 

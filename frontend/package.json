@@ -16,6 +16,7 @@
         "format": "prettier --write src/"
     },
     "dependencies": {
+        "@base2/pretty-print-object": "^1.0.2",
         "@quasar/extras": "^1.16.9",
         "@tanstack/vue-query": "^5.24.1",
         "@tanstack/vue-query-devtools": "^5.24.1",

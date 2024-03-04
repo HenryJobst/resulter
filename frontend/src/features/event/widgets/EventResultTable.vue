@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
-import moment from 'moment'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import { useQuery } from '@tanstack/vue-query'
 import { personService } from '@/features/person/services/person.service'
 import { organisationService } from '@/features/organisation/services/organisation.service'
+import type { PersonResult } from '@/features/event/model/person_result'
+import type { Person } from '@/features/person/model/person'
+import moment from 'moment'
+import type { Organisation } from '@/features/organisation/model/organisation'
+import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
+import { EventService } from '@/features/event/services/event.service'
+import Button from 'primevue/button'
 
-const props = defineProps<{ data: any }>()
+const props = defineProps<{ data: ResultListIdPersonResults }>()
 
 const { t } = useI18n()
 
@@ -41,80 +47,86 @@ const organisationQuery = useQuery({
   queryFn: () => organisationService.getAll(t)
 })
 
-const resultColumn = (slotProps: any): string => {
-  return slotProps.data.resultStatus === 'OK'
-    ? formatTime(slotProps.data.runTime)
-    : t('result_state.' + slotProps.data.resultStatus)
+const resultColumn = (data: PersonResult): string => {
+  return data.resultStatus === 'OK'
+    ? formatTime(data.runTime)
+    : t('result_state.' + data.resultStatus)
 }
 
-const birthYearColumn = (slotProps: any): string => {
-  const person = findPerson(slotProps)
+const birthYearColumn = (data: any): string => {
+  const person = findPerson(data.personId)
   if (person) {
     return person.birthDate ? formatBirthYear(person.birthDate) : ''
   }
   return ''
 }
 
-const findPerson = (slotProps: any) => {
-  if (slotProps.data.personId && personQuery.data.value) {
-    return personQuery.data.value.find((p) => p.id === slotProps.data.personId)
+const findPerson = (personId: number): Person | undefined => {
+  if (personId && personQuery.data.value) {
+    return personQuery.data.value.content.find((p) => p.id === personId)
   }
-  return null
+  return undefined
 }
 
-const personNameColumn = (slotProps: any): string => {
-  const person = findPerson(slotProps)
+const findOrganisation = (organisationId: number): Organisation | undefined => {
+  if (organisationId && organisationQuery.data.value) {
+    return organisationQuery.data.value.content.find((o) => o.id === organisationId)
+  }
+  return undefined
+}
+
+const personNameColumn = (data: PersonResult): string => {
+  const person = findPerson(data.personId)
   if (person) {
     return person.givenName + ' ' + person.familyName
   }
   return ''
 }
 
-const findOrganisation = (slotProps: any) => {
-  if (slotProps.data.organisationId && organisationQuery.data.value) {
-    return organisationQuery.data.value.find((o) => o.id === slotProps.data.organisationId)
-  }
-  return null
-}
-
-const organisationNameColumn = (slotProps: any): string => {
-  const organisation = findOrganisation(slotProps)
+const organisationNameColumn = (data: PersonResult): string => {
+  const organisation = findOrganisation(data.organisationId)
   if (organisation) {
     return organisation.name
   }
   return ''
 }
+
+const certificate = (resultListId: number, data: PersonResult) => {
+  EventService.certificate(resultListId, data.personId, t)
+}
 </script>
 
 <template>
-  <DataTable :value="props.data">
+  <DataTable :value="props.data.personResults">
     <Column field="position" :header="t('labels.position')" />
     <Column :header="t('labels.name')">
       <template #body="slotProps">
-        {{ personNameColumn(slotProps) }}
+        {{ personNameColumn(slotProps.data) }}
       </template>
     </Column>
     <Column :header="t('labels.birth_year')">
       <template #body="slotProps">
-        {{ birthYearColumn(slotProps) }}
+        {{ birthYearColumn(slotProps.data) }}
       </template>
     </Column>
     <Column :header="t('labels.organisation')">
       <template #body="slotProps">
-        {{ organisationNameColumn(slotProps) }}
+        {{ organisationNameColumn(slotProps.data) }}
       </template>
     </Column>
     <Column :header="t('labels.time')">
       <template #body="slotProps">
-        {{ resultColumn(slotProps) }}
+        {{ resultColumn(slotProps.data) }}
       </template>
     </Column>
-    <!--Column
-                                                                                                                                                                                                                                                                                                                                                                                                                                                v-for="score in cupScores"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                :key="score.type.name"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                :header="score.type.name"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                :field="score.score"
-                                                                                                                                                                                                                                                                                                                                                                                                                                              >
-                                                                                                                                                                                                                                                                                                                                                                                                                                              </Column-->
+    <Column>
+      <template #body="slotProps">
+        <Button
+          class="p-button-rounded p-button-text"
+          icon="pi pi-print"
+          @click="certificate(props.data.resultListId, slotProps.data)"
+        />
+      </template>
+    </Column>
   </DataTable>
 </template>

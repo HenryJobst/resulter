@@ -95,6 +95,35 @@ export class EventService extends GenericService<SportEvent> {
         return null
       })
   }
+
+  static async certificate(id: number, personId: number, t: (key: string) => string) {
+    return axiosInstance
+      .get(`${resultListUrl}/${id}/certificate?personId=${personId}`, { responseType: 'blob' })
+      .then((response) => {
+        // Extrahieren des Dateinamens aus dem Content-Disposition-Header
+        const contentDisposition = response.headers['content-disposition']
+        let filename = 'download.pdf' // Standard-Dateiname, falls nichts im Header gefunden wird
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="?(.+)"?/)
+          if (filenameMatch.length === 2) {
+            filename = filenameMatch[1]
+          }
+        }
+        // Erstellen einer URL aus dem Blob
+        const fileURL = window.URL.createObjectURL(new Blob([response.data]))
+        // Erstellen eines temporären <a>-Elements zum Download
+        const fileLink = document.createElement('a')
+        fileLink.href = fileURL
+        fileLink.setAttribute('download', filename) // Verwenden des extrahierten Dateinamens
+        document.body.appendChild(fileLink)
+        fileLink.click()
+        document.body.removeChild(fileLink)
+      })
+      .catch((error) => {
+        handleApiError(error, t)
+        return null
+      })
+  }
 }
 
 export const eventService = new EventService()

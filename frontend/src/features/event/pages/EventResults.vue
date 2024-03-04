@@ -9,11 +9,12 @@ import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { ResultList } from '@/features/event/model/result_list'
 import Tree from 'primevue/tree'
 import { courseService } from '@/features/course/services/course.service'
-import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
 import { raceService } from '@/features/race/services/race.service'
 import Button from 'primevue/button'
 import { useRouter } from 'vue-router'
 import moment from 'moment/min/moment-with-locales'
+import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
+import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
 
 const props = defineProps<{ id: string }>()
 
@@ -37,7 +38,7 @@ const eventQuery = useQuery({
 })
 
 const event = computed(() => {
-  return eventQuery.data.value?.find((e) => e.id === resultList0.value?.eventId)
+  return eventQuery.data.value?.content.find((e) => e.id === resultList0.value?.eventId)
 })
 
 const courseQuery = useQuery({
@@ -58,7 +59,7 @@ const formatCreateTime = (date: Date | string, locale: Ref<Locale>) => {
 }
 
 function getResultListLabel(resultList: ResultList) {
-  const name = raceQuery.data.value?.find((r) => r.id === resultList.raceId)?.name
+  const name = raceQuery.data.value?.content.find((r) => r.id === resultList.raceId)?.name
   return (
     (name ? name + ', ' : '') +
     t('labels.created') +
@@ -82,7 +83,7 @@ const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] 
       children: [
         {
           key: `${resultList.id.toString()}-table`,
-          data: createClassResultTreeNodes(resultList.classResults),
+          data: createClassResultTreeNodes(resultList.id, resultList.classResults),
           type: 'tree',
           leaf: false
         }
@@ -113,24 +114,32 @@ function getClassResultLabel(a: ClassResult) {
   )
 }
 
-const createClassResultTreeNodes = (aList: ClassResult[] | undefined): TreeNode[] => {
+const getPersonResults = (resultListId: number, a: ClassResult): ResultListIdPersonResults => {
+  return { resultListId: resultListId, personResults: a.personResults }
+}
+
+const createClassResultTreeNodes = (
+  resultListId: number,
+  aList: ClassResult[] | undefined
+): TreeNode[] => {
   if (!aList) {
     return []
   }
-  return aList.map(
+  const nodes = aList.map(
     (a): TreeNode => ({
       key: a.shortName.toString(),
       label: getClassResultLabel(a),
       children: [
         {
           key: `${a.shortName}-table`,
-          data: a.personResults,
+          data: getPersonResults(resultListId, a),
           type: 'dataTable',
           leaf: true
         }
       ]
     })
   )
+  return nodes
 }
 
 const treeNodes = computed(() => {
@@ -142,7 +151,7 @@ const treeNodes = computed(() => {
 
 const findCourse = (slotProps: any) => {
   if (slotProps.courseId && courseQuery.data.value) {
-    return courseQuery.data.value.find((c) => c.id === slotProps.courseId)
+    return courseQuery.data.value.content.find((c) => c.id === slotProps.courseId)
   }
   return null
 }

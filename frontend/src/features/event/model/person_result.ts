@@ -1,12 +1,10 @@
 import type { CupScore } from '@/features/event/model/cup_score'
 
 export interface PersonResult {
-  id: number
   position: number
-  personName: string
-  birthYear: string
+  personId: number
   runTime: string
   resultStatus: string
-  organisation: string
+  organisationId: number
   cupScores?: CupScore[]
 }

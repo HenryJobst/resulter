@@ -10,6 +10,6 @@ public record EventResultsDto(Collection<ResultListDto> resultLists) {
 
     static public EventResultsDto from(Event event, ResultListService resultListService) {
         Collection<ResultList> resultLists = resultListService.findByEventId(event.getId());
-        return new EventResultsDto(resultLists.stream().sorted().map(ResultListDto::from).toList());
+        return new EventResultsDto(resultLists.stream().sorted().map(x -> ResultListDto.from(x, event)).toList());
     }
 }

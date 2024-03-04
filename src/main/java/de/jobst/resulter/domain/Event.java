@@ -27,6 +27,8 @@ public class Event implements Comparable<Event> {
     private EventStatus eventState;
     @NonNull
     private Collection<Organisation> organisations;
+    @Nullable
+    private EventCertificate certificate;
 
     public Event(@NonNull EventId id,
                  @NonNull EventName eventName,

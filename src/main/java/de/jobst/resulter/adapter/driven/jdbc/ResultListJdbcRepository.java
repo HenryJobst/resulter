@@ -49,6 +49,25 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     Collection<PersonRaceResultJdbcDto> findPersonRaceResultsByEventId(@Param("eventId") Long eventId);
 
     @Query("""
+           SELECT DISTINCT 
+           rl.event_id, rl.id as result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status as result_list_status,
+           cl.short_name as class_list_short_name, cl.name as class_list_name, cl.gender as class_gender, cl.course_id,
+           pr.person_id, pr.organisation_id,
+           prr.start_time, prr.start_time_zone, prr.punch_time, prr.position, prr.state
+           FROM result_list rl
+           LEFT JOIN class_result cl ON rl.id = cl.result_list_id and cl.short_name = :classResultShortName
+           LEFT JOIN person_result pr ON rl.id = cl.result_list_id and pr.class_result_short_name = cl.short_name and pr.person_id = :personId
+           LEFT JOIN person_race_result prr ON rl.id = prr.result_list_id and prr.class_result_short_name = pr.class_result_short_name and prr.person_id = pr.person_id
+           WHERE rl.id = :resultListId
+           AND cl.short_name = :classResultShortName
+           AND pr.person_id = :personId
+           """)
+    Optional<PersonRaceResultJdbcDto> findPersonRaceResultByResultListIdAndClassResultShortNameAndPersonId(
+        @Param("resultListId") Long resultListId,
+        @Param("classResultShortName") String classResultShortName,
+        @Param("personId") Long personId);
+
+    @Query("""
            SELECT
            rl.id as value
            FROM result_list rl

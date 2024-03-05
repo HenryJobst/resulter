@@ -7,6 +7,7 @@ import { GenericService } from '@/features/generic/services/GenericService'
 import type { ResultList } from '@/features/event/model/result_list'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { RestResult } from '@/features/generic/models/rest_result'
+import { prettyPrint } from '@base2/pretty-print-object'
 
 const eventUrl: string = '/event'
 const resultListUrl: string = '/result_list'
@@ -96,10 +97,19 @@ export class EventService extends GenericService<SportEvent> {
       })
   }
 
-  static async certificate(id: number, personId: number, t: (key: string) => string) {
+  static async certificate(
+    id: number,
+    classResultShortName: string,
+    personId: number,
+    t: (key: string) => string
+  ) {
     return axiosInstance
-      .get(`${resultListUrl}/${id}/certificate?personId=${personId}`, { responseType: 'blob' })
+      .get(
+        `${resultListUrl}/${id}/certificate?personId=${personId}&classResultShortName=${classResultShortName}`,
+        { responseType: 'blob' }
+      )
       .then((response) => {
+        console.log(prettyPrint(response))
         // Extrahieren des Dateinamens aus dem Content-Disposition-Header
         const contentDisposition = response.headers['content-disposition']
         let filename = 'download.pdf' // Standard-Dateiname, falls nichts im Header gefunden wird
@@ -118,6 +128,7 @@ export class EventService extends GenericService<SportEvent> {
         document.body.appendChild(fileLink)
         fileLink.click()
         document.body.removeChild(fileLink)
+        window.URL.revokeObjectURL(fileURL)
       })
       .catch((error) => {
         handleApiError(error, t)

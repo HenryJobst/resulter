@@ -4,6 +4,7 @@ import de.jobst.resulter.adapter.driver.web.dto.ResultListDto;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.application.certificate.CertificateService;
+import de.jobst.resulter.domain.ClassResultShortName;
 import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
@@ -61,13 +62,17 @@ public class ResultListController {
     }
 
     @GetMapping("/result_list/{id}/certificate")
-    public ResponseEntity<ByteArrayResource> getCertificate(@PathVariable Long id, @RequestParam Long personId) {
+    public ResponseEntity<ByteArrayResource> getCertificate(@PathVariable Long id,
+                                                            @RequestParam String classResultShortName,
+                                                            @RequestParam Long personId) {
         try {
-            CertificateService.Certificate certificate =
-                resultListService.createCertificate(ResultListId.of(id), PersonId.of(personId));
+            CertificateService.Certificate certificate = resultListService.createCertificate(ResultListId.of(id),
+                ClassResultShortName.of(classResultShortName),
+                PersonId.of(personId));
             if (null != certificate) {
                 return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + certificate.filename() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION.toLowerCase(),
+                        "attachment; filename=\"" + certificate.filename() + "\"")
                     .contentLength(certificate.size())
                     .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
                     .body(certificate.resource());

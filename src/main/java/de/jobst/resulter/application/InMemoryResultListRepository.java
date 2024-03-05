@@ -1,9 +1,7 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.ResultListRepository;
-import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.ResultList;
-import de.jobst.resulter.domain.ResultListId;
+import de.jobst.resulter.domain.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -64,6 +62,24 @@ public class InMemoryResultListRepository implements ResultListRepository {
     @Override
     public Collection<ResultList> findByEventId(EventId id) {
         return resultLists.values().stream().filter(it -> Objects.equals(it.getEventId(), id)).toList();
+    }
+
+    @Override
+    public ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
+                                                                           ClassResultShortName classResultShortName,
+                                                                           PersonId personId) {
+        return resultLists.values()
+            .stream()
+            .filter(it -> Objects.equals(it.getId(), resultListId))
+            .filter(it -> it.getClassResults()
+                .stream()
+                .anyMatch(classResult -> Objects.equals(classResult.classResultShortName(), classResultShortName) &&
+                                         classResult.personResults()
+                                             .value()
+                                             .stream()
+                                             .anyMatch(result -> Objects.equals(result.personId(), personId))))
+            .findAny()
+            .orElse(null);
     }
 
     @SuppressWarnings("unused")

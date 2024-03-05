@@ -86,14 +86,16 @@ public class ResultListService {
         return resultListRepository.save(resultList);
     }
 
-    public CertificateService.Certificate createCertificate(ResultListId resultListId, PersonId personId)
-        throws IOException {
-        Optional<ResultList> optionalResultList = resultListRepository.findById(resultListId);
-        if (optionalResultList.isEmpty()) {
-            // no result list for id
+    public CertificateService.Certificate createCertificate(ResultListId resultListId,
+                                                            ClassResultShortName classResultShortName,
+                                                            PersonId personId) throws IOException {
+        ResultList resultList = resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(resultListId,
+            classResultShortName,
+            personId);
+        if (resultList == null || resultList.getClassResults() == null) {
+            // no result list
             return null;
         }
-        ResultList resultList = optionalResultList.get();
         Optional<Person> optionalPerson = personRepository.findById(personId);
         if (optionalPerson.isEmpty()) {
             // no person

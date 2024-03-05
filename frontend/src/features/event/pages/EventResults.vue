@@ -115,7 +115,11 @@ function getClassResultLabel(a: ClassResult) {
 }
 
 const getPersonResults = (resultListId: number, a: ClassResult): ResultListIdPersonResults => {
-  return { resultListId: resultListId, personResults: a.personResults }
+  return {
+    resultListId: resultListId,
+    classResultShortName: a.shortName,
+    personResults: a.personResults
+  }
 }
 
 const createClassResultTreeNodes = (

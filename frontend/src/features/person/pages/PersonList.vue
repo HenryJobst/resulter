@@ -22,7 +22,7 @@ const columns: GenericListColumn[] = [
 ]
 </script>
 
-<template v-if="authStore.isAdmin">
+<template>
   <GenericList
     :entity-service="personService"
     :query-key="queryKey"
@@ -33,6 +33,8 @@ const columns: GenericListColumn[] = [
     :columns="columns"
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['gender', 'gender.']])"
+    :visible="authStore.isAdmin"
+    :v-if="authStore.isAdmin"
   >
   </GenericList>
 </template>

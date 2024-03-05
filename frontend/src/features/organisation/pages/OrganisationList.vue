@@ -29,7 +29,7 @@ const columns: GenericListColumn[] = [
 ]
 </script>
 
-<template v-if="authStore.isAdmin">
+<template>
   <GenericList
     :entity-service="organisationService"
     :query-key="queryKey"
@@ -40,6 +40,7 @@ const columns: GenericListColumn[] = [
     :columns="columns"
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['type', 'organisation_type.']])"
+    :visible="authStore.isAdmin"
   >
     <template v-slot:childOrganisations="{ value }">
       <div>{{ value?.name }}</div>

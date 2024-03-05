@@ -43,6 +43,7 @@ const organisationQuery = useQuery({
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['state', 'event_state.']])"
     :filter-display="'row'"
+    :visible="true"
   >
     <template v-slot:organisations="{ value }" v-if="organisationQuery.data.value">
       <div>{{ value?.name }}</div>

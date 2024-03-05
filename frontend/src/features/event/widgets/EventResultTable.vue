@@ -91,8 +91,8 @@ const organisationNameColumn = (data: PersonResult): string => {
   return ''
 }
 
-const certificate = (resultListId: number, data: PersonResult) => {
-  EventService.certificate(resultListId, data.personId, t)
+const certificate = (resultListId: number, classResultShortName: string, data: PersonResult) => {
+  EventService.certificate(resultListId, classResultShortName, data.personId, t)
 }
 </script>
 
@@ -124,7 +124,9 @@ const certificate = (resultListId: number, data: PersonResult) => {
         <Button
           class="p-button-rounded p-button-text"
           icon="pi pi-print"
-          @click="certificate(props.data.resultListId, slotProps.data)"
+          @click="
+            certificate(props.data.resultListId, props.data.classResultShortName, slotProps.data)
+          "
         />
       </template>
     </Column>

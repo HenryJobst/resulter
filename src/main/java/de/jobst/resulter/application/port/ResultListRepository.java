@@ -1,8 +1,6 @@
 package de.jobst.resulter.application.port;
 
-import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.ResultList;
-import de.jobst.resulter.domain.ResultListId;
+import de.jobst.resulter.domain.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,4 +21,8 @@ public interface ResultListRepository {
     ResultList update(ResultList resultList);
 
     Collection<ResultList> findByEventId(EventId id);
+
+    ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
+                                                                    ClassResultShortName classResultShortName,
+                                                                    PersonId personId);
 }

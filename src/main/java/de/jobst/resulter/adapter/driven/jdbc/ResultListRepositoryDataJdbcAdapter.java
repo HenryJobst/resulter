@@ -1,9 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.ResultListRepository;
-import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.ResultList;
-import de.jobst.resulter.domain.ResultListId;
+import de.jobst.resulter.domain.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,4 +82,15 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
         return PersonRaceResultJdbcDto.asResultLists(personRaceResultJdbcDtos);
     }
 
+    @Override
+    public ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
+                                                                           ClassResultShortName classResultShortName,
+                                                                           PersonId personId) {
+        Optional<PersonRaceResultJdbcDto> personRaceResultByResultListIdAndPersonId =
+            resultListJdbcRepository.findPersonRaceResultByResultListIdAndClassResultShortNameAndPersonId(resultListId.value(),
+                classResultShortName.value(),
+                personId.value());
+        return personRaceResultByResultListIdAndPersonId.map(personRaceResultJdbcDto -> PersonRaceResultJdbcDto.asResultLists(
+            List.of(personRaceResultJdbcDto)).stream().findFirst().orElse(null)).orElse(null);
+    }
 }

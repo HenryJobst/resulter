@@ -17,16 +17,17 @@ export const settingsStoreFactory = (id: string) =>
       sortField: null,
       sortOrder: null,
       nullSortOrder: 1,
-      defaultSortOrder: 1
+      defaultSortOrder: 1,
+      filters: {}
     })
 
     const currentPage = computed(() => settings.value.first / settings.value.rows + 1)
 
     /*
-                                                        function updateSettings(newSettings: Partial<TableSettings>) {
-                                                          settings.value = { ...settings, ...newSettings }
-                                                        }
-                                                     */
+                                                                function updateSettings(newSettings: Partial<TableSettings>) {
+                                                                  settings.value = { ...settings, ...newSettings }
+                                                                }
+                                                             */
 
     function setPage(pageIndex: number) {
       settings.value.page = pageIndex

@@ -5,4 +5,6 @@ export interface GenericListColumn {
   type?: string
   queryKey?: string
   sortable?: boolean
+  filterable?: boolean
+  filterType?: string
 }

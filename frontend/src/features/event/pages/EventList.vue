@@ -17,7 +17,7 @@ const entityLabel: string = 'event'
 const settingStoreSuffix: string = 'event'
 const listLabel = computed(() => t('labels.event', 2))
 const columns: GenericListColumn[] = [
-  { label: 'labels.name', field: 'name', sortable: true },
+  { label: 'labels.name', field: 'name', sortable: true, filterable: true, filterType: 'input' },
   { label: 'labels.date', field: 'startTime', type: 'date', sortable: true },
   { label: 'labels.time', field: 'startTime', type: 'time', sortable: true },
   { label: 'labels.state', field: 'state', type: 'enum', sortable: true },
@@ -42,6 +42,7 @@ const organisationQuery = useQuery({
     :columns="columns"
     :changeable="authStore.isAdmin"
     :enum-type-label-prefixes="new Map([['state', 'event_state.']])"
+    :filter-display="'row'"
   >
     <template v-slot:organisations="{ value }" v-if="organisationQuery.data.value">
       <div>{{ value?.name }}</div>

@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import DataTable, { type DataTablePageEvent, type DataTableSortEvent } from 'primevue/datatable'
+import DataTable, {
+  type DataTableFilterEvent,
+  type DataTablePageEvent,
+  type DataTableSortEvent
+} from 'primevue/datatable'
 import Column from 'primevue/column'
 import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { toastDisplayDuration } from '@/utils/constants'
@@ -13,6 +18,7 @@ import type { GenericListColumn } from '@/features/generic/models/GenericListCol
 import type { IGenericService } from '@/features/generic/services/IGenericService'
 import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
 import type { RestResult } from '@/features/generic/models/rest_result'
+import { prettyPrint } from '@base2/pretty-print-object'
 
 const props = defineProps({
   entityService: Object as () => IGenericService<any>,
@@ -29,7 +35,11 @@ const props = defineProps({
   routerPrefix: String,
   columns: Array as () => GenericListColumn[],
   changeable: Boolean,
-  enumTypeLabelPrefixes: Map<string, string>
+  enumTypeLabelPrefixes: Map<string, string>,
+  filterDisplay: {
+    type: String,
+    required: false
+  }
 })
 
 const { t, locale } = useI18n()
@@ -49,7 +59,8 @@ const queryKeys = computed(() => {
     settingsStore.settings.sortMode,
     settingsStore.settings.sortOrder,
     settingsStore.settings.nullSortOrder,
-    settingsStore.settings.defaultSortOrder
+    settingsStore.settings.defaultSortOrder,
+    settingsStore.settings.filters
   ]
 })
 
@@ -156,24 +167,40 @@ const formatTime = (time: string) => {
 function pageChanged(e: DataTablePageEvent) {
   console.log('Page: ' + e.page)
   console.log('Rows: ' + e.rows)
-  console.log('Multi-Sort-Meta: ' + e.multiSortMeta?.toString())
-  console.log('Pageable: ' + settingsStore.settings.paginator)
-  console.log('Paginator position: ' + settingsStore.settings.paginatorPosition)
+  console.log('Multi-Sort-Meta: ' + prettyPrint(e.multiSortMeta))
+  console.log('Pageable: ' + prettyPrint(settingsStore.settings.paginator))
+  console.log('Paginator position: ' + prettyPrint(settingsStore.settings.paginatorPosition))
   settingsStore.setPage(e.page)
   settingsStore.settings.rows = e.rows
   settingsStore.settings.multiSortMeta = e.multiSortMeta
 }
 
 function sortChanged(e: DataTableSortEvent) {
-  console.log('Rows: ' + e.rows)
-  console.log('Multi-Sort-Meta: ' + e.multiSortMeta?.toString())
-  console.log('Pageable: ' + settingsStore.settings.paginator)
-  console.log('Paginator position: ' + settingsStore.settings.paginatorPosition)
+  console.log('Rows: ' + prettyPrint(e.rows))
+  console.log('Multi-Sort-Meta: ' + prettyPrint(e.multiSortMeta))
+  console.log('Pageable: ' + prettyPrint(settingsStore.settings.paginator))
+  console.log('Paginator position: ' + prettyPrint(settingsStore.settings.paginatorPosition))
   settingsStore.settings.first = e.first
   settingsStore.settings.page = e.first / e.rows
   settingsStore.settings.rows = e.rows
   settingsStore.settings.multiSortMeta = e.multiSortMeta
 }
+
+function filterChanged(e: DataTableFilterEvent) {
+  console.log('Filters: ' + prettyPrint(e))
+  settingsStore.settings.filters = e.filters
+}
+
+onMounted(() => {
+  console.log('Mounted ...')
+  props.columns?.forEach((col) => {
+    if (col.filterable) {
+      console.log('Add filter for ' + col.field)
+      settingsStore.settings.filters[col.field] = { value: null, matchMode: 'contains' }
+    }
+  })
+  console.log('Filters: ' + prettyPrint(settingsStore.settings.filters))
+})
 </script>
 
 <template>
@@ -222,16 +249,19 @@ function sortChanged(e: DataTableSortEvent) {
         :sort-order="settingsStore.settings.sortOrder"
         :null-sort-order="settingsStore.settings.nullSortOrder"
         :default-sort-order="settingsStore.settings.defaultSortOrder"
+        v-model:filters="settingsStore.settings.filters"
+        :filter-display="props.filterDisplay"
         :lazy="true"
         :size="'small'"
         class="p-datatable-sm"
         @page="pageChanged"
         @sort="sortChanged"
+        @filter="filterChanged"
       >
         <!-- Add Columns Here -->
         <Column
           v-for="col in props.columns"
-          :key="col.label"
+          :key="col.field"
           :field="col.field"
           :header="col.label_count ? t(col.label, col.label_count) : t(col.label)"
           :sortable="col.sortable ? col.sortable : true"
@@ -264,6 +294,14 @@ function sortChanged(e: DataTableSortEvent) {
                   slotProps.data[col.field].id.toUpperCase()
               )
             }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }" v-if="col.filterable">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              @input="filterCallback()"
+              class="p-column-filter"
+            />
           </template>
         </Column>
         <!-- ... Other columns ... -->

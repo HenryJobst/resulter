@@ -35,6 +35,11 @@ const props = defineProps({
   routerPrefix: String,
   columns: Array as () => GenericListColumn[],
   changeable: Boolean,
+  visible: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   enumTypeLabelPrefixes: Map<string, string>,
   filterDisplay: {
     type: String,
@@ -196,7 +201,10 @@ onMounted(() => {
   props.columns?.forEach((col) => {
     if (col.filterable) {
       console.log('Add filter for ' + col.field)
-      settingsStore.settings.filters[col.field] = { value: null, matchMode: 'contains' }
+      settingsStore.settings.filters[col.field] = {
+        value: null,
+        matchMode: col.filterMatchMode || 'contains'
+      }
     }
   })
   console.log('Filters: ' + prettyPrint(settingsStore.settings.filters))
@@ -204,7 +212,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div v-if="props.visible">
     <h1>{{ props.listLabel }}</h1>
     <div class="flex justify-content-between my-4">
       <div class="flex justify-content-start">
@@ -257,6 +265,7 @@ onMounted(() => {
         @page="pageChanged"
         @sort="sortChanged"
         @filter="filterChanged"
+        v-if="props.visible"
       >
         <!-- Add Columns Here -->
         <Column

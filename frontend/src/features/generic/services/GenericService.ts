@@ -4,6 +4,8 @@ import { handleApiError } from '@/utils/HandleError'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { RestResult } from '@/features/generic/models/rest_result'
+import type { DataTableFilterMetaData } from 'primevue/datatable'
+import { sfAnd, sfEqual, sfLike } from 'spring-filter-query-builder'
 
 function getSortParam(field: string, order: number | null | undefined) {
   const direction = order === 1 ? 'asc' : 'desc'
@@ -38,6 +40,25 @@ function createUrlSearchParams(tableSettings: TableSettings) {
     if (tableSettings.rows) {
       urlSearchParams.append('size', tableSettings.rows.toString())
     }
+  }
+
+  if (tableSettings.filters) {
+    let filterParam: any = null
+    Object.keys(tableSettings.filters).forEach((key) => {
+      const filter = tableSettings.filters[key] as DataTableFilterMetaData
+      if (filter.value) {
+        if (!filterParam) filterParam = sfEqual('1', '1')
+        switch (filter.matchMode) {
+          case 'equals':
+            filterParam = sfAnd([filterParam, sfEqual(key, filter.value)])
+            break
+          case 'contains':
+            filterParam = sfAnd([filterParam, sfLike(key, filter.value, true)])
+            break
+        }
+      }
+    })
+    if (filterParam) urlSearchParams.append('filter', filterParam.toString())
   }
   return urlSearchParams
 }

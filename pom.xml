@@ -34,6 +34,7 @@
         <spring-oxm.version>6.1.2</spring-oxm.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.3.0
         </springdoc-openapi-starter-webmvc-ui.version>
+        <tika-core.version>2.9.1</tika-core.version>
     </properties>
     <profiles>
         <profile>
@@ -220,6 +221,12 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-databind.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>${tika-core.version}
+            </version> <!-- Überprüfen Sie, ob dies die aktuellste Version ist -->
         </dependency>
 
 

@@ -1,0 +1,55 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000018_media_file
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : media_file
+            comment : Table media_file with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : media_file
+                        columns :
+                            -   column :
+                                    name : id
+                                    type : bigint
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : pk_cup
+                            -   column :
+                                    name : file_name
+                                    type : varchar(255)
+                                    constraints :
+                                        nullable : false
+                                        unique : true
+                                        uniqueConstraintName : uk_media_file_file_name
+                                        validateUnique : true
+                            -   column :
+                                    name : content_type
+                                    type : varchar(255)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : file_size
+                                    type : long
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : description
+                                    type : varchar(255)
+                -   createIndex :
+                        tableName : media_file
+                        columns :
+                            -   column :
+                                    name : id
+                        indexName : idx_media_file_id
+                -   createIndex :
+                        tableName : media_file
+                        columns :
+                            -   column :
+                                    name : file_name
+                        indexName : idx_media_file_file_name

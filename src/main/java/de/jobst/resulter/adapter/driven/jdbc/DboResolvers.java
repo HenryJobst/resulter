@@ -21,6 +21,7 @@ public class DboResolvers {
     private DboResolver<ResultListId, ResultListDbo> resultListDboResolver = null;
     private DboResolver<CupScoreIdDbo, CupScoreDbo> cupScoreDboResolver = null;
     private DboResolver<SplitTimeListId, SplitTimeListDbo> splitTimeListDboResolver = null;
+    private DboResolver<MediaFileId, MediaFileDbo> mediaFileDboResolver = null;
 
     @NonNull
     static DboResolvers empty() {

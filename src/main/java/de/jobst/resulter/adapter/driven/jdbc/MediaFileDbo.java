@@ -13,7 +13,7 @@ import org.springframework.lang.NonNull;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "mediaFile")
+@Table(name = "media_file")
 public class MediaFileDbo {
 
     @Id

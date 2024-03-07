@@ -11,6 +11,7 @@ import Button from 'primevue/button'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 import { toastDisplayDuration } from '@/utils/constants'
+import { fileSizeTypes } from '@/features/media/util/file_size_types'
 
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
@@ -84,7 +85,7 @@ const formatSize = (bytes: number): string => {
   const k = 1024
   const dm = 3
 
-  let sizes: string[] | undefined = [t('labels.megabytes')]
+  let sizes = fileSizeTypes(t)
   if (internalInstance && internalInstance.appContext.config.globalProperties.$primevue) {
     const primevueConfig = internalInstance.appContext.config.globalProperties.$primevue
     const fileSizeTypes = primevueConfig.config.locale?.fileSizeTypes
@@ -105,7 +106,7 @@ const formatSize = (bytes: number): string => {
 </script>
 
 <template>
-  <form @submit.prevent="formSubmitHandler">
+  <form v-if="authStore.isAdmin" @submit.prevent="formSubmitHandler">
     <div class="flex flex-col">
       <div class="card">
         <FileUpload

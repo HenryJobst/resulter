@@ -55,5 +55,15 @@ public class MediaFile {
             MediaFileSize.of(fileSize),
             description == null ? null : MediaFileDescription.of(description));
     }
+
+    public void update(MediaFileName mediaFileName,
+                       MediaFileContentType mediaFileContentType,
+                       MediaFileSize mediaFileSize,
+                       MediaFileDescription mediaFileDescription) {
+        this.mediaFileName = mediaFileName;
+        this.contentType = mediaFileContentType;
+        this.mediaFileSize = mediaFileSize;
+        this.description = mediaFileDescription;
+    }
 }
 

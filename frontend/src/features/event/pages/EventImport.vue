@@ -28,7 +28,7 @@ const eventMutation = useMutation({
     toast.add({
       severity: 'info',
       summary: t('messages.success'),
-      detail: t('messages.cup_created'),
+      detail: t('messages.event_created'),
       life: toastDisplayDuration
     })
     redirectBack()
@@ -39,7 +39,7 @@ const eventSubmitHandler = (event: Omit<SportEvent, 'id'>) => {
   eventMutation.mutate(event)
 }
 
-async function validateImageMimeType(f: File) {
+async function validateMimeType(f: File) {
   return f.type === 'text/xml'
 }
 
@@ -50,7 +50,7 @@ const uploader = async (event: FileUploadUploaderEvent) => {
   let filesToSend = 0
   const filesToHandle = Array.isArray(event.files) ? event.files : [event.files]
   for (const f of filesToHandle) {
-    const valid = await validateImageMimeType(f)
+    const valid = await validateMimeType(f)
     if (valid) {
       formData.append('file', f)
       filesToSend += 1

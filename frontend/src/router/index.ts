@@ -8,6 +8,7 @@ import { eventRouting } from '@/features/event/event-routing'
 import { organisationRouting } from '@/features/organisation/organisation-routing'
 import { personRouting } from '@/features/person/person-routing'
 import { cupRouting } from '@/features/cup/cup-routing'
+import { mediaRouting } from '@/features/media/media-routing'
 
 export function setupRouter(i18n: I18n): Router {
   const locale = getLocale(i18n)
@@ -20,6 +21,7 @@ export function setupRouter(i18n: I18n): Router {
     ...organisationRouting,
     ...personRouting,
     ...cupRouting,
+    ...mediaRouting,
     {
       path: '/:pathMatch(.*)*',
       redirect: () => `/${locale}`

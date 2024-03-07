@@ -17,7 +17,7 @@ public class ValueObjectChecks {
     }
 
     public static void requireGreaterZero(Long value) {
-        if (value >= 0) {
+        if (value <= 0) {
             throw new IllegalArgumentException("Long value must be greater zero!");
         }
     }

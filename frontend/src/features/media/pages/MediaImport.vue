@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
-import type { SportEvent } from '@/features/event/model/sportEvent'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
-import { EventService, eventService } from '@/features/event/services/event.service'
+import MediaImportForm from '@/features/media/widgets/MediaImportForm.vue'
+import { MediaService, mediaService } from '@/features/media/services/media.service'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toastDisplayDuration } from '@/utils/constants'
 import { useToast } from 'primevue/usetoast'
 import type { FileUploadUploaderEvent } from 'primevue/fileupload'
+import type { Media } from '@/features/media/model/media'
+import { acceptedFileTypes } from '@/features/media/util/file_types'
 
 const { t } = useI18n()
 
@@ -18,37 +19,37 @@ const toast = useToast()
 
 const router = useRouter()
 const redirectBack = async () => {
-  await router.replace({ name: 'event-list' })
+  await router.replace({ name: 'media-list' })
 }
 
-const eventMutation = useMutation({
-  mutationFn: (event: Omit<SportEvent, 'id'>) => eventService.create(event, t),
+const mediaMutation = useMutation({
+  mutationFn: (media: Omit<Media, 'id'>) => mediaService.create(media, t),
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['events'] })
+    queryClient.invalidateQueries({ queryKey: ['media'] })
     toast.add({
       severity: 'info',
       summary: t('messages.success'),
-      detail: t('messages.event_created'),
+      detail: t('messages.media_created'),
       life: toastDisplayDuration
     })
     redirectBack()
   }
 })
 
-const eventSubmitHandler = (event: Omit<SportEvent, 'id'>) => {
-  eventMutation.mutate(event)
+const mediaSubmitHandler = (media: Omit<Media, 'id'>) => {
+  mediaMutation.mutate(media)
 }
 
 async function validateMimeType(f: File) {
-  return f.type === 'text/xml'
+  return acceptedFileTypes.includes(f.type)
 }
 
-const uploader = async (event: FileUploadUploaderEvent) => {
+const uploader = async (media: FileUploadUploaderEvent) => {
   const formData = new FormData()
 
   // MimeType Check on all files
   let filesToSend = 0
-  const filesToHandle = Array.isArray(event.files) ? event.files : [event.files]
+  const filesToHandle = Array.isArray(media.files) ? media.files : [media.files]
   for (const f of filesToHandle) {
     const valid = await validateMimeType(f)
     if (valid) {
@@ -60,13 +61,13 @@ const uploader = async (event: FileUploadUploaderEvent) => {
   }
 
   if (filesToSend > 0) {
-    await EventService.upload(formData, t)
+    await MediaService.upload(formData, t)
       .then((data) => {
         console.log('File uploaded', data)
         toast.add({
           severity: 'info',
           summary: t('messages.success'),
-          detail: t('messages.event_uploaded'),
+          detail: t('messages.media_uploaded'),
           life: toastDisplayDuration
         })
       })
@@ -79,9 +80,9 @@ const uploader = async (event: FileUploadUploaderEvent) => {
 
 <template>
   <div>
-    <h2>{{ t('messages.import_event') }}</h2>
+    <h2>{{ t('messages.import_media') }}</h2>
 
-    <EventImportForm @event-submit="eventSubmitHandler" :uploader="uploader">
+    <MediaImportForm @media-submit="mediaSubmitHandler" :uploader="uploader">
       <Button
         class="ml-2"
         severity="secondary"
@@ -90,7 +91,7 @@ const uploader = async (event: FileUploadUploaderEvent) => {
         outlined
         @click="redirectBack"
       ></Button>
-    </EventImportForm>
+    </MediaImportForm>
   </div>
 </template>
 

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -61,7 +62,7 @@ public class InMemoryEventRepository implements EventRepository {
     }
 
     @Override
-    public Page<Event> findAll(String filter, @NonNull Pageable pageable) {
+    public Page<Event> findAll(@Nullable String filter, @NonNull Pageable pageable) {
         return new PageImpl<>(new ArrayList<>(events.values()), pageable, events.size());
     }
 

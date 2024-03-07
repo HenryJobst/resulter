@@ -1,41 +1,42 @@
 <script setup lang="ts">
-import type { SportEvent } from '@/features/event/model/sportEvent'
+import type { Media } from '@/features/media/model/media'
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Upload } from '@/features/event/model/upload'
+import type { Upload } from '@/features/media/model/upload'
 import { useToast } from 'primevue/usetoast'
-import FileUpload, { type FileUploadUploadEvent } from 'primevue/fileupload'
+import FileUpload, { type FileUploadUploaderEvent } from 'primevue/fileupload'
 import ProgressBar from 'primevue/progressbar'
 import Badge from 'primevue/badge'
 import Button from 'primevue/button'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 import { toastDisplayDuration } from '@/utils/constants'
+import { acceptedFileTypes } from '@/features/media/util/file_types'
 import { fileSizeTypes } from '@/features/media/util/file_size_types'
 
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const authStore = useAuthStore()
-const url: string = import.meta.env.VITE_API_ENDPOINT + '/upload'
+const url: string = import.meta.env.VITE_API_ENDPOINT + '/media/upload'
 
 const internalInstance = getCurrentInstance()
 
 const formData = ref<Upload>({
-  name: ''
+  fileName: ''
 })
 
-const props = defineProps<{ event?: SportEvent; uploader: any }>()
+const props = defineProps<{ media?: Media; uploader: any }>()
 
 onMounted(() => {
-  if (props.event) {
-    formData.value = { ...props.event }
+  if (props.media) {
+    formData.value = { ...props.media }
   }
 })
 
-const emit = defineEmits(['eventSubmit'])
+const emit = defineEmits(['mediaSubmit'])
 
 const formSubmitHandler = () => {
-  emit('eventSubmit', formData.value)
+  emit('mediaSubmit', formData.value)
 }
 
 const toast = useToast()
@@ -59,24 +60,24 @@ const onClearTemplatingUpload = () => {
   totalSizePercent.value = 0
 }
 
-const onSelectedFiles = (event: { files: File[] }) => {
-  files.value = event.files
+const onSelectedFiles = (media: { files: File[] }) => {
+  files.value = media.files
   files.value.forEach((file) => {
     totalSize.value += parseInt(formatSize(file.size))
   })
 }
 
-const uploadEvent = (callback: () => void) => {
+const uploadMedia = (callback: () => void) => {
   totalSizePercent.value = totalSize.value / 10
   callback()
 }
 
-const onTemplatedUpload = (event: FileUploadUploadEvent) => {
-  console.debug(event)
+const onTemplatedUpload = (media: FileUploadUploaderEvent) => {
+  console.debug(media)
   toast.add({
     severity: 'info',
     summary: t('messages.success'),
-    detail: t('messages.event_uploaded'),
+    detail: t('messages.media_uploaded'),
     life: toastDisplayDuration
   })
 }
@@ -84,24 +85,23 @@ const onTemplatedUpload = (event: FileUploadUploadEvent) => {
 const formatSize = (bytes: number): string => {
   const k = 1024
   const dm = 3
-
-  let sizes = fileSizeTypes(t)
+  let fileSizesTypes = fileSizeTypes(t)
   if (internalInstance && internalInstance.appContext.config.globalProperties.$primevue) {
     const primevueConfig = internalInstance.appContext.config.globalProperties.$primevue
     const fileSizeTypes = primevueConfig.config.locale?.fileSizeTypes
     if (fileSizeTypes) {
-      sizes = fileSizeTypes
+      fileSizesTypes = fileSizeTypes
     }
   }
 
   if (bytes === 0) {
-    return `0 ${sizes[0]}`
+    return `0 ${fileSizesTypes[0]}`
   }
 
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   const formattedSize = parseFloat((bytes / Math.pow(k, i)).toFixed(dm))
 
-  return `${formattedSize} ${sizes[i]}`
+  return `${formattedSize} ${fileSizesTypes[i]}`
 }
 </script>
 
@@ -114,7 +114,7 @@ const formatSize = (bytes: number): string => {
           :url="url"
           @upload="onTemplatedUpload"
           :multiple="false"
-          accept="text/xml"
+          :accept="acceptedFileTypes.join(',')"
           @select="onSelectedFiles"
           customUpload
           @uploader="props.uploader"
@@ -131,7 +131,7 @@ const formatSize = (bytes: number): string => {
                 ></Button>
                 <Button
                   v-if="files.length > 0 && authStore.isAuthenticated"
-                  @click="uploadEvent(uploadCallback)"
+                  @click="uploadMedia(uploadCallback)"
                   icon="pi pi-upload"
                   :label="t('labels.import')"
                   outlined

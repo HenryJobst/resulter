@@ -40,6 +40,21 @@ const props = defineProps({
     required: false,
     default: false
   },
+  newEnabled: {
+    type: Boolean,
+    required: false,
+    default: true
+  },
+  editEnabled: {
+    type: Boolean,
+    required: false,
+    default: true
+  },
+  deleteEnabled: {
+    type: Boolean,
+    required: false,
+    default: true
+  },
   enumTypeLabelPrefixes: Map<string, string>,
   filterDisplay: {
     type: String,
@@ -215,7 +230,7 @@ onMounted(() => {
   <div v-if="props.visible">
     <h1>{{ props.listLabel }}</h1>
     <div class="flex justify-content-between my-4">
-      <div class="flex justify-content-start">
+      <div v-if="props.newEnabled" class="flex justify-content-start">
         <router-link :to="{ name: `${props.routerPrefix}-new` }" v-if="changeable">
           <Button icon="pi pi-plus" :label="t('labels.new')" outlined></Button>
         </router-link>
@@ -317,9 +332,12 @@ onMounted(() => {
         <Column class="text-right">
           <template #body="{ data }">
             <slot name="extra_row_actions" :value="data" />
-            <router-link :to="{ name: `${props.routerPrefix}-edit`, params: { id: data.id } }">
+            <router-link
+              v-if="props.editEnabled && changeable"
+              :to="{ name: `${props.routerPrefix}-edit`, params: { id: data.id } }"
+            >
               <Button
-                v-if="changeable"
+                v-if="props.editEnabled && changeable"
                 icon="pi pi-pencil"
                 class="mr-2"
                 :label="t('labels.edit')"
@@ -327,7 +345,7 @@ onMounted(() => {
               />
             </router-link>
             <Button
-              v-if="changeable"
+              v-if="props.deleteEnabled && changeable"
               icon="pi pi-trash"
               severity="danger"
               outlined

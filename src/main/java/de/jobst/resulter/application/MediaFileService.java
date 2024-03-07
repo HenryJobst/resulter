@@ -1,12 +1,16 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.MediaFileRepository;
-import de.jobst.resulter.domain.MediaFile;
+import de.jobst.resulter.domain.*;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,4 +75,33 @@ public class MediaFileService {
     }
 
 
+    public boolean delete(MediaFileId mediaFileId) {
+        if (mediaFileId.isPersistent()) {
+            mediaFileRepository.delete(mediaFileId);
+            return true;
+        }
+        return false;
+    }
+
+    public Page<MediaFile> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+        return mediaFileRepository.findAll(filter, pageable);
+    }
+
+    public Optional<MediaFile> findById(MediaFileId mediaFileId) {
+        return mediaFileRepository.findById(mediaFileId);
+    }
+
+    public MediaFile update(MediaFileId mediaFileId,
+                            MediaFileName mediaFileName,
+                            MediaFileContentType mediaFileContentType,
+                            MediaFileSize mediaFileSize,
+                            MediaFileDescription mediaFileDescription) {
+        Optional<MediaFile> optionalMediaFile = findById(mediaFileId);
+        if (optionalMediaFile.isEmpty()) {
+            return null;
+        }
+        MediaFile mediaFile = optionalMediaFile.get();
+        mediaFile.update(mediaFileName, mediaFileContentType, mediaFileSize, mediaFileDescription);
+        return mediaFileRepository.save(mediaFile);
+    }
 }

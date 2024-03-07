@@ -4,6 +4,10 @@ import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.domain.MediaFile;
 import de.jobst.resulter.domain.MediaFileId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +44,17 @@ public class MediaFileRepositoryDataJdbcAdapter implements MediaFileRepository {
     }
 
     @Override
-    public void delete(MediaFile mediaFile) {
-        mediaFileJdbcRepository.deleteById(mediaFile.getId().value());
+    public void delete(MediaFileId mediaFileId) {
+        mediaFileJdbcRepository.deleteById(mediaFileId.value());
+    }
+
+    @Override
+    public Page<MediaFile> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+        return mediaFileJdbcRepository.findAll(pageable).map(MediaFileDbo::asMediaFile);
+    }
+
+    @Override
+    public Optional<MediaFile> findById(MediaFileId mediaFileId) {
+        return mediaFileJdbcRepository.findById(mediaFileId.value()).map(MediaFileDbo::asMediaFile);
     }
 }

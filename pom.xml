@@ -35,6 +35,7 @@
         <springdoc-openapi-starter-webmvc-ui.version>2.3.0
         </springdoc-openapi-starter-webmvc-ui.version>
         <tika-core.version>2.9.1</tika-core.version>
+        <thumbnailator.version>0.4.20</thumbnailator.version>
     </properties>
     <profiles>
         <profile>
@@ -228,7 +229,11 @@
             <version>${tika-core.version}
             </version> <!-- Überprüfen Sie, ob dies die aktuellste Version ist -->
         </dependency>
-
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>${thumbnailator.version}</version>
+        </dependency>
 
     </dependencies>
     <dependencyManagement>

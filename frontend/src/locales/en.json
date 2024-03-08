@@ -65,7 +65,8 @@
         "fileName" : "File name",
         "fileSize" : "File size",
         "contentType" : "Content type",
-        "description" : "Description"
+        "description" : "Description",
+        "preview" : "Preview"
     },
     "messages" : {
         "new_cup" : "New cup",
@@ -82,6 +83,7 @@
         "drag_drop" : "Drag and drop files here to import or choose above.",
         "success" : "Success",
         "event_uploaded" : "File uploaded",
+        "media_uploaded" : "Media file uploaded",
         "cup_created" : "Cup created",
         "cup_changed" : "Cup changed",
         "cup_deleted" : "Cup deleted",

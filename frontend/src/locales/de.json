@@ -65,7 +65,8 @@
         "fileName" : "Dateiname",
         "fileSize" : "Dateigröße",
         "contentType" : "Dateityp",
-        "description" : "Beschreibung"
+        "description" : "Beschreibung",
+        "preview" : "Vorschau"
     },
     "result_state" : {
         "OK" : "OK",
@@ -126,6 +127,7 @@
         "drag_drop" : "Dateien zuw Importieren hier hinziehen oder oben auswählen.",
         "success" : "Erfolg",
         "event_uploaded" : "Wettkampf importiert",
+        "media_uploaded" : "Mediendatei importiert",
         "cup_created" : "Cup angelegt",
         "cup_changed" : "Cup geändert",
         "cup_deleted" : "Cup gelöscht",

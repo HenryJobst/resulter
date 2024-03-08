@@ -2,6 +2,8 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.domain.*;
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.name.Rename;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
@@ -15,10 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +27,10 @@ public class MediaFileService {
 
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
+    @Value("#{'${resulter.media-file-path-thumbnails}'}")
+    private String mediaFileThumbnailsPath;
+    @Value("#{'${resulter.media-file-thumbnails-size}'}")
+    private int mediaFileThumbnailSize;
 
     private final MediaFileRepository mediaFileRepository;
 
@@ -35,15 +39,34 @@ public class MediaFileService {
     }
 
     public MediaFile storeMediaFile(MultipartFile file) throws IOException, MimeTypeException {
-        String fileName = StringUtils.cleanPath(getFilename(file));
-        String filePath = Optional.ofNullable(mediaFilePath).orElseThrow() + fileName;
+        FilePathAndName filePathAndName = getFilePathAndName(file, mediaFilePath);
 
-        Files.copy(file.getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+        File originalFile = new File(filePathAndName.filePath());
+        file.transferTo(originalFile);
 
-        MediaFile mediaFile = MediaFile.of(fileName, getContentType(file), file.getSize());
+        File thumbnailDir = new File(mediaFileThumbnailsPath);
+
+        File thumbnailFile = Thumbnails.of(originalFile)
+            .size(mediaFileThumbnailSize, mediaFileThumbnailSize)
+            .outputFormat("jpg")
+            .asFiles(thumbnailDir, Rename.SUFFIX_DOT_THUMBNAIL)
+            .getFirst();
+
+        MediaFile mediaFile =
+            MediaFile.of(filePathAndName.fileName(), thumbnailFile.getName(), getContentType(file), file.getSize());
 
         return mediaFileRepository.save(mediaFile);
     }
+
+    @NonNull
+    private FilePathAndName getFilePathAndName(MultipartFile file, String mediaFilePath)
+        throws IOException, MimeTypeException {
+        String fileName = StringUtils.cleanPath(getFilename(file));
+        String filePath = Optional.ofNullable(mediaFilePath).orElseThrow() + fileName;
+        return new FilePathAndName(fileName, filePath);
+    }
+
+    private record FilePathAndName(String fileName, String filePath) {}
 
     private String getFilename(MultipartFile file) throws IOException, MimeTypeException {
         String originalFilename = file.getOriginalFilename();
@@ -104,4 +127,5 @@ public class MediaFileService {
         mediaFile.update(mediaFileName, mediaFileContentType, mediaFileSize, mediaFileDescription);
         return mediaFileRepository.save(mediaFile);
     }
+
 }

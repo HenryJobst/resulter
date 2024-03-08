@@ -1,6 +1,8 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.application.port.*;
+import de.jobst.resulter.application.port.EventRepository;
+import de.jobst.resulter.application.port.OrganisationRepository;
+import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,23 +23,13 @@ public class EventService {
     public final PersonRepository personRepository;
     public final OrganisationRepository organisationRepository;
     private final EventRepository eventRepository;
-    private final ResultListRepository resultListRepository;
-    private final SplitTimeListRepository splitTimeListRepository;
-
-    private final CupRepository cupRepository;
 
     public EventService(EventRepository eventRepository,
                         PersonRepository personRepository,
-                        OrganisationRepository organisationRepository,
-                        ResultListRepository resultListRepository,
-                        SplitTimeListRepository splitTimeListRepository,
-                        CupRepository cupRepository) {
+                        OrganisationRepository organisationRepository) {
         this.eventRepository = eventRepository;
         this.personRepository = personRepository;
         this.organisationRepository = organisationRepository;
-        this.resultListRepository = resultListRepository;
-        this.splitTimeListRepository = splitTimeListRepository;
-        this.cupRepository = cupRepository;
     }
 
     public Event findOrCreate(Event event) {

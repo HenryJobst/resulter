@@ -22,9 +22,11 @@ public class DboResolvers {
     private DboResolver<CupScoreIdDbo, CupScoreDbo> cupScoreDboResolver = null;
     private DboResolver<SplitTimeListId, SplitTimeListDbo> splitTimeListDboResolver = null;
     private DboResolver<MediaFileId, MediaFileDbo> mediaFileDboResolver = null;
+    private DboResolver<EventCertificateId, EventCertificateDbo> eventCertificateDboResolver = null;
 
     @NonNull
     static DboResolvers empty() {
         return new DboResolvers();
     }
+
 }

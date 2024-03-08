@@ -211,6 +211,11 @@ function filterChanged(e: DataTableFilterEvent) {
   settingsStore.settings.filters = e.filters
 }
 
+function getSortable(col: GenericListColumn) {
+  console.log('Get sortable for ' + col.field + ':' + col.sortable)
+  return col.sortable ? col.sortable : true
+}
+
 onMounted(() => {
   console.log('Mounted ...')
   props.columns?.forEach((col) => {
@@ -232,13 +237,13 @@ onMounted(() => {
     <div class="flex justify-content-between my-4">
       <div v-if="props.newEnabled" class="flex justify-content-start">
         <router-link :to="{ name: `${props.routerPrefix}-new` }" v-if="changeable">
-          <Button icon="pi pi-plus" :label="t('labels.new')" outlined></Button>
+          <Button icon="pi pi-plus" :title="t('labels.new')" outlined></Button>
         </router-link>
         <slot name="extra_list_actions" />
       </div>
       <Button
         icon="pi pi-refresh"
-        :label="t('labels.reload')"
+        :title="t('labels.reload')"
         outlined
         severity="secondary"
         @click="reload"
@@ -288,7 +293,7 @@ onMounted(() => {
           :key="col.field"
           :field="col.field"
           :header="col.label_count ? t(col.label, col.label_count) : t(col.label)"
-          :sortable="col.sortable ? col.sortable : true"
+          :sortable="getSortable(col)"
         >
           <template v-slot:body="slotProps" v-if="col.type === 'list'">
             <div v-for="(item, index) in slotProps.data[col.field]" :key="`item-${index}`">
@@ -347,7 +352,7 @@ onMounted(() => {
                 v-if="props.editEnabled && changeable"
                 icon="pi pi-pencil"
                 class="mr-2"
-                :label="t('labels.edit')"
+                :title="t('labels.edit')"
                 outlined
               />
             </router-link>
@@ -356,7 +361,7 @@ onMounted(() => {
               icon="pi pi-trash"
               severity="danger"
               outlined
-              :label="t('labels.delete')"
+              :title="t('labels.delete')"
               @click="deleteEntity(data.id)"
             />
           </template>

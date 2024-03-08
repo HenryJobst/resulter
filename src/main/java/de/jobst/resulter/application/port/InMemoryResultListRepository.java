@@ -1,6 +1,5 @@
-package de.jobst.resulter.application;
+package de.jobst.resulter.application.port;
 
-import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.domain.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

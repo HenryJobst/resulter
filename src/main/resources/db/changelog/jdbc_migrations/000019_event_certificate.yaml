@@ -1,0 +1,60 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000019_event_certificate
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : event_certificate
+            comment : Table event_certificate with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : event_certificate
+                        columns :
+                            -   column :
+                                    name : id
+                                    type : bigint
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : pk_event_certificate
+                            -   column :
+                                    name : name
+                                    type : varchar(255)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : event_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_event_certificate_event
+                                        references : event(id)
+                            -   column :
+                                    name : layout_description
+                                    type : text
+                            -   column :
+                                    name : background_media_file_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : true
+                                        foreignKeyName : fk_event_certificate_background_media_file
+                                        references : media_file(id)
+                -   createIndex :
+                        tableName : event_certificate
+                        columns :
+                            -   column :
+                                    name : id
+                        indexName : idx_event_certificate_id
+                -   createIndex :
+                        tableName : event_certificate
+                        columns :
+                            -   column :
+                                    name : event_id
+                        indexName : idx_event_certificate_event_id
+                -   addUniqueConstraint :
+                        columnNames : event_id, name
+                        constraintName : uk_event_certificate_name
+                        tableName : event_certificate

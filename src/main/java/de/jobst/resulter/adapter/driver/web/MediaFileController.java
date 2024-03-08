@@ -5,6 +5,7 @@ import de.jobst.resulter.application.MediaFileService;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,9 @@ import java.util.Optional;
 public class MediaFileController {
 
     public static final String FILE = "file";
+
+    @Value("#{'${resulter.media-file-path-thumbnails}'}")
+    private String mediaFileThumbnailsPath;
 
     private final MediaFileService mediaFileService;
 
@@ -45,7 +49,10 @@ public class MediaFileController {
                 pageable != null ?
                 FilterAndSortConverter.mapOrderProperties(pageable, MediaFileDto::mapOrdersDtoToDomain) :
                 Pageable.unpaged());
-            return ResponseEntity.ok(new PageImpl<>(mediaFiles.getContent().stream().map(MediaFileDto::from).toList(),
+            return ResponseEntity.ok(new PageImpl<>(mediaFiles.getContent()
+                .stream()
+                .map(x -> MediaFileDto.from(x, mediaFileThumbnailsPath))
+                .toList(),
                 FilterAndSortConverter.mapOrderProperties(mediaFiles.getPageable(), MediaFileDto::mapOrdersDomainToDto),
                 mediaFiles.getTotalElements()));
         } catch (Exception e) {
@@ -59,7 +66,7 @@ public class MediaFileController {
     public ResponseEntity<MediaFileDto> getMediaFile(@PathVariable Long id) {
         try {
             Optional<MediaFile> mediaFile = mediaFileService.findById(MediaFileId.of(id));
-            return mediaFile.map(value -> ResponseEntity.ok(MediaFileDto.from(value)))
+            return mediaFile.map(value -> ResponseEntity.ok(MediaFileDto.from(value, mediaFileThumbnailsPath)))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             logError(e);
@@ -78,7 +85,7 @@ public class MediaFileController {
                 MediaFileDescription.of(mediaFileDto.description()));
 
             if (null != mediaFile) {
-                return ResponseEntity.ok(MediaFileDto.from(mediaFile));
+                return ResponseEntity.ok(MediaFileDto.from(mediaFile, mediaFileThumbnailsPath));
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }

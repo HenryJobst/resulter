@@ -24,6 +24,9 @@ public class MediaFileDbo {
     @Column("file_name")
     private String fileName;
 
+    @Column("thumbnail_file_name")
+    private String thumbnailFileName;
+
     @Column("content_type")
     private String contentType;
 
@@ -33,8 +36,9 @@ public class MediaFileDbo {
     @Column("description")
     private String description;
 
-    public MediaFileDbo(String fileName, String contentType, Long fileSize) {
+    public MediaFileDbo(String fileName, String thumbnailFileName, String contentType, Long fileSize) {
         this.fileName = fileName;
+        this.thumbnailFileName = thumbnailFileName;
         this.contentType = contentType;
         this.fileSize = fileSize;
     }
@@ -47,10 +51,12 @@ public class MediaFileDbo {
         if (mediaFile.getId().isPersistent()) {
             mediaFileDbo = dboResolvers.getMediaFileDboResolver().findDboById(mediaFile.getId());
             mediaFileDbo.setFileName(mediaFile.getMediaFileName().value());
+            mediaFileDbo.setThumbnailFileName(mediaFile.getThumbnailFileName().value());
             mediaFileDbo.setContentType(mediaFile.getContentType().value());
             mediaFileDbo.setFileSize(mediaFile.getMediaFileSize().value());
         } else {
             mediaFileDbo = new MediaFileDbo(mediaFile.getMediaFileName().value(),
+                mediaFile.getThumbnailFileName().value(),
                 mediaFile.getContentType().value(),
                 mediaFile.getMediaFileSize().value());
         }
@@ -65,7 +71,7 @@ public class MediaFileDbo {
     }
 
     public MediaFile asMediaFile() {
-        return MediaFile.of(id, fileName, contentType, fileSize, description);
+        return MediaFile.of(id, fileName, thumbnailFileName, contentType, fileSize, description);
     }
 
 }

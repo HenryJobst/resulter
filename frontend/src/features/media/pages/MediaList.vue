@@ -15,6 +15,13 @@ const settingStoreSuffix: string = 'media'
 const listLabel = computed(() => t('labels.media', 2))
 const columns: GenericListColumn[] = [
   {
+    label: 'labels.preview',
+    field: 'thumbnailContent',
+    sortable: false,
+    filterable: false,
+    type: 'image'
+  },
+  {
     label: 'labels.fileName',
     field: 'fileName',
     sortable: true,

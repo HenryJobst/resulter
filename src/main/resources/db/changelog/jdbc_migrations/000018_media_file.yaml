@@ -29,6 +29,14 @@ databaseChangeLog :
                                         uniqueConstraintName : uk_media_file_file_name
                                         validateUnique : true
                             -   column :
+                                    name : thumbnail_file_name
+                                    type : varchar(255)
+                                    constraints :
+                                        nullable : false
+                                        unique : true
+                                        uniqueConstraintName : uk_media_file_thumbnail_file_name
+                                        validateUnique : true
+                            -   column :
                                     name : content_type
                                     type : varchar(255)
                                     constraints :

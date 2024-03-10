@@ -4,4 +4,5 @@ export interface Media {
   contentType: string
   fileSize: number
   description: string
+  thumbnailContent: string
 }

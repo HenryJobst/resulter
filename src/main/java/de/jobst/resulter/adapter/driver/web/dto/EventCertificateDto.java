@@ -8,7 +8,7 @@ import org.springframework.lang.NonNull;
 public record EventCertificateDto(Long id, String name, EventKeyDto event, String layoutDescription,
                                   MediaFileKeyDto blankCertificate) {
 
-    static public EventCertificateDto from(EventCertificate eventCertificate) {
+    static public EventCertificateDto from(EventCertificate eventCertificate, String thumbnailPath) {
         return new EventCertificateDto(ObjectUtils.isNotEmpty(eventCertificate.getId()) ?
                                        eventCertificate.getId().value() :
                                        0,
@@ -18,7 +18,7 @@ public record EventCertificateDto(Long id, String name, EventKeyDto event, Strin
             eventCertificate.getLayoutDescription().value() :
             null,
             ObjectUtils.isNotEmpty(eventCertificate.getBlankCertificate()) ?
-            MediaFileKeyDto.from(eventCertificate.getBlankCertificate()) :
+            MediaFileKeyDto.from(eventCertificate.getBlankCertificate(), thumbnailPath) :
             null);
     }
 

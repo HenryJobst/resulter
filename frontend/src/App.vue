@@ -114,6 +114,11 @@ watch(currentLocale, (val) => {
                 {{ t('navigations.media-files') }}
               </router-link>
             </li>
+            <li class="mr-4" v-if="authStore.isAdmin">
+              <router-link :to="{ name: 'certificate-list', params: { locale } }">
+                {{ t('navigations.certificates') }}
+              </router-link>
+            </li>
             <li class="mr-4">
               <router-link :to="{ name: 'about-page', params: { locale } }">
                 {{ t('navigations.about') }}

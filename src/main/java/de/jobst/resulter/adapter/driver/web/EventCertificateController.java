@@ -8,6 +8,7 @@ import de.jobst.resulter.domain.EventCertificateLayoutDescription;
 import de.jobst.resulter.domain.EventCertificateName;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,9 @@ public class EventCertificateController {
 
     private final EventCertificateService eventCertificateService;
 
+    @Value("#{'${resulter.media-file-path-thumbnails}'}")
+    private String mediaFileThumbnailsPath;
+
     @Autowired
     public EventCertificateController(EventCertificateService eventCertificateService) {
         this.eventCertificateService = eventCertificateService;
@@ -38,6 +42,7 @@ public class EventCertificateController {
     }
 
     @GetMapping("/event_certificate")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<EventCertificateDto>> searchEventCertificates(@RequestParam Optional<String> filter,
                                                                              Pageable pageable) {
         try {
@@ -47,7 +52,7 @@ public class EventCertificateController {
                 Pageable.unpaged());
             return ResponseEntity.ok(new PageImpl<>(eventCertificates.getContent()
                 .stream()
-                .map(EventCertificateDto::from)
+                .map(x -> EventCertificateDto.from(x, mediaFileThumbnailsPath))
                 .toList(),
                 FilterAndSortConverter.mapOrderProperties(eventCertificates.getPageable(),
                     EventCertificateDto::mapOrdersDomainToDto),
@@ -70,7 +75,7 @@ public class EventCertificateController {
                     eventCertificateDto.blankCertificate());
 
             if (null != eventCertificate) {
-                return ResponseEntity.ok(EventCertificateDto.from(eventCertificate));
+                return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -85,11 +90,12 @@ public class EventCertificateController {
 
 
     @GetMapping("/event_certificate/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventCertificateDto> getEventCertificate(@PathVariable Long id) {
         try {
             Optional<EventCertificate> eventCertificate = eventCertificateService.findById(EventCertificateId.of(id));
-            return eventCertificate.map(value -> ResponseEntity.ok(EventCertificateDto.from(value)))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            return eventCertificate.map(value -> ResponseEntity.ok(EventCertificateDto.from(value,
+                mediaFileThumbnailsPath))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -110,7 +116,7 @@ public class EventCertificateController {
                     eventCertificateDto.blankCertificate());
 
             if (null != eventCertificate) {
-                return ResponseEntity.ok(EventCertificateDto.from(eventCertificate));
+                return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }

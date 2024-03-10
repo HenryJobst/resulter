@@ -12,6 +12,7 @@
         "organisations" : "Organisations",
         "persons" : "Persons",
         "media-files" : "Media",
+        "certificates" : "Certificates",
         "login" : "Login",
         "logout" : "Logout"
     },
@@ -66,7 +67,10 @@
         "fileSize" : "File size",
         "contentType" : "Content type",
         "description" : "Description",
-        "preview" : "Preview"
+        "preview" : "Preview",
+        "certificate" : "Certificate|Certificates",
+        "layout_description" : "Layout description",
+        "background" : "Background"
     },
     "messages" : {
         "new_cup" : "New cup",

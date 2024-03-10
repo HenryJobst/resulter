@@ -326,6 +326,7 @@ onMounted(() => {
           </template>
           <template v-slot:body="slotProps" v-else-if="col.type === 'image'">
             <img
+              v-if="slotProps.data[col.field]"
               :src="'data:image/jpeg;base64,' + slotProps.data[col.field]"
               :alt="t('labels.preview')"
               style="width: 100px"

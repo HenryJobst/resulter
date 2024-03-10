@@ -85,11 +85,13 @@ public class EventCertificateService {
                                                    String eventCertificateLayoutDescription,
                                                    MediaFileKeyDto mediaFile) {
 
-        Optional<Event> optionalEvent = eventRepository.findById(EventId.of(event.id()));
+        Optional<Event> optionalEvent =
+            event != null ? eventRepository.findById(EventId.of(event.id())) : Optional.empty();
         if (optionalEvent.isEmpty()) {
             return null;
         }
-        Optional<MediaFile> optionalMediaFile = mediaFileRepository.findById(MediaFileId.of(mediaFile.id()));
+        Optional<MediaFile> optionalMediaFile =
+            mediaFile != null ? mediaFileRepository.findById(MediaFileId.of(mediaFile.id())) : Optional.empty();
         if (optionalMediaFile.isEmpty()) {
             return null;
         }

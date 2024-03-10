@@ -22,7 +22,7 @@ import java.util.function.Function;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
-@Table(name = "eventCertificate")
+@Table(name = "event_certificate")
 public class EventCertificateDbo {
 
     @Id

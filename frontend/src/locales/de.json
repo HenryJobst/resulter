@@ -12,6 +12,7 @@
         "organisations" : "Organisationen",
         "persons" : "Personen",
         "media-files" : "Medien",
+        "certificates" : "Urkunden",
         "login" : "Login",
         "logout" : "Logout"
     },
@@ -66,7 +67,10 @@
         "fileSize" : "Dateigröße",
         "contentType" : "Dateityp",
         "description" : "Beschreibung",
-        "preview" : "Vorschau"
+        "preview" : "Vorschau",
+        "certificate" : "Urkunde | Urkunden",
+        "layout_description" : "Layout-Beschreibung",
+        "background" : "Hintergrund"
     },
     "result_state" : {
         "OK" : "OK",

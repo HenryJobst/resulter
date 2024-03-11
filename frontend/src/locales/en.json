@@ -70,7 +70,8 @@
         "preview" : "Preview",
         "certificate" : "Certificate|Certificates",
         "layout_description" : "Layout description",
-        "background" : "Background"
+        "background" : "Background",
+        "background_preview" : "Background preview"
     },
     "messages" : {
         "new_cup" : "New cup",

@@ -19,6 +19,7 @@ import type { IGenericService } from '@/features/generic/services/IGenericServic
 import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
 import type { RestResult } from '@/features/generic/models/rest_result'
 import { prettyPrint } from '@base2/pretty-print-object'
+import { truncateString } from '../../../utils/tools'
 
 const props = defineProps({
   entityService: Object as () => IGenericService<any>,
@@ -212,7 +213,7 @@ function filterChanged(e: DataTableFilterEvent) {
 }
 
 function getSortable(col: GenericListColumn) {
-  console.log('Get sortable for ' + col.field + ':' + col.sortable)
+  // console.log('Get sortable for ' + col.field + ':' + col.sortable)
   return col.sortable ? col.sortable : true
 }
 
@@ -220,7 +221,7 @@ onMounted(() => {
   console.log('Mounted ...')
   props.columns?.forEach((col) => {
     if (col.filterable) {
-      console.log('Add filter for ' + col.field)
+      //console.log('Add filter for ' + col.field)
       settingsStore.settings.filters[col.field] = {
         value: null,
         matchMode: col.filterMatchMode || 'contains'
@@ -229,6 +230,10 @@ onMounted(() => {
   })
   console.log('Filters: ' + prettyPrint(settingsStore.settings.filters))
 })
+
+const getSubField = (field: any, subField: any) => {
+  return field[subField]
+}
 </script>
 
 <template>
@@ -294,6 +299,7 @@ onMounted(() => {
           :field="col.field"
           :header="col.label_count ? t(col.label, col.label_count) : t(col.label)"
           :sortable="getSortable(col)"
+          :class="col.class || ''"
         >
           <template v-slot:body="slotProps" v-if="col.type === 'list'">
             <div v-for="(item, index) in slotProps.data[col.field]" :key="`item-${index}`">
@@ -327,10 +333,20 @@ onMounted(() => {
           <template v-slot:body="slotProps" v-else-if="col.type === 'image'">
             <img
               v-if="slotProps.data[col.field]"
-              :src="'data:image/jpeg;base64,' + slotProps.data[col.field]"
+              :src="
+                'data:image/jpeg;base64,' + getSubField(slotProps.data[col.field], col.subField)
+              "
               :alt="t('labels.preview')"
               style="width: 100px"
             />
+          </template>
+          <template v-slot:body="slotProps" v-else-if="col.type === 'custom'">
+            <template v-if="$slots[col.field]">
+              <slot :name="col.field" :value="slotProps.data[col.field]" />
+            </template>
+          </template>
+          <template v-slot:body="slotProps" v-else-if="col.type === undefined">
+            {{ truncateString(slotProps.data, col.field, col.truncate || 1000) }}
           </template>
           <template #filter="{ filterModel, filterCallback }" v-if="col.filterable">
             <InputText
@@ -344,27 +360,29 @@ onMounted(() => {
         <!-- ... Other columns ... -->
         <Column class="text-right">
           <template #body="{ data }">
-            <slot name="extra_row_actions" :value="data" />
-            <router-link
-              v-if="props.editEnabled && changeable"
-              :to="{ name: `${props.routerPrefix}-edit`, params: { id: data.id } }"
-            >
-              <Button
+            <div class="w-24">
+              <slot name="extra_row_actions" :value="data" />
+              <router-link
                 v-if="props.editEnabled && changeable"
-                icon="pi pi-pencil"
-                class="mr-2"
-                :title="t('labels.edit')"
+                :to="{ name: `${props.routerPrefix}-edit`, params: { id: data.id } }"
+              >
+                <Button
+                  v-if="props.editEnabled && changeable"
+                  icon="pi pi-pencil"
+                  class="mr-2"
+                  :title="t('labels.edit')"
+                  outlined
+                />
+              </router-link>
+              <Button
+                v-if="props.deleteEnabled && changeable"
+                icon="pi pi-trash"
+                severity="danger"
                 outlined
+                :title="t('labels.delete')"
+                @click="deleteEntity(data.id)"
               />
-            </router-link>
-            <Button
-              v-if="props.deleteEnabled && changeable"
-              icon="pi pi-trash"
-              severity="danger"
-              outlined
-              :title="t('labels.delete')"
-              @click="deleteEntity(data.id)"
-            />
+            </div>
           </template>
         </Column>
       </DataTable>

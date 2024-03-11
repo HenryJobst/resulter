@@ -14,7 +14,7 @@ const queryKey: string[] = ['certificates']
 const entityLabel: string = 'certificate'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.certificate') }))
 
-const props = defineProps<{ event: EventKey | null; locale?: string }>()
+const props = defineProps<{ event?: EventKey | null; locale?: string }>()
 
 const formData = ref<Certificate | Omit<Certificate, 'id'>>({
   name: '',

@@ -17,9 +17,9 @@ const columns: GenericListColumn[] = [
   {
     label: 'labels.preview',
     field: 'thumbnailContent',
+    type: 'image',
     sortable: false,
-    filterable: false,
-    type: 'image'
+    filterable: false
   },
   {
     label: 'labels.fileName',

@@ -29,14 +29,6 @@ const columns: GenericListColumn[] = [
     filterType: 'input'
   },
   {
-    label: 'labels.layout_description',
-    field: 'layoutDescription',
-    sortable: false,
-    filterable: false,
-    class: 'w-20',
-    truncate: 100
-  },
-  {
     label: 'labels.background',
     field: 'blankCertificate.fileName',
     sortable: true,
@@ -45,9 +37,8 @@ const columns: GenericListColumn[] = [
   },
   {
     label: 'labels.background_preview',
-    field: 'blankCertificate',
+    field: 'blankCertificate.thumbnailContent',
     type: 'image',
-    subField: 'thumbnailContent',
     sortable: false,
     filterable: false
   }

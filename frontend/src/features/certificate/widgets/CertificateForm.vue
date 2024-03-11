@@ -168,7 +168,7 @@ const handleMediaSelectionChange = (ev: ListboxChangeEvent) => {
           id="layoutDescription"
           autoResize
           rows="20"
-          cols="80"
+          cols="40"
         ></Textarea>
       </div>
     </div>

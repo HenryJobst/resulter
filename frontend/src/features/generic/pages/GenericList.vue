@@ -19,7 +19,7 @@ import type { IGenericService } from '@/features/generic/services/IGenericServic
 import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
 import type { RestResult } from '@/features/generic/models/rest_result'
 import { prettyPrint } from '@base2/pretty-print-object'
-import { truncateString } from '../../../utils/tools'
+import { getValueByPath, truncateString } from '../../../utils/tools'
 
 const props = defineProps({
   entityService: Object as () => IGenericService<any>,
@@ -230,10 +230,6 @@ onMounted(() => {
   })
   console.log('Filters: ' + prettyPrint(settingsStore.settings.filters))
 })
-
-const getSubField = (field: any, subField: any) => {
-  return field[subField]
-}
 </script>
 
 <template>
@@ -332,10 +328,8 @@ const getSubField = (field: any, subField: any) => {
           </template>
           <template v-slot:body="slotProps" v-else-if="col.type === 'image'">
             <img
-              v-if="slotProps.data[col.field]"
-              :src="
-                'data:image/jpeg;base64,' + getSubField(slotProps.data[col.field], col.subField)
-              "
+              v-if="slotProps.data && col.field"
+              :src="'data:image/jpeg;base64,' + getValueByPath(slotProps.data, col.field)"
               :alt="t('labels.preview')"
               style="width: 100px"
             />

@@ -7,7 +7,6 @@ export interface GenericListColumn {
   class?: string
   truncate?: number
   type?: string
-  subField?: string
   queryKey?: string
   sortable?: boolean
   filterable?: boolean

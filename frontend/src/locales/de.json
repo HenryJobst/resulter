@@ -70,7 +70,8 @@
         "preview" : "Vorschau",
         "certificate" : "Urkunde | Urkunden",
         "layout_description" : "Layout-Beschreibung",
-        "background" : "Hintergrund"
+        "background" : "Hintergrund",
+        "background_preview" : "Hintergrund-Vorschau"
     },
     "result_state" : {
         "OK" : "OK",

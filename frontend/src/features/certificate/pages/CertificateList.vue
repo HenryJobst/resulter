@@ -32,7 +32,9 @@ const columns: GenericListColumn[] = [
     label: 'labels.layout_description',
     field: 'layoutDescription',
     sortable: false,
-    filterable: false
+    filterable: false,
+    class: 'w-20',
+    truncate: 100
   },
   {
     label: 'labels.background',
@@ -42,11 +44,12 @@ const columns: GenericListColumn[] = [
     filterType: 'input'
   },
   {
-    label: 'labels.preview',
-    field: 'blankCertificate.thumbnailContent',
+    label: 'labels.background_preview',
+    field: 'blankCertificate',
+    type: 'image',
+    subField: 'thumbnailContent',
     sortable: false,
-    filterable: false,
-    type: 'image'
+    filterable: false
   }
 ]
 </script>

@@ -8,7 +8,7 @@ import org.springframework.lang.NonNull;
 import java.util.List;
 
 public record EventDto(Long id, String name, String startTime, EventStatusDto state,
-                       List<OrganisationKeyDto> organisations) {
+                       List<OrganisationKeyDto> organisations, EventCertificateKeyDto certificate) {
 
     static public EventDto from(Event event) {
         return new EventDto(ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0,
@@ -17,7 +17,10 @@ public record EventDto(Long id, String name, String startTime, EventStatusDto st
             event.getStartTime().value().toString() :
             null,
             EventStatusDto.from(event.getEventState()),
-            event.getOrganisations().stream().map(OrganisationKeyDto::from).toList());
+            event.getOrganisations().stream().map(OrganisationKeyDto::from).toList(),
+            ObjectUtils.isNotEmpty(event.getCertificate()) ?
+            EventCertificateKeyDto.from(event.getCertificate()) :
+            null);
     }
 
     @NonNull

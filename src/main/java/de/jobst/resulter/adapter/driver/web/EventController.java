@@ -119,7 +119,9 @@ public class EventController {
                 EventStatus.fromValue(eventDto.state().id()),
                 eventDto.organisations() == null ?
                 new HashSet<>() :
-                eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()));
+                eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()),
+                eventDto.certificate() != null ? EventCertificateId.of(eventDto.certificate().id()) : null);
+
             if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
             } else {

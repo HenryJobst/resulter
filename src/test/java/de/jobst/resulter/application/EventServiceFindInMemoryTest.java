@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.application.port.InMemoryEventCertificateRepository;
 import de.jobst.resulter.application.port.InMemoryEventRepository;
 import de.jobst.resulter.application.port.InMemoryOrganisationRepository;
 import de.jobst.resulter.application.port.InMemoryPersonRepository;
@@ -17,7 +18,8 @@ class EventServiceFindInMemoryTest {
     public void whenRepositoryIsEmptyFindReturnsEmptyOptional() {
         EventService eventService = EventServiceFactory.createServiceWith(new InMemoryEventRepository(),
             new InMemoryPersonRepository(),
-            new InMemoryOrganisationRepository());
+            new InMemoryOrganisationRepository(),
+            new InMemoryEventCertificateRepository());
 
         assertThat(eventService.findById(EventId.of(9999L))).isEmpty();
     }
@@ -27,8 +29,11 @@ class EventServiceFindInMemoryTest {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
         InMemoryPersonRepository personRepository = new InMemoryPersonRepository();
         InMemoryOrganisationRepository organisationRepository = new InMemoryOrganisationRepository();
-        EventService eventService =
-            EventServiceFactory.createServiceWith(eventRepository, personRepository, organisationRepository);
+        InMemoryEventCertificateRepository certificateRepository = new InMemoryEventCertificateRepository();
+        EventService eventService = EventServiceFactory.createServiceWith(eventRepository,
+            personRepository,
+            organisationRepository,
+            certificateRepository);
 
         Event savedEvent = eventService.findOrCreate(Event.of("Test"));
 
@@ -40,9 +45,12 @@ class EventServiceFindInMemoryTest {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
         InMemoryPersonRepository personRepository = new InMemoryPersonRepository();
         InMemoryOrganisationRepository organisationRepository = new InMemoryOrganisationRepository();
+        InMemoryEventCertificateRepository certificateRepository = new InMemoryEventCertificateRepository();
         Event savedEvent = eventRepository.findOrCreate(Event.of("Test"));
-        EventService eventService =
-            EventServiceFactory.createServiceWith(eventRepository, personRepository, organisationRepository);
+        EventService eventService = EventServiceFactory.createServiceWith(eventRepository,
+            personRepository,
+            organisationRepository,
+            certificateRepository);
 
         Event foundEvent = eventService.findOrCreate(savedEvent);
 
@@ -54,9 +62,12 @@ class EventServiceFindInMemoryTest {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
         InMemoryPersonRepository personRepository = new InMemoryPersonRepository();
         InMemoryOrganisationRepository organisationRepository = new InMemoryOrganisationRepository();
+        InMemoryEventCertificateRepository certificateRepository = new InMemoryEventCertificateRepository();
         Event savedEvent = eventRepository.save(Event.of("Test"));
-        EventService eventService =
-            EventServiceFactory.createServiceWith(eventRepository, personRepository, organisationRepository);
+        EventService eventService = EventServiceFactory.createServiceWith(eventRepository,
+            personRepository,
+            organisationRepository,
+            certificateRepository);
 
         Optional<Event> foundEvent = eventService.findById(savedEvent.getId());
 

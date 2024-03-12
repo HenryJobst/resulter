@@ -11,6 +11,7 @@ import { EventService } from '@/features/event/services/event.service'
 import Dropdown from 'primevue/dropdown'
 import { organisationService } from '@/features/organisation/services/organisation.service'
 import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
+import { certificateService } from '@/features/certificate/services/certificate.service'
 
 const { t } = useI18n()
 
@@ -27,8 +28,17 @@ const event = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
+const certificateQuery = useQuery({
+  queryKey: ['certificates'],
+  queryFn: () => certificateService.getAll(t)
+})
+
 const l_organisations = ref<number[]>(
   event.value ? event.value.organisations.map((org) => org.id) : []
+)
+
+const l_certificate = ref<number | null>(
+  event.value && event.value.certificate ? event.value.certificate.id : null
 )
 
 const organisationQuery = useQuery({
@@ -194,6 +204,26 @@ const handleSelectionChange = (ev: MultiSelectChangeEvent) => {
             class="w-full md:w-20rem"
           />
         </div>
+      </div>
+    </div>
+    <div class="flex flex-row">
+      <label for="certificate" class="col-fixed w-32">{{ t('labels.certificate') }}</label>
+      <div class="col">
+        <span v-if="certificateQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+        <span v-else-if="certificateQuery.status.value === 'error'">
+          {{ t('messages.error', { message: certificateQuery.error.toLocaleString() }) }}
+        </span>
+        <Dropdown
+          v-else-if="certificateQuery.data.value"
+          id="certificate"
+          v-model="l_certificate"
+          :options="certificateQuery.data.value.content"
+          optionLabel="name"
+          data-key="id"
+          :placeholder="t('messages.select')"
+          class="w-full md:w-14rem"
+          filter
+        />
       </div>
     </div>
   </div>

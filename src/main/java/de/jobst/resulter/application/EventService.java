@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.application.port.EventCertificateRepository;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.PersonRepository;
@@ -24,12 +25,16 @@ public class EventService {
     public final OrganisationRepository organisationRepository;
     private final EventRepository eventRepository;
 
+    private final EventCertificateRepository eventCertificateRepository;
+
     public EventService(EventRepository eventRepository,
                         PersonRepository personRepository,
-                        OrganisationRepository organisationRepository) {
+                        OrganisationRepository organisationRepository,
+                        EventCertificateRepository eventCertificateRepository) {
         this.eventRepository = eventRepository;
         this.personRepository = personRepository;
         this.organisationRepository = organisationRepository;
+        this.eventCertificateRepository = eventCertificateRepository;
     }
 
     public Event findOrCreate(Event event) {
@@ -45,17 +50,20 @@ public class EventService {
     }
 
     public Event updateEvent(EventId id,
-                             EventName name,
-                             DateTime startDate,
-                             EventStatus status,
-                             Collection<OrganisationId> organisationIds) {
+                             @NonNull EventName name,
+                             @Nullable DateTime startDate,
+                             @NonNull EventStatus status,
+                             @NonNull Collection<OrganisationId> organisationIds,
+                             @Nullable EventCertificateId certificateId) {
         Optional<Event> optionalEvent = findById(id);
         if (optionalEvent.isEmpty()) {
             return null;
         }
         Event event = optionalEvent.get();
         List<Organisation> organisations = organisationRepository.findByIds(organisationIds);
-        event.update(name, startDate, status, organisations);
+        EventCertificate certificate =
+            certificateId != null ? eventCertificateRepository.findById(certificateId).orElseThrow() : null;
+        event.update(name, startDate, status, organisations, certificate);
         return eventRepository.save(event);
     }
 

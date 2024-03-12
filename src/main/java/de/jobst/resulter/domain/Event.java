@@ -28,6 +28,7 @@ public class Event implements Comparable<Event> {
     @NonNull
     private Collection<Organisation> organisations;
     @Nullable
+    @Setter
     private EventCertificate certificate;
 
     public Event(@NonNull EventId id,
@@ -35,13 +36,15 @@ public class Event implements Comparable<Event> {
                  @NonNull DateTime startTime,
                  @NonNull DateTime endTime,
                  @NonNull Collection<Organisation> organisations,
-                 @NonNull EventStatus eventState) {
+                 @NonNull EventStatus eventState,
+                 @Nullable EventCertificate certificate) {
         this.id = id;
         this.name = eventName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.organisations = organisations;
         this.eventState = eventState;
+        this.certificate = certificate;
     }
 
     public static Event of(@NonNull String name) {
@@ -62,24 +65,37 @@ public class Event implements Comparable<Event> {
                            @Nullable ZonedDateTime endTime,
                            @NonNull Collection<Organisation> organisations,
                            @NonNull EventStatus eventState) {
+        return Event.of(id, eventName, startTime, endTime, organisations, eventState, null);
+    }
+
+    static public Event of(Long id,
+                           @NonNull String eventName,
+                           @Nullable ZonedDateTime startTime,
+                           @Nullable ZonedDateTime endTime,
+                           @NonNull Collection<Organisation> organisations,
+                           @NonNull EventStatus eventState,
+                           @Nullable EventCertificate certificate) {
         return new Event(EventId.of(id),
             EventName.of(eventName),
             DateTime.of(startTime),
             DateTime.of(endTime),
             organisations,
-            eventState);
+            eventState,
+            certificate);
     }
 
 
     public void update(@NonNull EventName eventName,
                        @Nullable DateTime startTime,
                        @NonNull EventStatus status,
-                       @NonNull Collection<Organisation> organisations) {
+                       @NonNull Collection<Organisation> organisations,
+                       @Nullable EventCertificate certificate) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
         this.eventState = status;
         this.organisations = organisations;
+        this.certificate = certificate;
     }
 
     @Override

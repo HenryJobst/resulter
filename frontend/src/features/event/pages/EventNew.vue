@@ -17,7 +17,8 @@ const formData = ref<SportEvent | Omit<SportEvent, 'id'>>({
   name: '',
   startTime: new Date(),
   state: { id: 'Planned' },
-  organisations: []
+  organisations: [],
+  certificate: null
 })
 </script>
 

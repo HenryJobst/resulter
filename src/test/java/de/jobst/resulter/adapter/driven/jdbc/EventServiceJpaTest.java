@@ -42,7 +42,8 @@ class EventServiceJpaTest {
             EventName.of("ChangedEvent"),
             savedEvent.getStartTime(),
             savedEvent.getEventState(),
-            savedEvent.getOrganisations().stream().map(Organisation::getId).toList());
+            savedEvent.getOrganisations().stream().map(Organisation::getId).toList(),
+            savedEvent.getCertificate() != null ? savedEvent.getCertificate().getId() : null);
 
         assertThat(changedEvent).isNotNull();
         /* TODO transform test to new domain entity and dbo structure

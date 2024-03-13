@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
 import type { SportEvent } from '@/features/event/model/sportEvent'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUpdate, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import Calendar from 'primevue/calendar'
 import MultiSelect, { type MultiSelectChangeEvent } from 'primevue/multiselect'
 import { useQuery } from '@tanstack/vue-query'
 import { EventService } from '@/features/event/services/event.service'
-import Dropdown from 'primevue/dropdown'
+import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown'
 import { organisationService } from '@/features/organisation/services/organisation.service'
 import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
 import { certificateService } from '@/features/certificate/services/certificate.service'
+import { prettyPrint } from '@base2/pretty-print-object'
+import type { CertificateKey } from '@/features/certificate/model/certificate_key'
+import type { Certificate } from '@/features/certificate/model/certificate'
 
 const { t } = useI18n()
 
@@ -33,13 +36,14 @@ const certificateQuery = useQuery({
   queryFn: () => certificateService.getAll(t)
 })
 
-const l_organisations = ref<number[]>(
-  event.value ? event.value.organisations.map((org) => org.id) : []
-)
-
-const l_certificate = ref<number | null>(
-  event.value && event.value.certificate ? event.value.certificate.id : null
-)
+const l_organisations = computed({
+  get: () => (event.value ? event.value.organisations.map((org) => org.id) : []),
+  set: (ids) => {
+    if (event.value) {
+      event.value.organisations = getOrganisationKeysFromIds(ids)!
+    }
+  }
+})
 
 const organisationQuery = useQuery({
   queryKey: ['organisations'],
@@ -61,7 +65,14 @@ const localizedEventStatusOptions = computed(() => {
   return []
 })
 
-const dateTime = ref(new Date(event.value ? event.value.startTime : new Date()))
+const dateTime = computed({
+  get: () => new Date(event.value ? event.value.startTime : new Date()),
+  set: (newDateTime) => {
+    if (event.value) {
+      event.value.startTime = newDateTime.toISOString()
+    }
+  }
+})
 
 const datePart = computed({
   get: () =>
@@ -137,6 +148,38 @@ const handleSelectionChange = (ev: MultiSelectChangeEvent) => {
     event.value.organisations = getOrganisationKeysFromIds(ev.value)!
   }
 }
+
+onBeforeUpdate(() => {
+  console.log('EventForm:onBeforeUpdate:props.event', prettyPrint(props.event))
+  console.log('EventForm:onBeforeUpdate:dateTime', prettyPrint(dateTime.value))
+})
+
+const getCertificateKeyFromId = (id: number | null): CertificateKey | null => {
+  if (!certificateQuery.data.value || !certificateQuery.data.value.content) {
+    return null
+  }
+  const certificate: Certificate | undefined = certificateQuery.data.value?.content.find(
+    (certificate) => certificate.id === id
+  )
+  if (certificate !== undefined) {
+    return {
+      id: certificate.id,
+      name: certificate.name
+    }
+  }
+  return null
+}
+
+const handleCertificateSelectionChange = (ev: DropdownChangeEvent) => {
+  if (
+    ev.value &&
+    event.value &&
+    certificateQuery.data.value &&
+    certificateQuery.data.value.content
+  ) {
+    event.value.certificate = getCertificateKeyFromId(ev.value.id)!
+  }
+}
 </script>
 
 <template>
@@ -199,7 +242,7 @@ const handleSelectionChange = (ev: MultiSelectChangeEvent) => {
             data-key="id"
             filter
             optionLabel="name"
-            optionValue="id"
+            option-value="id"
             :placeholder="t('messages.select')"
             class="w-full md:w-20rem"
           />
@@ -216,13 +259,14 @@ const handleSelectionChange = (ev: MultiSelectChangeEvent) => {
         <Dropdown
           v-else-if="certificateQuery.data.value"
           id="certificate"
-          v-model="l_certificate"
+          v-model="event.certificate"
           :options="certificateQuery.data.value.content"
           optionLabel="name"
           data-key="id"
           :placeholder="t('messages.select')"
           class="w-full md:w-14rem"
           filter
+          @change="handleCertificateSelectionChange"
         />
       </div>
     </div>

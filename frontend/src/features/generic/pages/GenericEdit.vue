@@ -27,15 +27,16 @@ const toast = useToast()
 
 const formData = ref<GenericEntity | null>(null)
 
+const entityQuery = useQuery({
+  queryKey: [props.queryKey, props.entityId],
+  queryFn: () => props.entityService?.getById(props.entityId, t)
+})
+
 onMounted(() => {
   if (entityQuery.data.value) {
     formData.value = { ...entityQuery.data.value }
   }
-})
-
-const entityQuery = useQuery({
-  queryKey: [props.queryKey, props.entityId],
-  queryFn: () => props.entityService?.getById(props.entityId, t)
+  //console.log('GenericEdit:onMounted:formData', prettyPrint(formData.value))
 })
 
 // Watcher, der auf Änderungen in entityQuery.data reagiert

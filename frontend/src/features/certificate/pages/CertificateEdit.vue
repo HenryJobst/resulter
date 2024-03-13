@@ -28,11 +28,11 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.c
   >
     <template v-slot:default="{ formData }">
       <CertificateForm
+        v-if="formData"
         :certificate="formData as Certificate"
         :entity-service="certificateService"
         :query-key="queryKey"
         :v-model="formData"
-        v-if="formData"
       />
     </template>
   </GenericEdit>

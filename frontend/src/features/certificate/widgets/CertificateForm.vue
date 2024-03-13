@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
 import type { Certificate } from '@/features/certificate/model/certificate'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Textarea from 'primevue/textarea'
 
 import { CertificateService } from '@/features/certificate/services/certificate.service'
 import { useQuery } from '@tanstack/vue-query'
 import { eventService } from '@/features/event/services/event.service'
-import Dropdown from 'primevue/dropdown'
-import type { ListboxChangeEvent } from 'primevue/listbox'
+import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown'
 import type { EventKey } from '@/features/event/model/event_key'
 import { mediaService } from '@/features/media/services/media.service'
 import type { MediaKey } from '@/features/media/model/media_key'
@@ -41,15 +40,6 @@ const mediaQuery = useQuery({
   queryFn: () => mediaService.getAll(t)
 })
 
-const l_certificate = ref<number | null>(
-  certificate.value && certificate.value.event ? certificate.value.event.id : null
-)
-
-const l_media = ref<number | null>(
-  certificate.value && certificate.value.blankCertificate
-    ? certificate.value.blankCertificate.id
-    : null
-)
 const getEventKeyFromId = (id: number | null): EventKey | null => {
   if (!eventQuery.data.value || !eventQuery.data.value.content) {
     return null
@@ -83,13 +73,13 @@ const getMediaKeyFromId = (id: number | null): MediaKey | null => {
   return null
 }
 
-const handleEventSelectionChange = (ev: ListboxChangeEvent) => {
+const handleEventSelectionChange = (ev: DropdownChangeEvent) => {
   if (ev.value && certificate.value && eventQuery.data.value && eventQuery.data.value.content) {
     certificate.value.event = getEventKeyFromId(ev.value.id)!
   }
 }
 
-const handleMediaSelectionChange = (ev: ListboxChangeEvent) => {
+const handleMediaSelectionChange = (ev: DropdownChangeEvent) => {
   if (ev.value && certificate.value && mediaQuery.data.value && mediaQuery.data.value.content) {
     certificate.value.blankCertificate = getMediaKeyFromId(ev.value.id)!
   }

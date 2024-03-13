@@ -56,13 +56,22 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
     }
 
     @NonNull
+    private Function<Long, EventCertificate> getEventCertificateResolver() {
+        return id -> EventCertificateDbo.asEventCertificate(eventCertificateJdbcRepository.findById(id).orElseThrow(),
+            getEventResolver(),
+            getMediaFileResolver());
+    }
+
+    @NonNull
     private Function<Long, Country> getCountryResolver() {
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
 
     @NotNull
     private Function<Long, Event> getEventResolver() {
-        return id -> EventDbo.asEvent(eventJdbcRepository.findById(id).orElseThrow(), getOrganisationResolver());
+        return id -> EventDbo.asEvent(eventJdbcRepository.findById(id).orElseThrow(),
+            getOrganisationResolver(),
+            getEventCertificateResolver());
     }
 
     @NotNull

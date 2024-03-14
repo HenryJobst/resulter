@@ -122,6 +122,7 @@ const certificate = (resultListId: number, classResultShortName: string, data: P
     <Column>
       <template #body="slotProps">
         <Button
+          v-if="props.data.certificateEnabled"
           class="p-button-rounded p-button-text"
           icon="pi pi-print"
           @click="

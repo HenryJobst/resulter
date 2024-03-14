@@ -77,13 +77,20 @@ const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] 
   const treeNodes: TreeNode[] = []
   for (let i = 0; i < aList.length; i++) {
     const resultList = aList[i]
+    const certificateEnabled = eventQuery.data.value?.content.find(
+      (e) => e.id === resultList.eventId
+    )?.certificate
     treeNodes.push({
       key: resultList.id.toString(),
       label: getResultListLabel(resultList),
       children: [
         {
           key: `${resultList.id.toString()}-table`,
-          data: createClassResultTreeNodes(resultList.id, resultList.classResults),
+          data: createClassResultTreeNodes(
+            resultList.id,
+            resultList.classResults,
+            certificateEnabled
+          ),
           type: 'tree',
           leaf: false
         }
@@ -114,17 +121,23 @@ function getClassResultLabel(a: ClassResult) {
   )
 }
 
-const getPersonResults = (resultListId: number, a: ClassResult): ResultListIdPersonResults => {
+const getPersonResults = (
+  resultListId: number,
+  a: ClassResult,
+  certificateEnabled: boolean | undefined
+): ResultListIdPersonResults => {
   return {
     resultListId: resultListId,
     classResultShortName: a.shortName,
-    personResults: a.personResults
+    personResults: a.personResults,
+    certificateEnabled: certificateEnabled
   }
 }
 
 const createClassResultTreeNodes = (
   resultListId: number,
-  aList: ClassResult[] | undefined
+  aList: ClassResult[] | undefined,
+  certificateEnabled: boolean | undefined
 ): TreeNode[] => {
   if (!aList) {
     return []
@@ -136,7 +149,7 @@ const createClassResultTreeNodes = (
       children: [
         {
           key: `${a.shortName}-table`,
-          data: getPersonResults(resultListId, a),
+          data: getPersonResults(resultListId, a, certificateEnabled),
           type: 'dataTable',
           leaf: true
         }

@@ -71,7 +71,8 @@
         "certificate" : "Urkunde | Urkunden",
         "layout_description" : "Layout-Beschreibung",
         "background" : "Hintergrund",
-        "background_preview" : "Hintergrund-Vorschau"
+        "background_preview" : "Hintergrund-Vorschau",
+        "primary" : "Primär"
     },
     "result_state" : {
         "OK" : "OK",

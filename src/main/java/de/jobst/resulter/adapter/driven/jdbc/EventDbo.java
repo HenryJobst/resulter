@@ -1,7 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventStatus;
 import de.jobst.resulter.domain.Organisation;
 import lombok.AccessLevel;
@@ -12,12 +11,10 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -53,10 +50,6 @@ public class EventDbo {
 
     @MappedCollection(idColumn = "event_id")
     private Set<EventOrganisationDbo> organisations = new HashSet<>();
-
-    @Nullable
-    @Column("event_certificate_id")
-    private AggregateReference<EventCertificateDbo, Long> eventCertificateId;
 
     public EventDbo(String name) {
         this.id = null;
@@ -99,18 +92,11 @@ public class EventDbo {
             .map(x -> new EventOrganisationDbo(x.getId().value()))
             .collect(Collectors.toSet()));
 
-        if (ObjectUtils.isNotEmpty(event.getCertificate())) {
-            eventDbo.setEventCertificateId(AggregateReference.to(event.getCertificate().getId().value()));
-        } else {
-            eventDbo.setEventCertificateId(null);
-        }
-
         return eventDbo;
     }
 
     static public List<Event> asEvents(@NonNull Collection<EventDbo> eventDbos,
-                                       Function<Long, Organisation> organisationResolver,
-                                       Function<Long, EventCertificate> eventCertificateResolver) {
+                                       Function<Long, Organisation> organisationResolver) {
 
         return eventDbos.stream()
             .map(it -> Event.of(it.id,
@@ -118,15 +104,12 @@ public class EventDbo {
                 it.startTime != null ? it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)) : null,
                 it.endTime != null ? it.endTime.atZoneSameInstant(ZoneId.of(it.endTimeZone)) : null,
                 it.organisations.stream().map(x -> organisationResolver.apply(x.id.getId())).toList(),
-                it.state,
-                it.eventCertificateId != null ? eventCertificateResolver.apply(it.eventCertificateId.getId()) : null))
+                it.state))
             .toList();
     }
 
-    static public Event asEvent(@NonNull EventDbo eventDbo,
-                                Function<Long, Organisation> organisationResolver,
-                                Function<Long, EventCertificate> eventCertificateResolver) {
-        return asEvents(List.of(eventDbo), organisationResolver, eventCertificateResolver).getFirst();
+    static public Event asEvent(@NonNull EventDbo eventDbo, Function<Long, Organisation> organisationResolver) {
+        return asEvents(List.of(eventDbo), organisationResolver).getFirst();
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

@@ -42,6 +42,9 @@ public class EventCertificateDbo {
     @Column("layout_description")
     private String layoutDescription;
 
+    @Column("primary")
+    private boolean primary;
+
     public EventCertificateDbo(String name, AggregateReference<EventDbo, Long> event) {
         this.id = null;
         this.name = name;
@@ -74,6 +77,8 @@ public class EventCertificateDbo {
             eventCertificateDbo.setLayoutDescription(null);
         }
 
+        eventCertificateDbo.setPrimary(eventCertificate.isPrimary());
+
         return eventCertificateDbo;
     }
 
@@ -87,7 +92,8 @@ public class EventCertificateDbo {
                 it.name,
                 eventResolver.apply(it.event.getId()),
                 it.layoutDescription != null ? it.layoutDescription : null,
-                it.blankCertificate != null ? mediaFileResolver.apply(it.blankCertificate.getId()) : null))
+                it.blankCertificate != null ? mediaFileResolver.apply(it.blankCertificate.getId()) : null,
+                it.primary))
             .toList();
     }
 

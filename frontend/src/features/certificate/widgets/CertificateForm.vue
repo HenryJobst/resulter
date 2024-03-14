@@ -4,6 +4,7 @@ import type { Certificate } from '@/features/certificate/model/certificate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Textarea from 'primevue/textarea'
+import Checkbox from 'primevue/checkbox'
 
 import { CertificateService } from '@/features/certificate/services/certificate.service'
 import { useQuery } from '@tanstack/vue-query'
@@ -160,6 +161,12 @@ const handleMediaSelectionChange = (ev: DropdownChangeEvent) => {
           rows="20"
           cols="40"
         ></Textarea>
+      </div>
+    </div>
+    <div class="flex flex-row">
+      <label for="primary" class="col-fixed w-32">{{ t('labels.primary') }}</label>
+      <div class="col">
+        <Checkbox v-model="certificate.primary" id="primary" :binary="true" />
       </div>
     </div>
   </div>

@@ -64,6 +64,18 @@ public class EventService {
         EventCertificate certificate =
             certificateId != null ? eventCertificateRepository.findById(certificateId).orElseThrow() : null;
         event.update(name, startDate, status, organisations, certificate);
+        if (certificate != null) {
+            List<EventCertificate> eventCertificates = eventCertificateRepository.findAllByEvent(event.getId());
+            eventCertificates.forEach(eventCertificate -> {
+                if (eventCertificate.getId().equals(certificateId)) {
+                    eventCertificate.setPrimary(true);
+                } else {
+                    eventCertificate.setPrimary(false);
+                }
+            });
+            eventCertificateRepository.saveAll(eventCertificates);
+            eventCertificateRepository.save(certificate);
+        }
         return eventRepository.save(event);
     }
 

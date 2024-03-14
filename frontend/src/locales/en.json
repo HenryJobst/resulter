@@ -71,7 +71,8 @@
         "certificate" : "Certificate|Certificates",
         "layout_description" : "Layout description",
         "background" : "Background",
-        "background_preview" : "Background preview"
+        "background_preview" : "Background preview",
+        "primary" : "Primary"
     },
     "messages" : {
         "new_cup" : "New cup",

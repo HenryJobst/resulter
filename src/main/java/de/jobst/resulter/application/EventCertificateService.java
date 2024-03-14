@@ -48,7 +48,8 @@ public class EventCertificateService {
                                                    EventCertificateName name,
                                                    EventKeyDto event,
                                                    EventCertificateLayoutDescription eventCertificateLayoutDescription,
-                                                   MediaFileKeyDto mediaFile) {
+                                                   MediaFileKeyDto mediaFile,
+                                                   boolean primary) {
         Optional<EventCertificate> optionalEventCertificate = findById(id);
         if (optionalEventCertificate.isEmpty()) {
             return null;
@@ -61,12 +62,29 @@ public class EventCertificateService {
         if (optionalMediaFile.isEmpty()) {
             return null;
         }
-        EventCertificate eventCertificateCertificate = optionalEventCertificate.get();
-        eventCertificateCertificate.update(name,
+        EventCertificate eventCertificate = optionalEventCertificate.get();
+        eventCertificate.update(name,
             optionalEvent.get(),
             eventCertificateLayoutDescription,
-            optionalMediaFile.get());
-        return eventCertificateRepository.save(eventCertificateCertificate);
+            optionalMediaFile.get(),
+            primary);
+
+        if (eventCertificate.isPrimary()) {
+            List<EventCertificate> eventCertificates =
+                eventCertificateRepository.findAllByEvent(optionalEvent.get().getId())
+                    .stream()
+                    .filter(x -> x.getId() == eventCertificate.getId())
+                    .toList();
+            eventCertificates.forEach(x -> x.setPrimary(false));
+            eventCertificateRepository.saveAll(eventCertificates);
+            optionalEvent.get().setCertificate(eventCertificate);
+        } else if (optionalEvent.get().getCertificate() != null &&
+                   optionalEvent.get().getCertificate().getId().equals(eventCertificate.getId())) {
+            optionalEvent.get().setCertificate(null);
+        }
+        EventCertificate savedEventCertificate = eventCertificateRepository.save(eventCertificate);
+        eventRepository.save(optionalEvent.get());
+        return savedEventCertificate;
     }
 
     @Transactional
@@ -83,7 +101,8 @@ public class EventCertificateService {
     public EventCertificate createEventCertificate(String eventCertificateCertificateName,
                                                    EventKeyDto event,
                                                    String eventCertificateLayoutDescription,
-                                                   MediaFileKeyDto mediaFile) {
+                                                   MediaFileKeyDto mediaFile,
+                                                   boolean primary) {
 
         Optional<Event> optionalEvent =
             event != null ? eventRepository.findById(EventId.of(event.id())) : Optional.empty();
@@ -99,7 +118,8 @@ public class EventCertificateService {
             eventCertificateCertificateName,
             optionalEvent.get(),
             eventCertificateLayoutDescription,
-            optionalMediaFile.get());
+            optionalMediaFile.get(),
+            primary);
         return eventCertificateRepository.save(eventCertificateCertificate);
     }
 

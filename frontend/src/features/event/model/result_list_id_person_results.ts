@@ -4,4 +4,5 @@ export interface ResultListIdPersonResults {
   resultListId: number
   classResultShortName: string
   personResults: PersonResult[]
+  certificateEnabled: boolean | undefined
 }

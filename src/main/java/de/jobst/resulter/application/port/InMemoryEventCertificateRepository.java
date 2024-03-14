@@ -2,6 +2,7 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventCertificateId;
+import de.jobst.resulter.domain.EventId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
@@ -58,6 +59,21 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
     @Override
     public Page<EventCertificate> findAll(@Nullable String filter, @NonNull Pageable pageable) {
         return new PageImpl<>(new ArrayList<>(eventCertificates.values()), pageable, eventCertificates.size());
+    }
+
+    @Override
+    public List<EventCertificate> findAllByEvent(EventId id) {
+        List<EventCertificate> result = new ArrayList<>();
+        eventCertificates.values()
+            .stream()
+            .filter(eventCertificate -> eventCertificate.getEvent().getId().equals(id))
+            .forEach(result::add);
+        return result;
+    }
+
+    @Override
+    public void saveAll(List<EventCertificate> eventCertificates) {
+        eventCertificates.forEach(this::save);
     }
 
     @SuppressWarnings("unused")

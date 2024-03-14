@@ -72,7 +72,8 @@ public class EventCertificateController {
                 eventCertificateService.createEventCertificate(eventCertificateDto.name(),
                     eventCertificateDto.event(),
                     eventCertificateDto.layoutDescription(),
-                    eventCertificateDto.blankCertificate());
+                    eventCertificateDto.blankCertificate(),
+                    eventCertificateDto.primary());
 
             if (null != eventCertificate) {
                 return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));
@@ -113,7 +114,8 @@ public class EventCertificateController {
                     EventCertificateName.of(eventCertificateDto.name()),
                     eventCertificateDto.event(),
                     EventCertificateLayoutDescription.of(eventCertificateDto.layoutDescription()),
-                    eventCertificateDto.blankCertificate());
+                    eventCertificateDto.blankCertificate(),
+                    eventCertificateDto.primary());
 
             if (null != eventCertificate) {
                 return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));

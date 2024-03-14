@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,9 +49,11 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
 
     @NonNull
     private Function<Long, Event> getEventResolver() {
-        return id -> EventDbo.asEvent(eventJdbcRepository.findById(id).orElseThrow(),
-            getOrganisationResolver(),
-            getEventCertificateResolver());
+        return id -> {
+            Event event = EventDbo.asEvent(eventJdbcRepository.findById(id).orElseThrow(), getOrganisationResolver());
+            event.withCertificate(getPrimaryEventCertificateResolver(event));
+            return event;
+        };
     }
 
     @NonNull
@@ -77,6 +80,17 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
 
+    private Function<EventId, EventCertificate> getPrimaryEventCertificateResolver(@NonNull Event event) {
+        return id -> {
+            Optional<EventCertificateDbo> optionalEventCertificateDbo =
+                eventCertificateJdbcRepository.findByEventAndPrimary(AggregateReference.to(id.value()), true);
+            return optionalEventCertificateDbo.map(eventCertificateDbo -> EventCertificateDbo.asEventCertificate(
+                eventCertificateDbo,
+                eventId -> event,
+                getMediaFileResolver())).orElse(null);
+        };
+    }
+
     @Override
     @Transactional
     public Event save(Event event) {
@@ -87,7 +101,9 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         dboResolvers.setCountryDboResolver(id -> countryJdbcRepository.findById(id.value()).orElseThrow());
         EventDbo eventEntity = EventDbo.from(event, dboResolvers);
         EventDbo savedEventEntity = eventJdbcRepository.save(eventEntity);
-        return EventDbo.asEvent(savedEventEntity, getOrganisationResolver(), getEventCertificateResolver());
+        Event savedEvent = EventDbo.asEvent(savedEventEntity, getOrganisationResolver());
+        savedEvent.withCertificate(getPrimaryEventCertificateResolver(savedEvent));
+        return savedEvent;
     }
 
     @Override
@@ -99,7 +115,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Transactional(readOnly = true)
     public List<Event> findAll() {
         Collection<EventDbo> resultList = eventJdbcRepository.findAll();
-        return EventDbo.asEvents(resultList, getOrganisationResolver(), getEventCertificateResolver());
+        return EventDbo.asEvents(resultList, getOrganisationResolver());
     }
 
     @Transactional(readOnly = true)
@@ -110,9 +126,11 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Event> findById(EventId eventId) {
-        return findDboById(eventId).map(x -> EventDbo.asEvent(x,
-            getOrganisationResolver(),
-            getEventCertificateResolver()));
+        return findDboById(eventId).map(x -> {
+            Event event = EventDbo.asEvent(x, getOrganisationResolver());
+            event.withCertificate(getPrimaryEventCertificateResolver(event));
+            return event;
+        });
     }
 
     @Override
@@ -122,16 +140,20 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         if (optionalEventDbo.isEmpty()) {
             return save(event);
         }
-        return EventDbo.asEvent(optionalEventDbo.get(), getOrganisationResolver(), getEventCertificateResolver());
+        Event savedEvent = EventDbo.asEvent(optionalEventDbo.get(), getOrganisationResolver());
+        savedEvent.withCertificate(getPrimaryEventCertificateResolver(savedEvent));
+        return savedEvent;
     }
 
     @Override
     public Page<Event> findAll(String filter, @NonNull Pageable pageable) {
         Page<EventDbo> page = eventJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
             EventDbo::mapOrdersDomainToDbo));
-        return new PageImpl<>(page.stream()
-            .map(x -> EventDbo.asEvent(x, getOrganisationResolver(), getEventCertificateResolver()))
-            .toList(),
+        return new PageImpl<>(page.stream().map(x -> {
+            Event event = EventDbo.asEvent(x, getOrganisationResolver());
+            event.withCertificate(getPrimaryEventCertificateResolver(event));
+            return event;
+        }).toList(),
             FilterAndSortConverter.mapOrderProperties(page.getPageable(), EventDbo::mapOrdersDboToDomain),
             page.getTotalElements());
     }

@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,15 +64,29 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
     }
 
     @NonNull
+    private Function<EventId, EventCertificate> getPrimaryEventCertificateResolver(@NonNull Event event) {
+        return id -> {
+            Optional<EventCertificateDbo> optionalEventCertificateDbo =
+                eventCertificateJdbcRepository.findByEventAndPrimary(AggregateReference.to(id.value()), true);
+            return optionalEventCertificateDbo.map(eventCertificateDbo -> EventCertificateDbo.asEventCertificate(
+                eventCertificateDbo,
+                eventId -> event,
+                getMediaFileResolver())).orElse(null);
+        };
+    }
+
+    @NonNull
     private Function<Long, Country> getCountryResolver() {
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
 
     @NotNull
     private Function<Long, Event> getEventResolver() {
-        return id -> EventDbo.asEvent(eventJdbcRepository.findById(id).orElseThrow(),
-            getOrganisationResolver(),
-            getEventCertificateResolver());
+        return id -> {
+            var event = EventDbo.asEvent(eventJdbcRepository.findById(id).orElseThrow(), getOrganisationResolver());
+            event.withCertificate(getPrimaryEventCertificateResolver(event));
+            return event;
+        };
     }
 
     @NotNull
@@ -129,5 +144,23 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
             .toList(),
             FilterAndSortConverter.mapOrderProperties(page.getPageable(), EventCertificateDbo::mapOrdersDboToDomain),
             page.getTotalElements());
+    }
+
+    @Override
+    public List<EventCertificate> findAllByEvent(EventId id) {
+        return eventCertificateJdbcRepository.findAllByEvent(AggregateReference.to(id.value()))
+            .stream()
+            .map(x -> EventCertificateDbo.asEventCertificate(x, getEventResolver(), getMediaFileResolver()))
+            .toList();
+    }
+
+    @Override
+    public void saveAll(List<EventCertificate> eventCertificates) {
+        DboResolvers dboResolvers = new DboResolvers();
+        dboResolvers.setEventCertificateDboResolver(x -> eventCertificateJdbcRepository.findById(x.value())
+            .orElseThrow());
+        List<EventCertificateDbo> eventCertificateDbos =
+            eventCertificates.stream().map(x -> EventCertificateDbo.from(x, dboResolvers)).toList();
+        eventCertificateJdbcRepository.saveAll(eventCertificateDbos);
     }
 }

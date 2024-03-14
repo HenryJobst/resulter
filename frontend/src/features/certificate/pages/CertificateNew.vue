@@ -20,7 +20,8 @@ const formData = ref<Certificate | Omit<Certificate, 'id'>>({
   name: '',
   layoutDescription: '',
   blankCertificate: null,
-  event: props.event ? props.event : null
+  event: props.event ? props.event : null,
+  primary: false
 })
 </script>
 

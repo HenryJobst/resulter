@@ -9,6 +9,7 @@ import org.springframework.lang.Nullable;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.function.Function;
 
 
 @Getter
@@ -103,4 +104,7 @@ public class Event implements Comparable<Event> {
         return name.compareTo(o.name);
     }
 
+    public void withCertificate(Function<EventId, EventCertificate> primaryEventCertificateResolver) {
+        setCertificate(primaryEventCertificateResolver.apply(id));
+    }
 }

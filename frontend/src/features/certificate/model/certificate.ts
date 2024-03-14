@@ -7,4 +7,5 @@ export interface Certificate {
   event: EventKey | null
   layoutDescription: string
   blankCertificate: MediaKey | null
+  primary: boolean
 }

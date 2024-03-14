@@ -33,6 +33,9 @@ databaseChangeLog :
                                         foreignKeyName : fk_event_certificate_event
                                         references : event(id)
                             -   column :
+                                    name : primary
+                                    type : boolean
+                            -   column :
                                     name : layout_description
                                     type : text
                             -   column :
@@ -57,4 +60,8 @@ databaseChangeLog :
                 -   addUniqueConstraint :
                         columnNames : event_id, name
                         constraintName : uk_event_certificate_name
+                        tableName : event_certificate
+                -   addUniqueConstraint :
+                        columnNames : event_id, primary
+                        constraintName : uk_event_certificate_primary
                         tableName : event_certificate

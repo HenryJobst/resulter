@@ -6,7 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 
 public record EventCertificateDto(Long id, String name, EventKeyDto event, String layoutDescription,
-                                  MediaFileKeyDto blankCertificate) {
+                                  MediaFileKeyDto blankCertificate, boolean primary) {
 
     static public EventCertificateDto from(EventCertificate eventCertificate, String thumbnailPath) {
         return new EventCertificateDto(ObjectUtils.isNotEmpty(eventCertificate.getId()) ?
@@ -19,7 +19,8 @@ public record EventCertificateDto(Long id, String name, EventKeyDto event, Strin
             null,
             ObjectUtils.isNotEmpty(eventCertificate.getBlankCertificate()) ?
             MediaFileKeyDto.from(eventCertificate.getBlankCertificate(), thumbnailPath) :
-            null);
+            null,
+            eventCertificate.isPrimary());
     }
 
     @NonNull

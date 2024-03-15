@@ -1,5 +1,6 @@
 package de.jobst.resulter.application.certificate;
 
+import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -8,21 +9,27 @@ import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.properties.TextAlignment;
-import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.Organisation;
-import de.jobst.resulter.domain.Person;
-import de.jobst.resulter.domain.PersonRaceResult;
+import de.jobst.resulter.domain.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class CertificateService {
+
+    @Value("#{'${resulter.media-file-path}'}")
+    private String mediaFilePath;
 
     private static Paragraph createParagraph(TextParagraph textParagraph) {
         Paragraph paragraph = new Paragraph(textParagraph.text());
@@ -34,10 +41,24 @@ public class CertificateService {
         return paragraph;
     }
 
-    public Certificate createCertificate(Person person,
+    public Certificate createCertificate(Event event, EventCertificate eventCertificate) throws IOException {
+        Person p = Person.of("Mustermann", "Max", null, Gender.M);
+        Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
+        PersonRaceResult prr = PersonRaceResult.of("H35-",
+            p.getId().value(),
+            ZonedDateTime.now(),
+            ZonedDateTime.now(),
+            Double.valueOf("1934"),
+            1L,
+            ResultStatus.OK);
+        return createCertificate(p, Optional.of(organisation), event, eventCertificate, prr);
+    }
+
+    public Certificate createCertificate(@NonNull Person person,
                                          Optional<Organisation> organisation,
-                                         Event event,
-                                         PersonRaceResult personResult) throws IOException {
+                                         @NonNull Event event,
+                                         @NonNull EventCertificate eventCertificate,
+                                         @NonNull PersonRaceResult personResult) throws IOException {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
@@ -46,13 +67,17 @@ public class CertificateService {
         Document document = new Document(pdfDocument, pageSize);
         document.setTextAlignment(TextAlignment.CENTER);
 
-        String BG_IMAGE = "src/main/resources/certificate/Urkunde_BTFB_2023.jpg";
-
+        MediaFile blankCertificate = Objects.requireNonNull(eventCertificate).getBlankCertificate();
         PdfCanvas canvas = new PdfCanvas(pdfDocument.addNewPage());
-        canvas.addImageFittedIntoRectangle(ImageDataFactory.create(BG_IMAGE), pageSize, false);
+        Path basePath = Paths.get(mediaFilePath);
+        ImageData image = ImageDataFactory.create(basePath.resolve(Objects.requireNonNull(blankCertificate)
+            .getMediaFileName()
+            .value()).toString());
+        canvas.addImageFittedIntoRectangle(image, pageSize, false);
 
         List<TextParagraph> paragraphsWithPlaceholders =
-            JsonToTextParagraph.loadTextParagraphs("src/main/resources/certificate/bbm-mittel-2024.json");
+            JsonToTextParagraph.loadTextParagraphs(Objects.requireNonNull(eventCertificate.getLayoutDescription())
+                .value(), false);
 
         List<TextParagraph> paragraphs = TextParagraphProcessor.processPlaceholders(paragraphsWithPlaceholders,
             person,

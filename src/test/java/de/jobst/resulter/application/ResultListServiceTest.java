@@ -7,22 +7,32 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
 class ResultListServiceTest {
-
-    private final CertificateService certificateService;
-
-    ResultListServiceTest() {
-        this.certificateService = new CertificateService();
-    }
 
     @Test
     void createCertificate() throws IOException {
         Person p = Person.of("Mustermann", "Max", null, Gender.M);
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
         Event e = Event.of("Berlin-Brandenburg-Meisterschaft\nim Mittel-OL 2024");
+        String layoutDescription = Files.readString(Paths.get("src/test/resources/certificate/bbm-mittel-2024.json"));
+
+        MediaFile mediaFile = MediaFile.of("src/test/resources/certificate/Urkunde_BTFB_2023.jpg",
+            "src/test/resources/certificate/Urkunde_BTFB_2023.jpg",
+            "image/jpeg",
+            100000L);
+
+        EventCertificate eventCertificate = EventCertificate.of(EventCertificateId.empty().value(),
+            "Test-Zertifikat",
+            e,
+            layoutDescription,
+            mediaFile,
+            true);
+
         PersonRaceResult prr = PersonRaceResult.of("H35-",
             p.getId().value(),
             ZonedDateTime.now(),
@@ -31,7 +41,7 @@ class ResultListServiceTest {
             1L,
             ResultStatus.OK);
         CertificateService.Certificate certificate =
-            certificateService.createCertificate(p, Optional.of(organisation), e, prr);
+            new CertificateService().createCertificate(p, Optional.of(organisation), e, eventCertificate, prr);
 
         File file = new File(certificate.filename());
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {

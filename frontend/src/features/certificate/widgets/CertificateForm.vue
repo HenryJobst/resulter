@@ -5,10 +5,11 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
+import Button from 'primevue/button'
 
 import { CertificateService } from '@/features/certificate/services/certificate.service'
 import { useQuery } from '@tanstack/vue-query'
-import { eventService } from '@/features/event/services/event.service'
+import { eventService, EventService } from '@/features/event/services/event.service'
 import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown'
 import type { EventKey } from '@/features/event/model/event_key'
 import { mediaService } from '@/features/media/services/media.service'
@@ -39,6 +40,16 @@ const eventQuery = useQuery({
 const mediaQuery = useQuery({
   queryKey: ['media'],
   queryFn: () => mediaService.getAll(t)
+})
+
+const certificateQuery = useQuery({
+  queryKey: [
+    'certificate',
+    certificate.value?.event?.id,
+    certificate.value?.blankCertificate?.id,
+    certificate.value?.layoutDescription.toString()
+  ],
+  queryFn: () => EventService.getCertificate(certificate.value, t)
 })
 
 const getEventKeyFromId = (id: number | null): EventKey | null => {
@@ -77,12 +88,21 @@ const getMediaKeyFromId = (id: number | null): MediaKey | null => {
 const handleEventSelectionChange = (ev: DropdownChangeEvent) => {
   if (ev.value && certificate.value && eventQuery.data.value && eventQuery.data.value.content) {
     certificate.value.event = getEventKeyFromId(ev.value.id)!
+    certificateQuery.refetch()
   }
 }
 
 const handleMediaSelectionChange = (ev: DropdownChangeEvent) => {
   if (ev.value && certificate.value && mediaQuery.data.value && mediaQuery.data.value.content) {
     certificate.value.blankCertificate = getMediaKeyFromId(ev.value.id)!
+    certificateQuery.refetch()
+  }
+}
+
+const handleLayoutDescriptionChange = (ev: Event) => {
+  if (certificate.value && ev.target) {
+    certificate.value.layoutDescription = (ev.target as HTMLTextAreaElement).value
+    certificateQuery.refetch()
   }
 }
 </script>
@@ -90,83 +110,105 @@ const handleMediaSelectionChange = (ev: DropdownChangeEvent) => {
 <template>
   <div v-if="certificate" class="flex flex-col">
     <div class="flex flex-row">
-      <label for="event" class="col-fixed w-32">{{ t('labels.event') }}</label>
-      <div class="col">
-        <span v-if="eventQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-        <span v-else-if="eventQuery.status.value === 'error'">
-          {{ t('messages.error', { message: eventQuery.error.toLocaleString() }) }}
-        </span>
-        <Dropdown
-          v-else-if="eventQuery.data.value"
-          id="event"
-          v-model="certificate.event"
-          :options="eventQuery.data.value.content"
-          optionLabel="name"
-          data-key="id"
-          :placeholder="t('messages.select')"
-          class="w-full md:w-14rem"
-          filter
-          @change="handleEventSelectionChange"
-          :disabled="certificate.event !== null"
-        />
+      <div class="flex flex-col">
+        <div class="flex flex-row">
+          <label for="event" class="col-fixed w-32">{{ t('labels.event') }}</label>
+          <div class="col">
+            <span v-if="eventQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+            <span v-else-if="eventQuery.status.value === 'error'">
+              {{ t('messages.error', { message: eventQuery.error.toLocaleString() }) }}
+            </span>
+            <Dropdown
+              v-else-if="eventQuery.data.value"
+              id="event"
+              v-model="certificate.event"
+              :options="eventQuery.data.value.content"
+              optionLabel="name"
+              data-key="id"
+              :placeholder="t('messages.select')"
+              class="w-full md:w-14rem"
+              filter
+              @change="handleEventSelectionChange"
+              :disabled="certificate.event !== null"
+            />
+          </div>
+        </div>
+        <div class="flex flex-row">
+          <label for="media" class="col-fixed w-32">{{ t('labels.background') }}</label>
+          <div class="col">
+            <span v-if="mediaQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+            <span v-else-if="mediaQuery.status.value === 'error'">
+              {{ t('messages.error', { message: mediaQuery.error.toLocaleString() }) }}
+            </span>
+            <Dropdown
+              v-else-if="mediaQuery.data.value"
+              id="media"
+              v-model="certificate.blankCertificate"
+              :options="mediaQuery.data.value.content"
+              data-key="id"
+              optionLabel="fileName"
+              :placeholder="t('messages.select')"
+              class="w-full md:w-14rem"
+              filter
+              @change="handleMediaSelectionChange"
+            >
+              <template v-slot:option="value">
+                <div class="flex flex-row">
+                  <img
+                    :src="'data:image/jpeg;base64,' + value.option.thumbnailContent"
+                    :alt="t('labels.preview')"
+                    style="width: 40px"
+                  />
+                  <div class="ml-2">{{ value.option.fileName }}</div>
+                </div>
+              </template>
+            </Dropdown>
+          </div>
+        </div>
+        <div class="flex flex-row">
+          <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
+          <div class="col">
+            <InputText v-model="certificate.name" type="text" id="name" />
+          </div>
+        </div>
+        <div class="flex flex-row flex-wrap">
+          <label for="layoutDescription" class="col-fixed w-32">{{
+            t('labels.layout_description')
+          }}</label>
+          <div class="col">
+            <Textarea
+              v-model="certificate.layoutDescription"
+              id="layoutDescription"
+              autoResize
+              rows="20"
+              cols="40"
+              @input="handleLayoutDescriptionChange"
+            ></Textarea>
+          </div>
+        </div>
+        <div class="flex flex-row">
+          <label for="primary" class="col-fixed w-32">{{ t('labels.primary') }}</label>
+          <div class="col">
+            <Checkbox v-model="certificate.primary" id="primary" :binary="true" />
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="flex flex-row">
-      <label for="media" class="col-fixed w-32">{{ t('labels.background') }}</label>
-      <div class="col">
-        <span v-if="mediaQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-        <span v-else-if="mediaQuery.status.value === 'error'">
+      <div class="flex flex-col flex-grow ml-3" v-if="certificateQuery.status.value">
+        <span v-if="certificateQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+        <span v-else-if="certificateQuery.status.value === 'error'">
           {{ t('messages.error', { message: mediaQuery.error.toLocaleString() }) }}
         </span>
-        <Dropdown
-          v-else-if="mediaQuery.data.value"
-          id="media"
-          v-model="certificate.blankCertificate"
-          :options="mediaQuery.data.value.content"
-          data-key="id"
-          optionLabel="fileName"
-          :placeholder="t('messages.select')"
-          class="w-full md:w-14rem"
-          filter
-          @change="handleMediaSelectionChange"
-        >
-          <template v-slot:option="value">
-            <div class="flex flex-row">
-              <img
-                :src="'data:image/jpeg;base64,' + value.option.thumbnailContent"
-                :alt="t('labels.preview')"
-                style="width: 40px"
-              />
-              <div class="ml-2">{{ value.option.fileName }}</div>
-            </div>
-          </template>
-        </Dropdown>
+        <div v-else-if="certificateQuery.data.value" class="flex">
+          <embed :src="certificateQuery.data.value" width="100%" height="1100" class="" />
+        </div>
       </div>
-    </div>
-    <div class="flex flex-row">
-      <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
-      <div class="col">
-        <InputText v-model="certificate.name" type="text" id="name" />
-      </div>
-    </div>
-    <div class="flex flex-row">
-      <label for="layoutDescription" class="col-fixed w-32">{{
-        t('labels.layout_description')
-      }}</label>
-      <div class="col">
-        <Textarea
-          v-model="certificate.layoutDescription"
-          id="layoutDescription"
-          autoResize
-          rows="20"
-          cols="40"
-        ></Textarea>
-      </div>
-    </div>
-    <div class="flex flex-row">
-      <label for="primary" class="col-fixed w-32">{{ t('labels.primary') }}</label>
-      <div class="col">
-        <Checkbox v-model="certificate.primary" id="primary" :binary="true" />
+      <div v-else>
+        <Button
+          outlined
+          severity="primary"
+          @click="certificateQuery.refetch()"
+          :label="t('labels.reload')"
+        />
       </div>
     </div>
   </div>

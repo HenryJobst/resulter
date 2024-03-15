@@ -1,17 +1,21 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.ResultListService;
+import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -163,6 +167,34 @@ public class EventController {
             return event.map(value -> ResponseEntity.ok(EventResultsDto.from(value, resultListService)))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PutMapping("/event/{id}/certificate")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ByteArrayResource> getCertificate(@PathVariable Long id,
+                                                            @RequestBody EventCertificateDto eventCertificateDto) {
+        try {
+            CertificateService.Certificate certificate =
+                resultListService.createCertificate(EventId.of(id), eventCertificateDto);
+            if (null != certificate) {
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION.toLowerCase(),
+                        "inline; filename=\"" + certificate.filename() + "\"")
+                    .contentLength(certificate.size())
+                    .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                    .body(certificate.resource());
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

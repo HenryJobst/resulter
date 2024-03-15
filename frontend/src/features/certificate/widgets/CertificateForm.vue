@@ -194,21 +194,29 @@ const handleLayoutDescriptionChange = (ev: Event) => {
         </div>
       </div>
       <div class="flex flex-col flex-grow ml-3" v-if="certificateQuery.status.value">
+        <label for="preview" class="col-fixed w-32">{{ t('labels.preview') }}</label>
+        <div>
+          <Button
+            outlined
+            severity="primary"
+            @click="certificateQuery.refetch()"
+            :label="t('labels.reload')"
+            class="mb-2"
+          />
+        </div>
         <span v-if="certificateQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
         <span v-else-if="certificateQuery.status.value === 'error'">
           {{ t('messages.error', { message: mediaQuery.error.toLocaleString() }) }}
         </span>
         <div v-else-if="certificateQuery.data.value" class="flex">
-          <embed :src="certificateQuery.data.value" width="100%" height="1100" class="" />
+          <embed
+            id="preview"
+            :src="certificateQuery.data.value"
+            width="100%"
+            height="1100"
+            class=""
+          />
         </div>
-      </div>
-      <div v-else>
-        <Button
-          outlined
-          severity="primary"
-          @click="certificateQuery.refetch()"
-          :label="t('labels.reload')"
-        />
       </div>
     </div>
   </div>

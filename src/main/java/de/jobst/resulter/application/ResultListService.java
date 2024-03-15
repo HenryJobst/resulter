@@ -128,7 +128,7 @@ public class ResultListService {
         if (personRaceResult.isEmpty()) {
             return null;
         }
-        return new CertificateService().createCertificate(person,
+        return certificateService.createCertificate(person,
             organisation,
             event,
             Objects.requireNonNull(event.getCertificate()),

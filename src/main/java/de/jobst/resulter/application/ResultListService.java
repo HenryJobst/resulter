@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
@@ -7,10 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ResultListService {
@@ -26,18 +24,22 @@ public class ResultListService {
 
     private final CertificateService certificateService;
 
+    private final MediaFileRepository mediaFileRepository;
+
     public ResultListService(ResultListRepository resultListRepository,
                              CupRepository cupRepository,
                              EventRepository eventRepository,
                              OrganisationRepository organisationRepository,
                              PersonRepository personRepository,
-                             CertificateService certificateService) {
+                             CertificateService certificateService,
+                             MediaFileRepository mediaFileRepository) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
         this.organisationRepository = organisationRepository;
         this.personRepository = personRepository;
         this.certificateService = certificateService;
+        this.mediaFileRepository = mediaFileRepository;
     }
 
     public ResultList findOrCreate(ResultList resultList) {
@@ -126,6 +128,29 @@ public class ResultListService {
         if (personRaceResult.isEmpty()) {
             return null;
         }
-        return certificateService.createCertificate(person, organisation, event, personRaceResult.get());
+        return new CertificateService().createCertificate(person,
+            organisation,
+            event,
+            Objects.requireNonNull(event.getCertificate()),
+            personRaceResult.get());
+    }
+
+    public CertificateService.Certificate createCertificate(EventId eventId, EventCertificateDto eventCertificateDto)
+        throws IOException {
+
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        if (optionalEvent.isEmpty()) {
+            // no event
+            return null;
+        }
+        Event event = optionalEvent.get();
+        EventCertificate eventCertificate = EventCertificate.of(EventCertificateId.empty().value(),
+            eventCertificateDto.name(),
+            event,
+            eventCertificateDto.layoutDescription(),
+            mediaFileRepository.findById(MediaFileId.of(eventCertificateDto.blankCertificate().id())).orElse(null),
+            eventCertificateDto.primary());
+
+        return certificateService.createCertificate(event, eventCertificate);
     }
 }

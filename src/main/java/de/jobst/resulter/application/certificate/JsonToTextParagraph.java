@@ -10,9 +10,14 @@ import java.util.List;
 
 public class JsonToTextParagraph {
 
-    public static List<TextParagraph> loadTextParagraphs(String filePath) throws IOException {
+    public static List<TextParagraph> loadTextParagraphs(String jsonSource, boolean isFilePath) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(new File(filePath));
+        JsonNode root;
+        if (isFilePath) {
+            root = mapper.readTree(new File(jsonSource));
+        } else {
+            root = mapper.readTree(jsonSource);
+        }
         JsonNode paragraphsNode = root.get("paragraphs");
         if (paragraphsNode == null || !paragraphsNode.isArray()) {
             throw new IllegalArgumentException("Die JSON-Datei muss ein 'paragraphs'-Array enthalten.");

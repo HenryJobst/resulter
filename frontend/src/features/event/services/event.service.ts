@@ -8,6 +8,7 @@ import type { ResultList } from '@/features/event/model/result_list'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { RestResult } from '@/features/generic/models/rest_result'
 import { prettyPrint } from '@base2/pretty-print-object'
+import type { Certificate } from '@/features/certificate/model/certificate'
 
 const eventUrl: string = '/event'
 const resultListUrl: string = '/result_list'
@@ -129,6 +130,23 @@ export class EventService extends GenericService<SportEvent> {
         fileLink.click()
         document.body.removeChild(fileLink)
         window.URL.revokeObjectURL(fileURL)
+      })
+      .catch((error) => {
+        handleApiError(error, t)
+        return null
+      })
+  }
+
+  static async getCertificate(certificate: Certificate | undefined, t: (key: string) => string) {
+    if (!certificate || !certificate.event) {
+      return null
+    }
+    return axiosInstance
+      .put(`/event/${certificate.event?.id}/certificate`, certificate, {
+        responseType: 'blob'
+      })
+      .then((response) => {
+        return window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }))
       })
       .catch((error) => {
         handleApiError(error, t)

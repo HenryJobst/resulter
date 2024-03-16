@@ -7,6 +7,7 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.properties.TextAlignment;
 import de.jobst.resulter.domain.*;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
@@ -31,13 +33,33 @@ public class CertificateService {
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
 
-    private static Paragraph createParagraph(TextParagraph textParagraph) {
+    public CertificateService() {
+    }
+
+    public CertificateService(String mediaFilePath) {
+        this.mediaFilePath = mediaFilePath;
+    }
+
+    private static Paragraph createTextParagraph(de.jobst.resulter.application.certificate.TextParagraph textParagraph) {
         Paragraph paragraph = new Paragraph(textParagraph.text());
-        paragraph.setMarginTop(textParagraph.spacingBefore());
+        paragraph.setMarginTop(textParagraph.marginTop());
+        paragraph.setMarginLeft(textParagraph.marginLeft());
         paragraph.setFontSize(textParagraph.fontSize());
         if (textParagraph.bold()) {
             paragraph.setBold();
         }
+        return paragraph;
+    }
+
+    private Paragraph createMediaParagraph(MediaParagraph mediaParagraph) throws MalformedURLException {
+        Paragraph paragraph = new Paragraph();
+        paragraph.setMarginTop(mediaParagraph.marginTop());
+        //paragraph.setMarginLeft(mediaParagraph.marginLeft());
+        Path basePath = Paths.get(mediaFilePath);
+        ImageData imageData = ImageDataFactory.create(basePath.resolve(mediaParagraph.media()).toString());
+        Image image =
+            new Image(imageData, mediaParagraph.marginLeft(), mediaParagraph.marginBottom(), mediaParagraph.width());
+        paragraph.add(image);
         return paragraph;
     }
 
@@ -75,18 +97,23 @@ public class CertificateService {
             .value()).toString());
         canvas.addImageFittedIntoRectangle(image, pageSize, false);
 
-        List<TextParagraph> paragraphsWithPlaceholders =
-            JsonToTextParagraph.loadTextParagraphs(Objects.requireNonNull(eventCertificate.getLayoutDescription())
-                .value(), false);
+        List<de.jobst.resulter.application.certificate.Paragraph> paragraphsWithPlaceholders =
+            JsonToTextParagraph.loadParagraphs(Objects.requireNonNull(eventCertificate.getLayoutDescription()).value(),
+                false);
 
-        List<TextParagraph> paragraphs = TextParagraphProcessor.processPlaceholders(paragraphsWithPlaceholders,
-            person,
-            organisation.orElse(null),
-            event,
-            personResult);
+        List<de.jobst.resulter.application.certificate.Paragraph> paragraphs =
+            TextParagraphProcessor.processPlaceholders(paragraphsWithPlaceholders,
+                person,
+                organisation.orElse(null),
+                event,
+                personResult);
 
-        for (TextParagraph tp : paragraphs) {
-            document.add(createParagraph(tp));
+        for (de.jobst.resulter.application.certificate.Paragraph paragraph : paragraphs) {
+            if (paragraph instanceof TextParagraph) {
+                document.add(createTextParagraph((TextParagraph) paragraph));
+            } else if (paragraph instanceof MediaParagraph) {
+                document.add(createMediaParagraph((MediaParagraph) paragraph));
+            }
         }
 
         document.close();
@@ -98,6 +125,7 @@ public class CertificateService {
             person.getPersonName().familyName().value(),
             person.getPersonName().givenName().value()), resource, pdfContents.length);
     }
+
 
     public record Certificate(String filename, ByteArrayResource resource, int size) {}
 }

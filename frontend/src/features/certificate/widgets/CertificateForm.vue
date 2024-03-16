@@ -8,7 +8,7 @@ import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
 
 import { CertificateService } from '@/features/certificate/services/certificate.service'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { eventService, EventService } from '@/features/event/services/event.service'
 import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown'
 import type { EventKey } from '@/features/event/model/event_key'
@@ -17,7 +17,12 @@ import type { MediaKey } from '@/features/media/model/media_key'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { Media } from '@/features/media/model/media'
 
+import VuePdfEmbed from 'vue-pdf-embed'
+import 'vue-pdf-embed/dist/style/index.css'
+
 const { t } = useI18n()
+
+const queryClient = useQueryClient()
 
 const props = defineProps<{
   certificate?: Certificate
@@ -43,12 +48,7 @@ const mediaQuery = useQuery({
 })
 
 const certificateQuery = useQuery({
-  queryKey: [
-    'certificate',
-    certificate.value?.event?.id,
-    certificate.value?.blankCertificate?.id,
-    certificate.value?.layoutDescription.toString()
-  ],
+  queryKey: ['certificate', certificate.value?.id, certificate.value?.event?.id],
   queryFn: () => EventService.getCertificate(certificate.value, t)
 })
 
@@ -88,6 +88,9 @@ const getMediaKeyFromId = (id: number | null): MediaKey | null => {
 const handleEventSelectionChange = (ev: DropdownChangeEvent) => {
   if (ev.value && certificate.value && eventQuery.data.value && eventQuery.data.value.content) {
     certificate.value.event = getEventKeyFromId(ev.value.id)!
+    queryClient.invalidateQueries({
+      queryKey: ['certificate', certificate.value?.id, certificate.value?.event?.id]
+    })
     certificateQuery.refetch()
   }
 }
@@ -95,14 +98,18 @@ const handleEventSelectionChange = (ev: DropdownChangeEvent) => {
 const handleMediaSelectionChange = (ev: DropdownChangeEvent) => {
   if (ev.value && certificate.value && mediaQuery.data.value && mediaQuery.data.value.content) {
     certificate.value.blankCertificate = getMediaKeyFromId(ev.value.id)!
-    certificateQuery.refetch()
+    queryClient.invalidateQueries({
+      queryKey: ['certificate', certificate.value?.id, certificate.value?.event?.id]
+    })
   }
 }
 
 const handleLayoutDescriptionChange = (ev: Event) => {
   if (certificate.value && ev.target) {
     certificate.value.layoutDescription = (ev.target as HTMLTextAreaElement).value
-    certificateQuery.refetch()
+    queryClient.invalidateQueries({
+      queryKey: ['certificate', certificate.value?.id, certificate.value?.event?.id]
+    })
   }
 }
 </script>
@@ -194,28 +201,31 @@ const handleLayoutDescriptionChange = (ev: Event) => {
         </div>
       </div>
       <div class="flex flex-col flex-grow ml-3" v-if="certificateQuery.status.value">
-        <label for="preview" class="col-fixed w-32">{{ t('labels.preview') }}</label>
-        <div>
-          <Button
-            outlined
-            severity="primary"
-            @click="certificateQuery.refetch()"
-            :label="t('labels.reload')"
-            class="mb-2"
-          />
+        <div class="flex flex-row justify-between">
+          <label for="preview" class="col-fixed w-32">{{ t('labels.preview') }}</label>
+          <div>
+            <Button
+              outlined
+              severity="primary"
+              @click="certificateQuery.refetch()"
+              :label="t('labels.reload')"
+              class="mb-2"
+            />
+          </div>
         </div>
         <span v-if="certificateQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
         <span v-else-if="certificateQuery.status.value === 'error'">
           {{ t('messages.error', { message: mediaQuery.error.toLocaleString() }) }}
         </span>
         <div v-else-if="certificateQuery.data.value" class="flex">
-          <embed
-            id="preview"
-            :src="certificateQuery.data.value"
-            width="100%"
-            height="1100"
-            class=""
-          />
+          <VuePdfEmbed :source="certificateQuery.data.value" width="600" />
+          <!--embed
+                                                                                                      id="preview"
+                                                                                                      :src="certificateQuery.data.value"
+                                                                                                      width="100%"
+                                                                                                      height="1100"
+                                                                                                      class=""
+                                                                                                    /-->
         </div>
       </div>
     </div>

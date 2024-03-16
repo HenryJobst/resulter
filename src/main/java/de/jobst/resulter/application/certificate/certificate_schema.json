@@ -9,7 +9,7 @@
             "items" : {
                 "type" : "object",
                 "properties" : {
-                    "spacingBefore" : {
+                    "marginTop" : {
                         "type" : "integer",
                         "description" : "Spacing before the paragraph"
                     },
@@ -27,7 +27,7 @@
                     }
                 },
                 "required" : [
-                    "spacingBefore",
+                    "marginTop",
                     "fontSize",
                     "bold",
                     "text"

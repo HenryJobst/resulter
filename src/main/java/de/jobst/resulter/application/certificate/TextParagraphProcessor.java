@@ -13,13 +13,16 @@ import java.util.List;
 
 public class TextParagraphProcessor {
 
-    public static List<TextParagraph> processPlaceholders(@NonNull List<TextParagraph> paragraphs,
-                                                          @NonNull Person person,
-                                                          @Nullable Organisation organisation,
-                                                          @NonNull Event event,
-                                                          @NonNull PersonRaceResult personResult) {
-        for (TextParagraph paragraph : paragraphs) {
-            String text = paragraph.text();
+    public static List<Paragraph> processPlaceholders(@NonNull List<Paragraph> paragraphs,
+                                                      @NonNull Person person,
+                                                      @Nullable Organisation organisation,
+                                                      @NonNull Event event,
+                                                      @NonNull PersonRaceResult personResult) {
+        for (Paragraph paragraph : paragraphs) {
+            if (!(paragraph instanceof TextParagraph textParagraph)) {
+                continue;
+            }
+            String text = textParagraph.text();
 
             // Ersetzen der Platzhalter
             text = text.replace("{{GIVEN_NAME}}", person.getPersonName().givenName().value());
@@ -38,9 +41,13 @@ public class TextParagraphProcessor {
                 text = text.replace("{{ORGANISATION}}", organisation.getName().value());
             }
 
-            int index = paragraphs.indexOf(paragraph);
+            int index = paragraphs.indexOf(textParagraph);
             paragraphs.set(index,
-                new TextParagraph(paragraph.spacingBefore(), paragraph.fontSize(), paragraph.bold(), text));
+                new TextParagraph(textParagraph.marginTop(),
+                    textParagraph.marginLeft(),
+                    textParagraph.fontSize(),
+                    textParagraph.bold(),
+                    text));
         }
 
         return paragraphs;

@@ -1,46 +1,53 @@
 {
     "paragraphs" : [
         {
-            "spacingBefore" : 155,
+            "marginTop" : 155,
             "fontSize" : 28,
             "bold" : true,
             "text" : "{{GIVEN_NAME}} {{FAMILY_NAME}}"
         },
         {
-            "spacingBefore" : 0,
+            "marginTop" : 0,
             "fontSize" : 24,
             "bold" : false,
             "text" : "{{ORGANISATION}}"
         },
         {
-            "spacingBefore" : 10,
+            "marginTop" : 10,
             "fontSize" : 24,
             "bold" : false,
             "text" : "belegte bei der"
         },
         {
-            "spacingBefore" : 20,
+            "marginTop" : 20,
             "fontSize" : 24,
             "bold" : true,
             "text" : "{{EVENT_NAME}}"
         },
         {
-            "spacingBefore" : 30,
+            "marginTop" : 30,
             "fontSize" : 24,
             "bold" : false,
             "text" : "in der Kategorie {{CATEGORY}}"
         },
         {
-            "spacingBefore" : 0,
+            "marginTop" : 0,
             "fontSize" : 24,
             "bold" : false,
             "text" : "mit der Zeit {{RESULT_TIME}}"
         },
         {
-            "spacingBefore" : 30,
+            "marginTop" : 30,
             "fontSize" : 24,
             "bold" : true,
             "text" : "den {{RESULT_POSITION}}. Platz"
+        },
+        {
+            "marginTop" : 0,
+            "marginLeft" : 100,
+            "marginBottom" : 85,
+            "media" : "ESV-Wappen-dunkel.png",
+            "width" : 100
         }
     ]
 }

@@ -124,7 +124,7 @@ const handleSelectionChange = (event: MultiSelectChangeEvent) => {
           v-else-if="countryQuery.data && countryQuery.data.value"
           id="country"
           v-model="organisation.country.id"
-          :options="countryQuery.data.value"
+          :options="countryQuery.data.value.content"
           optionLabel="name"
           optionValue="id"
           data-key="id"

@@ -44,7 +44,7 @@ const media = computed({
     <div class="flex flex-row">
       <label for="fileSize" class="col-fixed w-32">{{ t('labels.fileSize') }}</label>
       <div class="col">
-        <InputText v-model="media.fileSize" type="text" id="fileSize" readonly="true"></InputText>
+        <InputNumber v-model="media.fileSize" id="fileSize" readonly></InputNumber>
       </div>
     </div>
     <div class="flex flex-row">

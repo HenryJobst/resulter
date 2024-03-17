@@ -76,8 +76,8 @@ const reload = () => {
         :message="t('messages.error', { message: cupMutation?.error.value?.message })"
       />
     </span>
-    <div v-else-if="cupQuery?.data" class="card">
-      <DataTable :value="cupQuery?.data.value" class="p-datatable-sm">
+    <div v-else-if="cupQuery?.data && cupQuery?.data.value" class="card">
+      <DataTable :value="cupQuery?.data.value.content" class="p-datatable-sm">
         <Column field="name" :header="t('labels.name')" />
         <Column field="type.id" :header="t('labels.type')" />
         <Column :header="t('labels.event', 2)">

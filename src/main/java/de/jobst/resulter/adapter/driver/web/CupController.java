@@ -8,6 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,10 +49,16 @@ public class CupController {
     }
 
     @GetMapping("/cup")
-    public ResponseEntity<List<CupDto>> handleCups() {
+    public ResponseEntity<Page<CupDto>> searchCups(@RequestParam Optional<String> filter,
+                                                   @PageableDefault(page = 0, size = 1000) Pageable pageable) {
         try {
-            List<Cup> cups = cupService.findAll();
-            return ResponseEntity.ok(cups.stream().map(CupDto::from).toList());
+            Page<Cup> cups = cupService.findAll(filter.orElse(null),
+                pageable != null ?
+                FilterAndSortConverter.mapOrderProperties(pageable, CupDto::mapOrdersDtoToDomain) :
+                Pageable.unpaged());
+            return ResponseEntity.ok(new PageImpl<>(cups.getContent().stream().map(CupDto::from).toList(),
+                FilterAndSortConverter.mapOrderProperties(cups.getPageable(), CupDto::mapOrdersDomainToDto),
+                cups.getTotalElements()));
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

@@ -77,9 +77,9 @@ const createResultListTreeNodes = (aList: ResultList[] | undefined): TreeNode[] 
   const treeNodes: TreeNode[] = []
   for (let i = 0; i < aList.length; i++) {
     const resultList = aList[i]
-    const certificateEnabled = eventQuery.data.value?.content.find(
-      (e) => e.id === resultList.eventId
-    )?.certificate
+    const certificateEnabled: boolean =
+      (eventQuery.data.value?.content.find((e) => e.id === resultList.eventId)?.certificate ??
+        false) != false
     treeNodes.push({
       key: resultList.id.toString(),
       label: getResultListLabel(resultList),
@@ -235,7 +235,7 @@ const navigateToList = () => {
               v-if="authStore.isAdmin"
               :label="t('labels.calculate')"
               outlined
-              @click="calculate(slotProps?.node?.key)"
+              @click="calculate(parseInt(slotProps?.node?.key!))"
             />
           </div>
         </template>

@@ -19,7 +19,8 @@ import type { IGenericService } from '@/features/generic/services/IGenericServic
 import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
 import type { RestResult } from '@/features/generic/models/rest_result'
 import { prettyPrint } from '@base2/pretty-print-object'
-import { getValueByPath, truncateString } from '../../../utils/tools'
+import { getValueByPath, truncateString } from '@/utils/tools'
+import type { TableSettings } from '@/features/generic/models/table_settings'
 
 const props = defineProps({
   entityService: Object as () => IGenericService<any>,
@@ -60,6 +61,10 @@ const props = defineProps({
   filterDisplay: {
     type: String as () => 'menu' | 'row' | undefined,
     required: false
+  },
+  initialTableSettings: {
+    type: Object as () => TableSettings,
+    required: false
   }
 })
 
@@ -67,7 +72,7 @@ const { t, locale } = useI18n()
 
 const queryClient = useQueryClient()
 
-const useSettingsStore = settingsStoreFactory(props.settingsStoreSuffix)
+const useSettingsStore = settingsStoreFactory(props.settingsStoreSuffix, props.initialTableSettings)
 const settingsStore = useSettingsStore()
 
 const queryKeys = computed(() => {
@@ -220,7 +225,7 @@ function getSortable(col: GenericListColumn) {
 onMounted(() => {
   console.log('Mounted ...')
   props.columns?.forEach((col) => {
-    if (col.filterable) {
+    if (col.filterable && settingsStore.settings.filters) {
       //console.log('Add filter for ' + col.field)
       settingsStore.settings.filters[col.field] = {
         value: null,

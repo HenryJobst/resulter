@@ -29,9 +29,10 @@ public class PersonRaceResultDbo {
     @NonNull
     @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
-    @NonNull
+    @Nullable
     @Column("start_time")
     private OffsetDateTime startTime;
+    @Nullable
     @Column("start_time_zone")
     private String startTimeZone;
     @Column("finish_time")

@@ -2,6 +2,10 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -54,5 +58,9 @@ public class CupService {
         Cup cup = optionalCup.get();
         cupRepository.deleteCup(cup);
         return true;
+    }
+
+    public Page<Cup> findAll(@Nullable String filterString, @NonNull Pageable pageable) {
+        return cupRepository.findAll(filterString, pageable);
     }
 }

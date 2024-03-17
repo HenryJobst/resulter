@@ -4,12 +4,12 @@ import type { DataTableFilterMeta, DataTableSortMeta } from 'primevue/datatable'
 export interface TableSettings extends PageSettings {
   first: number
   paginator: boolean
-  paginatorPosition: string
+  paginatorPosition: 'top' | 'bottom' | 'both' | undefined
   rowsPerPageOptions: number[]
-  sortMode: string
+  sortMode: 'multiple' | 'single' | undefined
   multiSortMeta: DataTableSortMeta[] | undefined
-  sortField: string | null | undefined
-  sortOrder: number | null | undefined
+  sortField: string | ((item: any) => string) | undefined
+  sortOrder: number | undefined
   nullSortOrder: number
   defaultSortOrder: number
   filters: DataTableFilterMeta

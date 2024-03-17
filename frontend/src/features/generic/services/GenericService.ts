@@ -7,8 +7,11 @@ import type { RestResult } from '@/features/generic/models/rest_result'
 import type { DataTableFilterMetaData } from 'primevue/datatable'
 import { sfAnd, sfEqual, sfLike } from 'spring-filter-query-builder'
 
-function getSortParam(field: string, order: number | null | undefined) {
+function getSortParam(field: string | ((item: any) => string), order: number | null | undefined) {
   const direction = order === 1 ? 'asc' : 'desc'
+  if (typeof field === 'function') {
+    return `${encodeURIComponent(field(null))},${direction}`
+  }
   return `${encodeURIComponent(field)},${direction}`
 }
 

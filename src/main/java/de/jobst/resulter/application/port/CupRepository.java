@@ -3,6 +3,10 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.EventId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,4 +25,6 @@ public interface CupRepository {
     void deleteCup(Cup cup);
 
     Collection<Cup> findByEvent(EventId eventId);
+
+    Page<Cup> findAll(@Nullable String filterString, @NonNull Pageable pageable);
 }

@@ -58,7 +58,7 @@ const props = defineProps({
   },
   enumTypeLabelPrefixes: Map<string, string>,
   filterDisplay: {
-    type: String,
+    type: String as () => 'menu' | 'row' | undefined,
     required: false
   }
 })

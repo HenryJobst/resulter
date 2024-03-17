@@ -218,14 +218,14 @@ const handleLayoutDescriptionChange = (ev: Event) => {
           {{ t('messages.error', { message: mediaQuery.error.toLocaleString() }) }}
         </span>
         <div v-else-if="certificateQuery.data.value" class="flex">
-          <VuePdfEmbed :source="certificateQuery.data.value" width="600" />
+          <VuePdfEmbed :source="certificateQuery.data.value" :width="600" />
           <!--embed
-                                                                                                      id="preview"
-                                                                                                      :src="certificateQuery.data.value"
-                                                                                                      width="100%"
-                                                                                                      height="1100"
-                                                                                                      class=""
-                                                                                                    /-->
+                                                                                                                                    id="preview"
+                                                                                                                                    :src="certificateQuery.data.value"
+                                                                                                                                    width="100%"
+                                                                                                                                    height="1100"
+                                                                                                                                    class=""
+                                                                                                                                  /-->
         </div>
       </div>
     </div>

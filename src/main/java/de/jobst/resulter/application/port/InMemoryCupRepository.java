@@ -5,6 +5,11 @@ import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.EventId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -63,6 +68,11 @@ public class InMemoryCupRepository implements CupRepository {
             .stream()
             .filter(it -> it.getEventIds().stream().anyMatch(x -> x.equals(eventId)))
             .toList();
+    }
+
+    @Override
+    public Page<Cup> findAll(@Nullable String filterString, @NonNull Pageable pageable) {
+        return new PageImpl<>(cups.values().stream().toList(), pageable, cups.size());
     }
 
     @SuppressWarnings("unused")

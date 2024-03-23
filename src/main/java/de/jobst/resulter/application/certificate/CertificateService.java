@@ -2,14 +2,14 @@ package de.jobst.resulter.application.certificate;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Image;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.properties.TabAlignment;
 import de.jobst.resulter.domain.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,26 +41,86 @@ public class CertificateService {
         this.mediaFilePath = mediaFilePath;
     }
 
-    private static Paragraph createTextParagraph(de.jobst.resulter.application.certificate.TextParagraph textParagraph) {
-        Paragraph paragraph = new Paragraph(textParagraph.text());
-        paragraph.setMarginTop(textParagraph.marginTop());
-        paragraph.setMarginLeft(textParagraph.marginLeft());
-        paragraph.setFontSize(textParagraph.fontSize());
-        if (textParagraph.bold()) {
-            paragraph.setBold();
+    private static Text createTextBlock(TextBlock textBlock) {
+        Text text = new Text(textBlock.text().content());
+        if (textBlock.text().fontSize() != null) {
+            text.setFontSize(textBlock.text().fontSize());
         }
+        if (textBlock.text().color() != null) {
+            text.setFontColor(new DeviceRgb(textBlock.text().color().r(),
+                textBlock.text().color().g(),
+                textBlock.text().color().b()));
+        }
+        if (textBlock.text().bold()) {
+            text.setBold();
+        }
+        return text;
+    }
+
+    private Image createImageBlock(MediaBlock mediaParagraph) throws MalformedURLException {
+        Path basePath = Paths.get(mediaFilePath);
+        ImageData imageData = ImageDataFactory.create(basePath.resolve(mediaParagraph.media()).toString());
+        return new Image(imageData, 0, 0, mediaParagraph.width());
+    }
+
+    private Paragraph createParagraph(ParagraphDefinition paragraphDefinition) {
+        Paragraph paragraph = getParagraph(paragraphDefinition);
+        applyTabStops(paragraphDefinition, paragraph);
+        applyBlocks(paragraphDefinition, paragraph);
         return paragraph;
     }
 
-    private Paragraph createMediaParagraph(MediaParagraph mediaParagraph) throws MalformedURLException {
+    private void applyBlocks(ParagraphDefinition paragraphDefinition, Paragraph paragraph) {
+        if (paragraphDefinition.blocks() != null) {
+            paragraphDefinition.blocks()
+                .stream()
+                .sorted(Comparator.comparingInt(ParagraphDefinition.ParagraphDefinitionBlock::getTabPosition))
+                .map(block -> {
+                    if (block.block() instanceof TextBlock textBlock) {
+                        return createTextBlock(textBlock);
+                    } else if (block.block() instanceof MediaBlock mediaBlock) {
+                        try {
+                            return createImageBlock(mediaBlock);
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return null;
+                })
+                .forEach(element -> {
+                    paragraph.add(new Tab());
+                    paragraph.add(element);
+                });
+        }
+    }
+
+    private static void applyTabStops(ParagraphDefinition paragraphDefinition, Paragraph paragraph) {
+        if (paragraphDefinition.tabStops() != null) {
+            paragraphDefinition.tabStops()
+                .stream()
+                .map(tabStopDefinition -> new TabStop(tabStopDefinition.position(),
+                    TabAlignment.valueOf(tabStopDefinition.alignment())))
+                .forEach(paragraph::addTabStops);
+        } else {
+            paragraph.addTabStops(new TabStop(297.5f, TabAlignment.CENTER));
+        }
+    }
+
+    @NonNull
+    private static Paragraph getParagraph(ParagraphDefinition paragraphDefinition) {
         Paragraph paragraph = new Paragraph();
-        paragraph.setMarginTop(mediaParagraph.marginTop());
-        //paragraph.setMarginLeft(mediaParagraph.marginLeft());
-        Path basePath = Paths.get(mediaFilePath);
-        ImageData imageData = ImageDataFactory.create(basePath.resolve(mediaParagraph.media()).toString());
-        Image image =
-            new Image(imageData, mediaParagraph.marginLeft(), mediaParagraph.marginBottom(), mediaParagraph.width());
-        paragraph.add(image);
+        if (paragraphDefinition.marginTop() != null) {
+            paragraph.setMarginTop(paragraphDefinition.marginTop());
+        }
+        if (paragraphDefinition.marginBottom() != null) {
+            paragraph.setMarginBottom(paragraphDefinition.marginBottom());
+        }
+        if (paragraphDefinition.marginLeft() != null) {
+            paragraph.setMarginLeft(paragraphDefinition.marginLeft());
+        }
+        if (paragraphDefinition.marginRight() != null) {
+            paragraph.setMarginRight(paragraphDefinition.marginRight());
+        }
         return paragraph;
     }
 
@@ -87,7 +148,6 @@ public class CertificateService {
         PdfDocument pdfDocument = new PdfDocument(pdfWriter);
         PageSize pageSize = PageSize.A4;
         Document document = new Document(pdfDocument, pageSize);
-        document.setTextAlignment(TextAlignment.CENTER);
 
         MediaFile blankCertificate = Objects.requireNonNull(eventCertificate).getBlankCertificate();
         PdfCanvas canvas = new PdfCanvas(pdfDocument.addNewPage());
@@ -97,24 +157,18 @@ public class CertificateService {
             .value()).toString());
         canvas.addImageFittedIntoRectangle(image, pageSize, false);
 
-        List<de.jobst.resulter.application.certificate.Paragraph> paragraphsWithPlaceholders =
-            JsonToTextParagraph.loadParagraphs(Objects.requireNonNull(eventCertificate.getLayoutDescription()).value(),
-                false);
+        List<ParagraphDefinition> paragraphDefinitionsWithPlaceholders =
+            JsonToTextParagraph.loadParagraphDefinitions(Objects.requireNonNull(eventCertificate.getLayoutDescription())
+                .value(), false);
 
-        List<de.jobst.resulter.application.certificate.Paragraph> paragraphs =
-            TextParagraphProcessor.processPlaceholders(paragraphsWithPlaceholders,
-                person,
-                organisation.orElse(null),
-                event,
-                personResult);
+        List<ParagraphDefinition> paragraphDefinitionsp = TextBlockProcessor.processPlaceholders(
+            paragraphDefinitionsWithPlaceholders,
+            person,
+            organisation.orElse(null),
+            event,
+            personResult);
 
-        for (de.jobst.resulter.application.certificate.Paragraph paragraph : paragraphs) {
-            if (paragraph instanceof TextParagraph) {
-                document.add(createTextParagraph((TextParagraph) paragraph));
-            } else if (paragraph instanceof MediaParagraph) {
-                document.add(createMediaParagraph((MediaParagraph) paragraph));
-            }
-        }
+        paragraphDefinitionsp.stream().map(this::createParagraph).forEach(document::add);
 
         document.close();
 

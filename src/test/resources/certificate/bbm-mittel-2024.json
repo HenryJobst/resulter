@@ -4,6 +4,11 @@
             "marginTop" : 155,
             "fontSize" : 28,
             "bold" : true,
+            "fontRGBColor" : {
+                "r" : 254,
+                "g" : 0,
+                "b" : 0
+            },
             "text" : "{{GIVEN_NAME}} {{FAMILY_NAME}}"
         },
         {

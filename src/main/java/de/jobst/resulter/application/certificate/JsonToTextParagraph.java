@@ -11,10 +11,12 @@ import java.util.List;
 
 public class JsonToTextParagraph {
 
-    public static List<Paragraph> loadParagraphs(String jsonSource, boolean isFilePath) throws IOException {
+    public static List<ParagraphDefinition> loadParagraphDefinitions(String jsonSource, boolean isFilePath)
+        throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(Paragraph.class, new ParagraphDeserializer());
+        module.addDeserializer(Block.class, new BlockDeserializer());
+        module.addDeserializer(TextBlock.class, new TextBlockDeserializer());
         mapper.registerModule(module);
         JsonNode root;
         if (isFilePath) {
@@ -27,6 +29,7 @@ public class JsonToTextParagraph {
             throw new IllegalArgumentException("Die JSON-Datei muss ein 'paragraphs'-Array enthalten.");
         }
         TypeFactory typeFactory = mapper.getTypeFactory();
-        return mapper.convertValue(paragraphsNode, typeFactory.constructCollectionType(List.class, Paragraph.class));
+        return mapper.convertValue(paragraphsNode,
+            typeFactory.constructCollectionType(List.class, ParagraphDefinition.class));
     }
 }

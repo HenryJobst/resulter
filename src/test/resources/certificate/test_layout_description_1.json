@@ -1,0 +1,108 @@
+{
+    "paragraphs" : [
+        {
+            "marginTop" : 155,
+            "marginBottom" : 0,
+            "marginLeft" : 0,
+            "marginRight" : 0,
+            "tabStops" : [
+                {
+                    "position" : 297.5,
+                    "alignment" : "CENTER"
+                }
+            ],
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 20,
+                        "bold" : true,
+                        "text" : "{{GIVEN_NAME}} {{FAMILY_NAME}}",
+                        "fontRGBColor" : {
+                            "r" : 0,
+                            "g" : 0,
+                            "b" : 0
+                        }
+                    },
+                    "tabPosition" : 1
+                }
+            ]
+        },
+        {
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "{{ORGANISATION}}"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "belegte bei der"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 20,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 14,
+                        "bold" : true,
+                        "text" : "{{EVENT_NAME}}"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 30,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "in der Kategorie {{CATEGORY}}"
+                    }
+                }
+            ]
+        },
+        {
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "mit der Zeit {{RESULT_TIME}}"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 30,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "den {{RESULT_POSITION}}. Platz"
+                    }
+                }
+            ]
+        },
+        {
+            "marginLeft" : 100,
+            "marginBottom" : 85,
+            "blocks" : [
+                {
+                    "block" : {
+                        "media" : "ESV-Wappen-dunkel.png",
+                        "width" : 100
+                    }
+                }
+            ]
+        }
+    ]
+}

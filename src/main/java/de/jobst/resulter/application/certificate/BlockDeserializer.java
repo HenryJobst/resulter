@@ -7,16 +7,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 
-public class ParagraphDeserializer extends JsonDeserializer<Paragraph> {
+public class BlockDeserializer extends JsonDeserializer<Block> {
 
     @Override
-    public Paragraph deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
+    public Block deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
         JsonNode node = jp.getCodec().readTree(jp);
         if (node.has("text")) {
-            return jp.getCodec().treeToValue(node, TextParagraph.class);
+            return jp.getCodec().treeToValue(node, TextBlock.class);
         } else if (node.has("media")) {
-            return jp.getCodec().treeToValue(node, MediaParagraph.class);
+            return jp.getCodec().treeToValue(node, MediaBlock.class);
         }
-        throw new RuntimeException("Unknown paragraph type");
+        throw new RuntimeException("Unknown block type");
     }
 }

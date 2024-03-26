@@ -60,7 +60,9 @@ public class CertificateService {
     private Image createImageBlock(MediaBlock mediaParagraph) throws MalformedURLException {
         Path basePath = Paths.get(mediaFilePath);
         ImageData imageData = ImageDataFactory.create(basePath.resolve(mediaParagraph.media()).toString());
-        return new Image(imageData, 0, 0, mediaParagraph.width());
+        Image image = new Image(imageData);
+        image.setWidth(mediaParagraph.width());
+        return image;
     }
 
     private Paragraph createParagraph(ParagraphDefinition paragraphDefinition) {
@@ -102,7 +104,7 @@ public class CertificateService {
                     TabAlignment.valueOf(tabStopDefinition.alignment())))
                 .forEach(paragraph::addTabStops);
         } else {
-            paragraph.addTabStops(new TabStop(297.5f, TabAlignment.CENTER));
+            paragraph.addTabStops(new TabStop(261.5f, TabAlignment.CENTER));
         }
     }
 
@@ -149,6 +151,9 @@ public class CertificateService {
         PageSize pageSize = PageSize.A4;
         Document document = new Document(pdfDocument, pageSize);
 
+        float center = (pageSize.getWidth() - document.getLeftMargin() - document.getRightMargin()) / 2;
+        System.out.println("Center: " + center);
+
         MediaFile blankCertificate = Objects.requireNonNull(eventCertificate).getBlankCertificate();
         PdfCanvas canvas = new PdfCanvas(pdfDocument.addNewPage());
         Path basePath = Paths.get(mediaFilePath);
@@ -161,14 +166,14 @@ public class CertificateService {
             JsonToTextParagraph.loadParagraphDefinitions(Objects.requireNonNull(eventCertificate.getLayoutDescription())
                 .value(), false);
 
-        List<ParagraphDefinition> paragraphDefinitionsp = TextBlockProcessor.processPlaceholders(
+        List<ParagraphDefinition> paragraphDefinitions = TextBlockProcessor.processPlaceholders(
             paragraphDefinitionsWithPlaceholders,
             person,
             organisation.orElse(null),
             event,
             personResult);
 
-        paragraphDefinitionsp.stream().map(this::createParagraph).forEach(document::add);
+        paragraphDefinitions.stream().map(this::createParagraph).forEach(document::add);
 
         document.close();
 

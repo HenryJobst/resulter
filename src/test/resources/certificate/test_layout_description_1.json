@@ -7,7 +7,7 @@
             "marginRight" : 0,
             "tabStops" : [
                 {
-                    "position" : 297.5,
+                    "position" : 261.5,
                     "alignment" : "CENTER"
                 }
             ],
@@ -93,8 +93,8 @@
             ]
         },
         {
-            "marginLeft" : 100,
-            "marginBottom" : 85,
+            "marginLeft" : -110,
+            "marginTop" : 100,
             "blocks" : [
                 {
                     "block" : {

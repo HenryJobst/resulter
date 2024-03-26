@@ -28,7 +28,7 @@ class ResultListServiceTest {
 
         Person p = Person.of("Mustermann", "Max", null, Gender.M);
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
-        Event e = Event.of("Berlin-Brandenburg-Meisterschaft\nim Mittel-OL 2024");
+        Event e = Event.of("BBM Mittel-OL 2024");
         String layoutDescription =
             Files.readString(Paths.get("src/test/resources/certificate" + "/test_layout_description_1" + ".json"));
 

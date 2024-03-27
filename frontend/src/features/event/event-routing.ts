@@ -6,38 +6,38 @@ import EventImport from '@/features/event/pages/EventImport.vue'
 import EventResults from '@/features/event/pages/EventResults.vue'
 
 export const eventRouting = [
-  {
-    path: '/:locale/event',
-    name: 'event-index',
-    component: EventIndex,
-    children: [
-      {
-        path: '',
-        name: 'event-list',
-        component: EventList
-      },
-      {
-        path: 'new',
-        name: 'event-new',
-        component: EventNew
-      },
-      {
-        path: 'import',
-        name: 'event-import',
-        component: EventImport
-      },
-      {
-        path: ':id/edit',
-        name: 'event-edit',
-        props: true,
-        component: EventEdit
-      },
-      {
-        path: ':id/results',
-        name: 'event-results',
-        props: true,
-        component: EventResults
-      }
-    ]
-  }
+    {
+        path: '/:locale/event',
+        name: 'event-index',
+        component: EventIndex,
+        children: [
+            {
+                path: '',
+                name: 'event-list',
+                component: EventList,
+            },
+            {
+                path: 'new',
+                name: 'event-new',
+                component: EventNew,
+            },
+            {
+                path: 'import',
+                name: 'event-import',
+                component: EventImport,
+            },
+            {
+                path: ':id/edit',
+                name: 'event-edit',
+                props: true,
+                component: EventEdit,
+            },
+            {
+                path: ':id/results',
+                name: 'event-results',
+                props: true,
+                component: EventResults,
+            },
+        ],
+    },
 ]

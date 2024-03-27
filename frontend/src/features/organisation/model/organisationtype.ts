@@ -1,3 +1,3 @@
 export interface OrganisationType {
-  id: string
+    id: string
 }

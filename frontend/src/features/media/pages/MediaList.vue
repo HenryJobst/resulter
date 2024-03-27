@@ -14,54 +14,53 @@ const entityLabel: string = 'media'
 const settingStoreSuffix: string = 'media'
 const listLabel = computed(() => t('labels.media', 2))
 const columns: GenericListColumn[] = [
-  {
-    label: 'labels.preview',
-    field: 'thumbnailContent',
-    type: 'image',
-    sortable: false,
-    filterable: false
-  },
-  {
-    label: 'labels.fileName',
-    field: 'fileName',
-    sortable: true,
-    filterable: true,
-    filterType: 'input'
-  },
-  {
-    label: 'labels.contentType',
-    field: 'contentType',
-    sortable: true,
-    filterable: true,
-    filterType: 'input'
-  },
-  { label: 'labels.fileSize', field: 'fileSize', sortable: true },
-  {
-    label: 'labels.description',
-    field: 'description',
-    sortable: true,
-    filterable: true,
-    filterType: 'input'
-  }
+    {
+        label: 'labels.preview',
+        field: 'thumbnailContent',
+        type: 'image',
+        sortable: false,
+        filterable: false,
+    },
+    {
+        label: 'labels.fileName',
+        field: 'fileName',
+        sortable: true,
+        filterable: true,
+        filterType: 'input',
+    },
+    {
+        label: 'labels.contentType',
+        field: 'contentType',
+        sortable: true,
+        filterable: true,
+        filterType: 'input',
+    },
+    { label: 'labels.fileSize', field: 'fileSize', sortable: true },
+    {
+        label: 'labels.description',
+        field: 'description',
+        sortable: true,
+        filterable: true,
+        filterType: 'input',
+    },
 ]
 </script>
 
 <template>
-  <GenericList
-    :entity-service="mediaService"
-    :query-key="queryKey"
-    :list-label="listLabel"
-    :entity-label="entityLabel"
-    :router-prefix="'media'"
-    :settings-store-suffix="settingStoreSuffix"
-    :columns="columns"
-    :changeable="authStore.isAdmin"
-    :filter-display="'row'"
-    :visible="authStore.isAuthenticated"
-    :edit-enabled="true"
-    :delete-enabled="true"
-  >
-  </GenericList>
+    <GenericList
+        :entity-service="mediaService"
+        :query-key="queryKey"
+        :list-label="listLabel"
+        :entity-label="entityLabel"
+        router-prefix="media"
+        :settings-store-suffix="settingStoreSuffix"
+        :columns="columns"
+        :changeable="authStore.isAdmin"
+        filter-display="row"
+        :visible="authStore.isAuthenticated"
+        :edit-enabled="true"
+        :delete-enabled="true"
+    />
 </template>
 
 <style scoped></style>

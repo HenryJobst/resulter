@@ -1,3 +1,3 @@
 export interface CupType {
-  id: string
+    id: string
 }

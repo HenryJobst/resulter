@@ -8,21 +8,21 @@ const organisationUrl: string = '/organisation'
 const organisationTypeUrl: string = '/organisation_types'
 
 export class OrganisationService extends GenericService<Organisation> {
-  constructor() {
-    super(organisationUrl)
-  }
+    constructor() {
+        super(organisationUrl)
+    }
 
-  static async getOrganisationTypes(
-    t: (key: string) => string
-  ): Promise<OrganisationType[] | null> {
-    return await axiosInstance
-      .get<OrganisationType[]>(organisationTypeUrl)
-      .then((response) => response.data)
-      .catch((error) => {
-        handleApiError(error, t)
-        return null
-      })
-  }
+    static async getOrganisationTypes(
+        t: (key: string) => string,
+    ): Promise<OrganisationType[] | null> {
+        return await axiosInstance
+            .get<OrganisationType[]>(organisationTypeUrl)
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
 }
 
 export const organisationService = new OrganisationService()

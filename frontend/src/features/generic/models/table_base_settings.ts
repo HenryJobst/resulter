@@ -1,4 +1,4 @@
 export interface PageSettings {
-  rows: number
-  page: number
+    rows: number
+    page: number
 }

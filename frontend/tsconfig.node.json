@@ -1,39 +1,39 @@
 {
-    "extends" : "@tsconfig/node18/tsconfig.json",
-    "include" : [
+    "extends": "@tsconfig/node18/tsconfig.json",
+    "compilerOptions": {
+        "composite": true,
+        "target": "ESNext",
+        "lib": [
+            "dom",
+            "esnext"
+        ],
+        "module": "ESNext",
+        // "moduleResolution": "Bundler",
+        "moduleResolution": "node",
+        /* Disallow inconsistently-cased references to the same file. */
+
+        "resolveJsonModule": true,
+        /* "types": [ "node" ], */
+        "types": [
+            "node"
+        ],
+        "strict": true,
+        "noEmit": true,
+        "esModuleInterop": true,
+        /* Skip type checking of declaration files. */
+        "forceConsistentCasingInFileNames": true,
+        /* Type declaration files to be included in compilation. */
+        /* Advanced Options */
+        "skipLibCheck": true
+    },
+    "include": [
         "vite.config.*",
         "vitest.config.*",
         "cypress.config.*",
         "nightwatch.conf.*",
         "playwright.config.*"
     ],
-    "compilerOptions" : {
-        "composite" : true,
-        "noEmit" : true,
-        "target" : "ESNext",
-        "module" : "ESNext",
-        "lib" : [
-            "dom",
-            "esnext"
-        ],
-        "strict" : true,
-        //"moduleResolution": "Bundler",
-        "moduleResolution" : "node",
-        /*"types": [ "node" ],*/
-        "types" : [
-            "node"
-        ],
-        "esModuleInterop" : true,
-        /* Type declaration files to be included in compilation. */
-        /* Advanced Options */
-        "skipLibCheck" : true,
-        /* Skip type checking of declaration files. */
-        "forceConsistentCasingInFileNames" : true,
-        /* Disallow inconsistently-cased references to the same file. */
-
-        "resolveJsonModule" : true
-    },
-    "exclude" : [
+    "exclude": [
         "node_modules",
         "dist"
     ]

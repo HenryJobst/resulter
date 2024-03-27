@@ -1,3 +1,3 @@
 export interface Upload {
-  name: string
+    name: string
 }

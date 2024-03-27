@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
-import type { SportEvent } from '@/features/event/model/sportEvent'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
-import { EventService, eventService } from '@/features/event/services/event.service'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { toastDisplayDuration } from '@/utils/constants'
 import { useToast } from 'primevue/usetoast'
 import type { FileUploadUploaderEvent } from 'primevue/fileupload'
+import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
+import { EventService, eventService } from '@/features/event/services/event.service'
+import { toastDisplayDuration } from '@/utils/constants'
+import type { SportEvent } from '@/features/event/model/sportEvent'
 
 const { t } = useI18n()
 
@@ -17,81 +17,82 @@ const queryClient = useQueryClient()
 const toast = useToast()
 
 const router = useRouter()
-const redirectBack = async () => {
-  await router.replace({ name: 'event-list' })
+async function redirectBack() {
+    await router.replace({ name: 'event-list' })
 }
 
 const eventMutation = useMutation({
-  mutationFn: (event: Omit<SportEvent, 'id'>) => eventService.create(event, t),
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['events'] })
-    toast.add({
-      severity: 'info',
-      summary: t('messages.success'),
-      detail: t('messages.event_created'),
-      life: toastDisplayDuration
-    })
-    redirectBack()
-  }
+    mutationFn: (event: Omit<SportEvent, 'id'>) => eventService.create(event, t),
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['events'] })
+        toast.add({
+            severity: 'info',
+            summary: t('messages.success'),
+            detail: t('messages.event_created'),
+            life: toastDisplayDuration,
+        })
+        redirectBack()
+    },
 })
 
-const eventSubmitHandler = (event: Omit<SportEvent, 'id'>) => {
-  eventMutation.mutate(event)
+function eventSubmitHandler(event: Omit<SportEvent, 'id'>) {
+    eventMutation.mutate(event)
 }
 
 async function validateMimeType(f: File) {
-  return f.type === 'text/xml'
+    return f.type === 'text/xml'
 }
 
-const uploader = async (event: FileUploadUploaderEvent) => {
-  const formData = new FormData()
+async function uploader(event: FileUploadUploaderEvent) {
+    const formData = new FormData()
 
-  // MimeType Check on all files
-  let filesToSend = 0
-  const filesToHandle = Array.isArray(event.files) ? event.files : [event.files]
-  for (const f of filesToHandle) {
-    const valid = await validateMimeType(f)
-    if (valid) {
-      formData.append('file', f)
-      filesToSend += 1
-    } else {
-      console.log('Invalid file type')
+    // MimeType Check on all files
+    let filesToSend = 0
+    const filesToHandle = Array.isArray(event.files) ? event.files : [event.files]
+    for (const f of filesToHandle) {
+        const valid = await validateMimeType(f)
+        if (valid) {
+            formData.append('file', f)
+            filesToSend += 1
+        }
+        else {
+            console.log('Invalid file type')
+        }
     }
-  }
 
-  if (filesToSend > 0) {
-    await EventService.upload(formData, t)
-      .then((data) => {
-        console.log('File uploaded', data)
-        toast.add({
-          severity: 'info',
-          summary: t('messages.success'),
-          detail: t('messages.event_uploaded'),
-          life: toastDisplayDuration
-        })
-      })
-      .catch((error: any) => {
-        console.log('Error uploading file: ', error)
-      })
-  }
+    if (filesToSend > 0) {
+        await EventService.upload(formData, t)
+            .then((data) => {
+                console.log('File uploaded', data)
+                toast.add({
+                    severity: 'info',
+                    summary: t('messages.success'),
+                    detail: t('messages.event_uploaded'),
+                    life: toastDisplayDuration,
+                })
+            })
+            .catch((error: any) => {
+                console.log('Error uploading file: ', error)
+            })
+    }
 }
 </script>
 
 <template>
-  <div>
-    <h2>{{ t('messages.import_event') }}</h2>
+    <div>
+        <h2>{{ t('messages.import_event') }}</h2>
 
-    <EventImportForm @event-submit="eventSubmitHandler" :uploader="uploader">
-      <Button
-        class="ml-2"
-        severity="secondary"
-        type="reset"
-        :label="t('labels.back')"
-        outlined
-        @click="redirectBack"
-      ></Button>
-    </EventImportForm>
-  </div>
+        <EventImportForm :uploader="uploader" @event-submit="eventSubmitHandler">
+            <Button
+                class="ml-2"
+                severity="secondary"
+                type="reset"
+                :label="t('labels.back')"
+                outlined
+                @click="redirectBack"
+            />
+        </EventImportForm>
+    </div>
 </template>
 
 <style scoped></style>

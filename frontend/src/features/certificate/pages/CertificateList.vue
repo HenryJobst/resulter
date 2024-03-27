@@ -14,53 +14,52 @@ const entityLabel: string = 'certificate'
 const settingStoreSuffix: string = 'certificate'
 const listLabel = computed(() => t('labels.certificate', 2))
 const columns: GenericListColumn[] = [
-  {
-    label: 'labels.event',
-    field: 'event.name',
-    sortable: true,
-    filterable: true,
-    filterType: 'input'
-  },
-  {
-    label: 'labels.name',
-    field: 'name',
-    sortable: true,
-    filterable: true,
-    filterType: 'input'
-  },
-  {
-    label: 'labels.background',
-    field: 'blankCertificate.fileName',
-    sortable: true,
-    filterable: true,
-    filterType: 'input'
-  },
-  {
-    label: 'labels.background_preview',
-    field: 'blankCertificate.thumbnailContent',
-    type: 'image',
-    sortable: false,
-    filterable: false
-  }
+    {
+        label: 'labels.event',
+        field: 'event.name',
+        sortable: true,
+        filterable: true,
+        filterType: 'input',
+    },
+    {
+        label: 'labels.name',
+        field: 'name',
+        sortable: true,
+        filterable: true,
+        filterType: 'input',
+    },
+    {
+        label: 'labels.background',
+        field: 'blankCertificate.fileName',
+        sortable: true,
+        filterable: true,
+        filterType: 'input',
+    },
+    {
+        label: 'labels.background_preview',
+        field: 'blankCertificate.thumbnailContent',
+        type: 'image',
+        sortable: false,
+        filterable: false,
+    },
 ]
 </script>
 
 <template>
-  <GenericList
-    :entity-service="certificateService"
-    :query-key="queryKey"
-    :list-label="listLabel"
-    :entity-label="entityLabel"
-    :router-prefix="'certificate'"
-    :settings-store-suffix="settingStoreSuffix"
-    :columns="columns"
-    :changeable="authStore.isAdmin"
-    :filter-display="'row'"
-    :visible="authStore.isAuthenticated"
-    :edit-enabled="true"
-    :delete-enabled="true"
-  >
-  </GenericList>
+    <GenericList
+        :entity-service="certificateService"
+        :query-key="queryKey"
+        :list-label="listLabel"
+        :entity-label="entityLabel"
+        router-prefix="certificate"
+        :settings-store-suffix="settingStoreSuffix"
+        :columns="columns"
+        :changeable="authStore.isAdmin"
+        filter-display="row"
+        :visible="authStore.isAuthenticated"
+        :edit-enabled="true"
+        :delete-enabled="true"
+    />
 </template>
 
 <style scoped></style>

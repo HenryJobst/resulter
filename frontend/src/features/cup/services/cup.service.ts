@@ -9,29 +9,29 @@ const cupUrl: string = '/cup'
 const cupTypeUrl: string = '/cup_types'
 
 export class CupService extends GenericService<Cup> {
-  constructor() {
-    super(cupUrl)
-  }
+    constructor() {
+        super(cupUrl)
+    }
 
-  static async getCupTypes(t: (key: string) => string): Promise<CupType[] | null> {
-    return await axiosInstance
-      .get<CupType[]>(cupTypeUrl)
-      .then((response) => response.data)
-      .catch((error) => {
-        handleApiError(error, t)
-        return null
-      })
-  }
+    static async getCupTypes(t: (key: string) => string): Promise<CupType[] | null> {
+        return await axiosInstance
+            .get<CupType[]>(cupTypeUrl)
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
 
-  static async getResultsById(id: string, t: (key: string) => string): Promise<CupResults> {
-    return await axiosInstance
-      .get(`${cupUrl}/${id}/results`)
-      .then((response) => response.data)
-      .catch((error) => {
-        handleApiError(error, t)
-        return null
-      })
-  }
+    static async getResultsById(id: string, t: (key: string) => string): Promise<CupResults> {
+        return await axiosInstance
+            .get(`${cupUrl}/${id}/results`)
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
 }
 
 export const cupService = new CupService()

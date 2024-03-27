@@ -3,8 +3,8 @@ import type { OrganisationKey } from '@/features/organisation/model/organisation
 import type { CountryKey } from '@/features/country/models/country_key'
 
 export interface Organisation extends OrganisationKey {
-  shortName: string
-  type: OrganisationType
-  country: CountryKey
-  childOrganisations: OrganisationKey[]
+    shortName: string
+    type: OrganisationType
+    country: CountryKey
+    childOrganisations: OrganisationKey[]
 }

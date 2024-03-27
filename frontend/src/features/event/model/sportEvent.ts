@@ -3,10 +3,10 @@ import type { OrganisationKey } from '@/features/organisation/model/organisation
 import type { CertificateKey } from '@/features/certificate/model/certificate_key'
 
 export interface SportEvent {
-  id: number
-  name: string
-  startTime: string | Date
-  state: EventStatus
-  organisations: OrganisationKey[]
-  certificate: CertificateKey | null
+    id: number
+    name: string
+    startTime: string | Date
+    state: EventStatus
+    organisations: OrganisationKey[]
+    certificate: CertificateKey | null
 }

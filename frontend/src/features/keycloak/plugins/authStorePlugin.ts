@@ -6,21 +6,21 @@ import setupInterceptors from '@/features/keycloak/services/tokenInterceptors'
 
 // Definieren Sie eine Schnittstelle für die Plugin-Optionen, falls erforderlich
 export interface AuthStorePluginOptions {
-  pinia: Pinia
+    pinia: Pinia
 }
 
 const authStorePlugin = {
-  install(app: App, options: AuthStorePluginOptions): void {
-    const store = useAuthStore(options.pinia)
+    install(app: App, options: AuthStorePluginOptions): void {
+        const store = useAuthStore(options.pinia)
 
-    // Globalen Store zu Vue's globalProperties hinzufügen
-    app.config.globalProperties.$store = store
+        // Globalen Store zu Vue's globalProperties hinzufügen
+        app.config.globalProperties.$store = store
 
-    // Keycloak-Benutzerdaten in den Store laden
-    KeycloakService.callInitStore(store)
+        // Keycloak-Benutzerdaten in den Store laden
+        KeycloakService.callInitStore(store)
 
-    setupInterceptors(store)
-  }
+        setupInterceptors(store)
+    },
 }
 
 export default authStorePlugin

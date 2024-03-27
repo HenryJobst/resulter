@@ -1,4 +1,4 @@
 export interface CertificateKey {
-  id: number
-  name: string
+    id: number
+    name: string
 }

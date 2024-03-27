@@ -8,19 +8,19 @@ const personUrl: string = '/person'
 const genderUrl: string = '/gender'
 
 export class PersonService extends GenericService<Person> {
-  constructor() {
-    super(personUrl)
-  }
+    constructor() {
+        super(personUrl)
+    }
 
-  static async getGender(t: (key: string) => string): Promise<Gender[] | null> {
-    return await axiosInstance
-      .get<Gender[]>(genderUrl)
-      .then((response) => response.data)
-      .catch((error) => {
-        handleApiError(error, t)
-        return null
-      })
-  }
+    static async getGender(t: (key: string) => string): Promise<Gender[] | null> {
+        return await axiosInstance
+            .get<Gender[]>(genderUrl)
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
 }
 
 export const personService = new PersonService()

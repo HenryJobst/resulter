@@ -5,9 +5,9 @@ const props = defineProps<{ message: string | null }>()
 </script>
 
 <template>
-  <InlineMessage severity="error" class="my-3" style="width: 100%" v-if="props.message">
-    {{ props.message }}
-  </InlineMessage>
+    <InlineMessage v-if="props.message" severity="error" class="my-3" style="width: 100%">
+        {{ props.message }}
+    </InlineMessage>
 </template>
 
 <style scoped></style>

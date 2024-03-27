@@ -4,9 +4,9 @@ import { GenericService } from '@/features/generic/services/GenericService'
 const countryUrl: string = '/country'
 
 export class CountryService extends GenericService<Country> {
-  constructor() {
-    super(countryUrl)
-  }
+    constructor() {
+        super(countryUrl)
+    }
 }
 
 export const countryService = new CountryService()

@@ -2,6 +2,10 @@
 
 # **Resulter**
 
+[![version](https://img.shields.io/badge/version-0.0.3-blue)](Version 0.0.3)
+[![license](https://img.shields.io/badge/license-CC%20BY--NC--ND%204.0-blue)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+[![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
+
 ## Overview
 
 **Resulter** is an innovative web application for orienteering enthusiasts and organizers of orienteering competitions.

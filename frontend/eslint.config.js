@@ -3,8 +3,10 @@ import antfu from '@antfu/eslint-config'
 export default antfu(
     {
         stylistic: {
-            indent: 4, // 2, or 'tab'
+            indent: 4, // 4, or 'tab'
             quotes: 'single', // or 'double'
+            semi: false, // or true
+            width: 100,
         },
 
         // TypeScript and Vue are auto-detected, you can also explicitly enable them:
@@ -12,7 +14,7 @@ export default antfu(
         vue: true,
 
         // `.eslintignore` is no longer supported in Flat config, use `ignores` instead
-        ignores: ['**/node_modules', '**/dist'],
+        ignores: [],
 
         formatters: false,
         unocss: false,

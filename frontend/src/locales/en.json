@@ -72,7 +72,11 @@
         "layout_description": "Layout description",
         "background": "Background",
         "background_preview": "Background preview",
-        "primary": "Primary"
+        "primary": "Primary",
+        "frontend_version": "Frontend: {version}",
+        "backend_version": "Backend: {version}",
+        "loading": "Loading...",
+        "error_loading": "Error loading data"
     },
     "messages": {
         "new_cup": "New cup",

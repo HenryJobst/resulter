@@ -72,7 +72,11 @@
         "layout_description": "Layout-Beschreibung",
         "background": "Hintergrund",
         "background_preview": "Hintergrund-Vorschau",
-        "primary": "Primär"
+        "primary": "Primär",
+        "frontend_version": "Frontend: {version}",
+        "backend_version": "Backend: {version}",
+        "loading": "Lade...",
+        "error_loading": "Fehler beim Laden"
     },
     "result_state": {
         "OK": "OK",

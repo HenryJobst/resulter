@@ -8,6 +8,7 @@ import { type PrimeVueLocaleOptions, usePrimeVue } from 'primevue/config'
 import moment from 'moment/min/moment-with-locales'
 import { SUPPORT_LOCALES } from './i18n'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import BackendVersion from '@/features/backend_version/BackendVersion.vue'
 
 const router = useRouter()
 const { t, locale } = useI18n()
@@ -23,6 +24,8 @@ interface LocaleMessages {
 const primeVueLocales: Ref<LocaleMessages> = ref({})
 
 const primevue = usePrimeVue()
+
+const frontendVersion = __APP_VERSION__
 
 onMounted(() => {
     fullUrl.value = cleanUrl(window.location.href)
@@ -171,6 +174,12 @@ watch(currentLocale, (val) => {
 
         <footer class="flex justify-between items-center bg-gray-200 p-4">
             <div class="flex items-center">
+                <div>
+                    {{ t('labels.frontend_version', { version: frontendVersion }) }}
+                </div>
+                <div class="ml-4">
+                    <BackendVersion />
+                </div>
                 <div v-if="authStore.authenticated" class="ml-4">
                     {{ t('labels.login_user', { username: authStore.user.username }) }}
                 </div>

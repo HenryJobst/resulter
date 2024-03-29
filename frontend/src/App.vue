@@ -72,6 +72,8 @@ watch(currentLocale, (val) => {
     })
     switchPrimeVueLocale(val)
     moment.locale(val)
+
+    localStorage.setItem('userLocale', val)
 })
 </script>
 

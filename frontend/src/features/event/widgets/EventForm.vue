@@ -17,7 +17,7 @@ import type { CertificateKey } from '@/features/certificate/model/certificate_ke
 import type { Certificate } from '@/features/certificate/model/certificate'
 
 const props = defineProps<{
-    event?: SportEvent
+    event: SportEvent
     entityService: EventService
     queryKey: string[]
 }>()

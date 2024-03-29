@@ -12,6 +12,7 @@ import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
 
 import { toastDisplayDuration } from '@/utils/constants'
+import type { RestResult } from '@/features/generic/models/rest_result'
 
 const props = defineProps<{ id: number, locale?: string }>()
 const authStore = useAuthStore()
@@ -29,7 +30,7 @@ const queryClient = useQueryClient()
 const cupQuery = useQuery({
     queryKey: ['cups', { id: props.id }],
     queryFn: () => cupService.getById(props.id, t),
-    initialData: () => queryClient.getQueryData<Cup[]>(['cups'])?.find(cup => cup.id === props.id),
+    initialData: () => queryClient.getQueryData<RestResult<Cup>>(['cups'])?.content.find(cup => cup.id === props.id),
     initialDataUpdatedAt: () => queryClient.getQueryState(['cups'])?.dataUpdatedAt,
 })
 
@@ -89,6 +90,6 @@ function cupSubmitHandler(cup: Cup) {
 
 <style scoped>
 h1 {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 </style>

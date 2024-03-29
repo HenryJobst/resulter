@@ -26,11 +26,11 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.m
         router-prefix="media"
         :changeable="authStore.isAdmin"
     >
-        <template #default="{ myFormData }">
+        <template #default="{ formData }">
             <MediaForm
-                v-if="myFormData"
-                v-model="myFormData.value"
-                :media="myFormData.value as Media"
+                v-if="formData"
+                v-model="formData.data"
+                :media="formData.data as Media"
                 :entity-service="mediaService"
                 :query-key="queryKey"
             />

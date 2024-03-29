@@ -13,7 +13,7 @@ const queryKey: string[] = ['events']
 const entityLabel: string = 'event'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.event') }))
 
-const formData = ref<SportEvent | Omit<SportEvent, 'id'>>({
+const localFormData = ref<SportEvent | Omit<SportEvent, 'id'>>({
     name: '',
     startTime: new Date(),
     state: { id: 'Planned' },
@@ -24,7 +24,7 @@ const formData = ref<SportEvent | Omit<SportEvent, 'id'>>({
 
 <template>
     <GenericNew
-        :entity="formData"
+        :entity="localFormData"
         :entity-service="eventService"
         :query-key="queryKey"
         :entity-label="entityLabel"
@@ -32,11 +32,11 @@ const formData = ref<SportEvent | Omit<SportEvent, 'id'>>({
         router-prefix="event"
         :changeable="authStore.isAdmin"
     >
-        <template #default="{ myFormData }">
+        <template #default="{ formData }">
             <EventForm
-                v-if="myFormData"
-                v-model="myFormData.value"
-                :event="myFormData.value as SportEvent"
+                v-if="formData"
+                v-model="formData.data"
+                :event="formData.data as SportEvent"
                 :entity-service="eventService"
                 :query-key="queryKey"
             />

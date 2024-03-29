@@ -29,8 +29,8 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.o
         <template #default="{ formData }">
             <OrganisationForm
                 v-if="formData"
-                v-model="formData.value"
-                :organisation="formData.value as Organisation"
+                v-model="formData.data"
+                :organisation="formData.data as Organisation"
                 :entity-service="organisationService"
                 :query-key="queryKey"
             />

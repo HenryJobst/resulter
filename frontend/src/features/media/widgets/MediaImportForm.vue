@@ -40,7 +40,7 @@ const toast = useToast()
 
 const totalSize = ref<number>(0)
 const totalSizePercent = ref<number>(0)
-const files = ref<File[]>([])
+const files_to_upload = ref<File[]>([])
 
 function onRemoveTemplatingFile(
     file: File,
@@ -58,8 +58,8 @@ function onClearTemplatingUpload() {
 }
 
 function onSelectedFiles(media: { files: File[] }) {
-    files.value = media.files
-    files.value.forEach((file) => {
+    files_to_upload.value = media.files
+    files_to_upload.value.forEach((file) => {
         totalSize.value += Number.parseInt(formatSize(file.size))
     })
 }
@@ -115,7 +115,7 @@ function formatSize(bytes: number): string {
                     @uploader="props.uploader"
                     @clear="onClearTemplatingUpload"
                 >
-                    <template #header="{ chooseCallback, uploadCallback, clearCallback, myFiles }">
+                    <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
                         <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
                             <div class="flex gap-2">
                                 <Button
@@ -125,21 +125,21 @@ function formatSize(bytes: number): string {
                                     @click="chooseCallback()"
                                 />
                                 <Button
-                                    v-if="myFiles.length > 0 && authStore.isAuthenticated"
+                                    v-if="files.length > 0 && authStore.isAuthenticated"
                                     icon="pi pi-upload"
                                     :label="t('labels.import')"
                                     outlined
                                     severity="success"
-                                    :disabled="!myFiles || myFiles.length === 0"
+                                    :disabled="!files || files.length === 0"
                                     @click="uploadMedia(uploadCallback)"
                                 />
                                 <Button
-                                    v-if="myFiles.length > 0"
+                                    v-if="files.length > 0"
                                     :label="t('labels.clear')"
                                     icon="pi pi-times"
                                     outlined
                                     severity="danger"
-                                    :disabled="!myFiles || myFiles.length === 0"
+                                    :disabled="!files || files.length === 0"
                                     @click="clearCallback()"
                                 />
                             </div>
@@ -154,13 +154,13 @@ function formatSize(bytes: number): string {
                         </div>
                     </template>
                     <template
-                        #content="{ myFiles, uploadedFiles, removeUploadedFileCallback, removeFileCallback }"
+                        #content="{ files, uploadedFiles, removeUploadedFileCallback, removeFileCallback }"
                     >
-                        <div v-if="myFiles.length > 0">
+                        <div v-if="files.length > 0">
                             <h5>{{ t('messages.pending') }}</h5>
                             <div class="flex flex-wrap p-0 sm:p-5 gap-5">
                                 <div
-                                    v-for="(file, index) of myFiles"
+                                    v-for="(file, index) of files"
                                     :key="file.name + file.type + file.size"
                                     class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3"
                                 >

@@ -7,7 +7,7 @@ import type { Media } from '@/features/media/model/media'
 import type { MediaService } from '@/features/media/services/media.service'
 
 const props = defineProps<{
-    media?: Media
+    media: Media
     entityService: MediaService
     queryKey: string[]
 }>()

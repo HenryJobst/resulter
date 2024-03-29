@@ -11,7 +11,7 @@ import { countryService } from '@/features/country/services/country.service'
 import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
 
 const props = defineProps<{
-    organisation?: Organisation
+    organisation: Organisation
     entityService: OrganisationService
     queryKey: string[]
 }>()

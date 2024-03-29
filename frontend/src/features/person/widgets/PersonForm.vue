@@ -9,7 +9,7 @@ import { PersonService } from '@/features/person/services/person.service'
 import type { Person } from '@/features/person/model/person'
 
 const props = defineProps<{
-    person?: Person
+    person: Person
     entityService: PersonService
     queryKey: string[]
 }>()

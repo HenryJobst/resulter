@@ -15,7 +15,7 @@ const queryKey: string[] = ['certificates']
 const entityLabel: string = 'certificate'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.certificate') }))
 
-const formData = ref<Certificate | Omit<Certificate, 'id'>>({
+const localFormData = ref<Certificate | Omit<Certificate, 'id'>>({
     name: '',
     layoutDescription: '',
     blankCertificate: null,
@@ -26,7 +26,7 @@ const formData = ref<Certificate | Omit<Certificate, 'id'>>({
 
 <template>
     <GenericNew
-        :entity="formData"
+        :entity="localFormData"
         :entity-service="certificateService"
         :query-key="queryKey"
         :entity-label="entityLabel"
@@ -34,11 +34,11 @@ const formData = ref<Certificate | Omit<Certificate, 'id'>>({
         router-prefix="certificate"
         :changeable="authStore.isAdmin"
     >
-        <template #default="{ myFormData }">
+        <template #default="{ formData }">
             <CertificateForm
-                v-if="myFormData"
-                v-model="myFormData.value"
-                :certificate="myFormData.value as Certificate"
+                v-if="formData"
+                v-model="formData.data"
+                :certificate="formData.data as Certificate"
                 :entity-service="certificateService"
                 :query-key="queryKey"
             />

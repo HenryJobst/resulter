@@ -21,7 +21,7 @@ import type { Media } from '@/features/media/model/media'
 import 'vue-pdf-embed/dist/style/index.css'
 
 const props = defineProps<{
-    certificate?: Certificate
+    certificate: Certificate
     entityService: CertificateService
     queryKey: string[]
 }>()

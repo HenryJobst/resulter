@@ -18,7 +18,7 @@
             "node"
         ],
         "strict": true,
-        "noEmit": true,
+        "noEmit": false,
         "esModuleInterop": true,
         /* Skip type checking of declaration files. */
         "forceConsistentCasingInFileNames": true,

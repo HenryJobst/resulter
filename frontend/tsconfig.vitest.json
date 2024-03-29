@@ -3,7 +3,11 @@
     "compilerOptions": {
         "composite": true,
         "lib": [],
-        "types": ["node", "jsdom"]
+        "types": [
+            "node",
+            "jsdom"
+        ],
+        "noEmit": false
     },
     "exclude": []
 }

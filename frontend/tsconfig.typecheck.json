@@ -1,0 +1,9 @@
+// tsconfig.typecheck.json
+{
+    "extends": "./tsconfig.json",
+    // Extend your base config
+    "compilerOptions": {
+        "noEmit": true
+        // Specifically for type-checking without file emission
+    }
+}

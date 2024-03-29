@@ -48,6 +48,7 @@ function submitHandler() {
     if (formData)
         entityMutation.mutate(formData)
 }
+
 function navigateToList() {
     router.replace({ name: `${props.routerPrefix}-list` })
 }
@@ -64,7 +65,7 @@ function navigateToList() {
             <ErrorMessage :message="t('messages.error', { message: entityMutation.error.value })" />
         </div>
         <form @submit.prevent="submitHandler">
-            <slot :form-data="formData" />
+            <slot :form-data="{ data: formData }" />
             <div class="mt-2">
                 <Button v-if="changeable" class="mt-2" type="submit" :label="t('labels.save')" outlined />
                 <Button
@@ -83,6 +84,6 @@ function navigateToList() {
 
 <style scoped>
 h1 {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 </style>

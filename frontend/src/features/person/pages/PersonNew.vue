@@ -13,7 +13,7 @@ const queryKey: string[] = ['persons']
 const entityLabel: string = 'person'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.person') }))
 
-const formData = ref<Person | Omit<Person, 'id'>>({
+const localFormData = ref<Person | Omit<Person, 'id'>>({
     familyName: '',
     givenName: '',
     gender: { id: 'M' },
@@ -23,7 +23,7 @@ const formData = ref<Person | Omit<Person, 'id'>>({
 
 <template>
     <GenericNew
-        :entity="formData"
+        :entity="localFormData"
         :entity-service="personService"
         :query-key="queryKey"
         :entity-label="entityLabel"
@@ -31,11 +31,11 @@ const formData = ref<Person | Omit<Person, 'id'>>({
         router-prefix="person"
         :changeable="authStore.isAdmin"
     >
-        <template #default="{ myFormData }">
+        <template #default="{ formData }">
             <PersonForm
-                v-if="myFormData"
-                v-model="myFormData.value"
-                :person="myFormData.value as Person"
+                v-if="formData"
+                v-model="formData.data"
+                :person="formData.data as Person"
                 :entity-service="personService"
                 :query-key="queryKey"
             />

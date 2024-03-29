@@ -26,11 +26,11 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.p
         router-prefix="person"
         :changeable="authStore.isAdmin"
     >
-        <template #default="{ myFormData }">
+        <template #default="{ formData }">
             <PersonForm
-                v-if="myFormData"
-                v-model="myFormData.value"
-                :person="myFormData.value as Person"
+                v-if="formData"
+                v-model="formData.data"
+                :person="formData.data as Person"
                 :entity-service="personService"
                 :query-key="queryKey"
             />

@@ -26,11 +26,11 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.e
         router-prefix="event"
         :changeable="authStore.isAdmin"
     >
-        <template #default="{ myFormData }">
+        <template #default="{ formData }">
             <EventForm
-                v-if="myFormData"
-                v-model="myFormData.value"
-                :event="myFormData.value as SportEvent"
+                v-if="formData"
+                v-model="formData.data"
+                :event="formData.data as SportEvent"
                 :entity-service="eventService"
                 :query-key="queryKey"
             />

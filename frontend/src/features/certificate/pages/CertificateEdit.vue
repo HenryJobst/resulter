@@ -26,11 +26,11 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.c
         router-prefix="certificate"
         :changeable="authStore.isAdmin"
     >
-        <template #default="{ myFormData }">
+        <template #default="{ formData }">
             <CertificateForm
-                v-if="myFormData"
-                v-model="myFormData.value"
-                :certificate="myFormData.value as Certificate"
+                v-if="formData"
+                v-model="formData.data"
+                :certificate="formData.data as Certificate"
                 :entity-service="certificateService"
                 :query-key="queryKey"
             />

@@ -1,7 +1,7 @@
 {
     "pages": {
         "start": "Startseite",
-        "about": "Über",
+        "about": "Über Resulter",
         "events": "Wettkampfliste"
     },
     "navigations": {
@@ -162,5 +162,13 @@
         "unknownApiError": "Unbekannter Api-Fehler. {name}, {message}",
         "unknownError": "Unbekannter Fehler. {name}, {message}",
         "noResponseError": "Keine Antwort vom Server erhalten. {name}, {message}, {code}"
+    },
+    "about": {
+        "title": "Über Resulter",
+        "description": "Resulter ist eine innovative Web-Anwendung für Orientierungslauf-Enthusiasten und Organisatoren von Orientierungslauf-Wettkämpfen.",
+        "features": "Inhalt: Wettkampfverwaltung, Ergebnislisten, persönlicher Urkundendownload für Teilnehmer",
+        "futurePlans": "Zukünftige Erweiterungen sollen Berechnungen von Cup- und Ranglistenpunkten sowie eine Auswertung von Splittzeiten ermöglichen.",
+        "contact": "Für Anfragen, schreiben Sie uns bitte eine E-Mail an",
+        "emailAddress": "resulter{'@'}olberlin.de"
     }
 }

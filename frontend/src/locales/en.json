@@ -1,7 +1,7 @@
 {
     "pages": {
         "start": "Start page",
-        "about": "About page",
+        "about": "About Resulter",
         "events": "Events index page"
     },
     "navigations": {
@@ -162,5 +162,13 @@
         "unknownApiError": "Unknown api error. {name}, {message}",
         "unknownError": "Unknown error. {name}, {message}",
         "noResponseError": "No response error. {name}, {message}, {code}"
+    },
+    "about": {
+        "title": "About Resulter",
+        "description": "Resulter is an innovative web application for orienteering enthusiasts and organizers of orienteering competitions.",
+        "features": "Content: Event list with optional result lists, download of individual certificates for competitors.",
+        "futurePlans": "Future expansions are planned to include calculations of cup and ranking list points, as well as an analysis of split times.",
+        "contact": "For inquiries, please email us at",
+        "emailAddress": "resulter{'@'}olberlin.de"
     }
 }

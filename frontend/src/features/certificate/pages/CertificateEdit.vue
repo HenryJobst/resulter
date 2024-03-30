@@ -4,7 +4,6 @@ import { computed } from 'vue'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { certificateService } from '@/features/certificate/services/certificate.service'
-import type { Certificate } from '@/features/certificate/model/certificate'
 import CertificateForm from '@/features/certificate/widgets/CertificateForm.vue'
 
 const props = defineProps<{ id: string, locale?: string }>()
@@ -30,9 +29,6 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.c
             <CertificateForm
                 v-if="formData"
                 v-model="formData.data"
-                :certificate="formData.data as Certificate"
-                :entity-service="certificateService"
-                :query-key="queryKey"
             />
         </template>
     </GenericEdit>

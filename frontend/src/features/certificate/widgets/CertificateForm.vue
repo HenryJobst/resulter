@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
@@ -8,9 +7,8 @@ import Button from 'primevue/button'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown'
 import VuePdfEmbed from 'vue-pdf-embed'
+import { watch } from 'vue'
 import type { Certificate } from '@/features/certificate/model/certificate'
-
-import type { CertificateService } from '@/features/certificate/services/certificate.service'
 import { EventService, eventService } from '@/features/event/services/event.service'
 import type { EventKey } from '@/features/event/model/event_key'
 import { mediaService } from '@/features/media/services/media.service'
@@ -20,22 +18,14 @@ import type { Media } from '@/features/media/model/media'
 
 import 'vue-pdf-embed/dist/style/index.css'
 
-const props = defineProps<{
-    certificate: Certificate
-    entityService: CertificateService
-    queryKey: string[]
-}>()
-
-const emit = defineEmits(['update:modelValue'])
+const certificate = defineModel({
+    type: Object as () => Certificate,
+    default: null,
+})
 
 const { t } = useI18n()
 
 const queryClient = useQueryClient()
-
-const certificate = computed({
-    get: () => props.certificate,
-    set: value => emit('update:modelValue', value),
-})
 
 const eventQuery = useQuery({
     queryKey: ['events'],
@@ -50,6 +40,7 @@ const mediaQuery = useQuery({
 const certificateQuery = useQuery({
     queryKey: ['certificate', certificate.value?.id, certificate.value?.event?.id],
     queryFn: () => EventService.getCertificate(certificate.value, t),
+    retry: 1,
 })
 
 function getEventKeyFromId(id: number | null): EventKey | null {
@@ -84,32 +75,18 @@ function getMediaKeyFromId(id: number | null): MediaKey | null {
 }
 
 function handleEventSelectionChange(ev: DropdownChangeEvent) {
-    if (ev.value && certificate.value && eventQuery.data.value && eventQuery.data.value.content) {
+    if (ev.value && certificate.value && eventQuery.data.value && eventQuery.data.value.content)
         certificate.value.event = getEventKeyFromId(ev.value.id)!
-        queryClient.invalidateQueries({
-            queryKey: ['certificate', certificate.value?.id, certificate.value?.event?.id],
-        })
-        certificateQuery.refetch()
-    }
 }
 
 function handleMediaSelectionChange(ev: DropdownChangeEvent) {
-    if (ev.value && certificate.value && mediaQuery.data.value && mediaQuery.data.value.content) {
+    if (ev.value && certificate.value && mediaQuery.data.value && mediaQuery.data.value.content)
         certificate.value.blankCertificate = getMediaKeyFromId(ev.value.id)!
-        queryClient.invalidateQueries({
-            queryKey: ['certificate', certificate.value?.id, certificate.value?.event?.id],
-        })
-    }
 }
 
-function handleLayoutDescriptionChange(ev: Event) {
-    if (certificate.value && ev.target) {
-        certificate.value.layoutDescription = (ev.target as HTMLTextAreaElement).value
-        queryClient.invalidateQueries({
-            queryKey: ['certificate', certificate.value?.id, certificate.value?.event?.id],
-        })
-    }
-}
+watch(() => certificate.value, () => {
+    queryClient.invalidateQueries({ queryKey: ['certificate'] })
+}, { deep: true })
 </script>
 
 <template>
@@ -126,7 +103,7 @@ function handleLayoutDescriptionChange(ev: Event) {
                         <Dropdown
                             v-else-if="eventQuery.data.value"
                             id="event"
-                            v-model="certificate.event"
+                            :model-value="certificate.event"
                             :options="eventQuery.data.value.content"
                             option-label="name"
                             data-key="id"
@@ -148,7 +125,7 @@ function handleLayoutDescriptionChange(ev: Event) {
                         <Dropdown
                             v-else-if="mediaQuery.data.value"
                             id="media"
-                            v-model="certificate.blankCertificate"
+                            :model-value="certificate.blankCertificate"
                             :options="mediaQuery.data.value.content"
                             data-key="id"
                             option-label="fileName"
@@ -189,7 +166,6 @@ function handleLayoutDescriptionChange(ev: Event) {
                             auto-resize
                             rows="20"
                             cols="40"
-                            @input="handleLayoutDescriptionChange"
                         />
                     </div>
                 </div>

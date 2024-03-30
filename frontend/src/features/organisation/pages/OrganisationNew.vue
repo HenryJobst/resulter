@@ -36,7 +36,6 @@ const localFormData = ref<Organisation | Omit<Organisation, 'id'>>({
             <OrganisationForm
                 v-if="formData"
                 v-model="formData.data"
-                :organisation="formData.data as Organisation"
                 :entity-service="organisationService"
                 :query-key="queryKey"
             />

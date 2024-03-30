@@ -5,7 +5,6 @@ import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
 import { organisationService } from '@/features/organisation/services/organisation.service'
-import type { Organisation } from '@/features/organisation/model/organisation'
 
 const props = defineProps<{ id: string, locale?: string }>()
 
@@ -30,7 +29,6 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.o
             <OrganisationForm
                 v-if="formData"
                 v-model="formData.data"
-                :organisation="formData.data as Organisation"
                 :entity-service="organisationService"
                 :query-key="queryKey"
             />

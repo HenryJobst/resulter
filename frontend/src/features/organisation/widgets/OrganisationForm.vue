@@ -1,22 +1,24 @@
 <script setup lang="ts">
 import Dropdown from 'primevue/dropdown'
 import InputText from 'primevue/inputtext'
-import MultiSelect, { type MultiSelectChangeEvent } from 'primevue/multiselect'
+import MultiSelect from 'primevue/multiselect'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Organisation } from '@/features/organisation/model/organisation'
 import { OrganisationService } from '@/features/organisation/services/organisation.service'
 import { countryService } from '@/features/country/services/country.service'
 import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
 
 const props = defineProps<{
-    organisation: Organisation
     entityService: OrganisationService
     queryKey: string[]
 }>()
 
-const emit = defineEmits(['update:modelValue'])
+const organisation = defineModel({
+    type: Object as () => Organisation,
+    default: null,
+})
 
 const { t } = useI18n()
 
@@ -45,14 +47,12 @@ const countryQuery = useQuery({
     queryFn: () => countryService.getAll(t),
 })
 
-const organisation = computed({
-    get: () => props.organisation,
-    set: value => emit('update:modelValue', value),
-})
+const childOrganisations = ref<number[]>()
 
-const childOrganisations = ref<number[]>(
-    organisation.value ? organisation.value.childOrganisations.map(org => org.id) : [],
-)
+watch(() => organisation.value, (newValue: Organisation) => {
+    if (newValue)
+        childOrganisations.value = newValue.childOrganisations.map(org => org.id)
+})
 
 function getOrganisationKeysFromIds(ids: number[]): OrganisationKey[] | null {
     if (!organisationQuery.data.value || !organisationQuery.data.value.content)
@@ -71,10 +71,10 @@ function getOrganisationKeysFromIds(ids: number[]): OrganisationKey[] | null {
         })
 }
 
-function handleSelectionChange(event: MultiSelectChangeEvent) {
-    if (organisation.value && organisationQuery.data.value && organisationQuery.data.value.content)
-        organisation.value.childOrganisations = getOrganisationKeysFromIds(event.value)!
-}
+watch(() => childOrganisations.value, (newValue: number[] | undefined) => {
+    if (organisation.value && newValue)
+        organisation.value.childOrganisations = getOrganisationKeysFromIds(newValue)!
+})
 </script>
 
 <template>
@@ -123,7 +123,7 @@ function handleSelectionChange(event: MultiSelectChangeEvent) {
                     v-else-if="countryQuery.data && countryQuery.data.value"
                     id="country"
                     v-model="organisation.country.id"
-                    :options="countryQuery.data.value.content"
+                    :options="countryQuery.data.value"
                     option-label="name"
                     option-value="id"
                     data-key="id"
@@ -153,7 +153,6 @@ function handleSelectionChange(event: MultiSelectChangeEvent) {
                         option-value="id"
                         :placeholder="t('messages.select')"
                         class="w-full md:w-20rem"
-                        @change="handleSelectionChange"
                     />
                 </div>
             </div>

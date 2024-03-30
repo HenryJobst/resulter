@@ -32,6 +32,7 @@ COPY src src
 
 RUN --mount=type=cache,target=/root/.m2 ./mvnw install -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+RUN mkdir -p media && mkdir -p media/thumbnails
 
 FROM eclipse-temurin:21-jdk-alpine
 VOLUME /tmp

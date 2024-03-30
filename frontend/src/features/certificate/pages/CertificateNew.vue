@@ -38,9 +38,6 @@ const localFormData = ref<Certificate | Omit<Certificate, 'id'>>({
             <CertificateForm
                 v-if="formData"
                 v-model="formData.data"
-                :certificate="formData.data as Certificate"
-                :entity-service="certificateService"
-                :query-key="queryKey"
             />
         </template>
     </GenericNew>

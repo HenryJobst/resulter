@@ -18,7 +18,7 @@ const entityLabel: string = 'event'
 const settingStoreSuffix: string = 'event'
 const listLabel = computed(() => t('labels.event', 2))
 const columns: GenericListColumn[] = [
-    { label: 'labels.name', field: 'name', sortable: true, filterable: true, filterType: 'input' },
+    { label: 'labels.name', field: 'name', sortable: true, filterable: false, filterType: 'input' },
     { label: 'labels.date', field: 'startTime', type: 'date', sortable: true },
     { label: 'labels.time', field: 'startTime', type: 'time', sortable: true },
     { label: 'labels.state', field: 'state', type: 'enum', sortable: true },

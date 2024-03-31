@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import DataTable, { type DataTableFilterMeta, type DataTablePageEvent, type DataTableSortEvent,
+import DataTable, { type DataTableFilterEvent, type DataTablePageEvent, type DataTableSortEvent,
 } from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { prettyPrint } from '@base2/pretty-print-object'
+import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import { toastDisplayDuration } from '@/utils/constants'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
@@ -182,11 +184,9 @@ const formatTimeFunction = computed(() => {
 function formatDate(date: string) {
     return formatDateFunction.value(date)
 }
-
 function formatYear(date: string) {
     return formatYearFunction.value(date)
 }
-
 function formatTime(time: string) {
     return formatTimeFunction.value(time)
 }
@@ -213,12 +213,10 @@ function sortChanged(e: DataTableSortEvent) {
     settingsStore.settings.multiSortMeta = e.multiSortMeta
 }
 
-/*
 function filterChanged(e: DataTableFilterEvent) {
     console.log(`Filters: ${prettyPrint(e)}`)
     settingsStore.settings.filters = e.filters
 }
-*/
 
 function getSortable(col: GenericListColumn) {
     // console.log('Get sortable for ' + col.field + ':' + col.sortable)
@@ -227,30 +225,17 @@ function getSortable(col: GenericListColumn) {
 
 onMounted(() => {
     console.log('Mounted ...')
-    const configuredFilters: DataTableFilterMeta = {}
     props.columns?.forEach((col) => {
         if (col.filterable && settingsStore.settings.filters) {
-            configuredFilters[col.field] = {
+            // console.log('Add filter for ' + col.field)
+            settingsStore.settings.filters[col.field] = {
                 value: null,
                 matchMode: col.filterMatchMode || 'contains',
             }
         }
     })
-    if (Object.keys(configuredFilters).length > 0)
-        settingsStore.settings.filters = configuredFilters
-
     console.log(`Filters: ${prettyPrint(settingsStore.settings.filters)}`)
 })
-/*
-watch(() => filters.value, (newFilters) => {
-    console.log(`Filters changed: ${prettyPrint(newFilters)}`)
-    if (newFilters) {
-        settingsStore.settings.filters = newFilters
-    } else {
-        settingsStore.settings.filters = null
-    }
-})
-*/
 </script>
 
 <template>
@@ -271,17 +256,22 @@ watch(() => filters.value, (newFilters) => {
                 @click="reload"
             />
         </div>
-        <div v-if="entityQuery.status.value === 'error'">
+        <div v-if="entityQuery.status.value === 'pending' || deleteMutation.status.value === 'pending'">
+            {{ t('messages.loading') }}
+            <Spinner />
+        </div>
+        <div
+            v-else-if="entityQuery.status.value === 'error' || deleteMutation.status.value === 'error'"
+        >
             <ErrorMessage :message="t('messages.error', { message: entityQuery.error.value })" />
+            <ErrorMessage
+                :message="t('messages.error', { message: deleteMutation?.error.value?.message })"
+            />
         </div>
-        <div v-if="deleteMutation.status.value === 'error'">
-            <ErrorMessage :message="t('messages.error', { message: deleteMutation?.error.value?.message })" />
-        </div>
-        <div class="card">
+        <div v-else-if="entityQuery.data" class="card">
             <DataTable
                 v-if="props.visible"
                 v-model:filters="settingsStore.settings.filters"
-                :loading="(entityQuery && entityQuery.status.value === 'pending') || (deleteMutation && deleteMutation.status.value === 'pending')"
                 :value="dataValue?.content"
                 :paginator="settingsStore.settings.paginator"
                 :always-show-paginator="false"
@@ -302,6 +292,7 @@ watch(() => filters.value, (newFilters) => {
                 class="p-datatable-sm"
                 @page="pageChanged"
                 @sort="sortChanged"
+                @filter="filterChanged"
             >
                 <!-- Add Columns Here -->
                 <Column
@@ -357,11 +348,12 @@ watch(() => filters.value, (newFilters) => {
                     <template v-else-if="col.type === undefined" #body="slotProps">
                         {{ truncateString(slotProps.data, col.field, col.truncate || 1000) }}
                     </template>
-                    <template v-if="col.filterable" #filter="{ filterModel }">
+                    <template v-if="col.filterable" #filter="{ filterModel, filterCallback }">
                         <InputText
                             v-model="filterModel.value"
                             type="text"
                             class="p-column-filter"
+                            @input="filterCallback()"
                         />
                     </template>
                 </Column>
@@ -400,6 +392,6 @@ watch(() => filters.value, (newFilters) => {
 
 <style scoped>
 h1 {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 </style>

@@ -18,7 +18,7 @@ export function settingsStoreFactory(id: string, initialSettings?: TableSettings
             sortOrder: initialSettings ? initialSettings.sortOrder : undefined,
             nullSortOrder: 1,
             defaultSortOrder: 1,
-            filters: {},
+            filters: null,
         })
 
         const currentPage = computed(() => settings.value.first / settings.value.rows + 1)

@@ -1,0 +1,159 @@
+{
+    "paragraphs" : [
+        {
+            "marginTop" : 150,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 64,
+                        "text" : "{{RESULT_POSITION}}. Platz",
+                        "bold" : true,
+                        "fontRGBColor" : {
+                            "r" : 20,
+                            "g" : 0,
+                            "b" : 255
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 40,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 20,
+                        "bold" : true,
+                        "text" : "8. Märkischer Kiefern-OL"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 20,
+                        "text" : "am 24.02.2024"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 20,
+                        "text" : "im Lang-OL"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 20,
+            "marginBottom" : 0,
+            "marginLeft" : 0,
+            "marginRight" : 0,
+            "tabStops" : [
+                {
+                    "position" : 261.5,
+                    "alignment" : "CENTER"
+                }
+            ],
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "bold" : true,
+                        "text" : "{{GIVEN_NAME}} {{FAMILY_NAME}}",
+                        "fontRGBColor" : {
+                            "r" : 0,
+                            "g" : 0,
+                            "b" : 0
+                        }
+                    },
+                    "tabPosition" : 1
+                }
+            ]
+        },
+        {
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "{{ORGANISATION}}"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 30,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "in der Altersklasse {{CATEGORY}}"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 30,
+            "marginLeft" : 0,
+            "tabStops" : [
+                {
+                    "position" : 290,
+                    "alignment" : "LEFT"
+                },
+                {
+                    "position" : 350,
+                    "alignment" : "LEFT"
+                }
+            ],
+            "blocks" : [
+                {
+                    "block" : {
+                        "media" : "OK_MB_Logo.jpg",
+                        "width" : 50
+                    }
+                },
+                {
+                    "block" : {
+                        "fontSize" : 20,
+                        "text" : "Gesamtleiter"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 30,
+            "marginLeft" : 0,
+            "tabStops" : [
+                {
+                    "position" : 50,
+                    "alignment" : "LEFT"
+                },
+                {
+                    "position" : 290,
+                    "alignment" : "LEFT"
+                }
+            ],
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 20,
+                        "text" : "Wildenbruch den 24.02.2024"
+                    }
+                },
+                {
+                    "block" : {
+                        "fontSize" : "20",
+                        "text" : "OK Mark Brandenburg e.V."
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,145 @@
+{
+    "document" : {
+        "font" : "Amaranth-Regular.ttf",
+        "boldFont" : "Amaranth-Bold.ttf",
+        "italicFont" : "Amaranth-Italic.ttf",
+        "boldItalicFont" : "Amaranth-BoldItalic.ttf"
+    },
+    "paragraphs" : [
+        {
+            "marginTop" : 140,
+            "marginBottom" : 0,
+            "marginLeft" : 0,
+            "marginRight" : 0,
+            "tabStops" : [
+                {
+                    "position" : 261.5,
+                    "alignment" : "CENTER"
+                }
+            ],
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 38,
+                        "bold" : true,
+                        "text" : "{{GIVEN_NAME}} {{FAMILY_NAME}}",
+                        "fontRGBColor" : {
+                            "r" : 0,
+                            "g" : 0,
+                            "b" : 0
+                        }
+                    },
+                    "tabPosition" : 1
+                }
+            ]
+        },
+        {
+            "marginTop" : -10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 30,
+                        "text" : "{{ORGANISATION}}",
+                        "bold" : true
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : -5,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 26,
+                        "text" : "belegte in der {{CATEGORY}} den"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : -20,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 50,
+                        "text" : "{{RESULT_POSITION}}. Platz",
+                        "bold" : true
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : -10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "bei der"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : -10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 30,
+                        "bold" : true,
+                        "text" : "{{EVENT_NAME}}"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : -10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "in einer Zeit von"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : -10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "{{RESULT_TIME}}"
+                    }
+                }
+            ]
+        },
+        {
+            "marginLeft" : 0,
+            "marginTop" : 30,
+            "tabStops" : [
+                {
+                    "position" : 70,
+                    "alignment" : "LEFT"
+                },
+                {
+                    "position" : 261.5,
+                    "alignment" : "CENTER"
+                }
+            ],
+            "blocks" : [
+                {
+                    "block" : {
+                        "media" : "ESV-Wappen-dunkel.png",
+                        "width" : 100
+                    }
+                },
+                {
+                    "block" : {
+                        "fontSize" : 14,
+                        "text" : "Berlin, 06.04.2024"
+                    }
+                }
+            ]
+        }
+    ]
+}

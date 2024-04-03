@@ -48,6 +48,7 @@ public class TextBlockProcessor {
                         new ParagraphDefinition.ParagraphDefinitionBlock(new TextBlock(new TextBlock.Text(text,
                             textBlock.text().font(),
                             textBlock.text().bold(),
+                            textBlock.text().italic(),
                             textBlock.text().fontSize(),
                             textBlock.text().color())), block.tabPosition()));
             }

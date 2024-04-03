@@ -1,4 +1,10 @@
 {
+    "document" : {
+        "font" : "Amaranth-Regular.ttf",
+        "boldFont" : "Amaranth-Bold.ttf",
+        "italicFont" : "Amaranth-Italic.ttf",
+        "boldItalicFont" : "Amaranth-BoldItalic.ttf"
+    },
     "paragraphs" : [
         {
             "marginTop" : 155,

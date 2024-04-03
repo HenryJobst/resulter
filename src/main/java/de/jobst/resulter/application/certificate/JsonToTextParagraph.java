@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +12,8 @@ import java.util.List;
 
 public class JsonToTextParagraph {
 
-    public static List<ParagraphDefinition> loadParagraphDefinitions(String jsonSource, boolean isFilePath)
+    public static Pair<DocumentDefinition, List<ParagraphDefinition>> loadDefinitions(String jsonSource,
+                                                                                      boolean isFilePath)
         throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
@@ -24,12 +26,22 @@ public class JsonToTextParagraph {
         } else {
             root = mapper.readTree(jsonSource);
         }
+
+        TypeFactory typeFactory = mapper.getTypeFactory();
+
+        JsonNode documentNode = root.get("document");
+        DocumentDefinition documentDefinition = null;
+        if (documentNode != null && documentNode.isObject()) {
+            documentDefinition = mapper.convertValue(documentNode, DocumentDefinition.class);
+        }
         JsonNode paragraphsNode = root.get("paragraphs");
         if (paragraphsNode == null || !paragraphsNode.isArray()) {
             throw new IllegalArgumentException("Die JSON-Datei muss ein 'paragraphs'-Array enthalten.");
         }
-        TypeFactory typeFactory = mapper.getTypeFactory();
-        return mapper.convertValue(paragraphsNode,
+
+        List<ParagraphDefinition> paragraphDefinitions = mapper.convertValue(paragraphsNode,
             typeFactory.constructCollectionType(List.class, ParagraphDefinition.class));
+
+        return Pair.of(documentDefinition, paragraphDefinitions);
     }
 }

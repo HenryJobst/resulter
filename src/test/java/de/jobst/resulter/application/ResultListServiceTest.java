@@ -30,7 +30,7 @@ class ResultListServiceTest {
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
         Event e = Event.of("BBM Mittel-OL 2024");
         String layoutDescription =
-            Files.readString(Paths.get("src/test/resources/certificate" + "/test_layout_description_1" + ".json"));
+            Files.readString(Paths.get("src/test/resources/certificate" + "/test_layout_description_3" + ".json"));
 
         MediaFile mediaFile =
             MediaFile.of("Urkunde_BTFB_2023.jpg", "thumbnails/Urkunde_BTFB_2023.thumbnail.jpg", "image/jpeg", 100000L);

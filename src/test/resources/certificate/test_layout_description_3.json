@@ -7,7 +7,7 @@
     },
     "paragraphs" : [
         {
-            "marginTop" : 155,
+            "marginTop" : 140,
             "marginBottom" : 0,
             "marginLeft" : 0,
             "marginRight" : 0,
@@ -20,7 +20,7 @@
             "blocks" : [
                 {
                     "block" : {
-                        "fontSize" : 20,
+                        "fontSize" : 38,
                         "bold" : true,
                         "text" : "{{GIVEN_NAME}} {{FAMILY_NAME}}",
                         "fontRGBColor" : {
@@ -34,32 +34,57 @@
             ]
         },
         {
+            "marginTop" : -10,
             "blocks" : [
                 {
                     "block" : {
-                        "fontSize" : 24,
-                        "text" : "{{ORGANISATION}}"
+                        "fontSize" : 30,
+                        "text" : "{{ORGANISATION}}",
+                        "bold" : true
                     }
                 }
             ]
         },
         {
-            "marginTop" : 10,
+            "marginTop" : -5,
             "blocks" : [
                 {
                     "block" : {
-                        "fontSize" : 24,
-                        "text" : "belegte bei der"
+                        "fontSize" : 26,
+                        "text" : "belegte in der {{CATEGORY}} den"
                     }
                 }
             ]
         },
         {
-            "marginTop" : 20,
+            "marginTop" : -20,
             "blocks" : [
                 {
                     "block" : {
-                        "fontSize" : 14,
+                        "fontSize" : 50,
+                        "text" : "{{RESULT_POSITION}}. Platz",
+                        "bold" : true
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : -10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "bei der"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : -10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 30,
                         "bold" : true,
                         "text" : "{{EVENT_NAME}}"
                     }
@@ -67,45 +92,51 @@
             ]
         },
         {
+            "marginTop" : -10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "in einer Zeit von"
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : -10,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 24,
+                        "text" : "{{RESULT_TIME}}"
+                    }
+                }
+            ]
+        },
+        {
+            "marginLeft" : 0,
             "marginTop" : 30,
-            "blocks" : [
+            "tabStops" : [
                 {
-                    "block" : {
-                        "fontSize" : 24,
-                        "text" : "in der Kategorie {{CATEGORY}}"
-                    }
-                }
-            ]
-        },
-        {
-            "blocks" : [
+                    "position" : 70,
+                    "alignment" : "LEFT"
+                },
                 {
-                    "block" : {
-                        "fontSize" : 24,
-                        "text" : "mit der Zeit {{RESULT_TIME}}"
-                    }
+                    "position" : 261.5,
+                    "alignment" : "CENTER"
                 }
-            ]
-        },
-        {
-            "marginTop" : 30,
-            "blocks" : [
-                {
-                    "block" : {
-                        "fontSize" : 24,
-                        "text" : "den {{RESULT_POSITION}}. Platz"
-                    }
-                }
-            ]
-        },
-        {
-            "marginLeft" : -110,
-            "marginTop" : 100,
+            ],
             "blocks" : [
                 {
                     "block" : {
                         "media" : "ESV-Wappen-dunkel.png",
                         "width" : 100
+                    }
+                },
+                {
+                    "block" : {
+                        "fontSize" : 14,
+                        "text" : "Berlin, 06.04.2024"
                     }
                 }
             ]

@@ -20,7 +20,7 @@
             "blocks" : [
                 {
                     "block" : {
-                        "fontSize" : 38,
+                        "fontSize" : 36,
                         "bold" : true,
                         "text" : "{{GIVEN_NAME}} {{FAMILY_NAME}}",
                         "fontRGBColor" : {
@@ -38,7 +38,7 @@
             "blocks" : [
                 {
                     "block" : {
-                        "fontSize" : 30,
+                        "fontSize" : 32,
                         "text" : "{{ORGANISATION}}",
                         "bold" : true
                     }
@@ -50,7 +50,7 @@
             "blocks" : [
                 {
                     "block" : {
-                        "fontSize" : 26,
+                        "fontSize" : 24,
                         "text" : "belegte in der {{CATEGORY}} den"
                     }
                 }
@@ -61,7 +61,7 @@
             "blocks" : [
                 {
                     "block" : {
-                        "fontSize" : 50,
+                        "fontSize" : 48,
                         "text" : "{{RESULT_POSITION}}. Platz",
                         "bold" : true
                     }
@@ -84,7 +84,7 @@
             "blocks" : [
                 {
                     "block" : {
-                        "fontSize" : 30,
+                        "fontSize" : 32,
                         "bold" : true,
                         "text" : "{{EVENT_NAME}}"
                     }
@@ -135,8 +135,9 @@
                 },
                 {
                     "block" : {
-                        "fontSize" : 14,
-                        "text" : "Berlin, 06.04.2024"
+                        "fontSize" : 12,
+                        "text" : "Berlin, 06.04.2024",
+                        "bold" : true
                     }
                 }
             ]

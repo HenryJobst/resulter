@@ -115,15 +115,37 @@
         },
         {
             "marginLeft" : 0,
-            "marginTop" : 30,
+            "marginTop" : 60,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 12,
+                        "text" : "Berlin, 06.04.2024",
+                        "bold" : true
+                    }
+                }
+            ]
+        },
+        {
+            "marginTop" : 0,
+            "blocks" : [
+                {
+                    "block" : {
+                        "fontSize" : 18,
+                        "text" : "John Doe",
+                        "bold" : true,
+                        "font" : "Tangerine-Regular.ttf"
+                    }
+                }
+            ]
+        },
+        {
+            "marginLeft" : 0,
+            "marginTop" : -82,
             "tabStops" : [
                 {
                     "position" : 70,
                     "alignment" : "LEFT"
-                },
-                {
-                    "position" : 261.5,
-                    "alignment" : "CENTER"
                 }
             ],
             "blocks" : [
@@ -131,13 +153,6 @@
                     "block" : {
                         "media" : "ESV-Wappen-dunkel.png",
                         "width" : 100
-                    }
-                },
-                {
-                    "block" : {
-                        "fontSize" : 12,
-                        "text" : "Berlin, 06.04.2024",
-                        "bold" : true
                     }
                 }
             ]

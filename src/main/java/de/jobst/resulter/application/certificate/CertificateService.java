@@ -17,6 +17,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TabAlignment;
 import de.jobst.resulter.domain.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.lang.NonNull;
@@ -36,6 +37,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class CertificateService {
 
     @Value("#{'${resulter.media-file-path}'}")
@@ -54,21 +56,48 @@ public class CertificateService {
                                         PdfFont italicFont,
                                         PdfFont boldItalicFont) {
         Text text = new Text(textBlock.text().content());
+        setGlobalFonts(textBlock, boldFont, italicFont, boldItalicFont, text);
+        setLocalFont(textBlock, text);
+        setFontSize(textBlock, text);
+        setColor(textBlock, text);
+        return text;
+    }
+
+    private static void setFontSize(TextBlock textBlock, Text text) {
         if (textBlock.text().fontSize() != null) {
             text.setFontSize(textBlock.text().fontSize());
         }
+    }
+
+    private static void setColor(TextBlock textBlock, Text text) {
         if (textBlock.text().color() != null) {
             text.setFontColor(new DeviceRgb(textBlock.text().color().r(),
                 textBlock.text().color().g(),
                 textBlock.text().color().b()));
         }
+    }
 
-        /*
-        if (font != null) {
-            text.setFont(font);
+    private static void setLocalFont(TextBlock textBlock, Text text) {
+        // local font definition overrides global font definition
+        if (textBlock.text().font() != null) {
+            PdfFont textFont = CertificateService.getPdfFont(textBlock.text().font());
+            if (textFont != null) {
+                text.setFont(textFont);
+            }
+            if (textBlock.text().bold()) {
+                text.setBold();
+            }
+            if (textBlock.text().italic()) {
+                text.setItalic();
+            }
         }
-        */
+    }
 
+    private static void setGlobalFonts(TextBlock textBlock,
+                                       PdfFont boldFont,
+                                       PdfFont italicFont,
+                                       PdfFont boldItalicFont,
+                                       Text text) {
         if (textBlock.text().bold()) {
             if (textBlock.text().italic()) {
                 if (boldItalicFont != null) {
@@ -91,7 +120,6 @@ public class CertificateService {
                 text.setItalic();
             }
         }
-        return text;
     }
 
     private static void applyTabStops(ParagraphDefinition paragraphDefinition, Paragraph paragraph) {
@@ -260,17 +288,21 @@ public class CertificateService {
     }
 
     @Nullable
-    private static PdfFont getPdfFont(String fontNameOrPath) throws IOException {
+    private static PdfFont getPdfFont(String fontNameOrPath) {
         PdfFont font = null;
         if (fontNameOrPath != null) {
-            if (StandardFonts.isStandardFont(fontNameOrPath)) {
-                font = PdfFontFactory.createFont(fontNameOrPath);
-            } else {
-                FontProgram fontProgram =
-                    FontProgramFactory.createFont("src/main/resources/fonts/" + fontNameOrPath, true);
-                font = PdfFontFactory.createFont(fontProgram,
-                    PdfEncodings.IDENTITY_H,
-                    PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+            try {
+                if (StandardFonts.isStandardFont(fontNameOrPath)) {
+                    font = PdfFontFactory.createFont(fontNameOrPath);
+                } else {
+                    FontProgram fontProgram =
+                        FontProgramFactory.createFont("src/main/resources/fonts/" + fontNameOrPath, true);
+                    font = PdfFontFactory.createFont(fontProgram,
+                        PdfEncodings.IDENTITY_H,
+                        PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+                }
+            } catch (IOException e) {
+                log.error(MessageFormat.format("Error loading font: {0}", fontNameOrPath), e);
             }
         }
         return font;

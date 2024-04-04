@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -287,6 +288,28 @@ public class CertificateService {
             person.getPersonName().givenName().value()), resource, pdfContents.length);
     }
 
+    public static FontProgram loadFont(String fontNameOrPath) {
+        InputStream fontStream =
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("fonts/" + fontNameOrPath);
+        if (fontStream == null) {
+            throw new RuntimeException("Font file not found: " + fontNameOrPath);
+        }
+
+        FontProgram fontProgram;
+        try {
+            fontProgram = FontProgramFactory.createFont(fontStream.readAllBytes(), true);
+        } catch (IOException e) {
+            throw new RuntimeException("Error loading font: " + fontNameOrPath, e);
+        } finally {
+            try {
+                fontStream.close();
+            } catch (IOException e) {
+                log.error("Error closing InputStream", e);
+            }
+        }
+        return fontProgram;
+    }
+
     @Nullable
     private static PdfFont getPdfFont(String fontNameOrPath) {
         PdfFont font = null;
@@ -295,8 +318,7 @@ public class CertificateService {
                 if (StandardFonts.isStandardFont(fontNameOrPath)) {
                     font = PdfFontFactory.createFont(fontNameOrPath);
                 } else {
-                    FontProgram fontProgram =
-                        FontProgramFactory.createFont("src/main/resources/fonts/" + fontNameOrPath, true);
+                    FontProgram fontProgram = loadFont(fontNameOrPath);
                     font = PdfFontFactory.createFont(fontProgram,
                         PdfEncodings.IDENTITY_H,
                         PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);

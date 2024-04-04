@@ -29,6 +29,7 @@
         <lombok.version>1.18.30</lombok.version>
         <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <p6spy-spring-boot-starter.version>1.9.1</p6spy-spring-boot-starter.version>
         <native.maven.plugin.version>0.10.0</native.maven.plugin.version>
         <spring-oxm.version>6.1.2</spring-oxm.version>
@@ -329,6 +330,17 @@
                         <arg>-proc:full</arg> <!-- Ihr spezifischer javac-Parameter -->
                         <!-- Fügen Sie hier weitere Argumente hinzu, falls erforderlich -->
                     </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}
+                </version> <!-- Ensure this matches the version you're using -->
+                <configuration>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
                 </configuration>
             </plugin>
         </plugins>

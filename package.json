@@ -1,7 +1,14 @@
 {
-    "scripts" : {
-        "build" : "cd frontend && pnpm run build",
-        "lint-staged" : "cd frontend && pnpm lint-staged"
+    "scripts": {
+        "build": "cd frontend && pnpm run build",
+        "lint-staged": "cd frontend && pnpm lint-staged"
     },
-    "packageManager" : "pnpm@8.15.5+sha1.a58c038faac410c947dbdb93eb30994037d0fce2"
+    "packageManager": "pnpm@8.15.5+sha1.a58c038faac410c947dbdb93eb30994037d0fce2",
+    "devDependencies": {
+        "@sfxcode/formkit-primevue": "^1.9.11"
+    },
+    "dependencies": {
+        "@formkit/vue": "^1.6.2",
+        "chart.js": "^4.4.2"
+    }
 }

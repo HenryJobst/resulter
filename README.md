@@ -2,7 +2,7 @@
 
 # **Resulter**
 
-[![version](https://img.shields.io/badge/version-0.0.3-blue)](Version 0.0.3)
+[![version](https://img.shields.io/badge/version-0.0.5-blue)]()
 [![license](https://img.shields.io/badge/license-CC%20BY--NC--ND%204.0-blue)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
 
@@ -11,8 +11,10 @@
 **Resulter** is an innovative web application for orienteering enthusiasts and organizers of orienteering competitions.
 
 This application allows for the input of competition results files and subsequently displays detailed result lists.
+As the first major feature there is the possibility to design certificate templates and activate certificate download
+for an event for every single participant.
 
-Future expansions are planned to include the printing of certificates, calculations of cup and ranking list points, as
+Future expansions are planned to include cup point calculations and ranking list points, as
 well as an analysis of split times.
 
 ## Architecture
@@ -31,7 +33,7 @@ Architecture.
 ## Prerequisites
 
 - Java (recommended: latest version)
-- Node.js and npm
+- Node.js and npm/pnpm
 - An IDE of your choice (e.g., IntelliJ IDEA for backend, VSCode for frontend)
 
 ## Installation
@@ -56,6 +58,10 @@ Architecture.
    npm install
    npm run serve
    ```
+4. Deployment
+
+- there are seperate deployment scripts (build.sh) to build docker images for frontend and backend
+- there is a compose file to start the whole application with database in docker containers
 
 ## Usage
 
@@ -83,6 +89,8 @@ Orientierungslauf-Wettkämpfen.
 
 Mit dieser Anwendung können Ergebnisdateien von Wettkämpfen eingelesen und anschließend detaillierte Ergebnislisten
 angezeigt werden.
+Als erste große Funktion besteht die Möglichkeit, Urkundenvorlagen zu gestalten und für eine Veranstaltung den
+Urkunden-Download für jeden einzelnen Teilnehmer zu aktivieren.
 
 Zukünftige Erweiterungen sollen den Druck von Urkunden, Berechnungen von Cup- und Ranglistenpunkten sowie eine
 Auswertung von Splittzeiten ermöglichen.
@@ -103,7 +111,7 @@ implementiert ist.
 ## Voraussetzungen
 
 - Java (empfohlen: neueste Version)
-- Node.js und npm
+- Node.js und npm/pnpm
 - Eine IDE Ihrer Wahl (z.B. IntelliJ IDEA für Backend, VSCode für Frontend)
 
 ## Installation
@@ -114,20 +122,25 @@ implementiert ist.
     git clone https://github.com/HenryJobst/resulter.git
     ```
 
-Wechseln Sie in das Backend-Verzeichnis und starten Sie den SpringBoot-Server:
+2. Wechseln Sie in das Backend-Verzeichnis und starten Sie den SpringBoot-Server:
 
     ```bash
     cd backend
     ./mvnw spring-boot:run
     ```
 
-Wechseln Sie in das Frontend-Verzeichnis und starten Sie das Vue.js-Frontend:
+3. Wechseln Sie in das Frontend-Verzeichnis und starten Sie das Vue.js-Frontend:
 
     ```bash
     cd frontend
     npm install
     npm run serve
     ```
+4. Deployment
+
+- es gibt je ein Script (build.sh) um Docker-Images für Frontend und Backend zu bauen
+- im Verzeichnis deploy/resulter gibt es ein Docker-Compose-File mit dem die komplette Anwendung mit Datenbank gestartet
+  werden kann
 
 ## Nutzung
 

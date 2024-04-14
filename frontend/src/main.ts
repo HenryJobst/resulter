@@ -14,10 +14,8 @@ import keycloakService from '@/features/keycloak/services/keycloak'
 import { setupI18n } from '@/i18n'
 
 import 'primevue/resources/themes/bootstrap4-light-blue/theme.css'
-import 'primeflex/primeflex.css'
-import 'primeicons/primeicons.css'
-
 import '@sfxcode/formkit-primevue/dist/sass/formkit-primevue.scss'
+
 import { primevueInstall } from '@/primevue'
 import { formkitInstall } from '@/formkit'
 
@@ -31,7 +29,7 @@ const i18n = setupI18n({
     legacy: false,
     locale: defaultLocale,
     fallbackLocale: 'en',
-    messages,
+    messages
 })
 
 const pinia = createPinia()

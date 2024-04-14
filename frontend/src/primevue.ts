@@ -101,6 +101,9 @@ import FocusTrap from 'primevue/focustrap'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
 
+import { unref } from 'vue'
+import { primevueLocaleMessages } from '@/utils/primevueMessages'
+
 export function primevueInstall(app: any, i18n: any) {
     // directives
 
@@ -198,7 +201,10 @@ export function primevueInstall(app: any, i18n: any) {
     app.component('TriStateCheckbox', TriStateCheckbox)
     app.component('VirtualScroller', VirtualScroller)
 
-    app.use(PrimeVue, { ripple: true, locale: i18n.global.locale.value })
+    app.use(PrimeVue, {
+        ripple: true,
+        locale: primevueLocaleMessages(unref(i18n.global.locale) as string)
+    })
 
     // services
     app.use(ConfirmationService)

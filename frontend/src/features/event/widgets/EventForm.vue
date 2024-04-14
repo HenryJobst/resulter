@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import InputText from 'primevue/inputtext'
 import { computed, onBeforeUpdate, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import Calendar from 'primevue/calendar'
-import MultiSelect, { type MultiSelectChangeEvent } from 'primevue/multiselect'
+import { type MultiSelectChangeEvent } from 'primevue/multiselect'
 import { useQuery } from '@tanstack/vue-query'
-import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown'
+import { type DropdownChangeEvent } from 'primevue/dropdown'
 import { prettyPrint } from '@base2/pretty-print-object'
 import { EventService } from '@/features/event/services/event.service'
 import { organisationService } from '@/features/organisation/services/organisation.service'
@@ -17,6 +14,7 @@ import type { CertificateKey } from '@/features/certificate/model/certificate_ke
 import type { Certificate } from '@/features/certificate/model/certificate'
 
 const props = defineProps<{
+    schema: any[]
     event: SportEvent
     entityService: EventService
     queryKey: string[]
@@ -28,12 +26,12 @@ const { t } = useI18n()
 
 const event = computed({
     get: () => props.event,
-    set: value => emit('update:modelValue', value),
+    set: value => emit('update:modelValue', value)
 })
 
 const certificateQuery = useQuery({
     queryKey: ['certificates'],
-    queryFn: () => certificateService.getAll(t),
+    queryFn: () => certificateService.getAll(t)
 })
 
 const l_organisations = computed({
@@ -41,27 +39,12 @@ const l_organisations = computed({
     set: (ids) => {
         if (event.value)
             event.value.organisations = getOrganisationKeysFromIds(ids)!
-    },
+    }
 })
 
 const organisationQuery = useQuery({
     queryKey: ['organisations'],
-    queryFn: () => organisationService.getAll(t),
-})
-
-const eventStatusQuery = useQuery({
-    queryKey: ['event_status'],
-    queryFn: () => EventService.getEventStatus(t),
-})
-
-const localizedEventStatusOptions = computed(() => {
-    if (eventStatusQuery.data.value) {
-        return eventStatusQuery.data.value.map(option => ({
-            ...option,
-            label: t(`event_state.${option.id.toLocaleUpperCase()}`),
-        }))
-    }
-    return []
+    queryFn: () => organisationService.getAll(t)
 })
 
 const dateTime = computed({
@@ -69,46 +52,46 @@ const dateTime = computed({
     set: (newDateTime) => {
         if (event.value)
             event.value.startTime = newDateTime.toISOString()
-    },
+    }
 })
 
 const datePart = computed({
     get: () =>
-        new Date(dateTime.value.getFullYear(), dateTime.value.getMonth(), dateTime.value.getDate()),
+            new Date(dateTime.value.getFullYear(), dateTime.value.getMonth(), dateTime.value.getDate()),
     set: (newDate) => {
         dateTime.value = new Date(
-            newDate.getFullYear(),
-            newDate.getMonth(),
-            newDate.getDate(),
-            dateTime.value.getHours(),
-            dateTime.value.getMinutes(),
+                newDate.getFullYear(),
+                newDate.getMonth(),
+                newDate.getDate(),
+                dateTime.value.getHours(),
+                dateTime.value.getMinutes()
         )
         if (props.event && event.value)
             event.value.startTime = dateTime.value.toISOString()
-    },
+    }
 })
 
 const timePart = computed({
     get: () => {
         return new Date(
-            dateTime.value.getFullYear(),
-            dateTime.value.getMonth(),
-            dateTime.value.getDate(),
-            dateTime.value.getHours(),
-            dateTime.value.getMinutes(),
+                dateTime.value.getFullYear(),
+                dateTime.value.getMonth(),
+                dateTime.value.getDate(),
+                dateTime.value.getHours(),
+                dateTime.value.getMinutes()
         )
     },
     set: (newTime) => {
         dateTime.value = new Date(
-            dateTime.value.getFullYear(),
-            dateTime.value.getMonth(),
-            dateTime.value.getDate(),
-            newTime.getHours(),
-            newTime.getMinutes(),
+                dateTime.value.getFullYear(),
+                dateTime.value.getMonth(),
+                dateTime.value.getDate(),
+                newTime.getHours(),
+                newTime.getMinutes()
         )
         if (event.value)
             event.value.startTime = dateTime.value.toISOString()
-    },
+    }
 })
 
 onMounted(() => {
@@ -121,24 +104,24 @@ function getOrganisationKeysFromIds(ids: number[]): OrganisationKey[] | null {
         return null
 
     return ids
-        .map((id) => {
-            return organisationQuery.data.value?.content.find(b => b.id === id)
-        })
-        .filter(org => org !== undefined)
-        .map((org) => {
-            return {
-                id: org!.id,
-                name: org!.name,
-            }
-        })
+            .map((id) => {
+                return organisationQuery.data.value?.content.find(b => b.id === id)
+            })
+            .filter(org => org !== undefined)
+            .map((org) => {
+                return {
+                    id: org!.id,
+                    name: org!.name
+                }
+            })
 }
 
 function handleSelectionChange(ev: MultiSelectChangeEvent) {
     if (
-        ev.value
-        && event.value
-        && organisationQuery.data.value
-        && organisationQuery.data.value.content
+            ev.value
+            && event.value
+            && organisationQuery.data.value
+            && organisationQuery.data.value.content
     )
         event.value.organisations = getOrganisationKeysFromIds(ev.value)!
 }
@@ -153,12 +136,12 @@ function getCertificateKeyFromId(id: number | null): CertificateKey | null {
         return null
 
     const certificate: Certificate | undefined = certificateQuery.data.value?.content.find(
-        certificate => certificate.id === id,
+            certificate => certificate.id === id
     )
     if (certificate !== undefined) {
         return {
             id: certificate.id,
-            name: certificate.name,
+            name: certificate.name
         }
     }
     return null
@@ -166,17 +149,17 @@ function getCertificateKeyFromId(id: number | null): CertificateKey | null {
 
 function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
     if (
-        ev.value
-        && event.value
-        && certificateQuery.data.value
-        && certificateQuery.data.value.content
+            ev.value
+            && event.value
+            && certificateQuery.data.value
+            && certificateQuery.data.value.content
     )
         event.value.certificate = getCertificateKeyFromId(ev.value.id)!
 }
 </script>
 
 <template>
-    <div v-if="event" class="flex flex-col">
+    <!--div v-if="event" class="flex flex-col">
         <div class="flex flex-row">
             <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
             <div class="col">
@@ -263,7 +246,7 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
                 />
             </div>
         </div>
-    </div>
+    </div-->
 </template>
 
 <style scoped></style>

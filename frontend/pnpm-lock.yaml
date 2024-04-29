@@ -8,9 +8,6 @@ dependencies:
   '@base2/pretty-print-object':
     specifier: ^1.0.2
     version: 1.0.2
-  '@quasar/extras':
-    specifier: ^1.16.9
-    version: 1.16.9
   '@tanstack/vue-query':
     specifier: ^5.24.1
     version: 5.28.9(vue@3.4.21)
@@ -47,9 +44,6 @@ dependencies:
   primevue:
     specifier: ^3.49.1
     version: 3.50.0(vue@3.4.21)
-  quasar:
-    specifier: ^2.14.6
-    version: 2.15.1
   spring-filter-query-builder:
     specifier: ^1.1.0
     version: 1.1.0
@@ -76,9 +70,6 @@ devDependencies:
   '@intlify/unplugin-vue-i18n':
     specifier: ^2.0.0
     version: 2.0.0(vue-i18n@9.10.2)
-  '@quasar/vite-plugin':
-    specifier: ^1.6.0
-    version: 1.6.0(@vitejs/plugin-vue@5.0.4)(quasar@2.15.1)(vite@5.2.6)(vue@3.4.21)
   '@rollup/plugin-dynamic-import-vars':
     specifier: ^2.1.2
     version: 2.1.2
@@ -1153,25 +1144,6 @@ packages:
 
   /@polka/url@1.0.0-next.25:
     resolution: {integrity: sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==}
-
-  /@quasar/extras@1.16.9:
-    resolution: {integrity: sha512-SlOhwzXyPQHWgQIS2ncyDdYdksCJvUYNtgsDQqzAKEG3r3d/ejOxvThle79HTK3Q6HB+gQWFG21Ux00Osr5XSw==}
-    dev: false
-
-  /@quasar/vite-plugin@1.6.0(@vitejs/plugin-vue@5.0.4)(quasar@2.15.1)(vite@5.2.6)(vue@3.4.21):
-    resolution: {integrity: sha512-LmbV76G1CwWZbrEQhqyZpkRQTJyO3xpW55aXY1zWN+JhyUeG77CcMCEWteBVnJ6I6ehUPFDC9ONd2+WlwH6rNQ==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      '@vitejs/plugin-vue': ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0-beta.0
-      quasar: ^2.8.0
-      vite: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0-beta.0
-      vue: ^3.0.0
-    dependencies:
-      '@vitejs/plugin-vue': 5.0.4(vite@5.2.6)(vue@3.4.21)
-      quasar: 2.15.1
-      vite: 5.2.6(@types/node@20.11.30)(sass@1.72.0)
-      vue: 3.4.21(typescript@5.3.3)
-    dev: true
 
   /@rollup/plugin-dynamic-import-vars@2.1.2:
     resolution: {integrity: sha512-4lr2oXxs9hcxtGGaK8s0i9evfjzDrAs7ngw28TqruWKTEm0+U4Eljb+F6HXGYdFv8xRojQlrQwV7M/yxeh3yzQ==}
@@ -5538,6 +5510,7 @@ packages:
   /path2d-polyfill@2.1.1:
     resolution: {integrity: sha512-4Rka5lN+rY/p0CdD8+E+BFv51lFaFvJOrlOhyQ+zjzyQrzyh3ozmxd1vVGGDdIbUFSBtIZLSnspxTgPT0iJhvA==}
     engines: {node: '>=18'}
+    deprecated: this package has been deprecated
     requiresBuild: true
     dependencies:
       path2d: 0.1.1
@@ -5815,10 +5788,6 @@ packages:
     dependencies:
       side-channel: 1.0.6
     dev: true
-
-  /quasar@2.15.1:
-    resolution: {integrity: sha512-YONHT5i+znZ/4msKZXdODv+DAUnLhe6/c3d+q9vuUkwLbSdGkroc2GeDCI52YVmmw8hrF+Fiik/ZSr1wynxHIA==}
-    engines: {node: '>= 10.18.1', npm: '>= 6.13.4', yarn: '>= 1.21.1'}
 
   /querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}

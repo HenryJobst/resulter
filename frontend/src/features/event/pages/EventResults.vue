@@ -41,6 +41,15 @@ const event = computed(() => {
     return eventQuery.data.value?.content.find(e => e.id === resultList0.value?.eventId)
 })
 
+const eventId = computed(() => {
+    return event.value?.id
+})
+
+const eventCertificateStatsQuery = useQuery({
+    queryKey: ['eventCertificateStats', eventId, authStore.isAdmin],
+    queryFn: () => authStore.isAdmin ? EventService.getCertificateStats(eventId.value, t) : undefined,
+})
+
 const courseQuery = useQuery({
     queryKey: ['courses'],
     queryFn: () => courseService.getAll(t),
@@ -61,8 +70,8 @@ function formatCreateTime(date: Date | string, locale: Ref<Locale>) {
 function getResultListLabel(resultList: ResultList) {
     const name = raceQuery.data.value?.content.find(r => r.id === resultList.raceId)?.name
     return `${(name ? `${name}, ` : '') + t('labels.created')} ${
-    formatCreateTime(resultList.createTime, locale).value
-  }, ${t(`result_list_state.${resultList.status.toUpperCase()}`)}`
+            formatCreateTime(resultList.createTime, locale).value
+    }, ${t(`result_list_state.${resultList.status.toUpperCase()}`)}`
 }
 
 function createResultListTreeNodes(aList: ResultList[] | undefined): TreeNode[] {
@@ -73,8 +82,8 @@ function createResultListTreeNodes(aList: ResultList[] | undefined): TreeNode[] 
     for (let i = 0; i < aList.length; i++) {
         const resultList = aList[i]
         const certificateEnabled: boolean
-      = (eventQuery.data.value?.content.find(e => e.id === resultList.eventId)?.certificate
-      ?? false) !== false
+                = (eventQuery.data.value?.content.find(e => e.id === resultList.eventId)?.certificate
+                ?? false) !== false
         treeNodes.push({
             key: resultList.id.toString(),
             label: getResultListLabel(resultList),
@@ -97,10 +106,10 @@ function createResultListTreeNodes(aList: ResultList[] | undefined): TreeNode[] 
 
 function getClassResultLabel(a: ClassResult) {
     return (
-    `${a.name} (${a.personResults.length})`
-    + ` - ${courseLengthColumn(a)} ${t('labels.length_abbreviation')} - ${courseClimbColumn(a)} ${t(
-      'labels.climb_abbreviation',
-    )} - ${courseControlsColumn(a)} ${t('labels.control_abbreviation')}`
+            `${a.name} (${a.personResults.length})`
+            + ` - ${courseLengthColumn(a)} ${t('labels.length_abbreviation')} - ${courseClimbColumn(a)} ${t(
+                    'labels.climb_abbreviation',
+            )} - ${courseControlsColumn(a)} ${t('labels.control_abbreviation')}`
     )
 }
 
@@ -125,7 +134,7 @@ function createClassResultTreeNodes(
     if (!aList)
         return []
 
-    const nodes = aList.map(
+    return aList.map(
         (a): TreeNode => ({
             key: a.shortName.toString(),
             label: getClassResultLabel(a),
@@ -139,7 +148,6 @@ function createClassResultTreeNodes(
             ],
         }),
     )
-    return nodes
 }
 
 const treeNodes = computed(() => {
@@ -241,12 +249,15 @@ function navigateToList() {
                     <EventResultTable :data="slotProps?.node?.data" />
                 </template>
             </Tree>
+            <div v-if="authStore.isAdmin && eventCertificateStatsQuery.data" class="mt-2 font-italic">
+                {{ t('labels.certificate_stats', { count: eventCertificateStatsQuery.data.value?.count ?? 0 }) }}
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
 h1 {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 </style>

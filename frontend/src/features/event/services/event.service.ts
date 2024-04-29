@@ -106,8 +106,8 @@ export class EventService extends GenericService<SportEvent> {
     ) {
         return axiosInstance
             .get(
-        `${resultListUrl}/${id}/certificate?personId=${personId}&classResultShortName=${classResultShortName}`,
-        { responseType: 'blob' },
+                        `${resultListUrl}/${id}/certificate?personId=${personId}&classResultShortName=${classResultShortName}`,
+                        { responseType: 'blob' },
             )
             .then((response) => {
                 console.log(prettyPrint(response))
@@ -147,6 +147,18 @@ export class EventService extends GenericService<SportEvent> {
             .then((response) => {
                 return window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }))
             })
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
+
+    static async getCertificateStats(id: number | undefined, t: (key: string) => string) {
+        if (!id)
+            return null
+        return axiosInstance
+            .get(`/event/${id}/certificate_stats`)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null

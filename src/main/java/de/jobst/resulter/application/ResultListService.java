@@ -167,4 +167,8 @@ public class ResultListService {
 
         return certificateService.createCertificate(event, eventCertificate);
     }
+
+    public long countCertificates(EventId eventId) {
+        return eventCertificateStatRepository.findAllByEvent(eventId).size();
+    }
 }

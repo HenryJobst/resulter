@@ -76,7 +76,8 @@
         "frontend_version": "Frontend: {version}",
         "backend_version": "Backend: {version}",
         "loading": "Lade...",
-        "error_loading": "Fehler beim Laden"
+        "error_loading": "Fehler beim Laden",
+        "certificate_stats": "{count} Urkunden erstellt"
     },
     "result_state": {
         "OK": "OK",

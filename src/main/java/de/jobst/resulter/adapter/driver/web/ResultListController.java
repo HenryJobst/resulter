@@ -1,13 +1,11 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatsDto;
 import de.jobst.resulter.adapter.driver.web.dto.ResultListDto;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.application.certificate.CertificateService;
-import de.jobst.resulter.domain.ClassResultShortName;
-import de.jobst.resulter.domain.PersonId;
-import de.jobst.resulter.domain.ResultList;
-import de.jobst.resulter.domain.ResultListId;
+import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -36,6 +34,21 @@ public class ResultListController {
         log.error(e.getMessage());
         if (Objects.nonNull(e.getCause())) {
             log.error(e.getCause().getMessage());
+        }
+    }
+
+    @GetMapping("/event/{id}/certificate_stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EventCertificateStatsDto> getCertificateStats(@PathVariable Long id) {
+        try {
+            long count = resultListService.countCertificates(EventId.of(id));
+            return ResponseEntity.ok(new EventCertificateStatsDto(count));
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

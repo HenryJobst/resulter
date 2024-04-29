@@ -76,7 +76,8 @@
         "frontend_version": "Frontend: {version}",
         "backend_version": "Backend: {version}",
         "loading": "Loading...",
-        "error_loading": "Error loading data"
+        "error_loading": "Error loading data",
+        "certificate_stats": "{count} certificates created"
     },
     "messages": {
         "new_cup": "New cup",

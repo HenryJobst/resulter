@@ -1,0 +1,64 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000020_event_certificate_stat
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : event_certificate_stat
+            comment : Table event_certificate_stat with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : event_certificate_stat
+                        columns :
+                            -   column :
+                                    name : id
+                                    type : bigint
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : pk_event_certificate_stat
+                            -   column :
+                                    name : event_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_event_certificate_stat_event
+                                        references : event(id)
+                            -   column :
+                                    name : person_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_event_certificate_stat_person
+                                        references : person(id)
+                            -   column :
+                                    name : generated
+                                    type : timestamp
+                                    constraints :
+                                        nullable : false
+                -   createIndex :
+                        tableName : event_certificate_stat
+                        columns :
+                            -   column :
+                                    name : id
+                        indexName : idx_event_certificate_stat_id
+                -   createIndex :
+                        tableName : event_certificate_stat
+                        columns :
+                            -   column :
+                                    name : event_id
+                        indexName : idx_event_certificate_stat_event_id
+                -   createIndex :
+                        tableName : event_certificate_stat
+                        columns :
+                            -   column :
+                                    name : person_id
+                        indexName : idx_event_certificate_stat_person_id
+                -   addUniqueConstraint :
+                        columnNames : event_id, person_id
+                        constraintName : uk_event_certificate_person
+                        tableName : event_certificate_stat
+

@@ -23,6 +23,7 @@ public class DboResolvers {
     private DboResolver<SplitTimeListId, SplitTimeListDbo> splitTimeListDboResolver = null;
     private DboResolver<MediaFileId, MediaFileDbo> mediaFileDboResolver = null;
     private DboResolver<EventCertificateId, EventCertificateDbo> eventCertificateDboResolver = null;
+    private DboResolver<EventCertificateStatId, EventCertificateStatDbo> eventCertificateStatDboResolver = null;
 
     @NonNull
     static DboResolvers empty() {

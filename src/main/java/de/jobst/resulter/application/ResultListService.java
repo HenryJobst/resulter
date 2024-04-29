@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -26,13 +27,16 @@ public class ResultListService {
 
     private final MediaFileRepository mediaFileRepository;
 
+    private final EventCertificateStatRepository eventCertificateStatRepository;
+
     public ResultListService(ResultListRepository resultListRepository,
                              CupRepository cupRepository,
                              EventRepository eventRepository,
                              OrganisationRepository organisationRepository,
                              PersonRepository personRepository,
                              CertificateService certificateService,
-                             MediaFileRepository mediaFileRepository) {
+                             MediaFileRepository mediaFileRepository,
+                             EventCertificateStatRepository eventCertificateStatRepository) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -40,6 +44,7 @@ public class ResultListService {
         this.personRepository = personRepository;
         this.certificateService = certificateService;
         this.mediaFileRepository = mediaFileRepository;
+        this.eventCertificateStatRepository = eventCertificateStatRepository;
     }
 
     public ResultList findOrCreate(ResultList resultList) {
@@ -88,6 +93,7 @@ public class ResultListService {
         return resultListRepository.save(resultList);
     }
 
+    @Transactional
     public CertificateService.Certificate createCertificate(ResultListId resultListId,
                                                             ClassResultShortName classResultShortName,
                                                             PersonId personId) throws IOException {
@@ -128,11 +134,19 @@ public class ResultListService {
         if (personRaceResult.isEmpty()) {
             return null;
         }
-        return certificateService.createCertificate(person,
+
+        CertificateService.Certificate certificate = certificateService.createCertificate(person,
             organisation,
             event,
             Objects.requireNonNull(event.getCertificate()),
             personRaceResult.get());
+
+        EventCertificateStat eventCertificateStat =
+            EventCertificateStat.of(EventCertificateStatId.empty().value(), event, person, Instant.now());
+
+        eventCertificateStatRepository.save(eventCertificateStat);
+
+        return certificate;
     }
 
     public CertificateService.Certificate createCertificate(EventId eventId, EventCertificateDto eventCertificateDto)

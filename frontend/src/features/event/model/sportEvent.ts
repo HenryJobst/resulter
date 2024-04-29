@@ -9,4 +9,5 @@ export interface SportEvent {
     state: EventStatus
     organisations: OrganisationKey[]
     certificate: CertificateKey | null
+    negate: (val: boolean) => boolean
 }

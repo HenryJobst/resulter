@@ -13,12 +13,14 @@ const queryKey: string[] = ['events']
 const entityLabel: string = 'event'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.event') }))
 
+// noinspection JSUnusedGlobalSymbols
 const sportEvent = ref<SportEvent | Omit<SportEvent, 'id'>>({
     name: '',
     startTime: '',
     state: { id: 'Planned' },
     organisations: [],
-    certificate: null
+    certificate: null,
+    negate: (val: boolean): boolean => !val
 })
 
 const eventStatusQuery = useQuery({
@@ -29,7 +31,7 @@ const eventStatusQuery = useQuery({
 const localizedEventStatusOptions = computed(() => {
     if (eventStatusQuery.data.value) {
         return eventStatusQuery.data.value.map(option => ({
-            ...option,
+            id: option.id,
             label: t(`event_state.${option.id.toLocaleUpperCase()}`)
         }))
     }
@@ -59,7 +61,8 @@ const schema = ref(
                 optionLabel: 'label',
                 optionValue: 'id',
                 options: localizedEventStatusOptions,
-                placeholder: toRef(() => t('messages.select'))
+                placeholder: toRef(() => t('messages.select')),
+                validation: 'required'
             }
         ]
 )

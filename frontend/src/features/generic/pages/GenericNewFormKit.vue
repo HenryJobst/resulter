@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router'
 import { toastDisplayDuration } from '@/utils/constants'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
+import { useFormKitContext } from '@formkit/vue'
 
 const props = defineProps({
     schema: Array as PropType<any[]>,
@@ -22,8 +23,12 @@ const { t } = useI18n()
 const router = useRouter()
 const queryClient = useQueryClient()
 const toast = useToast()
+const formContext = useFormKitContext()
 
 const model = defineModel({ required: true })
+
+// noinspection JSUnusedGlobalSymbols
+//Object.assign(model, { ...model, negate: (val: boolean) => !val })
 
 let extendedSchema = ref(props.schema)
 
@@ -60,7 +65,8 @@ extendedSchema.value?.push({
         label: toRef(() => t('labels.save')),
         severity: 'primary',
         outlined: true,
-        onClick: submitHandler
+        onClick: submitHandler,
+        disabled: '$negate($get(form).state.valid)'
     }
 })
 
@@ -87,7 +93,8 @@ extendedSchema.value?.push({
         <div v-else-if="entityMutation.status.value === 'error'">
             <ErrorMessage :message="t('messages.error', { message: entityMutation.error.value })" />
         </div>
-        <FormKit type="form" id="form" v-model="model" :actions="false">
+        <FormKit type="form" id="form" v-model="model" :actions="false"
+                 :config="{ validationVisibility: 'live' }">
             <FormKitSchema :schema="extendedSchema" :data="model" />
         </FormKit>
     </div>

@@ -163,19 +163,23 @@ public class XMLImportService {
         var groupedSplitTimeLists = pairOfClassResultListAndGroupedSplitTimeLists.getSecond();
         Collection<SplitTimeList> splitTimeLists =
             groupedSplitTimeLists.stream().flatMap(Collection::stream).flatMap(Collection::stream).toList();
-        splitTimeLists = splitTimeListService.findOrCreate(splitTimeLists);
-
-        Map<SplitTimeList.DomainKey, SplitTimeList> splitTimeListByDomainKey =
-            splitTimeLists.stream().collect(Collectors.toMap(SplitTimeList::getDomainKey, x -> x));
 
         var classResults = pairOfClassResultListAndGroupedSplitTimeLists.getFirst();
-        for (ClassResult x : classResults) {
-            for (PersonResult y : x.personResults().value()) {
-                for (PersonRaceResult z : y.personRaceResults().value()) {
-                    z.setSplitTimeListId(splitTimeListByDomainKey.get(new SplitTimeList.DomainKey(event.getId(),
-                        finalDomainResultList.getId(),
-                        x.classResultShortName(),
-                        y.personId())).getId());
+
+        if (splitTimeLists.stream().anyMatch(x -> !x.getSplitTimes().isEmpty())) {
+            splitTimeLists = splitTimeListService.findOrCreate(splitTimeLists);
+
+            Map<SplitTimeList.DomainKey, SplitTimeList> splitTimeListByDomainKey =
+                splitTimeLists.stream().collect(Collectors.toMap(SplitTimeList::getDomainKey, x -> x));
+
+            for (ClassResult x : classResults) {
+                for (PersonResult y : x.personResults().value()) {
+                    for (PersonRaceResult z : y.personRaceResults().value()) {
+                        z.setSplitTimeListId(splitTimeListByDomainKey.get(new SplitTimeList.DomainKey(event.getId(),
+                            finalDomainResultList.getId(),
+                            x.classResultShortName(),
+                            y.personId())).getId());
+                    }
                 }
             }
         }

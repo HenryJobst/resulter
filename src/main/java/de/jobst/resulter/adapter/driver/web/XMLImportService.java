@@ -239,6 +239,9 @@ public class XMLImportService {
                 CourseClimb.of(c.getClimb()),
                 NumberOfControls.of(c.getNumberOfControls().intValue())))
             .collect(Collectors.toSet());
+        if (courses.isEmpty()) {
+            return Map.of();
+        }
         courses = this.courseService.findOrCreate(courses);
         return courses.stream().collect(Collectors.toMap(Course::getDomainKey, x -> x));
     }

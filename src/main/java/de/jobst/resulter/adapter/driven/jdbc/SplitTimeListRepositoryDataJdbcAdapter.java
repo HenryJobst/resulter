@@ -47,11 +47,12 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
     @Override
     public SplitTimeList findOrCreate(SplitTimeList splitTimeList) {
         Optional<SplitTimeListDbo> splitTimeListEntity =
-            splitTimeListJdbcRepository.findByEventIdAndResultListIdAndClassResultShortNameAndPersonId(
+            splitTimeListJdbcRepository.findByEventIdAndResultListIdAndClassResultShortNameAndPersonIdAndRaceNumber(
                 AggregateReference.to(splitTimeList.getEventId().value()),
                 AggregateReference.to(splitTimeList.getResultListId().value()),
                 splitTimeList.getClassResultShortName().value(),
-                AggregateReference.to(splitTimeList.getPersonId().value()));
+                AggregateReference.to(splitTimeList.getPersonId().value()),
+                splitTimeList.getRaceNumber().value());
         if (splitTimeListEntity.isEmpty()) {
             return save(splitTimeList);
         }

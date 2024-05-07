@@ -21,6 +21,8 @@ public class SplitTimeList {
     @NonNull
     private final PersonId personId;
     @NonNull
+    private final RaceNumber raceNumber;
+    @NonNull
     private final List<SplitTime> splitTimes;
 
     public SplitTimeList(@NonNull SplitTimeListId id,
@@ -28,19 +30,21 @@ public class SplitTimeList {
                          @NonNull ResultListId resultListId,
                          @NonNull ClassResultShortName classResultShortName,
                          @NonNull PersonId personId,
+                         @NonNull RaceNumber raceNumber,
                          @NonNull List<SplitTime> splitTimes) {
         this.id = id;
         this.eventId = eventId;
         this.resultListId = resultListId;
         this.classResultShortName = classResultShortName;
         this.personId = personId;
+        this.raceNumber = raceNumber;
         this.splitTimes = splitTimes;
     }
 
     public DomainKey getDomainKey() {
-        return new DomainKey(eventId, resultListId, classResultShortName, personId);
+        return new DomainKey(eventId, resultListId, classResultShortName, personId, raceNumber);
     }
 
     public record DomainKey(EventId eventId, ResultListId resultListId, ClassResultShortName classResultShortName,
-                            PersonId personId) {}
+                            PersonId personId, RaceNumber raceNumber) {}
 }

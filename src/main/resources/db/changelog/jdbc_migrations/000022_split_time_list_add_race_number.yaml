@@ -1,0 +1,29 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000022_split_time_list_add_race_number
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   columnExists :
+                                tableName : split_time_list
+                                columnName : race_number
+            comment : Adds raceNumber column to split_time_list and updates unique key
+            changes :
+                -   addColumn :
+                        tableName : split_time_list
+                        columns :
+                            -   column :
+                                    name : race_number
+                                    type : tinyint
+                                    constraints :
+                                        nullable : false
+                                    defaultValueNumeric : 1
+                -   dropUniqueConstraint :
+                        tableName : split_time_list
+                        constraintName : uk_split_time_list_result_list_class_result_person_race
+                -   addUniqueConstraint :
+                        tableName : split_time_list
+                        columnNames : result_list_id, class_result_short_name, person_id, race_number
+                        constraintName : uk_split_time_list_result_list_class_result_person_race
+                        validate : true

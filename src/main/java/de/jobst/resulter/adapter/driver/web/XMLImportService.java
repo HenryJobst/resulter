@@ -69,12 +69,16 @@ public class XMLImportService {
                     null,
                     ObjectUtils.isNotEmpty(personRaceResult.getTime()) ? personRaceResult.getTime() : null,
                     Objects.nonNull(personRaceResult.getPosition()) ? personRaceResult.getPosition().longValue() : null,
+                    ObjectUtils.isNotEmpty(personRaceResult.getRaceNumber()) ?
+                    personRaceResult.getRaceNumber().byteValue() :
+                    (byte) 1,
                     ResultStatus.fromValue(personRaceResult.getStatus().value())),
                 new SplitTimeList(SplitTimeListId.empty(),
                     eventId,
                     resultListId,
                     classResultShortName,
                     personId,
+                    RaceNumber.of(personRaceResult.getRaceNumber().byteValue()),
                     personRaceResult.getSplitTimes()
                         .stream()
                         .map(x -> new SplitTime(ControlCode.of(x.getControlCode()), PunchTime.of(x.getTime()), null))
@@ -178,7 +182,8 @@ public class XMLImportService {
                         z.setSplitTimeListId(splitTimeListByDomainKey.get(new SplitTimeList.DomainKey(event.getId(),
                             finalDomainResultList.getId(),
                             x.classResultShortName(),
-                            y.personId())).getId());
+                            y.personId(),
+                            z.getRaceNumber())).getId());
                     }
                 }
             }

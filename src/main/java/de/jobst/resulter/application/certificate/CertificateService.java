@@ -210,6 +210,7 @@ public class CertificateService {
             ZonedDateTime.now(),
             Double.valueOf("1934"),
             1L,
+            (byte) 1,
             ResultStatus.OK);
         return createCertificate(p, Optional.of(organisation), event, eventCertificate, prr);
     }

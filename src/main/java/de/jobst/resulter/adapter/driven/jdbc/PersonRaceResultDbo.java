@@ -43,6 +43,8 @@ public class PersonRaceResultDbo {
     private Double punchTime;
     @Column("position")
     private Long position;
+    @Column("race_number")
+    private Byte raceNumber;
     @Column("state")
     private ResultStatus state;
 
@@ -81,6 +83,11 @@ public class PersonRaceResultDbo {
         } else {
             personRaceResultDbo.setPosition(null);
         }
+        if (ObjectUtils.isNotEmpty(personRaceResult.getRaceNumber())) {
+            personRaceResultDbo.setRaceNumber(personRaceResult.getRaceNumber().value());
+        } else {
+            personRaceResultDbo.setRaceNumber(null);
+        }
         if (ObjectUtils.isNotEmpty(personRaceResult.getState())) {
             personRaceResultDbo.setState(personRaceResult.getState());
         } else {
@@ -95,10 +102,13 @@ public class PersonRaceResultDbo {
         return personRaceResultDbos.stream()
             .map(it -> PersonRaceResult.of(it.classResultShortName,
                 it.person.getId(),
-                it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)),
+                it.startTime != null ?
+                it.startTime.atZoneSameInstant(ZoneId.of(Objects.requireNonNull(it.startTimeZone))) :
+                null,
                 it.finishTime != null ? it.finishTime.atZoneSameInstant(ZoneId.of(it.finishTimeZone)) : null,
                 it.getPunchTime(),
                 it.getPosition(),
+                it.getRaceNumber(),
                 it.getState()))
             .toList();
     }

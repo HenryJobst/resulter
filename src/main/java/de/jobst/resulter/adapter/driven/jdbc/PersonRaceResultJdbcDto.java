@@ -14,7 +14,7 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, Long race
                                       String createTimeZone, String resultListStatus, String classListShortName,
                                       String classListName, String classGender, Long courseId, Long personId,
                                       Long organisationId, OffsetDateTime startTime, String startTimeZone,
-                                      Double punchTime, Integer position, String state) {
+                                      Double punchTime, Integer position, Byte raceNumber, String state) {
 
     static @NonNull List<ResultList> asResultLists(Collection<PersonRaceResultJdbcDto> personRaceResultJdbcDtos) {
         // Schritt 1: Gruppierung nach resultListId
@@ -51,6 +51,7 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, Long race
                                     // Finish Time ist hier ausgelassen
                                     dto.punchTime(),
                                     dto.position != null ? dto.position().longValue() : null,
+                                    dto.raceNumber != null ? dto.raceNumber() : (byte) 1,
                                     dto.state != null ? ResultStatus.valueOf(dto.state()) : ResultStatus.DID_NOT_START))
                                 .collect(Collectors.toList());
 

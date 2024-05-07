@@ -48,6 +48,7 @@ class ResultListServiceTest {
             ZonedDateTime.now(),
             Double.valueOf("1934"),
             1L,
+            (byte) 1,
             ResultStatus.OK);
         CertificateService.Certificate certificate = new CertificateService(this.mediaFilePath).createCertificate(p,
             Optional.of(organisation),

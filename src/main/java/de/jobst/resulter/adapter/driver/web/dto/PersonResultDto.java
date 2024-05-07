@@ -7,17 +7,18 @@ import org.springframework.lang.NonNull;
 
 import java.time.Duration;
 
-public record PersonResultDto(Long position, Long personId, Duration runTime, String resultStatus, Long organisationId)
-    implements Comparable<PersonResultDto> {
+public record PersonResultDto(Long position, Long personId, Duration runTime, String resultStatus, Long organisationId,
+                              Byte raceNumber) implements Comparable<PersonResultDto> {
 
     static public PersonResultDto from(PersonResult personResult) {
         PersonRaceResult personRaceResult = personResult.personRaceResults().value().stream().findFirst().orElseThrow();
         Double runTime = personRaceResult.getRuntime().value();
         return new PersonResultDto(personRaceResult.getPosition().value(),
-            personResult.personId() != null ? personResult.personId().value() : null,
+            personResult.personId().value(),
             runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
             personRaceResult.getState().value(),
-            personResult.organisationId() != null ? personResult.organisationId().value() : null);
+            personResult.organisationId() != null ? personResult.organisationId().value() : null,
+            personRaceResult.getRaceNumber().value());
     }
 
     @Override
@@ -31,6 +32,9 @@ public record PersonResultDto(Long position, Long personId, Duration runTime, St
         }
         if (value == 0) {
             value = ObjectUtils.compare(personId, o.personId);
+        }
+        if (value == 0) {
+            value = ObjectUtils.compare(raceNumber, o.raceNumber);
         }
         return value;
     }

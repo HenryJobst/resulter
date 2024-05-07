@@ -76,6 +76,7 @@ public class PersonResultDbo {
                         null,
                         x.getPunchTime(),
                         x.getPosition(),
+                        x.getRaceNumber(),
                         x.getState()))
                     .toList()))
             .toList();

@@ -55,11 +55,7 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
                 resultList.getCreator(),
                 resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null,
                 resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
-        if (resultListId.isPresent()) {
-            return findById(resultListId.get()).orElseThrow();
-        }
-        ResultList savedResultList = save(resultList);
-        return savedResultList;
+        return resultListId.map(listId -> findById(listId).orElseThrow()).orElseGet(() -> save(resultList));
     }
 
     @Override
@@ -90,7 +86,7 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
             resultListJdbcRepository.findPersonRaceResultByResultListIdAndClassResultShortNameAndPersonId(resultListId.value(),
                 classResultShortName.value(),
                 personId.value());
-        return personRaceResultByResultListIdAndPersonId.map(personRaceResultJdbcDto -> PersonRaceResultJdbcDto.asResultLists(
-            List.of(personRaceResultJdbcDto)).stream().findFirst().orElse(null)).orElse(null);
+        return personRaceResultByResultListIdAndPersonId.flatMap(personRaceResultJdbcDto -> PersonRaceResultJdbcDto.asResultLists(
+            List.of(personRaceResultJdbcDto)).stream().findFirst()).orElse(null);
     }
 }

@@ -17,18 +17,20 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     @NonNull
     private PersonId personId;
     @NonNull
-    DateTime startTime;
+    private DateTime startTime;
     @NonNull
-    DateTime finishTime;
+    private DateTime finishTime;
     @NonNull
-    PunchTime runtime;
+    private PunchTime runtime;
     @NonNull
-    Position position;
+    private Position position;
     @NonNull
-    ResultStatus state;
+    private ResultStatus state;
+    @NonNull
+    private RaceNumber raceNumber;
     @Nullable
     @Setter
-    SplitTimeListId splitTimeListId;
+    private SplitTimeListId splitTimeListId;
 
     public static PersonRaceResult of(String classResultShortName,
                                       Long personId,
@@ -36,6 +38,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                                       ZonedDateTime finishTime,
                                       Double punchTime,
                                       Long position,
+                                      @NonNull Byte raceNumber,
                                       @NonNull ResultStatus resultState) {
         return PersonRaceResult.of(classResultShortName,
             personId,
@@ -44,6 +47,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
             punchTime,
             position,
             resultState,
+            raceNumber,
             null);
     }
 
@@ -54,6 +58,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                                       Double punchTime,
                                       Long position,
                                       @NonNull ResultStatus resultState,
+                                      @NonNull Byte raceNumber,
                                       @Nullable SplitTimeListId splitTimeListId) {
         return new PersonRaceResult(ClassResultShortName.of(classResultShortName),
             PersonId.of(personId),
@@ -62,13 +67,17 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
             PunchTime.of(punchTime),
             Position.of(position),
             resultState,
+            RaceNumber.of(raceNumber),
             splitTimeListId);
     }
 
 
     @Override
     public int compareTo(@NonNull PersonRaceResult o) {
-        int val = this.position.compareTo(o.position);
+        int val = this.raceNumber.compareTo(o.raceNumber);
+        if (val == 0) {
+            val = this.position.compareTo(o.position);
+        }
         if (val == 0) {
             val = this.personId.compareTo(o.personId);
         }

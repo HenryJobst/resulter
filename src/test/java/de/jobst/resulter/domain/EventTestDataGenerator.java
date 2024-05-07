@@ -37,6 +37,7 @@ public class EventTestDataGenerator {
             finishTime,
             punchTime,
             position,
+            (byte) 1,
             resultStatus));
 
         Collection<PersonResult> personResults = new ArrayList<>();

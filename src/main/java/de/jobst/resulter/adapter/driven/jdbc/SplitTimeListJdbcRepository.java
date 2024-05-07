@@ -16,8 +16,10 @@ public interface SplitTimeListJdbcRepository
     @NonNull
     Collection<SplitTimeListDbo> findAll();
 
-    Optional<SplitTimeListDbo> findByEventIdAndResultListIdAndClassResultShortNameAndPersonId(AggregateReference<EventDbo, Long> eventId,
-                                                                                              AggregateReference<ResultListDbo, Long> resultListId,
-                                                                                              String classResultShortName,
-                                                                                              AggregateReference<PersonDbo, Long> personId);
+    Optional<SplitTimeListDbo> findByEventIdAndResultListIdAndClassResultShortNameAndPersonIdAndRaceNumber(
+        AggregateReference<EventDbo, Long> eventId,
+        AggregateReference<ResultListDbo, Long> resultListId,
+        String classResultShortName,
+        AggregateReference<PersonDbo, Long> personId,
+        Byte raceNumber);
 }

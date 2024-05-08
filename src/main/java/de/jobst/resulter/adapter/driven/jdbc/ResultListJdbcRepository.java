@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -61,8 +62,9 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
            WHERE rl.id = :resultListId
            AND cl.short_name = :classResultShortName
            AND pr.person_id = :personId
+           ORDER BY prr.race_number
            """)
-    Optional<PersonRaceResultJdbcDto> findPersonRaceResultByResultListIdAndClassResultShortNameAndPersonId(
+    List<PersonRaceResultJdbcDto> findPersonRaceResultByResultListIdAndClassResultShortNameAndPersonId(
         @Param("resultListId") Long resultListId,
         @Param("classResultShortName") String classResultShortName,
         @Param("personId") Long personId);

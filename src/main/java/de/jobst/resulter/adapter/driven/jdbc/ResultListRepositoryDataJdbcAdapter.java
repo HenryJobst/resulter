@@ -82,11 +82,17 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     public ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
                                                                            ClassResultShortName classResultShortName,
                                                                            PersonId personId) {
-        Optional<PersonRaceResultJdbcDto> personRaceResultByResultListIdAndPersonId =
+        List<PersonRaceResultJdbcDto> personRaceResults =
             resultListJdbcRepository.findPersonRaceResultByResultListIdAndClassResultShortNameAndPersonId(resultListId.value(),
                 classResultShortName.value(),
                 personId.value());
-        return personRaceResultByResultListIdAndPersonId.flatMap(personRaceResultJdbcDto -> PersonRaceResultJdbcDto.asResultLists(
-            List.of(personRaceResultJdbcDto)).stream().findFirst()).orElse(null);
+        if (personRaceResults.isEmpty()) {
+            return null;
+        }
+        return Optional.of(personRaceResults.getFirst())
+            .flatMap(personRaceResultJdbcDto -> PersonRaceResultJdbcDto.asResultLists(List.of(personRaceResultJdbcDto))
+                .stream()
+                .findFirst())
+            .orElse(null);
     }
 }

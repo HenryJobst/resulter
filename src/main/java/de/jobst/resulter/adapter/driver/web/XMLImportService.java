@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.jaxb.OverallResult;
 import de.jobst.resulter.application.*;
 import de.jobst.resulter.domain.*;
 import org.apache.commons.lang3.ObjectUtils;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,8 +55,26 @@ public class XMLImportService {
                                                                                     ResultListId resultListId,
                                                                                     ClassResultShortName classResultShortName,
                                                                                     PersonId personId) {
-        return personResult.getResults()
-            .stream()
+        List<de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult> results = personResult.getResults();
+        results = results.stream().flatMap(personRaceResult -> {
+            OverallResult overallResult = personRaceResult.getOverallResult();
+            if (overallResult != null) {
+                var overallPersonRaceResult = new de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult();
+                overallPersonRaceResult.setRaceNumber(BigInteger.valueOf(0));
+                overallPersonRaceResult.setBibNumber(personRaceResult.getBibNumber());
+                overallPersonRaceResult.setStartTime(personRaceResult.getStartTime());
+                overallPersonRaceResult.setFinishTime(personRaceResult.getFinishTime());
+                overallPersonRaceResult.setTime(overallResult.getTime());
+                overallPersonRaceResult.setPosition(overallResult.getPosition());
+                overallPersonRaceResult.setStatus(overallResult.getStatus());
+                overallPersonRaceResult.setTimeBehind(overallResult.getTimeBehind());
+                personRaceResult.setOverallResult(null);
+                return Stream.of(overallPersonRaceResult, personRaceResult);
+            } else {
+                return Stream.of(personRaceResult);
+            }
+        }).toList();
+        return results.stream()
             .map(personRaceResult -> Pair.of(PersonRaceResult.of(classResultShortName.value(),
                     personId.value(),
                     ObjectUtils.isNotEmpty(personRaceResult.getStartTime()) ?

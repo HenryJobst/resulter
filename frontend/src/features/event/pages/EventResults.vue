@@ -105,12 +105,13 @@ function createResultListTreeNodes(aList: ResultList[] | undefined): TreeNode[] 
 }
 
 function getClassResultLabel(a: ClassResult) {
-    return (
-            `${a.name} (${a.personResults.length})`
-            + ` - ${courseLengthColumn(a)} ${t('labels.length_abbreviation')} - ${courseClimbColumn(a)} ${t(
-                    'labels.climb_abbreviation',
-            )} - ${courseControlsColumn(a)} ${t('labels.control_abbreviation')}`
-    )
+    let courseData = ''
+    if (a.courseId != null) {
+        courseData = ` - ${courseLengthColumn(a)} ${t('labels.length_abbreviation')} - ${courseClimbColumn(a)} ${t(
+                'labels.climb_abbreviation',
+        )} - ${courseControlsColumn(a)} ${t('labels.control_abbreviation')}`
+    }
+    return (`${a.name} (${a.personResults.length})${courseData}`)
 }
 
 function getPersonResults(

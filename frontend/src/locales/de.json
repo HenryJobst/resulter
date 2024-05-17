@@ -77,7 +77,9 @@
         "backend_version": "Backend: {version}",
         "loading": "Lade...",
         "error_loading": "Fehler beim Laden",
-        "certificate_stats": "{count} Urkunden erstellt"
+        "certificate_stats": "{count} Urkunden erstellt",
+        "race_number": "Lauf {raceNumber}",
+        "overall": "Gesamtwertung"
     },
     "result_state": {
         "OK": "OK",

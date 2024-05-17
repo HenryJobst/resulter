@@ -77,7 +77,9 @@
         "backend_version": "Backend: {version}",
         "loading": "Loading...",
         "error_loading": "Error loading data",
-        "certificate_stats": "{count} certificates created"
+        "certificate_stats": "{count} certificates created",
+        "race_number": "Race {raceNumber}",
+        "overall": "Overall"
     },
     "messages": {
         "new_cup": "New cup",

@@ -6,5 +6,6 @@ export interface PersonResult {
     runTime: string
     resultStatus: string
     organisationId: number
+    raceNumber: string
     cupScores?: CupScore[]
 }

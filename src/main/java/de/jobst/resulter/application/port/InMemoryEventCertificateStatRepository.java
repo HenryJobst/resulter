@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
 public class InMemoryEventCertificateStatRepository implements EventCertificateStatRepository {
 
-    private final Map<EventCertificateStatId, EventCertificateStat> eventCertificates = new ConcurrentHashMap<>();
+    private final Map<EventCertificateStatId, EventCertificateStat> eventCertificateStats = new ConcurrentHashMap<>();
     private final AtomicLong sequence = new AtomicLong(0);
     private final List<EventCertificateStat> savedEventCertificateStats = new ArrayList<>();
 
@@ -32,7 +32,7 @@ public class InMemoryEventCertificateStatRepository implements EventCertificateS
         if (ObjectUtils.isEmpty(eventCertificate.getId()) || eventCertificate.getId().value() == 0) {
             eventCertificate.setId(EventCertificateStatId.of(sequence.incrementAndGet()));
         }
-        eventCertificates.put(eventCertificate.getId(), eventCertificate);
+        eventCertificateStats.put(eventCertificate.getId(), eventCertificate);
         savedEventCertificateStats.add(eventCertificate);
         return eventCertificate;
     }
@@ -42,29 +42,36 @@ public class InMemoryEventCertificateStatRepository implements EventCertificateS
         if (ObjectUtils.isEmpty(eventCertificate.getId()) || eventCertificate.getId().value() == 0) {
             return;
         }
-        eventCertificates.remove(eventCertificate.getId());
+        eventCertificateStats.remove(eventCertificate.getId());
         savedEventCertificateStats.remove(eventCertificate);
     }
 
     @Override
+    public void deleteAllByEventId(EventId eventId) {
+        eventCertificateStats.values()
+            .removeIf(eventCertificate -> eventCertificate.getEvent().getId().equals(eventId));
+        savedEventCertificateStats.removeIf(eventCertificate -> eventCertificate.getEvent().getId().equals(eventId));
+    }
+
+    @Override
     public List<EventCertificateStat> findAll() {
-        return List.copyOf(eventCertificates.values());
+        return List.copyOf(eventCertificateStats.values());
     }
 
     @Override
     public Optional<EventCertificateStat> findById(EventCertificateStatId EventCertificateStatId) {
-        return Optional.ofNullable(eventCertificates.get(EventCertificateStatId));
+        return Optional.ofNullable(eventCertificateStats.get(EventCertificateStatId));
     }
 
     @Override
     public Page<EventCertificateStat> findAll(@Nullable String filter, @NonNull Pageable pageable) {
-        return new PageImpl<>(new ArrayList<>(eventCertificates.values()), pageable, eventCertificates.size());
+        return new PageImpl<>(new ArrayList<>(eventCertificateStats.values()), pageable, eventCertificateStats.size());
     }
 
     @Override
     public List<EventCertificateStat> findAllByEvent(EventId id) {
         List<EventCertificateStat> result = new ArrayList<>();
-        eventCertificates.values()
+        eventCertificateStats.values()
             .stream()
             .filter(eventCertificate -> eventCertificate.getEvent().getId().equals(id))
             .forEach(result::add);
@@ -75,6 +82,7 @@ public class InMemoryEventCertificateStatRepository implements EventCertificateS
     public void saveAll(List<EventCertificateStat> eventCertificates) {
         eventCertificates.forEach(this::save);
     }
+
 
     @SuppressWarnings("unused")
     public List<EventCertificateStat> savedEventCertificateStats() {

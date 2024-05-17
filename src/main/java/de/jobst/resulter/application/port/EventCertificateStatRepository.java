@@ -26,4 +26,6 @@ public interface EventCertificateStatRepository {
     List<EventCertificateStat> findAllByEvent(EventId id);
 
     void saveAll(List<EventCertificateStat> eventCertificateStats);
+
+    void deleteAllByEventId(EventId eventId);
 }

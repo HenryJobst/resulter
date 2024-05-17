@@ -47,6 +47,12 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
     }
 
     @Override
+    public void deleteAllByEventId(EventId eventId) {
+        eventCertificates.values().removeIf(eventCertificate -> eventCertificate.getEvent().getId().equals(eventId));
+        savedEventCertificates.removeIf(eventCertificate -> eventCertificate.getEvent().getId().equals(eventId));
+    }
+
+    @Override
     public List<EventCertificate> findAll() {
         return List.copyOf(eventCertificates.values());
     }
@@ -75,6 +81,7 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
     public void saveAll(List<EventCertificate> eventCertificates) {
         eventCertificates.forEach(this::save);
     }
+
 
     @SuppressWarnings("unused")
     public List<EventCertificate> savedEventCertificates() {

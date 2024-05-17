@@ -68,7 +68,18 @@ function formatCreateTime(date: Date | string, locale: Ref<Locale>) {
 }
 
 function getResultListLabel(resultList: ResultList) {
-    const name = raceQuery.data.value?.content.find(r => r.id === resultList.raceId)?.name
+    let name = raceQuery.data.value?.content.find(r => r.id === resultList.raceId)?.name
+    if (!name) {
+        const raceNumber = resultList.classResults.flatMap(c => c.personResults).flatMap(pr => pr.raceNumber).reduce(a => a).toString()
+        if (raceNumber !== '0') {
+            name = t('labels.race_number', {
+                raceNumber,
+            })
+        }
+        else {
+            name = t('labels.overall')
+        }
+    }
     return `${(name ? `${name}, ` : '') + t('labels.created')} ${
             formatCreateTime(resultList.createTime, locale).value
     }, ${t(`result_list_state.${resultList.status.toUpperCase()}`)}`
@@ -83,7 +94,7 @@ function createResultListTreeNodes(aList: ResultList[] | undefined): TreeNode[] 
         const resultList = aList[i]
         const certificateEnabled: boolean
                 = (eventQuery.data.value?.content.find(e => e.id === resultList.eventId)?.certificate
-                ?? false) !== false
+                ?? false) !== false && (aList.length === 1 || i === 0)
         treeNodes.push({
             key: resultList.id.toString(),
             label: getResultListLabel(resultList),

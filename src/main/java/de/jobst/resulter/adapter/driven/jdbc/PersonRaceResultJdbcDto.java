@@ -17,12 +17,15 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, Long race
                                       Double punchTime, Integer position, Byte raceNumber, String state) {
 
     static @NonNull List<ResultList> asResultLists(Collection<PersonRaceResultJdbcDto> personRaceResultJdbcDtos) {
-        // Schritt 1: Gruppierung nach resultListId
-        Map<Long, List<PersonRaceResultJdbcDto>> resultListGroups =
-            personRaceResultJdbcDtos.stream().collect(Collectors.groupingBy(PersonRaceResultJdbcDto::resultListId));
+        record ResultListRaceNumber(Long resultListId, Byte raceNumber) {}
+        // Schritt 1: Gruppierung nach resultListId und raceNumber
+        Map<ResultListRaceNumber, List<PersonRaceResultJdbcDto>> resultListGroups = personRaceResultJdbcDtos.stream()
+            .collect(Collectors.groupingBy(personRaceResultJdbcDto -> new ResultListRaceNumber(personRaceResultJdbcDto.resultListId(),
+                personRaceResultJdbcDto.raceNumber())));
 
         return resultListGroups.entrySet().stream().map(entry -> {
-            Long resultListId1 = entry.getKey();
+            ResultListRaceNumber resultListRaceNumber = entry.getKey();
+            Long resultListId1 = resultListRaceNumber.resultListId();
             List<PersonRaceResultJdbcDto> resultListDtos = entry.getValue();
             PersonRaceResultJdbcDto sampleDto = resultListDtos.getFirst(); // Ein Beispiel-DTO für
             // gemeinsame Daten
@@ -70,7 +73,7 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, Long race
                     CourseId.of(sampleClassListDto.courseId()));
             }).collect(Collectors.toList());
 
-            return new ResultList(ResultListId.of(resultListId1),
+            ResultList resultList = new ResultList(ResultListId.of(resultListId1),
                 EventId.of(sampleDto.eventId()),
                 RaceId.of(sampleDto.raceId()),
                 "",
@@ -79,6 +82,7 @@ public record PersonRaceResultJdbcDto(Long eventId, Long resultListId, Long race
                 sampleDto.createTime().atZoneSameInstant(ZoneId.of(sampleDto.createTimeZone())),
                 sampleDto.resultListStatus(),
                 classResults);
+            return resultList;
         }).toList();
     }
 }

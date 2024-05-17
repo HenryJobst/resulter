@@ -16,24 +16,18 @@ import java.util.stream.Collectors;
 public class ResultList implements Comparable<ResultList> {
 
     @NonNull
-    @Setter
-    private ResultListId id;
-
-    @NonNull
     private final EventId eventId;
-
     @NonNull
     private final RaceId raceId;
-
     @Nullable
     private final String creator;
-
     @Nullable
     private final ZonedDateTime createTime;
-
     @Nullable
     private final String status;
-
+    @NonNull
+    @Setter
+    private ResultListId id;
     @Nullable
     @Setter
     private Collection<ClassResult> classResults;
@@ -59,6 +53,25 @@ public class ResultList implements Comparable<ResultList> {
         int var = Objects.compare(this.createTime, o.createTime, ZonedDateTime::compareTo);
         if (var == 0) {
             var = this.raceId.compareTo(o.raceId);
+        }
+        if (var == 0) {
+            // order by race number
+            if (this.getClassResults() != null && o.getClassResults() != null) {
+                var = this.getClassResults()
+                    .stream()
+                    .flatMap(x -> x.personResults().value().stream())
+                    .flatMap(x -> x.personRaceResults().value().stream())
+                    .findFirst()
+                    .orElseThrow()
+                    .getRaceNumber()
+                    .compareTo(o.getClassResults()
+                        .stream()
+                        .flatMap(x -> x.personResults().value().stream())
+                        .flatMap(x -> x.personRaceResults().value().stream())
+                        .findFirst()
+                        .orElseThrow()
+                        .getRaceNumber());
+            }
         }
         return var;
     }

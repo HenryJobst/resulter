@@ -1,0 +1,17 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000023_modify_unique_key_event_certificate_stat
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   tableExists :
+                        tableName : event_certificate_stat
+            comment : Modify unique key to include generated column
+            changes :
+                -   dropUniqueConstraint :
+                        constraintName : uk_event_certificate_person
+                        tableName : event_certificate_stat
+                -   addUniqueConstraint :
+                        columnNames : event_id, person_id, generated
+                        constraintName : uk_event_certificate_person_generated
+                        tableName : event_certificate_stat

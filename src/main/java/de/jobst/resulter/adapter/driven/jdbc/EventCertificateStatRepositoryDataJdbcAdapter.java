@@ -142,4 +142,10 @@ public class EventCertificateStatRepositoryDataJdbcAdapter implements EventCerti
             eventCertificateStats.stream().map(x -> EventCertificateStatDbo.from(x, dboResolvers)).toList();
         eventCertificateStatJdbcRepository.saveAll(eventCertificateStatDbos);
     }
+
+    @Override
+    public void deleteAllByEventId(EventId eventId) {
+        eventCertificateStatJdbcRepository.deleteAll(eventCertificateStatJdbcRepository.findAllByEvent(
+            AggregateReference.to(eventId.value())));
+    }
 }

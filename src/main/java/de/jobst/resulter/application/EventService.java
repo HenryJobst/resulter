@@ -1,9 +1,6 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.application.port.EventCertificateRepository;
-import de.jobst.resulter.application.port.EventRepository;
-import de.jobst.resulter.application.port.OrganisationRepository;
-import de.jobst.resulter.application.port.PersonRepository;
+import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,15 +23,18 @@ public class EventService {
     private final EventRepository eventRepository;
 
     private final EventCertificateRepository eventCertificateRepository;
+    private final EventCertificateStatRepository eventCertificateStatRepository;
 
     public EventService(EventRepository eventRepository,
                         PersonRepository personRepository,
                         OrganisationRepository organisationRepository,
-                        EventCertificateRepository eventCertificateRepository) {
+                        EventCertificateRepository eventCertificateRepository,
+                        EventCertificateStatRepository eventCertificateStatRepository) {
         this.eventRepository = eventRepository;
         this.personRepository = personRepository;
         this.organisationRepository = organisationRepository;
         this.eventCertificateRepository = eventCertificateRepository;
+        this.eventCertificateStatRepository = eventCertificateStatRepository;
     }
 
     public Event findOrCreate(Event event) {
@@ -85,6 +85,8 @@ public class EventService {
         if (optionalEvent.isEmpty()) {
             return false;
         }
+        eventCertificateStatRepository.deleteAllByEventId(eventId);
+        eventCertificateRepository.deleteAllByEventId(eventId);
         eventRepository.deleteEvent(optionalEvent.get());
         return true;
     }

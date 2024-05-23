@@ -148,4 +148,9 @@ public class EventCertificateStatRepositoryDataJdbcAdapter implements EventCerti
         eventCertificateStatJdbcRepository.deleteAll(eventCertificateStatJdbcRepository.findAllByEvent(
             AggregateReference.to(eventId.value())));
     }
+
+    @Override
+    public void deleteById(EventCertificateStatId id) {
+        eventCertificateStatJdbcRepository.deleteById(id.value());
+    }
 }

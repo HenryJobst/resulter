@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatsDto;
 import de.jobst.resulter.adapter.driver.web.dto.ResultListDto;
 import de.jobst.resulter.application.EventService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -41,8 +43,9 @@ public class ResultListController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventCertificateStatsDto> getCertificateStats(@PathVariable Long id) {
         try {
-            long count = resultListService.countCertificates(EventId.of(id));
-            return ResponseEntity.ok(new EventCertificateStatsDto(count));
+            List<EventCertificateStatDto> eventCertificateStatDtos =
+                resultListService.getCertificateStats(EventId.of(id));
+            return ResponseEntity.ok(new EventCertificateStatsDto(eventCertificateStatDtos));
         } catch (IllegalArgumentException e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -93,6 +96,21 @@ public class ResultListController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/event_certificate_stat/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteEventCertificateStat(@PathVariable Long id) {
+        try {
+            resultListService.deleteEventCertificateStat(EventCertificateStatId.of(id));
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

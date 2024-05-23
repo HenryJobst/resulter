@@ -165,6 +165,18 @@ export class EventService extends GenericService<SportEvent> {
                 return null
             })
     }
+
+    static async removeEventCertificateStat(id: number, t: (key: string) => string) {
+        if (!id)
+            return null
+        return axiosInstance
+            .delete(`/event_certificate_stat/${id}`)
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
 }
 
 export const eventService = new EventService()

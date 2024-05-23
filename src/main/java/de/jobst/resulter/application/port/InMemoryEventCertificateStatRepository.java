@@ -54,6 +54,12 @@ public class InMemoryEventCertificateStatRepository implements EventCertificateS
     }
 
     @Override
+    public void deleteById(EventCertificateStatId id) {
+        eventCertificateStats.remove(id);
+        savedEventCertificateStats.removeIf(eventCertificate -> eventCertificate.getId().equals(id));
+    }
+
+    @Override
     public List<EventCertificateStat> findAll() {
         return List.copyOf(eventCertificateStats.values());
     }

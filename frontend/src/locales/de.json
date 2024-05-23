@@ -79,7 +79,8 @@
         "error_loading": "Fehler beim Laden",
         "certificate_stats": "{count} Urkunden erstellt",
         "race_number": "Lauf {raceNumber}",
-        "overall": "Gesamtwertung"
+        "overall": "Gesamtwertung",
+        "certificate_stat": "Urkundenerzeugungseintrag"
     },
     "result_state": {
         "OK": "OK",

@@ -79,7 +79,8 @@
         "error_loading": "Error loading data",
         "certificate_stats": "{count} certificates created",
         "race_number": "Race {raceNumber}",
-        "overall": "Overall"
+        "overall": "Overall",
+        "certificate_stat": "certificate creation entry"
     },
     "messages": {
         "new_cup": "New cup",

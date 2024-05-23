@@ -1,6 +1,7 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
+import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
@@ -168,7 +169,14 @@ public class ResultListService {
         return certificateService.createCertificate(event, eventCertificate);
     }
 
-    public long countCertificates(EventId eventId) {
-        return eventCertificateStatRepository.findAllByEvent(eventId).size();
+    public List<EventCertificateStatDto> getCertificateStats(EventId eventId) {
+        return eventCertificateStatRepository.findAllByEvent(eventId)
+            .stream()
+            .map(EventCertificateStatDto::from)
+            .toList();
+    }
+
+    public void deleteEventCertificateStat(EventCertificateStatId id) {
+        eventCertificateStatRepository.deleteById(id);
     }
 }

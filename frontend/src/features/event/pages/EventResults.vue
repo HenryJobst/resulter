@@ -5,6 +5,7 @@ import type { TreeNode } from 'primevue/treenode'
 import { type Ref, computed } from 'vue'
 import Tree from 'primevue/tree'
 import Button from 'primevue/button'
+import Panel from 'primevue/panel'
 import { useRouter } from 'vue-router'
 import moment from 'moment/min/moment-with-locales'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
@@ -15,6 +16,7 @@ import type { ClassResult } from '@/features/event/model/class_result'
 import { EventService, eventService } from '@/features/event/services/event.service'
 import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
 import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
+import EventCertificateStatsTable from '@/features/event/widgets/EventCertificateStatsTable.vue'
 
 const props = defineProps<{ id: string }>()
 
@@ -252,17 +254,24 @@ function navigateToList() {
                         </template>
                         <!-- suppress VueUnrecognizedSlot -->
                         <template #dataTable="mySlotProps">
-                            <EventResultTable :data="mySlotProps?.node?.data" />
+                            <EventResultTable :data="mySlotProps?.node?.data" :event-id="eventId" />
                         </template>
                     </Tree>
                 </template>
                 <!-- suppress VueUnrecognizedSlot -->
                 <template #dataTable="slotProps">
-                    <EventResultTable :data="slotProps?.node?.data" />
+                    <EventResultTable :data="slotProps?.node?.data" :event-id="eventId" />
                 </template>
             </Tree>
             <div v-if="authStore.isAdmin && eventCertificateStatsQuery.data" class="mt-2 font-italic">
-                {{ t('labels.certificate_stats', { count: eventCertificateStatsQuery.data.value?.count ?? 0 }) }}
+                <Panel
+                    v-if="eventCertificateStatsQuery.data.value?.stats.length > 0"
+                    :header="t('labels.certificate_stats', { count: eventCertificateStatsQuery.data.value?.stats.length ?? 0 })"
+                    header-class="mt-2 text-lg font-bold"
+                    toggleable collapsed
+                >
+                    <EventCertificateStatsTable :data="eventCertificateStatsQuery.data.value" />
+                </Panel>
             </div>
         </div>
     </div>

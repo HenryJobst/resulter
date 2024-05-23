@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import moment from 'moment'
 import Button from 'primevue/button'
 import { personService } from '@/features/person/services/person.service'
@@ -12,10 +12,14 @@ import type { Person } from '@/features/person/model/person'
 import type { Organisation } from '@/features/organisation/model/organisation'
 import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
 import { EventService } from '@/features/event/services/event.service'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
-const props = defineProps<{ data: ResultListIdPersonResults }>()
+const props = defineProps<{ data: ResultListIdPersonResults, eventId: number }>()
 
 const { t } = useI18n()
+
+const queryClient = useQueryClient()
+const authStore = useAuthStore()
 
 function parseDurationMoment(durationString: string): moment.Duration {
     return moment.duration(durationString)
@@ -91,7 +95,11 @@ function organisationNameColumn(data: PersonResult): string {
 }
 
 function certificate(resultListId: number, classResultShortName: string, data: PersonResult) {
-    EventService.certificate(resultListId, classResultShortName, data.personId, t)
+    EventService.certificate(resultListId, classResultShortName, data.personId, t).then(() => {
+        queryClient.invalidateQueries({
+            queryKey: ['eventCertificateStats', props.eventId, authStore.isAdmin],
+        })
+    })
 }
 </script>
 

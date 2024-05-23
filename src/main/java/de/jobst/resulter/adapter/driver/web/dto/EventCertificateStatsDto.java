@@ -1,3 +1,5 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-public record EventCertificateStatsDto(long count) {}
+import java.util.List;
+
+public record EventCertificateStatsDto(List<EventCertificateStatDto> stats) {}

@@ -115,9 +115,10 @@ export class EventService extends GenericService<SportEvent> {
                 const contentDisposition = response.headers['content-disposition']
                 let filename = 'download.pdf' // Standard-Dateiname, falls nichts im Header gefunden wird
                 if (contentDisposition) {
-                    const filenameMatch = contentDisposition.match(/filename="?(.+)"?/)
-                    if (filenameMatch.length === 2)
-                        filename = filenameMatch[1]
+                    // Improved regex to handle different possible formats of Content-Disposition
+                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+                    if (filenameMatch && filenameMatch.length > 1)
+                        filename = filenameMatch[1].replace(/['"]/g, '') // Remove any quotes
                 }
                 // Erstellen einer URL aus dem Blob
                 const fileURL = window.URL.createObjectURL(new Blob([response.data]))

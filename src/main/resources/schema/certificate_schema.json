@@ -1,0 +1,137 @@
+{
+    "$schema" : "http://json-schema.org/draft-07/schema#",
+    "type" : "object",
+    "description" : "Schema for the layout of a certificate",
+    "properties" : {
+        "document" : {
+            "type" : "object",
+            "description" : "Defines the document's global font settings",
+            "properties" : {
+                "font" : {
+                    "type" : "string",
+                    "description" : "The default font for the document"
+                },
+                "boldFont" : {
+                    "type" : "string",
+                    "description" : "The bold font for the document"
+                },
+                "italicFont" : {
+                    "type" : "string",
+                    "description" : "The italic font for the document"
+                },
+                "boldItalicFont" : {
+                    "type" : "string",
+                    "description" : "The bold and italic font for the document"
+                }
+            }
+        },
+        "paragraphs" : {
+            "type" : "array",
+            "description" : "An array of paragraphs in the document",
+            "items" : {
+                "type" : "object",
+                "description" : "A paragraph in the document",
+                "properties" : {
+                    "marginTop" : {
+                        "type" : "integer",
+                        "description" : "The top margin of the paragraph"
+                    },
+                    "marginBottom" : {
+                        "type" : "integer",
+                        "description" : "The bottom margin of the paragraph"
+                    },
+                    "marginLeft" : {
+                        "type" : "integer",
+                        "description" : "The left margin of the paragraph"
+                    },
+                    "marginRight" : {
+                        "type" : "integer",
+                        "description" : "The right margin of the paragraph"
+                    },
+                    "tabStops" : {
+                        "type" : "array",
+                        "description" : "An array of tab stops in the paragraph",
+                        "items" : {
+                            "type" : "object",
+                            "description" : "A tab stop in the paragraph",
+                            "properties" : {
+                                "position" : {
+                                    "type" : "number",
+                                    "description" : "The position of the tab stop"
+                                },
+                                "alignment" : {
+                                    "type" : "string",
+                                    "description" : "The alignment of the tab stop"
+                                }
+                            },
+                            "required" : [
+                                "position",
+                                "alignment"
+                            ]
+                        }
+                    },
+                    "blocks" : {
+                        "type" : "array",
+                        "description" : "An array of blocks in the paragraph",
+                        "items" : {
+                            "type" : "object",
+                            "description" : "A block in the paragraph",
+                            "properties" : {
+                                "fontSize" : {
+                                    "type" : "integer",
+                                    "description" : "The font size of the text in the block"
+                                },
+                                "bold" : {
+                                    "type" : "boolean",
+                                    "description" : "Whether the text in the block is bold"
+                                },
+                                "italic" : {
+                                    "type" : "boolean",
+                                    "description" : "Whether the text in the block is italic"
+                                },
+                                "text" : {
+                                    "type" : "string",
+                                    "description" : "The text content of the block"
+                                },
+                                "fontRGBColor" : {
+                                    "type" : "object",
+                                    "description" : "The RGB color of the font",
+                                    "properties" : {
+                                        "r" : {
+                                            "type" : "integer"
+                                        },
+                                        "g" : {
+                                            "type" : "integer"
+                                        },
+                                        "b" : {
+                                            "type" : "integer"
+                                        }
+                                    },
+                                    "required" : [
+                                        "r",
+                                        "g",
+                                        "b"
+                                    ]
+                                },
+                                "media" : {
+                                    "type" : "string",
+                                    "description" : "The media content of the block"
+                                },
+                                "width" : {
+                                    "type" : "integer",
+                                    "description" : "The width of the media content in the block"
+                                }
+                            }
+                        }
+                    }
+                },
+                "required" : [
+                    "blocks"
+                ]
+            }
+        }
+    },
+    "required" : [
+        "paragraphs"
+    ]
+}

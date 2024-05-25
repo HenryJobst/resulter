@@ -37,6 +37,7 @@
         </springdoc-openapi-starter-webmvc-ui.version>
         <tika-core.version>2.9.1</tika-core.version>
         <thumbnailator.version>0.4.20</thumbnailator.version>
+        <json-schema-validator.version>2.2.14</json-schema-validator.version>
     </properties>
     <profiles>
         <profile>
@@ -234,6 +235,11 @@
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
             <version>${thumbnailator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.java-json-tools</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${json-schema-validator.version}</version>
         </dependency>
 
     </dependencies>

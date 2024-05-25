@@ -1,5 +1,6 @@
 package de.jobst.resulter.application.certificate;
 
+import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.itextpdf.io.font.FontProgram;
 import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.font.PdfEncodings;
@@ -41,14 +42,25 @@ import java.util.Optional;
 @Slf4j
 public class CertificateService {
 
+    public static final String SCHEMA_CERTIFICATE_SCHEMA_JSON = "schema/certificate_schema.json";
+
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
 
+    private final String certificateSchema;
+    private final JsonSchemaValidator jsonSchemaValidator;
+
     public CertificateService() {
+        TextFileLoader schemaLoader = new TextFileLoader();
+        certificateSchema = schemaLoader.loadTextFile(SCHEMA_CERTIFICATE_SCHEMA_JSON);
+        jsonSchemaValidator = new JsonSchemaValidator();
     }
 
     public CertificateService(String mediaFilePath) {
         this.mediaFilePath = mediaFilePath;
+        TextFileLoader schemaLoader = new TextFileLoader();
+        certificateSchema = schemaLoader.loadTextFile(SCHEMA_CERTIFICATE_SCHEMA_JSON);
+        jsonSchemaValidator = new JsonSchemaValidator();
     }
 
     private static Text createTextBlock(TextBlock textBlock,
@@ -221,72 +233,85 @@ public class CertificateService {
                                          @NonNull EventCertificate eventCertificate,
                                          @NonNull PersonRaceResult personResult) throws IOException {
 
+
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
         PdfDocument pdfDocument = new PdfDocument(pdfWriter);
         PageSize pageSize = PageSize.A4;
         Document document = new Document(pdfDocument, pageSize);
 
-        float center = (pageSize.getWidth() - document.getLeftMargin() - document.getRightMargin()) / 2;
-        System.out.println("Center: " + center);
+        String filename = MessageFormat.format("Certificate_{0}_{1}_{2}.pdf",
+            event.getName().value().replace("\n", ""),
+            person.getPersonName().familyName().value(),
+            person.getPersonName().givenName().value());
 
-        MediaFile blankCertificate = Objects.requireNonNull(eventCertificate).getBlankCertificate();
-        PdfCanvas canvas = new PdfCanvas(pdfDocument.addNewPage());
-        Path basePath = Paths.get(mediaFilePath);
-        ImageData image = ImageDataFactory.create(basePath.resolve(Objects.requireNonNull(blankCertificate)
-            .getMediaFileName()
-            .value()).toString());
-        canvas.addImageFittedIntoRectangle(image, pageSize, false);
+        ProcessingReport report =
+            jsonSchemaValidator.validateJsonAgainstSchema(Objects.requireNonNull(eventCertificate.getLayoutDescription())
+                .value(), certificateSchema);
 
-        var documentAndParagraphDefinitionsWithPlaceholders =
-            JsonToTextParagraph.loadDefinitions(Objects.requireNonNull(eventCertificate.getLayoutDescription()).value(),
-                false);
-        DocumentDefinition documentDefinition = documentAndParagraphDefinitionsWithPlaceholders.getLeft();
+        if (!report.isSuccess()) {
+            filename = "LayoutDescriptionErrors.pdf";
+            log.error("Error validating layout description: " + report);
+            document.add(new Paragraph("Error validating layout description: " + report));
+        } else {
+            float center = (pageSize.getWidth() - document.getLeftMargin() - document.getRightMargin()) / 2;
+            System.out.println("Center: " + center);
 
-        PdfFont font = null;
-        PdfFont boldFont = null;
-        PdfFont italicFont = null;
-        PdfFont boldItalicFont = null;
-        if (documentDefinition != null) {
-            font = getPdfFont(documentDefinition.font());
-            if (font != null) {
-                document.setFont(font);
+            MediaFile blankCertificate = Objects.requireNonNull(eventCertificate).getBlankCertificate();
+            PdfCanvas canvas = new PdfCanvas(pdfDocument.addNewPage());
+            Path basePath = Paths.get(mediaFilePath);
+            ImageData image = ImageDataFactory.create(basePath.resolve(Objects.requireNonNull(blankCertificate)
+                .getMediaFileName()
+                .value()).toString());
+            canvas.addImageFittedIntoRectangle(image, pageSize, false);
+
+            var documentAndParagraphDefinitionsWithPlaceholders =
+                JsonToTextParagraph.loadDefinitions(Objects.requireNonNull(eventCertificate.getLayoutDescription())
+                    .value(), false);
+            DocumentDefinition documentDefinition = documentAndParagraphDefinitionsWithPlaceholders.getLeft();
+
+            PdfFont font = null;
+            PdfFont boldFont = null;
+            PdfFont italicFont = null;
+            PdfFont boldItalicFont = null;
+            if (documentDefinition != null) {
+                font = getPdfFont(documentDefinition.font());
+                if (font != null) {
+                    document.setFont(font);
+                }
+                boldFont = getPdfFont(documentDefinition.boldFont());
+                italicFont = getPdfFont(documentDefinition.italicFont());
+                boldItalicFont = getPdfFont(documentDefinition.boldItalicFont());
             }
-            boldFont = getPdfFont(documentDefinition.boldFont());
-            italicFont = getPdfFont(documentDefinition.italicFont());
-            boldItalicFont = getPdfFont(documentDefinition.boldItalicFont());
+
+            List<ParagraphDefinition> paragraphDefinitionsWithPlaceholders =
+                documentAndParagraphDefinitionsWithPlaceholders.getRight();
+
+            List<ParagraphDefinition> paragraphDefinitions = TextBlockProcessor.processPlaceholders(
+                paragraphDefinitionsWithPlaceholders,
+                person,
+                organisation.orElse(null),
+                event,
+                personResult);
+
+            PdfFont finalFont = font;
+            PdfFont finalBoldFont = boldFont;
+            PdfFont finalItalicFont = italicFont;
+            PdfFont finalBoldItalicFont = boldItalicFont;
+            paragraphDefinitions.stream()
+                .map(paragraphDefinition -> createParagraph(paragraphDefinition,
+                    finalFont,
+                    finalBoldFont,
+                    finalItalicFont,
+                    finalBoldItalicFont))
+                .forEach(document::add);
         }
-
-        List<ParagraphDefinition> paragraphDefinitionsWithPlaceholders =
-            documentAndParagraphDefinitionsWithPlaceholders.getRight();
-
-        List<ParagraphDefinition> paragraphDefinitions = TextBlockProcessor.processPlaceholders(
-            paragraphDefinitionsWithPlaceholders,
-            person,
-            organisation.orElse(null),
-            event,
-            personResult);
-
-        PdfFont finalFont = font;
-        PdfFont finalBoldFont = boldFont;
-        PdfFont finalItalicFont = italicFont;
-        PdfFont finalBoldItalicFont = boldItalicFont;
-        paragraphDefinitions.stream()
-            .map(paragraphDefinition -> createParagraph(paragraphDefinition,
-                finalFont,
-                finalBoldFont,
-                finalItalicFont,
-                finalBoldItalicFont))
-            .forEach(document::add);
 
         document.close();
 
         byte[] pdfContents = byteArrayOutputStream.toByteArray();
         ByteArrayResource resource = new ByteArrayResource(pdfContents);
-        return new Certificate(MessageFormat.format("Certificate_{0}_{1}_{2}.pdf",
-            event.getName().value().replace("\n", ""),
-            person.getPersonName().familyName().value(),
-            person.getPersonName().givenName().value()), resource, pdfContents.length);
+        return new Certificate(filename, resource, pdfContents.length);
     }
 
     public static FontProgram loadFont(String fontNameOrPath) {

@@ -20,7 +20,7 @@ public class JsonSchemaValidator {
             JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
             JsonValidator validator = factory.getValidator();
 
-            return validator.validate(schemaNode, jsonNode);
+            return validator.validate(schemaNode, jsonNode, true);
         } catch (IOException | ProcessingException e) {
             throw new RuntimeException("Failed to validate json against schema", e);
         }

@@ -38,6 +38,7 @@
         <tika-core.version>2.9.1</tika-core.version>
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
+        <turkraft-springfilter-core.version>3.1.7</turkraft-springfilter-core.version>
     </properties>
     <profiles>
         <profile>
@@ -240,6 +241,11 @@
             <groupId>com.github.java-json-tools</groupId>
             <artifactId>json-schema-validator</artifactId>
             <version>${json-schema-validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.turkraft.springfilter</groupId>
+            <artifactId>core</artifactId>
+            <version>${turkraft-springfilter-core.version}</version>
         </dependency>
 
     </dependencies>

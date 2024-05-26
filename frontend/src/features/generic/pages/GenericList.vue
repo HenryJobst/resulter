@@ -184,9 +184,11 @@ const formatTimeFunction = computed(() => {
 function formatDate(date: string) {
     return formatDateFunction.value(date)
 }
+
 function formatYear(date: string) {
     return formatYearFunction.value(date)
 }
+
 function formatTime(time: string) {
     return formatTimeFunction.value(time)
 }
@@ -215,7 +217,7 @@ function sortChanged(e: DataTableSortEvent) {
 
 function filterChanged(e: DataTableFilterEvent) {
     console.log(`Filters: ${prettyPrint(e)}`)
-    settingsStore.settings.filters = e.filters
+    // settingsStore.settings.filters = e.filters
 }
 
 function getSortable(col: GenericListColumn) {
@@ -268,9 +270,9 @@ onMounted(() => {
                 :message="t('messages.error', { message: deleteMutation?.error.value?.message })"
             />
         </div>
-        <div v-else-if="entityQuery.data" class="card">
+        <div class="card">
             <DataTable
-                v-if="props.visible"
+                v-if="props.visible && dataValue?.content"
                 v-model:filters="settingsStore.settings.filters"
                 :value="dataValue?.content"
                 :paginator="settingsStore.settings.paginator"
@@ -392,6 +394,6 @@ onMounted(() => {
 
 <style scoped>
 h1 {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 </style>

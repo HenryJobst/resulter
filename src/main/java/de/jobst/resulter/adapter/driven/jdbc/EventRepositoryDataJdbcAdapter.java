@@ -1,12 +1,15 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import com.turkraft.springfilter.converter.FilterStringConverter;
+import com.turkraft.springfilter.parser.node.FilterNode;
+import com.turkraft.springfilter.transformer.FilterNodeTransformer;
 import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.data.domain.*;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
@@ -15,10 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
+@Slf4j
 public class EventRepositoryDataJdbcAdapter implements EventRepository {
 
     private final EventJdbcRepository eventJdbcRepository;
@@ -27,19 +32,25 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     private final CountryJdbcRepository countryJdbcRepository;
     private final EventCertificateJdbcRepository eventCertificateJdbcRepository;
     private final MediaFileJdbcRepository mediaFileJdbcRepository;
+    private final FilterStringConverter filterStringConverter;
+    private final FilterNodeTransformer<FilterNodeTransformResult> filterNodeTransformer;
+
 
     public EventRepositoryDataJdbcAdapter(EventJdbcRepository eventJdbcRepository,
                                           PersonJdbcRepository personJdbcRepository,
                                           OrganisationJdbcRepository organisationJdbcRepository,
                                           CountryJdbcRepository countryJdbcRepository,
                                           EventCertificateJdbcRepository eventCertificateJdbcRepository,
-                                          MediaFileJdbcRepository mediaFileJdbcRepository) {
+                                          MediaFileJdbcRepository mediaFileJdbcRepository,
+                                          FilterStringConverter filterStringConverter) {
         this.eventJdbcRepository = eventJdbcRepository;
         this.personJdbcRepository = personJdbcRepository;
         this.organisationJdbcRepository = organisationJdbcRepository;
         this.countryJdbcRepository = countryJdbcRepository;
         this.eventCertificateJdbcRepository = eventCertificateJdbcRepository;
         this.mediaFileJdbcRepository = mediaFileJdbcRepository;
+        this.filterStringConverter = filterStringConverter;
+        this.filterNodeTransformer = new MyFilterNodeTransformer(new DefaultConversionService());
     }
 
     @Transactional
@@ -147,8 +158,31 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
 
     @Override
     public Page<Event> findAll(String filter, @NonNull Pageable pageable) {
-        Page<EventDbo> page = eventJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
-            EventDbo::mapOrdersDomainToDbo));
+        Page<EventDbo> page;
+        if (filter != null) {
+            EventDbo eventDbo = new EventDbo();
+            AtomicReference<ExampleMatcher> matcher = new AtomicReference<>(ExampleMatcher.matching()
+                .withIgnorePaths("organisations", "startTime", "endTime", "state", "eventCertificates"));
+            //.withIncludeNullValues().withStringMatcher(ExampleMatcher.StringMatcher.ENDING);
+            FilterNode filterNode = filterStringConverter.convert(filter);
+            log.info("FilterNode: {}", filterNode);
+            var transformResult = filterNodeTransformer.transform(filterNode);
+            transformResult.filterMap().forEach((key, value) -> {
+                if (key.equals("name")) {
+                    String unquotedValue = value.replace("'", "");
+                    eventDbo.setName(unquotedValue);
+                    matcher.set(matcher.get()
+                        .withMatcher("name", m -> m.stringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
+                }
+            });
+
+            page = eventJdbcRepository.findAll(Example.of(eventDbo, matcher.get()),
+                FilterAndSortConverter.mapOrderProperties(pageable, EventDbo::mapOrdersDomainToDbo));
+
+        } else {
+            page = eventJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
+                EventDbo::mapOrdersDomainToDbo));
+        }
         return new PageImpl<>(page.stream().map(x -> {
             Event event = EventDbo.asEvent(x, getOrganisationResolver());
             event.withCertificate(getPrimaryEventCertificateResolver(event));

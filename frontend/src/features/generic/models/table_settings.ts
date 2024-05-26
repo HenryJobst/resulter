@@ -12,5 +12,5 @@ export interface TableSettings extends PageSettings {
     sortOrder: number | undefined
     nullSortOrder: number
     defaultSortOrder: number
-    filters: DataTableFilterMeta | null
+    filters: DataTableFilterMeta | undefined
 }

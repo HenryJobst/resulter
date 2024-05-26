@@ -51,6 +51,10 @@ public class EventDbo {
     @MappedCollection(idColumn = "event_id")
     private Set<EventOrganisationDbo> organisations = new HashSet<>();
 
+    public EventDbo() {
+        this.id = null;
+    }
+
     public EventDbo(String name) {
         this.id = null;
         this.name = name;

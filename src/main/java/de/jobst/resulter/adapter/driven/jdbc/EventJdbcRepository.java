@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
@@ -9,8 +10,9 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Repository
-public interface EventJdbcRepository
-    extends CrudRepository<EventDbo, Long>, PagingAndSortingRepository<EventDbo, Long> {
+public interface EventJdbcRepository extends CrudRepository<EventDbo, Long>,
+                                             PagingAndSortingRepository<EventDbo, Long>,
+                                             QueryByExampleExecutor<EventDbo> {
 
     @NonNull
     Collection<EventDbo> findAll();

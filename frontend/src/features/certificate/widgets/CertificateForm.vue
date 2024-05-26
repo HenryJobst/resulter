@@ -4,10 +4,12 @@ import { useI18n } from 'vue-i18n'
 import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
+import Sidebar from 'primevue/sidebar'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown'
 import VuePdfEmbed from 'vue-pdf-embed'
-import { watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { prettyPrint } from '@base2/pretty-print-object'
 import type { Certificate } from '@/features/certificate/model/certificate'
 import { EventService, eventService } from '@/features/event/services/event.service'
 import type { EventKey } from '@/features/event/model/event_key'
@@ -41,6 +43,21 @@ const certificateQuery = useQuery({
     queryKey: ['certificate', certificate.value?.id, certificate.value?.event?.id],
     queryFn: () => EventService.getCertificate(certificate.value, t),
     retry: 1,
+})
+
+const schemaQuery = useQuery({
+    queryKey: ['certificate_schema'],
+    queryFn: () => EventService.getCertificateSchema(t),
+    retry: 1,
+})
+
+const visibleRight = ref(false)
+
+const formattedSchema = computed(() => {
+    if (schemaQuery.isFetched)
+        return prettyPrint(schemaQuery.data.value)
+
+    return ''
 })
 
 function getEventKeyFromId(id: number | null): EventKey | null {
@@ -155,17 +172,27 @@ watch(() => certificate.value, () => {
                         <InputText id="name" v-model="certificate.name" type="text" />
                     </div>
                 </div>
-                <div class="flex flex-row flex-wrap">
-                    <label for="layoutDescription" class="col-fixed w-32">{{
-                        t('labels.layout_description')
-                    }}</label>
+                <div class="flex flex-col">
+                    <div class="flex flex-row flex-wrap">
+                        <label for="layoutDescription" class="col-fixed w-32">{{
+                            t('labels.layout_description')
+                        }}</label>
+                        <Button icon="pi pi-question-circle" outlined @click="visibleRight = true" />
+                        <Sidebar
+                            v-if="schemaQuery.isFetched" v-model:visible="visibleRight"
+                            :header="t('labels.schema')"
+                            position="right" class="w-7/12"
+                        >
+                            <pre>{{ formattedSchema }}</pre>
+                        </Sidebar>
+                    </div>
                     <div class="col">
                         <Textarea
                             id="layoutDescription"
                             v-model="certificate.layoutDescription"
                             auto-resize
                             rows="20"
-                            cols="40"
+                            cols="60"
                         />
                     </div>
                 </div>
@@ -176,15 +203,14 @@ watch(() => certificate.value, () => {
                     </div>
                 </div>
             </div>
-            <div v-if="certificateQuery.status.value" class="flex flex-col flex-grow ml-3">
+            <div v-if="certificateQuery.status.value" class="fixed-element flex flex-col flex-grow ml-3">
                 <div class="flex flex-row justify-between">
                     <label for="preview" class="col-fixed w-32">{{ t('labels.preview') }}</label>
                     <div>
                         <Button
                             outlined
                             severity="primary"
-                            :label="t('labels.reload')"
-                            class="mb-2"
+                            class="mb-2 pi pi-refresh"
                             @click="certificateQuery.refetch()"
                         />
                     </div>
@@ -193,19 +219,19 @@ watch(() => certificate.value, () => {
                 <span v-else-if="certificateQuery.status.value === 'error'">
                     {{ t('messages.error', { message: mediaQuery.error.toLocaleString() }) }}
                 </span>
-                <div v-else-if="certificateQuery.data.value" class="flex">
-                    <VuePdfEmbed :source="certificateQuery.data.value" :width="600" />
-                    <!-- embed
-                                                                                                                                    id="preview"
-                                                                                                                                    :src="certificateQuery.data.value"
-                                                                                                                                    width="100%"
-                                                                                                                                    height="1100"
-                                                                                                                                    class=""
-                                                                                                                                  / -->
+                <div v-else-if="certificateQuery.data.value" style="border: 1px solid #ccc;">
+                    <VuePdfEmbed :source="certificateQuery.data.value" :width="500" />
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.fixed-element {
+    position: fixed;
+    top: 130px;
+    left: 780px;
+    padding: 10px;
+}
+</style>

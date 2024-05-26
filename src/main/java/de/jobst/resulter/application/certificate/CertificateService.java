@@ -18,6 +18,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TabAlignment;
 import de.jobst.resulter.domain.*;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -47,6 +48,7 @@ public class CertificateService {
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
 
+    @Getter
     private final String certificateSchema;
     private final JsonSchemaValidator jsonSchemaValidator;
 

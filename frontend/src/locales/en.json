@@ -80,7 +80,8 @@
         "certificate_stats": "{count} certificates created",
         "race_number": "Race {raceNumber}",
         "overall": "Overall",
-        "certificate_stat": "certificate creation entry"
+        "certificate_stat": "certificate creation entry",
+        "schema": "Schema"
     },
     "messages": {
         "new_cup": "New cup",

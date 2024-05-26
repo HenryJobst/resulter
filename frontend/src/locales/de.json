@@ -80,7 +80,8 @@
         "certificate_stats": "{count} Urkunden erstellt",
         "race_number": "Lauf {raceNumber}",
         "overall": "Gesamtwertung",
-        "certificate_stat": "Urkundenerzeugungseintrag"
+        "certificate_stat": "Urkundenerzeugungseintrag",
+        "schema": "Schema"
     },
     "result_state": {
         "OK": "OK",

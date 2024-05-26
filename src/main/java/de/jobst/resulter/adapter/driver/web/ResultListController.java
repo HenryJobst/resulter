@@ -25,11 +25,15 @@ public class ResultListController {
 
     private final EventService eventService;
     private final ResultListService resultListService;
+    private final CertificateService certificateService;
 
     @Autowired
-    public ResultListController(EventService eventService, ResultListService resultListService) {
+    public ResultListController(EventService eventService,
+                                ResultListService resultListService,
+                                CertificateService certificateService) {
         this.eventService = eventService;
         this.resultListService = resultListService;
+        this.certificateService = certificateService;
     }
 
     private static void logError(Exception e) {
@@ -114,6 +118,16 @@ public class ResultListController {
         } catch (IllegalArgumentException e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/certificate_schema")
+    public ResponseEntity<String> getCertificateSchema() {
+        try {
+            return ResponseEntity.ok(certificateService.getCertificateSchema());
         } catch (Exception e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

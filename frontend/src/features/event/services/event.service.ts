@@ -177,6 +177,16 @@ export class EventService extends GenericService<SportEvent> {
                 return null
             })
     }
+
+    static async getCertificateSchema(t: (key: string) => string) {
+        return axiosInstance
+            .get('/certificate_schema')
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
 }
 
 export const eventService = new EventService()

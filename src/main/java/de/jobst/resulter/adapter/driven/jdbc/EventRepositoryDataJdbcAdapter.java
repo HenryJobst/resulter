@@ -3,6 +3,8 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import com.turkraft.springfilter.converter.FilterStringConverter;
 import com.turkraft.springfilter.parser.node.FilterNode;
 import com.turkraft.springfilter.transformer.FilterNodeTransformer;
+import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
+import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
 import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.*;
@@ -33,7 +35,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     private final EventCertificateJdbcRepository eventCertificateJdbcRepository;
     private final MediaFileJdbcRepository mediaFileJdbcRepository;
     private final FilterStringConverter filterStringConverter;
-    private final FilterNodeTransformer<FilterNodeTransformResult> filterNodeTransformer;
+    private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
 
 
     public EventRepositoryDataJdbcAdapter(EventJdbcRepository eventJdbcRepository,
@@ -50,7 +52,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         this.eventCertificateJdbcRepository = eventCertificateJdbcRepository;
         this.mediaFileJdbcRepository = mediaFileJdbcRepository;
         this.filterStringConverter = filterStringConverter;
-        this.filterNodeTransformer = new MyFilterNodeTransformer(new DefaultConversionService());
+        this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
     }
 
     @Transactional
@@ -166,13 +168,12 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
             //.withIncludeNullValues().withStringMatcher(ExampleMatcher.StringMatcher.ENDING);
             FilterNode filterNode = filterStringConverter.convert(filter);
             log.info("FilterNode: {}", filterNode);
-            var transformResult = filterNodeTransformer.transform(filterNode);
+            MappingFilterNodeTransformResult transformResult = filterNodeTransformer.transform(filterNode);
             transformResult.filterMap().forEach((key, value) -> {
                 if (key.equals("name")) {
-                    String unquotedValue = value.replace("'", "");
+                    String unquotedValue = value.value().replace("'", "");
                     eventDbo.setName(unquotedValue);
-                    matcher.set(matcher.get()
-                        .withMatcher("name", m -> m.stringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
+                    matcher.set(matcher.get().withMatcher("name", m -> m.stringMatcher(value.matcher())));
                 }
             });
 

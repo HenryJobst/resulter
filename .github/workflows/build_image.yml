@@ -1,0 +1,113 @@
+name : Build and Push Docker Image for Frontend & Backend
+
+on :
+    push :
+        tags :
+            - 'v*.*.*' # Trigger on an semantic version tag
+jobs :
+    build-backend-docker-image :
+        runs-on : ubuntu-latest
+        environment : production
+
+        steps :
+            -   name : Checkout repository
+                uses : actions/checkout@v4
+
+            -   name : Check if the tag is on main
+                id : check_tag_main
+                run : |
+                    if [ "$(git branch --contains ${{ github.sha }} | grep main)" != "* main" ]; then
+                      echo "This tag is not on the main branch. Exiting."
+                      exit 1
+                    fi 
+
+            -   name : Set up Docker Buildx
+                uses : docker/setup-buildx-action@v3
+
+            -   name : Set up QEMU
+                uses : docker/setup-qemu-action@v3
+
+            -   name : Log in to GitHub Container Registry
+                uses : docker/login-action@v2
+                with :
+                    registry : ghcr.io
+                    username : ${{ github.actor }}
+                    password : ${{ secrets.GITHUB_TOKEN }}
+
+            -   name : Build Docker image
+                run : |
+                    docker build --no-cache -t resulter-backend:latest -t resulter-backend:${{ github.sha }} ./backend
+
+            -   name : Tag Docker image for GHCR
+                run : |
+                    docker tag resulter-backend:latest ghcr.io/${{ github.repository_owner }}/resulter-backend:latest
+                    docker tag resulter-backend:${{ github.sha }} ghcr.io/${{ github.repository_owner }}/resulter-backend:${{ github.sha }}
+
+            -   name : Push Docker image to GitHub Container Registry
+                run : |
+                    docker push ghcr.io/${{ github.repository_owner }}/resulter-backend:latest
+                    docker push ghcr.io/${{ github.repository_owner }}/resulter-backend:${{ github.sha }}
+    
+
+    build-frontend-docker-image :
+        runs-on : ubuntu-latest
+        environment : production
+
+        if : startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/tags/'
+
+        steps :
+            -   name : Checkout repository
+                uses : actions/checkout@v4
+
+            -   name : Check if the tag is on main
+                id : check_tag_main
+                run : |
+                    if [ "$(git branch --contains ${{ github.sha }} | grep main)" != "* main" ]; then
+                      echo "This tag is not on the main branch. Exiting."
+                      exit 1
+                    fi 
+
+            -   name : Set up Docker Buildx
+                uses : docker/setup-buildx-action@v3
+
+            -   name : Set up QEMU
+                uses : docker/setup-qemu-action@v3
+
+            -   name : Log in to GitHub Container Registry
+                uses : docker/login-action@v2
+                with :
+                    registry : ghcr.io
+                    username : ${{ github.actor }}
+                    password : ${{ secrets.GITHUB_TOKEN }}
+
+            -   name : Set environment variables
+                run : |
+                    echo "VITE_API_ENDPOINT=${{ secrets.VITE_API_ENDPOINT }}" >> $GITHUB_ENV
+                    echo "VITE_KEYCLOAK_URL=${{ secrets.VITE_KEYCLOAK_URL }}" >> $GITHUB_ENV
+                    echo "VITE_KEYCLOAK_CLIENT_ID=${{ secrets.VITE_KEYCLOAK_CLIENT_ID }}" >> $GITHUB_ENV
+                    echo "VITE_KEYCLOAK_REALM=${{ secrets.VITE_KEYCLOAK_REALM }}" >> $GITHUB_ENV
+
+            -   name : Extract Tag Name
+                id : extract_tag
+                run : echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+            -   name : Build Docker image
+                run : |
+                    docker build --no-cache \
+                      --build-arg VITE_API_ENDPOINT=$VITE_API_ENDPOINT \
+                      --build-arg VITE_KEYCLOAK_URL=$VITE_KEYCLOAK_URL \
+                      --build-arg VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID \
+                      --build-arg VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM \
+                      -t resulter-frontend:latest \
+                      -t resulter-frontend:${{ env.TAG_NAME }} \
+                      ./frontend
+
+            -   name : Tag Docker image for GHCR
+                run : |
+                    docker tag resulter-frontend:latest ghcr.io/${{ github.repository_owner }}/resulter-frontend:latest
+                    docker tag resulter-frontend:${{ env.TAG_NAME }} ghcr.io/${{ github.repository_owner }}/resulter-frontend:${{ env.TAG_NAME }}
+
+            -   name : Push Docker image to GitHub Container Registry
+                run : |
+                    docker push ghcr.io/${{ github.repository_owner }}/resulter-frontend:latest
+                    docker push ghcr.io/${{ github.repository_owner }}/resulter-frontend:${{ env.TAG_NAME }}

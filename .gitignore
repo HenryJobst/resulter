@@ -40,3 +40,6 @@ src/.DS_Store
 src/main/.DS_Store
 
 .env
+/node_modules/**
+/build-with-act.sh
+/build-images-with-act.sh

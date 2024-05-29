@@ -25,6 +25,11 @@ ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 ENV RESULTER_LOG_LEVEL=$RESULTER_LOG_LEVEL
 ENV SPRING_PROFILES_ACTIVE=prod
 
+LABEL org.opencontainers.image.title=resulter-backend
+LABEL org.opencontainers.image.description="Backend for the resulter app"
+LABEL org.opencontainers.image.source=https://github.com/HenryJobst/resulter
+LABEL org.opencontainers.image.licenses='CC BY-NC-ND 4.0'
+
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .

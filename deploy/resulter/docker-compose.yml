@@ -54,6 +54,7 @@ services :
             - "traefik.http.routers.resulter-api.middlewares=compresstraefik"
             - "traefik.http.middlewares.compresstraefik.compress=true"
             - "traefik.docker.network=proxy"
+            - "com.centurylinklabs.watchtower.enable=true"
         restart : unless-stopped
         volumes :
             - /opt/data/resulter/resulter-media-backup/media:/workspace/app/media
@@ -85,6 +86,7 @@ services :
             - "traefik.http.routers.resulter.middlewares=compresstraefik"
             - "traefik.http.middlewares.compresstraefik.compress=true"
             - "traefik.docker.network=proxy"
+            - "com.centurylinklabs.watchtower.enable=true"
         restart : unless-stopped
         depends_on :
             postgres :

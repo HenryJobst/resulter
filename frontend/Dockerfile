@@ -14,8 +14,12 @@ ENV VITE_KEYCLOAK_URL=$VITE_KEYCLOAK_URL
 ENV VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID
 ENV VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM
 
-COPY package.json ./
+LABEL org.opencontainers.image.title=resulter-frontend
+LABEL org.opencontainers.image.description="Frontend for the resulter app"
+LABEL org.opencontainers.image.source=https://github.com/HenryJobst/resulter
+LABEL org.opencontainers.image.licenses='CC BY-NC-ND 4.0'
 
+COPY package.json ./
 
 RUN corepack enable pnpm
 

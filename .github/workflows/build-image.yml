@@ -43,6 +43,26 @@ jobs :
                     username : ${{ github.actor }}
                     password : ${{ secrets.GITHUB_TOKEN }}
 
+            -   name : Extract branch part
+                id : extract
+                if : startsWith(github.ref, 'refs/heads/releases/v')
+                run : |
+                    # Extract the part of the branch name after "releases/v"
+                    BRANCH_NAME=${GITHUB_REF#refs/heads/releases/}
+                    FULL_VERSION=${GITHUB_REF#refs/heads/releases/v}
+                    # Extract major version (1)
+                    MAJOR_VERSION=$(echo $BRANCH_NAME | cut -d'.' -f1 | cut -d'v' -f2)
+                    # Extract major.minor version (1.0)
+                    MAJOR_MINOR_VERSION=$(echo $BRANCH_NAME | awk -F'.' '{print $1"."$2}' | cut -d'v' -f2)
+                    # Export the variables
+                    echo "FULL_VERSION=${FULL_VERSION}" >> $GITHUB_ENV
+                    echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
+                    echo "MAJOR_MINOR_VERSION=${MAJOR_MINOR_VERSION}" >> $GITHUB_ENV
+                    # Print the variables
+                    echo "FULL_VERSION: ${FULL_VERSION}"
+                    echo "MAJOR_VERSION: ${MAJOR_VERSION}"
+                    echo "MAJOR_MINOR_VERSION: ${MAJOR_MINOR_VERSION}"
+
             -   name : Extract metadata (tags, labels) for Docker
                 id : meta
                 uses : docker/metadata-action@v5
@@ -51,9 +71,12 @@ jobs :
                     github-token : ${{ secrets.GITHUB_TOKEN }}
                     tags : |
                         type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/') }}
-                        type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/heads/releases/v') || startsWith(github.ref, 'refs/tags/v') }}
-                        type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/heads/releases/v') || startsWith(github.ref, 'refs/tags/v') }}
-                        type=semver,pattern={{major}},enable=${{ startsWith(github.ref, 'refs/heads/releases/v') || startsWith(github.ref, 'refs/tags/v')}}
+                        type=semver,pattern={{version}}
+                        type=semver,pattern={{major}}.{{minor}}
+                        type=semver,pattern={{major}}
+                        type=raw,value=${{ env.FULL_VERSION }},enable=${{ env.FULL_VERSION }}
+                        type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.MAJOR_VERSION }}
+                        type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.MAJOR_MINOR_VERSION }}
                         type=ref,event=branch
                         type=sha,format=short
 

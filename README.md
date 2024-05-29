@@ -25,7 +25,7 @@ Architecture.
 ## Technologies
 
 - **Backend**: Java, SpringBoot, Spring Data JDBC
-- **Frontend**: Typescript, Vue.js 3, Vite, Pina, Primevue, Tailwind, Tanstack Query
+- **Frontend**: Typescript, Vue.js 3, Vite, Pinia, Primevue, Tailwind, Tanstack Query
 - **Communication**: REST API
 - **Authentication/Authorisation**: Keycloak
 - **Database**: PostgreSQL, H2
@@ -103,7 +103,7 @@ implementiert ist.
 ## Technologien
 
 - **Backend**: Java, SpringBoot, Spring Data JDBC
-- **Frontend**: Typescript, Vue.js 3, Vite, Pina, Primevue, Tailwind, Tanstack Query
+- **Frontend**: Typescript, Vue.js 3, Vite, Pinia, Primevue, Tailwind, Tanstack Query
 - **Kommunikation**: REST API
 - **Authentifizierung/Berechtigung**: Keycloak
 - **Datenbank**: PostgreSQL, H2

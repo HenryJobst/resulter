@@ -62,6 +62,11 @@ jobs :
                     echo "FULL_VERSION: ${FULL_VERSION}"
                     echo "MAJOR_VERSION: ${MAJOR_VERSION}"
                     echo "MAJOR_MINOR_VERSION: ${MAJOR_MINOR_VERSION}"
+                    if [ -n "${FULL_VERSION}" ]; then
+                        echo "IS_VERSION_SET=true" >> $GITHUB_ENV
+                    else
+                        echo "IS_VERSION_SET=false" >> $GITHUB_ENV
+                    fi
 
             -   name : Extract metadata (tags, labels) for Docker
                 id : meta
@@ -74,9 +79,9 @@ jobs :
                         type=semver,pattern={{version}}
                         type=semver,pattern={{major}}.{{minor}}
                         type=semver,pattern={{major}}
-                        type=raw,value=${{ env.FULL_VERSION }},enable=${{ env.FULL_VERSION }}
-                        type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.MAJOR_VERSION }}
-                        type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.MAJOR_MINOR_VERSION }}
+                        type=raw,value=${{ env.FULL_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
                         type=ref,event=branch
                         type=sha,format=short
 

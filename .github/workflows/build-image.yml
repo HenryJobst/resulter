@@ -16,7 +16,6 @@ permissions :
     checks : read
     contents : read
     deployments : write
-    id-token : read
     packages : write
     pull-requests : read
     security-events : read

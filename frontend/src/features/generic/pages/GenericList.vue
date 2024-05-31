@@ -238,6 +238,25 @@ onMounted(() => {
     })
     console.log(`Filters: ${prettyPrint(settingsStore.settings.filters)}`)
 })
+
+function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
+    let timeoutID: ReturnType<typeof setTimeout> | null = null
+
+    return function (this: any, ...args: Parameters<T>) {
+        if (timeoutID !== null)
+            clearTimeout(timeoutID)
+
+        timeoutID = setTimeout(() => {
+            fn.apply(this, args)
+        }, delay)
+    }
+}
+
+const delay = 800
+const debounceFilterChanged = debounce(filterChanged, delay)
+const debouncedFilterInput = debounce((filterModel: any, filterCallback: Function) => {
+    filterCallback()
+}, delay)
 </script>
 
 <template>
@@ -294,7 +313,7 @@ onMounted(() => {
                 class="p-datatable-sm"
                 @page="pageChanged"
                 @sort="sortChanged"
-                @filter="filterChanged"
+                @filter="debounceFilterChanged"
             >
                 <!-- Add Columns Here -->
                 <Column
@@ -355,7 +374,7 @@ onMounted(() => {
                             v-model="filterModel.value"
                             type="text"
                             class="p-column-filter"
-                            @input="filterCallback()"
+                            @input="debouncedFilterInput(filterModel, filterCallback)"
                         />
                     </template>
                 </Column>

@@ -23,6 +23,7 @@ import java.util.List;
 @Profile("!nosecurity")
 public class OAuth2ResourceServerSecurityConfiguration {
 
+    public static final long CORS_PREFLIGHT_CACHE_MAX_AGE = 3600L;
     private final JwtAuthConverter jwtAuthConverter;
 
     @Value("#{'${cors.allowed-origins}'.split(',')}")
@@ -42,6 +43,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Content-Disposition"));
+        configuration.setMaxAge(CORS_PREFLIGHT_CACHE_MAX_AGE);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

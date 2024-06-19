@@ -97,3 +97,6 @@ export const useAuthStore = defineStore(
         },
     },
 )
+
+// Exportiere den Typ des Stores
+export type AuthStore = ReturnType<typeof useAuthStore>

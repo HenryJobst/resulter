@@ -29,3 +29,8 @@ coverage
 
 *.tsbuildinfo
 /build-with-act.sh
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/tests-examples/demo-todo-app.spec.ts

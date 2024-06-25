@@ -139,8 +139,9 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
         && event.value
         && organisationQuery.data.value
         && organisationQuery.data.value.content
-    )
+    ) {
         event.value.organisations = getOrganisationKeysFromIds(ev.value)!
+    }
 }
 
 onBeforeUpdate(() => {
@@ -170,8 +171,9 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
         && event.value
         && certificateQuery.data.value
         && certificateQuery.data.value.content
-    )
+    ) {
         event.value.certificate = getCertificateKeyFromId(ev.value.id)!
+    }
 }
 </script>
 

@@ -29,6 +29,6 @@ export interface GenericListColumn {
             | 'dateIsNot'
             | 'dateBefore'
             | 'dateAfter'
-      >
-      | undefined
+        >
+        | undefined
 }

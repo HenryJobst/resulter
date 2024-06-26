@@ -11,7 +11,7 @@ dotenv.config({
 const storageState = 'e2e/.auth/storageState.json'
 
 test('authenticate user', async ({ page }) => {
-    if (process.env.username === '**REMOVED**') {
+    if (process.env.USERNAME === '**REMOVED**') {
         throw new Error('Env file is not correct')
     }
 
@@ -31,13 +31,13 @@ test('authenticate user', async ({ page }) => {
     // console.log(`\x1b[2m\tSelect English'\x1b[0m`)
     // await page.getByRole('list')..getByRole('link', { name: 'English' }).click()
 
-    console.log(`\x1B[2m\tSign in as '${process.env.username}'\x1B[0m`)
+    console.log(`\x1B[2m\tSign in as '${process.env.USERNAME}'\x1B[0m`)
 
-    await page.getByRole('textbox', { name: /username/i }).fill(process.env.username as string)
-    await page.getByRole('textbox', { name: /password/i }).fill(process.env.password as string)
+    await page.getByRole('textbox', { name: /username/i }).fill(process.env.USERNAME as string)
+    await page.getByRole('textbox', { name: /password/i }).fill(process.env.PASSWORD as string)
 
-    // await page.getByRole('textbox', { name: /username/i }).fill(process.env.username as string)
-    // await page.getByLabel('Password').fill(process.env.password as string)
+    // await page.getByRole('textbox', { name: /username/i }).fill(process.env.USERNAME as string)
+    // await page.getByLabel('Password').fill(process.env.PASSWORD as string)
 
     console.log(`\x1B[2m\tSign in processing\x1B[0m`)
 

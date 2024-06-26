@@ -1,11 +1,26 @@
 import process from 'node:process'
 import { defineConfig, devices } from '@playwright/test'
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
+import * as dotenv from 'dotenv'
+
+dotenv.config({
+    path: './e2e/.env.local',
+})
+
+const hostname = process.env.HOSTNAME
+console.log(`Hostname: ${hostname}`)
+const frontend_protocol = process.env.FRONTEND_PROTOCOL
+console.log(`Frontend protocol: ${frontend_protocol}`)
+const port = process.env.PORT
+console.log(`Port: ${port}`)
+const backend_protocol = process.env.BACKEND_PROTOCOL
+console.log(`Backend protocol: ${backend_protocol}`)
+const backend_port = process.env.BACKEND_PORT
+console.log(`Backend port: ${backend_port}`)
+const backend_profiles = process.env.BACKEND_PROFILES
+console.log(`Backend profiles: ${backend_profiles}`)
+const vite_mode = process.env.VITE_MODE
+console.log(`Vite mode: ${vite_mode}`)
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -25,7 +40,7 @@ export default defineConfig({
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
-        baseURL: 'http://localhost:5173',
+        baseURL: `${frontend_protocol}://${hostname}:${port}`,
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
@@ -100,17 +115,19 @@ export default defineConfig({
     /* Run your local dev server before starting the tests */
     webServer: [
         {
-            command: 'npm run dev',
-            url: 'http://localhost:5173',
+            command: `pnpm ./node_modules/vite/bin/vite.js --mode ${vite_mode} --host ${hostname} --port ${port}`,
+            url: `${frontend_protocol}://${hostname}:${port}`,
             timeout: 120 * 1000,
             reuseExistingServer: !process.env.CI,
+            ignoreHTTPSErrors: true,
         },
         {
-            command: 'mvn compile exec:java -D exec.mainClass="de.jobst.resulter.ResulterApplication"',
-            url: 'http://localhost:8080',
+            command: `mvn compile exec:java -D exec.mainClass="de.jobst.resulter.ResulterApplication" -Dspring.profiles.active=${backend_profiles}`,
+            url: `${backend_protocol}://${hostname}:${backend_port}`,
             timeout: 120 * 1000,
             reuseExistingServer: !process.env.CI,
             cwd: '../',
+            ignoreHTTPSErrors: true,
         },
     ],
 })

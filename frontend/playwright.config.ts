@@ -67,6 +67,15 @@ export default defineConfig({
             dependencies: ['setup'],
         },
 
+        {
+            name: 'msedge',
+            use: {
+                channel: 'msedge',
+                storageState: 'e2e/.auth/storageState.json',
+            },
+            dependencies: ['setup'],
+        },
+
         /* Test against mobile viewports. */
         // {
         //   name: 'Mobile Chrome',

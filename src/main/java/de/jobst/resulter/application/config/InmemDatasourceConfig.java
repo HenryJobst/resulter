@@ -9,14 +9,14 @@ import org.springframework.context.annotation.Profile;
 import javax.sql.DataSource;
 
 @Configuration
-@Profile("inmem")
+@Profile("inmem && !testcontainers")
 public class InmemDatasourceConfig {
 
     @Bean
     @Primary
     public DataSource dataSource() {
         return DataSourceBuilder.create()
-            .url("jdbc:p6spy:h2:mem:testdb;DATABASE_TO_UPPER=FALSE")
+            .url("jdbc:p6spy:h2:file:./testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE;AUTO_RECONNECT=TRUE;")
             .username("test")
             .password("test")
             .driverClassName("com.p6spy.engine.spy.P6SpyDriver")

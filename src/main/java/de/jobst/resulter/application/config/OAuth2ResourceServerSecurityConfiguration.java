@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -52,7 +53,9 @@ public class OAuth2ResourceServerSecurityConfiguration {
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth.requestMatchers("/public/**")
+        http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/createDatabase")
+            .permitAll()
+            .requestMatchers("/public/**")
             .permitAll()
             .requestMatchers("/swagger-ui/**")
             .permitAll()
@@ -88,6 +91,8 @@ public class OAuth2ResourceServerSecurityConfiguration {
             jwtAuthConverter)));
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+        http.csrf(csrf -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/createDatabase",
+            HttpMethod.POST.name())));
 
         return http.build();
     }

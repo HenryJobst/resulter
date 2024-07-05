@@ -25,6 +25,7 @@ import java.util.List;
 public class OAuth2ResourceServerSecurityConfiguration {
 
     public static final long CORS_PREFLIGHT_CACHE_MAX_AGE = 3600L;
+    public static final String ADMIN = "ADMIN";
     private final JwtAuthConverter jwtAuthConverter;
 
     @Value("#{'${cors.allowed-origins}'.split(',')}")
@@ -54,7 +55,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/createDatabase")
-            .permitAll()
+            .hasRole(ADMIN)
             .requestMatchers("/public/**")
             .permitAll()
             .requestMatchers("/swagger-ui/**")
@@ -64,11 +65,11 @@ public class OAuth2ResourceServerSecurityConfiguration {
             .requestMatchers("/actuator/health")
             .permitAll()
             .requestMatchers("/actuator/**")
-            .hasRole("ADMIN")
+            .hasRole(ADMIN)
             .requestMatchers("/admin/**")
-            .hasRole("ADMIN")
+            .hasRole(ADMIN)
             .requestMatchers(HttpMethod.POST, "/upload", "/media/upload")
-            .hasRole("ADMIN")
+            .hasRole(ADMIN)
             .requestMatchers(HttpMethod.GET,
                 "/version",
                 "/event",
@@ -86,7 +87,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 "/event_certificate")
             .permitAll()
             .anyRequest()
-            .hasRole("ADMIN"));
+            .hasRole(ADMIN));
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(
             jwtAuthConverter)));
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

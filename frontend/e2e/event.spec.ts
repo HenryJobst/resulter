@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test'
+import { test } from './fixtures/own.database'
+import { expect } from '@playwright/test'
 
 test('create and delete test event', async ({ page, browserName }) => {
     await page.goto('/en/event/new')

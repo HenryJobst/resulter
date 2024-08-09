@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.application.config.DataSourceManager;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @Profile("testcontainers")
+@PreAuthorize("permitAll()")
 public class DatabaseController {
 
     public static final String TIMEOUT = "timeout";

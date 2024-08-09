@@ -2,15 +2,21 @@ import * as fs from 'node:fs'
 import process from 'node:process'
 import { test } from '@playwright/test'
 import * as dotenv from 'dotenv'
+import globalSetup from './global-setup'
 
 // we don't want to store credentials in the repository
 dotenv.config({
-    path: './e2e/.env.local',
+    path: './e2e/.env.local'
 })
 
 const storageState = 'e2e/.auth/storageState.json'
 
-test('authenticate user', async ({ page }) => {
+test('get auth token', async ({ request }) => {
+    await globalSetup()
+    console.log('Auth token:', process.env.AUTH_TOKEN)
+})
+
+test('set page storageState', async ({ page }) => {
     if (process.env.USERNAME === '**REMOVED**') {
         throw new Error('Env file is not correct')
     }

@@ -18,8 +18,6 @@ import type { MediaKey } from '@/features/media/model/media_key'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { Media } from '@/features/media/model/media'
 
-import 'vue-pdf-embed/dist/style/index.css'
-
 const certificate = defineModel({
     type: Object as () => Certificate,
     default: null,

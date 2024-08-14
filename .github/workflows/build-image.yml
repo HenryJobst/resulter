@@ -1,167 +1,167 @@
-name: Build and Push Docker Images
+name : Build and Push Docker Images
 
-on:
-  push:
-    tags:
-      - 'v*'
-    branches:
-      - 'releases/**'
-env:
-  REGISTRY: ${{ vars.IMAGE_DEPLOY_REPO }}
-  IMAGE_NAME_FRONTEND: ${{ github.repository }}/frontend
-  IMAGE_NAME_BACKEND: ${{ github.repository }}/backend
+on :
+    push :
+        tags :
+            - 'v*'
+        branches :
+            - 'releases/**'
+env :
+    REGISTRY : ${{ vars.IMAGE_DEPLOY_REPO }}
+    IMAGE_NAME_FRONTEND : ${{ github.repository }}/frontend
+    IMAGE_NAME_BACKEND : ${{ github.repository }}/backend
 
-permissions:
-  actions: write
-  checks: read
-  contents: read
-  deployments: write
-  packages: write
-  pull-requests: read
-  security-events: read
-  statuses: read
+permissions :
+    actions : write
+    checks : read
+    contents : read
+    deployments : write
+    packages : write
+    pull-requests : read
+    security-events : read
+    statuses : read
 
-jobs:
-  build-backend-docker-image:
-    runs-on: ubuntu-latest
-    environment: production
+jobs :
+    build-backend-docker-image :
+        runs-on : ubuntu-latest
+        environment : production
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+        steps :
+            -   name : Checkout repository
+                uses : actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+            -   name : Set up Docker Buildx
+                uses : docker/setup-buildx-action@v3
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+            -   name : Set up QEMU
+                uses : docker/setup-qemu-action@v3
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+            -   name : Log in to GitHub Container Registry
+                uses : docker/login-action@v3
+                with :
+                    registry : ${{ env.REGISTRY }}
+                    username : ${{ github.actor }}
+                    password : ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract branch part
-        id: extract
-        if: startsWith(github.ref, 'refs/heads/releases/v')
-        run: |
-          # Extract the part of the branch name after "releases/v"
-          BRANCH_NAME=${GITHUB_REF#refs/heads/releases/}
-          FULL_VERSION=${GITHUB_REF#refs/heads/releases/v}
-          # Extract major version (1)
-          MAJOR_VERSION=$(echo $BRANCH_NAME | cut -d'.' -f1 | cut -d'v' -f2)
-          # Extract major.minor version (1.0)
-          MAJOR_MINOR_VERSION=$(echo $BRANCH_NAME | awk -F'.' '{print $1"."$2}' | cut -d'v' -f2)
-          # Export the variables
-          echo "FULL_VERSION=${FULL_VERSION}" >> $GITHUB_ENV
-          echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
-          echo "MAJOR_MINOR_VERSION=${MAJOR_MINOR_VERSION}" >> $GITHUB_ENV
-          # Print the variables
-          echo "FULL_VERSION: ${FULL_VERSION}"
-          echo "MAJOR_VERSION: ${MAJOR_VERSION}"
-          echo "MAJOR_MINOR_VERSION: ${MAJOR_MINOR_VERSION}"
-          if [ -n "${FULL_VERSION}" ]; then
-              echo "IS_VERSION_SET=true" >> $GITHUB_ENV
-          else
-              echo "IS_VERSION_SET=false" >> $GITHUB_ENV
-          fi
+            -   name : Extract branch part
+                id : extract
+                if : startsWith(github.ref, 'refs/heads/releases/v')
+                run : |
+                    # Extract the part of the branch name after "releases/v"
+                    BRANCH_NAME=${GITHUB_REF#refs/heads/releases/}
+                    FULL_VERSION=${GITHUB_REF#refs/heads/releases/v}
+                    # Extract major version (1)
+                    MAJOR_VERSION=$(echo $BRANCH_NAME | cut -d'.' -f1 | cut -d'v' -f2)
+                    # Extract major.minor version (1.0)
+                    MAJOR_MINOR_VERSION=$(echo $BRANCH_NAME | awk -F'.' '{print $1"."$2}' | cut -d'v' -f2)
+                    # Export the variables
+                    echo "FULL_VERSION=${FULL_VERSION}" >> $GITHUB_ENV
+                    echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
+                    echo "MAJOR_MINOR_VERSION=${MAJOR_MINOR_VERSION}" >> $GITHUB_ENV
+                    # Print the variables
+                    echo "FULL_VERSION: ${FULL_VERSION}"
+                    echo "MAJOR_VERSION: ${MAJOR_VERSION}"
+                    echo "MAJOR_MINOR_VERSION: ${MAJOR_MINOR_VERSION}"
+                    if [ -n "${FULL_VERSION}" ]; then
+                        echo "IS_VERSION_SET=true" >> $GITHUB_ENV
+                    else
+                        echo "IS_VERSION_SET=false" >> $GITHUB_ENV
+                    fi
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/') }}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=${{ env.FULL_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-            type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-            type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-            type=ref,event=branch
-            type=sha,format=short
+            -   name : Extract metadata (tags, labels) for Docker
+                id : meta
+                uses : docker/metadata-action@v5
+                with :
+                    images : ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
+                    github-token : ${{ secrets.GITHUB_TOKEN }}
+                    tags : |
+                        type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/') }}
+                        type=semver,pattern={{version}}
+                        type=semver,pattern={{major}}.{{minor}}
+                        type=semver,pattern={{major}}
+                        type=raw,value=${{ env.FULL_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=ref,event=branch
+                        type=sha,format=short
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+            -   name : Build and push
+                uses : docker/build-push-action@v5
+                with :
+                    context : .
+                    push : true
+                    tags : ${{ steps.meta.outputs.tags }}
+                    labels : ${{ steps.meta.outputs.labels }}
 
-  build-frontend-docker-image:
-    runs-on: ubuntu-latest
-    environment: production
+    build-frontend-docker-image :
+        runs-on : ubuntu-latest
+        environment : production
 
-    steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        steps :
+            -   name : Set up Docker Buildx
+                uses : docker/setup-buildx-action@v3
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+            -   name : Set up QEMU
+                uses : docker/setup-qemu-action@v3
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+            -   name : Log in to GitHub Container Registry
+                uses : docker/login-action@v3
+                with :
+                    registry : ${{ env.REGISTRY }}
+                    username : ${{ github.actor }}
+                    password : ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract branch part
-        id: extract
-        if: startsWith(github.ref, 'refs/heads/releases/v')
-        run: |
-          # Extract the part of the branch name after "releases/v"
-          BRANCH_NAME=${GITHUB_REF#refs/heads/releases/}
-          FULL_VERSION=${GITHUB_REF#refs/heads/releases/v}
-          # Extract major version (1)
-          MAJOR_VERSION=$(echo $BRANCH_NAME | cut -d'.' -f1 | cut -d'v' -f2)
-          # Extract major.minor version (1.0)
-          MAJOR_MINOR_VERSION=$(echo $BRANCH_NAME | awk -F'.' '{print $1"."$2}' | cut -d'v' -f2)
-          # Export the variables
-          echo "FULL_VERSION=${FULL_VERSION}" >> $GITHUB_ENV
-          echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
-          echo "MAJOR_MINOR_VERSION=${MAJOR_MINOR_VERSION}" >> $GITHUB_ENV
-          # Print the variables
-          echo "FULL_VERSION: ${FULL_VERSION}"
-          echo "MAJOR_VERSION: ${MAJOR_VERSION}"
-          echo "MAJOR_MINOR_VERSION: ${MAJOR_MINOR_VERSION}"
-          if [ -n "${FULL_VERSION}" ]; then
-              echo "IS_VERSION_SET=true" >> $GITHUB_ENV
-          else
-              echo "IS_VERSION_SET=false" >> $GITHUB_ENV
-          fi
+            -   name : Extract branch part
+                id : extract
+                if : startsWith(github.ref, 'refs/heads/releases/v')
+                run : |
+                    # Extract the part of the branch name after "releases/v"
+                    BRANCH_NAME=${GITHUB_REF#refs/heads/releases/}
+                    FULL_VERSION=${GITHUB_REF#refs/heads/releases/v}
+                    # Extract major version (1)
+                    MAJOR_VERSION=$(echo $BRANCH_NAME | cut -d'.' -f1 | cut -d'v' -f2)
+                    # Extract major.minor version (1.0)
+                    MAJOR_MINOR_VERSION=$(echo $BRANCH_NAME | awk -F'.' '{print $1"."$2}' | cut -d'v' -f2)
+                    # Export the variables
+                    echo "FULL_VERSION=${FULL_VERSION}" >> $GITHUB_ENV
+                    echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
+                    echo "MAJOR_MINOR_VERSION=${MAJOR_MINOR_VERSION}" >> $GITHUB_ENV
+                    # Print the variables
+                    echo "FULL_VERSION: ${FULL_VERSION}"
+                    echo "MAJOR_VERSION: ${MAJOR_VERSION}"
+                    echo "MAJOR_MINOR_VERSION: ${MAJOR_MINOR_VERSION}"
+                    if [ -n "${FULL_VERSION}" ]; then
+                        echo "IS_VERSION_SET=true" >> $GITHUB_ENV
+                    else
+                        echo "IS_VERSION_SET=false" >> $GITHUB_ENV
+                    fi
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/') }}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=${{ env.FULL_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-            type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-            type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-            type=ref,event=branch
-            type=sha,format=short
+            -   name : Extract metadata (tags, labels) for Docker
+                id : meta
+                uses : docker/metadata-action@v5
+                with :
+                    images : ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
+                    github-token : ${{ secrets.GITHUB_TOKEN }}
+                    tags : |
+                        type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/') }}
+                        type=semver,pattern={{version}}
+                        type=semver,pattern={{major}}.{{minor}}
+                        type=semver,pattern={{major}}
+                        type=raw,value=${{ env.FULL_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=ref,event=branch
+                        type=sha,format=short
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: '{{defaultContext}}:frontend'
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            VITE_API_ENDPOINT=${{ secrets.VITE_API_ENDPOINT }}
-            VITE_KEYCLOAK_URL=${{ secrets.VITE_KEYCLOAK_URL }}
-            VITE_KEYCLOAK_CLIENT_ID=${{ secrets.VITE_KEYCLOAK_CLIENT_ID }}
-            VITE_KEYCLOAK_REALM=${{ secrets.VITE_KEYCLOAK_REALM }}
+            -   name : Build and push
+                uses : docker/build-push-action@v6
+                with :
+                    context : '{{defaultContext}}:frontend'
+                    push : true
+                    tags : ${{ steps.meta.outputs.tags }}
+                    labels : ${{ steps.meta.outputs.labels }}
+                    build-args : |
+                        VITE_API_ENDPOINT=${{ secrets.VITE_API_ENDPOINT }}
+                        VITE_KEYCLOAK_URL=${{ secrets.VITE_KEYCLOAK_URL }}
+                        VITE_KEYCLOAK_CLIENT_ID=${{ secrets.VITE_KEYCLOAK_CLIENT_ID }}
+                        VITE_KEYCLOAK_REALM=${{ secrets.VITE_KEYCLOAK_REALM }}

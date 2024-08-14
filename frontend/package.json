@@ -1,7 +1,7 @@
 {
     "name": "resulter",
     "type": "module",
-    "version": "0.0.14",
+    "version": "0.0.15",
     "private": true,
     "packageManager": "pnpm@8.15.5",
     "scripts": {
@@ -20,7 +20,7 @@
         "@base2/pretty-print-object": "^1.0.2",
         "@tanstack/vue-query": "^5.48.0",
         "@tanstack/vue-query-devtools": "^5.48.0",
-        "axios": "^1.7.2",
+        "axios": "^1.7.4",
         "cors": "^2.8.5",
         "keycloak-js": "^25.0.1",
         "moment": "^2.30.1",

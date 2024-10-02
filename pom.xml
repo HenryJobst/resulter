@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.3</version>
+        <version>3.3.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>de.jobst</groupId>
@@ -35,10 +35,10 @@
         <spring-oxm.version>6.1.12</spring-oxm.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.6.0
         </springdoc-openapi-starter-webmvc-ui.version>
-        <tika-core.version>2.9.1</tika-core.version>
+        <tika-core.version>2.9.2</tika-core.version>
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
-        <testcontainers.version>1.20.1</testcontainers.version>
+        <testcontainers.version>1.20.2</testcontainers.version>
         <turkraft-springfilter-core.version>3.1.7</turkraft-springfilter-core.version>
     </properties>
     <profiles>

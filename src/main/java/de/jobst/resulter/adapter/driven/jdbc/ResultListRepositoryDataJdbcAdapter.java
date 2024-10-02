@@ -79,6 +79,20 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
+    public ResultList findByResultListId(ResultListId resultListId) {
+        List<PersonRaceResultJdbcDto> personRaceResults =
+            resultListJdbcRepository.findByResultListId(resultListId.value());
+        if (personRaceResults.isEmpty()) {
+            return null;
+        }
+        return Optional.of(personRaceResults.getFirst())
+            .flatMap(personRaceResultJdbcDto -> PersonRaceResultJdbcDto.asResultLists(List.of(personRaceResultJdbcDto))
+                .stream()
+                .findFirst())
+            .orElse(null);
+    }
+
+    @Override
     public ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
                                                                            ClassResultShortName classResultShortName,
                                                                            PersonId personId) {

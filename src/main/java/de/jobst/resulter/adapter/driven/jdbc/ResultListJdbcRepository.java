@@ -19,8 +19,8 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     Collection<ResultListDbo> findAll();
 
     @Query("""
-           SELECT
-           rl.event_id, rl.id as result_list_id, rl.raceId, rl.create_time, rl.create_time_zone, rl.status as result_list_status,
+           SELECT DISTINCT
+           rl.event_id, rl.id as result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status as result_list_status,
            cl.short_name as class_list_short_name, cl.name as class_list_name, cl.gender as class_gender, cl.course_id,
            pr.person_id, pr.organisation_id,
            prr.start_time, prr.start_time_zone, prr.punch_time, prr.position, prr.race_number, prr.state
@@ -29,9 +29,9 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
            LEFT JOIN person_result pr ON rl.id = cl.result_list_id and pr.class_result_short_name = cl.short_name
            LEFT JOIN person_race_result prr ON rl.id = prr.result_list_id and prr.class_result_short_name = pr.class_result_short_name and prr.person_id = pr.person_id
            WHERE rl.id = :resultListId
-           ORDER BY rl.id, cl.short_name, prr.race_number, prr.position, pr.person_id
+           ORDER BY prr.race_number
            """)
-    Collection<PersonRaceResultJdbcDto> findPersonRaceResultsById(@Param("resultListId") Long resultListId);
+    List<PersonRaceResultJdbcDto> findByResultListId(@Param("resultListId") Long resultListId);
 
     @Query("""
            SELECT
@@ -50,7 +50,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     Collection<PersonRaceResultJdbcDto> findPersonRaceResultsByEventId(@Param("eventId") Long eventId);
 
     @Query("""
-           SELECT DISTINCT 
+           SELECT DISTINCT
            rl.event_id, rl.id as result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status as result_list_status,
            cl.short_name as class_list_short_name, cl.name as class_list_name, cl.gender as class_gender, cl.course_id,
            pr.person_id, pr.organisation_id,

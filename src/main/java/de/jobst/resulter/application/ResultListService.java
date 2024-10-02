@@ -70,12 +70,11 @@ public class ResultListService {
 
     @Transactional
     public ResultList calculateScore(ResultListId id) {
-        Optional<ResultList> optionalResultList = resultListRepository.findById(id);
-        if (optionalResultList.isEmpty()) {
+        ResultList resultList = resultListRepository.findByResultListId(id);
+        if (resultList == null || resultList.getClassResults() == null || resultList.getClassResults().isEmpty()) {
             // no result list for id
             return null;
         }
-        ResultList resultList = optionalResultList.get();
         Collection<Cup> cups = cupRepository.findByEvent(resultList.getEventId());
         if (cups.isEmpty()) {
             // no cups for this event

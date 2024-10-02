@@ -64,6 +64,15 @@ public class InMemoryResultListRepository implements ResultListRepository {
     }
 
     @Override
+    public ResultList findByResultListId(ResultListId resultListId) {
+        return resultLists.values()
+            .stream()
+            .filter(it -> Objects.equals(it.getId(), resultListId))
+            .findAny()
+            .orElse(null);
+    }
+
+    @Override
     public ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
                                                                            ClassResultShortName classResultShortName,
                                                                            PersonId personId) {

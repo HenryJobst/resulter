@@ -22,6 +22,8 @@ public interface ResultListRepository {
 
     Collection<ResultList> findByEventId(EventId id);
 
+    ResultList findByResultListId(ResultListId resultListId);
+
     ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
                                                                     ClassResultShortName classResultShortName,
                                                                     PersonId personId);

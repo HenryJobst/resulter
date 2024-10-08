@@ -87,10 +87,11 @@ public class ResultListService {
             return null;
         }
         Event event = optionalEvent.get();
+        Set<OrganisationId> referencedOrganisationIds = resultList.getReferencedOrganisationIds();
         Map<OrganisationId, Organisation> organisationById =
-            organisationRepository.loadOrganisationTree(resultList.getReferencedOrganisationIds());
-        cups.forEach(resultList::calculate);
-        return resultListRepository.save(resultList);
+            organisationRepository.loadOrganisationTree(referencedOrganisationIds);
+        cups.forEach(cup -> resultList.calculate(cup, organisationById));
+        return resultList; // resultListRepository.save(resultList);
     }
 
     @Transactional

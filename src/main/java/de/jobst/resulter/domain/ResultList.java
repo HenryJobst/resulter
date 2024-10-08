@@ -8,6 +8,7 @@ import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,7 +77,7 @@ public class ResultList implements Comparable<ResultList> {
         return var;
     }
 
-    public void calculate(Cup cup) {
+    public void calculate(Cup cup, Map<OrganisationId, Organisation> organisationById) {
 
         if (invalid(cup)) {
             return;
@@ -84,9 +85,9 @@ public class ResultList implements Comparable<ResultList> {
 
         CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
         switch (cup.getType()) {
-            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy();
+            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy(organisationById);
             case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy();
-            case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy();
+            case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy(organisationById);
             case CupType.ADD -> cupTypeCalculationStrategy = new AddCalculationStrategy();
         }
 
@@ -101,12 +102,10 @@ public class ResultList implements Comparable<ResultList> {
     }
 
     private void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
-        /*
-        getClassResults().value()
-            .stream()
+        assert getClassResults() != null;
+        getClassResults().stream()
             .filter(cupTypeCalculationStrategy::valid)
             .forEach(it -> it.calculate(cupTypeCalculationStrategy));
-         */
     }
 
     @NonNull
@@ -115,6 +114,7 @@ public class ResultList implements Comparable<ResultList> {
         return getClassResults().stream()
             .flatMap(x -> x.personResults().value().stream())
             .map(PersonResult::organisationId)
+            .filter(Objects::nonNull)
             .collect(Collectors.toSet());
     }
 }

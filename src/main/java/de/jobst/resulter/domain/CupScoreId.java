@@ -15,6 +15,14 @@ public record CupScoreId(CupType type, PersonRaceResultId value) implements Comp
         return new CupScoreId(null, PersonRaceResultId.empty());
     }
 
+    public static CupScoreId of(CupType cupType,
+                                ClassResultShortName classResultShortName,
+                                PersonId personId,
+                                RaceNumber raceNumber,
+                                PersonId personId1) {
+        return null;
+    }
+
     public boolean isPersistent() {
         return value != empty().value;
     }

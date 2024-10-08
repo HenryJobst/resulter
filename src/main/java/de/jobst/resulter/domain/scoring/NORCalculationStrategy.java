@@ -3,14 +3,26 @@ package de.jobst.resulter.domain.scoring;
 import de.jobst.resulter.domain.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class NORCalculationStrategy implements CupTypeCalculationStrategy {
 
     public static final CupType CUP_TYPE = CupType.NOR;
+
+    private final Map<OrganisationId, Organisation> organisationById;
+    private final Organisation norOrganisation;
+
     Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner");
 
-    public NORCalculationStrategy() {
+    public NORCalculationStrategy(Map<OrganisationId, Organisation> organisationById) {
+        this.organisationById = organisationById;
+        norOrganisation = organisationById.values()
+            .stream()
+            .filter(x -> x.containsOrganisationWithShortName(CupType.NOR.value()))
+            .findFirst()
+            .orElse(null);
     }
 
     private static double multiplyTime(double baseTime, double factor) {
@@ -52,12 +64,11 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
 
     @Override
     public boolean valid(PersonResult personResult) {
-        /*
-        Optional<Organisation> optionalOrganisation = organisationRepository.findById(personResult.getOrganisationId());
-        return optionalOrganisation.isPresent() && optionalOrganisation
-            .get().containsOrganisationWithName(CupType.NOR.value());
-        */
-        return true;
+        Optional<Organisation> optionalOrganisation = organisationById.containsKey(personResult.organisationId()) ?
+                                                      Optional.of(organisationById.get(personResult.organisationId())) :
+                                                      Optional.empty();
+        return optionalOrganisation.isPresent() && norOrganisation != null &&
+               norOrganisation.containsOrganisationWithId(optionalOrganisation.get().getId());
     }
 
     @Override
@@ -66,12 +77,15 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
             return;
         }
         PunchTime fastestTime = personRaceResults.getFirst().getRuntime();
-        /*
-        personRaceResults.forEach(personRaceResult -> personRaceResult.setScore(CUP_TYPE,
-            calculateScore(CupScoreId.of(CUP_TYPE, personRaceResult.getId().value()),
-                fastestTime,
-                personRaceResult.getRuntime())));
-        */
+
+        personRaceResults.forEach(personRaceResult -> {
+            CupScore cupScore = calculateScore(CupScoreId.of(CUP_TYPE,
+                personRaceResult.getClassResultShortName(),
+                personRaceResult.getPersonId(),
+                personRaceResult.getRaceNumber(),
+                personRaceResult.getPersonId()), fastestTime, personRaceResult.getRuntime());
+            //personRaceResult.setScore(CUP_TYPE, cupScore);
+        });
     }
 
     private CupScore calculateScore(CupScoreId id, PunchTime fastestTime, PunchTime runtime) {

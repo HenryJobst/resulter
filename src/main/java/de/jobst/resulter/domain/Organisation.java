@@ -135,14 +135,15 @@ public class Organisation implements Comparable<Organisation> {
         return Objects.hash(id, name);
     }
 
-    /*
-    public boolean containsOrganisationWithName(String name) {
-        if (getName().value().equals(name)) {
+    public boolean containsOrganisationWithShortName(String name) {
+        if (getShortName().value().equals(name)) {
             return true;
         }
-        return parentOrganisationIds.stream()
-                .anyMatch(subOrg -> subOrg.containsOrganisationWithName(name));
+        return getChildOrganisations().stream().anyMatch(subOrg -> subOrg.containsOrganisationWithShortName(name));
     }
-    */
 
+    public boolean containsOrganisationWithId(OrganisationId id) {
+        return getId().equals(id) ||
+               childOrganisations.stream().anyMatch(subOrg -> subOrg.containsOrganisationWithId(id));
+    }
 }

@@ -14,6 +14,6 @@ public interface CupJdbcRepository extends CrudRepository<CupDbo, Long>, PagingA
 
     Optional<CupDbo> findByName(String name);
 
-    @Query("SELECT c FROM cup c JOIN cup_event ce ON c.id = ce.cup_id and ce.event_id = :eventId")
+    @Query("SELECT c.* FROM cup c JOIN cup_event ce ON c.id = ce.cup_id and ce.event_id = :eventId")
     List<CupDbo> findByEventId(@Param("eventId") Long eventId);
 }

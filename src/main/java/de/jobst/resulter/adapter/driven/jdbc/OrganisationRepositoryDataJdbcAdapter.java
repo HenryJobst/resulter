@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
@@ -16,17 +18,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
 public class OrganisationRepositoryDataJdbcAdapter implements OrganisationRepository {
 
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
     private final OrganisationJdbcRepository organisationJdbcRepository;
     private final CountryJdbcRepository countryJdbcRepository;
 
-    public OrganisationRepositoryDataJdbcAdapter(OrganisationJdbcRepository organisationJdbcRepository,
+    public OrganisationRepositoryDataJdbcAdapter(NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+                                                 OrganisationJdbcRepository organisationJdbcRepository,
                                                  CountryJdbcRepository countryJdbcRepository) {
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.organisationJdbcRepository = organisationJdbcRepository;
         this.countryJdbcRepository = countryJdbcRepository;
     }
@@ -34,16 +41,16 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @NonNull
     private static String getCteQuery() {
         return """
-               WITH RECURSIVE sub_organisations AS (
+               WITH RECURSIVE parent_organisations AS (
                -- Start mit den untergeordneten Organisationen
                SELECT id FROM organisation WHERE id IN (:idSet)
                UNION ALL
                -- Rekursiver Schritt: Finde die übergeordneten Organisationen
                SELECT o.id FROM organisation o
                                 INNER JOIN organisation_organisation oo ON o.id = oo.parent_organisation_id
-                                INNER JOIN sub_organisations so ON oo.organisation_id = so.id
+                                INNER JOIN parent_organisations so ON oo.organisation_id = so.id
                )
-               SELECT DISTINCT id FROM sub_organisations
+               SELECT DISTINCT id FROM parent_organisations
                """;
     }
 
@@ -112,22 +119,25 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     @Transactional(readOnly = true)
     public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet) {
-        //organisationJdbcRepository.findAllById(idSet.stream().map(OrganisationId::value).toList());
-        return null;
+        return StreamSupport.stream(organisationJdbcRepository.findAllById(idSet.stream()
+                .map(OrganisationId::value)
+                .toList()).spliterator(), true)
+            .map(x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver()))
+            .collect(Collectors.toMap(Organisation::getId, x -> x));
     }
 
     @Override
     @Transactional
     public Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet) {
-        /*@SuppressWarnings({"unchecked"})
-        List<Long> resultList =
-            entityManager.createNativeQuery(getCteQuery(), Long.class)
-                .setParameter("idSet", idSet.stream().map(OrganisationId::value).toList())
-                .getResultList();
+        List<Long> idValues = idSet.stream().map(OrganisationId::value).toList();
 
-        return findAllById(resultList.stream().map(OrganisationId::of).collect(Collectors.toSet()), true);
-         */
-        return new HashMap<>();
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("idSet", idValues);
+
+        List<Long> resultList = namedParameterJdbcTemplate.queryForList(getCteQuery(), parameters, Long.class);
+        Set<OrganisationId> organisationIdSet = resultList.stream().map(OrganisationId::of).collect(Collectors.toSet());
+
+        return findAllById(organisationIdSet);
     }
 
     @Override

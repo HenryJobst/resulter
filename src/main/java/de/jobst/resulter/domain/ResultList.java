@@ -7,10 +7,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -77,10 +74,10 @@ public class ResultList implements Comparable<ResultList> {
         return var;
     }
 
-    public void calculate(Cup cup, Map<OrganisationId, Organisation> organisationById) {
+    public CupScoreList calculate(Cup cup, Map<OrganisationId, Organisation> organisationById) {
 
         if (invalid(cup)) {
-            return;
+            return null;
         }
 
         CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
@@ -92,8 +89,10 @@ public class ResultList implements Comparable<ResultList> {
         }
 
         if (cupTypeCalculationStrategy != null) {
-            calculate(cupTypeCalculationStrategy);
+            List<CupScore> cupScores = calculate(cup, cupTypeCalculationStrategy);
+            return new CupScoreList(CupScoreListId.empty(), cup.getId(), id, cupScores);
         }
+        return null;
     }
 
     private boolean invalid(Cup cup) {
@@ -101,11 +100,13 @@ public class ResultList implements Comparable<ResultList> {
         return cup.getEventIds().stream().filter(it -> it.equals(this.eventId)).findAny().isEmpty();
     }
 
-    private void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
+    private List<CupScore> calculate(Cup cup, CupTypeCalculationStrategy cupTypeCalculationStrategy) {
         assert getClassResults() != null;
-        getClassResults().stream()
+        return getClassResults().stream()
             .filter(cupTypeCalculationStrategy::valid)
-            .forEach(it -> it.calculate(cupTypeCalculationStrategy));
+            .map(it -> it.calculate(cup, cupTypeCalculationStrategy))
+            .flatMap(Collection::stream)
+            .toList();
     }
 
     @NonNull

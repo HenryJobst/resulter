@@ -1,12 +1,11 @@
 package de.jobst.resulter.domain.scoring;
 
-import de.jobst.resulter.domain.ClassResult;
-import de.jobst.resulter.domain.PersonRaceResult;
-import de.jobst.resulter.domain.PersonResult;
+import de.jobst.resulter.domain.*;
 
 import java.util.List;
 
 public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
+
     @Override
     public boolean valid(ClassResult classResult) {
         return false;
@@ -18,7 +17,8 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     @Override
-    public void calculate(List<PersonRaceResult> personRaceResults) {
+    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults) {
 
+        return null;
     }
 }

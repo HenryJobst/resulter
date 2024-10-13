@@ -1,0 +1,83 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000024_cup_score_list
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : cup_score_list
+            comment : Table cup_score_list with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : cup_score_list
+                        columns :
+                            -   column :
+                                    name : id
+                                    type : bigint
+                                    autoIncrement : true
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : pk_cup_score_list
+                            -   column :
+                                    name : result_list_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_cup_score_list_result_list
+                            -   column :
+                                    name : cup_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_cup_score_list_cup
+                            -   column :
+                                    name : creator
+                                    type : varchar(255)
+                            -   column :
+                                    name : create_time
+                                    type : timestamptz
+                            -   column :
+                                    name : create_time_zone
+                                    type : varchar(60)
+                            -   column :
+                                    name : status
+                                    type : varchar(60)
+                                    constraints :
+                                        nullable : false
+                -   addForeignKeyConstraint :
+                        baseTableName : cup_score_list
+                        baseColumnNames : result_list_id
+                        constraintName : fk_cup_score_list_result_list
+                        referencedTableName : result_list
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
+                -   addForeignKeyConstraint :
+                        baseTableName : cup_score_list
+                        baseColumnNames : cup_id
+                        constraintName : fk_cup_score_list_cup
+                        referencedTableName : cup
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
+                -   addUniqueConstraint :
+                        tableName : cup_score_list
+                        columnNames : result_list_id, cup_id, status
+                        constraintName : uk_cup_score_list_result_list_cup_status
+                        validate : true
+                -   createIndex :
+                        tableName : cup_score_list
+                        columns :
+                            -   column :
+                                    name : id
+                        indexName : idx_cup_score_list_id
+                -   createIndex :
+                        tableName : cup_score_list
+                        columns :
+                            -   column :
+                                    name : result_list_id
+                            -   column :
+                                    name : cup_id
+                        indexName : idx_cup_score_list_result_list_cup

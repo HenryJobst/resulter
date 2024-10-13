@@ -1,6 +1,13 @@
 package de.jobst.resulter.domain;
 
-public record CupId(long value) {
+import org.springframework.lang.NonNull;
+
+public record CupId(long value) implements Comparable<CupId> {
+
+    @Override
+    public int compareTo(@NonNull CupId o) {
+        return Long.compare(value, o.value);
+    }
 
     public static CupId of(long value) {
         if (value < 0L) {

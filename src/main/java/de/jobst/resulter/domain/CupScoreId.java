@@ -2,36 +2,21 @@ package de.jobst.resulter.domain;
 
 import org.springframework.lang.NonNull;
 
-public record CupScoreId(CupType type, PersonRaceResultId value) implements Comparable<CupScoreId> {
+public record CupScoreId(CupId cupId, PersonId personId, ClassResultShortName classResultShortName)
+    implements Comparable<CupScoreId> {
 
-    public static CupScoreId of(CupType type, long value) {
-        if (value < 0L || type == null) {
-            throw new IllegalArgumentException("Id must be greater or equal 0.");
-        }
-        return new CupScoreId(type, PersonRaceResultId.of(value));
-    }
-
-    public static CupScoreId empty() {
-        return new CupScoreId(null, PersonRaceResultId.empty());
-    }
-
-    public static CupScoreId of(CupType cupType,
-                                ClassResultShortName classResultShortName,
-                                PersonId personId,
-                                RaceNumber raceNumber,
-                                PersonId personId1) {
-        return null;
-    }
-
-    public boolean isPersistent() {
-        return value != empty().value;
+    public static CupScoreId of(CupId cupId, PersonId personId, ClassResultShortName classResultShortName) {
+        return new CupScoreId(cupId, personId, classResultShortName);
     }
 
     @Override
     public int compareTo(@NonNull CupScoreId o) {
-        int val = type.compareTo(o.type);
+        int val = classResultShortName.compareTo(o.classResultShortName);
         if (val == 0) {
-            val = value.compareTo(o.value);
+            val = cupId.compareTo(o.cupId);
+        }
+        if (val == 0) {
+            val = personId.compareTo(o.personId);
         }
         return val;
     }

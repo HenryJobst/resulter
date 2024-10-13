@@ -3,11 +3,12 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.CupScore;
 import de.jobst.resulter.domain.CupType;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 @Data
 @Table(name = "cup_score")
@@ -19,6 +20,8 @@ public class CupScoreDbo implements Comparable<CupScoreDbo> {
 
     private PersonRaceResultDbo personRaceResultDbo;
 
+    @Setter
+    @Getter
     @Column("score")
     private Double score;
 
@@ -27,47 +30,10 @@ public class CupScoreDbo implements Comparable<CupScoreDbo> {
         return 0;
     }
 
-    public static CupScoreDbo from(CupScore cupScore,
-                                   PersonRaceResultDbo personRaceResultDbo,
-                                   @Nullable DboResolver<CupScoreIdDbo, CupScoreDbo> dboResolver,
-                                   @NonNull DboResolvers dboResolvers) {
-        CupScoreDbo cupScoreDbo = null;
-        if (cupScore.id().isPersistent()) {
-            if (dboResolver != null) {
-                cupScoreDbo = dboResolver.findDboById(CupScoreIdDbo.from(cupScore.id()));
-            }
-            if (cupScoreDbo == null) {
-                cupScoreDbo = dboResolvers.getCupScoreDboResolver().findDboById(CupScoreIdDbo.from(cupScore.id()));
-            }
-        } else {
-            cupScoreDbo = new CupScoreDbo();
-        }
-        cupScoreDbo.setPersonRaceResultDbo(personRaceResultDbo);
+    public static CupScoreDbo from(CupScore cupScore, @NonNull DboResolvers dboResolvers) {
+        CupScoreDbo cupScoreDbo = new CupScoreDbo();
         cupScoreDbo.setScore(cupScore.value());
         return cupScoreDbo;
     }
 
-    public CupType getType() {
-        return type;
-    }
-
-    public void setType(CupType type) {
-        this.type = type;
-    }
-
-    public PersonRaceResultDbo getPersonRaceResultDbo() {
-        return personRaceResultDbo;
-    }
-
-    public void setPersonRaceResultDbo(PersonRaceResultDbo personRaceResultDbo) {
-        this.personRaceResultDbo = personRaceResultDbo;
-    }
-
-    public Double getScore() {
-        return score;
-    }
-
-    public void setScore(Double score) {
-        this.score = score;
-    }
 }

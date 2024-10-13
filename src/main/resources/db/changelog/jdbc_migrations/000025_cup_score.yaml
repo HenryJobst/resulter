@@ -1,0 +1,67 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000025_cup_score
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : cup_score
+            comment : Table cup_score with sequence, indexes and keys
+            changes :
+                -   createTable :
+                        tableName : cup_score
+                        columns :
+                            -   column :
+                                    name : cup_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_cup_score_cup
+                            -   column :
+                                    name : class_result_short_name
+                                    type : varchar(20)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : person_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_cup_score_person
+                            -   column :
+                                    name : score
+                                    type : double
+                                    constraints :
+                                        nullable : false
+                -   addForeignKeyConstraint :
+                        baseTableName : cup_score
+                        baseColumnNames : cup_id
+                        constraintName : fk_cup_score_cup
+                        referencedTableName : cup
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
+                -   addForeignKeyConstraint :
+                        baseTableName : cup_score
+                        baseColumnNames : person_id
+                        constraintName : fk_cup_score_person
+                        referencedTableName : person
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
+                -   addUniqueConstraint :
+                        tableName : cup_score
+                        columnNames : cup_id, class_result_short_name, person_id
+                        constraintName : uk_cup_score_cup_class_result_person
+                        validate : true
+                -   createIndex :
+                        tableName : cup_score
+                        columns :
+                            -   column :
+                                    name : cup_id
+                            -   column :
+                                    name : class_result_short_name
+                            -   column :
+                                    name : person_id
+                        indexName : idx_cup_score_cup_class_result_person

@@ -72,20 +72,17 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     @Override
-    public void calculate(List<PersonRaceResult> personRaceResults) {
+    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults) {
         if (personRaceResults.isEmpty()) {
-            return;
+            return List.of();
         }
-        PunchTime fastestTime = personRaceResults.getFirst().getRuntime();
 
-        personRaceResults.forEach(personRaceResult -> {
-            CupScore cupScore = calculateScore(CupScoreId.of(CUP_TYPE,
-                personRaceResult.getClassResultShortName(),
-                personRaceResult.getPersonId(),
-                personRaceResult.getRaceNumber(),
-                personRaceResult.getPersonId()), fastestTime, personRaceResult.getRuntime());
-            //personRaceResult.setScore(CUP_TYPE, cupScore);
-        });
+        PersonRaceResult first = personRaceResults.getFirst();
+        CupScoreId cupScoreId = CupScoreId.of(cup.getId(), first.getPersonId(), first.getClassResultShortName());
+
+        PunchTime fastestTime = first.getRuntime();
+
+        return personRaceResults.stream().map(x -> calculateScore(cupScoreId, fastestTime, x.getRuntime())).toList();
     }
 
     private CupScore calculateScore(CupScoreId id, PunchTime fastestTime, PunchTime runtime) {

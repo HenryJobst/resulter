@@ -28,7 +28,7 @@ public record ClassResult(@NonNull ClassResultName classResultName, @NonNull Cla
         return classResultName.compareTo(o.classResultName);
     }
 
-    public void calculate(CupTypeCalculationStrategy cupTypeCalculationStrategy) {
+    public List<CupScore> calculate(Cup cup, CupTypeCalculationStrategy cupTypeCalculationStrategy) {
         List<PersonResult> personResults =
             this.personResults().value().stream().filter(cupTypeCalculationStrategy::valid).sorted().toList();
         List<PersonRaceResult> personRaceResults = personResults.stream()
@@ -36,6 +36,6 @@ public record ClassResult(@NonNull ClassResultName classResultName, @NonNull Cla
             .filter(y -> y.getState().equals(ResultStatus.OK))
             .sorted()
             .toList();
-        cupTypeCalculationStrategy.calculate(personRaceResults);
+        return cupTypeCalculationStrategy.calculate(cup, personRaceResults);
     }
 }

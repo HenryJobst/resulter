@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -63,10 +64,10 @@ public class ResultListController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResultListDto> calculateResultListScore(@PathVariable Long id) {
         try {
-            ResultList resultList = resultListService.calculateScore(ResultListId.of(id));
+            Map<CupType, CupScoreList> cupTypeCupScoresMap = resultListService.calculateScore(ResultListId.of(id));
             /*
-            if (null != resultList) {
-                return ResponseEntity.ok(ResultListDto.from(resultList));
+            if (null != cupTypeCupScoresMap) {
+                return ResponseEntity.ok(CupScoreListDto.from(cupTypeCupScoresMap));
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }

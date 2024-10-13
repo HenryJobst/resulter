@@ -74,22 +74,36 @@
                 - SplitTimeListId (VO) *
                 - CupScoreListId (VO) *
 
-- SplitTimeList (RE)
-    - SplitTimeListId (VO)
+- SplitTimeList (RE) - Split times for a race and person
+    - SplitTimeListId (VO) *
     - EventId (VO) *
     - ResultListId (VO) *
     - PersonId (VO) *
-    - ClassResultShortName (VO)
+    - ClassResultShortName (VO) *
+    - RaceNumber(VO) *
     - List of SplitTime (E) +
         - ControlCode (VO)
         - PunchTime (VO)
 
-- CupScoreList (RE)
-    - CupScoreListId (VO)
+- CupScoreList (RE) - Cup scores for a race and person
+    - Id/CupScoreListId (VO)
     - EventId (VO) *
     - ResultListId (VO) *
     - ClassResultShortName (VO)
     - PersonId (VO) *
+    - RaceNumber(VO) *
     - Map of CupScore by CupType (E) +
         - CupType (VO)
         - Score (VO)
+
+    - CupScoreList (RE)
+        - CupScoreListId (VO)
+        - ResultListId (VO) *
+        - CupId (VO)
+        - Creator (VO)
+        - CreateTime (VO)
+        - Status (VO)
+        - List of CupScore (E) +
+            - ClassResultShortName (VO)
+            - PersonId (VO) *
+            - Score (VO) *

@@ -69,7 +69,7 @@ public class ResultListService {
     }
 
     @Transactional
-    public ResultList calculateScore(ResultListId id) {
+    public Map<CupType, CupScoreList> calculateScore(ResultListId id) {
         ResultList resultList = resultListRepository.findByResultListId(id);
         if (resultList == null || resultList.getClassResults() == null || resultList.getClassResults().isEmpty()) {
             // no result list for id
@@ -90,8 +90,12 @@ public class ResultListService {
         Set<OrganisationId> referencedOrganisationIds = resultList.getReferencedOrganisationIds();
         Map<OrganisationId, Organisation> organisationById =
             organisationRepository.loadOrganisationTree(referencedOrganisationIds);
-        cups.forEach(cup -> resultList.calculate(cup, organisationById));
-        return resultList; // resultListRepository.save(resultList);
+        Map<CupType, CupScoreList> cupScoresByType = new HashMap<>();
+        cups.forEach(cup -> {
+            CupScoreList cupScoreList = resultList.calculate(cup, organisationById);
+            cupScoresByType.put(cup.getType(), cupScoreList);
+        });
+        return cupScoresByType;
     }
 
     @Transactional

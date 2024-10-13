@@ -24,7 +24,8 @@ public class NebelCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     @Override
-    public void calculate(List<PersonRaceResult> personRaceResults) {
+    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults) {
 
+        return null;
     }
 }

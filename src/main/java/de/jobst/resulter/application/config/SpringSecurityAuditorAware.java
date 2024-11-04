@@ -1,21 +1,28 @@
 package de.jobst.resulter.application.config;
 
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-class SpringSecurityAuditorAware implements AuditorAware<String> {
+@Service
+public class SpringSecurityAuditorAware implements AuditorAware<String> {
 
+    public static final String SYSTEM = "System";
+    public static final String UNKNOWN = "Unknown";
+
+    @NonNull
     @Override
     public Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            return Optional.of("System");
+            return Optional.of(SYSTEM);
         }
         return Optional.ofNullable(SecurityContextHolder.getContext())
             .map(SecurityContext::getAuthentication)

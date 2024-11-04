@@ -19,7 +19,7 @@ public class DboResolvers {
     private DboResolver<OrganisationId, OrganisationDbo> organisationDboResolver = null;
     private DboResolver<CountryId, CountryDbo> countryDboResolver = null;
     private DboResolver<ResultListId, ResultListDbo> resultListDboResolver = null;
-    private DboResolver<CupScoreIdDbo, CupScoreDbo> cupScoreDboResolver = null;
+    private DboResolver<CupScoreListId, CupScoreListDbo> cupScoreListDboResolver = null;
     private DboResolver<SplitTimeListId, SplitTimeListDbo> splitTimeListDboResolver = null;
     private DboResolver<MediaFileId, MediaFileDbo> mediaFileDboResolver = null;
     private DboResolver<EventCertificateId, EventCertificateDbo> eventCertificateDboResolver = null;

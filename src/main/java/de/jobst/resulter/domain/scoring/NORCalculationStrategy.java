@@ -77,15 +77,14 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
             return List.of();
         }
 
-        PersonRaceResult first = personRaceResults.getFirst();
-        CupScoreId cupScoreId = CupScoreId.of(cup.getId(), first.getPersonId(), first.getClassResultShortName());
+        PunchTime fastestTime = personRaceResults.getFirst().getRuntime();
 
-        PunchTime fastestTime = first.getRuntime();
-
-        return personRaceResults.stream().map(x -> calculateScore(cupScoreId, fastestTime, x.getRuntime())).toList();
+        return personRaceResults.stream().map(x -> calculateScore(x, fastestTime)).toList();
     }
 
-    private CupScore calculateScore(CupScoreId id, PunchTime fastestTime, PunchTime runtime) {
-        return CupScore.of(id, calculateNorPoints(fastestTime.value(), runtime.value()));
+    private CupScore calculateScore(PersonRaceResult personRaceResult, PunchTime fastestTime) {
+        return CupScore.of(personRaceResult.getPersonId(),
+            personRaceResult.getClassResultShortName(),
+            calculateNorPoints(fastestTime.value(), personRaceResult.getRuntime().value()));
     }
 }

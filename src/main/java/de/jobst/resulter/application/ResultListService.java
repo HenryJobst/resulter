@@ -3,6 +3,7 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.application.certificate.CertificateService;
+import de.jobst.resulter.application.config.SpringSecurityAuditorAware;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -30,6 +32,10 @@ public class ResultListService {
 
     private final EventCertificateStatRepository eventCertificateStatRepository;
 
+    private final CupScoreListRepository cupScoreListRepository;
+
+    private final SpringSecurityAuditorAware springSecurityAuditorAware;
+
     public ResultListService(ResultListRepository resultListRepository,
                              CupRepository cupRepository,
                              EventRepository eventRepository,
@@ -37,7 +43,9 @@ public class ResultListService {
                              PersonRepository personRepository,
                              CertificateService certificateService,
                              MediaFileRepository mediaFileRepository,
-                             EventCertificateStatRepository eventCertificateStatRepository) {
+                             EventCertificateStatRepository eventCertificateStatRepository,
+                             CupScoreListRepository cupScoreListRepository,
+                             SpringSecurityAuditorAware springSecurityAuditorAware) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -46,6 +54,8 @@ public class ResultListService {
         this.certificateService = certificateService;
         this.mediaFileRepository = mediaFileRepository;
         this.eventCertificateStatRepository = eventCertificateStatRepository;
+        this.cupScoreListRepository = cupScoreListRepository;
+        this.springSecurityAuditorAware = springSecurityAuditorAware;
     }
 
     public ResultList findOrCreate(ResultList resultList) {
@@ -69,7 +79,7 @@ public class ResultListService {
     }
 
     @Transactional
-    public Map<CupType, CupScoreList> calculateScore(ResultListId id) {
+    public List<CupScoreList> calculateScore(ResultListId id) {
         ResultList resultList = resultListRepository.findByResultListId(id);
         if (resultList == null || resultList.getClassResults() == null || resultList.getClassResults().isEmpty()) {
             // no result list for id
@@ -80,22 +90,18 @@ public class ResultListService {
             // no cups for this event
             return null;
         }
-
-        Optional<Event> optionalEvent = eventRepository.findById(resultList.getEventId());
-        if (optionalEvent.isEmpty()) {
-            // no event
-            return null;
-        }
-        Event event = optionalEvent.get();
         Set<OrganisationId> referencedOrganisationIds = resultList.getReferencedOrganisationIds();
         Map<OrganisationId, Organisation> organisationById =
             organisationRepository.loadOrganisationTree(referencedOrganisationIds);
-        Map<CupType, CupScoreList> cupScoresByType = new HashMap<>();
+        List<CupScoreList> cupScores = new ArrayList<>();
+        String creator = springSecurityAuditorAware.getCurrentAuditor().orElse(SpringSecurityAuditorAware.UNKNOWN);
+        ZonedDateTime now = ZonedDateTime.now();
         cups.forEach(cup -> {
-            CupScoreList cupScoreList = resultList.calculate(cup, organisationById);
-            cupScoresByType.put(cup.getType(), cupScoreList);
+            CupScoreList cupScoreList = resultList.calculate(cup, organisationById, creator, now);
+            cupScores.add(cupScoreList);
         });
-        return cupScoresByType;
+
+        return cupScoreListRepository.saveAll(cupScores);
     }
 
     @Transactional

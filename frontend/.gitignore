@@ -35,3 +35,9 @@ coverage
 /playwright/.cache/
 /tests-examples/demo-todo-app.spec.ts
 /e2e/.auth/
+
+
+
+.nx/cache
+.nx/workspace-data
+**/vite.config.{js,ts,mjs,mts,cjs,cts}.timestamp*

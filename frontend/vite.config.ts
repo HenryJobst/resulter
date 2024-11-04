@@ -1,4 +1,4 @@
-import { URL, fileURLToPath } from 'node:url'
+import { fileURLToPath, URL } from 'node:url'
 
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
@@ -17,6 +17,9 @@ export default defineConfig({
         }),
         VueDevTools(),
     ],
+    build: {
+        outDir: 'dist',
+    },
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),

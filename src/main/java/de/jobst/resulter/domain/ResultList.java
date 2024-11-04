@@ -74,7 +74,10 @@ public class ResultList implements Comparable<ResultList> {
         return var;
     }
 
-    public CupScoreList calculate(Cup cup, Map<OrganisationId, Organisation> organisationById) {
+    public CupScoreList calculate(Cup cup,
+                                  Map<OrganisationId, Organisation> organisationById,
+                                  String creator,
+                                  ZonedDateTime createTime) {
 
         if (invalid(cup)) {
             return null;
@@ -90,7 +93,7 @@ public class ResultList implements Comparable<ResultList> {
 
         if (cupTypeCalculationStrategy != null) {
             List<CupScore> cupScores = calculate(cup, cupTypeCalculationStrategy);
-            return new CupScoreList(CupScoreListId.empty(), cup.getId(), id, cupScores);
+            return new CupScoreList(CupScoreListId.empty(), cup.getId(), id, cupScores, creator, createTime);
         }
         return null;
     }

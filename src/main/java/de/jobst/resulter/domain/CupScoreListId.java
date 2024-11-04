@@ -4,7 +4,7 @@ import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
-public record CupScoreListId(Long value) {
+public record CupScoreListId(Long value) implements Comparable<CupScoreListId> {
 
     public static CupScoreListId of(Long value) {
         if (value != null && value < 0L) {

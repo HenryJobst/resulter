@@ -2,17 +2,21 @@ package de.jobst.resulter.domain;
 
 import org.springframework.lang.NonNull;
 
-public record CupScore(CupScoreId id, double value) implements Comparable<CupScore> {
+public record CupScore(PersonId personId, ClassResultShortName classResultShortName, double score)
+    implements Comparable<CupScore> {
 
-    public static CupScore of(CupScoreId id, double score) {
-        return new CupScore(id, score);
+    public static CupScore of(PersonId personId, ClassResultShortName classResultShortName, double score) {
+        return new CupScore(personId, classResultShortName, score);
     }
 
     @Override
     public int compareTo(@NonNull CupScore o) {
-        int val = id.compareTo(o.id);
+        int val = Double.compare(score, o.score);
         if (val == 0) {
-            val = Double.compare(value, o.value);
+            val = personId.compareTo(o.personId);
+        }
+        if (val == 0) {
+            val = classResultShortName.compareTo(o.classResultShortName);
         }
         return val;
     }

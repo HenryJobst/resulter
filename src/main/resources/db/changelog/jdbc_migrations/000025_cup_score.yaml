@@ -40,8 +40,8 @@ databaseChangeLog :
                         constraintName : fk_cup_score_cup_score_list
                         referencedTableName : cup_score_list
                         referencedColumnNames : id
-                        onDelete : restrict
-                        onUpdate : restrict
+                        onDelete : cascade
+                        onUpdate : cascade
                 -   addForeignKeyConstraint :
                         baseTableName : cup_score
                         baseColumnNames : person_id

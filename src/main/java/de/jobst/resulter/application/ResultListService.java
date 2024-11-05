@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ResultListService {
@@ -93,15 +94,15 @@ public class ResultListService {
         Set<OrganisationId> referencedOrganisationIds = resultList.getReferencedOrganisationIds();
         Map<OrganisationId, Organisation> organisationById =
             organisationRepository.loadOrganisationTree(referencedOrganisationIds);
-        List<CupScoreList> cupScores = new ArrayList<>();
         String creator = springSecurityAuditorAware.getCurrentAuditor().orElse(SpringSecurityAuditorAware.UNKNOWN);
         ZonedDateTime now = ZonedDateTime.now();
-        cups.forEach(cup -> {
-            CupScoreList cupScoreList = resultList.calculate(cup, organisationById, creator, now);
-            cupScores.add(cupScoreList);
-        });
-
-        return cupScoreListRepository.saveAll(cupScores);
+        List<CupScoreList> cupScoreLists = cups.stream()
+            .map(cup -> resultList.calculate(cup, organisationById, creator, now))
+            .collect(Collectors.toList());
+        cupScoreListRepository.deleteAllByDomainKey(cupScoreLists.stream()
+            .map(CupScoreList::getDomainKey)
+            .collect(Collectors.toSet()));
+        return cupScoreListRepository.saveAll(cupScoreLists);
     }
 
     @Transactional

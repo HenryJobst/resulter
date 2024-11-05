@@ -7,23 +7,32 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
 public class CupScoreListRepositoryDataJdbcAdapter implements CupScoreListRepository {
 
     private final CupScoreListJdbcRepository cupScoreListJdbcRepository;
+    private final CupScoreListJdbcCustomRepository cupScoreListJdbcCustomRepository;
 
-    public CupScoreListRepositoryDataJdbcAdapter(CupScoreListJdbcRepository cupScoreListJdbcRepository) {
+    public CupScoreListRepositoryDataJdbcAdapter(CupScoreListJdbcRepository cupScoreListJdbcRepository,
+                                                 CupScoreListJdbcCustomRepository cupScoreListJdbcCustomRepository) {
         this.cupScoreListJdbcRepository = cupScoreListJdbcRepository;
+        this.cupScoreListJdbcCustomRepository = cupScoreListJdbcCustomRepository;
+    }
+
+    @Override
+    public void deleteAllByDomainKey(Set<CupScoreList.DomainKey> cupScoreList) {
+        cupScoreListJdbcCustomRepository.deleteAllByDomainKeys(cupScoreList);
     }
 
     @Override
     @Transactional
     public List<CupScoreList> saveAll(List<CupScoreList> cupScoreLists) {
         DboResolvers dboResolvers = DboResolvers.empty();
-        Iterable<CupScoreListDbo> savedCupScoreListDbos =
-            cupScoreListJdbcRepository.saveAll(CupScoreListDbo.from(cupScoreLists, dboResolvers));
+        List<CupScoreListDbo> cupScoreListDbos = CupScoreListDbo.from(cupScoreLists, dboResolvers);
+        Iterable<CupScoreListDbo> savedCupScoreListDbos = cupScoreListJdbcRepository.saveAll(cupScoreListDbos);
         return CupScoreListDbo.asCupScoreLists(savedCupScoreListDbos);
     }
 }

@@ -1,0 +1,12 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 0000000_pgsql_extensions
+            author : Henry Jobst
+            preConditions :
+                -   dbms :
+                        type : postgresql
+            changes :
+                -   sql :
+                        splitStatements : false
+                        stripComments : true
+                        sql : CREATE EXTENSION IF NOT EXISTS hstore;

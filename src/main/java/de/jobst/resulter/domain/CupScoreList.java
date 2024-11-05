@@ -24,6 +24,9 @@ public class CupScoreList {
     private final String creator;
     @Nullable
     private final ZonedDateTime createTime;
+    @NonNull
+    private final String status = "COMPLETE";
+
 
     public CupScoreList(@NonNull CupScoreListId id,
                         @NonNull CupId cupId,
@@ -40,8 +43,8 @@ public class CupScoreList {
     }
 
     public DomainKey getDomainKey() {
-        return new DomainKey(cupId, resultListId);
+        return new DomainKey(cupId, resultListId, status);
     }
 
-    public record DomainKey(CupId cupId, ResultListId resultListId) {}
+    public record DomainKey(CupId cupId, ResultListId resultListId, String status) {}
 }

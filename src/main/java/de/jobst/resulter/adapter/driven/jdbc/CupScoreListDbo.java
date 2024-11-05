@@ -1,6 +1,9 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.CupId;
+import de.jobst.resulter.domain.CupScoreList;
+import de.jobst.resulter.domain.CupScoreListId;
+import de.jobst.resulter.domain.ResultListId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -90,7 +93,7 @@ public class CupScoreListDbo {
         if (!cupScoreList.getCupScores().isEmpty()) {
             cupScoreListDbo.setCupScores(cupScoreList.getCupScores()
                 .stream()
-                .map((CupScore cupScore) -> CupScoreDbo.from(cupScore))
+                .map(CupScoreDbo::from)
                 .collect(Collectors.toSet()));
         }
         return cupScoreListDbo;

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useQuery } from '@tanstack/vue-query'
+import { useQueries, useQuery } from '@tanstack/vue-query'
 import { type Locale, useI18n } from 'vue-i18n'
 import type { TreeNode } from 'primevue/treenode'
 import { type Ref, computed } from 'vue'
@@ -8,6 +8,7 @@ import Button from 'primevue/button'
 import Panel from 'primevue/panel'
 import { useRouter } from 'vue-router'
 import moment from 'moment/min/moment-with-locales'
+import { prettyPrint } from '@base2/pretty-print-object'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { ResultList } from '@/features/event/model/result_list'
 import { courseService } from '@/features/course/services/course.service'
@@ -17,6 +18,7 @@ import { EventService, eventService } from '@/features/event/services/event.serv
 import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
 import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
 import EventCertificateStatsTable from '@/features/event/widgets/EventCertificateStatsTable.vue'
+import type { CupScoreList } from '@/features/event/model/cup_score_list'
 
 const props = defineProps<{ id: string }>()
 
@@ -49,7 +51,9 @@ const eventId = computed(() => {
 
 const eventCertificateStatsQuery = useQuery({
     queryKey: ['eventCertificateStats', eventId, authStore.isAdmin],
-    queryFn: () => authStore.isAdmin ? EventService.getCertificateStats(eventId.value, t) : undefined,
+    queryFn: () => EventService.getCertificateStats(eventId.value, t),
+    enabled: authStore.isAdmin,
+    retry: false,
 })
 
 const courseQuery = useQuery({
@@ -62,6 +66,21 @@ const raceQuery = useQuery({
     queryFn: () => raceService.getAll(t),
 })
 
+const cupPointsQueries = useQueries({
+    queries: computed(() => {
+        return (
+            eventResultsQuery.data.value?.resultLists?.map(resultList => ({
+                queryKey: ['cupScoreLists', resultList.id],
+                queryFn: () => EventService.getCupScores(resultList.id, t),
+                enabled: !!resultList, // Nur aktivieren, wenn `resultList` vorhanden ist
+            })) || []
+        )
+    }),
+})
+
+const cupPointsData = computed(() => cupPointsQueries.value.map(query => query.data))
+const cupPointsLoading = computed(() => cupPointsQueries.value.some(query => query.isLoading))
+
 function formatCreateTime(date: Date | string, locale: Ref<Locale>) {
     return computed(() => {
         moment.locale(locale.value)
@@ -72,7 +91,11 @@ function formatCreateTime(date: Date | string, locale: Ref<Locale>) {
 function getResultListLabel(resultList: ResultList) {
     let name = raceQuery.data.value?.content.find(r => r.id === resultList.raceId)?.name
     if (!name) {
-        const raceNumber = resultList.classResults.flatMap(c => c.personResults).flatMap(pr => pr.raceNumber).reduce(a => a).toString()
+        const raceNumber = resultList.classResults
+            .flatMap(c => c.personResults)
+            .flatMap(pr => pr.raceNumber)
+            .reduce(a => a)
+            .toString()
         if (raceNumber !== '0') {
             name = t('labels.race_number', {
                 raceNumber,
@@ -83,20 +106,28 @@ function getResultListLabel(resultList: ResultList) {
         }
     }
     return `${(name ? `${name}, ` : '') + t('labels.created')} ${
-            formatCreateTime(resultList.createTime, locale).value
+        formatCreateTime(resultList.createTime, locale).value
     }, ${t(`result_list_state.${resultList.status.toUpperCase()}`)}`
 }
 
-function createResultListTreeNodes(aList: ResultList[] | undefined): TreeNode[] {
-    if (!aList)
+function createResultListTreeNodes(
+    resultLists: ResultList[] | undefined,
+    cupScoreLists: (CupScoreList[] | null | undefined)[],
+): TreeNode[] {
+    if (!resultLists)
         return []
 
     const treeNodes: TreeNode[] = []
-    for (let i = 0; i < aList.length; i++) {
-        const resultList = aList[i]
+    for (let i = 0; i < resultLists.length; i++) {
+        const resultList = resultLists[i]
         const certificateEnabled: boolean
-                = (eventQuery.data.value?.content.find(e => e.id === resultList.eventId)?.certificate
-                ?? false) !== false && (aList.length === 1 || i === 0)
+            = (eventQuery.data.value?.content.find(e => e.id === resultList.eventId)?.certificate
+            ?? false) !== false
+            && (resultLists.length === 1 || i === 0)
+        const resultListCupScoreLists = cupScoreLists ? cupScoreLists[0] : undefined
+        const resultListCompleteCupScoreLists = resultListCupScoreLists
+            ? resultListCupScoreLists.filter(x => x.status === 'COMPLETE')
+            : undefined
         treeNodes.push({
             key: resultList.id.toString(),
             label: getResultListLabel(resultList),
@@ -107,6 +138,7 @@ function createResultListTreeNodes(aList: ResultList[] | undefined): TreeNode[] 
                         resultList.id,
                         resultList.classResults,
                         certificateEnabled,
+                        resultListCompleteCupScoreLists,
                     ),
                     type: 'tree',
                     leaf: false,
@@ -121,41 +153,69 @@ function getClassResultLabel(a: ClassResult) {
     let courseData = ''
     if (a.courseId != null) {
         courseData = ` - ${courseLengthColumn(a)} ${t('labels.length_abbreviation')} - ${courseClimbColumn(a)} ${t(
-                'labels.climb_abbreviation',
+            'labels.climb_abbreviation',
         )} - ${courseControlsColumn(a)} ${t('labels.control_abbreviation')}`
     }
-    return (`${a.name} (${a.personResults.length})${courseData}`)
+    return `${a.name} (${a.personResults.length})${courseData}`
 }
 
 function getPersonResults(
     resultListId: number,
-    a: ClassResult,
+    classResult: ClassResult,
     certificateEnabled: boolean | undefined,
+    cupScoreLists: CupScoreList[] | undefined,
 ): ResultListIdPersonResults {
     return {
         resultListId,
-        classResultShortName: a.shortName,
-        personResults: a.personResults,
+        classResultShortName: classResult.shortName,
+        personResults: classResult.personResults,
         certificateEnabled,
+        cupScoreLists,
     }
+}
+
+function filterCupScoresByClassResult(
+    cupScoreLists: CupScoreList[] | undefined,
+    targetClassResultShortName: string,
+): CupScoreList[] | undefined {
+    if (!cupScoreLists) {
+        return undefined
+    }
+    return cupScoreLists
+        .map((cupScoreList) => {
+            const filteredCupScores = cupScoreList.cupScores.filter((cupScore) => {
+                return cupScore.classShortName === targetClassResultShortName
+            })
+            return {
+                ...cupScoreList,
+                cupScores: filteredCupScores,
+            }
+        })
+        .filter(cupScoreList => cupScoreList.cupScores.length > 0) // Entferne Einträge ohne passende CupScores
 }
 
 function createClassResultTreeNodes(
     resultListId: number,
-    aList: ClassResult[] | undefined,
+    classResults: ClassResult[] | undefined,
     certificateEnabled: boolean | undefined,
+    cupScoreLists: CupScoreList[] | undefined,
 ): TreeNode[] {
-    if (!aList)
+    if (!classResults)
         return []
 
-    return aList.map(
-        (a): TreeNode => ({
-            key: a.shortName.toString(),
-            label: getClassResultLabel(a),
+    return classResults.map(
+        (classResult): TreeNode => ({
+            key: classResult.shortName.toString(),
+            label: getClassResultLabel(classResult),
             children: [
                 {
-                    key: `${a.shortName}-table`,
-                    data: getPersonResults(resultListId, a, certificateEnabled),
+                    key: `${classResult.shortName}-table`,
+                    data: getPersonResults(
+                        resultListId,
+                        classResult,
+                        certificateEnabled,
+                        filterCupScoresByClassResult(cupScoreLists, classResult.shortName),
+                    ),
                     type: 'dataTable',
                     leaf: true,
                 },
@@ -165,8 +225,12 @@ function createClassResultTreeNodes(
 }
 
 const treeNodes = computed(() => {
-    if (eventResultsQuery.isFetched)
-        return createResultListTreeNodes(eventResultsQuery.data.value?.resultLists)
+    if (eventResultsQuery.isFetched && !cupPointsLoading.value) {
+        return createResultListTreeNodes(
+            eventResultsQuery.data.value?.resultLists,
+            cupPointsData.value,
+        )
+    }
 
     return undefined
 })
@@ -204,7 +268,8 @@ function courseControlsColumn(slotProps: any): string {
 
 function calculate(result_list_id: number) {
     console.log(result_list_id)
-    EventService.calculate(result_list_id, t)
+    const result = EventService.calculate(result_list_id, t)
+    console.log(prettyPrint(result))
 }
 
 function navigateToList() {
@@ -254,21 +319,37 @@ function navigateToList() {
                         </template>
                         <!-- suppress VueUnrecognizedSlot -->
                         <template #dataTable="mySlotProps">
-                            <EventResultTable :data="mySlotProps?.node?.data" :event-id="eventId" />
+                            <EventResultTable
+                                v-if="eventId"
+                                :data="mySlotProps?.node?.data"
+                                :event-id="eventId"
+                            />
                         </template>
                     </Tree>
                 </template>
                 <!-- suppress VueUnrecognizedSlot -->
                 <template #dataTable="slotProps">
-                    <EventResultTable :data="slotProps?.node?.data" :event-id="eventId" />
+                    <EventResultTable
+                        v-if="eventId"
+                        :data="slotProps?.node?.data"
+                        :event-id="eventId"
+                    />
                 </template>
             </Tree>
-            <div v-if="authStore.isAdmin && eventCertificateStatsQuery.data" class="mt-2 font-italic">
+            <div
+                v-if="authStore.isAdmin && eventCertificateStatsQuery.data"
+                class="mt-2 font-italic"
+            >
                 <Panel
-                    v-if="eventCertificateStatsQuery.data.value?.stats.length > 0"
-                    :header="t('labels.certificate_stats', { count: eventCertificateStatsQuery.data.value?.stats.length ?? 0 })"
+                    v-if="eventCertificateStatsQuery.data.value?.stats.length ?? 0 > 0"
+                    :header="
+                        t('labels.certificate_stats', {
+                            count: eventCertificateStatsQuery.data.value?.stats.length ?? 0,
+                        })
+                    "
                     header-class="mt-2 text-lg font-bold"
-                    toggleable collapsed
+                    toggleable
+                    collapsed
                 >
                     <EventCertificateStatsTable :data="eventCertificateStatsQuery.data.value" />
                 </Panel>

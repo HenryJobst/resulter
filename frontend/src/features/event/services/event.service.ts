@@ -9,6 +9,8 @@ import type { ResultList } from '@/features/event/model/result_list'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { RestResult } from '@/features/generic/models/rest_result'
 import type { Certificate } from '@/features/certificate/model/certificate'
+import type { CupScoreList } from '@/features/event/model/cup_score_list'
+import type { EventCertificateStats } from '@/features/event/model/event_certificate_stats'
 
 const eventUrl: string = '/event'
 const resultListUrl: string = '/result_list'
@@ -66,14 +68,20 @@ export class EventService extends GenericService<SportEvent> {
             .get(`${eventUrl}/${id}/results`)
             .then((response) => {
                 if (response) {
-                    response.data.resultLists = response.data.resultLists.map((resultList: ResultList) => {
-                        if (resultList.createTime && typeof resultList.createTime === 'string') {
-                            // Entfernen des Zeitzone-Identifikators, da dieser nicht von Date.parse() unterstützt wird
-                            const dateStringWithoutTimezone = resultList.createTime.split('[')[0]
-                            resultList.createTime = new Date(dateStringWithoutTimezone)
-                        }
-                        return resultList
-                    })
+                    response.data.resultLists = response.data.resultLists.map(
+                        (resultList: ResultList) => {
+                            if (
+                                resultList.createTime
+                                && typeof resultList.createTime === 'string'
+                            ) {
+                                // Entfernen des Zeitzone-Identifikators, da dieser nicht von Date.parse() unterstützt wird
+                                const dateStringWithoutTimezone
+                                    = resultList.createTime.split('[')[0]
+                                resultList.createTime = new Date(dateStringWithoutTimezone)
+                            }
+                            return resultList
+                        },
+                    )
                     return response.data
                 }
                 return null
@@ -106,8 +114,8 @@ export class EventService extends GenericService<SportEvent> {
     ) {
         return axiosInstance
             .get(
-                        `${resultListUrl}/${id}/certificate?personId=${personId}&classResultShortName=${classResultShortName}`,
-                        { responseType: 'blob' },
+                `${resultListUrl}/${id}/certificate?personId=${personId}&classResultShortName=${classResultShortName}`,
+                { responseType: 'blob' },
             )
             .then((response) => {
                 console.log(prettyPrint(response))
@@ -116,7 +124,9 @@ export class EventService extends GenericService<SportEvent> {
                 let filename = 'download.pdf' // Standard-Dateiname, falls nichts im Header gefunden wird
                 if (contentDisposition) {
                     // Improved regex to handle different possible formats of Content-Disposition
-                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+                    const filenameMatch = contentDisposition.match(
+                        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+                    )
                     if (filenameMatch && filenameMatch.length > 1)
                         filename = filenameMatch[1].replace(/['"]/g, '') // Remove any quotes
                 }
@@ -146,7 +156,9 @@ export class EventService extends GenericService<SportEvent> {
                 responseType: 'blob',
             })
             .then((response) => {
-                return window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }))
+                return window.URL.createObjectURL(
+                    new Blob([response.data], { type: 'application/pdf' }),
+                )
             })
             .catch((error) => {
                 handleApiError(error, t)
@@ -154,11 +166,15 @@ export class EventService extends GenericService<SportEvent> {
             })
     }
 
-    static async getCertificateStats(id: number | undefined, t: (key: string) => string) {
-        if (!id)
+    static async getCertificateStats(
+        id: number | undefined,
+        t: (key: string) => string,
+    ): Promise<EventCertificateStats | null> {
+        if (!id) {
             return null
+        }
         return axiosInstance
-            .get(`/event/${id}/certificate_stats`)
+            .get(`/${eventUrl}/${id}/certificate_stats`)
             .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
@@ -181,6 +197,22 @@ export class EventService extends GenericService<SportEvent> {
     static async getCertificateSchema(t: (key: string) => string) {
         return axiosInstance
             .get('/certificate_schema')
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
+
+    static async getCupScores(
+        id: number | undefined,
+        t: (key: string) => string,
+    ): Promise<CupScoreList[]> {
+        if (!id) {
+            return []
+        }
+        return axiosInstance
+            .get(`${resultListUrl}/${id}/cup_score_lists`)
             .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)

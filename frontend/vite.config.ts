@@ -1,4 +1,4 @@
-import { fileURLToPath, URL } from 'node:url'
+import { URL, fileURLToPath } from 'node:url'
 
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'

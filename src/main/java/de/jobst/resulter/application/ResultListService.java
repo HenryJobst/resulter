@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.application.certificate.CertificateService;
@@ -35,6 +36,8 @@ public class ResultListService {
 
     private final CupScoreListRepository cupScoreListRepository;
 
+    private final RaceRepository raceRepository;
+
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
 
     public ResultListService(ResultListRepository resultListRepository,
@@ -46,6 +49,7 @@ public class ResultListService {
                              MediaFileRepository mediaFileRepository,
                              EventCertificateStatRepository eventCertificateStatRepository,
                              CupScoreListRepository cupScoreListRepository,
+                             RaceRepository raceRepository,
                              SpringSecurityAuditorAware springSecurityAuditorAware) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
@@ -56,6 +60,7 @@ public class ResultListService {
         this.mediaFileRepository = mediaFileRepository;
         this.eventCertificateStatRepository = eventCertificateStatRepository;
         this.cupScoreListRepository = cupScoreListRepository;
+        this.raceRepository = raceRepository;
         this.springSecurityAuditorAware = springSecurityAuditorAware;
     }
 
@@ -80,7 +85,7 @@ public class ResultListService {
     }
 
     @Transactional
-    public List<CupScoreList> calculateScore(ResultListId id) {
+    public List<CupScoreListDto> calculateScore(ResultListId id) {
         ResultList resultList = resultListRepository.findByResultListId(id);
         if (resultList == null || resultList.getClassResults() == null || resultList.getClassResults().isEmpty()) {
             // no result list for id
@@ -102,7 +107,7 @@ public class ResultListService {
         cupScoreListRepository.deleteAllByDomainKey(cupScoreLists.stream()
             .map(CupScoreList::getDomainKey)
             .collect(Collectors.toSet()));
-        return cupScoreListRepository.saveAll(cupScoreLists);
+        return cupScoreListRepository.saveAll(cupScoreLists).stream().map(CupScoreListDto::from).toList();
     }
 
     @Transactional
@@ -189,5 +194,9 @@ public class ResultListService {
 
     public void deleteEventCertificateStat(EventCertificateStatId id) {
         eventCertificateStatRepository.deleteById(id);
+    }
+
+    public List<CupScoreListDto> getCupScoreLists(ResultListId resultListId) {
+        return cupScoreListRepository.findAllByResultListId(resultListId).stream().map(CupScoreListDto::from).toList();
     }
 }

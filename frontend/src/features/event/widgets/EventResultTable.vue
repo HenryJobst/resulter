@@ -5,6 +5,7 @@ import Column from 'primevue/column'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import moment from 'moment'
 import Button from 'primevue/button'
+import { computed } from 'vue'
 import { personService } from '@/features/person/services/person.service'
 import { organisationService } from '@/features/organisation/services/organisation.service'
 import type { PersonResult } from '@/features/event/model/person_result'
@@ -13,10 +14,28 @@ import type { Organisation } from '@/features/organisation/model/organisation'
 import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
 import { EventService } from '@/features/event/services/event.service'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { cupService } from '@/features/cup/services/cup.service'
+import type { Cup } from '@/features/cup/model/cup'
+import type { CupScoreList } from '@/features/event/model/cup_score_list'
 
 const props = defineProps<{ data: ResultListIdPersonResults, eventId: number }>()
 
 const { t } = useI18n()
+
+const cupQuery = useQuery({
+    queryKey: ['cups'],
+    queryFn: () => cupService.getAll(t),
+})
+
+const cups = computed((): Cup[] => {
+    const allCupIds = props.data?.cupScoreLists ? props.data.cupScoreLists.map(x => x.cupId) : []
+    const cupIds = new Set(allCupIds)
+    return cupQuery.data?.value?.content
+        ? cupQuery.data.value.content.filter((x) => {
+            return cupIds.has(x.id)
+        })
+        : []
+})
 
 const queryClient = useQueryClient()
 const authStore = useAuthStore()
@@ -36,8 +55,7 @@ function formatTime(time: string): string {
 function formatBirthYear(date: string | Date): string {
     if (typeof date === 'string')
         return parseDateMoment(date).format('YY')
-    else
-        return moment(date).format('YY')
+    else return moment(date).format('YY')
 }
 
 const personQuery = useQuery({
@@ -54,6 +72,12 @@ function resultColumn(data: PersonResult): string {
     return data.resultStatus === 'OK'
         ? formatTime(data.runTime)
         : t(`result_state.${data.resultStatus}`)
+}
+
+function cupScore(cup: Cup, data: PersonResult, cupScoreLists: CupScoreList[] | undefined): string {
+    const cupScoreList = cupScoreLists?.filter(x => x.cupId === cup.id).pop()
+    const cupScore = cupScoreList?.cupScores.filter(x => x.personId === data.personId).pop()
+    return cupScore ? cupScore.score.toLocaleString() : ''
 }
 
 function birthYearColumn(data: any): string {
@@ -126,6 +150,11 @@ function certificate(resultListId: number, classResultShortName: string, data: P
                 {{ resultColumn(slotProps.data) }}
             </template>
         </Column>
+        <Column v-for="cup in cups" :key="cup.id" :header="cup.type.id">
+            <template #body="slotProps">
+                {{ cupScore(cup, slotProps.data, props.data.cupScoreLists) }}
+            </template>
+        </Column>
         <Column>
             <template #body="slotProps">
                 <Button
@@ -133,7 +162,11 @@ function certificate(resultListId: number, classResultShortName: string, data: P
                     class="p-button-rounded p-button-text"
                     icon="pi pi-print"
                     @click="
-                        certificate(props.data.resultListId, props.data.classResultShortName, slotProps.data)
+                        certificate(
+                            props.data.resultListId,
+                            props.data.classResultShortName,
+                            slotProps.data,
+                        )
                     "
                 />
             </template>

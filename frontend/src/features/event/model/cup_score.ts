@@ -1,6 +1,5 @@
-import type { CupType } from '@/features/cup/model/cuptype'
-
 export interface CupScore {
-    type: CupType
+    classShortName: string
+    personId: number
     score: number
 }

@@ -2,7 +2,9 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.CupScoreListRepository;
 import de.jobst.resulter.domain.CupScoreList;
+import de.jobst.resulter.domain.ResultListId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,5 +36,11 @@ public class CupScoreListRepositoryDataJdbcAdapter implements CupScoreListReposi
         List<CupScoreListDbo> cupScoreListDbos = CupScoreListDbo.from(cupScoreLists, dboResolvers);
         Iterable<CupScoreListDbo> savedCupScoreListDbos = cupScoreListJdbcRepository.saveAll(cupScoreListDbos);
         return CupScoreListDbo.asCupScoreLists(savedCupScoreListDbos);
+    }
+
+    @Override
+    public List<CupScoreList> findAllByResultListId(ResultListId resultListId) {
+        return CupScoreListDbo.asCupScoreLists(cupScoreListJdbcRepository.findByResultListId(AggregateReference.to(
+            resultListId.value())));
     }
 }

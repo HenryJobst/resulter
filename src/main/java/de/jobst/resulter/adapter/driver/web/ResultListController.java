@@ -1,8 +1,8 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatsDto;
-import de.jobst.resulter.adapter.driver.web.dto.ResultListDto;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.application.certificate.CertificateService;
@@ -61,17 +61,24 @@ public class ResultListController {
 
     @PutMapping("/result_list/{id}/calculate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResultListDto> calculateResultListScore(@PathVariable Long id) {
+    public ResponseEntity<List<CupScoreListDto>> calculateResultListScore(@PathVariable Long id) {
         try {
-            List<CupScoreList> cupScoreLists = resultListService.calculateScore(ResultListId.of(id));
-            /*
-            if (null != cupTypeCupScoresMap) {
-                return ResponseEntity.ok(CupScoreListDto.from(cupTypeCupScoresMap));
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            */
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            List<CupScoreListDto> cupScoreLists = resultListService.calculateScore(ResultListId.of(id));
+            return ResponseEntity.ok(cupScoreLists);
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/result_list/{id}/cup_score_lists")
+    public ResponseEntity<List<CupScoreListDto>> getCupScoreLists(@PathVariable Long id) {
+        try {
+            List<CupScoreListDto> cupScoreLists = resultListService.getCupScoreLists(ResultListId.of(id));
+            return ResponseEntity.ok(cupScoreLists);
         } catch (IllegalArgumentException e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

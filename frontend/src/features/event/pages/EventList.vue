@@ -67,13 +67,32 @@ const initialTableSettings: TableSettings = {
             <div>{{ value?.name }}</div>
         </template>
         <template #extra_list_actions>
-            <router-link v-if="authStore.isAuthenticated" class="ml-2" :to="{ name: 'event-import' }">
-                <Button icon="pi pi-upload" :label="t('labels.import')" outlined />
+            <router-link
+                v-if="authStore.isAuthenticated"
+                class="ml-2"
+                :to="{ name: 'event-import' }"
+            >
+                <Button
+                    v-tooltip="t('labels.import')"
+                    icon="pi pi-upload"
+                    :aria-label="t('labels.import')"
+                    outlined
+                    raised
+                    rounded
+                />
             </router-link>
         </template>
         <template #extra_row_actions="{ value }">
             <router-link :to="{ name: 'event-results', params: { id: value.id } }">
-                <Button icon="pi pi-list" class="mr-2" :label="t('labels.results')" outlined />
+                <Button
+                    v-tooltip="t('labels.results')"
+                    icon="pi pi-list"
+                    class="mr-2"
+                    :aria-label="t('labels.results')"
+                    outlined
+                    raised
+                    rounded
+                />
             </router-link>
         </template>
     </GenericList>

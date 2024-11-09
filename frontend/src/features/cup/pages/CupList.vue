@@ -53,13 +53,23 @@ function reload() {
     <div class="flex justify-content-between my-4">
         <div class="flex justify-content-start">
             <router-link v-if="authStore.isAdmin" :to="{ name: 'cup-new' }">
-                <Button icon="pi pi-plus" :label="t('labels.new')" outlined />
+                <Button
+                    v-tooltip.right="t('labels.new')"
+                    icon="pi pi-plus"
+                    :aria-label="t('labels.new')"
+                    outlined
+                    raised
+                    rounded
+                />
             </router-link>
         </div>
         <Button
+            v-tooltip.left="t('labels.reload')"
             icon="pi pi-refresh"
-            :label="t('labels.reload')"
+            :aria-label="t('labels.reload')"
             outlined
+            raised
+            rounded
             severity="secondary"
             @click="reload"
         />
@@ -70,8 +80,12 @@ function reload() {
             {{ t('messages.loading') }}
             <Spinner />
         </span>
-        <span v-else-if="cupQuery?.status.value === 'error' || cupMutation.status.value === 'error'">
-            <ErrorMessage :message="t('messages.error', { message: cupQuery?.error.value?.message })" />
+        <span
+            v-else-if="cupQuery?.status.value === 'error' || cupMutation.status.value === 'error'"
+        >
+            <ErrorMessage
+                :message="t('messages.error', { message: cupQuery?.error.value?.message })"
+            />
             <ErrorMessage
                 :message="t('messages.error', { message: cupMutation?.error.value?.message })"
             />
@@ -90,18 +104,24 @@ function reload() {
                         <router-link :to="{ name: 'cup-edit', params: { id: slotProps.data.id } }">
                             <Button
                                 v-if="authStore.isAdmin"
+                                v-tooltip="t('labels.edit')"
                                 icon="pi pi-pencil"
                                 class="mr-2"
-                                :label="t('labels.edit')"
+                                :aria-label="t('labels.edit')"
                                 outlined
+                                raised
+                                rounded
                             />
                         </router-link>
                         <Button
                             v-if="authStore.isAdmin"
+                            v-tooltip="t('labels.delete')"
                             icon="pi pi-trash"
                             severity="danger"
                             outlined
-                            :label="t('labels.delete')"
+                            raised
+                            rounded
+                            :aria-label="t('labels.delete')"
                             @click="deleteCup(slotProps.data.id)"
                         />
                     </template>

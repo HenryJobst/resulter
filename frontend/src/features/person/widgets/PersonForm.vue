@@ -66,7 +66,7 @@ const localizedGenderOptions = computed(() => {
                     :locale="locale"
                 >
                     <template #inputicon="{ clickCallback }">
-                        <i class="pi pi-calendar" @click="clickCallback" />
+                        <i class="pi pi-calendar ml-2 mt-2" rounded @click="clickCallback" />
                     </template>
                 </Calendar>
             </div>
@@ -74,7 +74,9 @@ const localizedGenderOptions = computed(() => {
         <div class="flex flex-row">
             <label for="type" class="col-fixed w-32">{{ t('labels.gender') }}</label>
             <div class="col">
-                <span v-if="genderQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                <span v-if="genderQuery.status.value === 'pending'">{{
+                    t('messages.loading')
+                }}</span>
                 <span v-else-if="genderQuery.status.value === 'error'">
                     {{ t('messages.error', { message: genderQuery.error.toLocaleString() }) }}
                 </span>

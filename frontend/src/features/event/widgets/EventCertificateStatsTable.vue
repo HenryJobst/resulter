@@ -72,8 +72,13 @@ function removeEventCertificateStat(id: number) {
         <Column>
             <template #body="slotProps">
                 <Button
+                    v-tooltip="t('labels.delete')"
                     class="p-button-rounded p-button-text"
                     icon="pi pi-trash"
+                    outlined
+                    raised
+                    rounded
+                    :aria-label="t('labels.delete')"
                     @click="removeEventCertificateStat(slotProps.data.id)"
                 />
             </template>

@@ -81,7 +81,11 @@
         "race_number": "Race {raceNumber}",
         "overall": "Overall",
         "certificate_stat": "certificate creation entry",
-        "schema": "Schema"
+        "schema": "Schema",
+        "help": "Help",
+        "select": "Select",
+        "upload": "Upload",
+        "download": "Download"
     },
     "messages": {
         "new_cup": "New cup",

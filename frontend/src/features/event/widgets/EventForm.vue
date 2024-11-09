@@ -194,9 +194,21 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
         <div class="flex flex-row">
             <label for="startTime" class="col-fixed w-32">{{ t('labels.time') }}</label>
             <div class="col">
-                <Calendar id="startTime" v-model="timePart" show-icon icon-display="input" time-only>
+                <Calendar
+                    id="startTime"
+                    v-model="timePart"
+                    show-icon
+                    icon-display="input"
+                    time-only
+                >
                     <template #inputicon="{ clickCallback }">
-                        <i class="pi pi-clock" @click="clickCallback" />
+                        <i
+                            v-tooltip="t('labels.select')"
+                            class="pi pi-clock ml-2 mt-2"
+                            :aria-label="t('labels.select')"
+                            rounded
+                            @click="clickCallback"
+                        />
                     </template>
                 </Calendar>
             </div>
@@ -204,7 +216,9 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
         <div class="flex flex-row">
             <label for="type" class="col-fixed w-40">{{ t('labels.state') }}</label>
             <div class="col">
-                <span v-if="eventStatusQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                <span v-if="eventStatusQuery.status.value === 'pending'">{{
+                    t('messages.loading')
+                }}</span>
                 <span v-else-if="eventStatusQuery.status.value === 'error'">
                     {{ t('messages.error', { message: eventStatusQuery.error.toLocaleString() }) }}
                 </span>
@@ -221,14 +235,21 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
             </div>
         </div>
         <div class="flex flex-row">
-            <label for="organisations" class="col-fixed w-32">{{ t('labels.organisation', 2) }}</label>
+            <label for="organisations" class="col-fixed w-32">{{
+                t('labels.organisation', 2)
+            }}</label>
             <div class="col">
-                <span v-if="organisationQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                <span v-if="organisationQuery.status.value === 'pending'">{{
+                    t('messages.loading')
+                }}</span>
                 <span v-else-if="organisationQuery.status.value === 'error'">
                     {{ t('messages.error', { message: organisationQuery.error.toLocaleString() }) }}
                 </span>
 
-                <div v-else-if="organisationQuery.data && organisationQuery.data.value" class="card">
+                <div
+                    v-else-if="organisationQuery.data && organisationQuery.data.value"
+                    class="card"
+                >
                     <MultiSelect
                         id="organisations"
                         v-model="l_organisations"
@@ -247,7 +268,9 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
         <div class="flex flex-row">
             <label for="certificate" class="col-fixed w-32">{{ t('labels.certificate') }}</label>
             <div class="col">
-                <span v-if="certificateQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                <span v-if="certificateQuery.status.value === 'pending'">{{
+                    t('messages.loading')
+                }}</span>
                 <span v-else-if="certificateQuery.status.value === 'error'">
                     {{ t('messages.error', { message: certificateQuery.error.toLocaleString() }) }}
                 </span>

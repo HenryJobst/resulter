@@ -67,7 +67,15 @@ function navigateToList() {
         <form @submit.prevent="submitHandler">
             <slot :form-data="{ data: formData }" />
             <div class="mt-2">
-                <Button v-if="changeable" class="mt-2" type="submit" :label="t('labels.save')" outlined />
+                <Button
+                    v-if="changeable"
+                    class="mt-2"
+                    type="submit"
+                    :label="t('labels.save')"
+                    outlined
+                    raised
+                    rounded
+                />
                 <Button
                     v-if="changeable"
                     class="ml-2"
@@ -75,6 +83,8 @@ function navigateToList() {
                     type="reset"
                     :label="t('labels.back')"
                     outlined
+                    raised
+                    rounded
                     @click="navigateToList"
                 />
             </div>

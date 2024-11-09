@@ -118,28 +118,39 @@ function formatSize(bytes: number): string {
                     @clear="onClearTemplatingUpload"
                 >
                     <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
-                        <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
+                        <div
+                            class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2"
+                        >
                             <div class="flex gap-2">
                                 <Button
+                                    v-tooltip="t('labels.choose')"
                                     icon="pi pi-images"
-                                    :label="t('labels.choose')"
+                                    :aria-label="t('labels.choose')"
                                     outlined
+                                    raised
+                                    rounded
                                     @click="chooseCallback()"
                                 />
                                 <Button
                                     v-if="files.length > 0 && authStore.isAuthenticated"
+                                    v-tooltip="t('labels.import')"
                                     icon="pi pi-upload"
-                                    :label="t('labels.import')"
+                                    :aria-label="t('labels.import')"
                                     outlined
+                                    raised
+                                    rounded
                                     severity="success"
                                     :disabled="!files || files.length === 0"
                                     @click="uploadEvent(uploadCallback)"
                                 />
                                 <Button
                                     v-if="files.length > 0"
-                                    :label="t('labels.clear')"
+                                    v-tooltip="t('labels.clear')"
+                                    :aria-label="t('labels.clear')"
                                     icon="pi pi-times"
                                     outlined
+                                    raised
+                                    rounded
                                     severity="danger"
                                     :disabled="!files || files.length === 0"
                                     @click="clearCallback()"
@@ -156,7 +167,12 @@ function formatSize(bytes: number): string {
                         </div>
                     </template>
                     <template
-                        #content="{ files, uploadedFiles, removeUploadedFileCallback, removeFileCallback }"
+                        #content="{
+                            files,
+                            uploadedFiles,
+                            removeUploadedFileCallback,
+                            removeFileCallback,
+                        }"
                     >
                         <div v-if="files.length > 0">
                             <h5>{{ t('messages.pending') }}</h5>
@@ -170,12 +186,17 @@ function formatSize(bytes: number): string {
                                     <div>{{ formatSize(file.size) }}</div>
                                     <Badge :value="t('messages.pending')" severity="warning" />
                                     <Button
+                                        v-tooltip="t('labels.clear')"
                                         class="mb-2"
-                                        :label="t('labels.clear')"
+                                        :aria-label="t('labels.clear')"
                                         icon="pi pi-times"
                                         outlined
+                                        raised
+                                        rounded
                                         severity="danger"
-                                        @click="onRemoveTemplatingFile(file, removeFileCallback, index)"
+                                        @click="
+                                            onRemoveTemplatingFile(file, removeFileCallback, index)
+                                        "
                                     />
                                 </div>
                             </div>
@@ -191,12 +212,19 @@ function formatSize(bytes: number): string {
                                 >
                                     <span class="font-semibold">{{ file.name }}</span>
                                     <div>{{ formatSize(file.size) }}</div>
-                                    <Badge :value="t('messages.completed')" class="mt-3" severity="success" />
+                                    <Badge
+                                        :value="t('messages.completed')"
+                                        class="mt-3"
+                                        severity="success"
+                                    />
                                     <Button
+                                        v-tooltip="t('labels.clear')"
                                         class="mb-2"
-                                        :label="t('labels.clear')"
+                                        :aria-label="t('labels.clear')"
                                         icon="pi pi-times"
                                         outlined
+                                        raised
+                                        rounded
                                         severity="danger"
                                         @click="removeUploadedFileCallback(index)"
                                     />
@@ -207,6 +235,8 @@ function formatSize(bytes: number): string {
                     <template #empty>
                         <div class="flex align-items-center justify-content-center flex-column">
                             <i
+                                v-tooltip="t('labels.upload')"
+                                :aria-label="t('labels.upload')"
                                 class="pi pi-cloud-upload border-2 border-circle p-5 text-5xl text-400 border-400"
                             />
                             <p class="mt-4 mb-0">

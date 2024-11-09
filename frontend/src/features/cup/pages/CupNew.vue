@@ -64,13 +64,18 @@ function cupSubmitHandler(cup: Omit<Cup, 'id'>) {
                 type="submit"
                 :label="t('labels.save')"
                 outlined
+                raised
+                rounded
             />
             <Button
-                class="ml-2"
+                v-tooltip="t('labels.back')"
+                class="pi pi-arrow-left ml-2"
+                :aria-label="t('labels.back')"
                 severity="secondary"
                 type="reset"
-                :label="t('labels.back')"
                 outlined
+                raised
+                rounded
                 @click="navigateCupToList"
             />
         </CupForm>
@@ -79,6 +84,6 @@ function cupSubmitHandler(cup: Omit<Cup, 'id'>) {
 
 <style scoped>
 h1 {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 </style>

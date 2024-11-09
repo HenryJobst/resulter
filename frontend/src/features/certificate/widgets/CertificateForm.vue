@@ -99,9 +99,13 @@ function handleMediaSelectionChange(ev: DropdownChangeEvent) {
         certificate.value.blankCertificate = getMediaKeyFromId(ev.value.id)!
 }
 
-watch(() => certificate.value, () => {
-    queryClient.invalidateQueries({ queryKey: ['certificate'] })
-}, { deep: true })
+watch(
+    () => certificate.value,
+    () => {
+        queryClient.invalidateQueries({ queryKey: ['certificate'] })
+    },
+    { deep: true },
+)
 </script>
 
 <template>
@@ -111,9 +115,13 @@ watch(() => certificate.value, () => {
                 <div class="flex flex-row">
                     <label for="event" class="col-fixed w-32">{{ t('labels.event') }}</label>
                     <div class="col">
-                        <span v-if="eventQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                        <span v-if="eventQuery.status.value === 'pending'">{{
+                            t('messages.loading')
+                        }}</span>
                         <span v-else-if="eventQuery.status.value === 'error'">
-                            {{ t('messages.error', { message: eventQuery.error.toLocaleString() }) }}
+                            {{
+                                t('messages.error', { message: eventQuery.error.toLocaleString() })
+                            }}
                         </span>
                         <Dropdown
                             v-else-if="eventQuery.data.value"
@@ -133,9 +141,13 @@ watch(() => certificate.value, () => {
                 <div class="flex flex-row">
                     <label for="media" class="col-fixed w-32">{{ t('labels.background') }}</label>
                     <div class="col">
-                        <span v-if="mediaQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                        <span v-if="mediaQuery.status.value === 'pending'">{{
+                            t('messages.loading')
+                        }}</span>
                         <span v-else-if="mediaQuery.status.value === 'error'">
-                            {{ t('messages.error', { message: mediaQuery.error.toLocaleString() }) }}
+                            {{
+                                t('messages.error', { message: mediaQuery.error.toLocaleString() })
+                            }}
                         </span>
                         <Dropdown
                             v-else-if="mediaQuery.data.value"
@@ -175,11 +187,21 @@ watch(() => certificate.value, () => {
                         <label for="layoutDescription" class="col-fixed w-32">{{
                             t('labels.layout_description')
                         }}</label>
-                        <Button icon="pi pi-question-circle" outlined @click="visibleRight = true" />
+                        <Button
+                            v-tooltip="t('labels.help')"
+                            icon="pi pi-question-circle"
+                            :aria-label="t('labels.help')"
+                            outlined
+                            raised
+                            rounded
+                            @click="visibleRight = true"
+                        />
                         <Sidebar
-                            v-if="schemaQuery.isFetched" v-model:visible="visibleRight"
+                            v-if="schemaQuery.isFetched"
+                            v-model:visible="visibleRight"
                             :header="t('labels.schema')"
-                            position="right" class="w-7/12"
+                            position="right"
+                            class="w-7/12"
                         >
                             <pre>{{ formattedSchema }}</pre>
                         </Sidebar>
@@ -201,23 +223,32 @@ watch(() => certificate.value, () => {
                     </div>
                 </div>
             </div>
-            <div v-if="certificateQuery.status.value" class="fixed-element flex flex-col flex-grow ml-3">
+            <div
+                v-if="certificateQuery.status.value"
+                class="fixed-element flex flex-col flex-grow ml-3"
+            >
                 <div class="flex flex-row justify-between">
                     <label for="preview" class="col-fixed w-32">{{ t('labels.preview') }}</label>
                     <div>
                         <Button
+                            v-tooltip="t('labels.reload')"
                             outlined
+                            raised
+                            rounded
                             severity="primary"
                             class="mb-2 pi pi-refresh"
+                            :aria-label="t('labels.reload')"
                             @click="certificateQuery.refetch()"
                         />
                     </div>
                 </div>
-                <span v-if="certificateQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                <span v-if="certificateQuery.status.value === 'pending'">{{
+                    t('messages.loading')
+                }}</span>
                 <span v-else-if="certificateQuery.status.value === 'error'">
                     {{ t('messages.error', { message: mediaQuery.error.toLocaleString() }) }}
                 </span>
-                <div v-else-if="certificateQuery.data.value" style="border: 1px solid #ccc;">
+                <div v-else-if="certificateQuery.data.value" style="border: 1px solid #ccc">
                     <VuePdfEmbed :source="certificateQuery.data.value" :width="500" />
                 </div>
             </div>

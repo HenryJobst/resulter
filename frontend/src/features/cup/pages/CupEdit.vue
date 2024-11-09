@@ -30,7 +30,10 @@ const queryClient = useQueryClient()
 const cupQuery = useQuery({
     queryKey: ['cups', { id: props.id }],
     queryFn: () => cupService.getById(props.id, t),
-    initialData: () => queryClient.getQueryData<RestResult<Cup>>(['cups'])?.content.find(cup => cup.id === props.id),
+    initialData: () =>
+        queryClient
+            .getQueryData<RestResult<Cup>>(['cups'])
+            ?.content.find(cup => cup.id === props.id),
     initialDataUpdatedAt: () => queryClient.getQueryState(['cups'])?.dataUpdatedAt,
 })
 
@@ -68,20 +71,30 @@ function cupSubmitHandler(cup: Cup) {
             <ErrorMessage :message="t('messages.error', { message: cupQuery.error.value })" />
             <ErrorMessage :message="t('messages.error', { message: cupMutation.error.value })" />
         </span>
-        <CupForm v-else-if="cupQuery.data" :cup="cupQuery.data.value" @cup-submit="cupSubmitHandler">
+        <CupForm
+            v-else-if="cupQuery.data"
+            :cup="cupQuery.data.value"
+            @cup-submit="cupSubmitHandler"
+        >
             <Button
                 v-if="authStore.isAdmin"
-                class="mt-2"
+                v-tooltip="t('labels.save')"
+                :aria-label="t('labels.save')"
+                class="pi pi-save"
                 type="submit"
-                :label="t('labels.save')"
                 outlined
+                raised
+                rounded
             />
             <Button
-                class="ml-2"
+                v-tooltip="t('labels.back')"
+                :aria-label="t('labels.back')"
+                class="pi pi-arrow-left ml-2"
                 severity="secondary"
                 type="reset"
-                :label="t('labels.back')"
                 outlined
+                raised
+                rounded
                 @click="navigateCupToList"
             />
         </CupForm>

@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import DataTable, { type DataTableFilterEvent, type DataTablePageEvent, type DataTableSortEvent,
+import DataTable, {
+    type DataTableFilterEvent,
+    type DataTablePageEvent,
+    type DataTableSortEvent,
 } from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -239,7 +242,10 @@ onMounted(() => {
     console.log(`Filters: ${prettyPrint(settingsStore.settings.filters)}`)
 })
 
-function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
+function debounce<T extends (...args: any[]) => any>(
+    fn: T,
+    delay: number,
+): (...args: Parameters<T>) => void {
     let timeoutID: ReturnType<typeof setTimeout> | null = null
 
     return function (this: any, ...args: Parameters<T>) {
@@ -254,7 +260,7 @@ function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...
 
 const delay = 800
 const debounceFilterChanged = debounce(filterChanged, delay)
-const debouncedFilterInput = debounce((filterModel: any, filterCallback: Function) => {
+const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => void) => {
     filterCallback()
 }, delay)
 </script>
@@ -265,24 +271,40 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: Functio
         <div class="flex justify-content-between my-4">
             <div v-if="props.newEnabled" class="flex justify-content-start">
                 <router-link v-if="changeable" :to="{ name: `${props.routerPrefix}-new` }">
-                    <Button icon="pi pi-plus" :title="t('labels.new')" outlined />
+                    <Button
+                        v-tooltip.right="t('labels.new')"
+                        icon="pi pi-plus"
+                        :aria-label="t('labels.new')"
+                        outlined
+                        raised
+                        rounded
+                    />
                 </router-link>
                 <slot name="extra_list_actions" />
             </div>
             <Button
+                v-tooltip.left="t('labels.reload')"
                 icon="pi pi-refresh"
-                :title="t('labels.reload')"
+                :aria-label="t('labels.reload')"
                 outlined
+                raised
+                rounded
                 severity="secondary"
                 @click="reload"
             />
         </div>
-        <div v-if="entityQuery.status.value === 'pending' || deleteMutation.status.value === 'pending'">
+        <div
+            v-if="
+                entityQuery.status.value === 'pending' || deleteMutation.status.value === 'pending'
+            "
+        >
             {{ t('messages.loading') }}
             <Spinner />
         </div>
         <div
-            v-else-if="entityQuery.status.value === 'error' || deleteMutation.status.value === 'error'"
+            v-else-if="
+                entityQuery.status.value === 'error' || deleteMutation.status.value === 'error'
+            "
         >
             <ErrorMessage :message="t('messages.error', { message: entityQuery.error.value })" />
             <ErrorMessage
@@ -325,7 +347,10 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: Functio
                     :class="col.class || ''"
                 >
                     <template v-if="col.type === 'list'" #body="slotProps">
-                        <div v-for="(item, index) in slotProps.data[col.field]" :key="`item-${index}`">
+                        <div
+                            v-for="(item, index) in slotProps.data[col.field]"
+                            :key="`item-${index}`"
+                        >
                             <template v-if="$slots[col.field]">
                                 <slot :name="col.field" :value="item" />
                             </template>
@@ -348,8 +373,9 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: Functio
                     <template v-else-if="col.type === 'enum'" #body="slotProps">
                         {{
                             t(
-                                (enumTypeLabelPrefixes ? enumTypeLabelPrefixes.get(col.field) : '')
-                                    + slotProps.data[col.field].id.toUpperCase(),
+                                (enumTypeLabelPrefixes
+                                    ? enumTypeLabelPrefixes.get(col.field)
+                                    : '') + slotProps.data[col.field].id.toUpperCase(),
                             )
                         }}
                     </template>
@@ -381,26 +407,35 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: Functio
                 <!-- ... Other columns ... -->
                 <Column class="text-right">
                     <template #body="{ data }">
-                        <div class="w-24">
+                        <div class="w-26">
                             <slot name="extra_row_actions" :value="data" />
                             <router-link
                                 v-if="props.editEnabled && changeable"
-                                :to="{ name: `${props.routerPrefix}-edit`, params: { id: data.id } }"
+                                :to="{
+                                    name: `${props.routerPrefix}-edit`,
+                                    params: { id: data.id },
+                                }"
                             >
                                 <Button
                                     v-if="props.editEnabled && changeable"
+                                    v-tooltip="t('labels.edit')"
                                     icon="pi pi-pencil"
                                     class="mr-2"
-                                    :title="t('labels.edit')"
+                                    :aria-label="t('labels.edit')"
                                     outlined
+                                    raised
+                                    rounded
                                 />
                             </router-link>
                             <Button
                                 v-if="props.deleteEnabled && changeable"
+                                v-tooltip="t('labels.delete')"
                                 icon="pi pi-trash"
                                 severity="danger"
                                 outlined
-                                :title="t('labels.delete')"
+                                raised
+                                rounded
+                                :aria-label="t('labels.delete')"
                                 @click="deleteEntity(data.id)"
                             />
                         </div>

@@ -159,8 +159,13 @@ function certificate(resultListId: number, classResultShortName: string, data: P
             <template #body="slotProps">
                 <Button
                     v-if="props.data.certificateEnabled && slotProps.data.resultStatus === 'OK'"
+                    v-tooltip="t('labels.download')"
+                    :aria-label="t('labels.download')"
                     class="p-button-rounded p-button-text"
                     icon="pi pi-print"
+                    outlined
+                    raised
+                    rounded
                     @click="
                         certificate(
                             props.data.resultListId,

@@ -8,6 +8,7 @@ import { VueQueryPlugin } from '@tanstack/vue-query'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import messages from '@intlify/unplugin-vue-i18n/messages'
+import Tooltip from 'primevue/tooltip'
 import App from './App.vue'
 import { setupRouter } from './router'
 import AuthStorePlugin from '@/features/keycloak/plugins/authStorePlugin'
@@ -39,6 +40,7 @@ const router = setupRouter(i18n)
 
 function renderApp() {
     const app = createApp(App)
+    app.directive('tooltip', Tooltip)
     app.use(PrimeVue, { ripple: true, locale: i18n.global.locale })
     app.use(AuthStorePlugin, { pinia })
     app.use(VueQueryPlugin)

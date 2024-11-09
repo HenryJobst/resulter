@@ -45,8 +45,7 @@ watch(
     (newData) => {
         if (newData && newData.value)
             formData.value = { ...newData.value }
-        else
-            formData.value = null // oder setzen Sie einen Default-Wert
+        else formData.value = null // oder setzen Sie einen Default-Wert
     },
     {
         deep: true, // Falls nötig, um auf tiefergehende Änderungen innerhalb des Objekts zu reagieren
@@ -81,12 +80,18 @@ function navigateToList() {
 <template>
     <div v-if="changeable" v-bind="$attrs">
         <h1>{{ props.editLabel }}</h1>
-        <div v-if="entityQuery.status.value === 'pending' || entityMutation.status.value === 'pending'">
+        <div
+            v-if="
+                entityQuery.status.value === 'pending' || entityMutation.status.value === 'pending'
+            "
+        >
             {{ t('messages.loading') }}
             <Spinner />
         </div>
         <div
-            v-else-if="entityQuery.status.value === 'error' || entityMutation.status.value === 'error'"
+            v-else-if="
+                entityQuery.status.value === 'error' || entityMutation.status.value === 'error'
+            "
         >
             <ErrorMessage :message="t('messages.error', { message: entityQuery.error.value })" />
             <ErrorMessage :message="t('messages.error', { message: entityMutation.error.value })" />
@@ -94,14 +99,26 @@ function navigateToList() {
         <form @submit.prevent="submitHandler">
             <slot :form-data="{ data: formData }" />
             <div class="mt-2">
-                <Button v-if="changeable" class="mt-2" type="submit" :label="t('labels.save')" outlined />
                 <Button
                     v-if="changeable"
-                    class="ml-2"
+                    v-tooltip="t('labels.save')"
+                    :aria-label="t('labels.save')"
+                    class="pi pi-save mt-2"
+                    type="submit"
+                    outlined
+                    raised
+                    rounded
+                />
+                <Button
+                    v-if="changeable"
+                    v-tooltip="t('labels.back')"
+                    :aria-label="t('labels.back')"
+                    class="pi pi-arrow-left ml-2"
                     severity="secondary"
                     type="reset"
-                    :label="t('labels.back')"
                     outlined
+                    raised
+                    rounded
                     @click="navigateToList"
                 />
             </div>

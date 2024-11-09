@@ -90,6 +90,8 @@ async function uploader(media: FileUploadUploaderEvent) {
                 type="reset"
                 :label="t('labels.back')"
                 outlined
+                raised
+                rounded
                 @click="redirectBack"
             />
         </MediaImportForm>

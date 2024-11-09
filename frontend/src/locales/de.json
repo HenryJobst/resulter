@@ -81,7 +81,11 @@
         "race_number": "Lauf {raceNumber}",
         "overall": "Gesamtwertung",
         "certificate_stat": "Urkundenerzeugungseintrag",
-        "schema": "Schema"
+        "schema": "Schema",
+        "help": "Hilfe",
+        "select": "Auswählen",
+        "upload": "Hochladen",
+        "download": "Runterladen"
     },
     "result_state": {
         "OK": "OK",

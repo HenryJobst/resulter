@@ -3,6 +3,7 @@ package de.jobst.resulter.domain.scoring;
 import de.jobst.resulter.domain.*;
 
 import java.util.List;
+import java.util.Map;
 
 public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
 
@@ -17,7 +18,8 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     @Override
-    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults) {
+    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults,
+                                    Map<PersonId, OrganisationId> organisationByPerson) {
 
         return null;
     }

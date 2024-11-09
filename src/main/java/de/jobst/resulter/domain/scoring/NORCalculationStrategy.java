@@ -14,7 +14,7 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     private final Map<OrganisationId, Organisation> organisationById;
     private final Organisation norOrganisation;
 
-    Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner");
+    Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner","OffK","OffL","D/H-12 Be");
 
     public NORCalculationStrategy(Map<OrganisationId, Organisation> organisationById) {
         this.organisationById = organisationById;
@@ -72,7 +72,8 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     @Override
-    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults) {
+    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults,
+                                    Map<PersonId, OrganisationId> organisationByPerson) {
         if (personRaceResults.isEmpty()) {
             return List.of();
         }

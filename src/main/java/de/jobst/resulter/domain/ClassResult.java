@@ -6,6 +6,7 @@ import org.springframework.lang.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public record ClassResult(@NonNull ClassResultName classResultName, @NonNull ClassResultShortName classResultShortName,
                           @NonNull Gender gender, @NonNull PersonResults personResults, @Nullable CourseId courseId)
@@ -31,11 +32,13 @@ public record ClassResult(@NonNull ClassResultName classResultName, @NonNull Cla
     public List<CupScore> calculate(Cup cup, CupTypeCalculationStrategy cupTypeCalculationStrategy) {
         List<PersonResult> personResults =
             this.personResults().value().stream().filter(cupTypeCalculationStrategy::valid).sorted().toList();
+        var organisationByPerson = personResults.stream().collect(Collectors.toMap(PersonResult::personId,
+            v -> v.organisationId() != null ? v.organisationId() : null ));
         List<PersonRaceResult> personRaceResults = personResults.stream()
             .flatMap(it -> it.personRaceResults().value().stream())
             .filter(y -> y.getState().equals(ResultStatus.OK))
             .sorted()
             .toList();
-        return cupTypeCalculationStrategy.calculate(cup, personRaceResults);
+        return cupTypeCalculationStrategy.calculate(cup, personRaceResults, organisationByPerson);
     }
 }

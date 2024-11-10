@@ -86,7 +86,7 @@ public class ResultList implements Comparable<ResultList> {
         CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
         switch (cup.getType()) {
             case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy(organisationById);
-            case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy();
+            case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy(organisationById);
             case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy(organisationById);
             case CupType.ADD -> cupTypeCalculationStrategy = new AddCalculationStrategy();
         }

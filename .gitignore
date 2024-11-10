@@ -43,3 +43,5 @@ src/main/.DS_Store
 /node_modules/**
 /build-with-act.sh
 /build-images-with-act.sh
+/testdb.mv.db
+/testdb.trace.db

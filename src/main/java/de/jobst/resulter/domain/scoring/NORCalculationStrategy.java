@@ -20,7 +20,7 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
         this.organisationById = organisationById;
         norOrganisation = organisationById.values()
             .stream()
-            .filter(x -> x.containsOrganisationWithShortName(CupType.NOR.value()))
+            .filter(x -> x.containsOrganisationWithShortName(CUP_TYPE.value()))
             .findFirst()
             .orElse(null);
     }

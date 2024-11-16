@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.CupDetailDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.application.CupService;
@@ -70,6 +71,18 @@ public class CupController {
         try {
             Optional<Cup> cup = cupService.findById(CupId.of(id));
             return cup.map(value -> ResponseEntity.ok(CupDto.from(value)))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/cup/{id}/detailed")
+    public ResponseEntity<CupDetailDto> getCupDetailed(@PathVariable Long id) {
+        try {
+            Optional<CupDetailDto> cup = cupService.getCupDetailed(CupId.of(id));
+            return cup.map(ResponseEntity::ok)
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             logError(e);

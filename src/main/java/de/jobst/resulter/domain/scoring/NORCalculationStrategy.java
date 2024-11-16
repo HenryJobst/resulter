@@ -14,7 +14,7 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     private final Map<OrganisationId, Organisation> organisationById;
     private final Organisation norOrganisation;
 
-    Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner","OffK","OffL","D/H-12 Be");
+    Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner", "OffK", "OffL", "D/H-12 Be");
 
     public NORCalculationStrategy(Map<OrganisationId, Organisation> organisationById) {
         this.organisationById = organisationById;
@@ -72,7 +72,8 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     @Override
-    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults,
+    public List<CupScore> calculate(Cup cup,
+                                    List<PersonRaceResult> personRaceResults,
                                     Map<PersonId, OrganisationId> organisationByPerson) {
         if (personRaceResults.isEmpty()) {
             return List.of();
@@ -80,11 +81,16 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
 
         PunchTime fastestTime = personRaceResults.getFirst().getRuntime();
 
-        return personRaceResults.stream().map(x -> calculateScore(x, fastestTime)).toList();
+        return personRaceResults.stream()
+            .map(x -> calculateScore(x, organisationByPerson.get(x.getPersonId()), fastestTime))
+            .toList();
     }
 
-    private CupScore calculateScore(PersonRaceResult personRaceResult, PunchTime fastestTime) {
+    private CupScore calculateScore(PersonRaceResult personRaceResult,
+                                    OrganisationId organisationId,
+                                    PunchTime fastestTime) {
         return CupScore.of(personRaceResult.getPersonId(),
+            organisationId,
             personRaceResult.getClassResultShortName(),
             calculateNorPoints(fastestTime.value(), personRaceResult.getRuntime().value()));
     }

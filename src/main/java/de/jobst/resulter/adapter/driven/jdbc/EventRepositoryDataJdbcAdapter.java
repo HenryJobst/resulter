@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -191,5 +193,14 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         }).toList(),
             FilterAndSortConverter.mapOrderProperties(page.getPageable(), EventDbo::mapOrdersDboToDomain),
             page.getTotalElements());
+    }
+
+    @Override
+    public List<Event> findAllById(Collection<EventId> eventIds) {
+        Iterable<EventDbo> events =
+            eventJdbcRepository.findAllById(eventIds.stream().map(EventId::value).collect(Collectors.toSet()));
+        return StreamSupport.stream(events.spliterator(), false)
+            .map(x -> EventDbo.asEvent(x, getOrganisationResolver()))
+            .collect(Collectors.toList());
     }
 }

@@ -196,7 +196,11 @@ public class ResultListService {
         eventCertificateStatRepository.deleteById(id);
     }
 
-    public List<CupScoreListDto> getCupScoreLists(ResultListId resultListId) {
+    public List<CupScoreListDto> getCupScoreListDtos(ResultListId resultListId) {
         return cupScoreListRepository.findAllByResultListId(resultListId).stream().map(CupScoreListDto::from).toList();
+    }
+
+    public List<CupScoreList> getCupScoreLists(ResultListId resultListId) {
+        return cupScoreListRepository.findAllByResultListId(resultListId);
     }
 }

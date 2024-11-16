@@ -1,6 +1,10 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.adapter.driver.web.dto.CupDetailDto;
 import de.jobst.resulter.application.port.CupRepository;
+import de.jobst.resulter.application.port.CupScoreListRepository;
+import de.jobst.resulter.application.port.EventRepository;
+import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.domain.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,9 +20,30 @@ import java.util.Optional;
 public class CupService {
 
     private final CupRepository cupRepository;
+    private final EventService eventService;
+    private final OrganisationService organisationService;
+    private final RaceService raceService;
+    private final ResultListService resultListService;
+    private final EventRepository eventRepository;
+    private final ResultListRepository resultListRepository;
+    private final CupScoreListRepository cupScoreListRepository;
 
-    public CupService(CupRepository cupRepository) {
+    public CupService(CupRepository cupRepository,
+                      EventService eventService,
+                      OrganisationService organisationService,
+                      RaceService raceService,
+                      ResultListService resultListService,
+                      EventRepository eventRepository,
+                      ResultListRepository resultListRepository,
+                      CupScoreListRepository cupScoreListRepository) {
         this.cupRepository = cupRepository;
+        this.eventService = eventService;
+        this.organisationService = organisationService;
+        this.raceService = raceService;
+        this.resultListService = resultListService;
+        this.eventRepository = eventRepository;
+        this.resultListRepository = resultListRepository;
+        this.cupScoreListRepository = cupScoreListRepository;
     }
 
     public List<Cup> findAll() {
@@ -63,4 +88,62 @@ public class CupService {
     public Page<Cup> findAll(@Nullable String filterString, @NonNull Pageable pageable) {
         return cupRepository.findAll(filterString, pageable);
     }
+
+    public Optional<CupDetailDto> getCupDetailed(CupId cupId) {
+        return Optional.ofNullable(cupRepository.findById(cupId)).map(x -> {
+            List<Event> events = eventRepository.findAllById(x.orElseThrow().getEventIds());
+            List<Race> races = raceService.findAllByEvents(events);
+            List<EventResultList> eventResultLists = events.stream()
+                .map(event -> new EventResultLists(event, resultListService.findByEventId(event.getId())))
+                .flatMap(rl2 -> rl2.resultLists().stream().map(rl -> new EventResultList(rl2.event(), rl)))
+                .toList();
+            List<List<CupScoreList>> cupScoreLists =
+                eventResultLists.stream().map(r -> resultListService.getCupScoreLists(r.resultList().getId())).toList();
+            calculateSums(events, eventResultLists, races, cupScoreLists);
+            return CupDetailDto.from(x.orElseThrow());
+        });
+    }
+
+private void calculateSums(List<Event> events,
+                               List<EventResultList> eventResultLists,
+                               List<Race> races,
+                               List<List<CupScoreList>> cupScoreLists) {
+        /*
+        events.forEach(event -> {
+            var eventRaces = races.stream().filter(race -> race.getEventId().equals(event.getId()));
+            eventRaces.forEach(race -> {
+                var resultListsForRace = eventResultLists.stream()
+                    .filter(eventResultList -> eventResultList.event().getId().equals(event.getId()) &&
+                                               eventResultList.resultList().getRaceId().equals(race.getId()))
+                    .toList();
+                var mainResultList = resultListsForRace.stream().findFirst();
+                Optional<Optional<CupScoreList>> mainCupScoreList = mainResultList.map(x -> cupScoreLists.stream()
+                    .flatMap(Collection::stream)
+                    .filter(cupScoreList -> cupScoreList.getResultListId().equals(x.resultList.getId()))
+                    .findFirst());
+
+                if (mainCupScoreList.isPresent() && mainCupScoreList.get().isPresent()) {
+                    var cupScoreList = mainCupScoreList.get().get();
+                    var organisations = organisationService.findAllById(mainResultList.get()
+                        .resultList()
+                        .getReferencedOrganisationIds());
+                    organisations.forEach(organisation -> {
+                        var cupScores = cupScoreList.getCupScores()
+                            .stream()
+                            .filter(cupScore -> cupScore.getOrganisationId().equals(organisation))
+                            .toList();
+
+                    });
+                });
+            }
+        });
+
+         */
+
+
+    }
+
+    record EventResultList(Event event, ResultList resultList) {}
+
+    record EventResultLists(Event event, Collection<ResultList> resultLists) {};
 }

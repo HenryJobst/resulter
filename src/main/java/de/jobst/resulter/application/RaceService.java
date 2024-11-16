@@ -1,6 +1,7 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.RaceRepository;
+import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
 import org.springframework.stereotype.Service;
@@ -32,5 +33,9 @@ public class RaceService {
 
     public Collection<Race> findOrCreate(Collection<Race> races) {
         return raceRepository.findOrCreate(races);
+    }
+
+    public List<Race> findAllByEvents(List<Event> events) {
+        return raceRepository.findAllByEvents(events);
     }
 }

@@ -50,11 +50,18 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
             .toList();
 
         return personRaceResultsWithScore.stream()
-            .map(x -> calculateScore(x, Math.max(nextPoints.getAndUpdate(n -> n > 0 ? n - 1 : 0), 0)))
+            .map(x -> calculateScore(x,
+                organisationByPerson.get(x.getPersonId()),
+                Math.max(nextPoints.getAndUpdate(n -> n > 0 ? n - 1 : 0), 0)))
             .toList();
     }
 
-    private CupScore calculateScore(PersonRaceResult personRaceResult, Integer nextPoints) {
-        return CupScore.of(personRaceResult.getPersonId(), personRaceResult.getClassResultShortName(), nextPoints);
+    private CupScore calculateScore(PersonRaceResult personRaceResult,
+                                    OrganisationId organisationId,
+                                    Integer nextPoints) {
+        return CupScore.of(personRaceResult.getPersonId(),
+            organisationId,
+            personRaceResult.getClassResultShortName(),
+            nextPoints);
     }
 }

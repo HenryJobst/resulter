@@ -34,7 +34,8 @@ public class NebelCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     @Override
-    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults,
+    public List<CupScore> calculate(Cup cup,
+                                    List<PersonRaceResult> personRaceResults,
                                     Map<PersonId, OrganisationId> organisationByPerson) {
         if (personRaceResults.isEmpty()) {
             return List.of();
@@ -48,11 +49,16 @@ public class NebelCalculationStrategy implements CupTypeCalculationStrategy {
                 .isPresent())
             .toList();
 
-        return personRaceResultsWithScore.stream().map(x -> calculateScore(x, fastestTime)).toList();
+        return personRaceResultsWithScore.stream()
+            .map(x -> calculateScore(x, organisationByPerson.get(x.getPersonId()), fastestTime))
+            .toList();
     }
 
-    private CupScore calculateScore(PersonRaceResult personRaceResult, PunchTime fastestTime) {
+    private CupScore calculateScore(PersonRaceResult personRaceResult,
+                                    OrganisationId organisationId,
+                                    PunchTime fastestTime) {
         return CupScore.of(personRaceResult.getPersonId(),
+            organisationId,
             personRaceResult.getClassResultShortName(),
             NORCalculationStrategy.calculateNorPoints(fastestTime.value(), personRaceResult.getRuntime().value()));
     }

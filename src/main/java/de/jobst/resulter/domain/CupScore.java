@@ -2,11 +2,15 @@ package de.jobst.resulter.domain;
 
 import org.springframework.lang.NonNull;
 
-public record CupScore(PersonId personId, ClassResultShortName classResultShortName, double score)
+public record CupScore(PersonId personId, OrganisationId organisationId,
+                       ClassResultShortName classResultShortName,
+                       double score)
     implements Comparable<CupScore> {
 
-    public static CupScore of(PersonId personId, ClassResultShortName classResultShortName, double score) {
-        return new CupScore(personId, classResultShortName, score);
+    public static CupScore of(PersonId personId, OrganisationId organisationId,
+                              ClassResultShortName classResultShortName,
+                              double score) {
+        return new CupScore(personId, organisationId, classResultShortName, score);
     }
 
     @Override

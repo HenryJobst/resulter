@@ -1,6 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
-import de.jobst.resulter.adapter.driver.web.dto.CupDetailDto;
+import de.jobst.resulter.adapter.driver.web.dto.CupDetailedDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.application.CupService;
@@ -51,7 +51,7 @@ public class CupController {
 
     @GetMapping("/cup")
     public ResponseEntity<Page<CupDto>> searchCups(@RequestParam Optional<String> filter,
-                                                   @PageableDefault(page = 0, size = 1000) Pageable pageable) {
+                                                   @PageableDefault(size = 1000) Pageable pageable) {
         try {
             Page<Cup> cups = cupService.findAll(filter.orElse(null),
                 pageable != null ?
@@ -79,10 +79,10 @@ public class CupController {
     }
 
     @GetMapping("/cup/{id}/detailed")
-    public ResponseEntity<CupDetailDto> getCupDetailed(@PathVariable Long id) {
+    public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
         try {
-            Optional<CupDetailDto> cup = cupService.getCupDetailed(CupId.of(id));
-            return cup.map(ResponseEntity::ok)
+            Optional<CupDetailed> cupDetailed = cupService.getCupDetailed(CupId.of(id));
+            return cupDetailed.map(x -> ResponseEntity.ok(CupDetailedDto.from(x)))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             logError(e);

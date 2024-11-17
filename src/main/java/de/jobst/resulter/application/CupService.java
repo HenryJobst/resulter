@@ -1,6 +1,5 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.driver.web.dto.CupDetailDto;
 import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.application.port.CupScoreListRepository;
 import de.jobst.resulter.application.port.EventRepository;
@@ -89,7 +88,7 @@ public class CupService {
         return cupRepository.findAll(filterString, pageable);
     }
 
-    public Optional<CupDetailDto> getCupDetailed(CupId cupId) {
+    public Optional<CupDetailed> getCupDetailed(CupId cupId) {
         return Optional.ofNullable(cupRepository.findById(cupId)).map(x -> {
             List<Event> events = eventRepository.findAllById(x.orElseThrow().getEventIds());
             List<Race> races = raceService.findAllByEvents(events);
@@ -99,19 +98,18 @@ public class CupService {
                 .toList();
             List<List<CupScoreList>> cupScoreLists =
                 eventResultLists.stream().map(r -> resultListService.getCupScoreLists(r.resultList().getId())).toList();
-            calculateSums(events, eventResultLists, races, cupScoreLists);
-            return CupDetailDto.from(x.orElseThrow());
+            var eventRacesCupScore = calculateSums(events, eventResultLists, races, cupScoreLists);
+
+            return new CupDetailed(x.orElseThrow(), eventRacesCupScore);
         });
     }
 
-private void calculateSums(List<Event> events,
-                               List<EventResultList> eventResultLists,
-                               List<Race> races,
-                               List<List<CupScoreList>> cupScoreLists) {
-        /*
-        events.forEach(event -> {
-            var eventRaces = races.stream().filter(race -> race.getEventId().equals(event.getId()));
-            eventRaces.forEach(race -> {
+    private List<EventRacesCupScore> calculateSums(List<Event> events,
+                                                   List<EventResultList> eventResultLists,
+                                                   List<Race> races,
+                                                   List<List<CupScoreList>> cupScoreLists) {
+        return events.stream().map(event -> {
+            var eventRaces = races.stream().filter(race -> race.getEventId().equals(event.getId())).map(race -> {
                 var resultListsForRace = eventResultLists.stream()
                     .filter(eventResultList -> eventResultList.event().getId().equals(event.getId()) &&
                                                eventResultList.resultList().getRaceId().equals(race.getId()))
@@ -119,7 +117,7 @@ private void calculateSums(List<Event> events,
                 var mainResultList = resultListsForRace.stream().findFirst();
                 Optional<Optional<CupScoreList>> mainCupScoreList = mainResultList.map(x -> cupScoreLists.stream()
                     .flatMap(Collection::stream)
-                    .filter(cupScoreList -> cupScoreList.getResultListId().equals(x.resultList.getId()))
+                    .filter(cupScoreList -> cupScoreList.getResultListId().equals(x.resultList().getId()))
                     .findFirst());
 
                 if (mainCupScoreList.isPresent() && mainCupScoreList.get().isPresent()) {
@@ -127,23 +125,26 @@ private void calculateSums(List<Event> events,
                     var organisations = organisationService.findAllById(mainResultList.get()
                         .resultList()
                         .getReferencedOrganisationIds());
-                    organisations.forEach(organisation -> {
-                        var cupScores = cupScoreList.getCupScores()
+                    return new RaceCupScore(race, organisations.stream().map(organisation -> {
+                        List<CupScore> relevantCupScores = cupScoreList.getCupScores()
                             .stream()
-                            .filter(cupScore -> cupScore.getOrganisationId().equals(organisation))
+                            .filter(cupScore -> cupScore.organisationId().equals(organisation.getId()))
+                            .sorted()
                             .toList();
-
-                    });
-                });
-            }
-        });
-
-         */
-
-
+                        return new OrganisationScore(organisation,
+                            relevantCupScores.stream().map(CupScore::score).reduce(0.0, Double::sum),
+                            relevantCupScores.stream()
+                                .map(x -> new PersonWithScore(x.personId(), x.score(), x.classResultShortName()))
+                                .sorted()
+                                .toList());
+                    }).sorted().toList());
+                } else {
+                    return new RaceCupScore(race, null);
+                }
+            }).sorted().toList();
+            return new EventRacesCupScore(event, eventRaces);
+        }).toList();
     }
 
-    record EventResultList(Event event, ResultList resultList) {}
-
-    record EventResultLists(Event event, Collection<ResultList> resultLists) {};
+    ;
 }

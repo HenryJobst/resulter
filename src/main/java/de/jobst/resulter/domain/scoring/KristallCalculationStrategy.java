@@ -52,7 +52,7 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
         return personRaceResultsWithScore.stream()
             .map(x -> calculateScore(x,
                 organisationByPerson.get(x.getPersonId()),
-                Math.max(nextPoints.getAndUpdate(n -> n > 0 ? n - 1 : 0), 0)))
+                Math.max(nextPoints.getAndUpdate(n -> n > 1 ? n - 1 : 1), 1)))
             .toList();
     }
 

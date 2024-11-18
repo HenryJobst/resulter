@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.CupScoreListRepository;
+import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupScoreList;
 import de.jobst.resulter.domain.ResultListId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -42,5 +43,11 @@ public class CupScoreListRepositoryDataJdbcAdapter implements CupScoreListReposi
     public List<CupScoreList> findAllByResultListId(ResultListId resultListId) {
         return CupScoreListDbo.asCupScoreLists(cupScoreListJdbcRepository.findByResultListId(AggregateReference.to(
             resultListId.value())));
+    }
+
+    @Override
+    public List<CupScoreList> findAllByResultListIdAndCupId(ResultListId resultListId, CupId cupId) {
+        return CupScoreListDbo.asCupScoreLists(cupScoreListJdbcRepository.findByResultListIdAndCupId(AggregateReference.to(
+            resultListId.value()), AggregateReference.to(cupId.value())));
     }
 }

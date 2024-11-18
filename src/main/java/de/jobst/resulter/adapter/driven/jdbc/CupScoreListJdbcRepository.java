@@ -10,4 +10,6 @@ import java.util.List;
 public interface CupScoreListJdbcRepository extends CrudRepository<CupScoreListDbo, Long> {
 
     List<CupScoreListDbo> findByResultListId(AggregateReference<ResultListDbo, Long> resultListId);
+    List<CupScoreListDbo> findByResultListIdAndCupId(AggregateReference<ResultListDbo, Long> resultListId,
+                                                     AggregateReference<CupDbo, Long> cupId);
 }

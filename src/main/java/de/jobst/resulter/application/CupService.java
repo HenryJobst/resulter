@@ -96,8 +96,9 @@ public class CupService {
                 .map(event -> new EventResultLists(event, resultListService.findByEventId(event.getId())))
                 .flatMap(rl2 -> rl2.resultLists().stream().map(rl -> new EventResultList(rl2.event(), rl)))
                 .toList();
-            List<List<CupScoreList>> cupScoreLists =
-                eventResultLists.stream().map(r -> resultListService.getCupScoreLists(r.resultList().getId())).toList();
+            List<List<CupScoreList>> cupScoreLists = eventResultLists.stream()
+                .map(r -> resultListService.getCupScoreLists(r.resultList().getId(), cupId).stream().toList())
+                .toList();
             var eventRacesCupScore = calculateSums(events, eventResultLists, races, cupScoreLists);
 
             return new CupDetailed(x.orElseThrow(), eventRacesCupScore);

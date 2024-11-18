@@ -9,6 +9,6 @@ public record OrganisationScoreDto(OrganisationDto organisation, Double score,
     public static OrganisationScoreDto from(OrganisationScore organisationScore) {
         return new OrganisationScoreDto(OrganisationDto.from(organisationScore.organisation()),
             organisationScore.score(),
-            organisationScore.personWithScores().stream().map(x -> PersonWithScoreDto.from(x)).toList());
+            organisationScore.personWithScores().stream().map(PersonWithScoreDto::from).toList());
     }
 }

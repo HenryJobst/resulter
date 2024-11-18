@@ -77,7 +77,8 @@ public class ResultListController {
     @GetMapping("/result_list/{id}/cup_score_lists")
     public ResponseEntity<List<CupScoreListDto>> getCupScoreLists(@PathVariable Long id) {
         try {
-            List<CupScoreListDto> cupScoreLists = resultListService.getCupScoreListDtos(ResultListId.of(id));
+            List<CupScoreListDto> cupScoreLists =
+                resultListService.getCupScoreLists(ResultListId.of(id)).stream().map(CupScoreListDto::from).toList();
             return ResponseEntity.ok(cupScoreLists);
         } catch (IllegalArgumentException e) {
             logError(e);

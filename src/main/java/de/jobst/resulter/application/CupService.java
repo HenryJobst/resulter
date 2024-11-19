@@ -11,6 +11,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
+import java.time.Year;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -58,19 +59,19 @@ public class CupService {
     }
 
 
-    public Cup updateCup(CupId id, CupName name, CupType type, Collection<EventId> eventIds) {
+    public Cup updateCup(CupId id, CupName name, CupType type, Year year, Collection<EventId> eventIds) {
 
         Optional<Cup> optionalCup = findById(id);
         if (optionalCup.isEmpty()) {
             return null;
         }
         Cup cup = optionalCup.get();
-        cup.update(name, type, eventIds);
+        cup.update(name, type, year, eventIds);
         return cupRepository.save(cup);
     }
 
-    public Cup createCup(String name, CupType type, Collection<EventId> eventIds) {
-        Cup cup = Cup.of(CupId.empty().value(), name, type, eventIds);
+    public Cup createCup(String name, CupType type, Year year, Collection<EventId> eventIds) {
+        Cup cup = Cup.of(CupId.empty().value(), name, type, year, eventIds);
         return cupRepository.save(cup);
     }
 

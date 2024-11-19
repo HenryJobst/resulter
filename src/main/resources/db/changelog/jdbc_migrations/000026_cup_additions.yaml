@@ -1,0 +1,26 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000026_cup_additions
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   columnExists :
+                                tableName : cup
+                                columnName : year
+            comment : Add new column to table cup,
+            changes :
+                -   addColumn :
+                        tableName : cup
+                        columns :
+                            -   column :
+                                    name : year
+                                    type : int
+                                    constraints :
+                                        nullable : false
+                                    defaultValue: "2024"
+                -   addUniqueConstraint :
+                        columnNames : name, year
+                        constraintName : uk_cup_name_year
+                        tableName : cup
+                        validate : true

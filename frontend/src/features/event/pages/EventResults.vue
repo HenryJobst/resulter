@@ -312,8 +312,9 @@ function navigateToList() {
                         </div>
                         <Button
                             v-if="authStore.isAdmin"
+                            v-tooltip="t('labels.calculate')"
                             class="ml-5"
-                            :label="t('labels.calculate')"
+                            :aria-label="t('labels.calculate')"
                             outlined
                             raised
                             rounded

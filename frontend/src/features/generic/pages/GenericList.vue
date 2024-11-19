@@ -103,8 +103,7 @@ const dataValue = computed((): RestResult<any> | undefined => {
         const value = entityQuery.data.value as unknown as RestResult<any>
         console.log(`Total elements: ${value.totalElements}`)
         return value
-    }
-    else {
+    } else {
         return undefined
     }
 })
@@ -153,8 +152,7 @@ const timeOptions: Intl.DateTimeFormatOptions = {
 
 const formatDateFunction = computed(() => {
     return (date: string | Date) => {
-        if (!date)
-            return ''
+        if (!date) return ''
         if (typeof date === 'string')
             return new Date(date).toLocaleDateString(locale.value, dateOptions)
 
@@ -164,8 +162,7 @@ const formatDateFunction = computed(() => {
 
 const formatYearFunction = computed(() => {
     return (date: string | Date) => {
-        if (!date)
-            return ''
+        if (!date) return ''
         if (typeof date === 'string')
             return new Date(date).toLocaleDateString(locale.value, yearOptions)
 
@@ -175,8 +172,7 @@ const formatYearFunction = computed(() => {
 
 const formatTimeFunction = computed(() => {
     return (time: string | Date) => {
-        if (!time)
-            return ''
+        if (!time) return ''
         if (typeof time === 'string')
             return new Date(time).toLocaleTimeString(locale.value, timeOptions)
 
@@ -249,8 +245,7 @@ function debounce<T extends (...args: any[]) => any>(
     let timeoutID: ReturnType<typeof setTimeout> | null = null
 
     return function (this: any, ...args: Parameters<T>) {
-        if (timeoutID !== null)
-            clearTimeout(timeoutID)
+        if (timeoutID !== null) clearTimeout(timeoutID)
 
         timeoutID = setTimeout(() => {
             fn.apply(this, args)
@@ -337,6 +332,43 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                 @sort="sortChanged"
                 @filter="debounceFilterChanged"
             >
+                <!-- ... Action columns ... -->
+                <Column class="text-left" :header="t('labels.action', 2)">
+                    <template #body="{ data }">
+                        <div class="w-auto">
+                            <slot name="extra_row_actions" :value="data" />
+                            <router-link
+                                v-if="props.editEnabled && changeable"
+                                :to="{
+                                    name: `${props.routerPrefix}-edit`,
+                                    params: { id: data.id },
+                                }"
+                            >
+                                <Button
+                                    v-if="props.editEnabled && changeable"
+                                    v-tooltip="t('labels.edit')"
+                                    icon="pi pi-pencil"
+                                    class="mr-2"
+                                    :aria-label="t('labels.edit')"
+                                    outlined
+                                    raised
+                                    rounded
+                                />
+                            </router-link>
+                            <Button
+                                v-if="props.deleteEnabled && changeable"
+                                v-tooltip="t('labels.delete')"
+                                icon="pi pi-trash"
+                                severity="danger"
+                                outlined
+                                raised
+                                rounded
+                                :aria-label="t('labels.delete')"
+                                @click="deleteEntity(data.id)"
+                            />
+                        </div>
+                    </template>
+                </Column>
                 <!-- Add Columns Here -->
                 <Column
                     v-for="col in props.columns"
@@ -385,7 +417,7 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                             :src="`data:image/jpeg;base64,${getValueByPath(slotProps.data, col.field)}`"
                             :alt="t('labels.preview')"
                             style="width: 100px"
-                        >
+                        />
                     </template>
                     <template v-else-if="col.type === 'custom'" #body="slotProps">
                         <template v-if="$slots[col.field]">
@@ -402,43 +434,6 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                             class="p-column-filter"
                             @input="debouncedFilterInput(filterModel, filterCallback)"
                         />
-                    </template>
-                </Column>
-                <!-- ... Other columns ... -->
-                <Column class="text-right">
-                    <template #body="{ data }">
-                        <div class="w-26">
-                            <slot name="extra_row_actions" :value="data" />
-                            <router-link
-                                v-if="props.editEnabled && changeable"
-                                :to="{
-                                    name: `${props.routerPrefix}-edit`,
-                                    params: { id: data.id },
-                                }"
-                            >
-                                <Button
-                                    v-if="props.editEnabled && changeable"
-                                    v-tooltip="t('labels.edit')"
-                                    icon="pi pi-pencil"
-                                    class="mr-2"
-                                    :aria-label="t('labels.edit')"
-                                    outlined
-                                    raised
-                                    rounded
-                                />
-                            </router-link>
-                            <Button
-                                v-if="props.deleteEnabled && changeable"
-                                v-tooltip="t('labels.delete')"
-                                icon="pi pi-trash"
-                                severity="danger"
-                                outlined
-                                raised
-                                rounded
-                                :aria-label="t('labels.delete')"
-                                @click="deleteEntity(data.id)"
-                            />
-                        </div>
                     </template>
                 </Column>
             </DataTable>

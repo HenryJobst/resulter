@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Year;
 import java.util.*;
 
 @RestController
@@ -33,6 +34,7 @@ public class CupController {
 
     private static void logError(Exception e) {
         log.error(e.getMessage());
+        log.error(e.getStackTrace().toString());
         if (Objects.nonNull(e.getCause())) {
             log.error(e.getCause().getMessage());
         }
@@ -96,7 +98,7 @@ public class CupController {
         try {
             Cup cup = cupService.updateCup(CupId.of(id),
                 CupName.of(cupDto.name()),
-                CupType.fromValue(cupDto.type().id()),
+                CupType.fromValue(cupDto.type().id()), Year.of(cupDto.year()),
                 cupDto.eventIds() == null ? new ArrayList<>() : cupDto.eventIds().stream().map(EventId::of).toList());
             if (null != cup) {
                 return ResponseEntity.ok(CupDto.from(cup));
@@ -121,6 +123,7 @@ public class CupController {
         try {
             Cup cup = cupService.createCup(cupDto.name(),
                 CupType.fromValue(cupDto.type().id()),
+                Year.of(cupDto.year()),
                 cupDto.eventIds() == null ?
                 new ArrayList<>() :
                 cupDto.eventIds().stream().map(EventId::of).filter(ObjectUtils::isNotEmpty).toList());

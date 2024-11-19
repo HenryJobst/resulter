@@ -4,5 +4,6 @@ export interface Cup {
     id: number
     name: string
     type: CupType
+    year: number
     eventIds: number[]
 }

@@ -17,6 +17,7 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
+import java.time.Year;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,9 +43,13 @@ public class CupDbo {
     @Column("type")
     private CupType type;
 
+    @Column("year")
+    private Year year;
+
     public CupDbo(String name) {
         this.id = null;
         this.name = name;
+        this.year = Year.now();
     }
 
     public static CupDbo from(@NonNull Cup cup, @NonNull DboResolvers dboResolvers) {
@@ -63,12 +68,16 @@ public class CupDbo {
         } else {
             cupDbo.setType(null);
         }
+        if (ObjectUtils.isNotEmpty(cup.getYear())) {
+            cupDbo.setYear(cup.getYear());
+        }
         return cupDbo;
     }
 
     static public List<Cup> asCups(@NonNull Iterable<CupDbo> cupDbos) {
         return StreamSupport.stream(cupDbos.spliterator(), true)
-            .map(it -> Cup.of(it.id, it.name, it.type, it.events.stream().map(x -> EventId.of(x.id.getId())).toList()))
+            .map(it -> Cup.of(it.id, it.name, it.type,
+                it.year, it.events.stream().map(x -> EventId.of(x.id.getId())).toList()))
             .toList();
     }
 

@@ -85,7 +85,9 @@
         "help": "Help",
         "select": "Select",
         "upload": "Upload",
-        "download": "Download"
+        "download": "Download",
+        "year": "Year",
+        "action": "Action | Actions"
     },
     "messages": {
         "new_cup": "New cup",

@@ -7,12 +7,13 @@ import org.springframework.data.domain.Sort;
 
 import java.util.Collection;
 
-public record CupDto(Long id, String name, CupTypeDto type, Collection<Long> eventIds) {
+public record CupDto(Long id, String name, CupTypeDto type, Integer year, Collection<Long> eventIds) {
 
     static public CupDto from(Cup cup) {
         return new CupDto(ObjectUtils.isNotEmpty(cup.getId()) ? cup.getId().value() : 0,
             cup.getName().value(),
             CupTypeDto.from(cup.getType()),
+            cup.getYear().getValue(),
             cup.getEventIds().stream().map(EventId::value).toList());
     }
 

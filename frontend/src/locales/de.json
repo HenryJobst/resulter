@@ -85,7 +85,9 @@
         "help": "Hilfe",
         "select": "Auswählen",
         "upload": "Hochladen",
-        "download": "Runterladen"
+        "download": "Runterladen",
+        "year": "Jahr",
+        "action": "Aktion | Aktionen"
     },
     "result_state": {
         "OK": "OK",

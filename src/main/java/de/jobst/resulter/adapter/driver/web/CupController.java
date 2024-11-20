@@ -98,8 +98,11 @@ public class CupController {
         try {
             Cup cup = cupService.updateCup(CupId.of(id),
                 CupName.of(cupDto.name()),
-                CupType.fromValue(cupDto.type().id()), Year.of(cupDto.year()),
-                cupDto.eventIds() == null ? new ArrayList<>() : cupDto.eventIds().stream().map(EventId::of).toList());
+                CupType.fromValue(cupDto.type().id()),
+                Year.of(cupDto.year()),
+                cupDto.events() == null ?
+                new ArrayList<>() :
+                cupDto.events().stream().map(x -> EventId.of(x.id())).toList());
             if (null != cup) {
                 return ResponseEntity.ok(CupDto.from(cup));
             } else {
@@ -124,9 +127,9 @@ public class CupController {
             Cup cup = cupService.createCup(cupDto.name(),
                 CupType.fromValue(cupDto.type().id()),
                 Year.of(cupDto.year()),
-                cupDto.eventIds() == null ?
+                cupDto.events() == null ?
                 new ArrayList<>() :
-                cupDto.eventIds().stream().map(EventId::of).filter(ObjectUtils::isNotEmpty).toList());
+                cupDto.events().stream().map(x -> EventId.of(x.id())).filter(ObjectUtils::isNotEmpty).toList());
             if (null != cup) {
                 return ResponseEntity.ok(CupDto.from(cup));
             } else {

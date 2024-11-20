@@ -14,7 +14,7 @@ public class CupDetailed extends Cup {
     private final List<Map.Entry<Organisation, Double>> overallOrganisationScores;
 
     public CupDetailed(@NonNull Cup cup, List<EventRacesCupScore> eventRacesCupScore) {
-        super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEventIds());
+        super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEvents());
         this.eventRacesCupScore = eventRacesCupScore;
         this.overallOrganisationScores = eventRacesCupScore.stream()
             .flatMap(x -> x.eventRaces().stream().flatMap(y -> y.organisationScores().stream()))

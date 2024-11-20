@@ -2,9 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.CupRepository;
-import de.jobst.resulter.domain.Cup;
-import de.jobst.resulter.domain.CupId;
-import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -16,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -23,10 +22,35 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
 
     private final CupJdbcRepository cupJdbcRepository;
     private final EventJdbcRepository eventJdbcRepository;
+    private final CountryJdbcRepository countryJdbcRepository;
+    private final OrganisationJdbcRepository organisationJdbcRepository;
 
-    public CupRepositoryDataJdbcAdapter(CupJdbcRepository cupJdbcRepository, EventJdbcRepository eventJdbcRepository) {
+    public CupRepositoryDataJdbcAdapter(CupJdbcRepository cupJdbcRepository,
+                                        EventJdbcRepository eventJdbcRepository,
+                                        CountryJdbcRepository countryJdbcRepository,
+                                        OrganisationJdbcRepository organisationJdbcRepository) {
         this.cupJdbcRepository = cupJdbcRepository;
         this.eventJdbcRepository = eventJdbcRepository;
+        this.countryJdbcRepository = countryJdbcRepository;
+        this.organisationJdbcRepository = organisationJdbcRepository;
+    }
+
+    @NonNull
+    private Function<Long, Event> getEventResolver() {
+        return id -> eventJdbcRepository.findById(id).orElseThrow().asEvent(getOrganisationResolver());
+    }
+
+    @NonNull
+    private Function<Long, Country> getCountryResolver() {
+        return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
+    }
+
+
+    @NonNull
+    private Function<Long, Organisation> getOrganisationResolver() {
+        return id -> organisationJdbcRepository.findById(id)
+            .orElseThrow()
+            .asOrganisation(getOrganisationResolver(), getCountryResolver());
     }
 
     @Transactional
@@ -41,16 +65,20 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setCupDboDboResolver(id -> cupJdbcRepository.findById(id.value()).orElseThrow());
         dboResolvers.setEventDboResolver(id -> eventJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setCountryDboResolver(id -> countryJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setOrganisationDboResolver(id -> organisationJdbcRepository.findById(id.value()).orElseThrow());
 
         CupDbo cupDbo = CupDbo.from(cup, dboResolvers);
         CupDbo savedCupEntity = cupJdbcRepository.save(cupDbo);
-        return CupDbo.asCup(savedCupEntity);
+        return CupDbo.asCup(savedCupEntity, getEventResolver());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Cup> findAll() {
-        return CupDbo.asCups(this.cupJdbcRepository.findAll());
+        Iterable<CupDbo> resultList = this.cupJdbcRepository.findAll();
+        return CupDbo.asCups(resultList,
+            getEventResolver());
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +89,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Cup> findById(CupId cupId) {
-        return findDboById(cupId).map(CupDbo::asCup);
+        return findDboById(cupId).map((CupDbo cupDbo) -> CupDbo.asCup(cupDbo, getEventResolver()));
     }
 
     @Override
@@ -72,7 +100,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
             return save(cup);
         }
         CupDbo entity = cupEntity.get();
-        return CupDbo.asCup(entity);
+        return CupDbo.asCup(entity, getEventResolver());
     }
 
     @Override
@@ -84,14 +112,14 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Transactional
     public List<Cup> findByEvent(EventId eventId) {
         List<CupDbo> cups = cupJdbcRepository.findByEventId(eventId.value());
-        return CupDbo.asCups(cups);
+        return CupDbo.asCups(cups, getEventResolver());
     }
 
     @Override
     public Page<Cup> findAll(@Nullable String filterString, @NonNull Pageable pageable) {
         Page<CupDbo> page = cupJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
             CupDbo::mapOrdersDboToDomain));
-        return new PageImpl<>(page.stream().map(CupDbo::asCup).toList(),
+        return new PageImpl<>(page.stream().map((CupDbo cupDbo) -> CupDbo.asCup(cupDbo, getEventResolver())).toList(),
             FilterAndSortConverter.mapOrderProperties(page.getPageable(), CupDbo::mapOrdersDomainToDbo),
             page.getTotalElements());
     }

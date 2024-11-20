@@ -70,10 +70,23 @@ const props = defineProps({
 
 const { t, locale } = useI18n()
 
-const queryClient = useQueryClient()
-
 const useSettingsStore = settingsStoreFactory(props.settingsStoreSuffix, props.initialTableSettings)
 const settingsStore = useSettingsStore()
+
+onMounted(() => {
+    console.log('Mounted ...')
+    props.columns?.forEach((col) => {
+        if (col.filterable && settingsStore.settings.filters) {
+            settingsStore.settings.filters[col.field] = {
+                value: null,
+                matchMode: col.filterMatchMode || 'contains',
+            }
+        }
+    })
+    console.log(`Filters: ${prettyPrint(settingsStore.settings.filters)}`)
+})
+
+const queryClient = useQueryClient()
 
 const queryKeys = computed(() => {
     console.log('Calculate query keys ...')
@@ -103,7 +116,8 @@ const dataValue = computed((): RestResult<any> | undefined => {
         const value = entityQuery.data.value as unknown as RestResult<any>
         console.log(`Total elements: ${value.totalElements}`)
         return value
-    } else {
+    }
+    else {
         return undefined
     }
 })
@@ -152,7 +166,8 @@ const timeOptions: Intl.DateTimeFormatOptions = {
 
 const formatDateFunction = computed(() => {
     return (date: string | Date) => {
-        if (!date) return ''
+        if (!date)
+            return ''
         if (typeof date === 'string')
             return new Date(date).toLocaleDateString(locale.value, dateOptions)
 
@@ -162,7 +177,8 @@ const formatDateFunction = computed(() => {
 
 const formatYearFunction = computed(() => {
     return (date: string | Date) => {
-        if (!date) return ''
+        if (!date)
+            return ''
         if (typeof date === 'string')
             return new Date(date).toLocaleDateString(locale.value, yearOptions)
 
@@ -172,7 +188,8 @@ const formatYearFunction = computed(() => {
 
 const formatTimeFunction = computed(() => {
     return (time: string | Date) => {
-        if (!time) return ''
+        if (!time)
+            return ''
         if (typeof time === 'string')
             return new Date(time).toLocaleTimeString(locale.value, timeOptions)
 
@@ -224,20 +241,6 @@ function getSortable(col: GenericListColumn) {
     return col.sortable ? col.sortable : true
 }
 
-onMounted(() => {
-    console.log('Mounted ...')
-    props.columns?.forEach((col) => {
-        if (col.filterable && settingsStore.settings.filters) {
-            // console.log('Add filter for ' + col.field)
-            settingsStore.settings.filters[col.field] = {
-                value: null,
-                matchMode: col.filterMatchMode || 'contains',
-            }
-        }
-    })
-    console.log(`Filters: ${prettyPrint(settingsStore.settings.filters)}`)
-})
-
 function debounce<T extends (...args: any[]) => any>(
     fn: T,
     delay: number,
@@ -245,7 +248,8 @@ function debounce<T extends (...args: any[]) => any>(
     let timeoutID: ReturnType<typeof setTimeout> | null = null
 
     return function (this: any, ...args: Parameters<T>) {
-        if (timeoutID !== null) clearTimeout(timeoutID)
+        if (timeoutID !== null)
+            clearTimeout(timeoutID)
 
         timeoutID = setTimeout(() => {
             fn.apply(this, args)
@@ -348,7 +352,7 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                                     v-if="props.editEnabled && changeable"
                                     v-tooltip="t('labels.edit')"
                                     icon="pi pi-pencil"
-                                    class="mr-2"
+                                    class="mr-2 my-1"
                                     :aria-label="t('labels.edit')"
                                     outlined
                                     raised
@@ -359,6 +363,7 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                                 v-if="props.deleteEnabled && changeable"
                                 v-tooltip="t('labels.delete')"
                                 icon="pi pi-trash"
+                                class="mr-2 my-1"
                                 severity="danger"
                                 outlined
                                 raised
@@ -417,7 +422,7 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                             :src="`data:image/jpeg;base64,${getValueByPath(slotProps.data, col.field)}`"
                             :alt="t('labels.preview')"
                             style="width: 100px"
-                        />
+                        >
                     </template>
                     <template v-else-if="col.type === 'custom'" #body="slotProps">
                         <template v-if="$slots[col.field]">

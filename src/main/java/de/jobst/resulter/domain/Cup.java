@@ -20,26 +20,24 @@ public class Cup implements Comparable<Cup> {
     private CupType type;
     @NonNull
     private Year year;
-
     @NonNull
-    @Setter
-    private Collection<EventId> eventIds;
+    private Collection<Event> events;
 
     public Cup(@NonNull CupId id, @NonNull CupName name, @NonNull CupType type, @NonNull Year year,
-               @NonNull Collection<EventId> eventIds) {
+               @NonNull Collection<Event> events) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.year = year;
-        this.eventIds = eventIds;
+        this.events = events;
     }
 
     static public Cup of(long id,
                          @NonNull String cupName,
                          @NonNull CupType type,
                          @NonNull Year year,
-                         @NonNull Collection<EventId> eventIds) {
-        return new Cup(CupId.of(id), CupName.of(cupName), type, year, eventIds);
+                         @NonNull Collection<Event> events) {
+        return new Cup(CupId.of(id), CupName.of(cupName), type, year, events);
     }
 
     @Override
@@ -47,11 +45,11 @@ public class Cup implements Comparable<Cup> {
         return name.compareTo(o.name);
     }
 
-    public void update(CupName name, CupType type, Year year, Collection<EventId> eventIds) {
+    public void update(CupName name, CupType type, Year year, Collection<Event> events) {
         ValueObjectChecks.requireNotNull(name);
         this.name = name;
         this.type = type;
         this.year = year;
-        this.setEventIds(eventIds);
+        this.events = events;
     }
 }

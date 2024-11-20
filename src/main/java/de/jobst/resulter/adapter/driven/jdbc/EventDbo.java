@@ -116,6 +116,10 @@ public class EventDbo {
         return asEvents(List.of(eventDbo), organisationResolver).getFirst();
     }
 
+    public Event asEvent(Function<Long, Organisation> organisationResolver) {
+        return asEvents(List.of(this), organisationResolver).getFirst();
+    }
+
     public static String mapOrdersDomainToDbo(Sort.Order order) {
         return switch (order.getProperty()) {
             case "id.value" -> "id";

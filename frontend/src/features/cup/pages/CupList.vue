@@ -19,15 +19,14 @@ const settingStoreSuffix: string = 'cup'
 const listLabel = computed(() => t('labels.cup', 2))
 const columns: GenericListColumn[] = [
     { label: 'labels.name', field: 'name', sortable: true, filterable: true, filterType: 'input' },
-    { label: 'labels.type', field: 'type.id', type: 'time', sortable: true },
     { label: 'labels.year', field: 'year', sortable: true },
-    { label: 'labels.event', field: 'events', type: 'list', sortable: true },
+    { label: 'labels.event', label_count: 2, field: 'events', type: 'list', sortable: true },
 ]
 
 const eventsQuery = useQuery({
     queryKey: ['events'],
     queryFn: () => eventService.getAll(t),
-    select: (data) => data ?? [],
+    select: data => data ?? [],
 })
 
 const initialTableSettings: TableSettings = {
@@ -70,7 +69,7 @@ const initialTableSettings: TableSettings = {
                 <Button
                     v-tooltip="t('labels.results')"
                     icon="pi pi-list"
-                    class="mr-2"
+                    class="mr-2 my-1"
                     :aria-label="t('labels.results')"
                     outlined
                     raised

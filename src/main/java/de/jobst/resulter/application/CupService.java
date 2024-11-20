@@ -66,12 +66,14 @@ public class CupService {
             return null;
         }
         Cup cup = optionalCup.get();
-        cup.update(name, type, year, eventIds);
+        var events = eventRepository.findAllById(eventIds);
+        cup.update(name, type, year, events);
         return cupRepository.save(cup);
     }
 
     public Cup createCup(String name, CupType type, Year year, Collection<EventId> eventIds) {
-        Cup cup = Cup.of(CupId.empty().value(), name, type, year, eventIds);
+        var events = eventRepository.findAllById(eventIds);
+        Cup cup = Cup.of(CupId.empty().value(), name, type, year, events);
         return cupRepository.save(cup);
     }
 
@@ -91,7 +93,7 @@ public class CupService {
 
     public Optional<CupDetailed> getCupDetailed(CupId cupId) {
         return Optional.ofNullable(cupRepository.findById(cupId)).map(x -> {
-            List<Event> events = eventRepository.findAllById(x.orElseThrow().getEventIds());
+            List<Event> events = x.orElseThrow().getEvents().stream().toList();
             List<Race> races = raceService.findAllByEvents(events);
             List<EventResultList> eventResultLists = events.stream()
                 .map(event -> new EventResultLists(event, resultListService.findByEventId(event.getId())))

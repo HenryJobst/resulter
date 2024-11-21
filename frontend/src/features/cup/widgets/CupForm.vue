@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
 import Dropdown from 'primevue/dropdown'
+import InputNumber from 'primevue/inputnumber'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MultiSelect from 'primevue/multiselect'
@@ -18,12 +19,14 @@ const { t } = useI18n()
 const formData = ref<Cup | Omit<Cup, 'id'>>({
     name: '',
     type: { id: 'ADD' },
-    eventIds: [],
+    year: new Date().getFullYear(),
+    events: [],
 })
 
 onMounted(() => {
-    if (props.cup)
+    if (props.cup) {
         formData.value = { ...props.cup }
+    }
 })
 
 const eventQuery = useQuery({
@@ -52,9 +55,26 @@ function formSubmitHandler() {
                 </div>
             </div>
             <div class="flex flex-row">
+                <label for="year" class="col-fixed w-32">{{ t('labels.year') }}</label>
+                <div class="col">
+                    <InputNumber
+                        id="year"
+                        v-model="formData.year"
+                        class="w-96"
+                        mode="decimal"
+                        show_buttons="true"
+                        :use-grouping="false"
+                        :min="1970"
+                        :max="9999"
+                    />
+                </div>
+            </div>
+            <div class="flex flex-row">
                 <label for="type" class="col-fixed w-32">{{ t('labels.type') }}</label>
                 <div class="col">
-                    <span v-if="cupTypesQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                    <span v-if="cupTypesQuery.status.value === 'pending'">{{
+                        t('messages.loading')
+                    }}</span>
                     <span v-else-if="cupTypesQuery.status.value === 'error'">
                         {{ t('messages.error', { message: cupTypesQuery.error.toLocaleString() }) }}
                     </span>
@@ -73,14 +93,16 @@ function formSubmitHandler() {
             <div class="flex flex-row">
                 <label for="cups" class="col-fixed w-32">{{ t('labels.event') }}</label>
                 <div class="col">
-                    <span v-if="eventQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                    <span v-if="eventQuery.status.value === 'pending'">{{
+                        t('messages.loading')
+                    }}</span>
                     <span v-else-if="eventQuery.status.value === 'error'">
                         {{ t('messages.error', { message: eventQuery.error.toLocaleString() }) }}
                     </span>
                     <div v-else-if="eventQuery.data && eventQuery.data.value" class="card">
                         <MultiSelect
                             id="events"
-                            v-model="formData.eventIds"
+                            v-model="formData.events"
                             :options="eventQuery.data.value.content"
                             data-key="id"
                             filter

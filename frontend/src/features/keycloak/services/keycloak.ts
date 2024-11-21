@@ -53,6 +53,7 @@ async function init(onInitCallback: () => void): Promise<void> {
     }
     catch (error) {
         handleError(error as Error, 'Keycloak init failed')
+        onInitCallback()
     }
 }
 

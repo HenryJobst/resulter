@@ -8,11 +8,11 @@ import org.springframework.lang.NonNull;
 import java.time.Year;
 import java.util.Collection;
 
+@Setter
 @Getter
 public class Cup implements Comparable<Cup> {
 
     @NonNull
-    @Setter
     private CupId id;
     @NonNull
     private CupName name;
@@ -47,9 +47,9 @@ public class Cup implements Comparable<Cup> {
 
     public void update(CupName name, CupType type, Year year, Collection<Event> events) {
         ValueObjectChecks.requireNotNull(name);
-        this.name = name;
-        this.type = type;
-        this.year = year;
-        this.events = events;
+        setName(name);
+        setType(type);
+        setYear(year);
+        setEvents(events);
     }
 }

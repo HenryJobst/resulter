@@ -1,89 +1,46 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import Button from 'primevue/button'
-import { useToast } from 'primevue/usetoast'
+import { computed, ref } from 'vue'
 import type { Cup } from '@/features/cup/model/cup'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import GenericNew from '@/features/generic/pages/GenericNew.vue'
 import { cupService } from '@/features/cup/services/cup.service'
 import CupForm from '@/features/cup/widgets/CupForm.vue'
-import ErrorMessage from '@/components/ErrorMessage.vue'
-import Spinner from '@/components/SpinnerComponent.vue'
-
-import { toastDisplayDuration } from '@/utils/constants'
-
-const authStore = useAuthStore()
 
 const { t } = useI18n()
+const authStore = useAuthStore()
+const queryKey: string[] = ['cups']
+const entityLabel: string = 'cup'
+const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.cup') }))
 
-const router = useRouter()
-
-function navigateCupToList() {
-    router.replace({ name: 'cup-list' })
-}
-
-const queryClient = useQueryClient()
-
-const toast = useToast()
-
-const cupMutation = useMutation({
-    mutationFn: (cup: Omit<Cup, 'id'>) => cupService.create(cup, t),
-    onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['cups'] })
-        toast.add({
-            severity: 'info',
-            summary: t('messages.success'),
-            detail: t('messages.cup_created'),
-            life: toastDisplayDuration,
-        })
-        navigateCupToList()
-    },
+const localFormData = ref<Cup | Omit<Cup, 'id'>>({
+    name: '',
+    type: null,
+    year: new Date().getFullYear().valueOf(),
+    events: [],
 })
-
-function cupSubmitHandler(cup: Omit<Cup, 'id'>) {
-    cupMutation.mutate(cup)
-}
 </script>
 
 <template>
-    <div v-bind="$attrs">
-        <h1>{{ t('messages.new_cup') }}</h1>
-
-        <span v-if="cupMutation.status.value === 'pending'">
-            {{ t('messages.loading') }}
-            <Spinner />
-        </span>
-        <span v-if="cupMutation.status.value === 'error'">
-            <ErrorMessage :message="t('messages.error', { message: cupMutation.error.value })" />
-        </span>
-        <CupForm @cup-submit="cupSubmitHandler">
-            <Button
-                v-if="authStore.isAdmin"
-                class="mt-2"
-                type="submit"
-                :label="t('labels.save')"
-                outlined
-                raised
-                rounded
+    <GenericNew
+        :entity="localFormData"
+        :entity-service="cupService"
+        :query-key="queryKey"
+        :entity-label="entityLabel"
+        :new-label="newLabel"
+        router-prefix="cup"
+        :changeable="authStore.isAdmin"
+    >
+        <template #default="{ formData }">
+            <CupForm
+                v-if="formData"
+                v-model="formData.data"
+                :cup="formData.data as Cup"
+                :entity-service="cupService"
+                :query-key="queryKey"
             />
-            <Button
-                v-tooltip="t('labels.back')"
-                class="pi pi-arrow-left ml-2"
-                :aria-label="t('labels.back')"
-                severity="secondary"
-                type="reset"
-                outlined
-                raised
-                rounded
-                @click="navigateCupToList"
-            />
-        </CupForm>
-    </div>
+        </template>
+    </GenericNew>
 </template>
 
-<style scoped>
-h1 {
-    margin-bottom: 1rem;
-}
-</style>
+<style scoped></style>

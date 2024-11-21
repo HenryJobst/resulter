@@ -45,12 +45,12 @@ public class CupDbo {
     private CupType type;
 
     @Column("year")
-    private Year year;
+    private Integer year;
 
     public CupDbo(String name) {
         this.id = null;
         this.name = name;
-        this.year = Year.now();
+        this.year = Year.now().getValue();
     }
 
     public static CupDbo from(@NonNull Cup cup, @NonNull DboResolvers dboResolvers) {
@@ -70,7 +70,7 @@ public class CupDbo {
             cupDbo.setType(null);
         }
         if (ObjectUtils.isNotEmpty(cup.getYear())) {
-            cupDbo.setYear(cup.getYear());
+            cupDbo.setYear(cup.getYear().getValue());
         }
         return cupDbo;
     }
@@ -79,7 +79,7 @@ public class CupDbo {
                                    Function<Long, Event> eventResolver) {
         return StreamSupport.stream(cupDbos.spliterator(), true)
             .map(it -> Cup.of(it.id, it.name, it.type,
-                it.year, it.events.stream().map(x ->
+                Year.of(it.year), it.events.stream().map(x ->
                     eventResolver.apply(x.id.getId())).toList()))
             .toList();
     }

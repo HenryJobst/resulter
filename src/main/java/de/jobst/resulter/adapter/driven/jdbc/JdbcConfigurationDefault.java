@@ -21,6 +21,7 @@ public class JdbcConfigurationDefault {
         converterList.add(new OffsetDateTimeToTimestampConverter());
         converterList.add(new YearToIntegerConverter());
         converterList.add(new IntegerToYearConverter());
+        converterList.add(new YearToLocalDateConverter());
         return new JdbcCustomConversions(converterList);
     }
 

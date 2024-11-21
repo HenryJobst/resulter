@@ -16,7 +16,7 @@ export class CupService extends GenericService<Cup> {
     static async getCupTypes(t: (key: string) => string): Promise<CupType[] | null> {
         return await axiosInstance
             .get<CupType[]>(cupTypeUrl)
-            .then((response) => response.data)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null
@@ -26,7 +26,7 @@ export class CupService extends GenericService<Cup> {
     static async getResultsById(id: string, t: (key: string) => string): Promise<CupResults> {
         return await axiosInstance
             .get(`${cupUrl}/${id}/results`)
-            .then((response) => response.data)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null

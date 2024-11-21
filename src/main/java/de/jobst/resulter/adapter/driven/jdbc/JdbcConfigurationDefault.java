@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.jdbc.core.convert.JdbcCustomConversions;
 import org.springframework.data.relational.core.mapping.NamingStrategy;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
+@Primary
 public class JdbcConfigurationDefault {
 
     @Bean
@@ -19,9 +21,6 @@ public class JdbcConfigurationDefault {
         converterList.add(new LocalDateToTimestampConverter());
         converterList.add(new TimestampToOffsetDateTimeConverter());
         converterList.add(new OffsetDateTimeToTimestampConverter());
-        converterList.add(new YearToIntegerConverter());
-        converterList.add(new IntegerToYearConverter());
-        converterList.add(new YearToLocalDateConverter());
         return new JdbcCustomConversions(converterList);
     }
 

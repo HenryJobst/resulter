@@ -1,66 +1,42 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import Button from 'primevue/button'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { useToast } from 'primevue/usetoast'
+import { computed } from 'vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import CupForm from '@/features/cup/widgets/CupForm.vue'
-import type { Cup } from '@/features/cup/model/cup'
 import { cupService } from '@/features/cup/services/cup.service'
-import ErrorMessage from '@/components/ErrorMessage.vue'
-import Spinner from '@/components/SpinnerComponent.vue'
+import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
+import type { Cup } from '@/features/cup/model/cup'
+import CupForm from '@/features/cup/widgets/CupForm.vue'
 
-import { toastDisplayDuration } from '@/utils/constants'
-import type { RestResult } from '@/features/generic/models/rest_result'
-
-const props = defineProps<{ id: number, locale?: string }>()
-const authStore = useAuthStore()
+const props = defineProps<{ id: string, locale?: string }>()
 
 const { t } = useI18n()
-
-const router = useRouter()
-
-function navigateCupToList() {
-    router.replace({ name: 'cup-list' })
-}
-
-const queryClient = useQueryClient()
-
-const cupQuery = useQuery({
-    queryKey: ['cups', { id: props.id }],
-    queryFn: () => cupService.getById(props.id, t),
-    initialData: () =>
-        queryClient
-            .getQueryData<RestResult<Cup>>(['cups'])
-            ?.content.find(cup => cup.id === props.id),
-    initialDataUpdatedAt: () => queryClient.getQueryState(['cups'])?.dataUpdatedAt,
-})
-
-const toast = useToast()
-
-const cupMutation = useMutation({
-    mutationFn: (cup: Cup) => cupService.update(cup, t),
-    onSuccess: (cup) => {
-        queryClient.setQueryData(['cups', { id: props.id }], cup)
-        queryClient.invalidateQueries({ queryKey: ['cups'] })
-        toast.add({
-            severity: 'info',
-            summary: t('messages.success'),
-            detail: t('messages.cup_changed'),
-            life: toastDisplayDuration,
-        })
-        navigateCupToList()
-    },
-})
-
-function cupSubmitHandler(cup: Cup) {
-    cupMutation.mutate(cup)
-}
+const authStore = useAuthStore()
+const queryKey: string[] = ['cups']
+const entityLabel: string = 'cup'
+const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.cup') }))
 </script>
 
 <template>
-    <div v-bind="$attrs">
+    <GenericEdit
+        :entity-service="cupService"
+        :query-key="queryKey"
+        :entity-id="props.id"
+        :entity-label="entityLabel"
+        :edit-label="editLabel"
+        router-prefix="cup"
+        :changeable="authStore.isAdmin"
+    >
+        <template #default="{ formData }">
+            <CupForm
+                v-if="formData"
+                v-model="formData.data"
+                :cup="formData.data as Cup"
+                :entity-service="cupService"
+                :query-key="queryKey"
+            />
+        </template>
+    </GenericEdit>
+    <!-- div v-bind="$attrs">
         <h1>{{ t('messages.edit_cup', { id: props.id }) }}</h1>
 
         <span v-if="cupQuery.status.value === 'pending' || cupMutation.status.value === 'pending'">
@@ -98,7 +74,7 @@ function cupSubmitHandler(cup: Cup) {
                 @click="navigateCupToList"
             />
         </CupForm>
-    </div>
+    </div -->
 </template>
 
 <style scoped>

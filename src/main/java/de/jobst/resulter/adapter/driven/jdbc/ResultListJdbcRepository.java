@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +79,6 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     Optional<ResultListId> findResultListIdByDomainKey(@Param("eventId") Long eventId,
                                                        @Param("raceId") Long raceId,
                                                        @Param("creator") String creator,
-                                                       @Param("createTime") OffsetDateTime createTime,
+                                                       @Param("createTime") Timestamp createTime,
                                                        @Param("createTimeZone") String createTimeZone);
 }

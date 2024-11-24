@@ -16,7 +16,7 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +44,7 @@ public class CupScoreListDbo {
     private String creator;
 
     @Column("create_time")
-    private OffsetDateTime createTime;
+    private Timestamp createTime;
 
     @Column("create_time_zone")
     private String createTimeZone;
@@ -58,7 +58,7 @@ public class CupScoreListDbo {
     public CupScoreListDbo(AggregateReference<CupDbo, Long> cupId,
                            AggregateReference<ResultListDbo, Long> resultListId,
                            String creator,
-                           OffsetDateTime createTime,
+                           Timestamp createTime,
                            String createTimeZone) {
         this.id = null;
         this.cupId = cupId;
@@ -80,14 +80,16 @@ public class CupScoreListDbo {
             cupScoreListDbo.setResultListId(AggregateReference.to(cupScoreList.getResultListId().value()));
             cupScoreListDbo.setCreator(cupScoreList.getCreator());
             cupScoreListDbo.setCreateTime(
-                null != cupScoreList.getCreateTime() ? cupScoreList.getCreateTime().toOffsetDateTime() : null);
+                null != cupScoreList.getCreateTime() ? Timestamp.from(cupScoreList.getCreateTime().toInstant()) :
+                null);
             cupScoreListDbo.setCreateTimeZone(
                 null != cupScoreList.getCreateTime() ? cupScoreList.getCreateTime().getZone().getId() : null);
         } else {
             cupScoreListDbo = new CupScoreListDbo(AggregateReference.to(cupScoreList.getCupId().value()),
                 AggregateReference.to(cupScoreList.getResultListId().value()),
                 cupScoreList.getCreator(),
-                null != cupScoreList.getCreateTime() ? cupScoreList.getCreateTime().toOffsetDateTime() : null,
+                null != cupScoreList.getCreateTime() ? Timestamp.from(cupScoreList.getCreateTime().toInstant()) :
+                null,
                 null != cupScoreList.getCreateTime() ? cupScoreList.getCreateTime().getZone().getId() : null);
         }
         if (!cupScoreList.getCupScores().isEmpty()) {
@@ -107,7 +109,7 @@ public class CupScoreListDbo {
                 CupScoreDbo.asCupScores(it.getCupScores()),
                 it.getCreator(),
                 it.getCreateTime() != null ?
-                it.getCreateTime().atZoneSameInstant(ZoneId.of(it.getCreateTimeZone())) :
+                it.getCreateTime().toInstant().atZone(ZoneId.of(it.getCreateTimeZone())) :
                 null))
             .toList();
     }

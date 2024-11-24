@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +54,8 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
             resultListJdbcRepository.findResultListIdByDomainKey(resultList.getEventId().value(),
                 resultList.getRaceId().value(),
                 resultList.getCreator(),
-                resultList.getCreateTime() != null ? resultList.getCreateTime().toOffsetDateTime() : null,
+                resultList.getCreateTime() != null ? Timestamp.from(resultList.getCreateTime().toOffsetDateTime().toInstant()) :
+                null,
                 resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
         return resultListId.map(listId -> findById(listId).orElseThrow()).orElseGet(() -> save(resultList));
     }

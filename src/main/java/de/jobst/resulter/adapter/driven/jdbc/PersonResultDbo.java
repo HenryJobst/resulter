@@ -69,10 +69,10 @@ public class PersonResultDbo {
                     .map(x -> PersonRaceResult.of(it.classResultShortName,
                         it.person.getId(),
                         x.getStartTime() != null ?
-                        x.getStartTime().atZoneSameInstant(ZoneId.of(Objects.requireNonNull(x.getStartTimeZone()))) :
+                        x.getStartTime().toInstant().atZone(ZoneId.of(Objects.requireNonNull(x.getStartTimeZone()))) :
                         null,
                         x.getFinishTime() != null ?
-                        x.getFinishTime().atZoneSameInstant(ZoneId.of(x.getFinishTimeZone())) :
+                        x.getFinishTime().toInstant().atZone(ZoneId.of(x.getFinishTimeZone())) :
                         null,
                         x.getPunchTime(),
                         x.getPosition(),

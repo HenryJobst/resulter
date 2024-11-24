@@ -2,8 +2,10 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.CupDetailedDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupDto;
+import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.application.CupService;
+import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -25,10 +27,12 @@ import java.util.*;
 @Slf4j
 public class CupController {
 
+    private final ResultListService resultListService;
     private final CupService cupService;
 
     @Autowired
-    public CupController(CupService cupService) {
+    public CupController(ResultListService resultListService, CupService cupService) {
+        this.resultListService = resultListService;
         this.cupService = cupService;
     }
 
@@ -80,7 +84,7 @@ public class CupController {
         }
     }
 
-    @GetMapping("/cup/{id}/detailed")
+    @GetMapping("/cup/{id}/results")
     public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
         try {
             Optional<CupDetailed> cupDetailed = cupService.getCupDetailed(CupId.of(id));
@@ -160,6 +164,21 @@ public class CupController {
         } catch (DataIntegrityViolationException e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalArgumentException e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logError(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/cup/{id}/calculate")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<CupScoreListDto>> calculateCup(@PathVariable Long id) {
+        try {
+            List<CupScoreListDto> cupScoreLists = cupService.calculateScore(CupId.of(id));
+            return ResponseEntity.ok(cupScoreLists);
         } catch (IllegalArgumentException e) {
             logError(e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

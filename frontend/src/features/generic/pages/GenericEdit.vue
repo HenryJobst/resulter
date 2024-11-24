@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type PropType, computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, type PropType, ref, watch } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
@@ -33,8 +33,7 @@ const entityQuery = useQuery({
 })
 
 onMounted(() => {
-    if (entityQuery.data.value)
-        formData.value = { ...entityQuery.data.value }
+    if (entityQuery.data.value) formData.value = { ...entityQuery.data.value }
 
     // console.log('GenericEdit:onMounted:formData', prettyPrint(formData.value))
 })
@@ -43,8 +42,7 @@ onMounted(() => {
 watch(
     () => entityQuery.data,
     (newData) => {
-        if (newData && newData.value)
-            formData.value = { ...newData.value }
+        if (newData && newData.value) formData.value = { ...newData.value }
         else formData.value = null // oder setzen Sie einen Default-Wert
     },
     {
@@ -112,8 +110,9 @@ function navigateToList() {
                 <Button
                     v-if="changeable"
                     v-tooltip="t('labels.back')"
+                    icon="pi pi-arrow-left"
                     :aria-label="t('labels.back')"
-                    class="pi pi-arrow-left ml-2"
+                    class="ml-2"
                     severity="secondary"
                     type="reset"
                     outlined

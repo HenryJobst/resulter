@@ -6,6 +6,7 @@ import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 public class CupDetailed extends Cup {
@@ -17,7 +18,9 @@ public class CupDetailed extends Cup {
         super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEvents());
         this.eventRacesCupScore = eventRacesCupScore;
         this.overallOrganisationScores = eventRacesCupScore.stream()
-            .flatMap(x -> x.eventRaces().stream().flatMap(y -> y.organisationScores().stream()))
+            .flatMap(x -> x.eventRaces().stream().flatMap(y ->
+                y.organisationScores() != null ? y.organisationScores().stream() :
+                Stream.empty()))
             .collect(Collectors.groupingBy(OrganisationScore::organisation,
                 Collectors.summingDouble(OrganisationScore::score)))
             .entrySet()

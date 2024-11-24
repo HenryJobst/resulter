@@ -54,8 +54,7 @@ async function uploader(event: FileUploadUploaderEvent) {
         if (valid) {
             formData.append('file', f)
             filesToSend += 1
-        }
-        else {
+        } else {
             console.log('Invalid file type')
         }
     }
@@ -85,7 +84,8 @@ async function uploader(event: FileUploadUploaderEvent) {
         <EventImportForm :uploader="uploader" @event-submit="eventSubmitHandler">
             <Button
                 v-tooltip="t('labels.back')"
-                class="pi pi-arrow-left ml-2"
+                icon="pi pi-arrow-left"
+                class="ml-2"
                 :aria-label="t('labels.back')"
                 severity="secondary"
                 type="reset"

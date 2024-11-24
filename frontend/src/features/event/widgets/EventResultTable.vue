@@ -18,7 +18,7 @@ import { cupService } from '@/features/cup/services/cup.service'
 import type { Cup } from '@/features/cup/model/cup'
 import type { CupScoreList } from '@/features/event/model/cup_score_list'
 
-const props = defineProps<{ data: ResultListIdPersonResults, eventId: number }>()
+const props = defineProps<{ data: ResultListIdPersonResults; eventId: number }>()
 
 const { t } = useI18n()
 
@@ -28,12 +28,12 @@ const cupQuery = useQuery({
 })
 
 const cups = computed((): Cup[] => {
-    const allCupIds = props.data?.cupScoreLists ? props.data.cupScoreLists.map(x => x.cupId) : []
+    const allCupIds = props.data?.cupScoreLists ? props.data.cupScoreLists.map((x) => x.cupId) : []
     const cupIds = new Set(allCupIds)
     return cupQuery.data?.value?.content
         ? cupQuery.data.value.content.filter((x) => {
-            return cupIds.has(x.id)
-        })
+              return cupIds.has(x.id)
+          })
         : []
 })
 
@@ -53,8 +53,7 @@ function formatTime(time: string): string {
 }
 
 function formatBirthYear(date: string | Date): string {
-    if (typeof date === 'string')
-        return parseDateMoment(date).format('YY')
+    if (typeof date === 'string') return parseDateMoment(date).format('YY')
     else return moment(date).format('YY')
 }
 
@@ -75,45 +74,42 @@ function resultColumn(data: PersonResult): string {
 }
 
 function cupScore(cup: Cup, data: PersonResult, cupScoreLists: CupScoreList[] | undefined): string {
-    const cupScoreList = cupScoreLists?.filter(x => x.cupId === cup.id).pop()
-    const cupScore = cupScoreList?.cupScores.filter(x => x.personId === data.personId).pop()
+    const cupScoreList = cupScoreLists?.filter((x) => x.cupId === cup.id).pop()
+    const cupScore = cupScoreList?.cupScores.filter((x) => x.personId === data.personId).pop()
     return cupScore ? cupScore.score.toLocaleString() : ''
 }
 
 function birthYearColumn(data: any): string {
     const person = findPerson(data.personId)
-    if (person)
-        return person.birthDate ? formatBirthYear(person.birthDate) : ''
+    if (person) return person.birthDate ? formatBirthYear(person.birthDate) : ''
 
     return ''
 }
 
 function findPerson(personId: number): Person | undefined {
     if (personId && personQuery.data.value)
-        return personQuery.data.value.content.find(p => p.id === personId)
+        return personQuery.data.value.content.find((p) => p.id === personId)
 
     return undefined
 }
 
 function findOrganisation(organisationId: number): Organisation | undefined {
     if (organisationId && organisationQuery.data.value)
-        return organisationQuery.data.value.content.find(o => o.id === organisationId)
+        return organisationQuery.data.value.content.find((o) => o.id === organisationId)
 
     return undefined
 }
 
 function personNameColumn(data: PersonResult): string {
     const person = findPerson(data.personId)
-    if (person)
-        return `${person.givenName} ${person.familyName}`
+    if (person) return `${person.givenName} ${person.familyName}`
 
     return ''
 }
 
 function organisationNameColumn(data: PersonResult): string {
     const organisation = findOrganisation(data.organisationId)
-    if (organisation)
-        return organisation.name
+    if (organisation) return organisation.name
 
     return ''
 }
@@ -161,7 +157,6 @@ function certificate(resultListId: number, classResultShortName: string, data: P
                     v-if="props.data.certificateEnabled && slotProps.data.resultStatus === 'OK'"
                     v-tooltip="t('labels.download')"
                     :aria-label="t('labels.download')"
-                    class="p-button-rounded p-button-text"
                     icon="pi pi-print"
                     outlined
                     raised

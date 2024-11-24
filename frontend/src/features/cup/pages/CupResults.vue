@@ -1,88 +1,85 @@
 <script setup lang="ts">
-/*
-const props = defineProps<{ id: string; locale?: string }>()
+import Button from 'primevue/button'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { computed } from 'vue'
+import { CupService, cupService } from '@/features/cup/services/cup.service'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
-const { t } = useI18n()
+const props = defineProps<{ id: string }>()
 
-function parseDurationMoment(durationString: string): moment.Duration {
-  return moment.duration(durationString)
-}
+const { t, locale } = useI18n()
 
-const formatTime = (time: string): string => {
-  return moment.utc(parseDurationMoment(time).asMilliseconds()).format('H:mm:ss')
-}
+const authStore = useAuthStore()
+const router = useRouter()
 
 const cupResultsQuery = useQuery({
-  queryKey: ['cupResults', props.id],
-  queryFn: () => CupService.getResultsById(props.id, t)
+    queryKey: ['cupResults', props.id],
+    queryFn: () => CupService.getResultsById(props.id, t),
 })
-const createTreeNodes = (aList: ClassResult[] | undefined): TreeNode[] => {
-  if (!aList) {
-    return []
-  }
-  return aList.map(
-    (a): TreeNode => ({
-      key: a.id.toString(),
-      label: a.name,
-      children: [
-        {
-          key: `${a.id}-table`,
-          data: a.personResults,
-          type: 'dataTable',
-          leaf: true
-        }
-      ]
-    })
-  )
+
+const cupQuery = useQuery({
+    queryKey: ['cups'],
+    queryFn: () => cupService.getAll(t),
+})
+
+const cup = computed(() => {
+    return cupQuery.data.value?.content.find((e) => e.id.toString() === props.id)
+})
+
+function navigateToList() {
+    router.replace({ name: `event-list` })
 }
 
-const treeNodes = computed(() => {
-  if (cupResultsQuery.isFetched) {
-    return createTreeNodes(cupResultsQuery.data.value?.classResultDtos)
-  }
-  return null
-})
-const resultColumn = (slotProps: any): string => {
-  return slotProps.data.resultStatus === 'OK'
-    ? formatTime(slotProps.data.runTime)
-    : t('result_state.' + slotProps.data.resultStatus)
+const queryClient = useQueryClient()
+
+function invalidateCupPointsQuery() {
+    queryClient.invalidateQueries({ queryKey: ['cupResults', props.id] })
 }
-const birthYearColumn = (slotProps: any): string => {
-  return slotProps.data.birthYear ? slotProps.data.birthYear.slice(-2) : ''
+function calculate() {
+    CupService.calculate(props.id, t)
+    invalidateCupPointsQuery()
 }
-*/
 </script>
 
-<!--template>
-  <h2 v-if="cup">{{ cup.name }}</h2>
-            <span v-if="cupResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-            <span v-else-if="cupResultsQuery.status.value === 'error'">
-              {{ t('messages.error', { message: cupResultsQuery.error.toLocaleString() }) }}
-            </span>
-            <div v-else-if="cupResultsQuery.data" class="card flex justify-content-start">
-              <Tree :value="treeNodes" class="w-full">
-                <template #default="slotProps">
-                  <b>{{ slotProps.node.label }}</b>
-                </template>
-                <template #dataTable="slotProps">
-                  <DataTable :value="slotProps.node.data">
-                    <Column field="position" :header="t('labels.position')" />
-                    <Column field="personName" :header="t('labels.name')" />
-                    <Column :header="t('labels.birth_year')">
-                      <template #body="slotProps">
-                        {{ birthYearColumn(slotProps) }}
-                      </template>
-                    </Column>
-                    <Column field="organisation" :header="t('labels.organisation')" />
-                    <Column :header="t('labels.time')">
-                      <template #body="slotProps">
-                        {{ resultColumn(slotProps) }}
-                      </template>
-                    </Column>
-                  </DataTable>
-                </template>
-              </Tree>
-            </div>
-</template-->
+<template>
+    <Button
+        v-tooltip="t('labels.back')"
+        icon="pi pi-arrow-left"
+        class="ml-2"
+        :aria-label="t('labels.back')"
+        severity="secondary"
+        type="reset"
+        outlined
+        raised
+        rounded
+        @click="navigateToList"
+    />
+    <Button
+        v-if="authStore.isAdmin"
+        v-tooltip="t('labels.calculate')"
+        icon="pi pi-calculator"
+        class="ml-5"
+        :aria-label="t('labels.calculate')"
+        outlined
+        raised
+        rounded
+        @click="calculate()"
+    />
+    <span v-if="cupResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+    <span v-else-if="cupResultsQuery.status.value === 'error'">
+        {{ t('messages.error', { message: cupResultsQuery.error.toLocaleString() }) }}
+    </span>
+    <div v-else-if="cupResultsQuery.data" class="card flex justify-content-start">
+        <div class="flex flex-col flex-grow w-full">
+            <h1 class="mt-3 font-extrabold">{{ cup?.name }} - {{ t('labels.results', 2) }}</h1>
+        </div>
+    </div>
+</template>
 
-<style scoped></style>
+<style scoped>
+h1 {
+    margin-bottom: 1rem;
+}
+</style>

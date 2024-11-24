@@ -1,0 +1,27 @@
+databaseChangeLog:
+    - changeSet:
+          id: 000028_person_race_result_additions
+          author: Henry Jobst
+          preConditions:
+              - columnExists:
+                    tableName: person_race_result
+                    columnName: start_time
+              - columnExists:
+                    tableName: person_race_result
+                    columnName: finish_time
+              - sqlCheck:
+                    expectedResult: "timestamp with time zone"
+                    sql: "SELECT data_type FROM information_schema.columns WHERE table_name = 'person_race_result' AND column_name = 'start_time'"
+              - sqlCheck:
+                    expectedResult: "timestamp with time zone"
+                    sql: "SELECT data_type FROM information_schema.columns WHERE table_name = 'person_race_result' AND column_name = 'finish_time'"
+          comment: Change column type for start_time and finish time to timestamp
+          changes:
+              - modifyDataType:
+                    tableName: person_race_result
+                    columnName: start_time
+                    newDataType: timestamp
+              - modifyDataType:
+                    tableName: person_race_result
+                    columnName: finish_time
+                    newDataType: timestamp

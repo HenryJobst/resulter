@@ -16,7 +16,7 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
@@ -43,7 +43,7 @@ public class ResultListDbo {
     private String creator;
 
     @Column("create_time")
-    private OffsetDateTime createTime;
+    private Timestamp createTime;
 
     @Column("create_time_zone")
     private String createTimeZone;
@@ -57,7 +57,7 @@ public class ResultListDbo {
     public ResultListDbo(AggregateReference<EventDbo, Long> eventId,
                          AggregateReference<RaceDbo, Long> raceId,
                          String creator,
-                         OffsetDateTime createTime,
+                         Timestamp createTime,
                          String createTimeZone) {
         this.id = null;
         this.eventId = eventId;
@@ -74,15 +74,18 @@ public class ResultListDbo {
             resultListDbo.setEventId(AggregateReference.to(resultList.getEventId().value()));
             resultListDbo.setRaceId(AggregateReference.to(resultList.getRaceId().value()));
             resultListDbo.setCreator(resultList.getCreator());
-            resultListDbo.setCreateTime(
-                null != resultList.getCreateTime() ? resultList.getCreateTime().toOffsetDateTime() : null);
+            resultListDbo.setCreateTime(null != resultList.getCreateTime() ?
+                                        Timestamp.from(resultList.getCreateTime().toOffsetDateTime().toInstant()) :
+                                        null);
             resultListDbo.setCreateTimeZone(
                 null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
         } else {
             resultListDbo = new ResultListDbo(AggregateReference.to(resultList.getEventId().value()),
                 AggregateReference.to(resultList.getRaceId().value()),
                 resultList.getCreator(),
-                null != resultList.getCreateTime() ? resultList.getCreateTime().toOffsetDateTime() : null,
+                null != resultList.getCreateTime() ?
+                Timestamp.from(resultList.getCreateTime().toOffsetDateTime().toInstant()) :
+                null,
                 null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
 
         }
@@ -101,7 +104,7 @@ public class ResultListDbo {
                 EventId.of(it.eventId.getId()),
                 RaceId.of(it.raceId.getId()),
                 it.creator,
-                it.createTime != null ? it.createTime.atZoneSameInstant(ZoneId.of(it.createTimeZone)) : null,
+                it.createTime != null ? it.createTime.toInstant().atZone(ZoneId.of(it.createTimeZone)) : null,
                 it.status,
                 ClassResultDbo.asClassResults(it.getClassResults())))
             .toList();

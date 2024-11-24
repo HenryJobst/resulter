@@ -86,7 +86,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 "/result_list/{id}/certificate",
                 "/event_certificate",
                 "/result_list/{id}/cup_score_lists",
-                "/cup/{id}/detailed")
+                "/cup/{id}/results")
             .permitAll()
             .anyRequest()
             .hasRole(ADMIN));

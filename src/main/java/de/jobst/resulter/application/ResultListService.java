@@ -36,21 +36,16 @@ public class ResultListService {
 
     private final CupScoreListRepository cupScoreListRepository;
 
-    private final RaceRepository raceRepository;
-
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
 
     public ResultListService(ResultListRepository resultListRepository,
-                             CupRepository cupRepository,
-                             EventRepository eventRepository,
+                             CupRepository cupRepository, EventRepository eventRepository,
                              OrganisationRepository organisationRepository,
                              PersonRepository personRepository,
                              CertificateService certificateService,
                              MediaFileRepository mediaFileRepository,
                              EventCertificateStatRepository eventCertificateStatRepository,
-                             CupScoreListRepository cupScoreListRepository,
-                             RaceRepository raceRepository,
-                             SpringSecurityAuditorAware springSecurityAuditorAware) {
+                             CupScoreListRepository cupScoreListRepository, SpringSecurityAuditorAware springSecurityAuditorAware) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -60,7 +55,6 @@ public class ResultListService {
         this.mediaFileRepository = mediaFileRepository;
         this.eventCertificateStatRepository = eventCertificateStatRepository;
         this.cupScoreListRepository = cupScoreListRepository;
-        this.raceRepository = raceRepository;
         this.springSecurityAuditorAware = springSecurityAuditorAware;
     }
 
@@ -86,15 +80,16 @@ public class ResultListService {
 
     @Transactional
     public List<CupScoreListDto> calculateScore(ResultListId id) {
-        ResultList resultList = resultListRepository.findByResultListId(id);
-        if (resultList == null || resultList.getClassResults() == null || resultList.getClassResults().isEmpty()) {
+        Optional<ResultList> resultListOptional = findById(id);
+        if (resultListOptional.isEmpty() || resultListOptional.get().getClassResults() == null || resultListOptional.get().getClassResults().isEmpty()) {
             // no result list for id
-            return null;
+            return List.of();
         }
+        ResultList resultList = resultListOptional.get();
         Collection<Cup> cups = cupRepository.findByEvent(resultList.getEventId());
         if (cups.isEmpty()) {
             // no cups for this event
-            return null;
+            return List.of();
         }
         Set<OrganisationId> referencedOrganisationIds = resultList.getReferencedOrganisationIds();
         Map<OrganisationId, Organisation> organisationById =
@@ -109,6 +104,7 @@ public class ResultListService {
             .collect(Collectors.toSet()));
         return cupScoreListRepository.saveAll(cupScoreLists).stream().map(CupScoreListDto::from).toList();
     }
+
 
     @Transactional
     public CertificateService.Certificate createCertificate(ResultListId resultListId,

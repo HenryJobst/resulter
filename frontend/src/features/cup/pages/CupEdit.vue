@@ -7,7 +7,7 @@ import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import type { Cup } from '@/features/cup/model/cup'
 import CupForm from '@/features/cup/widgets/CupForm.vue'
 
-const props = defineProps<{ id: string, locale?: string }>()
+const props = defineProps<{ id: string; locale?: string }>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -64,8 +64,9 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.c
             />
             <Button
                 v-tooltip="t('labels.back')"
+                icon="pi pi-arrow-left"
                 :aria-label="t('labels.back')"
-                class="pi pi-arrow-left ml-2"
+                class="ml-2"
                 severity="secondary"
                 type="reset"
                 outlined

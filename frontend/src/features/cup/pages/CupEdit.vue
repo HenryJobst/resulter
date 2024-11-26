@@ -7,7 +7,7 @@ import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import type { Cup } from '@/features/cup/model/cup'
 import CupForm from '@/features/cup/widgets/CupForm.vue'
 
-const props = defineProps<{ id: string; locale?: string }>()
+const props = defineProps<{ id: string, locale?: string }>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()

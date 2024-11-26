@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, type PropType, ref, watch } from 'vue'
+import { type PropType, computed, onMounted, ref, watch } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
@@ -33,7 +33,8 @@ const entityQuery = useQuery({
 })
 
 onMounted(() => {
-    if (entityQuery.data.value) formData.value = { ...entityQuery.data.value }
+    if (entityQuery.data.value)
+        formData.value = { ...entityQuery.data.value }
 
     // console.log('GenericEdit:onMounted:formData', prettyPrint(formData.value))
 })
@@ -42,7 +43,8 @@ onMounted(() => {
 watch(
     () => entityQuery.data,
     (newData) => {
-        if (newData && newData.value) formData.value = { ...newData.value }
+        if (newData && newData.value)
+            formData.value = { ...newData.value }
         else formData.value = null // oder setzen Sie einen Default-Wert
     },
     {

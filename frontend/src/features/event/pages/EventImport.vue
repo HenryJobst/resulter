@@ -54,7 +54,8 @@ async function uploader(event: FileUploadUploaderEvent) {
         if (valid) {
             formData.append('file', f)
             filesToSend += 1
-        } else {
+        }
+        else {
             console.log('Invalid file type')
         }
     }

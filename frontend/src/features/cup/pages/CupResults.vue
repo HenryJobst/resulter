@@ -48,6 +48,14 @@ const cupData = computed(() => {
 const events = computed(() => cupData.value?.events ?? [])
 const raceScores = computed(() => cupData.value?.eventRacesCupScoreDto ?? [])
 const overallScores = computed(() => cupData.value?.overallOrganisationScores ?? [])
+
+function findOrganisationScore(org: any, raceCupScores: any): string {
+    const entry = raceCupScores.organisationScoreDtoList.find(
+        (os) => os.organisation.id === org.organisation.id,
+    )
+    const score = entry?.score ?? 0.0
+    return score !== 0.0 ? score.toString() : ''
+}
 </script>
 
 <template>
@@ -113,9 +121,13 @@ const overallScores = computed(() => cupData.value?.overallOrganisationScores ??
                             >
                                 {{ cls.classShortName }}
                             </th>
-                            <th class="ev">Nikolaus-OL</th>
-                            <th class="ev">Kristall-OL</th>
-                            <th class="ev">Alex-OL</th>
+                            <th
+                                v-for="r in raceScores[0].raceCupScores"
+                                :key="r.raceDto.id"
+                                class="ev"
+                            >
+                                {{ r.raceDto.name }}
+                            </th>
                         </tr>
                         <tr v-for="org in overallScores" :key="org.organisation.id" class="">
                             <td class="cb">
@@ -131,58 +143,16 @@ const overallScores = computed(() => cupData.value?.overallOrganisationScores ??
                             >
                                 {{ cls.score !== 0 ? cls.score.toString() : '' }}
                             </td>
-                            <td class="ev" />
-                            <td class="ev" />
-                            <td class="ev" />
+                            <td
+                                v-for="r in raceScores[0].raceCupScores"
+                                :key="r.raceDto.id"
+                                class="ev"
+                            >
+                                {{ findOrganisationScore(org, r) }}
+                            </td>
                         </tr>
                     </table>
                 </section>
-
-                <!-- Punktetabelle -->
-                <!-- section v-if="raceScores.length" class="scores-section">
-                    <h2>Punktetabelle</h2>
-                    <div v-for="score in raceScores" :key="score.event.id" class="race-block">
-                <h3>
-                    {{ score.event.name }} ({{
-                        new Date(score.event.startTime).toLocaleDateString()
-                    }})
-                </h3>
-                <p>Status: {{ score.event.state.id }}</p>
-                <p v-if="score.event.organisations.length">
-                    Ausrichter:
-                    {{ score.event.organisations.map((org) => org.name).join(', ') }}
-                </p>
-
-                <table class="organisation-table">
-                    <thead>
-                        <tr>
-                            <th>Organisation</th>
-                            <th>Punkte</th>
-                            <th>Teilnehmer (Klasse)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="org in score.raceCupScores" :key="org.organisation?.id">
-                            <td>{{ org.organisation?.name ?? '?' }}</td>
-                            <td>{{ org.score }}</td>
-                            <td>
-                                <ul>
-                                    <li
-                                        v-for="person in org.personWithScoreDtoList"
-                                        :key="person.personId.value"
-                                    >
-                                        {{ person.classShortName }}: {{ person.score }}
-                                    </li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            </section>
-            <p-- v-else>
-                Keine Punkte verfügbar.
-            </p -->
             </div>
         </div>
     </div>

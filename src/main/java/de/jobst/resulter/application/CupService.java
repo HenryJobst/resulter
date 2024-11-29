@@ -99,6 +99,7 @@ public class CupService {
             List<EventResultList> eventResultLists = events.stream()
                 .map(event -> new EventResultLists(event, resultListService.findByEventId(event.getId())))
                 .flatMap(rl2 -> rl2.resultLists().stream().map(rl -> new EventResultList(rl2.event(), rl)))
+                .sorted()
                 .toList();
             List<List<CupScoreList>> cupScoreLists = eventResultLists.stream()
                 .map(r -> resultListService.getCupScoreLists(r.resultList().getId(), cupId).stream().toList())

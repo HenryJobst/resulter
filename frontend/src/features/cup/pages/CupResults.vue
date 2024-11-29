@@ -4,12 +4,12 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed } from 'vue'
-import { CupService, cupService } from '@/features/cup/services/cup.service'
+import { CupService } from '@/features/cup/services/cup.service'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const props = defineProps<{ id: string }>()
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -17,15 +17,6 @@ const router = useRouter()
 const cupResultsQuery = useQuery({
     queryKey: ['cupResults', props.id],
     queryFn: () => CupService.getResultsById(props.id, t),
-})
-
-const cupQuery = useQuery({
-    queryKey: ['cups'],
-    queryFn: () => cupService.getAll(t),
-})
-
-const cup = computed(() => {
-    return cupQuery.data.value?.content.find((e) => e.id.toString() === props.id)
 })
 
 function navigateToList() {
@@ -45,13 +36,13 @@ function calculate() {
 const cupData = computed(() => {
     return cupResultsQuery.data.value ?? []
 })
-const events = computed(() => cupData.value?.events ?? [])
+
 const raceScores = computed(() => cupData.value?.eventRacesCupScoreDto ?? [])
 const overallScores = computed(() => cupData.value?.overallOrganisationScores ?? [])
 
 function findOrganisationScore(org: any, raceCupScores: any): string {
     const entry = raceCupScores.organisationScoreDtoList.find(
-        (os) => os.organisation.id === org.organisation.id,
+        os => os.organisation.id === org.organisation.id,
     )
     const score = entry?.score ?? 0.0
     return score !== 0.0 ? score.toString() : ''
@@ -90,67 +81,77 @@ function findOrganisationScore(org: any, raceCupScores: any): string {
         <div class="cup-container">
             <div id="page_header">
                 <table>
-                    <tr>
-                        <th id="cup_name">
-                            <nobr>{{ cupData.name }}</nobr>
-                        </th>
-                        <th id="date_time">
-                            <nobr>{{}}</nobr>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th id="event_name">
-                            <nobr>Vereinswertung</nobr>
-                        </th>
-                        <th id="creation_text">
-                            <nobr />
-                        </th>
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th id="cup_name">
+                                <nobr>{{ cupData.name }}</nobr>
+                            </th>
+                            <th id="date_time">
+                                <nobr>{{}}</nobr>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th id="event_name">
+                                <nobr>Vereinswertung</nobr>
+                            </th>
+                            <th id="creation_text">
+                                <nobr />
+                            </th>
+                        </tr>
+                    </thead>
                 </table>
             </div>
             <div id="club_results">
                 <section v-if="overallScores.length" class="">
                     <table>
-                        <tr>
-                            <th class="top">Verein/Klassen</th>
-                            <th class="sum">Gesamt</th>
-                            <th
-                                v-for="cls in overallScores[0].personWithScoreDtoList"
-                                :key="cls.classShortName"
-                                class="cl"
-                            >
-                                {{ cls.classShortName }}
-                            </th>
-                            <th
-                                v-for="r in raceScores[0].raceCupScores"
-                                :key="r.raceDto.id"
-                                class="ev"
-                            >
-                                {{ r.raceDto.name }}
-                            </th>
-                        </tr>
-                        <tr v-for="org in overallScores" :key="org.organisation.id" class="">
-                            <td class="cb">
-                                {{ org.organisation.shortName }}
-                            </td>
-                            <td class="sum">
-                                {{ org.score }}
-                            </td>
-                            <td
-                                v-for="cls in org.personWithScoreDtoList"
-                                :key="cls.classShortName"
-                                class="cl"
-                            >
-                                {{ cls.score !== 0 ? cls.score.toString() : '' }}
-                            </td>
-                            <td
-                                v-for="r in raceScores[0].raceCupScores"
-                                :key="r.raceDto.id"
-                                class="ev"
-                            >
-                                {{ findOrganisationScore(org, r) }}
-                            </td>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <th class="top">
+                                    Verein/Klassen
+                                </th>
+                                <th class="sum">
+                                    Gesamt
+                                </th>
+                                <th
+                                    v-for="cls in overallScores[0].personWithScoreDtoList"
+                                    :key="cls.classShortName"
+                                    class="cl"
+                                >
+                                    {{ cls.classShortName }}
+                                </th>
+                                <th
+                                    v-for="r in raceScores[0].raceCupScores"
+                                    :key="r.raceDto.id"
+                                    class="ev"
+                                >
+                                    {{ r.raceDto.name }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="org in overallScores" :key="org.organisation.id" class="">
+                                <td class="cb">
+                                    {{ org.organisation.shortName }}
+                                </td>
+                                <td class="sum">
+                                    {{ org.score }}
+                                </td>
+                                <td
+                                    v-for="cls in org.personWithScoreDtoList"
+                                    :key="cls.classShortName"
+                                    class="cl"
+                                >
+                                    {{ cls.score !== 0 ? cls.score.toString() : '' }}
+                                </td>
+                                <td
+                                    v-for="r in raceScores[0].raceCupScores"
+                                    :key="r.raceDto.id"
+                                    class="ev"
+                                >
+                                    {{ findOrganisationScore(org, r) }}
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
                 </section>
             </div>

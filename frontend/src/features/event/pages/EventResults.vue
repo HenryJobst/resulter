@@ -127,8 +127,8 @@ function createResultListTreeNodes(
         const resultList = resultLists[i]
         const certificateEnabled: boolean
             = (eventQuery.data.value?.content.find(e => e.id === resultList.eventId)?.certificate
-            ?? false) !== false
-            && (resultLists.length === 1 || i === 0)
+                ?? false) !== false
+                && (resultLists.length === 1 || i === 0)
         const resultListCupScoreLists = cupScoreLists ? cupScoreLists[i] : undefined
         const resultListCompleteCupScoreLists = resultListCupScoreLists
             ? resultListCupScoreLists.filter(x => x.status === 'COMPLETE')

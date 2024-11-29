@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,4 +18,6 @@ public interface RaceJdbcRepository extends CrudRepository<RaceDbo, Long>, Pagin
 
     @NonNull
     Optional<RaceDbo> findByEventIdAndNumber(AggregateReference<EventDbo, Long> eventId, Byte number);
+
+    List<RaceDbo> findAllByEventIdIn(@NonNull Collection<AggregateReference<EventDbo, Long>> events);
 }

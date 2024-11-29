@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.RaceRepository;
+import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -58,5 +59,12 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
     @Transactional
     public Collection<Race> findOrCreate(Collection<Race> races) {
         return races.stream().map(this::findOrCreate).toList();
+    }
+
+    @Override
+    public List<Race> findAllByEvents(List<Event> events) {
+        return raceJdbcRepository.findAllByEventIdIn(events.stream()
+            .map(event -> AggregateReference.<EventDbo, Long>to(event.getId().value()))
+            .toList()).stream().map(RaceDbo::asRace).toList();
     }
 }

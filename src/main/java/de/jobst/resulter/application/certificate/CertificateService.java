@@ -256,9 +256,6 @@ public class CertificateService {
             log.error("Error validating layout description: " + report);
             document.add(new Paragraph("Error validating layout description: " + report));
         } else {
-            float center = (pageSize.getWidth() - document.getLeftMargin() - document.getRightMargin()) / 2;
-            System.out.println("Center: " + center);
-
             MediaFile blankCertificate = Objects.requireNonNull(eventCertificate).getBlankCertificate();
             PdfCanvas canvas = new PdfCanvas(pdfDocument.addNewPage());
             Path basePath = Paths.get(mediaFilePath);
@@ -272,11 +269,16 @@ public class CertificateService {
                     .value(), false);
             DocumentDefinition documentDefinition = documentAndParagraphDefinitionsWithPlaceholders.getLeft();
 
+            MarginsDefinition margins = new MarginsDefinition(30.0f, 30.0f, 20.0f, 20.0f);
             PdfFont font = null;
             PdfFont boldFont = null;
             PdfFont italicFont = null;
             PdfFont boldItalicFont = null;
             if (documentDefinition != null) {
+                if (Objects.nonNull(documentDefinition.margins())) {
+                    margins = documentDefinition.margins();
+                }
+                document.setMargins(margins.top(), margins.right(), margins.bottom(), margins.left());
                 font = getPdfFont(documentDefinition.font());
                 if (font != null) {
                     document.setFont(font);
@@ -285,6 +287,9 @@ public class CertificateService {
                 italicFont = getPdfFont(documentDefinition.italicFont());
                 boldItalicFont = getPdfFont(documentDefinition.boldItalicFont());
             }
+
+            float center = (pageSize.getWidth() - document.getLeftMargin() - document.getRightMargin()) / 2;
+            System.out.println("Center: " + center);
 
             List<ParagraphDefinition> paragraphDefinitionsWithPlaceholders =
                 documentAndParagraphDefinitionsWithPlaceholders.getRight();

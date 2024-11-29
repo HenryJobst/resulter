@@ -32,6 +32,16 @@ export class CupService extends GenericService<Cup> {
                 return null
             })
     }
+
+    static async calculate(cup_id: number, t: (key: string) => string) {
+        return axiosInstance
+            .put(`${cupUrl}/${cup_id}/calculate`)
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
 }
 
 export const cupService = new CupService()

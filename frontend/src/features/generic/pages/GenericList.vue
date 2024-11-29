@@ -70,10 +70,23 @@ const props = defineProps({
 
 const { t, locale } = useI18n()
 
-const queryClient = useQueryClient()
-
 const useSettingsStore = settingsStoreFactory(props.settingsStoreSuffix, props.initialTableSettings)
 const settingsStore = useSettingsStore()
+
+onMounted(() => {
+    console.log('Mounted ...')
+    props.columns?.forEach((col) => {
+        if (col.filterable && settingsStore.settings.filters) {
+            settingsStore.settings.filters[col.field] = {
+                value: null,
+                matchMode: col.filterMatchMode || 'contains',
+            }
+        }
+    })
+    console.log(`Filters: ${prettyPrint(settingsStore.settings.filters)}`)
+})
+
+const queryClient = useQueryClient()
 
 const queryKeys = computed(() => {
     console.log('Calculate query keys ...')
@@ -228,20 +241,6 @@ function getSortable(col: GenericListColumn) {
     return col.sortable ? col.sortable : true
 }
 
-onMounted(() => {
-    console.log('Mounted ...')
-    props.columns?.forEach((col) => {
-        if (col.filterable && settingsStore.settings.filters) {
-            // console.log('Add filter for ' + col.field)
-            settingsStore.settings.filters[col.field] = {
-                value: null,
-                matchMode: col.filterMatchMode || 'contains',
-            }
-        }
-    })
-    console.log(`Filters: ${prettyPrint(settingsStore.settings.filters)}`)
-})
-
 function debounce<T extends (...args: any[]) => any>(
     fn: T,
     delay: number,
@@ -337,6 +336,44 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                 @sort="sortChanged"
                 @filter="debounceFilterChanged"
             >
+                <!-- ... Action columns ... -->
+                <Column class="text-left" :header="t('labels.action', 2)">
+                    <template #body="{ data }">
+                        <div class="w-auto">
+                            <slot name="extra_row_actions" :value="data" />
+                            <router-link
+                                v-if="props.editEnabled && changeable"
+                                :to="{
+                                    name: `${props.routerPrefix}-edit`,
+                                    params: { id: data.id },
+                                }"
+                            >
+                                <Button
+                                    v-if="props.editEnabled && changeable"
+                                    v-tooltip="t('labels.edit')"
+                                    icon="pi pi-pencil"
+                                    class="mr-2 my-1"
+                                    :aria-label="t('labels.edit')"
+                                    outlined
+                                    raised
+                                    rounded
+                                />
+                            </router-link>
+                            <Button
+                                v-if="props.deleteEnabled && changeable"
+                                v-tooltip="t('labels.delete')"
+                                icon="pi pi-trash"
+                                class="mr-2 my-1"
+                                severity="danger"
+                                outlined
+                                raised
+                                rounded
+                                :aria-label="t('labels.delete')"
+                                @click="deleteEntity(data.id)"
+                            />
+                        </div>
+                    </template>
+                </Column>
                 <!-- Add Columns Here -->
                 <Column
                     v-for="col in props.columns"
@@ -402,43 +439,6 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                             class="p-column-filter"
                             @input="debouncedFilterInput(filterModel, filterCallback)"
                         />
-                    </template>
-                </Column>
-                <!-- ... Other columns ... -->
-                <Column class="text-right">
-                    <template #body="{ data }">
-                        <div class="w-26">
-                            <slot name="extra_row_actions" :value="data" />
-                            <router-link
-                                v-if="props.editEnabled && changeable"
-                                :to="{
-                                    name: `${props.routerPrefix}-edit`,
-                                    params: { id: data.id },
-                                }"
-                            >
-                                <Button
-                                    v-if="props.editEnabled && changeable"
-                                    v-tooltip="t('labels.edit')"
-                                    icon="pi pi-pencil"
-                                    class="mr-2"
-                                    :aria-label="t('labels.edit')"
-                                    outlined
-                                    raised
-                                    rounded
-                                />
-                            </router-link>
-                            <Button
-                                v-if="props.deleteEnabled && changeable"
-                                v-tooltip="t('labels.delete')"
-                                icon="pi pi-trash"
-                                severity="danger"
-                                outlined
-                                raised
-                                rounded
-                                :aria-label="t('labels.delete')"
-                                @click="deleteEntity(data.id)"
-                            />
-                        </div>
                     </template>
                 </Column>
             </DataTable>

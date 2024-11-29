@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +24,6 @@ public interface EventRepository {
     Event findOrCreate(Event event);
 
     Page<Event> findAll(@Nullable String filter, @NonNull Pageable pageable);
+
+    List<Event> findAllById(Collection<EventId> eventIds);
 }

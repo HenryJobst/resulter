@@ -37,7 +37,7 @@ databaseChangeLog :
                                     type : varchar(255)
                             -   column :
                                     name : create_time
-                                    type : timestamptz
+                                    type : timestamp
                             -   column :
                                     name : create_time_zone
                                     type : varchar(60)

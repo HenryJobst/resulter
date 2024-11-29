@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class OrganisationService {
@@ -94,5 +95,9 @@ public class OrganisationService {
 
     public Page<Organisation> findAll(@Nullable String filter, @NonNull Pageable pageable) {
         return organisationRepository.findAll(filter, pageable);
+    }
+
+    public List<Organisation> findAllById(Set<OrganisationId> organisationIds) {
+        return organisationRepository.findByIds(organisationIds);
     }
 }

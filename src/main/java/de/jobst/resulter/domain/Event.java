@@ -9,6 +9,7 @@ import org.springframework.lang.Nullable;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.function.Function;
 
 
@@ -16,14 +17,14 @@ import java.util.function.Function;
 public class Event implements Comparable<Event> {
 
     @NonNull
+    private final DateTime endTime;
+    @NonNull
     @Setter
     private EventId id;
     @NonNull
     private EventName name;
     @Nullable
     private DateTime startTime;
-    @NonNull
-    private final DateTime endTime;
     @NonNull
     private EventStatus eventState;
     @NonNull
@@ -101,7 +102,13 @@ public class Event implements Comparable<Event> {
 
     @Override
     public int compareTo(@NonNull Event o) {
-        return name.compareTo(o.name);
+        int val = (Objects.nonNull(this.startTime) && Objects.nonNull(o.startTime) ?
+                  this.startTime.compareTo(o.startTime) :
+                  (this.startTime == o.startTime ? 0 : (Objects.nonNull(this.startTime) ? -1 : 1)));
+        if (val == 0) {
+            val = this.name.compareTo(o.name);
+        }
+        return val;
     }
 
     public void withCertificate(Function<EventId, EventCertificate> primaryEventCertificateResolver) {

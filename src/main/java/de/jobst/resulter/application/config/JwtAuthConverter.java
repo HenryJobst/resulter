@@ -1,6 +1,7 @@
 package de.jobst.resulter.application.config;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
+@Profile("!nosecurity")
 public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     private static final String REALM_ACCESS_CLAIM = "realm_access";
@@ -28,6 +30,10 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
 
     public JwtAuthConverter() {
         this.jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+    }
+
+    public JwtAuthConverter(JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter) {
+        this.jwtGrantedAuthoritiesConverter = jwtGrantedAuthoritiesConverter;
     }
 
     @Override

@@ -1,134 +1,83 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
 import { useI18n } from 'vue-i18n'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { useToast } from 'primevue/usetoast'
-import Spinner from '@/components/SpinnerComponent.vue'
-import ErrorMessage from '@/components/ErrorMessage.vue'
+import { useQuery } from '@tanstack/vue-query'
+import { computed } from 'vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
+import { eventService } from '@/features/event/services/event.service'
+import type { TableSettings } from '@/features/generic/models/table_settings'
+import GenericList from '@/features/generic/pages/GenericList.vue'
 import { cupService } from '@/features/cup/services/cup.service'
 
-import { toastDisplayDuration } from '@/utils/constants'
-
+const authStore = useAuthStore()
 const { t } = useI18n()
 
-const authStore = useAuthStore()
+const queryKey: string = 'cups'
+const entityLabel: string = 'cup'
+const settingStoreSuffix: string = 'cup'
+const listLabel = computed(() => t('labels.cup', 2))
+const columns: GenericListColumn[] = [
+    { label: 'labels.name', field: 'name', sortable: true, filterable: true, filterType: 'input' },
+    { label: 'labels.year', field: 'year', sortable: true },
+    { label: 'labels.event', label_count: 2, field: 'events', type: 'list', sortable: true },
+]
 
-const queryClient = useQueryClient()
-
-const toast = useToast()
-
-const cupMutation = useMutation({
-    mutationFn: (id: number) => cupService.deleteById(id, t),
-    onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['cups'] })
-        toast.add({
-            severity: 'info',
-            summary: t('messages.success'),
-            detail: t('messages.cup_deleted'),
-            life: toastDisplayDuration,
-        })
-    },
+const eventsQuery = useQuery({
+    queryKey: ['events'],
+    queryFn: () => eventService.getAll(t),
+    select: data => data ?? [],
 })
 
-function deleteCup(id: number) {
-    cupMutation.mutate(id)
-}
-
-const cupQuery = useQuery({
-    queryKey: ['cups'],
-    queryFn: () => cupService.getAll(t),
-})
-
-function reload() {
-    cupQuery.refetch()
-    cupMutation.reset()
+const initialTableSettings: TableSettings = {
+    first: 0,
+    rows: 10,
+    page: 0,
+    paginator: true,
+    paginatorPosition: 'both',
+    rowsPerPageOptions: [5, 10, 20, 50, 100],
+    sortMode: 'multiple',
+    multiSortMeta: undefined,
+    sortField: 'year',
+    sortOrder: -1,
+    nullSortOrder: 1,
+    defaultSortOrder: 1,
+    filters: null,
 }
 </script>
 
 <template>
-    <h1>{{ t('labels.cup', 2) }}</h1>
-    <div class="flex justify-content-between my-4">
-        <div class="flex justify-content-start">
-            <router-link v-if="authStore.isAdmin" :to="{ name: 'cup-new' }">
+    <GenericList
+        :entity-service="cupService"
+        :query-key="queryKey"
+        :list-label="listLabel"
+        :entity-label="entityLabel"
+        router-prefix="cup"
+        :settings-store-suffix="settingStoreSuffix"
+        :columns="columns"
+        :changeable="authStore.isAdmin"
+        filter-display="row"
+        :visible="true"
+        :initial-table-settings="initialTableSettings"
+    >
+        <template v-if="eventsQuery.data.value" #events="{ value }">
+            <div>{{ value?.name }}</div>
+        </template>
+        <template #extra_list_actions />
+        <template #extra_row_actions="{ value }">
+            <router-link :to="{ name: 'cup-results', params: { id: value.id } }">
                 <Button
-                    v-tooltip.right="t('labels.new')"
-                    icon="pi pi-plus"
-                    :aria-label="t('labels.new')"
+                    v-tooltip="t('labels.results')"
+                    icon="pi pi-list"
+                    class="mr-2 my-1"
+                    :aria-label="t('labels.results')"
                     outlined
                     raised
                     rounded
                 />
             </router-link>
-        </div>
-        <Button
-            v-tooltip.left="t('labels.reload')"
-            icon="pi pi-refresh"
-            :aria-label="t('labels.reload')"
-            outlined
-            raised
-            rounded
-            severity="secondary"
-            @click="reload"
-        />
-    </div>
-
-    <div>
-        <span v-if="cupQuery?.status.value === 'pending' || cupMutation.status.value === 'pending'">
-            {{ t('messages.loading') }}
-            <Spinner />
-        </span>
-        <span
-            v-else-if="cupQuery?.status.value === 'error' || cupMutation.status.value === 'error'"
-        >
-            <ErrorMessage
-                :message="t('messages.error', { message: cupQuery?.error.value?.message })"
-            />
-            <ErrorMessage
-                :message="t('messages.error', { message: cupMutation?.error.value?.message })"
-            />
-        </span>
-        <div v-else-if="cupQuery?.data && cupQuery?.data.value" class="card">
-            <DataTable :value="cupQuery?.data.value.content" class="p-datatable-sm">
-                <Column field="name" :header="t('labels.name')" />
-                <Column field="type.id" :header="t('labels.type')" />
-                <Column :header="t('labels.event', 2)">
-                    <template #body="slotProps">
-                        {{ slotProps.data.eventIds.length }}
-                    </template>
-                </Column>
-                <Column class="text-right">
-                    <template #body="slotProps">
-                        <router-link :to="{ name: 'cup-edit', params: { id: slotProps.data.id } }">
-                            <Button
-                                v-if="authStore.isAdmin"
-                                v-tooltip="t('labels.edit')"
-                                icon="pi pi-pencil"
-                                class="mr-2"
-                                :aria-label="t('labels.edit')"
-                                outlined
-                                raised
-                                rounded
-                            />
-                        </router-link>
-                        <Button
-                            v-if="authStore.isAdmin"
-                            v-tooltip="t('labels.delete')"
-                            icon="pi pi-trash"
-                            severity="danger"
-                            outlined
-                            raised
-                            rounded
-                            :aria-label="t('labels.delete')"
-                            @click="deleteCup(slotProps.data.id)"
-                        />
-                    </template>
-                </Column>
-            </DataTable>
-        </div>
-    </div>
+        </template>
+    </GenericList>
 </template>
 
 <style scoped></style>

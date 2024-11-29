@@ -5,35 +5,39 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
 
+import java.time.Year;
 import java.util.Collection;
 
+@Setter
 @Getter
 public class Cup implements Comparable<Cup> {
 
     @NonNull
-    @Setter
     private CupId id;
     @NonNull
     private CupName name;
     @NonNull
     private CupType type;
-
     @NonNull
-    @Setter
-    private Collection<EventId> eventIds;
+    private Year year;
+    @NonNull
+    private Collection<Event> events;
 
-    public Cup(@NonNull CupId id, @NonNull CupName name, @NonNull CupType type, @NonNull Collection<EventId> eventIds) {
+    public Cup(@NonNull CupId id, @NonNull CupName name, @NonNull CupType type, @NonNull Year year,
+               @NonNull Collection<Event> events) {
         this.id = id;
         this.name = name;
         this.type = type;
-        this.eventIds = eventIds;
+        this.year = year;
+        this.events = events;
     }
 
     static public Cup of(long id,
                          @NonNull String cupName,
                          @NonNull CupType type,
-                         @NonNull Collection<EventId> eventIds) {
-        return new Cup(CupId.of(id), CupName.of(cupName), type, eventIds);
+                         @NonNull Year year,
+                         @NonNull Collection<Event> events) {
+        return new Cup(CupId.of(id), CupName.of(cupName), type, year, events);
     }
 
     @Override
@@ -41,10 +45,11 @@ public class Cup implements Comparable<Cup> {
         return name.compareTo(o.name);
     }
 
-    public void update(CupName name, CupType type, Collection<EventId> eventIds) {
+    public void update(CupName name, CupType type, Year year, Collection<Event> events) {
         ValueObjectChecks.requireNotNull(name);
-        this.name = name;
-        this.type = type;
-        this.setEventIds(eventIds);
+        setName(name);
+        setType(type);
+        setYear(year);
+        setEvents(events);
     }
 }

@@ -29,7 +29,8 @@ export class EventService extends GenericService<SportEvent> {
             if (response) {
                 const result = response
                 result.content = result.content.map((element) => {
-                    if (element.startTime) element.startTime = new Date(element.startTime)
+                    if (element.startTime)
+                        element.startTime = new Date(element.startTime)
 
                     return element
                 })
@@ -42,7 +43,7 @@ export class EventService extends GenericService<SportEvent> {
     static async calculate(result_list_id: number, t: (key: string) => string) {
         return axiosInstance
             .put(`${resultListUrl}/${result_list_id}/calculate`)
-            .then((response) => response.data)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null
@@ -52,7 +53,7 @@ export class EventService extends GenericService<SportEvent> {
     static async getEventStatus(t: (key: string) => string): Promise<EventStatus[] | null> {
         return await axiosInstance
             .get<EventStatus[]>(eventStatusUrl)
-            .then((response) => response.data)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null
@@ -70,12 +71,12 @@ export class EventService extends GenericService<SportEvent> {
                     response.data.resultLists = response.data.resultLists.map(
                         (resultList: ResultList) => {
                             if (
-                                resultList.createTime &&
-                                typeof resultList.createTime === 'string'
+                                resultList.createTime
+                                && typeof resultList.createTime === 'string'
                             ) {
                                 // Entfernen des Zeitzone-Identifikators, da dieser nicht von Date.parse() unterstützt wird
-                                const dateStringWithoutTimezone =
-                                    resultList.createTime.split('[')[0]
+                                const dateStringWithoutTimezone
+                                    = resultList.createTime.split('[')[0]
                                 resultList.createTime = new Date(dateStringWithoutTimezone)
                             }
                             return resultList
@@ -98,7 +99,7 @@ export class EventService extends GenericService<SportEvent> {
                     'Content-Type': 'multipart/form-data',
                 },
             })
-            .then((response) => response.data)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null
@@ -147,7 +148,8 @@ export class EventService extends GenericService<SportEvent> {
     }
 
     static async getCertificate(certificate: Certificate | undefined, t: (key: string) => string) {
-        if (!certificate || !certificate.event) return null
+        if (!certificate || !certificate.event)
+            return null
 
         return axiosInstance
             .put(`${eventUrl}/${certificate.event?.id}/certificate`, certificate, {
@@ -173,7 +175,7 @@ export class EventService extends GenericService<SportEvent> {
         }
         return axiosInstance
             .get(`${eventUrl}/${id}/certificate_stats`)
-            .then((response) => response.data)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null
@@ -181,10 +183,11 @@ export class EventService extends GenericService<SportEvent> {
     }
 
     static async removeEventCertificateStat(id: number, t: (key: string) => string) {
-        if (!id) return null
+        if (!id)
+            return null
         return axiosInstance
             .delete(`/event_certificate_stat/${id}`)
-            .then((response) => response.data)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null
@@ -194,7 +197,7 @@ export class EventService extends GenericService<SportEvent> {
     static async getCertificateSchema(t: (key: string) => string) {
         return axiosInstance
             .get('/certificate_schema')
-            .then((response) => response.data)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null
@@ -210,7 +213,7 @@ export class EventService extends GenericService<SportEvent> {
         }
         return axiosInstance
             .get(`${resultListUrl}/${id}/cup_score_lists`)
-            .then((response) => response.data)
+            .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)
                 return null

@@ -30,6 +30,12 @@ databaseChangeLog :
                                         nullable : false
                                         foreignKeyName : fk_cup_score_person
                             -   column :
+                                    name : organisation_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                                        foreignKeyName : fk_cup_score_organisation
+                            -   column :
                                     name : score
                                     type : double
                                     constraints :
@@ -47,6 +53,14 @@ databaseChangeLog :
                         baseColumnNames : person_id
                         constraintName : fk_cup_score_person
                         referencedTableName : person
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
+                -   addForeignKeyConstraint :
+                        baseTableName : cup_score
+                        baseColumnNames : organisation_id
+                        constraintName : fk_cup_score_organisation
+                        referencedTableName : organisation
                         referencedColumnNames : id
                         onDelete : restrict
                         onUpdate : restrict

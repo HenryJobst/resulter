@@ -16,7 +16,7 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,11 +38,11 @@ public class EventDbo {
     @Column("name")
     private String name;
     @Column("start_time")
-    private OffsetDateTime startTime;
+    private Timestamp startTime;
     @Column("start_time_zone")
     private String startTimeZone;
     @Column("end_time")
-    private OffsetDateTime endTime;
+    private Timestamp endTime;
     @Column("end_time_zone")
     private String endTimeZone;
     @Column("state")
@@ -70,7 +70,7 @@ public class EventDbo {
         }
 
         if (null != event.getStartTime() && null != event.getStartTime().value()) {
-            eventDbo.setStartTime(event.getStartTime().value().toOffsetDateTime());
+            eventDbo.setStartTime(Timestamp.from(event.getStartTime().value().toInstant()));
             eventDbo.setStartTimeZone(event.getStartTime().value().getZone().getId());
         } else {
             eventDbo.setStartTime(null);
@@ -78,7 +78,7 @@ public class EventDbo {
         }
 
         if (null != event.getEndTime() && null != event.getEndTime().value()) {
-            eventDbo.setEndTime(event.getEndTime().value().toOffsetDateTime());
+            eventDbo.setEndTime(Timestamp.from(event.getEndTime().value().toInstant()));
             eventDbo.setEndTimeZone(event.getEndTime().value().getZone().getId());
         } else {
             eventDbo.setEndTime(null);
@@ -105,8 +105,8 @@ public class EventDbo {
         return eventDbos.stream()
             .map(it -> Event.of(it.id,
                 it.name,
-                it.startTime != null ? it.startTime.atZoneSameInstant(ZoneId.of(it.startTimeZone)) : null,
-                it.endTime != null ? it.endTime.atZoneSameInstant(ZoneId.of(it.endTimeZone)) : null,
+                it.startTime != null ? it.startTime.toInstant().atZone(ZoneId.of(it.startTimeZone)) : null,
+                it.endTime != null ? it.endTime.toInstant().atZone(ZoneId.of(it.endTimeZone)) : null,
                 it.organisations.stream().map(x -> organisationResolver.apply(x.id.getId())).toList(),
                 it.state))
             .toList();
@@ -114,6 +114,10 @@ public class EventDbo {
 
     static public Event asEvent(@NonNull EventDbo eventDbo, Function<Long, Organisation> organisationResolver) {
         return asEvents(List.of(eventDbo), organisationResolver).getFirst();
+    }
+
+    public Event asEvent(Function<Long, Organisation> organisationResolver) {
+        return asEvents(List.of(this), organisationResolver).getFirst();
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

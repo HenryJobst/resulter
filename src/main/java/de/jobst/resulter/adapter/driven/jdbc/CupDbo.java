@@ -3,7 +3,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupType;
-import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.Event;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,9 +17,11 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
+import java.time.Year;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -42,9 +44,13 @@ public class CupDbo {
     @Column("type")
     private CupType type;
 
+    @Column("year")
+    private Integer year;
+
     public CupDbo(String name) {
         this.id = null;
         this.name = name;
+        this.year = Year.now().getValue();
     }
 
     public static CupDbo from(@NonNull Cup cup, @NonNull DboResolvers dboResolvers) {
@@ -56,24 +62,30 @@ public class CupDbo {
             cupDbo = new CupDbo(cup.getName().value());
         }
 
-        cupDbo.setEvents(cup.getEventIds().stream().map(it -> new CupEventDbo(it.value())).collect(Collectors.toSet()));
+        cupDbo.setEvents(cup.getEvents().stream().map(it -> new CupEventDbo(it.getId().value())).collect(Collectors.toSet()));
 
         if (ObjectUtils.isNotEmpty(cup.getType())) {
             cupDbo.setType(cup.getType());
         } else {
             cupDbo.setType(null);
         }
+        if (ObjectUtils.isNotEmpty(cup.getYear())) {
+            cupDbo.setYear(cup.getYear().getValue());
+        }
         return cupDbo;
     }
 
-    static public List<Cup> asCups(@NonNull Iterable<CupDbo> cupDbos) {
+    static public List<Cup> asCups(@NonNull Iterable<CupDbo> cupDbos,
+                                   Function<Long, Event> eventResolver) {
         return StreamSupport.stream(cupDbos.spliterator(), true)
-            .map(it -> Cup.of(it.id, it.name, it.type, it.events.stream().map(x -> EventId.of(x.id.getId())).toList()))
+            .map(it -> Cup.of(it.id, it.name, it.type,
+                Year.of(it.year), it.events.stream().map(x ->
+                    eventResolver.apply(x.id.getId())).toList()))
             .toList();
     }
 
-    static public Cup asCup(@NonNull CupDbo cupDbo) {
-        return asCups(List.of(cupDbo)).getFirst();
+    static public Cup asCup(@NonNull CupDbo cupDbo, Function<Long, Event> eventResolver) {
+        return asCups(List.of(cupDbo), eventResolver).getFirst();
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

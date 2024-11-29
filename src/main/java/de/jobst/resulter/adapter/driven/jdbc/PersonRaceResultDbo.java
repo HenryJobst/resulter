@@ -11,7 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
@@ -31,12 +31,12 @@ public class PersonRaceResultDbo {
     private AggregateReference<PersonDbo, Long> person;
     @Nullable
     @Column("start_time")
-    private OffsetDateTime startTime;
+    private Timestamp startTime;
     @Nullable
     @Column("start_time_zone")
     private String startTimeZone;
     @Column("finish_time")
-    private OffsetDateTime finishTime;
+    private Timestamp finishTime;
     @Column("finish_time_zone")
     private String finishTimeZone;
     @Column("punch_time")
@@ -60,14 +60,14 @@ public class PersonRaceResultDbo {
         personRaceResultDbo.setPerson(AggregateReference.to(personRaceResult.getPersonId().value()));
 
         if (null != personRaceResult.getStartTime().value()) {
-            personRaceResultDbo.setStartTime(personRaceResult.getStartTime().value().toOffsetDateTime());
+            personRaceResultDbo.setStartTime(Timestamp.from(personRaceResult.getStartTime().value().toInstant()));
             personRaceResultDbo.setStartTimeZone(personRaceResult.getStartTime().value().getZone().getId());
         } else {
             personRaceResultDbo.setStartTime(null);
             personRaceResultDbo.setStartTimeZone(null);
         }
         if (null != personRaceResult.getFinishTime().value()) {
-            personRaceResultDbo.setFinishTime(personRaceResult.getFinishTime().value().toOffsetDateTime());
+            personRaceResultDbo.setFinishTime(Timestamp.from(personRaceResult.getFinishTime().value().toInstant()));
             personRaceResultDbo.setFinishTimeZone(personRaceResult.getFinishTime().value().getZone().getId());
         } else {
             personRaceResultDbo.setFinishTime(null);
@@ -103,9 +103,10 @@ public class PersonRaceResultDbo {
             .map(it -> PersonRaceResult.of(it.classResultShortName,
                 it.person.getId(),
                 it.startTime != null ?
-                it.startTime.atZoneSameInstant(ZoneId.of(Objects.requireNonNull(it.startTimeZone))) :
+                it.startTime.toInstant().atZone(ZoneId.of(Objects.requireNonNull(it.startTimeZone))) :
                 null,
-                it.finishTime != null ? it.finishTime.atZoneSameInstant(ZoneId.of(it.finishTimeZone)) : null,
+                it.finishTime != null ? it.finishTime.toInstant().atZone(ZoneId.of(it.finishTimeZone)) :
+                null,
                 it.getPunchTime(),
                 it.getPosition(),
                 it.getRaceNumber(),

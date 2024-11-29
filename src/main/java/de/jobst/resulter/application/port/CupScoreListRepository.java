@@ -1,5 +1,6 @@
 package de.jobst.resulter.application.port;
 
+import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupScoreList;
 import de.jobst.resulter.domain.ResultListId;
 
@@ -13,4 +14,5 @@ public interface CupScoreListRepository {
     List<CupScoreList> saveAll(List<CupScoreList> cupScoreList);
 
     List<CupScoreList> findAllByResultListId(ResultListId resultListId);
+    List<CupScoreList> findAllByResultListIdAndCupId(ResultListId resultListId, CupId cupId);
 }

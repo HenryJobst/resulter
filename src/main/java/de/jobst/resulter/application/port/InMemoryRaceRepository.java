@@ -1,5 +1,7 @@
 package de.jobst.resulter.application.port;
 
+import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
 import org.apache.commons.lang3.ObjectUtils;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -51,6 +54,12 @@ public class InMemoryRaceRepository implements RaceRepository {
     @Override
     public Collection<Race> findOrCreate(Collection<Race> races) {
         return races.stream().map(this::findOrCreate).toList();
+    }
+
+    @Override
+    public List<Race> findAllByEvents(List<Event> events) {
+        Set<EventId> eventIds = events.stream().map(Event::getId).collect(Collectors.toSet());
+        return races.values().stream().filter(race -> eventIds.contains(race.getEventId())).toList();
     }
 
     @SuppressWarnings("unused")

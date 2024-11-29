@@ -112,8 +112,9 @@ function navigateToList() {
                 <Button
                     v-if="changeable"
                     v-tooltip="t('labels.back')"
+                    icon="pi pi-arrow-left"
                     :aria-label="t('labels.back')"
-                    class="pi pi-arrow-left ml-2"
+                    class="ml-2"
                     severity="secondary"
                     type="reset"
                     outlined

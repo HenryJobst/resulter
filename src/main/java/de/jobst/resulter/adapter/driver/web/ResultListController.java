@@ -3,7 +3,6 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatsDto;
-import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
@@ -23,15 +22,12 @@ import java.util.Objects;
 @Slf4j
 public class ResultListController {
 
-    private final EventService eventService;
     private final ResultListService resultListService;
     private final CertificateService certificateService;
 
     @Autowired
-    public ResultListController(EventService eventService,
-                                ResultListService resultListService,
+    public ResultListController(ResultListService resultListService,
                                 CertificateService certificateService) {
-        this.eventService = eventService;
         this.resultListService = resultListService;
         this.certificateService = certificateService;
     }
@@ -77,7 +73,8 @@ public class ResultListController {
     @GetMapping("/result_list/{id}/cup_score_lists")
     public ResponseEntity<List<CupScoreListDto>> getCupScoreLists(@PathVariable Long id) {
         try {
-            List<CupScoreListDto> cupScoreLists = resultListService.getCupScoreLists(ResultListId.of(id));
+            List<CupScoreListDto> cupScoreLists =
+                resultListService.getCupScoreLists(ResultListId.of(id)).stream().map(CupScoreListDto::from).toList();
             return ResponseEntity.ok(cupScoreLists);
         } catch (IllegalArgumentException e) {
             logError(e);

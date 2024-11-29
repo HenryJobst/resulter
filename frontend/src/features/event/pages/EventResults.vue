@@ -2,7 +2,7 @@
 import { useQueries, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { type Locale, useI18n } from 'vue-i18n'
 import type { TreeNode } from 'primevue/treenode'
-import { computed, type Ref } from 'vue'
+import { type Ref, computed } from 'vue'
 import Tree from 'primevue/tree'
 import Button from 'primevue/button'
 import Panel from 'primevue/panel'
@@ -41,7 +41,7 @@ const eventQuery = useQuery({
 })
 
 const event = computed(() => {
-    return eventQuery.data.value?.content.find((e) => e.id === resultList0.value?.eventId)
+    return eventQuery.data.value?.content.find(e => e.id === resultList0.value?.eventId)
 })
 
 const eventId = computed(() => {
@@ -68,7 +68,7 @@ const raceQuery = useQuery({
 const cupPointsQueries = useQueries({
     queries: computed(() => {
         return (
-            eventResultsQuery.data.value?.resultLists?.map((resultList) => ({
+            eventResultsQuery.data.value?.resultLists?.map(resultList => ({
                 queryKey: ['cupScoreLists', resultList.id],
                 queryFn: () => EventService.getCupScores(resultList.id, t),
                 enabled: !!resultList, // Nur aktivieren, wenn `resultList` vorhanden ist
@@ -77,8 +77,8 @@ const cupPointsQueries = useQueries({
     }),
 })
 
-const cupPointsData = computed(() => cupPointsQueries.value.map((query) => query.data))
-const cupPointsLoading = computed(() => cupPointsQueries.value.some((query) => query.isLoading))
+const cupPointsData = computed(() => cupPointsQueries.value.map(query => query.data))
+const cupPointsLoading = computed(() => cupPointsQueries.value.some(query => query.isLoading))
 
 const queryClient = useQueryClient()
 
@@ -94,18 +94,19 @@ function formatCreateTime(date: Date | string, locale: Ref<Locale>) {
 }
 
 function getResultListLabel(resultList: ResultList) {
-    let name = raceQuery.data.value?.content.find((r) => r.id === resultList.raceId)?.name
+    let name = raceQuery.data.value?.content.find(r => r.id === resultList.raceId)?.name
     if (!name) {
         const raceNumber = resultList.classResults
-            .flatMap((c) => c.personResults)
-            .flatMap((pr) => pr.raceNumber)
-            .reduce((a) => a)
+            .flatMap(c => c.personResults)
+            .flatMap(pr => pr.raceNumber)
+            .reduce(a => a)
             .toString()
         if (raceNumber !== '0') {
             name = t('labels.race_number', {
                 raceNumber,
             })
-        } else {
+        }
+        else {
             name = t('labels.overall')
         }
     }
@@ -118,18 +119,19 @@ function createResultListTreeNodes(
     resultLists: ResultList[] | undefined,
     cupScoreLists: (CupScoreList[] | null | undefined)[],
 ): TreeNode[] {
-    if (!resultLists) return []
+    if (!resultLists)
+        return []
 
     const treeNodes: TreeNode[] = []
     for (let i = 0; i < resultLists.length; i++) {
         const resultList = resultLists[i]
-        const certificateEnabled: boolean =
-            (eventQuery.data.value?.content.find((e) => e.id === resultList.eventId)?.certificate ??
-                false) !== false &&
-            (resultLists.length === 1 || i === 0)
-        const resultListCupScoreLists = cupScoreLists ? cupScoreLists[0] : undefined
+        const certificateEnabled: boolean
+            = (eventQuery.data.value?.content.find(e => e.id === resultList.eventId)?.certificate
+            ?? false) !== false
+            && (resultLists.length === 1 || i === 0)
+        const resultListCupScoreLists = cupScoreLists ? cupScoreLists[i] : undefined
         const resultListCompleteCupScoreLists = resultListCupScoreLists
-            ? resultListCupScoreLists.filter((x) => x.status === 'COMPLETE')
+            ? resultListCupScoreLists.filter(x => x.status === 'COMPLETE')
             : undefined
         treeNodes.push({
             key: resultList.id.toString(),
@@ -194,7 +196,7 @@ function filterCupScoresByClassResult(
                 cupScores: filteredCupScores,
             }
         })
-        .filter((cupScoreList) => cupScoreList.cupScores.length > 0) // Entferne Einträge ohne passende CupScores
+        .filter(cupScoreList => cupScoreList.cupScores.length > 0) // Entferne Einträge ohne passende CupScores
 }
 
 function createClassResultTreeNodes(
@@ -203,7 +205,8 @@ function createClassResultTreeNodes(
     certificateEnabled: boolean | undefined,
     cupScoreLists: CupScoreList[] | undefined,
 ): TreeNode[] {
-    if (!classResults) return []
+    if (!classResults)
+        return []
 
     return classResults.map(
         (classResult): TreeNode => ({
@@ -239,28 +242,31 @@ const treeNodes = computed(() => {
 
 function findCourse(slotProps: any) {
     if (slotProps.courseId && courseQuery.data.value)
-        return courseQuery.data.value.content.find((c) => c.id === slotProps.courseId)
+        return courseQuery.data.value.content.find(c => c.id === slotProps.courseId)
 
     return null
 }
 
 function courseLengthColumn(slotProps: any): string {
     const course = findCourse(slotProps)
-    if (course) return (course.length / 1000.0).toFixed(1)
+    if (course)
+        return (course.length / 1000.0).toFixed(1)
 
     return ''
 }
 
 function courseClimbColumn(slotProps: any): string {
     const course = findCourse(slotProps)
-    if (course && course.climb != null) return course.climb.toFixed(0)
+    if (course && course.climb != null)
+        return course.climb.toFixed(0)
 
     return ''
 }
 
 function courseControlsColumn(slotProps: any): string {
     const course = findCourse(slotProps)
-    if (course) return course.controls.toFixed(0)
+    if (course)
+        return course.controls.toFixed(0)
 
     return ''
 }
@@ -279,7 +285,8 @@ function navigateToList() {
 <template>
     <Button
         v-tooltip="t('labels.back')"
-        class="pi pi-arrow-left ml-2"
+        icon="pi pi-arrow-left"
+        class="ml-2"
         :aria-label="t('labels.back')"
         severity="secondary"
         type="reset"
@@ -295,7 +302,9 @@ function navigateToList() {
     </span>
     <div v-else-if="eventResultsQuery.data" class="card flex justify-content-start">
         <div class="flex flex-col flex-grow w-full">
-            <h1 class="mt-3 font-extrabold">{{ event?.name }} - {{ t('labels.results', 2) }}</h1>
+            <h1 class="mt-3 font-extrabold">
+                {{ event?.name }} - {{ t('labels.results', 2) }}
+            </h1>
             <Tree :value="treeNodes" class="flex flex-col w-full">
                 <template #default="slotProps">
                     <div class="flex flex-row justify-content-between w-full">
@@ -304,8 +313,10 @@ function navigateToList() {
                         </div>
                         <Button
                             v-if="authStore.isAdmin"
+                            v-tooltip="t('labels.calculate')"
+                            icon="pi pi-calculator"
                             class="ml-5"
-                            :label="t('labels.calculate')"
+                            :aria-label="t('labels.calculate')"
                             outlined
                             raised
                             rounded

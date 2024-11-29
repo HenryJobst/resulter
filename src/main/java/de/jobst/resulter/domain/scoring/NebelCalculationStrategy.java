@@ -24,21 +24,18 @@ public class NebelCalculationStrategy implements CupTypeCalculationStrategy {
 
     @Override
     public boolean valid(PersonResult personResult) {
-        if (personResult.organisationId() != null && (personResult.organisationId().value () == 131)) {
-            var org = organisationById.get(personResult.organisationId());
-            log.debug(org.toString());
-        }
-        Boolean result = Optional.ofNullable(organisationById.get(personResult.organisationId()))
-            .map(v -> {
-                boolean contains = organisationsToSkip.contains(v.getShortName().value());
-                return !contains;
-            })
+        return Optional.ofNullable(organisationById.get(personResult.organisationId()))
+            .map(org -> isNotSkippedOrganisation(org.getShortName().value()))
             .orElse(false);
-        return result;
+    }
+
+    private boolean isNotSkippedOrganisation(String organisationShortName) {
+        return organisationsToSkip.stream().noneMatch(organisationShortName::contains);
     }
 
     @Override
-    public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults,
+    public List<CupScore> calculate(Cup cup,
+                                    List<PersonRaceResult> personRaceResults,
                                     Map<PersonId, OrganisationId> organisationByPerson) {
         if (personRaceResults.isEmpty()) {
             return List.of();
@@ -52,11 +49,16 @@ public class NebelCalculationStrategy implements CupTypeCalculationStrategy {
                 .isPresent())
             .toList();
 
-        return personRaceResultsWithScore.stream().map(x -> calculateScore(x, fastestTime)).toList();
+        return personRaceResultsWithScore.stream()
+            .map(x -> calculateScore(x, organisationByPerson.get(x.getPersonId()), fastestTime))
+            .toList();
     }
 
-    private CupScore calculateScore(PersonRaceResult personRaceResult, PunchTime fastestTime) {
+    private CupScore calculateScore(PersonRaceResult personRaceResult,
+                                    OrganisationId organisationId,
+                                    PunchTime fastestTime) {
         return CupScore.of(personRaceResult.getPersonId(),
+            organisationId,
             personRaceResult.getClassResultShortName(),
             NORCalculationStrategy.calculateNorPoints(fastestTime.value(), personRaceResult.getRuntime().value()));
     }

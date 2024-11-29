@@ -66,6 +66,11 @@ public class InMemoryEventRepository implements EventRepository {
         return new PageImpl<>(new ArrayList<>(events.values()), pageable, events.size());
     }
 
+    @Override
+    public List<Event> findAllById(Collection<EventId> eventIds) {
+        return eventIds.stream().map(x -> events.getOrDefault(x, null)).filter(Objects::nonNull).toList();
+    }
+
     @SuppressWarnings("unused")
     public List<Event> savedEvents() {
         return savedEvents;

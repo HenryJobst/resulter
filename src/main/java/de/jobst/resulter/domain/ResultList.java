@@ -86,7 +86,7 @@ public class ResultList implements Comparable<ResultList> {
         CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
         switch (cup.getType()) {
             case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy(organisationById);
-            case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy();
+            case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy(organisationById);
             case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy(organisationById);
             case CupType.ADD -> cupTypeCalculationStrategy = new AddCalculationStrategy();
         }
@@ -100,7 +100,7 @@ public class ResultList implements Comparable<ResultList> {
 
     private boolean invalid(Cup cup) {
         // event is not in given cup
-        return cup.getEventIds().stream().filter(it -> it.equals(this.eventId)).findAny().isEmpty();
+        return cup.getEvents().stream().filter(it -> it.getId().equals(this.eventId)).findAny().isEmpty();
     }
 
     private List<CupScore> calculate(Cup cup, CupTypeCalculationStrategy cupTypeCalculationStrategy) {

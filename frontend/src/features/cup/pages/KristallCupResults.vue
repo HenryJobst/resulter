@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
+import type { RaceCupScore } from '@/features/cup/model/race_cup_score'
 
 defineProps<{
     cupName: string
@@ -8,7 +9,7 @@ defineProps<{
     overallScores: OrganisationScore[]
 }>()
 
-function findOrganisationScore(org: any, raceCupScores: any): string {
+function findOrganisationScore(org: OrganisationScore, raceCupScores: RaceCupScore): string {
     const entry = raceCupScores.organisationScores.find(
         os => os.organisation.id === org.organisation.id,
     )
@@ -24,24 +25,25 @@ function findOrganisationScore(org: any, raceCupScores: any): string {
                 <thead>
                     <tr>
                         <th id="cup_name">
-                            <nobr>{{ cupName }}</nobr>
+                            <span class="nowrap">{{ cupName }}</span>
                         </th>
                         <th id="date_time">
-                            <nobr>{{}}</nobr>
+                            <span class="nowrap">{{}}</span>
                         </th>
                     </tr>
                     <tr>
                         <th id="event_name">
-                            <nobr>Vereinswertung</nobr>
+                            <span class="nowrap">Vereinswertung</span>
                         </th>
-                        <th id="creation_text">
-                            <nobr />
-                        </th>
+                        <th id="creation_text" />
                     </tr>
                 </thead>
             </table>
         </div>
         <div id="club_results">
+            <section v-if="!overallScores.length">
+                <p>Noch keine Punkte vorhanden.</p>
+            </section>
             <section v-if="overallScores.length" class="">
                 <table>
                     <thead>

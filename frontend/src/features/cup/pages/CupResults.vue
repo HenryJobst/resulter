@@ -10,6 +10,7 @@ import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import KristallCupResults from '@/features/cup/pages/KristallCupResults.vue'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
+import FogCupResults from '@/features/cup/pages/FogCupResults.vue'
 
 const props = defineProps<{ id: string }>()
 
@@ -80,6 +81,12 @@ const overallOrganisationScores: Ref<OrganisationScore[]> = computed(
     <div v-else-if="cupResultsQuery.data" class="card flex justify-content-start">
         <KristallCupResults
             v-if="cupData.type.id === 'KRISTALL'"
+            :cup-name="cupData.name"
+            :overall-scores="overallOrganisationScores"
+            :event-races-cup-scores="eventRacesCupScores"
+        />
+        <FogCupResults
+            v-if="cupData.type.id === 'NEBEL'"
             :cup-name="cupData.name"
             :overall-scores="overallOrganisationScores"
             :event-races-cup-scores="eventRacesCupScores"

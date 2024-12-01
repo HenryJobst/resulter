@@ -9,6 +9,6 @@ public record EventRacesCupScoreDto(EventDto event, List<RaceCupScoreDto> raceCu
     public static EventRacesCupScoreDto from(EventRacesCupScore eventRacesCupScore) {
         return new EventRacesCupScoreDto(
             EventDto.from(eventRacesCupScore.event()),
-            eventRacesCupScore.eventRaces().stream().map(x -> RaceCupScoreDto.from(x)).toList());
+            eventRacesCupScore.eventRaces().stream().map(RaceCupScoreDto::from).toList());
     }
 }

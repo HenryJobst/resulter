@@ -8,8 +8,6 @@ import java.util.Optional;
 
 public interface ResultListRepository {
 
-    Optional<ResultList> findById(ResultListId resultListId);
-
     ResultList save(ResultList resultList);
 
     List<ResultList> findAll();
@@ -22,7 +20,7 @@ public interface ResultListRepository {
 
     Collection<ResultList> findByEventId(EventId id);
 
-    ResultList findByResultListId(ResultListId resultListId);
+    Optional<ResultList> findById(ResultListId resultListId);
 
     ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
                                                                     ClassResultShortName classResultShortName,

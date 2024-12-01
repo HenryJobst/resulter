@@ -38,16 +38,6 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<ResultList> findById(ResultListId resultListId) {
-        Optional<ResultListDbo> resultListEntity = resultListJdbcRepository.findById(resultListId.value());
-        return resultListEntity.isPresent() ?
-               ResultListDbo.asResultLists(List.of(resultListEntity.orElse(null))).stream().findFirst() :
-               Optional.empty();
-    }
-
-
-    @Override
     @Transactional
     public ResultList findOrCreate(ResultList resultList) {
         Optional<ResultListId> resultListId =
@@ -81,13 +71,13 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
-    public ResultList findByResultListId(ResultListId resultListId) {
+    public Optional<ResultList> findById(ResultListId resultListId) {
         Collection<PersonRaceResultJdbcDto> personRaceResultJdbcDtos =
             resultListJdbcRepository.findPersonRaceResultsByResultListId(resultListId.value());
         if (personRaceResultJdbcDtos.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        return PersonRaceResultJdbcDto.asResultLists(personRaceResultJdbcDtos).stream().findFirst().orElse(null);
+        return Optional.ofNullable(PersonRaceResultJdbcDto.asResultLists(personRaceResultJdbcDtos).stream().findFirst().orElse(null));
     }
 
     @Override

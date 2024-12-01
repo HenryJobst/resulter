@@ -15,7 +15,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.time.Instant;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -37,11 +37,11 @@ public class EventCertificateStatDbo {
     private AggregateReference<PersonDbo, Long> person;
 
     @Column("generated")
-    private Instant generated;
+    private Timestamp generated;
 
     public EventCertificateStatDbo(AggregateReference<EventDbo, Long> event,
                                    AggregateReference<PersonDbo, Long> person,
-                                   Instant generated) {
+                                   Timestamp generated) {
         this.id = null;
         this.event = event;
         this.person = person;
@@ -56,12 +56,12 @@ public class EventCertificateStatDbo {
                 dboResolvers.getEventCertificateStatDboResolver().findDboById(eventCertificateStat.getId());
             eventCertificateStatDbo.setEvent(AggregateReference.to(eventCertificateStat.getEvent().getId().value()));
             eventCertificateStatDbo.setPerson(AggregateReference.to(eventCertificateStat.getPerson().getId().value()));
-            eventCertificateStatDbo.setGenerated(eventCertificateStat.getGenerated());
+            eventCertificateStatDbo.setGenerated(Timestamp.from(eventCertificateStat.getGenerated()));
         } else {
             eventCertificateStatDbo =
                 new EventCertificateStatDbo(AggregateReference.to(eventCertificateStat.getEvent().getId().value()),
                     AggregateReference.to(eventCertificateStat.getPerson().getId().value()),
-                    eventCertificateStat.getGenerated());
+                    Timestamp.from(eventCertificateStat.getGenerated()));
         }
 
         return eventCertificateStatDbo;
@@ -76,7 +76,7 @@ public class EventCertificateStatDbo {
             .map(it -> EventCertificateStat.of(it.id,
                 eventResolver.apply(it.event.getId()),
                 personResolver.apply(it.person.getId()),
-                it.generated))
+                it.generated.toInstant()))
             .toList();
     }
 

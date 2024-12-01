@@ -34,11 +34,6 @@ public class InMemoryResultListRepository implements ResultListRepository {
     }
 
     @Override
-    public Optional<ResultList> findById(ResultListId ResultListId) {
-        return Optional.ofNullable(resultLists.get(ResultListId));
-    }
-
-    @Override
     public ResultList findOrCreate(ResultList resultList) {
         return resultLists.values()
             .stream()
@@ -64,12 +59,11 @@ public class InMemoryResultListRepository implements ResultListRepository {
     }
 
     @Override
-    public ResultList findByResultListId(ResultListId resultListId) {
+    public Optional<ResultList> findById(ResultListId resultListId) {
         return resultLists.values()
             .stream()
             .filter(it -> Objects.equals(it.getId(), resultListId))
-            .findAny()
-            .orElse(null);
+            .findAny();
     }
 
     @Override

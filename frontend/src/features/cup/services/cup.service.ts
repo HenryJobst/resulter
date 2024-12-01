@@ -1,9 +1,9 @@
 import axiosInstance from '@/features/keycloak/services/api'
 import type { Cup } from '@/features/cup/model/cup'
 import { handleApiError } from '@/utils/HandleError'
-import type { CupResults } from '@/features/cup/model/cup_results'
 import type { CupType } from '@/features/cup/model/cuptype'
 import { GenericService } from '@/features/generic/services/GenericService'
+import type { CupDetailed } from '@/features/cup/model/cup_detailed'
 
 const cupUrl: string = '/cup'
 const cupTypeUrl: string = '/cup_types'
@@ -23,7 +23,7 @@ export class CupService extends GenericService<Cup> {
             })
     }
 
-    static async getResultsById(id: string, t: (key: string) => string): Promise<CupResults> {
+    static async getResultsById(id: string, t: (key: string) => string): Promise<CupDetailed> {
         return await axiosInstance
             .get(`${cupUrl}/${id}/results`)
             .then(response => response.data)
@@ -33,7 +33,7 @@ export class CupService extends GenericService<Cup> {
             })
     }
 
-    static async calculate(cup_id: number, t: (key: string) => string) {
+    static async calculate(cup_id: string, t: (key: string) => string) {
         return axiosInstance
             .put(`${cupUrl}/${cup_id}/calculate`)
             .then(response => response.data)

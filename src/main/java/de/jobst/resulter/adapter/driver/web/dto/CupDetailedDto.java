@@ -8,7 +8,7 @@ import java.util.List;
 
 @Slf4j
 public record CupDetailedDto(Long id, String name, CupTypeDto type, List<EventKeyDto> events,
-                             List<EventRacesCupScoreDto> eventRacesCupScoreDto,
+                             List<EventRacesCupScoreDto> eventRacesCupScores,
                              List<OrganisationScoreDto> overallOrganisationScores) {
 
     static public CupDetailedDto from(CupDetailed cup) {

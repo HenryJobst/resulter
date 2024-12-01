@@ -4,7 +4,7 @@ import de.jobst.resulter.domain.RaceCupScore;
 
 import java.util.List;
 
-public record RaceCupScoreDto(RaceDto raceDto, List<OrganisationScoreDto> organisationScoreDtoList) {
+public record RaceCupScoreDto(RaceDto race, List<OrganisationScoreDto> organisationScores) {
 
     public static RaceCupScoreDto from(RaceCupScore raceCupScore) {
         return new RaceCupScoreDto(RaceDto.from(raceCupScore.race()),

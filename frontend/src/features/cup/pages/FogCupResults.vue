@@ -108,13 +108,13 @@ function person(personId: number) {
                             v-for="personWithScore in org.personWithScores.filter(
                                 (p) => p.score > 0,
                             )"
-                            :key="personWithScore.person"
+                            :key="personWithScore.personId"
                         >
                             <td class="pl">
                                 {{ personWithScore.classShortName }}
                             </td>
                             <td class="cl">
-                                {{ person(personWithScore.person) }}
+                                {{ person(personWithScore.personId) }}
                             </td>
                             <td class="pt">
                                 {{ personWithScore.score }}

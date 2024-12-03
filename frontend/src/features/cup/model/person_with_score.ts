@@ -1,5 +1,5 @@
 export interface PersonWithScore {
-    person: number
+    personId: number
     score: number
     classShortName: string
 }

@@ -17,8 +17,12 @@ function getSortParam(field: string | ((item: any) => string), order: number | n
 
 function createUrlSearchParams(tableSettings: TableSettings) {
     const urlSearchParams = new URLSearchParams()
-    if (tableSettings.sortField)
-        urlSearchParams.append('sort', getSortParam(tableSettings.sortField, tableSettings.sortOrder))
+    if (tableSettings.sortField) {
+        urlSearchParams.append(
+            'sort',
+            getSortParam(tableSettings.sortField, tableSettings.sortOrder),
+        )
+    }
 
     if (tableSettings.nullSortOrder !== 1)
         urlSearchParams.append('nullSortOrder', tableSettings.nullSortOrder.toString())
@@ -28,9 +32,9 @@ function createUrlSearchParams(tableSettings: TableSettings) {
 
     if (tableSettings.multiSortMeta) {
         const sortParams = tableSettings.multiSortMeta
-            .filter(meta => meta.order !== undefined && meta.order !== null && meta.order !== 0) // Filtere Einträge ohne Sortierung
+            .filter(meta => meta.field != null && meta.order != null && meta.order !== 0) // Filtere Einträge ohne Sortierung
             .map((meta) => {
-                return getSortParam(meta.field, meta.order)
+                return getSortParam(meta.field!, meta.order)
             })
         sortParams.forEach((s) => {
             urlSearchParams.append('sort', s)
@@ -47,7 +51,7 @@ function createUrlSearchParams(tableSettings: TableSettings) {
     if (tableSettings.filters) {
         let filterParam: any = null
         Object.keys(tableSettings.filters).forEach((key) => {
-            const filter = tableSettings.filters[key] as DataTableFilterMetaData
+            const filter = tableSettings.filters![key] as DataTableFilterMetaData
             if (filter.value) {
                 if (!filterParam)
                     filterParam = sfEqual('1', '1')

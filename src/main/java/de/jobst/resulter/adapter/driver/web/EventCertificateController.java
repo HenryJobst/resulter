@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -59,7 +58,7 @@ public class EventCertificateController {
                 eventCertificates.getTotalElements()));
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -78,14 +77,14 @@ public class EventCertificateController {
             if (null != eventCertificate) {
                 return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -96,10 +95,10 @@ public class EventCertificateController {
         try {
             Optional<EventCertificate> eventCertificate = eventCertificateService.findById(EventCertificateId.of(id));
             return eventCertificate.map(value -> ResponseEntity.ok(EventCertificateDto.from(value,
-                mediaFileThumbnailsPath))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                mediaFileThumbnailsPath))).orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -120,14 +119,14 @@ public class EventCertificateController {
             if (null != eventCertificate) {
                 return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -139,14 +138,14 @@ public class EventCertificateController {
             if (success) {
                 return ResponseEntity.ok(Boolean.TRUE);
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

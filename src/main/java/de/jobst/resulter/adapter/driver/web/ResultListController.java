@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -48,10 +47,10 @@ public class ResultListController {
             return ResponseEntity.ok(new EventCertificateStatsDto(eventCertificateStatDtos));
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -63,10 +62,10 @@ public class ResultListController {
             return ResponseEntity.ok(cupScoreLists);
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -78,10 +77,10 @@ public class ResultListController {
             return ResponseEntity.ok(cupScoreLists);
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -101,15 +100,15 @@ public class ResultListController {
                     .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
                     .body(certificate.resource());
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
 
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -118,13 +117,13 @@ public class ResultListController {
     public ResponseEntity<Void> deleteEventCertificateStat(@PathVariable Long id) {
         try {
             resultListService.deleteEventCertificateStat(EventCertificateStatId.of(id));
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -134,7 +133,7 @@ public class ResultListController {
             return ResponseEntity.ok(certificateService.getCertificateSchema());
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

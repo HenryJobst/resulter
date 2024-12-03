@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +57,7 @@ public class EventController {
                 events.getTotalElements()));
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -69,7 +68,7 @@ public class EventController {
             return ResponseEntity.ok(eventStatus);
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -87,14 +86,14 @@ public class EventController {
             if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -104,10 +103,10 @@ public class EventController {
         try {
             Optional<Event> event = eventService.findById(EventId.of(id));
             return event.map(value -> ResponseEntity.ok(EventDto.from(value)))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -129,14 +128,14 @@ public class EventController {
             if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -148,14 +147,14 @@ public class EventController {
             if (success) {
                 return ResponseEntity.ok(Boolean.TRUE);
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -165,11 +164,11 @@ public class EventController {
             Optional<Event> event = eventService.findById(EventId.of(id));
 
             return event.map(value -> ResponseEntity.ok(EventResultsDto.from(value, resultListService)))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> ResponseEntity.notFound().build());
 
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -189,15 +188,15 @@ public class EventController {
                     .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
                     .body(certificate.resource());
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
 
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -209,14 +208,14 @@ public class EventController {
             if (null != event) {
                 return ResponseEntity.ok(EventDto.from(event));
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

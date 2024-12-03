@@ -54,7 +54,7 @@ public class PersonController {
                 persons.getTotalElements()));
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -63,10 +63,10 @@ public class PersonController {
         try {
             Optional<Person> person = personService.findById(PersonId.of(id));
             return person.map(value -> ResponseEntity.ok(PersonDto.from(value)))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -80,17 +80,17 @@ public class PersonController {
             if (null != person) {
                 return ResponseEntity.ok(PersonDto.from(person));
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (DataIntegrityViolationException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -101,7 +101,7 @@ public class PersonController {
             return ResponseEntity.ok(gender);
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

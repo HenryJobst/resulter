@@ -37,7 +37,7 @@ public class CountryController {
             return ResponseEntity.ok(countries.stream().map(CountryDto::from).toList());
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -46,10 +46,10 @@ public class CountryController {
         try {
             Optional<Country> country = countryService.findById(CountryId.of(id));
             return country.map(value -> ResponseEntity.ok(CountryDto.from(value)))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -62,17 +62,17 @@ public class CountryController {
             if (null != country) {
                 return ResponseEntity.ok(CountryDto.from(country));
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (DataIntegrityViolationException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -84,17 +84,17 @@ public class CountryController {
             if (null != country) {
                 return ResponseEntity.ok(CountryDto.from(country));
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.notFound().build();
             }
         } catch (DataIntegrityViolationException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
         } catch (IllegalArgumentException e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logError(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 

@@ -3,17 +3,17 @@ package de.jobst.resulter.domain.util;
 import de.jobst.resulter.domain.PersonId;
 import lombok.Getter;
 
-import java.util.Set;
+import java.text.MessageFormat;
 
 public class ClassResultShortNameScoreSummary {
     @Getter
     private double score; // Die summierte Punktzahl
     @Getter
-    private final Set<PersonId> ids; // Gesammelte IDs
+    private final PersonId id;
 
-    public ClassResultShortNameScoreSummary(double score, Set<PersonId> ids) {
+    public ClassResultShortNameScoreSummary(double score, PersonId id) {
         this.score = score;
-        this.ids = ids;
+        this.id = id;
     }
 
     public void sumScore(double additionalScore) {
@@ -22,7 +22,7 @@ public class ClassResultShortNameScoreSummary {
 
     @Override
     public String toString() {
-        return "Score: " + score + ", IDs: " + ids;
+        return MessageFormat.format("Score: {0}, ID: {1}", score, id);
     }
 }
 

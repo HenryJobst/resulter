@@ -1,13 +1,25 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { RaceCupScore } from '@/features/cup/model/race_cup_score'
+import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 
-defineProps<{
+const props = defineProps<{
     cupName: string
     eventRacesCupScores: EventRacesCupScore[]
     overallScores: OrganisationScore[]
 }>()
+
+const allClassShortNames = computed(() => {
+    // Flache Liste aller `classShortName` aus allen `personWithScores` extrahieren
+    const classNames = props.overallScores.flatMap(orgScore =>
+        orgScore.personWithScores.map(person => person.classShortName),
+    )
+
+    // Duplikate entfernen und sortieren
+    return Array.from(new Set(classNames)).sort()
+})
 
 function findOrganisationScore(org: OrganisationScore, raceCupScores: RaceCupScore): string {
     const entry = raceCupScores.organisationScores.find(
@@ -15,6 +27,13 @@ function findOrganisationScore(org: OrganisationScore, raceCupScores: RaceCupSco
     )
     const score = entry?.score ?? 0.0
     return score !== 0.0 ? score.toString() : ''
+}
+
+function getTotalScoreByClass(scores: PersonWithScore[], targetClassShortName: string): string {
+    const score = scores
+        .filter(person => person.classShortName === targetClassShortName) // Filtere nach classShortName
+        .reduce((total, person) => total + person.score, 0)
+    return score > 0 ? score.toString() : ''
 }
 </script>
 
@@ -54,12 +73,8 @@ function findOrganisationScore(org: OrganisationScore, raceCupScores: RaceCupSco
                             <th class="sum">
                                 Gesamt
                             </th>
-                            <th
-                                v-for="cls in overallScores[0].personWithScores"
-                                :key="cls.classShortName"
-                                class="cl"
-                            >
-                                {{ cls.classShortName }}
+                            <th v-for="csn in allClassShortNames" :key="csn" class="cl">
+                                {{ csn }}
                             </th>
                             <th
                                 v-for="r in eventRacesCupScores[0].raceCupScores"
@@ -78,12 +93,8 @@ function findOrganisationScore(org: OrganisationScore, raceCupScores: RaceCupSco
                             <td class="sum">
                                 {{ org.score }}
                             </td>
-                            <td
-                                v-for="cls in org.personWithScores"
-                                :key="cls.classShortName"
-                                class="cl"
-                            >
-                                {{ cls.score !== 0 ? cls.score.toString() : '' }}
+                            <td v-for="csn in allClassShortNames" :key="csn" class="cl">
+                                {{ getTotalScoreByClass(org.personWithScores, csn) }}
                             </td>
                             <td
                                 v-for="r in eventRacesCupScores[0].raceCupScores"

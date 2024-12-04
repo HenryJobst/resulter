@@ -1,7 +1,6 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ClassResultShortNameScoreSummary;
-import de.jobst.resulter.domain.util.CustomCollectors;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
 
@@ -41,25 +40,33 @@ public class CupDetailed extends Cup {
             .collect(Collectors.toUnmodifiableSet());
 
         this.overallOrganisationScores = organisationWithScore.entrySet().stream().map(entry -> {
-            Map<ClassResultShortName, ClassResultShortNameScoreSummary> groupedScores = organisationScores.stream()
+
+            Map<ClassResultShortName, List<ClassResultShortNameScoreSummary>> groupedScores =
+                organisationScores.stream()
                 .filter(x -> x.organisation().equals(entry.getKey()))
                 .flatMap(x -> x.personWithScores().stream())
-                .collect(CustomCollectors.groupingByClassResultShortNameAndScoreSumming());
+                .collect(Collectors.toMap(
+                    PersonWithScore::classResultShortName,
+                    x -> new ArrayList<>(List.of(new ClassResultShortNameScoreSummary(x.score(), x.id()))),
+                    (existing, merging) -> {
+                        existing.addAll(merging);
+                        return existing;
+                    }
+                    ));
 
-            Map<ClassResultShortName, ClassResultShortNameScoreSummary> completeScores = allClasses.stream()
+            Map<ClassResultShortName, List<ClassResultShortNameScoreSummary>> completeScores = allClasses.stream()
                 .collect(Collectors.toMap(ClassResultShortName::of,
-                    classResultShortName -> new ClassResultShortNameScoreSummary(0.0, Set.of())));
+                    classResultShortName -> List.of(new ClassResultShortNameScoreSummary(0.0, PersonId.empty()))));
 
             completeScores.putAll(groupedScores);
 
             List<PersonWithScore> personWithScores = completeScores.entrySet()
                 .stream()
-                .flatMap(e -> e.getValue()
-                    .getIds()
-                    .stream()
-                    .map(personId -> new PersonWithScore(personId, e.getValue().getScore(), e.getKey())))
-                .sorted(Comparator.comparing(PersonWithScore::score).reversed().thenComparing(
-                    PersonWithScore::classResultShortName))
+                .flatMap(e -> e.getValue().stream()
+                    .map(x -> new PersonWithScore(x.getId(), x.getScore(), e.getKey())))
+                .sorted(Comparator.comparing(PersonWithScore::score)
+                    .reversed()
+                    .thenComparing(PersonWithScore::classResultShortName))
                 .toList();
 
             return new OrganisationScore(entry.getKey(), entry.getValue(), personWithScores);

@@ -35,6 +35,32 @@ function getTotalScoreByClass(scores: PersonWithScore[], targetClassShortName: s
         .reduce((total, person) => total + person.score, 0)
     return score > 0 ? score.toString() : ''
 }
+
+function calculateRanks(scores: OrganisationScore[]): { org: OrganisationScore, rank: number }[] {
+    const sortedScores = [...scores.filter(org => org.organisation.shortName !== 'ohne Verein')].sort((a, b) => {
+        if (b.score !== a.score) {
+            return b.score - a.score
+        }
+        return a.organisation.shortName.localeCompare(b.organisation.shortName)
+    })
+
+    let rank = 0
+    let previousScore: number | undefined
+    let previousRank = 0
+
+    return sortedScores.map((org, index) => {
+        if (org.score !== previousScore) {
+            rank = index + 1
+            previousRank = rank
+        }
+        else {
+            rank = previousRank
+        }
+        previousScore = org.score
+
+        return { org, rank }
+    })
+}
 </script>
 
 <template>
@@ -70,36 +96,36 @@ function getTotalScoreByClass(scores: PersonWithScore[], targetClassShortName: s
                             <th class="top">
                                 Verein/Klassen
                             </th>
-                            <th class="sum">
+                            <th class="sum with-right-divider">
                                 Gesamt
                             </th>
                             <th v-for="csn in allClassShortNames" :key="csn" class="cl">
                                 {{ csn }}
                             </th>
                             <th
-                                v-for="r in eventRacesCupScores[0].raceCupScores"
+                                v-for="(r, index) in eventRacesCupScores[0].raceCupScores"
                                 :key="r.race.id"
-                                class="ev"
+                                class="ev" :class="[index === 0 ? 'with-left-divider' : '']"
                             >
                                 {{ r.race.name }}
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="org in overallScores" :key="org.organisation.id" class="">
+                        <tr v-for="{ org, rank } in calculateRanks(overallScores)" :key="org.organisation.id" class="">
                             <td class="cb">
-                                {{ org.organisation.shortName }}
+                                {{ `${rank}. ${org.organisation.shortName}` }}
                             </td>
-                            <td class="sum">
+                            <td class="sum with-right-divider">
                                 {{ org.score }}
                             </td>
                             <td v-for="csn in allClassShortNames" :key="csn" class="cl">
                                 {{ getTotalScoreByClass(org.personWithScores, csn) }}
                             </td>
                             <td
-                                v-for="r in eventRacesCupScores[0].raceCupScores"
+                                v-for="(r, index) in eventRacesCupScores[0].raceCupScores"
                                 :key="r.race.id"
-                                class="ev"
+                                class="ev" :class="[index === 0 ? 'with-left-divider' : '']"
                             >
                                 {{ findOrganisationScore(org, r) }}
                             </td>
@@ -201,5 +227,15 @@ div#club_results td.sum,
 td.cl,
 td.ev {
     text-align: center;
+}
+
+.with-left-divider {
+    border-left: 2px solid #ccc !important;
+    padding-left: 8px !important;
+}
+
+.with-right-divider {
+    border-right: 2px solid #ccc !important;
+    padding-right: 8px !important;
 }
 </style>

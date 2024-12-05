@@ -15,10 +15,12 @@ public class JdbcConfigurationDefault {
     @Bean
     public JdbcCustomConversions jdbcCustomConversions() {
         return new JdbcCustomConversions(Arrays.asList(
+            new TimestampToTimestampConverter(),
             new TimestampToLocalDateConverter(),
             new LocalDateToTimestampConverter(),
             new TimestampToOffsetDateTimeConverter(),
-            new OffsetDateTimeToTimestampConverter()));
+            new OffsetDateTimeToTimestampConverter()
+            ));
     }
 
     @Bean

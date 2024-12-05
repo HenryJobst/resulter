@@ -17,6 +17,7 @@ public class JdbcConfigurationForH2 {
     @Bean
     public JdbcCustomConversions jdbcCustomConversions() {
         List<Converter<?, ?>> converterList = new ArrayList<>();
+        converterList.add(new TimestampToTimestampConverter());
         converterList.add(new TimestampToLocalDateConverter());
         converterList.add(new LocalDateToTimestampConverter());
         converterList.add(new TimestampToOffsetDateTimeConverter());

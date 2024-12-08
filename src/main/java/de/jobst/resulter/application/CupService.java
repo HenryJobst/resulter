@@ -31,11 +31,13 @@ public class CupService {
     private final CupScoreListRepository cupScoreListRepository;
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
 
-    public CupService(CupRepository cupRepository, OrganisationRepository organisationRepository,
+    public CupService(CupRepository cupRepository,
+                      OrganisationRepository organisationRepository,
                       OrganisationService organisationService,
                       RaceService raceService,
                       ResultListService resultListService,
-                      EventRepository eventRepository, CupScoreListRepository cupScoreListRepository,
+                      EventRepository eventRepository,
+                      CupScoreListRepository cupScoreListRepository,
                       SpringSecurityAuditorAware springSecurityAuditorAware) {
         this.cupRepository = cupRepository;
         this.organisationRepository = organisationRepository;
@@ -94,7 +96,8 @@ public class CupService {
 
     public Optional<CupDetailed> getCupDetailed(CupId cupId) {
         return Optional.ofNullable(cupRepository.findById(cupId)).map(x -> {
-            List<Event> events = x.orElseThrow().getEvents().stream().toList();
+            Cup cup = x.orElseThrow();
+            List<Event> events = cup.getEvents().stream().toList();
             List<Race> races = raceService.findAllByEvents(events);
             List<EventResultList> eventResultLists = events.stream()
                 .map(event -> new EventResultLists(event, resultListService.findByEventId(event.getId())))
@@ -104,16 +107,155 @@ public class CupService {
             List<List<CupScoreList>> cupScoreLists = eventResultLists.stream()
                 .map(r -> resultListService.getCupScoreLists(r.resultList().getId(), cupId).stream().toList())
                 .toList();
-            var eventRacesCupScore = calculateSums(events, eventResultLists, races, cupScoreLists);
 
-            return new CupDetailed(x.orElseThrow(), eventRacesCupScore);
+            ClassResultAggregationResult classResultAggregationResult =
+                calculateClassResultGroupedSums(events, eventResultLists, races, cupScoreLists);
+            return new CupDetailed(cup,
+                cup.getType().isGroupedByOrganisation() ?
+                calculateOrganisationGroupedSums(events, eventResultLists, races, cupScoreLists) :
+                classResultAggregationResult.eventRacesCupScores(),
+                classResultAggregationResult.aggregatedPersonScores());
         });
     }
 
-    private List<EventRacesCupScore> calculateSums(List<Event> events,
-                                                   List<EventResultList> eventResultLists,
-                                                   List<Race> races,
-                                                   List<List<CupScoreList>> cupScoreLists) {
+    private Map<ClassResultShortName, List<PersonWithScore>> aggregatePersonScoresGroupedByClass(List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores) {
+
+        int racesSize = raceClassResultGroupedCupScores.stream()
+            .map(x -> x.race().getId())
+            .collect(Collectors.toUnmodifiableSet())
+            .size();
+
+        // Top n/2+1 Ergebnisse auswählen
+        int bestOfRacesCount = (racesSize / 2) + 1;
+
+        // Sammeln aller Ergebnisse nach PersonId und ClassResultShortName
+        Map<ClassPersonKey, List<PersonWithScore>> scoresByClassAndPerson = raceClassResultGroupedCupScores.stream()
+            .flatMap(x -> x.classResultScores().stream())
+            .flatMap(x -> x.personWithScores().stream())
+            .collect(Collectors.groupingBy(x -> new ClassPersonKey(x.classResultShortName(), x.id()),
+                Collectors.mapping(x -> x, Collectors.toList())));
+
+        // Aggregieren der besten Ergebnisse
+        Map<ClassResultShortName, List<PersonWithScore>> groupedAndSortedScores = scoresByClassAndPerson.entrySet()
+            .stream()
+            .collect(Collectors.groupingBy(entry -> entry.getKey().classResultShortName(), Collectors.mapping(entry -> {
+                ClassPersonKey key = entry.getKey();
+                List<PersonWithScore> scores = entry.getValue();
+
+                double totalScore = scores.stream()
+                    .sorted(Comparator.comparingDouble(PersonWithScore::score).reversed()) // Absteigend sortieren
+                    .limit(bestOfRacesCount)
+                    .mapToDouble(PersonWithScore::score)
+                    .sum();
+                return new PersonWithScore(key.personId(), totalScore, key.classResultShortName());
+            }, Collectors.toList())));
+
+        groupedAndSortedScores.replaceAll((classShortName, personScores) -> personScores.stream()
+            .sorted(Comparator.comparingDouble(PersonWithScore::score).reversed()
+                .thenComparing(PersonWithScore::id))
+            .toList());
+
+        return groupedAndSortedScores.entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a,
+                LinkedHashMap::new));
+    }
+
+    private List<CupScore> getCupScoresForRace(Race race,
+                                               List<EventResultList> eventResultLists,
+                                               List<List<CupScoreList>> cupScoreLists) {
+        var resultListsForRace = eventResultLists.stream()
+            .filter(resultList -> resultList.resultList().getRaceId().equals(race.getId()))
+            .toList();
+
+        return resultListsForRace.stream()
+            .findFirst()
+            .flatMap(resultList -> findMainCupScoreList(resultList.resultList(), cupScoreLists))
+            .map(CupScoreList::getCupScores)
+            .orElse(List.of()); // Leere Liste, wenn keine CupScores vorhanden sind
+    }
+
+    private ClassResultAggregationResult calculateClassResultGroupedSums(List<Event> events,
+                                                                         List<EventResultList> eventResultLists,
+                                                                         List<Race> races,
+                                                                         List<List<CupScoreList>> cupScoreLists) {
+
+        List<RaceClassResultGroupedCupScore> allClassResultScores = events.stream()
+            .flatMap(event -> races.stream()
+                .filter(race -> race.getEventId().equals(event.getId()))
+                .map(race -> processRaceForClassResults(race, event, eventResultLists, cupScoreLists))
+                .sorted())
+            .toList();
+
+        Map<ClassResultShortName, List<PersonWithScore>> aggregatedPersonScores =
+            aggregatePersonScoresGroupedByClass(allClassResultScores);
+
+        // Erzeuge die EventRacesCupScores für die Detailergebnisse der Races
+        List<EventRacesCupScore> eventRacesCupScores = events.stream()
+            .map(event -> new EventRacesCupScore(event,
+                List.of(),
+                races.stream()
+                    .filter(race -> race.getEventId().equals(event.getId()))
+                    .map(race -> allClassResultScores.stream()
+                        .filter(score -> score.race().equals(race))
+                        .findFirst()
+                        .orElse(new RaceClassResultGroupedCupScore(race, List.of())))
+                    .sorted()
+                    .toList()))
+            .toList();
+
+        return new ClassResultAggregationResult(eventRacesCupScores, aggregatedPersonScores);
+    }
+
+    private RaceClassResultGroupedCupScore processRaceForClassResults(Race race,
+                                                                      Event event,
+                                                                      List<EventResultList> eventResultLists,
+                                                                      List<List<CupScoreList>> cupScoreLists) {
+
+        var resultListsForRace = eventResultLists.stream()
+            .filter(resultList -> resultList.event().getId().equals(event.getId()) &&
+                                  resultList.resultList().getRaceId().equals(race.getId()))
+            .toList();
+
+        var mainCupScoreList = resultListsForRace.stream()
+            .findFirst()
+            .flatMap(resultList -> findMainCupScoreList(resultList.resultList(), cupScoreLists));
+
+        return mainCupScoreList.map(cupScoreList -> {
+            var classResultScores = cupScoreList.getCupScores()
+                .stream()
+                .collect(Collectors.groupingBy(CupScore::classResultShortName))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    var classResultShortName = entry.getKey();
+                    var personWithScores = entry.getValue()
+                        .stream()
+                        .map(score -> new PersonWithScore(score.personId(), score.score(), classResultShortName))
+                        .sorted(Comparator.comparingDouble(PersonWithScore::score).reversed())
+                        .toList();
+
+                    return new ClassResultScores(classResultShortName, personWithScores);
+                })
+                .sorted(Comparator.comparing(ClassResultScores::classResultShortName))
+                .toList();
+
+            return new RaceClassResultGroupedCupScore(race, classResultScores);
+        }).orElseGet(() -> new RaceClassResultGroupedCupScore(race, List.of()));
+    }
+
+    private Optional<CupScoreList> findMainCupScoreList(ResultList resultList, List<List<CupScoreList>> cupScoreLists) {
+        return cupScoreLists.stream()
+            .flatMap(Collection::stream)
+            .filter(cupScoreList -> cupScoreList.getResultListId().equals(resultList.getId()))
+            .findFirst();
+    }
+
+    private List<EventRacesCupScore> calculateOrganisationGroupedSums(List<Event> events,
+                                                                      List<EventResultList> eventResultLists,
+                                                                      List<Race> races,
+                                                                      List<List<CupScoreList>> cupScoreLists) {
         return events.stream().map(event -> {
             var eventRaces = races.stream().filter(race -> race.getEventId().equals(event.getId())).map(race -> {
                 var resultListsForRace = eventResultLists.stream()
@@ -131,7 +273,7 @@ public class CupService {
                     var organisations = organisationService.findAllById(mainResultList.get()
                         .resultList()
                         .getReferencedOrganisationIds());
-                    return new RaceCupScore(race, organisations.stream().map(organisation -> {
+                    return new RaceOrganisationGroupedCupScore(race, organisations.stream().map(organisation -> {
                         List<CupScore> relevantCupScores = cupScoreList.getCupScores()
                             .stream()
                             .filter(cupScore -> cupScore.organisationId().equals(organisation.getId()))
@@ -145,10 +287,10 @@ public class CupService {
                                 .toList());
                     }).sorted().toList());
                 } else {
-                    return new RaceCupScore(race, null);
+                    return new RaceOrganisationGroupedCupScore(race, null);
                 }
             }).sorted().toList();
-            return new EventRacesCupScore(event, eventRaces);
+            return new EventRacesCupScore(event, eventRaces, List.of());
         }).toList();
     }
 
@@ -166,9 +308,9 @@ public class CupService {
             return resultListsByEvent.stream();
         }).toList();
 
-        Set<OrganisationId> referencedOrganisationIds =
-            resultLists.stream().flatMap(resultList -> resultList.getReferencedOrganisationIds().stream()).collect(
-                Collectors.toUnmodifiableSet());
+        Set<OrganisationId> referencedOrganisationIds = resultLists.stream()
+            .flatMap(resultList -> resultList.getReferencedOrganisationIds().stream())
+            .collect(Collectors.toUnmodifiableSet());
 
         Map<OrganisationId, Organisation> organisationById =
             organisationRepository.loadOrganisationTree(referencedOrganisationIds);
@@ -183,4 +325,9 @@ public class CupService {
             .collect(Collectors.toSet()));
         return cupScoreListRepository.saveAll(cupScoreLists).stream().map(CupScoreListDto::from).toList();
     }
+
+    public record ClassResultAggregationResult(List<EventRacesCupScore> eventRacesCupScores,
+                                               Map<ClassResultShortName, List<PersonWithScore>> aggregatedPersonScores) {}
+
+    private record ClassPersonKey(ClassResultShortName classResultShortName, PersonId personId) {}
 }

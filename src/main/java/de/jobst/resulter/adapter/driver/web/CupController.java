@@ -87,8 +87,7 @@ public class CupController {
     @GetMapping("/cup/{id}/results")
     public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
         try {
-            Optional<CupDetailed> cupDetailed = cupService.getCupDetailed(CupId.of(id));
-            return cupDetailed.map(x -> ResponseEntity.ok(CupDetailedDto.from(x)))
+            return cupService.getCupDetailed(CupId.of(id)).map(x -> ResponseEntity.ok(CupDetailedDto.from(x)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             logError(e);

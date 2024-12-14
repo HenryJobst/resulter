@@ -1,19 +1,16 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.domain.ClassResultShortName;
 import de.jobst.resulter.domain.CupDetailed;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 public record CupDetailedDto(Long id, String name, CupTypeDto type, List<EventKeyDto> events,
                              List<EventRacesCupScoreDto> eventRacesCupScores,
                              List<OrganisationScoreDto> overallOrganisationScores,
-                             Map<ClassResultShortName, List<PersonWithScoreDto>> classResultShortNameScores) {
+                             List<AggregatedPersonScoresDto> aggregatedPersonScores) {
 
     static public CupDetailedDto from(CupDetailed cup) {
         return new CupDetailedDto(ObjectUtils.isNotEmpty(cup.getId()) ? cup.getId().value() : 0,
@@ -27,10 +24,10 @@ public record CupDetailedDto(Long id, String name, CupTypeDto type, List<EventKe
                     entry.score(),
                     entry.personWithScores().stream().map(PersonWithScoreDto::from).toList()))
                 .toList(),
-            cup.getClassResultShortNameScores()
-                .entrySet()
+            cup.getAggregatedPersonScoresList()
                 .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                    it -> it.getValue().stream().map(PersonWithScoreDto::from).toList())));
+                .map(it -> new AggregatedPersonScoresDto(it.classResultShortName(),
+                    it.personWithScoreList().stream().map(PersonWithScoreDto::from).toList()))
+                .toList());
     }
 }

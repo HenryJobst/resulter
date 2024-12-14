@@ -7,6 +7,7 @@ import de.jobst.resulter.application.port.CupScoreListRepository;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -108,31 +109,34 @@ public class CupService {
                 .map(r -> resultListService.getCupScoreLists(r.resultList().getId(), cupId).stream().toList())
                 .toList();
 
+            var strategy = cup.getCupTypeCalculationStrategy(null);
+
             ClassResultAggregationResult classResultAggregationResult =
-                calculateClassResultGroupedSums(events, eventResultLists, races, cupScoreLists);
+                calculateClassResultGroupedSums(events, eventResultLists, races, cupScoreLists, strategy);
             return new CupDetailed(cup,
                 cup.getType().isGroupedByOrganisation() ?
                 calculateOrganisationGroupedSums(events, eventResultLists, races, cupScoreLists) :
                 classResultAggregationResult.eventRacesCupScores(),
-                classResultAggregationResult.aggregatedPersonScores());
+                classResultAggregationResult.aggregatedPersonScoresList());
         });
     }
 
-    private Map<ClassResultShortName, List<PersonWithScore>> aggregatePersonScoresGroupedByClass(List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores) {
+    private Map<ClassResultShortName, List<PersonWithScore>> aggregatePersonScoresGroupedByClass(List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores,
+                                                                                                 CupTypeCalculationStrategy strategy) {
 
         int racesSize = raceClassResultGroupedCupScores.stream()
             .map(x -> x.race().getId())
             .collect(Collectors.toUnmodifiableSet())
             .size();
 
-        // Top n/2+1 Ergebnisse auswählen
-        int bestOfRacesCount = (racesSize / 2) + 1;
+        int bestOfRacesCount = strategy.getBestOfRacesCount(racesSize);
 
         // Sammeln aller Ergebnisse nach PersonId und ClassResultShortName
         Map<ClassPersonKey, List<PersonWithScore>> scoresByClassAndPerson = raceClassResultGroupedCupScores.stream()
             .flatMap(x -> x.classResultScores().stream())
             .flatMap(x -> x.personWithScores().stream())
-            .collect(Collectors.groupingBy(x -> new ClassPersonKey(x.classResultShortName(), x.id()),
+            .collect(Collectors.groupingBy(x -> new ClassPersonKey(strategy.harmonizeClassResultShortName(x.classResultShortName()),
+                    x.id()),
                 Collectors.mapping(x -> x, Collectors.toList())));
 
         // Aggregieren der besten Ergebnisse
@@ -179,7 +183,8 @@ public class CupService {
     private ClassResultAggregationResult calculateClassResultGroupedSums(List<Event> events,
                                                                          List<EventResultList> eventResultLists,
                                                                          List<Race> races,
-                                                                         List<List<CupScoreList>> cupScoreLists) {
+                                                                         List<List<CupScoreList>> cupScoreLists,
+                                                                         CupTypeCalculationStrategy strategy) {
 
         List<RaceClassResultGroupedCupScore> allClassResultScores = events.stream()
             .flatMap(event -> races.stream()
@@ -189,7 +194,7 @@ public class CupService {
             .toList();
 
         Map<ClassResultShortName, List<PersonWithScore>> aggregatedPersonScores =
-            aggregatePersonScoresGroupedByClass(allClassResultScores);
+            aggregatePersonScoresGroupedByClass(allClassResultScores, strategy);
 
         // Erzeuge die EventRacesCupScores für die Detailergebnisse der Races
         List<EventRacesCupScore> eventRacesCupScores = events.stream()
@@ -205,7 +210,11 @@ public class CupService {
                     .toList()))
             .toList();
 
-        return new ClassResultAggregationResult(eventRacesCupScores, aggregatedPersonScores);
+        return new ClassResultAggregationResult(eventRacesCupScores,
+            aggregatedPersonScores.entrySet().stream()
+                .map(it -> new AggregatedPersonScores(it.getKey(), it.getValue()))
+                .sorted(Comparator.comparing(AggregatedPersonScores::classResultShortName))
+                .toList());
     }
 
     private RaceClassResultGroupedCupScore processRaceForClassResults(Race race,
@@ -317,8 +326,11 @@ public class CupService {
         String creator = springSecurityAuditorAware.getCurrentAuditor().orElse(SpringSecurityAuditorAware.UNKNOWN);
         ZonedDateTime now = ZonedDateTime.now();
 
+        CupTypeCalculationStrategy cupTypeCalculationStrategy = cup.getCupTypeCalculationStrategy(organisationById);
+
         List<CupScoreList> cupScoreLists = resultLists.stream()
-            .map(resultList -> resultList.calculate(cup, organisationById, creator, now))
+            .map(resultList -> resultList.calculate(cup,
+                creator, now, cupTypeCalculationStrategy))
             .collect(Collectors.toList());
         cupScoreListRepository.deleteAllByDomainKey(cupScoreLists.stream()
             .map(CupScoreList::getDomainKey)
@@ -327,7 +339,7 @@ public class CupService {
     }
 
     public record ClassResultAggregationResult(List<EventRacesCupScore> eventRacesCupScores,
-                                               Map<ClassResultShortName, List<PersonWithScore>> aggregatedPersonScores) {}
+                                               List<AggregatedPersonScores> aggregatedPersonScoresList) {}
 
     private record ClassPersonKey(ClassResultShortName classResultShortName, PersonId personId) {}
 }

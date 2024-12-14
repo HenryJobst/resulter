@@ -23,4 +23,5 @@ public class AddCalculationStrategy implements CupTypeCalculationStrategy {
 
         return null;
     }
+
 }

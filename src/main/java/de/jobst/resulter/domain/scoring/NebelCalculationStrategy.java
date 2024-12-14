@@ -1,6 +1,7 @@
 package de.jobst.resulter.domain.scoring;
 
 import de.jobst.resulter.domain.*;
+import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -13,7 +14,7 @@ public class NebelCalculationStrategy implements CupTypeCalculationStrategy {
     Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner", "OffK", "OffL", "D/H-12 Be");
     Set<String> organisationsToSkip = Set.of("ohne", "Volkssport");
 
-    public NebelCalculationStrategy(Map<OrganisationId, Organisation> organisationById) {
+    public NebelCalculationStrategy(@Nullable Map<OrganisationId, Organisation> organisationById) {
         this.organisationById = organisationById;
     }
 
@@ -24,6 +25,9 @@ public class NebelCalculationStrategy implements CupTypeCalculationStrategy {
 
     @Override
     public boolean valid(PersonResult personResult) {
+        if (organisationById == null) {
+            throw new IllegalArgumentException("organisationById is null");
+        }
         return Optional.ofNullable(organisationById.get(personResult.organisationId()))
             .map(org -> isNotSkippedOrganisation(org.getShortName().value()))
             .orElse(false);
@@ -62,4 +66,5 @@ public class NebelCalculationStrategy implements CupTypeCalculationStrategy {
             personRaceResult.getClassResultShortName(),
             NORCalculationStrategy.calculateNorPoints(fastestTime.value(), personRaceResult.getRuntime().value()));
     }
+
 }

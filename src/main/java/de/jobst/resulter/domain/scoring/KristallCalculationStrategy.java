@@ -1,6 +1,7 @@
 package de.jobst.resulter.domain.scoring;
 
 import de.jobst.resulter.domain.*;
+import jakarta.annotation.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,7 +13,7 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
     Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner", "OffK", "OffL", "D/H-12 Be");
     Set<String> organisationsToSkip = Set.of("ohne", "Volkssport");
 
-    public KristallCalculationStrategy(Map<OrganisationId, Organisation> organisationById) {
+    public KristallCalculationStrategy(@Nullable Map<OrganisationId, Organisation> organisationById) {
         this.organisationById = organisationById;
     }
 
@@ -23,6 +24,9 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
 
     @Override
     public boolean valid(PersonResult personResult) {
+        if (organisationById == null) {
+            throw new IllegalArgumentException("organisationById is null");
+        }
         return Optional.ofNullable(organisationById.get(personResult.organisationId()))
             .map(org -> isNotSkippedOrganisation(org.getShortName().value()))
             .orElse(false);
@@ -64,4 +68,5 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
             personRaceResult.getClassResultShortName(),
             nextPoints);
     }
+
 }

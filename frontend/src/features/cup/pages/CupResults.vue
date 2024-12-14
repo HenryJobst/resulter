@@ -11,6 +11,8 @@ import KristallCupResults from '@/features/cup/pages/KristallCupResults.vue'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import FogCupResults from '@/features/cup/pages/FogCupResults.vue'
+import NorCupResults from '@/features/cup/pages/NorCupResults.vue'
+import type { AggregatedPersonScores } from '@/features/cup/model/aggregated_person_scores'
 
 const props = defineProps<{ id: string }>()
 
@@ -39,7 +41,7 @@ function calculate() {
 }
 
 const cupData = computed(() => {
-    return cupResultsQuery.data.value ?? []
+    return cupResultsQuery.data.value
 })
 
 const eventRacesCupScores: Ref<EventRacesCupScore[]> = computed(
@@ -47,6 +49,9 @@ const eventRacesCupScores: Ref<EventRacesCupScore[]> = computed(
 )
 const overallOrganisationScores: Ref<OrganisationScore[]> = computed(
     () => cupData.value?.overallOrganisationScores ?? [],
+)
+const aggregatedPersonScores: Ref<AggregatedPersonScores[]> = computed(
+    () => cupData.value?.aggregatedPersonScores ?? [],
 )
 </script>
 
@@ -78,18 +83,25 @@ const overallOrganisationScores: Ref<OrganisationScore[]> = computed(
     <span v-else-if="cupResultsQuery.status.value === 'error'">
         {{ t('messages.error', { message: cupResultsQuery.error.toLocaleString() }) }}
     </span>
-    <div v-else-if="cupResultsQuery.data" class="card flex justify-content-start">
+    <div v-else-if="cupData" class="card flex justify-content-start">
         <KristallCupResults
-            v-if="cupData.type.id === 'KRISTALL'"
+            v-if="cupData.type?.id === 'KRISTALL'"
             :cup-name="cupData.name"
             :overall-scores="overallOrganisationScores"
             :event-races-cup-scores="eventRacesCupScores"
         />
         <FogCupResults
-            v-if="cupData.type.id === 'NEBEL'"
+            v-if="cupData.type?.id === 'NEBEL'"
             :cup-name="cupData.name"
             :overall-scores="overallOrganisationScores"
             :event-races-cup-scores="eventRacesCupScores"
+        />
+        <NorCupResults
+            v-if="cupData.type?.id === 'NOR'"
+            :cup-name="cupData.name"
+            :overall-scores="overallOrganisationScores"
+            :event-races-cup-scores="eventRacesCupScores"
+            :aggregated-person-scores="aggregatedPersonScores"
         />
     </div>
 </template>

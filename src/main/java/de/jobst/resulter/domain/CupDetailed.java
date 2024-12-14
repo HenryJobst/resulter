@@ -1,5 +1,6 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.application.AggregatedPersonScores;
 import de.jobst.resulter.domain.util.ClassResultShortNameScoreSummary;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
@@ -17,10 +18,10 @@ public class CupDetailed extends Cup {
     // overall results by organisation (with score)
     private List<OrganisationScore> overallOrganisationScores;
 
-    private Map<ClassResultShortName, List<PersonWithScore>> classResultShortNameScores;
+    private List<AggregatedPersonScores> aggregatedPersonScoresList;
 
     public CupDetailed(@NonNull Cup cup, @NonNull List<EventRacesCupScore> eventRacesCupScore,
-                       Map<ClassResultShortName, List<PersonWithScore>> classResultShortNameListMap) {
+                       List<AggregatedPersonScores> aggregatedPersonScoresList) {
         super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEvents());
 
         if (cup.getType().isGroupedByOrganisation()) {
@@ -28,7 +29,7 @@ public class CupDetailed extends Cup {
         } else {
             overallOrganisationScores = List.of();
             initializeGroupedByClassResultShortNameData(eventRacesCupScore);
-            classResultShortNameScores = classResultShortNameListMap;
+            this.aggregatedPersonScoresList = aggregatedPersonScoresList;
         }
     }
 

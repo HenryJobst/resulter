@@ -74,28 +74,15 @@ public class ResultList implements Comparable<ResultList> {
         return var;
     }
 
-    public CupScoreList calculate(Cup cup,
-                                  Map<OrganisationId, Organisation> organisationById,
-                                  String creator,
-                                  ZonedDateTime createTime) {
+    public CupScoreList calculate(Cup cup, String creator,
+                                  ZonedDateTime createTime, CupTypeCalculationStrategy cupTypeCalculationStrategy) {
 
         if (invalid(cup)) {
             return null;
         }
 
-        CupTypeCalculationStrategy cupTypeCalculationStrategy = null;
-        switch (cup.getType()) {
-            case CupType.NOR -> cupTypeCalculationStrategy = new NORCalculationStrategy(organisationById);
-            case CupType.KRISTALL -> cupTypeCalculationStrategy = new KristallCalculationStrategy(organisationById);
-            case CupType.NEBEL -> cupTypeCalculationStrategy = new NebelCalculationStrategy(organisationById);
-            case CupType.ADD -> cupTypeCalculationStrategy = new AddCalculationStrategy();
-        }
-
-        if (cupTypeCalculationStrategy != null) {
-            List<CupScore> cupScores = calculate(cup, cupTypeCalculationStrategy);
-            return new CupScoreList(CupScoreListId.empty(), cup.getId(), id, cupScores, creator, createTime);
-        }
-        return null;
+        List<CupScore> cupScores = calculate(cup, cupTypeCalculationStrategy);
+        return new CupScoreList(CupScoreListId.empty(), cup.getId(), id, cupScores, creator, createTime);
     }
 
     private boolean invalid(Cup cup) {

@@ -105,22 +105,35 @@ function calculateRanks(scores: PersonWithScore[]): { pws: PersonWithScore, rank
                 <p>Noch keine Punkte vorhanden.</p>
             </section>
             <section v-if="aggregatedPersonScores.length">
-                <div v-for="entry in aggregatedPersonScores" :key="entry.classResultShortName" class="my-3">
+                <div
+                    v-for="entry in aggregatedPersonScores"
+                    :key="entry.classResultShortName"
+                    class="my-3"
+                >
                     <table class="my-3">
                         <thead>
                             <tr>
                                 <th colspan="4">
-                                    {{ entry.classResultShortName.value }}
+                                    {{ entry.classResultShortName }}
                                 </th>
+                                <th
+                                    v-for="it in eventRacesCupScores.flatMap(x => x.raceClassResultGroupedCupScores)" :key="it.race?.id"
+                                />
                             </tr>
                         </thead>
                         <tbody>
                             <tr
-                                v-for="{ pws, rank } in calculateRanks(entry.personWithScoreList.filter((o) => o.score > 0))"
+                                v-for="{ pws, rank } in calculateRanks(
+                                    entry.personWithScoreList.filter((o) => o.score > 0),
+                                )"
                                 :key="pws.personId"
                             >
                                 <td class="pl">
-                                    <img v-if="rank === 1" src="@/assets/1.jpg" alt="Erster Platz">
+                                    <img
+                                        v-if="rank === 1"
+                                        src="@/assets/1.jpg"
+                                        alt="Erster Platz"
+                                    >
                                     <img
                                         v-else-if="rank === 2"
                                         src="@/assets/2.jpg"

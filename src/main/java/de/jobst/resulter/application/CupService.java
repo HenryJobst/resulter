@@ -111,13 +111,21 @@ public class CupService {
 
             var strategy = cup.getCupTypeCalculationStrategy(null);
 
-            ClassResultAggregationResult classResultAggregationResult =
-                calculateClassResultGroupedSums(events, eventResultLists, races, cupScoreLists, strategy);
+            ClassResultAggregationResult classResultAggregationResult = cup.getType().isGroupedByOrganisation() ?
+                                                                        null :
+                                                                        calculateClassResultGroupedSums(events,
+                                                                            eventResultLists,
+                                                                            races,
+                                                                            cupScoreLists,
+                                                                            strategy);
+
             return new CupDetailed(cup,
                 cup.getType().isGroupedByOrganisation() ?
                 calculateOrganisationGroupedSums(events, eventResultLists, races, cupScoreLists) :
                 classResultAggregationResult.eventRacesCupScores(),
-                classResultAggregationResult.aggregatedPersonScoresList());
+                cup.getType().isGroupedByOrganisation() ?
+                List.of() :
+                Objects.requireNonNull(classResultAggregationResult).aggregatedPersonScoresList());
         });
     }
 
@@ -136,8 +144,7 @@ public class CupService {
             .flatMap(x -> x.classResultScores().stream())
             .flatMap(x -> x.personWithScores().stream())
             .collect(Collectors.groupingBy(x -> new ClassPersonKey(strategy.harmonizeClassResultShortName(x.classResultShortName()),
-                    x.id()),
-                Collectors.mapping(x -> x, Collectors.toList())));
+                x.id()), Collectors.mapping(x -> x, Collectors.toList())));
 
         // Aggregieren der besten Ergebnisse
         Map<ClassResultShortName, List<PersonWithScore>> groupedAndSortedScores = scoresByClassAndPerson.entrySet()
@@ -155,15 +162,13 @@ public class CupService {
             }, Collectors.toList())));
 
         groupedAndSortedScores.replaceAll((classShortName, personScores) -> personScores.stream()
-            .sorted(Comparator.comparingDouble(PersonWithScore::score).reversed()
-                .thenComparing(PersonWithScore::id))
+            .sorted(Comparator.comparingDouble(PersonWithScore::score).reversed().thenComparing(PersonWithScore::id))
             .toList());
 
         return groupedAndSortedScores.entrySet()
             .stream()
             .sorted(Map.Entry.comparingByKey())
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a,
-                LinkedHashMap::new));
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
 
     private List<CupScore> getCupScoresForRace(Race race,
@@ -211,7 +216,8 @@ public class CupService {
             .toList();
 
         return new ClassResultAggregationResult(eventRacesCupScores,
-            aggregatedPersonScores.entrySet().stream()
+            aggregatedPersonScores.entrySet()
+                .stream()
                 .map(it -> new AggregatedPersonScores(it.getKey(), it.getValue()))
                 .sorted(Comparator.comparing(AggregatedPersonScores::classResultShortName))
                 .toList());
@@ -329,8 +335,7 @@ public class CupService {
         CupTypeCalculationStrategy cupTypeCalculationStrategy = cup.getCupTypeCalculationStrategy(organisationById);
 
         List<CupScoreList> cupScoreLists = resultLists.stream()
-            .map(resultList -> resultList.calculate(cup,
-                creator, now, cupTypeCalculationStrategy))
+            .map(resultList -> resultList.calculate(cup, creator, now, cupTypeCalculationStrategy))
             .collect(Collectors.toList());
         cupScoreListRepository.deleteAllByDomainKey(cupScoreLists.stream()
             .map(CupScoreList::getDomainKey)

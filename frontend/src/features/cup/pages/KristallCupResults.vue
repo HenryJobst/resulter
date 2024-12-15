@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
-import type { RaceCupScore } from '@/features/cup/model/race_cup_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
+import type { RaceOrganisationGroupedCupScore } from '@/features/cup/model/race_organisation_grouped_cup_score'
 
 const props = defineProps<{
     cupName: string
@@ -21,7 +21,7 @@ const allClassShortNames = computed(() => {
     return Array.from(new Set(classNames)).sort()
 })
 
-function findOrganisationScore(org: OrganisationScore, raceCupScores: RaceCupScore): string {
+function findOrganisationScore(org: OrganisationScore, raceCupScores: RaceOrganisationGroupedCupScore): string {
     const entry = raceCupScores.organisationScores.find(
         os => os.organisation.id === org.organisation.id,
     )
@@ -103,7 +103,7 @@ function calculateRanks(scores: OrganisationScore[]): { org: OrganisationScore, 
                                 {{ csn }}
                             </th>
                             <th
-                                v-for="(r, index) in eventRacesCupScores[0].raceCupScores"
+                                v-for="(r, index) in eventRacesCupScores[0].raceOrganisationGroupedCupScores"
                                 :key="r.race.id"
                                 class="ev" :class="[index === 0 ? 'with-left-divider' : '']"
                             >
@@ -123,7 +123,7 @@ function calculateRanks(scores: OrganisationScore[]): { org: OrganisationScore, 
                                 {{ getTotalScoreByClass(org.personWithScores, csn) }}
                             </td>
                             <td
-                                v-for="(r, index) in eventRacesCupScores[0].raceCupScores"
+                                v-for="(r, index) in eventRacesCupScores[0].raceOrganisationGroupedCupScores"
                                 :key="r.race.id"
                                 class="ev" :class="[index === 0 ? 'with-left-divider' : '']"
                             >

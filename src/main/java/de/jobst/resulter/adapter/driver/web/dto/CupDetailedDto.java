@@ -18,15 +18,19 @@ public record CupDetailedDto(Long id, String name, CupTypeDto type, List<EventKe
             CupTypeDto.from(cup.getType()),
             cup.getEvents().stream().map(EventKeyDto::from).toList(),
             cup.getEventRacesCupScore().stream().map(EventRacesCupScoreDto::from).toList(),
+            cup.getType().isGroupedByOrganisation() ?
             cup.getOverallOrganisationScores()
                 .stream()
                 .map(entry -> new OrganisationScoreDto(OrganisationDto.from(entry.organisation()),
                     entry.score(),
                     entry.personWithScores().stream().map(PersonWithScoreDto::from).toList()))
-                .toList(),
+                .toList() :
+            List.of(),
+            cup.getType().isGroupedByOrganisation() ?
+            List.of() :
             cup.getAggregatedPersonScoresList()
                 .stream()
-                .map(it -> new AggregatedPersonScoresDto(it.classResultShortName(),
+                .map(it -> new AggregatedPersonScoresDto(it.classResultShortName().value(),
                     it.personWithScoreList().stream().map(PersonWithScoreDto::from).toList()))
                 .toList());
     }

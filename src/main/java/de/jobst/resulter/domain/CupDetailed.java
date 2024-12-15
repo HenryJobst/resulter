@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 public class CupDetailed extends Cup {
 
     // scores by race and organisation (grouped by) or classResultShortName (grouped by)
-    private List<EventRacesCupScore> eventRacesCupScore;
+    private final List<EventRacesCupScore> eventRacesCupScore;
 
     // overall results by organisation (with score)
     private List<OrganisationScore> overallOrganisationScores;
@@ -24,24 +24,18 @@ public class CupDetailed extends Cup {
                        List<AggregatedPersonScores> aggregatedPersonScoresList) {
         super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEvents());
 
+        this.eventRacesCupScore = eventRacesCupScore;
         if (cup.getType().isGroupedByOrganisation()) {
-            initializeGroupedByOrganisationData(eventRacesCupScore);
+            initializeGroupedByOrganisationData();
         } else {
-            overallOrganisationScores = List.of();
-            initializeGroupedByClassResultShortNameData(eventRacesCupScore);
+            this.overallOrganisationScores = List.of();
             this.aggregatedPersonScoresList = aggregatedPersonScoresList;
         }
     }
 
-    private void initializeGroupedByClassResultShortNameData(List<EventRacesCupScore> eventRacesCupScore) {
-        this.eventRacesCupScore = eventRacesCupScore;
+    private void initializeGroupedByOrganisationData() {
 
-    }
-
-    private void initializeGroupedByOrganisationData(List<EventRacesCupScore> eventRacesCupScore) {
-        this.eventRacesCupScore = eventRacesCupScore;
-
-        Map<Organisation, Double> organisationWithScore = eventRacesCupScore.stream()
+        Map<Organisation, Double> organisationWithScore = this.eventRacesCupScore.stream()
             .flatMap(x -> x.raceOrganisationGroupedCupScores()
                 .stream()
                 .flatMap(raceCupScore -> Objects.nonNull(raceCupScore.organisationScores()) ?
@@ -50,7 +44,7 @@ public class CupDetailed extends Cup {
             .collect(Collectors.groupingBy(OrganisationScore::organisation, // Gruppieren nach Organisation
                 Collectors.summingDouble(OrganisationScore::score)));
 
-        List<OrganisationScore> organisationScores = eventRacesCupScore.stream()
+        List<OrganisationScore> organisationScores = this.eventRacesCupScore.stream()
             .flatMap(x -> x.raceOrganisationGroupedCupScores().stream())
             .flatMap(x -> x.organisationScores().stream())
             .toList();

@@ -194,7 +194,7 @@ public class CupService {
         List<RaceClassResultGroupedCupScore> allClassResultScores = events.stream()
             .flatMap(event -> races.stream()
                 .filter(race -> race.getEventId().equals(event.getId()))
-                .map(race -> processRaceForClassResults(race, event, eventResultLists, cupScoreLists))
+                .map(race -> processRaceForClassResults(race, event, eventResultLists, cupScoreLists, strategy))
                 .sorted())
             .toList();
 
@@ -226,7 +226,8 @@ public class CupService {
     private RaceClassResultGroupedCupScore processRaceForClassResults(Race race,
                                                                       Event event,
                                                                       List<EventResultList> eventResultLists,
-                                                                      List<List<CupScoreList>> cupScoreLists) {
+                                                                      List<List<CupScoreList>> cupScoreLists,
+                                                                      CupTypeCalculationStrategy strategy) {
 
         var resultListsForRace = eventResultLists.stream()
             .filter(resultList -> resultList.event().getId().equals(event.getId()) &&
@@ -240,7 +241,7 @@ public class CupService {
         return mainCupScoreList.map(cupScoreList -> {
             var classResultScores = cupScoreList.getCupScores()
                 .stream()
-                .collect(Collectors.groupingBy(CupScore::classResultShortName))
+                .collect(Collectors.groupingBy(cupScore -> strategy.harmonizeClassResultShortName(cupScore.classResultShortName())))
                 .entrySet()
                 .stream()
                 .map(entry -> {

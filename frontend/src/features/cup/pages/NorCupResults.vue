@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
+import { prettyPrint } from '@base2/pretty-print-object'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import { personService } from '@/features/person/services/person.service'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 import type { AggregatedPersonScores } from '@/features/cup/model/aggregated_person_scores'
 
-defineProps<{
+const props = defineProps<{
     cupName: string
     eventRacesCupScores: EventRacesCupScore[]
     overallScores: OrganisationScore[]
@@ -27,28 +29,6 @@ function person(personId: number) {
         return `${person?.givenName} ${person?.familyName}`
     }
     return ''
-}
-
-function _mergeAndSortScoresByClassAndPerson(scores: PersonWithScore[]): PersonWithScore[] {
-    const grouped = scores.reduce((acc, curr) => {
-        const key = `${curr.classShortName}-${curr.personId}`
-        if (!acc.has(key)) {
-            acc.set(key, { ...curr })
-        }
-        else {
-            acc.get(key)!.score += curr.score
-        }
-        return acc
-    }, new Map<string, PersonWithScore>())
-
-    return Array.from(grouped.values())
-        .filter(person => person.score > 0)
-        .sort((a, b) => {
-            if (b.score !== a.score) {
-                return b.score - a.score
-            }
-            return a.classShortName.localeCompare(b.classShortName)
-        })
 }
 
 function calculateRanks(scores: PersonWithScore[]): { pws: PersonWithScore, rank: number }[] {
@@ -75,6 +55,33 @@ function calculateRanks(scores: PersonWithScore[]): { pws: PersonWithScore, rank
 
         return { pws, rank }
     })
+}
+
+const allEvents = computed(() => {
+    return props.eventRacesCupScores.map(eventRacesCupScore => eventRacesCupScore.event)
+        .sort((a, b) => {
+            const dateA = a.startTime ? (a.startTime instanceof Date ? a.startTime.getTime() : new Date(a.startTime).getTime()) : 0
+            const dateB = b.startTime ? (b.startTime instanceof Date ? b.startTime.getTime() : new Date(b.startTime).getTime()) : 0
+            return dateA - dateB
+        })
+})
+
+function findScoreForEventAndClassResultAndPerson(
+    classShortName: string,
+    personId: number,
+    index: number,
+) {
+    console.log(`${classShortName} - ${personId} - ${index}`)
+    const eventScore = props.eventRacesCupScores.find(e => e.event.id === allEvents.value[index].id)
+    if (classShortName === 'H50' && personId === 185 && index === 5) {
+        console.log(prettyPrint(eventScore))
+    }
+    const result = eventScore?.raceClassResultGroupedCupScores
+        ?.flatMap(x => x.classResultScores || [])
+        .find(it => it.classResultShortName === classShortName)
+        ?.personWithScores?.find(it => it.personId === personId)?.score
+    console.log(result)
+    return result
 }
 </script>
 
@@ -104,6 +111,26 @@ function calculateRanks(scores: PersonWithScore[]): { pws: PersonWithScore, rank
             <section v-if="!aggregatedPersonScores.length">
                 <p>Noch keine Punkte vorhanden.</p>
             </section>
+            <section v-if="allEvents.length">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="pl">
+                                {{ "Lauf" }}
+                            </th>
+                            <th>
+                                {{ "Name" }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(event, index) in allEvents" :key="event.id">
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ event.name }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
             <section v-if="aggregatedPersonScores.length">
                 <div
                     v-for="entry in aggregatedPersonScores"
@@ -113,12 +140,12 @@ function calculateRanks(scores: PersonWithScore[]): { pws: PersonWithScore, rank
                     <table class="my-3">
                         <thead>
                             <tr>
-                                <th colspan="4">
+                                <th colspan="4" class="with-right-divider">
                                     {{ entry.classResultShortName }}
                                 </th>
-                                <th
-                                    v-for="it in eventRacesCupScores.flatMap(x => x.raceClassResultGroupedCupScores)" :key="it.race?.id"
-                                />
+                                <th v-for="(it, index) in allEvents" :key="it.id" class="text-center">
+                                    {{ index + 1 }}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -149,8 +176,17 @@ function calculateRanks(scores: PersonWithScore[]): { pws: PersonWithScore, rank
                                 <td class="cl" colspan="2">
                                     {{ `${person(pws.personId)}` }}
                                 </td>
-                                <td class="pt">
+                                <td class="pt with-right-divider text-center">
                                     {{ pws.score }}
+                                </td>
+                                <td v-for="(it, index) in allEvents" :key="it.id" class="text-center">
+                                    {{
+                                        findScoreForEventAndClassResultAndPerson(
+                                            pws.classShortName,
+                                            pws.personId,
+                                            index,
+                                        )
+                                    }}
                                 </td>
                             </tr>
                         </tbody>
@@ -283,5 +319,9 @@ div#detailed_results th.pt,
 td.pt {
     width: 50px;
     text-align: right;
+}
+.with-right-divider {
+    border-right: 2px solid #ccc !important;
+    padding-right: 8px !important;
 }
 </style>

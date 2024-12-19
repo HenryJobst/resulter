@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
+        <version>3.3.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>de.jobst</groupId>
@@ -24,22 +24,21 @@
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jaxb2-maven-plugin.version>3.2.0</jaxb2-maven-plugin.version>
-        <jsr305.version>3.0.2</jsr305.version>
-        <junit-jupiter-api.version>5.11.0</junit-jupiter-api.version>
-        <lombok.version>1.18.34</lombok.version>
-        <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
+        <json-schema-validator.version>2.2.14</json-schema-validator.version>
+        <junit-jupiter-api.version>5.11.4</junit-jupiter-api.version>
+        <lombok.version>1.18.36</lombok.version>
+        <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <p6spy-spring-boot-starter.version>1.9.2</p6spy-spring-boot-starter.version>
         <native.maven.plugin.version>0.10.0</native.maven.plugin.version>
-        <spring-oxm.version>6.1.12</spring-oxm.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.6.0
-        </springdoc-openapi-starter-webmvc-ui.version>
-        <tika-core.version>2.9.2</tika-core.version>
+        <p6spy-spring-boot-starter.version>1.10.0</p6spy-spring-boot-starter.version>
+        <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
+        <spring-oxm.version>6.2.1</spring-oxm.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
+        <testcontainers.version>1.20.4</testcontainers.version>
         <thumbnailator.version>0.4.20</thumbnailator.version>
-        <json-schema-validator.version>2.2.14</json-schema-validator.version>
-        <testcontainers.version>1.20.2</testcontainers.version>
-        <turkraft-springfilter-core.version>3.1.7</turkraft-springfilter-core.version>
+        <tika-core.version>3.0.0</tika-core.version>
+        <turkraft-springfilter-core.version>3.1.8</turkraft-springfilter-core.version>
     </properties>
     <profiles>
         <profile>
@@ -205,11 +204,10 @@
             <version>${annotations.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305 -->
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>${jsr305.version}</version>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+            <version>${spotbugs-annotations.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.gavlyukovskiy</groupId>

@@ -27,4 +27,9 @@ public enum CupType {
     public String value() {
         return value;
     }
+
+    public boolean isGroupedByOrganisation() {
+        // cup results are grouped by organisation
+        return this == NEBEL || this == KRISTALL;
+    }
 }

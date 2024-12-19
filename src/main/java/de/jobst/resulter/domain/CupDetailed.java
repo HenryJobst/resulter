@@ -1,5 +1,6 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.application.AggregatedPersonScores;
 import de.jobst.resulter.domain.util.ClassResultShortNameScoreSummary;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
@@ -11,16 +12,31 @@ import java.util.stream.Stream;
 @Getter
 public class CupDetailed extends Cup {
 
+    // scores by race and organisation (grouped by) or classResultShortName (grouped by)
     private final List<EventRacesCupScore> eventRacesCupScore;
-    private final List<OrganisationScore> overallOrganisationScores;
 
-    public CupDetailed(@NonNull Cup cup, List<EventRacesCupScore> eventRacesCupScore) {
+    // overall results by organisation (with score)
+    private List<OrganisationScore> overallOrganisationScores;
+
+    private List<AggregatedPersonScores> aggregatedPersonScoresList;
+
+    public CupDetailed(@NonNull Cup cup, @NonNull List<EventRacesCupScore> eventRacesCupScore,
+                       List<AggregatedPersonScores> aggregatedPersonScoresList) {
         super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEvents());
 
         this.eventRacesCupScore = eventRacesCupScore;
+        if (cup.getType().isGroupedByOrganisation()) {
+            initializeGroupedByOrganisationData();
+        } else {
+            this.overallOrganisationScores = List.of();
+            this.aggregatedPersonScoresList = aggregatedPersonScoresList;
+        }
+    }
 
-        Map<Organisation, Double> organisationWithScore = eventRacesCupScore.stream()
-            .flatMap(x -> x.eventRaces()
+    private void initializeGroupedByOrganisationData() {
+
+        Map<Organisation, Double> organisationWithScore = this.eventRacesCupScore.stream()
+            .flatMap(x -> x.raceOrganisationGroupedCupScores()
                 .stream()
                 .flatMap(raceCupScore -> Objects.nonNull(raceCupScore.organisationScores()) ?
                                          raceCupScore.organisationScores().stream() :
@@ -28,8 +44,8 @@ public class CupDetailed extends Cup {
             .collect(Collectors.groupingBy(OrganisationScore::organisation, // Gruppieren nach Organisation
                 Collectors.summingDouble(OrganisationScore::score)));
 
-        List<OrganisationScore> organisationScores = eventRacesCupScore.stream()
-            .flatMap(x -> x.eventRaces().stream())
+        List<OrganisationScore> organisationScores = this.eventRacesCupScore.stream()
+            .flatMap(x -> x.raceOrganisationGroupedCupScores().stream())
             .flatMap(x -> x.organisationScores().stream())
             .toList();
 
@@ -43,16 +59,14 @@ public class CupDetailed extends Cup {
 
             Map<ClassResultShortName, List<ClassResultShortNameScoreSummary>> groupedScores =
                 organisationScores.stream()
-                .filter(x -> x.organisation().equals(entry.getKey()))
-                .flatMap(x -> x.personWithScores().stream())
-                .collect(Collectors.toMap(
-                    PersonWithScore::classResultShortName,
-                    x -> new ArrayList<>(List.of(new ClassResultShortNameScoreSummary(x.score(), x.id()))),
-                    (existing, merging) -> {
-                        existing.addAll(merging);
-                        return existing;
-                    }
-                    ));
+                    .filter(x -> x.organisation().equals(entry.getKey()))
+                    .flatMap(x -> x.personWithScores().stream())
+                    .collect(Collectors.toMap(PersonWithScore::classResultShortName,
+                        x -> new ArrayList<>(List.of(new ClassResultShortNameScoreSummary(x.score(), x.id()))),
+                        (existing, merging) -> {
+                            existing.addAll(merging);
+                            return existing;
+                        }));
 
             Map<ClassResultShortName, List<ClassResultShortNameScoreSummary>> completeScores = allClasses.stream()
                 .collect(Collectors.toMap(ClassResultShortName::of,
@@ -62,8 +76,7 @@ public class CupDetailed extends Cup {
 
             List<PersonWithScore> personWithScores = completeScores.entrySet()
                 .stream()
-                .flatMap(e -> e.getValue().stream()
-                    .map(x -> new PersonWithScore(x.getId(), x.getScore(), e.getKey())))
+                .flatMap(e -> e.getValue().stream().map(x -> new PersonWithScore(x.getId(), x.getScore(), e.getKey())))
                 .sorted(Comparator.comparing(PersonWithScore::score)
                     .reversed()
                     .thenComparing(PersonWithScore::classResultShortName))
@@ -71,6 +84,5 @@ public class CupDetailed extends Cup {
 
             return new OrganisationScore(entry.getKey(), entry.getValue(), personWithScores);
         }).sorted(Comparator.comparingDouble(OrganisationScore::score).reversed()).toList();
-
     }
 }

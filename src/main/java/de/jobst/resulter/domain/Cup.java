@@ -1,12 +1,15 @@
 package de.jobst.resulter.domain;
 
+import de.jobst.resulter.domain.scoring.*;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
+import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
 
 import java.time.Year;
 import java.util.Collection;
+import java.util.Map;
 
 @Setter
 @Getter
@@ -51,5 +54,15 @@ public class Cup implements Comparable<Cup> {
         setType(type);
         setYear(year);
         setEvents(events);
+    }
+
+    public CupTypeCalculationStrategy getCupTypeCalculationStrategy(@Nullable Map<OrganisationId,
+                                                                    Organisation> organisationById) {
+        return switch (getType()) {
+            case CupType.NOR -> new NORCalculationStrategy(organisationById);
+            case CupType.KRISTALL -> new KristallCalculationStrategy(organisationById);
+            case CupType.NEBEL -> new NebelCalculationStrategy(organisationById);
+            case CupType.ADD -> new AddCalculationStrategy();
+        };
     }
 }

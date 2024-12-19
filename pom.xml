@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.6</version>
+        <version>3.4.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>de.jobst</groupId>
@@ -34,7 +34,7 @@
         <p6spy-spring-boot-starter.version>1.10.0</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
         <spring-oxm.version>6.2.1</spring-oxm.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.7.0</springdoc-openapi-starter-webmvc-ui.version>
         <testcontainers.version>1.20.4</testcontainers.version>
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <tika-core.version>3.0.0</tika-core.version>

@@ -13,4 +13,12 @@ public interface CupTypeCalculationStrategy {
 
     List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults,
                              Map<PersonId, OrganisationId> organisationByPerson);
+
+    default int getBestOfRacesCount(int racesCount) {
+        return racesCount;
+    }
+
+    default ClassResultShortName harmonizeClassResultShortName(ClassResultShortName classResultShortName) {
+        return classResultShortName;
+    }
 }

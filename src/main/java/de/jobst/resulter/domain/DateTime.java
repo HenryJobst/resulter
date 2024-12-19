@@ -15,6 +15,13 @@ public record DateTime(ZonedDateTime value) implements Comparable<DateTime> {
 
     @Override
     public int compareTo(@NonNull DateTime o) {
+        if (this.value == null && o.value == null) {
+            return 0; // Both are empty
+        } else if (this.value == null) {
+            return -1; // Null is considered less than non-null
+        } else if (o.value == null) {
+            return 1; // Non-null is greater than null
+        }
         return this.value.compareTo(o.value);
     }
 }

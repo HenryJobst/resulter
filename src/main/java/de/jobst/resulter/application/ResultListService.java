@@ -97,7 +97,7 @@ public class ResultListService {
         String creator = springSecurityAuditorAware.getCurrentAuditor().orElse(SpringSecurityAuditorAware.UNKNOWN);
         ZonedDateTime now = ZonedDateTime.now();
         List<CupScoreList> cupScoreLists = cups.stream()
-            .map(cup -> resultList.calculate(cup, organisationById, creator, now))
+            .map(cup -> resultList.calculate(cup, creator, now, cup.getCupTypeCalculationStrategy(organisationById)))
             .collect(Collectors.toList());
         cupScoreListRepository.deleteAllByDomainKey(cupScoreLists.stream()
             .map(CupScoreList::getDomainKey)

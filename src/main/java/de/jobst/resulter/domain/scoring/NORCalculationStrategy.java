@@ -1,6 +1,7 @@
 package de.jobst.resulter.domain.scoring;
 
 import de.jobst.resulter.domain.*;
+import jakarta.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -14,15 +15,38 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     private final Map<OrganisationId, Organisation> organisationById;
     private final Organisation norOrganisation;
 
-    Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner", "OffK", "OffL", "D/H-12 Be");
+    Set<String> classesToSkip = Set.of("BK",
+        "BL",
+        "Beg",
+        "Trim",
+        "Beginner",
+        "OffK",
+        "OffL",
+        "D/H-12 Be",
+        "D/H10B",
+        "D/H12 Beg.",
+        "D10B",
+        "H10B");
 
-    public NORCalculationStrategy(Map<OrganisationId, Organisation> organisationById) {
+    String mainClassWomenLong = "D19L";
+    Set<String> mainClassesWomenLong = Set.of("D19", "D19L", "D19AL", "D20", "D21", "D21L", "D21AL");
+    String mainClassWomenShort = "D19K";
+    Set<String> mainClassesWomenShort = Set.of("D19K", "D19AK", "D21K", "D21B");
+
+    String mainClassMenLong = "H19L";
+    Set<String> mainClassesMenLong = Set.of("H19", "H19L", "H19AL", "H20", "H21", "H21L", "H21AL");
+    String mainClassMenShort = "H19K";
+    Set<String> mainClassesMenShort = Set.of("H19K", "H19AK", "H21K", "H21B");
+
+    public NORCalculationStrategy(@Nullable Map<OrganisationId, Organisation> organisationById) {
         this.organisationById = organisationById;
-        norOrganisation = organisationById.values()
-            .stream()
-            .filter(x -> x.containsOrganisationWithShortName(CUP_TYPE.value()))
-            .findFirst()
-            .orElse(null);
+        norOrganisation = organisationById != null ?
+                          organisationById.values()
+                              .stream()
+                              .filter(x -> x.containsOrganisationWithShortName(CUP_TYPE.value()))
+                              .findFirst()
+                              .orElse(null) :
+                          null;
     }
 
     private static double multiplyTime(double baseTime, double factor) {
@@ -64,10 +88,16 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
 
     @Override
     public boolean valid(PersonResult personResult) {
+        if (organisationById == null) {
+            throw new IllegalArgumentException("organisationById is null");
+        }
+        if (norOrganisation == null) {
+            throw new IllegalArgumentException("norOrganisation is null");
+        }
         Optional<Organisation> optionalOrganisation = organisationById.containsKey(personResult.organisationId()) ?
                                                       Optional.of(organisationById.get(personResult.organisationId())) :
                                                       Optional.empty();
-        return optionalOrganisation.isPresent() && norOrganisation != null &&
+        return optionalOrganisation.isPresent() &&
                norOrganisation.containsOrganisationWithId(optionalOrganisation.get().getId());
     }
 
@@ -93,5 +123,30 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
             organisationId,
             personRaceResult.getClassResultShortName(),
             calculateNorPoints(fastestTime.value(), personRaceResult.getRuntime().value()));
+    }
+
+    @Override
+    public int getBestOfRacesCount(int racesCount) {
+        return (racesCount / 2) + 1;
+    }
+
+    @Override
+    public ClassResultShortName harmonizeClassResultShortName(ClassResultShortName classResultShortName) {
+        String shortName = classResultShortName.value();
+        shortName = shortName.strip();
+        shortName = shortName.replace("-", "");
+        if (mainClassesMenLong.contains(shortName)) {
+            shortName = mainClassMenLong;
+        }
+        else if (mainClassesMenShort.contains(shortName)) {
+            shortName = mainClassMenShort;
+        }
+        else if (mainClassesWomenLong.contains(shortName)) {
+            shortName = mainClassWomenLong;
+        }
+        else if (mainClassesWomenShort.contains(shortName)) {
+            shortName = mainClassWomenShort;
+        }
+        return ClassResultShortName.of(shortName);
     }
 }

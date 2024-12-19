@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
+import Button from 'primevue/button'
 import GenericList from '@/features/generic/pages/GenericList.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
@@ -35,7 +36,28 @@ const columns: GenericListColumn[] = [
         :changeable="authStore.isAdmin"
         :enum-type-label-prefixes="new Map([['gender', 'gender.']])"
         :visible="authStore.isAdmin"
-    />
+    >
+        <template #extra_row_actions="{ value }">
+            <router-link
+                v-if="authStore.isAdmin"
+                :to="{
+                    name: `person-merge`,
+                    params: { id: value.id },
+                }"
+            >
+                <Button
+                    v-if="authStore.isAdmin"
+                    v-tooltip="t('labels.merge')"
+                    icon="pi pi-link"
+                    class="mr-2 my-1"
+                    :aria-label="t('labels.merge')"
+                    outlined
+                    raised
+                    rounded
+                />
+            </router-link>
+        </template>
+    </GenericList>
 </template>
 
 <style scoped>

@@ -11,7 +11,7 @@ import type { EventKey } from '@/features/event/model/event_key'
 const props = defineProps<{ event?: EventKey | null, locale?: string }>()
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['certificates']
+const queryKey: string[] = ['certificate']
 const entityLabel: string = 'certificate'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.certificate') }))
 

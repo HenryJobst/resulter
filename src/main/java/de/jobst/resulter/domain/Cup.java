@@ -48,12 +48,13 @@ public class Cup implements Comparable<Cup> {
         return name.compareTo(o.name);
     }
 
-    public void update(CupName name, CupType type, Year year, Collection<Event> events) {
+    public Cup update(CupName name, CupType type, Year year, Collection<Event> events) {
         ValueObjectChecks.requireNotNull(name);
         setName(name);
         setType(type);
         setYear(year);
         setEvents(events);
+        return this;
     }
 
     public CupTypeCalculationStrategy getCupTypeCalculationStrategy(@Nullable Map<OrganisationId,

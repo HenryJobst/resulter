@@ -64,15 +64,10 @@ public class CupService {
 
 
     public Cup updateCup(CupId id, CupName name, CupType type, Year year, Collection<EventId> eventIds) {
-
-        Optional<Cup> optionalCup = findById(id);
-        if (optionalCup.isEmpty()) {
-            return null;
-        }
-        Cup cup = optionalCup.get();
-        var events = eventRepository.findAllById(eventIds);
-        cup.update(name, type, year, events);
-        return cupRepository.save(cup);
+        Collection<Event> events = eventRepository.findAllById(eventIds);
+        return findById(id)
+                   .map(it -> it.update(name, type, year, events))
+                   .map(cupRepository::save).orElse(null);
     }
 
     public Cup createCup(String name, CupType type, Year year, Collection<EventId> eventIds) {

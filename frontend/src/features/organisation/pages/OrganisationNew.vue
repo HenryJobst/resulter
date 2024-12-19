@@ -9,7 +9,7 @@ import { organisationService } from '@/features/organisation/services/organisati
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['organisations']
+const queryKey: string[] = ['organisation']
 const entityLabel: string = 'organisation'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.organisation') }))
 

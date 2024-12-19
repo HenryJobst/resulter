@@ -10,7 +10,7 @@ const props = defineProps<{ id: string, locale?: string }>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['organisations']
+const queryKey: string[] = ['organisation']
 const entityLabel: string = 'organisation'
 const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.organisation') }))
 </script>

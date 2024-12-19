@@ -25,6 +25,7 @@
         "import": "Import",
         "reload": "Reload",
         "edit": "Edit",
+        "merge": "Merge",
         "delete": "Delete",
         "save": "Save",
         "back": "Back",

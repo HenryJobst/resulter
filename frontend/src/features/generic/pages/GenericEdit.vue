@@ -18,6 +18,7 @@ const props = defineProps({
     editLabel: String,
     routerPrefix: String,
     changeable: Boolean,
+    additionalSubmitFunction: Function,
 })
 
 const { t } = useI18n()
@@ -28,7 +29,7 @@ const toast = useToast()
 const formData = ref<GenericEntity | null>(null)
 
 const entityQuery = useQuery({
-    queryKey: [props.queryKey, props.entityId],
+    queryKey: [...props.queryKey!, props.entityId],
     queryFn: () => props.entityService?.getById(props.entityId, t),
 })
 
@@ -57,7 +58,11 @@ const entityLabel = computed(() => (props.entityLabel ? t(`labels.${props.entity
 const entityMutation = useMutation({
     mutationFn: (entity: GenericEntity) => props.entityService?.update(entity, t),
     onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: props.queryKey })
+        queryClient.invalidateQueries({ queryKey: [`${props.queryKey!}s`] })
+        queryClient.invalidateQueries({ queryKey: [`${props.queryKey!}`, props.entityId] })
+        if (props.additionalSubmitFunction) {
+            props.additionalSubmitFunction()
+        }
         toast.add({
             severity: 'info',
             summary: t('messages.success'),

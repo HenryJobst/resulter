@@ -210,9 +210,9 @@ watch(
                         <Textarea
                             id="layoutDescription"
                             v-model="certificate.layoutDescription"
-                            auto-resize
                             rows="20"
                             cols="60"
+                            style="overflow: auto; min-height: 300px;"
                         />
                     </div>
                 </div>

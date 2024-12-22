@@ -6,6 +6,7 @@ import GenericList from '@/features/generic/pages/GenericList.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import { personService } from '@/features/person/services/person.service'
+import type { TableSettings } from '@/features/generic/models/table_settings'
 
 const authStore = useAuthStore()
 const { t } = useI18n()
@@ -16,11 +17,27 @@ const settingStoreSuffix: string = 'person'
 const listLabel = computed(() => t('labels.person', 2))
 const columns: GenericListColumn[] = [
     { label: 'labels.no', field: 'id', sortable: true },
-    { label: 'labels.family_name', field: 'familyName', sortable: true },
+    { label: 'labels.family_name', field: 'familyName', sortable: true, filterable: true, filterType: 'input' },
     { label: 'labels.given_name', field: 'givenName', sortable: true },
     { label: 'labels.gender', field: 'gender', type: 'enum', sortable: true },
     { label: 'labels.birth_year', field: 'birthDate', type: 'year', sortable: true },
 ]
+
+const initialTableSettings: TableSettings = {
+    first: 0,
+    rows: 10,
+    page: 0,
+    paginator: true,
+    paginatorPosition: 'both',
+    rowsPerPageOptions: [5, 10, 20, 50, 100],
+    sortMode: 'multiple',
+    multiSortMeta: undefined,
+    sortField: 'familyName',
+    sortOrder: 1,
+    nullSortOrder: 1,
+    defaultSortOrder: 1,
+    filters: undefined,
+}
 </script>
 
 <template>
@@ -35,7 +52,9 @@ const columns: GenericListColumn[] = [
         :columns="columns"
         :changeable="authStore.isAdmin"
         :enum-type-label-prefixes="new Map([['gender', 'gender.']])"
+        filter-display="row"
         :visible="authStore.isAdmin"
+        :initial-table-settings="initialTableSettings"
     >
         <template #extra_row_actions="{ value }">
             <router-link

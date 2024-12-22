@@ -112,7 +112,7 @@ public class EventDbo {
             .toList();
     }
 
-    static public Event asEvent(@NonNull EventDbo eventDbo, Function<Long, Organisation> organisationResolver) {
+    public static Event asEvent(@NonNull EventDbo eventDbo, Function<Long, Organisation> organisationResolver) {
         return asEvents(List.of(eventDbo), organisationResolver).getFirst();
     }
 

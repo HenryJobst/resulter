@@ -104,4 +104,15 @@ public class PersonController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/person/{id}/doubles")
+    public ResponseEntity<List<PersonDto>> getDoubles(@PathVariable Long id) {
+        try {
+            List<Person> doubles = personService.findDoubles(PersonId.of(id));
+            return ResponseEntity.ok(doubles.stream().map(PersonDto::from).toList());
+        } catch (Exception e) {
+            logError(e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

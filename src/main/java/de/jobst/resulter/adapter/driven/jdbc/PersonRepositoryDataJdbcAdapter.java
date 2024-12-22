@@ -1,13 +1,18 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import com.turkraft.springfilter.converter.FilterStringConverter;
+import com.turkraft.springfilter.parser.node.FilterNode;
+import com.turkraft.springfilter.transformer.FilterNodeTransformer;
+import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
+import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
 import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.data.domain.*;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
@@ -16,17 +21,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
+@Slf4j
 public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     private final PersonJdbcRepository personJdbcRepository;
+    private final FilterStringConverter filterStringConverter;
+    private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
 
 
-    public PersonRepositoryDataJdbcAdapter(PersonJdbcRepository personJdbcRepository) {
+    public PersonRepositoryDataJdbcAdapter(PersonJdbcRepository personJdbcRepository,
+                                           FilterStringConverter filterStringConverter) {
         this.personJdbcRepository = personJdbcRepository;
+        this.filterStringConverter = filterStringConverter;
+        this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
     }
 
     @Override
@@ -40,13 +52,13 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     @Override
     public List<Person> findAll() {
-        return personJdbcRepository.findAll().stream().map(PersonDbo::asPerson).sorted().toList();
+        return personJdbcRepository.findAll().stream().map(it -> it.asPerson()).sorted().toList();
     }
 
     @Override
     public Optional<Person> findById(PersonId personId) {
         Optional<PersonDbo> personEntity = personJdbcRepository.findById(personId.value());
-        return personEntity.map(PersonDbo::asPerson);
+        return personEntity.map(it -> it.asPerson());
     }
 
     @Override
@@ -73,10 +85,32 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     @Override
     public Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable) {
-        Page<PersonDbo> page = personJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
-            PersonDbo::mapOrdersDomainToDbo));
-        return new PageImpl<>(page.stream().map(PersonDbo::asPerson).toList(),
-            FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
+        Page<PersonDbo> page;
+        if (filter != null) {
+            PersonDbo personDbo = new PersonDbo();
+            AtomicReference<ExampleMatcher> matcher = new AtomicReference<>(ExampleMatcher.matching()
+                //.withIgnorePaths("")
+            );
+            FilterNode filterNode = filterStringConverter.convert(filter);
+            log.info("FilterNode: {}", filterNode);
+            MappingFilterNodeTransformResult transformResult = filterNodeTransformer.transform(filterNode);
+            transformResult.filterMap().forEach((key, value) -> {
+                if (key.equals("familyName")) {
+                    String unquotedValue = value.value().replace("'", "");
+                    personDbo.setFamilyName(unquotedValue);
+                    matcher.set(matcher.get().withMatcher("familyName", m -> m.stringMatcher(value.matcher())));
+                }
+            });
+
+            page = personJdbcRepository.findAll(Example.of(personDbo, matcher.get()),
+                FilterAndSortConverter.mapOrderProperties(pageable, PersonDbo::mapOrdersDomainToDbo));
+
+        } else {
+            page = personJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
+                PersonDbo::mapOrdersDomainToDbo));
+        }
+        return new PageImpl<>(page.stream().map(x -> PersonDbo.asPerson(x)).toList(),
+            FilterAndSortConverter.mapOrderProperties(page.getPageable(), EventDbo::mapOrdersDboToDomain),
             page.getTotalElements());
     }
 

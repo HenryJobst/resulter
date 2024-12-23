@@ -84,6 +84,11 @@ public class InMemoryResultListRepository implements ResultListRepository {
             .orElse(null);
     }
 
+    @Override
+    public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
     @SuppressWarnings("unused")
     public List<ResultList> savedResultLists() {
         return savedResultLists;

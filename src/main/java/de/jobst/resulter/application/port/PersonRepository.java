@@ -24,4 +24,6 @@ public interface PersonRepository {
     Collection<Person> findOrCreate(Collection<Person> persons);
 
     Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable);
+
+    void delete(Person merge);
 }

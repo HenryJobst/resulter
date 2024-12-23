@@ -24,7 +24,7 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.p
         :entity-label="entityLabel"
         :edit-label="editLabel"
         router-prefix="person"
-        :changeable="authStore.isAdmin"
+        :visible="authStore.isAdmin"
     >
         <template #default="{ formData }">
             <PersonForm

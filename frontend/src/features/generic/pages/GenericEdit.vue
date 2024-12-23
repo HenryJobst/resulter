@@ -3,8 +3,9 @@ import { type PropType, computed, onMounted, ref, watch } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
-import { useRouter } from 'vue-router'
+import { type RouteLocationRaw, useRouter } from 'vue-router'
 import Button from 'primevue/button'
+import { prettyPrint } from '@base2/pretty-print-object'
 import { toastDisplayDuration } from '@/utils/constants'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
@@ -17,8 +18,31 @@ const props = defineProps({
     entityLabel: String,
     editLabel: String,
     routerPrefix: String,
-    changeable: Boolean,
-    additionalSubmitFunction: Function,
+    visible: {
+        type: Boolean,
+        default: true,
+        optional: true,
+    },
+    changeable: {
+        type: Boolean,
+        default: true,
+        optional: true,
+    },
+    savable: {
+        type: Boolean,
+        default: true,
+        optional: true,
+    },
+    additionalSubmitFunction: {
+        type: Function as PropType<() => void>,
+        default: null,
+        optional: true,
+    },
+    routeLocation: {
+        type: Object as PropType<RouteLocationRaw>,
+        default: null,
+        optional: true,
+    },
 })
 
 const { t } = useI18n()
@@ -30,20 +54,33 @@ const formData = ref<GenericEntity | null>(null)
 
 const entityQuery = useQuery({
     queryKey: [...props.queryKey!, props.entityId],
-    queryFn: () => props.entityService?.getById(props.entityId, t),
+    queryFn: () => {
+        console.log('GenericEdit:useQuery:entityQuery', props.entityId)
+        return props.entityService?.getById(props.entityId, t)
+    },
 })
 
 onMounted(() => {
+    console.log('GenericEdit:onMounted')
     if (entityQuery.data.value)
         formData.value = { ...entityQuery.data.value }
 
-    // console.log('GenericEdit:onMounted:formData', prettyPrint(formData.value))
+    console.log('GenericEdit:onMounted:formData', prettyPrint(formData.value))
 })
+
+watch(
+    () => props.entityId,
+    (newEntityId) => {
+        console.log('GenericEdit:watch:entityId', newEntityId)
+        entityQuery.refetch()
+    },
+)
 
 // Watcher, der auf Änderungen in entityQuery.data reagiert
 watch(
     () => entityQuery.data,
     (newData) => {
+        console.log('GenericEdit:watch:entityQuery.data', prettyPrint(newData))
         if (newData && newData.value)
             formData.value = { ...newData.value }
         else formData.value = null // oder setzen Sie einen Default-Wert
@@ -60,21 +97,25 @@ const entityMutation = useMutation({
     onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [`${props.queryKey!}s`] })
         queryClient.invalidateQueries({ queryKey: [`${props.queryKey!}`, props.entityId] })
-        if (props.additionalSubmitFunction) {
-            props.additionalSubmitFunction()
-        }
         toast.add({
             severity: 'info',
             summary: t('messages.success'),
             detail: t('messages.entity_changed', { entity: entityLabel.value }),
             life: toastDisplayDuration,
         })
-        router.push({ name: `${props.routerPrefix}-list` })
+        router.push(
+            props.routeLocation ? props.routeLocation : { name: `${props.routerPrefix}-list` },
+        )
     },
 })
 
 function submitHandler() {
-    entityMutation.mutate(formData.value!)
+    if (props.additionalSubmitFunction) {
+        props.additionalSubmitFunction()
+    }
+    if ((props.visible ?? true) && (props.changeable ?? true) && formData.value) {
+        entityMutation.mutate(formData.value!)
+    }
 }
 
 function navigateToList() {
@@ -83,7 +124,7 @@ function navigateToList() {
 </script>
 
 <template>
-    <div v-if="changeable" v-bind="$attrs">
+    <div v-if="(visible ?? true)" v-bind="$attrs">
         <h1>{{ props.editLabel }}</h1>
         <div
             v-if="
@@ -105,17 +146,18 @@ function navigateToList() {
             <slot :form-data="{ data: formData }" />
             <div class="mt-2">
                 <Button
-                    v-if="changeable"
+                    v-if="(visible ?? true) && (savable ?? true)"
                     v-tooltip="t('labels.save')"
                     :aria-label="t('labels.save')"
-                    class="pi pi-save mt-2"
+                    icon="pi pi-save"
+                    class="mt-2"
                     type="submit"
                     outlined
                     raised
                     rounded
                 />
                 <Button
-                    v-if="changeable"
+                    v-if="(visible ?? true)"
                     v-tooltip="t('labels.back')"
                     icon="pi pi-arrow-left"
                     :aria-label="t('labels.back')"

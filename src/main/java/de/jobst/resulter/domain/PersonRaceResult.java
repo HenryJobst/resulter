@@ -15,6 +15,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     @NonNull
     private ClassResultShortName classResultShortName;
     @NonNull
+    @Setter
     private PersonId personId;
     @NonNull
     private DateTime startTime;

@@ -38,6 +38,17 @@ export class PersonService extends GenericService<Person> {
                 return null
             })
     }
+
+    static async merge(keepId: number, removeId: number, t: (key: string) => string) {
+        const mergeUrl = `${personUrl}/${keepId.toString()}/merge`
+        return await axiosInstance
+            .post(mergeUrl, removeId)
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
 }
 
 export const personService = new PersonService()

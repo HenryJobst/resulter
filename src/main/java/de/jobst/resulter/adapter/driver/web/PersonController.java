@@ -115,4 +115,16 @@ public class PersonController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @PostMapping("/person/{id}/merge")
+    public ResponseEntity<PersonDto> mergePersons(@PathVariable Long id, @RequestBody Long removeId) {
+        try {
+            Person person = personService.mergePersons(PersonId.of(id), PersonId.of(removeId));
+            return ResponseEntity.ok(PersonDto.from(person));
+        } catch (Exception e) {
+            logError(e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 }

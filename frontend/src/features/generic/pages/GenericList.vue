@@ -21,6 +21,7 @@ import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
 import type { RestResult } from '@/features/generic/models/rest_result'
 import { getValueByPath, truncateString } from '@/utils/tools'
 import type { TableSettings } from '@/features/generic/models/table_settings'
+import { formatDate, formatTime, formatYear } from '@/features/generic/services/GenericFunctions'
 
 const props = defineProps({
     entityService: Object as () => IGenericService<any>,
@@ -144,69 +145,6 @@ function deleteEntity(id: number) {
 function reload() {
     entityQuery.refetch()
     deleteMutation.reset()
-}
-
-const dateOptions: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-}
-
-const yearOptions: Intl.DateTimeFormatOptions = {
-    year: '2-digit',
-    month: undefined,
-    day: undefined,
-}
-
-const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-}
-
-const formatDateFunction = computed(() => {
-    return (date: string | Date) => {
-        if (!date)
-            return ''
-        if (typeof date === 'string')
-            return new Date(date).toLocaleDateString(locale.value, dateOptions)
-
-        return date.toLocaleDateString(locale.value, dateOptions)
-    }
-})
-
-const formatYearFunction = computed(() => {
-    return (date: string | Date) => {
-        if (!date)
-            return ''
-        if (typeof date === 'string')
-            return new Date(date).toLocaleDateString(locale.value, yearOptions)
-
-        return date.toLocaleDateString(locale.value, yearOptions)
-    }
-})
-
-const formatTimeFunction = computed(() => {
-    return (time: string | Date) => {
-        if (!time)
-            return ''
-        if (typeof time === 'string')
-            return new Date(time).toLocaleTimeString(locale.value, timeOptions)
-
-        return time.toLocaleTimeString(locale.value, timeOptions)
-    }
-})
-
-function formatDate(date: string) {
-    return formatDateFunction.value(date)
-}
-
-function formatYear(date: string) {
-    return formatYearFunction.value(date)
-}
-
-function formatTime(time: string) {
-    return formatTimeFunction.value(time)
 }
 
 function pageChanged(e: DataTablePageEvent) {
@@ -399,13 +337,13 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                         </template>
                     </template>
                     <template v-else-if="col.type === 'date'" #body="slotProps">
-                        {{ formatDate(slotProps.data[col.field]) }}
+                        {{ formatDate(slotProps.data[col.field], locale) }}
                     </template>
                     <template v-else-if="col.type === 'year'" #body="slotProps">
-                        {{ formatYear(slotProps.data[col.field]) }}
+                        {{ formatYear(slotProps.data[col.field], locale) }}
                     </template>
                     <template v-else-if="col.type === 'time'" #body="slotProps">
-                        {{ formatTime(slotProps.data[col.field]) }}
+                        {{ formatTime(slotProps.data[col.field], locale) }}
                     </template>
                     <template v-else-if="col.type === 'enum'" #body="slotProps">
                         {{

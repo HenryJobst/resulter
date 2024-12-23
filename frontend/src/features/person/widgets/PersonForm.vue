@@ -12,6 +12,8 @@ const props = defineProps<{
     person: Person
     entityService: PersonService
     queryKey: string[]
+    visible?: boolean
+    changeable?: boolean
 }>()
 
 const emit = defineEmits(['update:modelValue'])
@@ -37,20 +39,28 @@ const localizedGenderOptions = computed(() => {
     }
     return []
 })
+
+const birthDate = computed({
+    get: () => {
+        const bDate = person.value.birthDate
+        return bDate ? new Date(bDate) : null
+    },
+    set: value => (value ? person.value.birthDate = value! : null),
+})
 </script>
 
 <template>
-    <div v-if="person" class="flex flex-col">
+    <div v-if="person && (props.visible ?? true)" class="flex flex-col">
         <div class="flex flex-row">
             <label for="family_name" class="col-fixed w-40">{{ t('labels.family_name') }}</label>
             <div class="col">
-                <InputText id="family_name" v-model="person.familyName" type="text" />
+                <InputText id="family_name" v-model="person.familyName" type="text" :disabled="!props.changeable ?? false" />
             </div>
         </div>
         <div class="flex flex-row">
             <label for="given_name" class="col-fixed w-40">{{ t('labels.given_name') }}</label>
             <div class="col">
-                <InputText id="given_name" v-model="person.givenName" type="text" />
+                <InputText id="given_name" v-model="person.givenName" type="text" :disabled="!props.changeable ?? false" />
             </div>
         </div>
         <div class="flex flex-row">
@@ -58,12 +68,13 @@ const localizedGenderOptions = computed(() => {
             <div class="col">
                 <Calendar
                     id="birthday"
-                    v-model="person.birthDate"
+                    v-model="birthDate"
                     show-icon
                     icon-display="input"
                     date-format="y"
                     view="year"
                     :locale="locale"
+                    :disabled="!props.changeable ?? false"
                 >
                     <template #inputicon="{ clickCallback }">
                         <i class="pi pi-calendar ml-2 mt-2" rounded @click="clickCallback" />
@@ -89,6 +100,7 @@ const localizedGenderOptions = computed(() => {
                     data-key="id"
                     :placeholder="t('messages.select')"
                     class="w-full md:w-14rem"
+                    :disabled="!props.changeable ?? false"
                 />
             </div>
         </div>

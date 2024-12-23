@@ -1,6 +1,9 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.application.port.CupScoreListRepository;
 import de.jobst.resulter.application.port.PersonRepository;
+import de.jobst.resulter.application.port.ResultListRepository;
+import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.*;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.springframework.data.domain.Page;
@@ -8,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -19,9 +24,16 @@ import java.util.Optional;
 public class PersonService {
 
     private final PersonRepository personRepository;
+    private final ResultListRepository resultListRepository;
+    private final SplitTimeListRepository splitTimeListRepository;
+    private final CupScoreListRepository cupScoreListRepository;
 
-    public PersonService(PersonRepository personRepository) {
+    public PersonService(PersonRepository personRepository, ResultListRepository resultListRepository,
+                         SplitTimeListRepository splitTimeListRepository, CupScoreListRepository cupScoreListRepository) {
         this.personRepository = personRepository;
+        this.resultListRepository = resultListRepository;
+        this.splitTimeListRepository = splitTimeListRepository;
+        this.cupScoreListRepository = cupScoreListRepository;
     }
 
     private static boolean isJaroWinklerSimilar(double similarity) {
@@ -84,6 +96,7 @@ public class PersonService {
         return findDoubles(person, all);
     }
 
+    @Transactional(readOnly = true)
     @NonNull
     List<Person> findDoubles(Person person, List<Person> all) {
         return all.stream()
@@ -120,6 +133,21 @@ public class PersonService {
             score += 1.0;
         }
         return score;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Person mergePersons(PersonId personId, PersonId mergeId) {
+        Person person = personRepository.findById(personId).orElseThrow();
+        Person merge = personRepository.findById(mergeId).orElseThrow();
+        replacePerson(merge, person);
+        personRepository.delete(merge);
+        return person;
+    }
+
+    private void replacePerson(Person merge, Person person) {
+        resultListRepository.replacePersonId(merge.getId(), person.getId());
+        splitTimeListRepository.replacePersonId(merge.getId(), person.getId());
+        cupScoreListRepository.replacePersonId(merge.getId(), person.getId());
     }
 
     record PersonSimilarity(Person person, double similarity) {}

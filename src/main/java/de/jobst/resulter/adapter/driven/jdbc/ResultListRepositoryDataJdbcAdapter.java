@@ -2,8 +2,12 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.domain.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.NestedExceptionUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
@@ -13,12 +17,19 @@ import java.util.Optional;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
+@Slf4j
 public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository {
 
     private final ResultListJdbcRepository resultListJdbcRepository;
 
     public ResultListRepositoryDataJdbcAdapter(ResultListJdbcRepository resultListJdbcRepository) {
         this.resultListJdbcRepository = resultListJdbcRepository;
+    }
+
+    @NonNull
+    private static Throwable getRootCause(@NonNull Throwable t) {
+        Throwable rootCause = NestedExceptionUtils.getRootCause(t);
+        return rootCause != null ? rootCause : t;
     }
 
     @Override
@@ -44,7 +55,8 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
             resultListJdbcRepository.findResultListIdByDomainKey(resultList.getEventId().value(),
                 resultList.getRaceId().value(),
                 resultList.getCreator(),
-                resultList.getCreateTime() != null ? Timestamp.from(resultList.getCreateTime().toOffsetDateTime().toInstant()) :
+                resultList.getCreateTime() != null ?
+                Timestamp.from(resultList.getCreateTime().toOffsetDateTime().toInstant()) :
                 null,
                 resultList.getCreateTime() != null ? resultList.getCreateTime().getZone().getId() : null);
         return resultListId.map(listId -> findById(listId).orElseThrow()).orElseGet(() -> save(resultList));
@@ -77,7 +89,10 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
         if (personRaceResultJdbcDtos.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.ofNullable(PersonRaceResultJdbcDto.asResultLists(personRaceResultJdbcDtos).stream().findFirst().orElse(null));
+        return Optional.ofNullable(PersonRaceResultJdbcDto.asResultLists(personRaceResultJdbcDtos)
+            .stream()
+            .findFirst()
+            .orElse(null));
     }
 
     @Override
@@ -96,5 +111,18 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
                 .stream()
                 .findFirst())
             .orElse(null);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
+        if (resultListJdbcRepository.existsByPersonId(oldPersonId.value())) {
+            long updatedRows =
+                resultListJdbcRepository.replacePersonIdInPersonResult(oldPersonId.value(), newPersonId.value());
+            log.debug("Updated {} rows in person_result with person_id {} to person_id {}",
+                updatedRows,
+                oldPersonId,
+                newPersonId);
+        }
     }
 }

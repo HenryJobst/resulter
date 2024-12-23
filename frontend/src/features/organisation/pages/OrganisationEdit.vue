@@ -23,7 +23,7 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.o
         :entity-label="entityLabel"
         :edit-label="editLabel"
         router-prefix="organisation"
-        :changeable="authStore.isAdmin"
+        :visible="authStore.isAdmin"
     >
         <template #default="{ formData }">
             <OrganisationForm

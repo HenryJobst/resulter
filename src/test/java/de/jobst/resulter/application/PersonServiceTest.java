@@ -1,6 +1,9 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.application.port.CupScoreListRepository;
 import de.jobst.resulter.application.port.PersonRepository;
+import de.jobst.resulter.application.port.ResultListRepository;
+import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
@@ -22,7 +25,10 @@ class PersonServiceTest {
     @BeforeEach
     void setUp() {
         PersonRepository personRepository = Mockito.mock(PersonRepository.class);
-        personService = new PersonService(personRepository);
+        ResultListRepository resultListRepository = Mockito.mock(ResultListRepository.class);
+        SplitTimeListRepository splitTimeListRepository = Mockito.mock(SplitTimeListRepository.class);
+        CupScoreListRepository cupScoreListRepository = Mockito.mock(CupScoreListRepository.class);
+        personService = new PersonService(personRepository, resultListRepository, splitTimeListRepository, cupScoreListRepository);
     }
 
     @Test

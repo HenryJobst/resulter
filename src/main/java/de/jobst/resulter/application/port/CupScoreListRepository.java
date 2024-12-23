@@ -2,6 +2,7 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupScoreList;
+import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.ResultListId;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface CupScoreListRepository {
 
     List<CupScoreList> findAllByResultListId(ResultListId resultListId);
     List<CupScoreList> findAllByResultListIdAndCupId(ResultListId resultListId, CupId cupId);
+
+    void replacePersonId(PersonId oldPersonId, PersonId newPersonId);
 }

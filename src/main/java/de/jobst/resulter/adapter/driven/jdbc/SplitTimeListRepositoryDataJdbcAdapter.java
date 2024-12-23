@@ -1,11 +1,14 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.SplitTimeListRepository;
+import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -14,6 +17,7 @@ import java.util.Optional;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
+@Slf4j
 public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepository {
 
     private final SplitTimeListJdbcRepository splitTimeListJdbcRepository;
@@ -64,6 +68,19 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
     @Transactional
     public Collection<SplitTimeList> findOrCreate(Collection<SplitTimeList> splitTimeLists) {
         return splitTimeLists.stream().map(this::findOrCreate).toList();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
+        if (splitTimeListJdbcRepository.existsByPersonId(oldPersonId.value())) {
+            int updatedRows =
+                splitTimeListJdbcRepository.replacePersonIdInSplitTimeList(oldPersonId.value(), newPersonId.value());
+            log.debug("Updated {} rows in split_time_list with person_id {} to person_id {}",
+                updatedRows,
+                oldPersonId,
+                newPersonId);
+        }
     }
 
 }

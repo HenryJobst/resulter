@@ -3,10 +3,13 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.application.port.CupScoreListRepository;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupScoreList;
+import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.ResultListId;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.Set;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
+@Slf4j
 public class CupScoreListRepositoryDataJdbcAdapter implements CupScoreListRepository {
 
     private final CupScoreListJdbcRepository cupScoreListJdbcRepository;
@@ -49,5 +53,18 @@ public class CupScoreListRepositoryDataJdbcAdapter implements CupScoreListReposi
     public List<CupScoreList> findAllByResultListIdAndCupId(ResultListId resultListId, CupId cupId) {
         return CupScoreListDbo.asCupScoreLists(cupScoreListJdbcRepository.findByResultListIdAndCupId(AggregateReference.to(
             resultListId.value()), AggregateReference.to(cupId.value())));
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
+        if (cupScoreListJdbcRepository.existsByPersonId(oldPersonId.value())) {
+            long updatedRows =
+                cupScoreListJdbcRepository.replacePersonIdInCupScore(oldPersonId.value(), newPersonId.value());
+            log.debug("Updated {} rows in cup_score_list with person_id {} to person_id {}",
+                updatedRows,
+                oldPersonId,
+                newPersonId);
+        }
     }
 }

@@ -114,4 +114,9 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
             page.getTotalElements());
     }
 
+    @Override
+    public void delete(Person person) {
+        personJdbcRepository.deleteById(person.getId().value());
+    }
+
 }

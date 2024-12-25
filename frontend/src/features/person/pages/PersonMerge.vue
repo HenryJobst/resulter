@@ -69,28 +69,26 @@ function mergePerson() {
 </script>
 
 <template>
-    <div class="flex flex-row">
-        <div class="flex flex-col ml-3">
-            <div class="flex flex-row">
-                <label for="other_id" class="col-fixed w-40">{{ t('labels.person') }}</label>
-                <div class="col">
-                    <span v-if="personDoublesQuery.status.value === 'pending'">{{
-                        t('messages.loading')
-                    }}</span>
-                    <span v-else-if="personDoublesQuery.status.value === 'error'">
-                        {{ t('messages.error', { message: personDoublesQuery.error.toLocaleString() }) }}
-                    </span>
-                    <Dropdown
-                        v-else-if="personDoublesQuery.data"
-                        id="personToMerge"
-                        v-model="personForMerge"
-                        :options="personOptions"
-                        option-label="label"
-                        data-key="id"
-                        :placeholder="t('messages.select')"
-                        class="w-full md:w-20rem"
-                    />
-                </div>
+    <div class="flex flex-row mb-5">
+        <div class="flex flex-col">
+            <label for="other_id" class="mt-2 mb-3">{{ t('labels.person_merge') }}</label>
+            <div class="flex flex-col align-content-center">
+                <span v-if="personDoublesQuery.status.value === 'pending'">{{
+                    t('messages.loading')
+                }}</span>
+                <span v-else-if="personDoublesQuery.status.value === 'error'">
+                    {{ t('messages.error', { message: personDoublesQuery.error.toLocaleString() }) }}
+                </span>
+                <Dropdown
+                    v-else-if="personDoublesQuery.data"
+                    id="personToMerge"
+                    v-model="personForMerge"
+                    :options="personOptions"
+                    option-label="label"
+                    data-key="id"
+                    :placeholder="t('messages.select')"
+                    class="w-full md:w-20rem"
+                />
             </div>
         </div>
     </div>
@@ -122,20 +120,23 @@ function mergePerson() {
                 </GenericEdit>
             </div>
         </div>
-        <div class="flex flex-col">
+        <div class="flex flex-col ml-6">
             <div class="flex flex-row">
                 <GenericEdit
                     v-if="personForMerge"
                     :entity-service="personService"
                     :query-key="queryKey"
-                    :entity-id="entityIdAsString"
+                    :entity-id="entityIdAsString!"
                     :entity-label="entityLabel"
-                    :edit-label="editLabel"
+                    :edit-label="t('labels.person_merge')"
                     router-prefix="person"
                     :visible="authStore.isAdmin"
                     :changeable="false"
+                    :savable="authStore.isAdmin"
                     :additional-submit-function="mergePerson"
                     :route-location="{ name: `person-merge`, params: { id: props.id } }"
+                    :save-button-label="t('labels.merge')"
+                    :return-button-visible="false"
                 >
                     <template #default="{ formData }">
                         <PersonForm

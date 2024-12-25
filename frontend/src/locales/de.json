@@ -25,6 +25,7 @@
         "import": "Importieren",
         "reload": "Neu laden",
         "edit": "Bearbeiten",
+        "merge": "Zusammenführen",
         "delete": "Löschen",
         "save": "Speichern",
         "back": "Zurück",
@@ -87,7 +88,8 @@
         "upload": "Hochladen",
         "download": "Runterladen",
         "year": "Jahr",
-        "action": "Aktion | Aktionen"
+        "action": "Aktion | Aktionen",
+        "person_merge": "Person zum Zusammenführen"
     },
     "result_state": {
         "OK": "OK",

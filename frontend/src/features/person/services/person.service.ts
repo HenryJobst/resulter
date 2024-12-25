@@ -21,6 +21,34 @@ export class PersonService extends GenericService<Person> {
                 return null
             })
     }
+
+    static async getPersonDoubles(
+        id: number,
+        t: (key: string) => string,
+    ): Promise<Person[] | null> {
+        if (id === 0) {
+            return null
+        }
+        const personDoublesUrl = `${personUrl}/${id.toString()}/doubles`
+        return await axiosInstance
+            .get<Person[]>(personDoublesUrl)
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
+
+    static async merge(keepId: number, removeId: number, t: (key: string) => string) {
+        const mergeUrl = `${personUrl}/${keepId.toString()}/merge`
+        return await axiosInstance
+            .post(mergeUrl, removeId)
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
 }
 
 export const personService = new PersonService()

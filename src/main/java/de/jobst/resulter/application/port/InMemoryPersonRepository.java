@@ -63,6 +63,11 @@ public class InMemoryPersonRepository implements PersonRepository {
         return new PageImpl<>(new ArrayList<>(persons.values()), pageable, persons.size());
     }
 
+    @Override
+    public void delete(Person person) {
+        persons.remove(person.getId());
+    }
+
     @SuppressWarnings("unused")
     public List<Person> savedPersons() {
         return savedPersons;

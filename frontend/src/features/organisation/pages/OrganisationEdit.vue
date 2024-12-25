@@ -10,7 +10,7 @@ const props = defineProps<{ id: string, locale?: string }>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['organisations']
+const queryKey: string[] = ['organisation']
 const entityLabel: string = 'organisation'
 const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.organisation') }))
 </script>
@@ -23,7 +23,7 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.o
         :entity-label="entityLabel"
         :edit-label="editLabel"
         router-prefix="organisation"
-        :changeable="authStore.isAdmin"
+        :visible="authStore.isAdmin"
     >
         <template #default="{ formData }">
             <OrganisationForm

@@ -9,7 +9,7 @@ import CupForm from '@/features/cup/widgets/CupForm.vue'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['cups']
+const queryKey: string[] = ['cup']
 const entityLabel: string = 'cup'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.cup') }))
 

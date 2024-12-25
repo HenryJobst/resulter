@@ -104,4 +104,27 @@ public class PersonController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/person/{id}/doubles")
+    public ResponseEntity<List<PersonDto>> getDoubles(@PathVariable Long id) {
+        try {
+            List<Person> doubles = personService.findDoubles(PersonId.of(id));
+            return ResponseEntity.ok(doubles.stream().map(PersonDto::from).toList());
+        } catch (Exception e) {
+            logError(e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/person/{id}/merge")
+    public ResponseEntity<PersonDto> mergePersons(@PathVariable Long id, @RequestBody Long removeId) {
+        try {
+            Person person = personService.mergePersons(PersonId.of(id), PersonId.of(removeId));
+            return ResponseEntity.ok(PersonDto.from(person));
+        } catch (Exception e) {
+            logError(e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 }

@@ -9,7 +9,7 @@ import { personService } from '@/features/person/services/person.service'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['persons']
+const queryKey: string[] = ['person']
 const entityLabel: string = 'person'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.person') }))
 

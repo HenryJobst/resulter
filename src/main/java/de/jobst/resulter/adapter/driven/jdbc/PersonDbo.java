@@ -2,10 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.With;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
@@ -16,6 +13,7 @@ import org.springframework.lang.NonNull;
 import java.time.LocalDate;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "person")
 public class PersonDbo {
@@ -63,6 +61,10 @@ public class PersonDbo {
             personDbo.setBirthDate(null);
         }
         return personDbo;
+    }
+
+    public static Person asPerson(@NonNull PersonDbo personDbo) {
+        return personDbo.asPerson();
     }
 
     public Person asPerson() {

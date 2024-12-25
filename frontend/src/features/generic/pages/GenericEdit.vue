@@ -1,51 +1,46 @@
 <script setup lang="ts">
-import { type PropType, computed, onMounted, ref, watch } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { type RouteLocationRaw, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { prettyPrint } from '@base2/pretty-print-object'
+import { computed, onMounted, ref, watch } from 'vue'
 import { toastDisplayDuration } from '@/utils/constants'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
+import type { IGenericService } from '@/features/generic/services/IGenericService'
 
-const props = defineProps({
-    entityService: Object,
-    queryKey: Array as PropType<(string | number)[]>,
-    entityId: String,
-    entityLabel: String,
-    editLabel: String,
-    routerPrefix: String,
-    visible: {
-        type: Boolean,
-        default: true,
-        optional: true,
-    },
-    changeable: {
-        type: Boolean,
-        default: true,
-        optional: true,
-    },
-    savable: {
-        type: Boolean,
-        default: true,
-        optional: true,
-    },
-    additionalSubmitFunction: {
-        type: Function as PropType<() => void>,
-        default: null,
-        optional: true,
-    },
-    routeLocation: {
-        type: Object as PropType<RouteLocationRaw>,
-        default: null,
-        optional: true,
-    },
+interface Props {
+    entityService: IGenericService<GenericEntity>
+    queryKey: (string | number)[]
+    entityId: string
+    entityLabel: string
+    editLabel: string
+    routerPrefix: string
+    visible?: boolean
+    changeable?: boolean
+    savable?: boolean
+    additionalSubmitFunction?: () => void
+    routeLocation?: RouteLocationRaw
+    saveButtonLabel?: string
+    returnButtonVisible?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    visible: true,
+    changeable: true,
+    savable: true,
+    returnButtonVisible: true,
+    additionalSubmitFunction: undefined,
+    routeLocation: undefined,
+    saveButtonLabel: undefined,
 })
 
 const { t } = useI18n()
+const saveButtonLabel = computed(() => props.saveButtonLabel ?? t('labels.save'))
+
 const router = useRouter()
 const queryClient = useQueryClient()
 const toast = useToast()
@@ -56,7 +51,7 @@ const entityQuery = useQuery({
     queryKey: [...props.queryKey!, props.entityId],
     queryFn: () => {
         console.log('GenericEdit:useQuery:entityQuery', props.entityId)
-        return props.entityService?.getById(props.entityId, t)
+        return props.entityService?.getById(Number.parseInt(props.entityId), t)
     },
 })
 
@@ -113,7 +108,7 @@ function submitHandler() {
     if (props.additionalSubmitFunction) {
         props.additionalSubmitFunction()
     }
-    if ((props.visible ?? true) && (props.changeable ?? true) && formData.value) {
+    if (props.visible && props.changeable && formData.value) {
         entityMutation.mutate(formData.value!)
     }
 }
@@ -124,7 +119,7 @@ function navigateToList() {
 </script>
 
 <template>
-    <div v-if="(visible ?? true)" v-bind="$attrs">
+    <div v-if="visible" v-bind="$attrs">
         <h1>{{ props.editLabel }}</h1>
         <div
             v-if="
@@ -146,9 +141,9 @@ function navigateToList() {
             <slot :form-data="{ data: formData }" />
             <div class="mt-2">
                 <Button
-                    v-if="(visible ?? true) && (savable ?? true)"
-                    v-tooltip="t('labels.save')"
-                    :aria-label="t('labels.save')"
+                    v-if="visible && savable"
+                    v-tooltip="saveButtonLabel"
+                    :aria-label="saveButtonLabel"
                     icon="pi pi-save"
                     class="mt-2"
                     type="submit"
@@ -157,7 +152,7 @@ function navigateToList() {
                     rounded
                 />
                 <Button
-                    v-if="(visible ?? true)"
+                    v-if="visible && returnButtonVisible"
                     v-tooltip="t('labels.back')"
                     icon="pi pi-arrow-left"
                     :aria-label="t('labels.back')"

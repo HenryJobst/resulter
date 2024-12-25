@@ -8,13 +8,17 @@ import Calendar from 'primevue/calendar'
 import { PersonService } from '@/features/person/services/person.service'
 import type { Person } from '@/features/person/model/person'
 
-const props = defineProps<{
+interface Props {
     person: Person
     entityService: PersonService
     queryKey: string[]
     visible?: boolean
     changeable?: boolean
-}>()
+}
+const props = withDefaults(defineProps<Props>(), {
+    visible: true,
+    changeable: true,
+})
 
 const emit = defineEmits(['update:modelValue'])
 
@@ -45,22 +49,43 @@ const birthDate = computed({
         const bDate = person.value.birthDate
         return bDate ? new Date(bDate) : null
     },
-    set: value => (value ? person.value.birthDate = value! : null),
+    set: (value) => {
+        if (value) {
+            const newDate = new Date(value.getTime())
+            const timezoneOffset = newDate.getTimezoneOffset()
+            const hours = newDate.getHours()
+            newDate.setHours(hours - (timezoneOffset / 60))
+            person.value.birthDate = newDate.toISOString()
+        }
+        else {
+            person.value.birthDate = null
+        }
+    },
 })
 </script>
 
 <template>
-    <div v-if="person && (props.visible ?? true)" class="flex flex-col">
+    <div v-if="person && props.visible" class="flex flex-col">
         <div class="flex flex-row">
             <label for="family_name" class="col-fixed w-40">{{ t('labels.family_name') }}</label>
             <div class="col">
-                <InputText id="family_name" v-model="person.familyName" type="text" :disabled="!props.changeable ?? false" />
+                <InputText
+                    id="family_name"
+                    v-model="person.familyName"
+                    type="text"
+                    :disabled="!props.changeable"
+                />
             </div>
         </div>
         <div class="flex flex-row">
             <label for="given_name" class="col-fixed w-40">{{ t('labels.given_name') }}</label>
             <div class="col">
-                <InputText id="given_name" v-model="person.givenName" type="text" :disabled="!props.changeable ?? false" />
+                <InputText
+                    id="given_name"
+                    v-model="person.givenName"
+                    type="text"
+                    :disabled="!props.changeable"
+                />
             </div>
         </div>
         <div class="flex flex-row">
@@ -73,8 +98,9 @@ const birthDate = computed({
                     icon-display="input"
                     date-format="y"
                     view="year"
+                    :year-navigator="true"
                     :locale="locale"
-                    :disabled="!props.changeable ?? false"
+                    :disabled="!props.changeable"
                 >
                     <template #inputicon="{ clickCallback }">
                         <i class="pi pi-calendar ml-2 mt-2" rounded @click="clickCallback" />
@@ -100,7 +126,7 @@ const birthDate = computed({
                     data-key="id"
                     :placeholder="t('messages.select')"
                     class="w-full md:w-14rem"
-                    :disabled="!props.changeable ?? false"
+                    :disabled="!props.changeable"
                 />
             </div>
         </div>

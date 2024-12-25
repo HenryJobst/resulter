@@ -44,7 +44,7 @@ const initialTableSettings: TableSettings = {
     sortOrder: 0,
     nullSortOrder: 1,
     defaultSortOrder: 1,
-    filters: null,
+    filters: undefined,
 }
 </script>
 

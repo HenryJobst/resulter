@@ -1,26 +1,46 @@
 <script setup lang="ts">
-import { type PropType, computed, onMounted, ref, watch } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
-import { useRouter } from 'vue-router'
+import { type RouteLocationRaw, useRouter } from 'vue-router'
 import Button from 'primevue/button'
+import { prettyPrint } from '@base2/pretty-print-object'
+import { computed, onMounted, ref, watch } from 'vue'
 import { toastDisplayDuration } from '@/utils/constants'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
+import type { IGenericService } from '@/features/generic/services/IGenericService'
 
-const props = defineProps({
-    entityService: Object,
-    queryKey: Array as PropType<(string | number)[]>,
-    entityId: String,
-    entityLabel: String,
-    editLabel: String,
-    routerPrefix: String,
-    changeable: Boolean,
+interface Props {
+    entityService: IGenericService<GenericEntity>
+    queryKey: (string | number)[]
+    entityId: string
+    entityLabel: string
+    editLabel: string
+    routerPrefix: string
+    visible?: boolean
+    changeable?: boolean
+    savable?: boolean
+    additionalSubmitFunction?: () => void
+    routeLocation?: RouteLocationRaw
+    saveButtonLabel?: string
+    returnButtonVisible?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    visible: true,
+    changeable: true,
+    savable: true,
+    returnButtonVisible: true,
+    additionalSubmitFunction: undefined,
+    routeLocation: undefined,
+    saveButtonLabel: undefined,
 })
 
 const { t } = useI18n()
+const saveButtonLabel = computed(() => props.saveButtonLabel ?? t('labels.save'))
+
 const router = useRouter()
 const queryClient = useQueryClient()
 const toast = useToast()
@@ -28,21 +48,34 @@ const toast = useToast()
 const formData = ref<GenericEntity | null>(null)
 
 const entityQuery = useQuery({
-    queryKey: [props.queryKey, props.entityId],
-    queryFn: () => props.entityService?.getById(props.entityId, t),
+    queryKey: [...props.queryKey!, props.entityId],
+    queryFn: () => {
+        console.log('GenericEdit:useQuery:entityQuery', props.entityId)
+        return props.entityService?.getById(Number.parseInt(props.entityId), t)
+    },
 })
 
 onMounted(() => {
+    console.log('GenericEdit:onMounted')
     if (entityQuery.data.value)
         formData.value = { ...entityQuery.data.value }
 
-    // console.log('GenericEdit:onMounted:formData', prettyPrint(formData.value))
+    console.log('GenericEdit:onMounted:formData', prettyPrint(formData.value))
 })
+
+watch(
+    () => props.entityId,
+    (newEntityId) => {
+        console.log('GenericEdit:watch:entityId', newEntityId)
+        entityQuery.refetch()
+    },
+)
 
 // Watcher, der auf Änderungen in entityQuery.data reagiert
 watch(
     () => entityQuery.data,
     (newData) => {
+        console.log('GenericEdit:watch:entityQuery.data', prettyPrint(newData))
         if (newData && newData.value)
             formData.value = { ...newData.value }
         else formData.value = null // oder setzen Sie einen Default-Wert
@@ -57,19 +90,27 @@ const entityLabel = computed(() => (props.entityLabel ? t(`labels.${props.entity
 const entityMutation = useMutation({
     mutationFn: (entity: GenericEntity) => props.entityService?.update(entity, t),
     onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: props.queryKey })
+        queryClient.invalidateQueries({ queryKey: [`${props.queryKey!}s`] })
+        queryClient.invalidateQueries({ queryKey: [`${props.queryKey!}`, props.entityId] })
         toast.add({
             severity: 'info',
             summary: t('messages.success'),
             detail: t('messages.entity_changed', { entity: entityLabel.value }),
             life: toastDisplayDuration,
         })
-        router.push({ name: `${props.routerPrefix}-list` })
+        router.push(
+            props.routeLocation ? props.routeLocation : { name: `${props.routerPrefix}-list` },
+        )
     },
 })
 
 function submitHandler() {
-    entityMutation.mutate(formData.value!)
+    if (props.additionalSubmitFunction) {
+        props.additionalSubmitFunction()
+    }
+    if (props.visible && props.changeable && formData.value) {
+        entityMutation.mutate(formData.value!)
+    }
 }
 
 function navigateToList() {
@@ -78,7 +119,7 @@ function navigateToList() {
 </script>
 
 <template>
-    <div v-if="changeable" v-bind="$attrs">
+    <div v-if="visible" v-bind="$attrs">
         <h1>{{ props.editLabel }}</h1>
         <div
             v-if="
@@ -100,17 +141,18 @@ function navigateToList() {
             <slot :form-data="{ data: formData }" />
             <div class="mt-2">
                 <Button
-                    v-if="changeable"
-                    v-tooltip="t('labels.save')"
-                    :aria-label="t('labels.save')"
-                    class="pi pi-save mt-2"
+                    v-if="visible && savable"
+                    v-tooltip="saveButtonLabel"
+                    :aria-label="saveButtonLabel"
+                    icon="pi pi-save"
+                    class="mt-2"
                     type="submit"
                     outlined
                     raised
                     rounded
                 />
                 <Button
-                    v-if="changeable"
+                    v-if="visible && returnButtonVisible"
                     v-tooltip="t('labels.back')"
                     icon="pi pi-arrow-left"
                     :aria-label="t('labels.back')"

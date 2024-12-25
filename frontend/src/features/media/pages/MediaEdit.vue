@@ -24,7 +24,7 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.m
         :entity-label="entityLabel"
         :edit-label="editLabel"
         router-prefix="media"
-        :changeable="authStore.isAdmin"
+        :visible="authStore.isAdmin"
     >
         <template #default="{ formData }">
             <MediaForm

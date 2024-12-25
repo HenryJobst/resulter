@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.Gender;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface PersonJdbcRepository
-    extends CrudRepository<PersonDbo, Long>, PagingAndSortingRepository<PersonDbo, Long> {
+    extends CrudRepository<PersonDbo, Long>, PagingAndSortingRepository<PersonDbo, Long>,
+            QueryByExampleExecutor<PersonDbo> {
 
     @NonNull
     Collection<PersonDbo> findAll();

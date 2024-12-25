@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.ResultListId;
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -81,4 +82,21 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
                                                        @Param("creator") String creator,
                                                        @Param("createTime") Timestamp createTime,
                                                        @Param("createTimeZone") String createTimeZone);
+
+    @Query("""
+    SELECT COUNT(p) > 0
+    FROM person_result p
+    WHERE p.person_id = :oldPersonId
+    """)
+    boolean existsByPersonId(@Param("oldPersonId") Long oldPersonId);
+
+    @Modifying
+    @Query("""
+        UPDATE person_result
+        SET person_id = :newPersonId
+        WHERE person_id = :oldPersonId;
+        """)
+    long replacePersonIdInPersonResult(@Param("oldPersonId") Long oldPersonId,
+                                       @Param("newPersonId") Long newPersonId);
+
 }

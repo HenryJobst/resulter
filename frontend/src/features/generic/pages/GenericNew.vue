@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type PropType, computed } from 'vue'
+import { computed } from 'vue'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
@@ -8,15 +8,25 @@ import Button from 'primevue/button'
 import { toastDisplayDuration } from '@/utils/constants'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
+import type { IGenericService } from '@/features/generic/services/IGenericService'
+import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 
-const props = defineProps({
-    entity: Object,
-    entityService: Object,
-    queryKey: Array as PropType<(string | number)[]>,
-    entityLabel: String,
-    newLabel: String,
-    routerPrefix: String,
-    changeable: Boolean,
+interface Props {
+    entity: GenericEntity
+    entityService: IGenericService<GenericEntity>
+    queryKey: (string | number)[]
+    entityLabel: string
+    newLabel: string
+    routerPrefix: string
+    visible?: boolean
+    changeable?: boolean
+    savable?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    visible: true,
+    changeable: true,
+    savable: true,
 })
 
 const { t } = useI18n()

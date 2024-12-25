@@ -9,7 +9,7 @@ import { eventService } from '@/features/event/services/event.service'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['events']
+const queryKey: string[] = ['event']
 const entityLabel: string = 'event'
 const newLabel = computed(() => t('messages.new_entity', { entity: t('labels.event') }))
 

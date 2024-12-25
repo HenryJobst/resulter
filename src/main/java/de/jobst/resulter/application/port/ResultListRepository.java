@@ -25,4 +25,6 @@ public interface ResultListRepository {
     ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
                                                                     ClassResultShortName classResultShortName,
                                                                     PersonId personId);
+
+    void replacePersonId(PersonId oldPersonId, PersonId newPersonId);
 }

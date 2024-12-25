@@ -10,7 +10,7 @@ const props = defineProps<{ id: string, locale?: string }>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['certificates']
+const queryKey: string[] = ['certificate']
 const entityLabel: string = 'certificate'
 const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.certificate') }))
 </script>
@@ -23,7 +23,7 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.c
         :entity-label="entityLabel"
         :edit-label="editLabel"
         router-prefix="certificate"
-        :changeable="authStore.isAdmin"
+        :visible="authStore.isAdmin"
     >
         <template #default="{ formData }">
             <CertificateForm

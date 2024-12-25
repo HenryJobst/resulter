@@ -5,5 +5,5 @@ export interface Person {
     familyName: string
     givenName: string
     gender: Gender
-    birthDate: string | Date
+    birthDate: string | Date | null
 }

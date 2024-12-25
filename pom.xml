@@ -39,6 +39,7 @@
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <tika-core.version>3.0.0</tika-core.version>
         <turkraft-springfilter-core.version>3.1.8</turkraft-springfilter-core.version>
+        <commons-text.version>1.13.0</commons-text.version>
     </properties>
     <profiles>
         <profile>
@@ -259,6 +260,13 @@
             <version>${testcontainers.version}</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${commons-text.version}</version>
+        </dependency>
+
 
     </dependencies>
     <dependencyManagement>

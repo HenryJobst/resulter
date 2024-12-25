@@ -11,7 +11,7 @@ const props = defineProps<{ id: string, locale?: string }>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['persons']
+const queryKey: string[] = ['person']
 const entityLabel: string = 'person'
 const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.person') }))
 </script>
@@ -24,7 +24,9 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.p
         :entity-label="entityLabel"
         :edit-label="editLabel"
         router-prefix="person"
+        :visible="authStore.isAdmin"
         :changeable="authStore.isAdmin"
+        :savable="authStore.isAdmin"
     >
         <template #default="{ formData }">
             <PersonForm

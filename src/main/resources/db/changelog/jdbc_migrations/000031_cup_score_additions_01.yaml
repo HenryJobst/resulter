@@ -1,0 +1,18 @@
+databaseChangeLog:
+    - changeSet:
+          id: 000031_cup_score_additions_01
+          author: Henry Jobst
+          comment: Update onUpdate behavior for fk_cup_score_person to cascade
+          changes:
+              - dropForeignKeyConstraint:
+                    baseTableName: cup_score
+                    constraintName: fk_cup_score_person
+
+              - addForeignKeyConstraint:
+                    baseTableName: cup_score
+                    baseColumnNames: person_id
+                    constraintName: fk_cup_score_person
+                    referencedTableName: person
+                    referencedColumnNames: id
+                    onDelete: restrict
+                    onUpdate: cascade

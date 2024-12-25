@@ -11,7 +11,7 @@ const props = defineProps<{ id: string, locale?: string }>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const queryKey: string[] = ['events']
+const queryKey: string[] = ['event']
 const entityLabel: string = 'event'
 const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.event') }))
 </script>
@@ -24,7 +24,7 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.e
         :entity-label="entityLabel"
         :edit-label="editLabel"
         router-prefix="event"
-        :changeable="authStore.isAdmin"
+        :visible="authStore.isAdmin"
     >
         <template #default="{ formData }">
             <EventForm

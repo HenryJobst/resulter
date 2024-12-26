@@ -31,27 +31,28 @@ const eventResultsQuery = useQuery({
     queryFn: () => EventService.getResultsById(props.id, t),
 })
 
-const resultList0 = computed(() => {
-    return eventResultsQuery.data.value?.resultLists[0]
+const eventId = computed(() => {
+    return eventResultsQuery.data.value?.resultLists[0].eventId
 })
 
+const enabled = computed(() => !!eventResultsQuery.data.value?.resultLists[0].eventId)
+
 const eventQuery = useQuery({
-    queryKey: ['events'],
-    queryFn: () => eventService.getAll(t),
+    queryKey: ['events', eventId.value],
+    queryFn: () => {
+        return eventService.getById(eventId.value!, t)
+    },
+    enabled,
 })
 
 const event = computed(() => {
-    return eventQuery.data.value?.content.find(e => e.id === resultList0.value?.eventId)
-})
-
-const eventId = computed(() => {
-    return event.value?.id
+    return eventQuery.data.value
 })
 
 const eventCertificateStatsQuery = useQuery({
-    queryKey: ['eventCertificateStats', eventId, authStore.isAdmin],
+    queryKey: ['eventCertificateStats', eventId.value, authStore.isAdmin],
     queryFn: () => EventService.getCertificateStats(eventId.value, t),
-    enabled: authStore.isAdmin,
+    enabled: authStore.isAdmin && !!eventId.value,
     retry: false,
 })
 
@@ -126,9 +127,7 @@ function createResultListTreeNodes(
     for (let i = 0; i < resultLists.length; i++) {
         const resultList = resultLists[i]
         const certificateEnabled: boolean
-            = (eventQuery.data.value?.content.find(e => e.id === resultList.eventId)?.certificate
-                ?? false) !== false
-                && (resultLists.length === 1 || i === 0)
+            = (event.value?.certificate ?? false) !== false && (resultLists.length === 1 || i === 0)
         const resultListCupScoreLists = cupScoreLists ? cupScoreLists[i] : undefined
         const resultListCompleteCupScoreLists = resultListCupScoreLists
             ? resultListCupScoreLists.filter(x => x.status === 'COMPLETE')
@@ -300,7 +299,7 @@ function navigateToList() {
     <span v-else-if="eventResultsQuery.status.value === 'error'">
         {{ t('messages.error', { message: eventResultsQuery.error.toLocaleString() }) }}
     </span>
-    <div v-else-if="eventResultsQuery.data" class="card flex justify-content-start">
+    <div v-else-if="eventResultsQuery.data && eventId" class="card flex justify-content-start">
         <div class="flex flex-col flex-grow w-full">
             <h1 class="mt-3 font-extrabold">
                 {{ event?.name }} - {{ t('labels.results', 2) }}

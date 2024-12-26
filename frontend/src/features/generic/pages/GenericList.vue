@@ -11,7 +11,6 @@ import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
-import { prettyPrint } from '@base2/pretty-print-object'
 import Spinner from '@/components/SpinnerComponent.vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import { toastDisplayDuration } from '@/utils/constants'
@@ -75,7 +74,6 @@ const useSettingsStore = settingsStoreFactory(props.settingsStoreSuffix, props.i
 const settingsStore = useSettingsStore()
 
 onMounted(() => {
-    console.log('Mounted ...')
     props.columns?.forEach((col) => {
         if (col.filterable && settingsStore.settings.filters) {
             settingsStore.settings.filters[col.field] = {
@@ -84,13 +82,11 @@ onMounted(() => {
             }
         }
     })
-    console.log(`Filters: ${prettyPrint(settingsStore.settings.filters)}`)
 })
 
 const queryClient = useQueryClient()
 
 const queryKeys = computed(() => {
-    console.log('Calculate query keys ...')
     return [
         props.queryKey,
         settingsStore.settings.page,
@@ -107,7 +103,6 @@ const queryKeys = computed(() => {
 const entityQuery = useQuery({
     queryKey: queryKeys,
     queryFn: () => {
-        console.log('Get all ...')
         return props.entityService?.getAll(t, settingsStore.settings)
     },
 })
@@ -115,7 +110,6 @@ const entityQuery = useQuery({
 const dataValue = computed((): RestResult<any> | undefined => {
     if (entityQuery.data && entityQuery.data.value) {
         const value = entityQuery.data.value as unknown as RestResult<any>
-        console.log(`Total elements: ${value.totalElements}`)
         return value
     }
     else {
@@ -148,29 +142,32 @@ function reload() {
 }
 
 function pageChanged(e: DataTablePageEvent) {
-    console.log(`Page: ${e.page}`)
+    /* console.log(`Page: ${e.page}`)
     console.log(`Rows: ${e.rows}`)
     console.log(`Multi-Sort-Meta: ${prettyPrint(e.multiSortMeta)}`)
     console.log(`Pageable: ${prettyPrint(settingsStore.settings.paginator)}`)
     console.log(`Paginator position: ${prettyPrint(settingsStore.settings.paginatorPosition)}`)
+    */
     settingsStore.setPage(e.page)
     settingsStore.settings.rows = e.rows
     settingsStore.settings.multiSortMeta = e.multiSortMeta
 }
 
 function sortChanged(e: DataTableSortEvent) {
+    /*
     console.log(`Rows: ${prettyPrint(e.rows)}`)
     console.log(`Multi-Sort-Meta: ${prettyPrint(e.multiSortMeta)}`)
     console.log(`Pageable: ${prettyPrint(settingsStore.settings.paginator)}`)
     console.log(`Paginator position: ${prettyPrint(settingsStore.settings.paginatorPosition)}`)
+     */
     settingsStore.settings.first = e.first
     settingsStore.settings.page = e.first / e.rows
     settingsStore.settings.rows = e.rows
     settingsStore.settings.multiSortMeta = e.multiSortMeta
 }
 
-function filterChanged(e: DataTableFilterEvent) {
-    console.log(`Filters: ${prettyPrint(e)}`)
+function filterChanged(_e: DataTableFilterEvent) {
+    // console.log(`Filters: ${prettyPrint(e)}`)
     // settingsStore.settings.filters = e.filters
 }
 

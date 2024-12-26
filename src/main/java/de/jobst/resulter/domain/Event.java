@@ -61,6 +61,12 @@ public class Event implements Comparable<Event> {
         return Event.of(EventId.empty().value(), name, null, null, organisations, EventStatus.getDefault());
     }
 
+    public static Event of(@NonNull String name,
+                           @Nullable ZonedDateTime startTime,
+                           @NonNull Collection<Organisation> organisations) {
+        return Event.of(EventId.empty().value(), name, startTime, null, organisations, EventStatus.getDefault());
+    }
+
     static public Event of(Long id,
                            @NonNull String eventName,
                            @Nullable ZonedDateTime startTime,

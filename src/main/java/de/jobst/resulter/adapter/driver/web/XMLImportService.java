@@ -11,9 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.time.ZoneOffset.UTC;
 
 @Service
 public class XMLImportService {
@@ -232,8 +235,17 @@ public class XMLImportService {
     @NonNull
     private Event importEvent(de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList,
                               Map<String, Organisation> organisationByName) {
+
+        ZonedDateTime eventStartDate =
+            resultList.getClassResults().stream().flatMap(x -> x.getPersonResults().stream()).map(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult::getResults).flatMap(Collection::stream).map(de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult::getStartTime).filter(Objects::nonNull).map(x -> x.toInstant().atZone(UTC)).min(Comparator.naturalOrder()).orElse(null);
+        if (eventStartDate != null) {
+            int currentMinute = eventStartDate.getMinute();
+            int nextValidMinute = (int) (Math.floor(currentMinute / 15.0) * 15) % 60;
+            eventStartDate = eventStartDate.withMinute(nextValidMinute).withSecond(0).withNano(0);
+        }
+
         // Event
-        Event event = Event.of(resultList.getEvent().getName(),
+        Event event = Event.of(resultList.getEvent().getName(), eventStartDate,
             resultList.getEvent().getOrganisers().stream().map(x -> organisationByName.get(x.getName())).toList());
         event = eventService.findOrCreate(event);
         return event;

@@ -1,0 +1,30 @@
+databaseChangeLog:
+    - changeSet:
+          id: 000034_cup_event_additions_01
+          author: Henry Jobst
+          comment: Update onUpdate/onDelete behavior for fk_cup_event_cup & fk_cup_event_event to cascade
+          changes:
+              - dropForeignKeyConstraint:
+                    baseTableName: cup_event
+                    constraintName: fk_cup_event_cup
+              - dropForeignKeyConstraint:
+                    baseTableName: cup_event
+                    constraintName: fk_cup_event_event
+              -   addForeignKeyConstraint :
+                    baseTableName : cup_event
+                    baseColumnNames : cup_id
+                    constraintName : fk_cup_event_cup
+                    referencedTableName : cup
+                    referencedColumnNames : id
+                    onDelete : cascade
+                    onUpdate : cascade
+              -   addForeignKeyConstraint :
+                    baseTableName : cup_event
+                    baseColumnNames : event_id
+                    constraintName : fk_cup_event_event
+                    referencedTableName : event
+                    referencedColumnNames : id
+                    onDelete : cascade
+                    onUpdate : cascade
+
+

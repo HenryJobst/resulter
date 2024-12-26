@@ -2,7 +2,7 @@
 
 # **Resulter**
 
-[![version](https://img.shields.io/badge/version-0.0.7-blue)]()
+[![version](https://img.shields.io/badge/version-1.0.1-blue)]()
 [![license](https://img.shields.io/badge/license-CC%20BY--NC--ND%204.0-blue)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
 
@@ -13,9 +13,9 @@
 This application allows for the input of competition results files and subsequently displays detailed result lists.
 As the first major feature there is the possibility to design certificate templates and activate certificate download
 for an event for every single participant.
+Other functions include the calculation and display of cup and ranking points for the German Nebel-Cup, Kristall-Cup and the North-East-Ranking.
 
-Future expansions are planned to include cup point calculations and ranking list points, as
-well as an analysis of split times.
+Possible future extensions: generalization of cups, evaluation of split times, calculation of recommended course lengths, etc.
 
 ## Architecture
 
@@ -60,7 +60,7 @@ Architecture.
    ```
 4. Deployment
 
-- there are seperate deployment scripts (build.sh) to build docker images for frontend and backend
+- there are separate deployment scripts (build.sh) to build docker images for frontend and backend
 - there is a compose file to start the whole application with database in docker containers
 
 ## Usage
@@ -91,9 +91,9 @@ Mit dieser Anwendung können Ergebnisdateien von Wettkämpfen eingelesen und ans
 angezeigt werden.
 Als erste große Funktion besteht die Möglichkeit, Urkundenvorlagen zu gestalten und für eine Veranstaltung den
 Urkunden-Download für jeden einzelnen Teilnehmer zu aktivieren.
+Weitere Funktionen sind die Berechnung und Anzeige von Cup- und Ranglistenpunkten für den deutschen Nebel-Cup, Kristall-Cup und die Nord-Ost-Rangliste.
 
-Zukünftige Erweiterungen sollen den Druck von Urkunden, Berechnungen von Cup- und Ranglistenpunkten sowie eine
-Auswertung von Splittzeiten ermöglichen.
+Zukünftige mögliche Erweiterungen: Generalisierung von Cups, Auswertung von Splittzeiten, Berechnung von empfohlenen Bahnlängen etc.
 
 ## Architektur
 

@@ -45,6 +45,17 @@ public class EventController {
         }
     }
 
+    @GetMapping("/event/all")
+    public ResponseEntity<List<EventDto>> getAllEvents() {
+        try {
+            List<Event> events = eventService.findAll();
+            return ResponseEntity.ok(events.stream().map(EventDto::from).toList());
+        } catch (Exception e) {
+            logError(e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @GetMapping("/event")
     public ResponseEntity<Page<EventDto>> searchEvents(@RequestParam Optional<String> filter, Pageable pageable) {
         try {

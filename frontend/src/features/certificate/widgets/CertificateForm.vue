@@ -29,7 +29,7 @@ const queryClient = useQueryClient()
 
 const eventQuery = useQuery({
     queryKey: ['events'],
-    queryFn: () => eventService.getAll(t),
+    queryFn: () => eventService.getAllUnpaged(t),
 })
 
 const mediaQuery = useQuery({
@@ -59,10 +59,10 @@ const formattedSchema = computed(() => {
 })
 
 function getEventKeyFromId(id: number | null): EventKey | null {
-    if (!eventQuery.data.value || !eventQuery.data.value.content)
+    if (!eventQuery.data.value || !eventQuery.data.value)
         return null
 
-    const event: SportEvent | undefined = eventQuery.data.value?.content.find(
+    const event: SportEvent | undefined = eventQuery.data.value?.find(
         event => event.id === id,
     )
     if (event !== undefined) {
@@ -90,7 +90,7 @@ function getMediaKeyFromId(id: number | null): MediaKey | null {
 }
 
 function handleEventSelectionChange(ev: DropdownChangeEvent) {
-    if (ev.value && certificate.value && eventQuery.data.value && eventQuery.data.value.content)
+    if (ev.value && certificate.value && eventQuery.data.value && eventQuery.data.value)
         certificate.value.event = getEventKeyFromId(ev.value.id)!
 }
 
@@ -127,7 +127,7 @@ watch(
                             v-else-if="eventQuery.data.value"
                             id="event"
                             :model-value="certificate.event"
-                            :options="eventQuery.data.value.content"
+                            :options="eventQuery.data.value"
                             option-label="name"
                             data-key="id"
                             :placeholder="t('messages.select')"

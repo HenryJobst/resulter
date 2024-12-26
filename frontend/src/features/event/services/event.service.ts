@@ -40,6 +40,25 @@ export class EventService extends GenericService<SportEvent> {
         })
     }
 
+    async getAllUnpaged(t: (key: string) => string): Promise<SportEvent[] | null> {
+        return await axiosInstance
+            .get<SportEvent[]>(`${eventUrl}/all`)
+            .then((response) => {
+                if (response) {
+                    return response.data.map((element) => {
+                        if (element.startTime)
+                            element.startTime = new Date(element.startTime)
+                        return element
+                    })
+                }
+                return null
+            })
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
+
     static async calculate(result_list_id: number, t: (key: string) => string) {
         return axiosInstance
             .put(`${resultListUrl}/${result_list_id}/calculate`)

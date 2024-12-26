@@ -73,6 +73,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
             .requestMatchers(HttpMethod.GET,
                 "/version",
                 "/event",
+                "/event/all",
                 "/event/{id}",
                 "/organisation",
                 "/person",

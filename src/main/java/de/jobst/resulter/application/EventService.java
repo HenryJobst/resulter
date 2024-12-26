@@ -102,4 +102,5 @@ public class EventService {
     public Page<Event> findAll(@Nullable String filter, @NonNull Pageable pageable) {
         return eventRepository.findAll(filter, pageable);
     }
+
 }

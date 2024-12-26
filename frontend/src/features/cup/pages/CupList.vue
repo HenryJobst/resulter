@@ -25,7 +25,7 @@ const columns: GenericListColumn[] = [
 
 const eventsQuery = useQuery({
     queryKey: ['events'],
-    queryFn: () => eventService.getAll(t),
+    queryFn: () => eventService.getAllUnpaged(t),
     select: data => data ?? [],
 })
 
@@ -42,7 +42,7 @@ const initialTableSettings: TableSettings = {
     sortOrder: -1,
     nullSortOrder: 1,
     defaultSortOrder: 1,
-    filters: null,
+    filters: undefined,
 }
 </script>
 

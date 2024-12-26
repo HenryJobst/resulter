@@ -36,7 +36,7 @@ const l_events = computed({
 
 const eventQuery = useQuery({
     queryKey: ['events'],
-    queryFn: () => eventService.getAll(t),
+    queryFn: () => eventService.getAllUnpaged(t),
 })
 
 const cupTypesQuery = useQuery({
@@ -45,12 +45,12 @@ const cupTypesQuery = useQuery({
 })
 
 function getEventKeysFromIds(ids: number[]): EventKey[] | null {
-    if (!eventQuery.data.value || !eventQuery.data.value.content)
+    if (!eventQuery.data.value || !eventQuery.data.value)
         return null
 
     return ids
         .map((id) => {
-            return eventQuery.data.value?.content.find(b => b.id === id)
+            return eventQuery.data.value?.find(b => b.id === id)
         })
         .filter(ev => ev !== undefined)
         .map((ev) => {
@@ -62,7 +62,7 @@ function getEventKeysFromIds(ids: number[]): EventKey[] | null {
 }
 
 function handleSelectionChange(ev: MultiSelectChangeEvent) {
-    if (ev.value && cup.value && eventQuery.data.value && eventQuery.data.value.content) {
+    if (ev.value && cup.value && eventQuery.data.value && eventQuery.data.value) {
         cup.value.events = getEventKeysFromIds(ev.value)!
     }
 }
@@ -125,7 +125,7 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
                     <MultiSelect
                         id="events"
                         v-model="l_events"
-                        :options="eventQuery.data.value.content"
+                        :options="eventQuery.data.value"
                         data-key="id"
                         filter
                         option-label="name"

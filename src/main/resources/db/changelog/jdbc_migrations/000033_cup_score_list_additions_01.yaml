@@ -1,0 +1,30 @@
+databaseChangeLog:
+    - changeSet:
+          id: 000033_cup_score_list_additions_01
+          author: Henry Jobst
+          comment: Update onUpdate behavior for fk_cup_score_list_result_list to cascade
+          changes:
+              - dropForeignKeyConstraint:
+                    baseTableName: cup_score_list
+                    constraintName: fk_cup_score_list_result_list
+              - dropForeignKeyConstraint:
+                    baseTableName: cup_score_list
+                    constraintName: fk_cup_score_list_cup
+              - addForeignKeyConstraint:
+                    baseTableName: cup_score_list
+                    baseColumnNames: result_list_id
+                    constraintName: fk_cup_score_list_result_list
+                    referencedTableName: result_list
+                    referencedColumnNames: id
+                    onDelete: cascade
+                    onUpdate: cascade
+              - addForeignKeyConstraint:
+                    baseTableName: cup_score_list
+                    baseColumnNames: cup_id
+                    constraintName: fk_cup_score_list_cup
+                    referencedTableName: cup
+                    referencedColumnNames: id
+                    onDelete: cascade
+                    onUpdate: cascade
+
+

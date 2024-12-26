@@ -92,7 +92,29 @@ public class ResultList implements Comparable<ResultList> {
 
     private List<CupScore> calculate(Cup cup, CupTypeCalculationStrategy cupTypeCalculationStrategy) {
         assert getClassResults() != null;
-        return getClassResults().stream()
+
+        // Gruppieren nach harmonisiertem ClassResultShortName
+        Map<ClassResultShortName, List<ClassResult>> groupedByHarmonizedShortName = getClassResults().stream()
+            .collect(Collectors.groupingBy(classResult -> cupTypeCalculationStrategy.harmonizeClassResultShortName(classResult.classResultShortName())));
+
+        // Erstellen einer neuen Collection mit zusammengefassten ClassResults
+        Collection<ClassResult> harmonizedClassResults = groupedByHarmonizedShortName.entrySet().stream()
+            .map(entry -> {
+                ClassResultShortName harmonizedShortName = entry.getKey();
+                List<ClassResult> groupedClassResults = entry.getValue();
+
+                // Zusammenfassen der PersonResults
+                List<PersonResult> aggregatedPersonResults = groupedClassResults.stream()
+                    .flatMap(classResult -> classResult.personResults().value().stream())
+                    .collect(Collectors.toList());
+
+                // Erstellen eines neuen ClassResult mit den zusammengefassten PersonResults
+                ClassResult firstClassResult = groupedClassResults.getFirst();
+                return new ClassResult(firstClassResult.classResultName(), harmonizedShortName, firstClassResult.gender(), PersonResults.of(aggregatedPersonResults), firstClassResult.courseId());
+            })
+            .toList();
+
+        return harmonizedClassResults.stream()
             .filter(cupTypeCalculationStrategy::valid)
             .map(it -> it.calculate(cup, cupTypeCalculationStrategy))
             .flatMap(Collection::stream)

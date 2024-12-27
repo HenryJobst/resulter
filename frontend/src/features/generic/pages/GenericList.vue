@@ -17,7 +17,7 @@ import { toastDisplayDuration } from '@/utils/constants'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
 import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
-import type { RestResult } from '@/features/generic/models/rest_result'
+import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import { getValueByPath, truncateString } from '@/utils/tools'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import { formatDate, formatTime, formatYear } from '@/features/generic/services/GenericFunctions'
@@ -107,10 +107,9 @@ const entityQuery = useQuery({
     },
 })
 
-const dataValue = computed((): RestResult<any> | undefined => {
+const dataValue = computed((): RestPageResult<any> | undefined => {
     if (entityQuery.data && entityQuery.data.value) {
-        const value = entityQuery.data.value as unknown as RestResult<any>
-        return value
+        return entityQuery.data.value as unknown as RestPageResult<any>
     }
     else {
         return undefined
@@ -194,7 +193,7 @@ function debounce<T extends (...args: any[]) => any>(
 
 const delay = 800
 const debounceFilterChanged = debounce(filterChanged, delay)
-const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => void) => {
+const debouncedFilterInput = debounce((_filterModel: any, filterCallback: () => void) => {
     filterCallback()
 }, delay)
 </script>
@@ -256,7 +255,7 @@ const debouncedFilterInput = debounce((filterModel: any, filterCallback: () => v
                 :paginator-position="settingsStore.settings.paginatorPosition"
                 :first="settingsStore.settings.first"
                 :rows="settingsStore.settings.rows"
-                :total-records="dataValue?.totalElements"
+                :total-records="dataValue?.page.totalElements"
                 :sort-mode="settingsStore.settings.sortMode"
                 :multi-sort-meta="settingsStore.settings.multiSortMeta"
                 :sort-field="settingsStore.settings.sortField"

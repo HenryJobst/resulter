@@ -59,11 +59,11 @@ const formattedSchema = computed(() => {
 })
 
 function getEventKeyFromId(id: number | null): EventKey | null {
-    if (!eventQuery.data.value || !eventQuery.data.value)
+    if (!eventQuery.data.value)
         return null
 
     const event: SportEvent | undefined = eventQuery.data.value?.find(
-        event => event.id === id,
+        ev => ev.id === id,
     )
     if (event !== undefined) {
         return {
@@ -90,7 +90,7 @@ function getMediaKeyFromId(id: number | null): MediaKey | null {
 }
 
 function handleEventSelectionChange(ev: DropdownChangeEvent) {
-    if (ev.value && certificate.value && eventQuery.data.value && eventQuery.data.value)
+    if (ev.value && certificate.value && eventQuery.data.value)
         certificate.value.event = getEventKeyFromId(ev.value.id)!
 }
 

@@ -5,7 +5,7 @@ import axiosInstance from '@/features/keycloak/services/api'
 import { handleApiError } from '@/utils/HandleError'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { TableSettings } from '@/features/generic/models/table_settings'
-import type { RestResult } from '@/features/generic/models/rest_result'
+import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 
 function getSortParam(field: string | ((item: any) => string), order: number | null | undefined) {
     const direction = order === 1 ? 'asc' : 'desc'
@@ -81,12 +81,24 @@ export class GenericService<T> implements IGenericService<T> {
     async getAll(
         t: (key: string) => string,
         tableSettings?: TableSettings,
-    ): Promise<RestResult<T> | null> {
+    ): Promise<RestPageResult<T> | null> {
         const urlSearchParams = tableSettings
             ? createUrlSearchParams(tableSettings)
             : new URLSearchParams()
         return await axiosInstance
-            .get<RestResult<T>>(`${this.endpoint}`, { params: urlSearchParams })
+            .get<RestPageResult<T>>(`${this.endpoint}`, { params: urlSearchParams })
+            .then(response => response.data)
+            .catch((error) => {
+                handleApiError(error, t)
+                return null
+            })
+    }
+
+    async getAllUnpaged(
+        t: (key: string) => string,
+    ): Promise<T[] | null> {
+        return await axiosInstance
+            .get<T[]>(`${this.endpoint}/all`)
             .then(response => response.data)
             .catch((error) => {
                 handleApiError(error, t)

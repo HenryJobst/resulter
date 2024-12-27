@@ -7,9 +7,9 @@ import { useI18n } from 'vue-i18n'
 import MultiSelect, { type MultiSelectChangeEvent } from 'primevue/multiselect'
 import { useQuery } from '@tanstack/vue-query'
 import type { Cup } from '@/features/cup/model/cup'
-import { eventService } from '@/features/event/services/event.service'
 import { CupService } from '@/features/cup/services/cup.service'
 import type { EventKey } from '@/features/event/model/event_key'
+import { eventService } from '@/features/event/services/event.service'
 
 const props = defineProps<{
     cup: Cup

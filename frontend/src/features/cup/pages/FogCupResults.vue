@@ -16,11 +16,11 @@ const { t } = useI18n()
 
 const personQuery = useQuery({
     queryKey: ['persons'],
-    queryFn: () => personService.getAll(t),
+    queryFn: () => personService.getAllUnpaged(t),
 })
 
 function person(personId: number) {
-    const person = personQuery.data.value?.content?.find(p => p.id === personId) ?? undefined
+    const person = personQuery.data.value?.find(p => p.id === personId) ?? undefined
     if (person) {
         return `${person?.givenName} ${person?.familyName}`
     }
@@ -190,7 +190,7 @@ function calculateRanks(scores: OrganisationScore[]): { org: OrganisationScore, 
 
 <style scoped>
 body {
-    padding: 0px;
+    padding: 0;
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-style: normal;
     font-variant: normal;
@@ -211,8 +211,8 @@ h2 {
 div#page_header table {
     border-style: solid none;
     border-color: #000000;
-    border-width: 1px 0px;
-    margin: 0px auto 30px;
+    border-width: 1px 0;
+    margin: 0 auto 30px;
     padding: 10px 5px;
     border-collapse: separate;
     width: 100%;

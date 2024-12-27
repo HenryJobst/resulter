@@ -7,7 +7,7 @@ import type { EventResults } from '@/features/event/model/event_results'
 import { GenericService } from '@/features/generic/services/GenericService'
 import type { ResultList } from '@/features/event/model/result_list'
 import type { TableSettings } from '@/features/generic/models/table_settings'
-import type { RestResult } from '@/features/generic/models/rest_result'
+import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { Certificate } from '@/features/certificate/model/certificate'
 import type { CupScoreList } from '@/features/event/model/cup_score_list'
 import type { EventCertificateStats } from '@/features/event/model/event_certificate_stats'
@@ -24,7 +24,7 @@ export class EventService extends GenericService<SportEvent> {
     async getAll(
         t: (key: string) => string,
         tableSettings?: TableSettings,
-    ): Promise<RestResult<SportEvent> | null> {
+    ): Promise<RestPageResult<SportEvent> | null> {
         return await super.getAll(t, tableSettings).then((response) => {
             if (response) {
                 const result = response
@@ -41,22 +41,19 @@ export class EventService extends GenericService<SportEvent> {
     }
 
     async getAllUnpaged(t: (key: string) => string): Promise<SportEvent[] | null> {
-        return await axiosInstance
-            .get<SportEvent[]>(`${eventUrl}/all`)
-            .then((response) => {
-                if (response) {
-                    return response.data.map((element) => {
-                        if (element.startTime)
-                            element.startTime = new Date(element.startTime)
-                        return element
-                    })
-                }
-                return null
-            })
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
+        return await super.getAllUnpaged(t).then((response) => {
+            if (response) {
+                let result = response
+                result = result.map((element) => {
+                    if (element.startTime) {
+                        element.startTime = new Date(element.startTime)
+                    }
+                    return element
+                })
+                return result
+            }
+            return null
+        })
     }
 
     static async calculate(result_list_id: number, t: (key: string) => string) {

@@ -2,7 +2,6 @@
 import { useQuery } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
-import { prettyPrint } from '@base2/pretty-print-object'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import { personService } from '@/features/person/services/person.service'
@@ -20,11 +19,11 @@ const { t } = useI18n()
 
 const personQuery = useQuery({
     queryKey: ['persons'],
-    queryFn: () => personService.getAll(t),
+    queryFn: () => personService.getAllUnpaged(t),
 })
 
 function person(personId: number) {
-    const person = personQuery.data.value?.content?.find(p => p.id === personId) ?? undefined
+    const person = personQuery.data.value?.find(p => p.id === personId) ?? undefined
     if (person) {
         return `${person?.givenName} ${person?.familyName}`
     }
@@ -58,10 +57,19 @@ function calculateRanks(scores: PersonWithScore[]): { pws: PersonWithScore, rank
 }
 
 const allEvents = computed(() => {
-    return props.eventRacesCupScores.map(eventRacesCupScore => eventRacesCupScore.event)
+    return props.eventRacesCupScores
+        .map(eventRacesCupScore => eventRacesCupScore.event)
         .sort((a, b) => {
-            const dateA = a.startTime ? (a.startTime instanceof Date ? a.startTime.getTime() : new Date(a.startTime).getTime()) : 0
-            const dateB = b.startTime ? (b.startTime instanceof Date ? b.startTime.getTime() : new Date(b.startTime).getTime()) : 0
+            const dateA = a.startTime
+                ? a.startTime instanceof Date
+                    ? a.startTime.getTime()
+                    : new Date(a.startTime).getTime()
+                : 0
+            const dateB = b.startTime
+                ? b.startTime instanceof Date
+                    ? b.startTime.getTime()
+                    : new Date(b.startTime).getTime()
+                : 0
             return dateA - dateB
         })
 })
@@ -71,17 +79,13 @@ function findScoreForEventAndClassResultAndPerson(
     personId: number,
     index: number,
 ) {
-    console.log(`${classShortName} - ${personId} - ${index}`)
-    const eventScore = props.eventRacesCupScores.find(e => e.event.id === allEvents.value[index].id)
-    if (classShortName === 'H50' && personId === 185 && index === 5) {
-        console.log(prettyPrint(eventScore))
-    }
-    const result = eventScore?.raceClassResultGroupedCupScores
+    const eventScore = props.eventRacesCupScores.find(
+        e => e.event.id === allEvents.value[index].id,
+    )
+    return eventScore?.raceClassResultGroupedCupScores
         ?.flatMap(x => x.classResultScores || [])
         .find(it => it.classResultShortName === classShortName)
         ?.personWithScores?.find(it => it.personId === personId)?.score
-    console.log(result)
-    return result
 }
 </script>
 
@@ -116,10 +120,10 @@ function findScoreForEventAndClassResultAndPerson(
                     <thead>
                         <tr>
                             <th class="pl">
-                                {{ "Lauf" }}
+                                {{ 'Lauf' }}
                             </th>
                             <th>
-                                {{ "Name" }}
+                                {{ 'Name' }}
                             </th>
                         </tr>
                     </thead>
@@ -143,7 +147,11 @@ function findScoreForEventAndClassResultAndPerson(
                                 <th colspan="4" class="with-right-divider">
                                     {{ entry.classResultShortName }}
                                 </th>
-                                <th v-for="(it, index) in allEvents" :key="it.id" class="text-center">
+                                <th
+                                    v-for="(it, index) in allEvents"
+                                    :key="it.id"
+                                    class="text-center min-w-10"
+                                >
                                     {{ index + 1 }}
                                 </th>
                             </tr>
@@ -176,10 +184,14 @@ function findScoreForEventAndClassResultAndPerson(
                                 <td class="cl" colspan="2">
                                     {{ `${person(pws.personId)}` }}
                                 </td>
-                                <td class="pt with-right-divider text-center">
+                                <td class="pt with-right-divider text-center font-bold">
                                     {{ pws.score }}
                                 </td>
-                                <td v-for="(it, index) in allEvents" :key="it.id" class="text-center">
+                                <td
+                                    v-for="(it, index) in allEvents"
+                                    :key="it.id"
+                                    class="min-w-10 text-center"
+                                >
                                     {{
                                         findScoreForEventAndClassResultAndPerson(
                                             pws.classShortName,
@@ -199,7 +211,7 @@ function findScoreForEventAndClassResultAndPerson(
 
 <style scoped>
 body {
-    padding: 0px;
+    padding: 0;
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-style: normal;
     font-variant: normal;
@@ -220,8 +232,8 @@ h2 {
 div#page_header table {
     border-style: solid none;
     border-color: #000000;
-    border-width: 1px 0px;
-    margin: 0px auto 30px;
+    border-width: 1px 0;
+    margin: 0 auto 30px;
     padding: 10px 5px;
     border-collapse: separate;
     width: 100%;

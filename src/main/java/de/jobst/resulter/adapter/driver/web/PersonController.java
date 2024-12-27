@@ -41,6 +41,17 @@ public class PersonController {
         }
     }
 
+    @GetMapping("/person/all")
+    public ResponseEntity<List<PersonDto>> getAllPersons() {
+        try {
+            List<Person> persons = personService.findAll();
+            return ResponseEntity.ok(persons.stream().map(PersonDto::from).toList());
+        } catch (Exception e) {
+            logError(e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @GetMapping("/person")
     public ResponseEntity<Page<PersonDto>> searchPersons(@RequestParam Optional<String> filter,
                                                          @PageableDefault(page = 0, size = 5000) Pageable pageable) {

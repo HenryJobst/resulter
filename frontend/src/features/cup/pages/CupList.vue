@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import { useI18n } from 'vue-i18n'
-import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
-import { eventService } from '@/features/event/services/event.service'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import GenericList from '@/features/generic/pages/GenericList.vue'
 import { cupService } from '@/features/cup/services/cup.service'
@@ -22,12 +20,6 @@ const columns: GenericListColumn[] = [
     { label: 'labels.year', field: 'year', sortable: true },
     { label: 'labels.event', label_count: 2, field: 'events', type: 'list', sortable: true },
 ]
-
-const eventsQuery = useQuery({
-    queryKey: ['events'],
-    queryFn: () => eventService.getAllUnpaged(t),
-    select: data => data ?? [],
-})
 
 const initialTableSettings: TableSettings = {
     first: 0,
@@ -60,7 +52,7 @@ const initialTableSettings: TableSettings = {
         :visible="true"
         :initial-table-settings="initialTableSettings"
     >
-        <template v-if="eventsQuery.data.value" #events="{ value }">
+        <template #events="{ value }">
             <div>{{ value?.name }}</div>
         </template>
         <template #extra_list_actions />

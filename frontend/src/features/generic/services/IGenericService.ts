@@ -1,9 +1,11 @@
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { TableSettings } from '@/features/generic/models/table_settings'
-import type { RestResult } from '@/features/generic/models/rest_result'
+import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 
 export interface IGenericService<T> {
-    getAll: (t: (key: string) => string, tableSettings: TableSettings) => Promise<RestResult<T> | null>
+    getAll: (t: (key: string) => string, tableSettings: TableSettings) => Promise<RestPageResult<T> | null>
+
+    getAllUnpaged: (t: (key: string) => string) => Promise<T[] | null>
 
     getById: (id: number, t: (key: string) => string) => Promise<T>
 

@@ -18,7 +18,7 @@ const listLabel = computed(() => t('labels.person', 2))
 const columns: GenericListColumn[] = [
     { label: 'labels.no', field: 'id', sortable: true },
     { label: 'labels.family_name', field: 'familyName', sortable: true, filterable: true, filterType: 'input' },
-    { label: 'labels.given_name', field: 'givenName', sortable: true },
+    { label: 'labels.given_name', field: 'givenName', sortable: true, filterable: true, filterType: 'input' },
     { label: 'labels.gender', field: 'gender', type: 'enum', sortable: true },
     { label: 'labels.birth_year', field: 'birthDate', type: 'year', sortable: true },
 ]
@@ -29,7 +29,7 @@ const initialTableSettings: TableSettings = {
     page: 0,
     paginator: true,
     paginatorPosition: 'both',
-    rowsPerPageOptions: [5, 10, 20, 50, 100],
+    rowsPerPageOptions: [5, 10, 20, 50, 100, 200, 500],
     sortMode: 'multiple',
     multiSortMeta: undefined,
     sortField: 'familyName',

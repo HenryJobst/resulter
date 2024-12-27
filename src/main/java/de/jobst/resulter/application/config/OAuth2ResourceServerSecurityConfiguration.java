@@ -71,25 +71,27 @@ public class OAuth2ResourceServerSecurityConfiguration {
             .requestMatchers(HttpMethod.POST, "/upload", "/media/upload")
             .hasRole(ADMIN)
             .requestMatchers(HttpMethod.GET,
-                "/version",
+                "/certificate_schema",
+                "/course",
+                "/cup",
+                "/cup/{id}/results",
+                "/cup_status",
+                "/cup_types",
                 "/event",
                 "/event/all",
                 "/event/{id}",
+                "/event/{id}/certificate_stats",
+                "/event/{id}/results",
+                "/event_certificate",
+                "/event_status",
+                "/media",
                 "/organisation",
                 "/person",
-                "/media",
-                "/cup",
+                "/person/all",
                 "/race",
-                "/course",
-                "/event_status",
-                "/cup_status",
-                "/cup_types",
-                "/event/{id}/results",
-                "/event/{id}/certificate_stats",
                 "/result_list/{id}/certificate",
-                "/event_certificate",
                 "/result_list/{id}/cup_score_lists",
-                "/cup/{id}/results")
+                "/version")
             .permitAll()
             .anyRequest()
             .hasRole(ADMIN));

@@ -8,12 +8,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 import java.util.Collections;
+
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
 @SpringBootApplication
 @EnableJdbcRepositories
 @ImportRuntimeHints(ResulterApplication.ResulterApplicationRuntimeHints.class)
+@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class ResulterApplication {
 
     public static void main(String[] args) {

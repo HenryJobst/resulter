@@ -56,7 +56,9 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     public static int calculateNorPoints(double bestTime, double currentTime) {
-        if (currentTime <= bestTime) {
+        if (currentTime < bestTime) {
+            throw new IllegalArgumentException("currentTime < bestTime");
+        } else if (currentTime == bestTime) {
             return 12;
         } else if (currentTime <= multiplyTime(bestTime, 1.05)) {
             return 11;

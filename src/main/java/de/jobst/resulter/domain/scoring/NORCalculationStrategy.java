@@ -15,14 +15,15 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     private final Map<OrganisationId, Organisation> organisationById;
     private final Organisation norOrganisation;
 
-    Set<String> classesToSkip = Set.of("BK",
+    Set<String> classesToSkip = Set.of(
+        "BK",
         "BL",
         "Beg",
         "Trim",
         "Beginner",
         "OffK",
         "OffL",
-        "D/H-12 Be",
+        "D/H12 Be",
         "D/H10B",
         "D/H12 Beg.",
         "D10B",

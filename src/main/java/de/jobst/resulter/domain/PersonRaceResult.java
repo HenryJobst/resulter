@@ -77,7 +77,16 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     public int compareTo(@NonNull PersonRaceResult o) {
         int val = this.raceNumber.compareTo(o.raceNumber);
         if (val == 0) {
-            val = this.position.compareTo(o.position);
+            if (this.classResultShortName.equals(o.classResultShortName)) {
+                // use position, when race number and class are equal
+                val = this.position.compareTo(o.position);
+            } else {
+                // use runtime, when class is different (position doesn't matter)
+                val = this.runtime.compareTo(o.runtime);
+            }
+        }
+        if (val == 0) {
+            val = this.runtime.compareTo(o.runtime);
         }
         if (val == 0) {
             val = this.personId.compareTo(o.personId);

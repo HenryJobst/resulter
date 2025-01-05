@@ -3,10 +3,10 @@ import InputText from 'primevue/inputtext'
 import { computed, onBeforeUpdate, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import Calendar from 'primevue/calendar'
+import DatePicker from 'primevue/datepicker'
 import MultiSelect, { type MultiSelectChangeEvent } from 'primevue/multiselect'
 import { useQuery } from '@tanstack/vue-query'
-import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown'
+import Select, { type SelectChangeEvent } from 'primevue/select'
 import { prettyPrint } from '@base2/pretty-print-object'
 import { EventService } from '@/features/event/services/event.service'
 import { organisationService } from '@/features/organisation/services/organisation.service'
@@ -165,7 +165,7 @@ function getCertificateKeyFromId(id: number | null): CertificateKey | null {
     return null
 }
 
-function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
+function handleCertificateSelectionChange(ev: SelectChangeEvent) {
     if (
         ev.value
         && event.value
@@ -188,13 +188,13 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
         <div class="flex flex-row">
             <label for="startDate" class="col-fixed w-32">{{ t('labels.date') }}</label>
             <div class="col">
-                <Calendar id="startDate" v-model="datePart" date-format="dd.mm.yy" show-icon />
+                <DatePicker id="startDate" v-model="datePart" date-format="dd.mm.yy" show-icon />
             </div>
         </div>
         <div class="flex flex-row">
             <label for="startTime" class="col-fixed w-32">{{ t('labels.time') }}</label>
             <div class="col">
-                <Calendar
+                <DatePicker
                     id="startTime"
                     v-model="timePart"
                     show-icon
@@ -210,7 +210,7 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
                             @click="clickCallback"
                         />
                     </template>
-                </Calendar>
+                </DatePicker>
             </div>
         </div>
         <div class="flex flex-row">
@@ -222,7 +222,7 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
                 <span v-else-if="eventStatusQuery.status.value === 'error'">
                     {{ t('messages.error', { message: eventStatusQuery.error.toLocaleString() }) }}
                 </span>
-                <Dropdown
+                <Select
                     v-else-if="eventStatusQuery.data.value"
                     id="state"
                     v-model="event.state"
@@ -274,7 +274,7 @@ function handleCertificateSelectionChange(ev: DropdownChangeEvent) {
                 <span v-else-if="certificateQuery.status.value === 'error'">
                     {{ t('messages.error', { message: certificateQuery.error.toLocaleString() }) }}
                 </span>
-                <Dropdown
+                <Select
                     v-else-if="certificateQuery.data.value"
                     id="certificate"
                     v-model="event.certificate"

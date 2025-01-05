@@ -79,19 +79,23 @@ function navigateToList() {
             <div class="mt-2">
                 <Button
                     v-if="changeable"
+                    v-tooltip="t('labels.save')"
+                    aria-label="t('labels.save')"
+                    icon="pi pi-save"
                     class="mt-2"
                     type="submit"
-                    :label="t('labels.save')"
                     outlined
                     raised
                     rounded
                 />
                 <Button
                     v-if="changeable"
+                    v-tooltip="t('labels.back')"
+                    icon="pi pi-arrow-left"
+                    :aria-label="t('labels.back')"
                     class="ml-2"
                     severity="secondary"
                     type="reset"
-                    :label="t('labels.back')"
                     outlined
                     raised
                     rounded

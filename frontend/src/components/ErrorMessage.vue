@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import InlineMessage from 'primevue/inlinemessage'
+import Message from 'primevue/message'
 
 const props = defineProps<{ message: string | null }>()
 </script>
 
 <template>
-    <InlineMessage v-if="props.message" severity="error" class="my-3" style="width: 100%">
+    <Message v-if="props.message" severity="error" class="my-3" style="width: 100%">
         {{ props.message }}
-    </InlineMessage>
+    </Message>
 </template>
 
 <style scoped></style>

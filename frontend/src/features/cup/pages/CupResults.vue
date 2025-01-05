@@ -56,34 +56,36 @@ const aggregatedPersonScores: Ref<AggregatedPersonScores[]> = computed(
 </script>
 
 <template>
-    <Button
-        v-tooltip="t('labels.back')"
-        icon="pi pi-arrow-left"
-        class="ml-2"
-        :aria-label="t('labels.back')"
-        severity="secondary"
-        type="reset"
-        outlined
-        raised
-        rounded
-        @click="navigateToList"
-    />
-    <Button
-        v-if="authStore.isAdmin"
-        v-tooltip="t('labels.calculate')"
-        icon="pi pi-calculator"
-        class="ml-5"
-        :aria-label="t('labels.calculate')"
-        outlined
-        raised
-        rounded
-        @click="calculate()"
-    />
+    <div class="mb-3">
+        <Button
+            v-tooltip="t('labels.back')"
+            icon="pi pi-arrow-left"
+            class="ml-2"
+            :aria-label="t('labels.back')"
+            severity="secondary"
+            type="reset"
+            outlined
+            raised
+            rounded
+            @click="navigateToList"
+        />
+        <Button
+            v-if="authStore.isAdmin"
+            v-tooltip="t('labels.calculate')"
+            icon="pi pi-calculator"
+            class="ml-5"
+            :aria-label="t('labels.calculate')"
+            outlined
+            raised
+            rounded
+            @click="calculate()"
+        />
+    </div>
     <span v-if="cupResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
     <span v-else-if="cupResultsQuery.status.value === 'error'">
         {{ t('messages.error', { message: cupResultsQuery.error.toLocaleString() }) }}
     </span>
-    <div v-else-if="cupData" class="card flex justify-content-start">
+    <div v-else-if="cupData" class="card flex justify-content-start ml-3">
         <KristallCupResults
             v-if="cupData.type?.id === 'KRISTALL'"
             :cup-name="cupData.name"

@@ -201,7 +201,7 @@ const debouncedFilterInput = debounce((_filterModel: any, filterCallback: () => 
 <template>
     <div v-if="props.visible">
         <h1>{{ props.listLabel }}</h1>
-        <div class="flex justify-content-between my-4">
+        <div class="flex justify-content-between my-2">
             <div v-if="props.newEnabled" class="flex justify-content-start">
                 <router-link v-if="changeable" :to="{ name: `${props.routerPrefix}-new` }">
                     <Button

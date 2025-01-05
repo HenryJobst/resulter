@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Dropdown from 'primevue/dropdown'
+import Select from 'primevue/select'
 import InputText from 'primevue/inputtext'
 import MultiSelect from 'primevue/multiselect'
 import { useI18n } from 'vue-i18n'
@@ -100,7 +100,7 @@ watch(() => childOrganisations.value, (newValue: number[] | undefined) => {
                 <span v-else-if="organisationTypesQuery.status.value === 'error'">
                     {{ t('messages.error', { message: organisationTypesQuery.error.toLocaleString() }) }}
                 </span>
-                <Dropdown
+                <Select
                     v-else-if="organisationTypesQuery.data"
                     id="type"
                     v-model="organisation.type"
@@ -119,7 +119,7 @@ watch(() => childOrganisations.value, (newValue: number[] | undefined) => {
                 <span v-else-if="countryQuery.status.value === 'error'">
                     {{ t('messages.error', { message: countryQuery.error.toLocaleString() }) }}
                 </span>
-                <Dropdown
+                <Select
                     v-else-if="countryQuery.data && countryQuery.data.value"
                     id="country"
                     v-model="organisation.country.id"

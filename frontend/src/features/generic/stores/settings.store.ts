@@ -9,7 +9,7 @@ export function settingsStoreFactory(id: string, initialSettings?: TableSettings
             first: 0,
             page: 0,
             paginator: true,
-            paginatorPosition: 'top',
+            paginatorPosition: 'both',
             rows: 10,
             rowsPerPageOptions: [5, 10, 20, 50, 100, 200, 500, 1000],
             sortMode: 'multiple',

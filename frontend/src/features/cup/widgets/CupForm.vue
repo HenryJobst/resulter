@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
-import Dropdown from 'primevue/dropdown'
+import Select from 'primevue/select'
 import InputNumber from 'primevue/inputnumber'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -100,7 +100,7 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
                 <span v-else-if="cupTypesQuery.status.value === 'error'">
                     {{ t('messages.error', { message: cupTypesQuery.error.toLocaleString() }) }}
                 </span>
-                <Dropdown
+                <Select
                     v-else-if="cupTypesQuery.data && cupTypesQuery.data.value"
                     id="type"
                     v-model="cup.type"

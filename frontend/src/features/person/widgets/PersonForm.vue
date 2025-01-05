@@ -3,8 +3,8 @@ import InputText from 'primevue/inputtext'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
-import Dropdown from 'primevue/dropdown'
-import Calendar from 'primevue/calendar'
+import Select from 'primevue/select'
+import DatePicker from 'primevue/datepicker'
 import { PersonService } from '@/features/person/services/person.service'
 import type { Person } from '@/features/person/model/person'
 
@@ -91,7 +91,7 @@ const birthDate = computed({
         <div class="flex flex-row">
             <label for="birthday" class="col-fixed w-32">{{ t('labels.birth_year') }}</label>
             <div class="col">
-                <Calendar
+                <DatePicker
                     id="birthday"
                     v-model="birthDate"
                     show-icon
@@ -105,7 +105,7 @@ const birthDate = computed({
                     <template #inputicon="{ clickCallback }">
                         <i class="pi pi-calendar ml-2 mt-2" rounded @click="clickCallback" />
                     </template>
-                </Calendar>
+                </DatePicker>
             </div>
         </div>
         <div class="flex flex-row">
@@ -117,7 +117,7 @@ const birthDate = computed({
                 <span v-else-if="genderQuery.status.value === 'error'">
                     {{ t('messages.error', { message: genderQuery.error.toLocaleString() }) }}
                 </span>
-                <Dropdown
+                <Select
                     v-else-if="genderQuery.data"
                     id="gender"
                     v-model="person.gender"

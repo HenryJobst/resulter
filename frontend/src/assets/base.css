@@ -10,6 +10,7 @@
 }
 
 /* Initial Values */
+/*
 :root {
   --primary-50: 236 253 245;
   --primary-100: 209 250 229;
@@ -39,9 +40,11 @@
   --default-font-color: #2c3e50;
 }
 
+ */
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: var(--default-font-color)
+  /*color: var(--default-font-color)*/
 }

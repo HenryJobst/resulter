@@ -4,9 +4,9 @@ import { useI18n } from 'vue-i18n'
 import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
-import Sidebar from 'primevue/sidebar'
+import Drawer from 'primevue/drawer'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown'
+import Select, { type SelectChangeEvent } from 'primevue/select'
 import VuePdfEmbed from 'vue-pdf-embed'
 import { computed, ref, watch } from 'vue'
 import { prettyPrint } from '@base2/pretty-print-object'
@@ -89,12 +89,12 @@ function getMediaKeyFromId(id: number | null): MediaKey | null {
     return null
 }
 
-function handleEventSelectionChange(ev: DropdownChangeEvent) {
+function handleEventSelectionChange(ev: SelectChangeEvent) {
     if (ev.value && certificate.value && eventQuery.data.value)
         certificate.value.event = getEventKeyFromId(ev.value.id)!
 }
 
-function handleMediaSelectionChange(ev: DropdownChangeEvent) {
+function handleMediaSelectionChange(ev: SelectChangeEvent) {
     if (ev.value && certificate.value && mediaQuery.data.value && mediaQuery.data.value.content)
         certificate.value.blankCertificate = getMediaKeyFromId(ev.value.id)!
 }
@@ -123,7 +123,7 @@ watch(
                                 t('messages.error', { message: eventQuery.error.toLocaleString() })
                             }}
                         </span>
-                        <Dropdown
+                        <Select
                             v-else-if="eventQuery.data.value"
                             id="event"
                             :model-value="certificate.event"
@@ -149,7 +149,7 @@ watch(
                                 t('messages.error', { message: mediaQuery.error.toLocaleString() })
                             }}
                         </span>
-                        <Dropdown
+                        <Select
                             v-else-if="mediaQuery.data.value"
                             id="media"
                             :model-value="certificate.blankCertificate"
@@ -173,7 +173,7 @@ watch(
                                     </div>
                                 </div>
                             </template>
-                        </Dropdown>
+                        </Select>
                     </div>
                 </div>
                 <div class="flex flex-row">
@@ -196,7 +196,7 @@ watch(
                             rounded
                             @click="visibleRight = true"
                         />
-                        <Sidebar
+                        <Drawer
                             v-if="schemaQuery.isFetched"
                             v-model:visible="visibleRight"
                             :header="t('labels.schema')"
@@ -204,7 +204,7 @@ watch(
                             class="w-7/12"
                         >
                             <pre>{{ formattedSchema }}</pre>
-                        </Sidebar>
+                        </Drawer>
                     </div>
                     <div class="col">
                         <Textarea

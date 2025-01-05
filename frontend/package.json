@@ -18,6 +18,7 @@
     },
     "dependencies": {
         "@base2/pretty-print-object": "^1.0.2",
+        "@primevue/themes": "^4.2.5",
         "@tanstack/vue-query": "^5.51.21",
         "@tanstack/vue-query-devtools": "^5.51.21",
         "axios": "^1.7.4",
@@ -29,7 +30,7 @@
         "pinia-plugin-persistedstate": "^3.2.1",
         "primeflex": "^3.3.1",
         "primeicons": "^7.0.0",
-        "primevue": "^3.52.0",
+        "primevue": "^4.2.5",
         "spring-filter-query-builder": "^1.1.0",
         "unocss": "^0.62.1",
         "vue": "^3.4.37",

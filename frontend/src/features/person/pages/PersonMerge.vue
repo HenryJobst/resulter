@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
-import Dropdown from 'primevue/dropdown'
+import Select from 'primevue/select'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useToast } from 'primevue/usetoast'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
@@ -79,7 +79,7 @@ function mergePerson() {
                 <span v-else-if="personDoublesQuery.status.value === 'error'">
                     {{ t('messages.error', { message: personDoublesQuery.error.toLocaleString() }) }}
                 </span>
-                <Dropdown
+                <Select
                     v-else-if="personDoublesQuery.data"
                     id="personToMerge"
                     v-model="personForMerge"

@@ -198,7 +198,4 @@ const navItems = reactive([
 </template>
 
 <style scoped>
-.router-link-active {
-    color: var(--default-font-color)
-}
 </style>

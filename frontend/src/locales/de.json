@@ -163,7 +163,9 @@
         "edit_entity": "{entity} bearbeiten",
         "entity_created": "{entity} angelegt",
         "entity_changed": "{entity} geändert",
-        "entity_deleted": "{entity} gelöscht"
+        "entity_deleted": "{entity} gelöscht",
+        "detail": "Detail",
+        "details": "Details..."
     },
     "errors": {
         "notFound": "Die angefragte Ressource nicht gefunden. {name}, {message}",
@@ -174,7 +176,8 @@
         "internalServerError": "Interner Server Fehler. {name}, {message}",
         "unknownApiError": "Unbekannter Api-Fehler. {name}, {message}",
         "unknownError": "Unbekannter Fehler. {name}, {message}",
-        "noResponseError": "Keine Antwort vom Server erhalten. {name}, {message}, {code}"
+        "noResponseError": "Keine Antwort vom Server erhalten. {name}, {message}, {code}",
+        "networkError": "Netzwerkfehler"
     },
     "about": {
         "title": "Über Resulter",

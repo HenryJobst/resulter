@@ -1,32 +1,69 @@
 import { AxiosError } from 'axios'
 
 class NotFoundException extends Error {
-    /* ... */
+    constructor(message: string) {
+        super(message) // Übergabe der Fehlermeldung an die Basisklasse
+        // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
+        Object.setPrototypeOf(this, new.target.prototype)
+    }
 }
 
 class BadRequestException extends Error {
-    /* ... */
+    constructor(message: string) {
+        super(message) // Übergabe der Fehlermeldung an die Basisklasse
+        // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
+        Object.setPrototypeOf(this, new.target.prototype)
+    }
 }
 
 class UnauthorizedException extends Error {
-    /* ... */
+    constructor(message: string) {
+        super(message) // Übergabe der Fehlermeldung an die Basisklasse
+        // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
+        Object.setPrototypeOf(this, new.target.prototype)
+    }
 }
 
 class ForbiddenException extends Error {
-    /* ... */
+    constructor(message: string) {
+        super(message) // Übergabe der Fehlermeldung an die Basisklasse
+        // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
+        Object.setPrototypeOf(this, new.target.prototype)
+    }
 }
 
 class ConflictException extends Error {
-    /* ... */
+    constructor(message: string) {
+        super(message) // Übergabe der Fehlermeldung an die Basisklasse
+        // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
+        Object.setPrototypeOf(this, new.target.prototype)
+    }
 }
 
 class InternalServerErrorException extends Error {
-    /* ... */
+    constructor(message: string) {
+        super(message) // Übergabe der Fehlermeldung an die Basisklasse
+        // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
+        Object.setPrototypeOf(this, new.target.prototype)
+    }
 }
 
-export function handleApiError(error: unknown, t: (key: string, object: any) => string) {
+class NetworkErrorException extends Error {
+    public readonly details?: string
+    public readonly baseError: Error
+    constructor(name: string, baseError: Error, message?: string, details?: string) {
+        super(message || baseError.name)
+        this.name = name
+        this.stack = baseError.stack
+        this.baseError = baseError
+        this.details = details
+        // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
+        Object.setPrototypeOf(this, new.target.prototype)
+    }
+}
+
+export function handleApiError(error: unknown, t: (key: string, object?: any) => string) {
     if (error instanceof AxiosError) {
-        console.log(error)
         if (error.response) {
             // Got response from server
             switch (error.response.status) {
@@ -63,14 +100,18 @@ export function handleApiError(error: unknown, t: (key: string, object: any) => 
         }
         else if (error.request) {
             // no response
-            console.log(error.toJSON())
-            throw new Error(
-                t('errors.noResponseError', {
-                    name: error.name,
-                    message: error.message,
-                    code: error.code,
-                }),
-            )
+            if (error.code === 'ERR_NETWORK') {
+                throw new NetworkErrorException(t('errors.networkError'), error)
+            }
+            else {
+                throw new Error(
+                    t('errors.noResponseError', {
+                        name: error.name,
+                        message: error.message,
+                        code: error.code,
+                    }),
+                )
+            }
         }
     }
     else {

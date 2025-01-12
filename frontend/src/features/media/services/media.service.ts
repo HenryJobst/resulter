@@ -1,5 +1,4 @@
 import axiosInstance from '@/features/keycloak/services/api'
-import { handleApiError } from '@/utils/HandleError'
 import { GenericService } from '@/features/generic/services/GenericService'
 import type { Media } from '@/features/media/model/media'
 
@@ -10,7 +9,7 @@ export class MediaService extends GenericService<Media> {
         super(mediaUrl)
     }
 
-    static async upload(formData: FormData, t: (key: string) => string) {
+    static async upload(formData: FormData, _t: (key: string) => string) {
         return axiosInstance
             .post(`${mediaUrl}/upload`, formData, {
                 headers: {
@@ -18,10 +17,6 @@ export class MediaService extends GenericService<Media> {
                 },
             })
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 }
 

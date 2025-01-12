@@ -1,5 +1,9 @@
+import { ToastEventBus } from 'primevue'
 import axiosInstance from '@/features/keycloak/services/api'
 import KeycloakService from '@/features/keycloak/services/keycloak'
+import { handleApiError } from '@/utils/HandleError'
+import { sameErrorTimeout } from '@/utils/constants'
+import { i18n } from '@/i18n'
 
 function setup(store: any) {
     axiosInstance.interceptors.request.use(
@@ -12,6 +16,32 @@ function setup(store: any) {
         },
         error => Promise.reject(error),
     )
+
+    const errorCache = new Set<string>()
+
+    const handleError = (error: unknown) => {
+        const t: (key: string, object?: any) => string = i18n.global.t
+        const errorMessage
+            = error instanceof Error ? error.message : t('errors.reallyUnknownApiError')
+
+        if (errorCache.has(errorMessage)) {
+            return
+        }
+
+        errorCache.add(errorMessage)
+        setTimeout(() => errorCache.delete(errorMessage), sameErrorTimeout)
+
+        try {
+            handleApiError(error, t)
+        }
+        catch (reason: any) {
+            ToastEventBus.emit('add', {
+                severity: 'error',
+                summary: reason.name,
+                detail: reason.stack,
+            })
+        }
+    }
 
     axiosInstance.interceptors.response.use(
         response => response,
@@ -31,6 +61,8 @@ function setup(store: any) {
                     await KeycloakService.callLogin(originalConfig.url, originalConfig.locale)
                 }
             }
+
+            handleError(error)
 
             return Promise.reject(error)
         },

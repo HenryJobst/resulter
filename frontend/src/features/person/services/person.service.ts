@@ -1,6 +1,5 @@
 import axiosInstance from '@/features/keycloak/services/api'
 import type { Person } from '@/features/person/model/person'
-import { handleApiError } from '@/utils/HandleError'
 import type { Gender } from '@/features/person/model/gender'
 import { GenericService } from '@/features/generic/services/GenericService'
 
@@ -12,19 +11,15 @@ export class PersonService extends GenericService<Person> {
         super(personUrl)
     }
 
-    static async getGender(t: (key: string) => string): Promise<Gender[] | null> {
+    static async getGender(_t: (key: string) => string): Promise<Gender[] | null> {
         return await axiosInstance
             .get<Gender[]>(genderUrl)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
     static async getPersonDoubles(
         id: number,
-        t: (key: string) => string,
+        _t: (key: string) => string,
     ): Promise<Person[] | null> {
         if (id === 0) {
             return null
@@ -33,21 +28,13 @@ export class PersonService extends GenericService<Person> {
         return await axiosInstance
             .get<Person[]>(personDoublesUrl)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
-    static async merge(keepId: number, removeId: number, t: (key: string) => string) {
+    static async merge(keepId: number, removeId: number, _t: (key: string) => string) {
         const mergeUrl = `${personUrl}/${keepId.toString()}/merge`
         return await axiosInstance
             .post(mergeUrl, removeId)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 }
 

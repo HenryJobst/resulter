@@ -119,7 +119,9 @@
         "edit_entity": "Edit {entity}",
         "entity_created": "{entity} created",
         "entity_changed": "{entity} changed",
-        "entity_deleted": "{entity} deleted"
+        "entity_deleted": "{entity} deleted",
+        "detail": "Detail",
+        "details": "Details..."
     },
     "result_state": {
         "OK": "OK",
@@ -174,7 +176,8 @@
         "internalServerError": "Internal server error. {name}, {message}",
         "unknownApiError": "Unknown api error. {name}, {message}",
         "unknownError": "Unknown error. {name}, {message}",
-        "noResponseError": "No response error. {name}, {message}, {code}"
+        "noResponseError": "No response error. {name}, {message}, {code}",
+        "networkError": "Network error"
     },
     "about": {
         "title": "About Resulter",

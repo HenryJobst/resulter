@@ -2,7 +2,6 @@ import type { DataTableFilterMetaData } from 'primevue/datatable'
 import { sfAnd, sfEqual, sfLike } from 'spring-filter-query-builder'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
 import axiosInstance from '@/features/keycloak/services/api'
-import { handleApiError } from '@/utils/HandleError'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
@@ -88,64 +87,40 @@ export class GenericService<T> implements IGenericService<T> {
         return await axiosInstance
             .get<RestPageResult<T>>(`${this.endpoint}`, { params: urlSearchParams })
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
     async getAllUnpaged(
-        t: (key: string) => string,
+        _t: (key: string) => string,
     ): Promise<T[] | null> {
         return await axiosInstance
             .get<T[]>(`${this.endpoint}/all`)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
-    async getById(id: number, t: (key: string) => string): Promise<T> {
+    async getById(id: number, _t: (key: string) => string): Promise<T> {
         return await axiosInstance
             .get(`${this.endpoint}/${id}`)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
     async create<T extends GenericEntity>(
         entity: Omit<T, 'id'>,
-        t: (key: string) => string,
+        _t: (key: string) => string,
     ): Promise<T> {
         return await axiosInstance
             .post(this.endpoint, entity)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
-    async update<T extends GenericEntity>(entity: T, t: (key: string) => string): Promise<T> {
+    async update<T extends GenericEntity>(entity: T, _t: (key: string) => string): Promise<T> {
         return await axiosInstance
             .put(`${this.endpoint}/${entity.id}`, entity)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
-    async deleteById(id: number, t: (key: string) => string): Promise<void> {
+    async deleteById(id: number, _t: (key: string) => string): Promise<void> {
         return await axiosInstance
             .delete(`${this.endpoint}/${id}`)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 }

@@ -1,23 +1,41 @@
-import { isRef, nextTick } from 'vue'
+import { isRef, nextTick, ref } from 'vue'
 import type { Composer, I18n, I18nMode, I18nOptions, Locale, VueI18n } from 'vue-i18n'
 import { createI18n } from 'vue-i18n'
+import { usePrimeVue } from 'primevue/config'
+import en from '@/locales/en.json'
+import de from '@/locales/de.json'
+import { primevueLocaleMessages } from '@/PrimevueMessages'
 
-export const SUPPORT_LOCALES = ['en', 'de']
+export const SUPPORT_LOCALES: string[] = ['en', 'de']
+export const reloadAfterI18nSwitch = ref<number>(0)
 
+export const i18n: I18n = setupI18n({
+    legacy: false,
+    locale: 'de',
+    fallbackLocale: 'en',
+    globalInjection: true,
+    messages: { en, de },
+})
 function isComposer(instance: VueI18n | Composer, mode: I18nMode): instance is Composer {
     return mode === 'composition' && isRef(instance.locale)
 }
 
 export function getLocale(i18n: I18n): string {
-    if (isComposer(i18n.global, i18n.mode))
+    if (isComposer(i18n.global, i18n.mode)) {
         return i18n.global.locale.value
-    else return i18n.global.locale
+    }
+    else {
+        return i18n.global.locale
+    }
 }
 
 export function setLocale(i18n: I18n, locale: Locale): void {
-    if (isComposer(i18n.global, i18n.mode))
+    if (isComposer(i18n.global, i18n.mode)) {
         i18n.global.locale.value = locale
-    else i18n.global.locale = locale
+    }
+    else {
+        i18n.global.locale = locale
+    }
 }
 
 export function setupI18n(options: I18nOptions = { locale: 'en' }): I18n {
@@ -28,6 +46,7 @@ export function setupI18n(options: I18nOptions = { locale: 'en' }): I18n {
 
 export function setI18nLanguage(i18n: I18n, locale: Locale): void {
     setLocale(i18n, locale)
+    reloadAfterI18nSwitch.value++
     /**
      * NOTE:
      * If you need to specify the language setting for headers, such as the `fetch` API, set it here.
@@ -46,6 +65,10 @@ export async function loadLocaleMessages(i18n: I18n, locale: Locale) {
 
     // set locale and locale message
     i18n.global.setLocaleMessage(locale, messages)
+
+    // set primevue locale
+    const { config } = usePrimeVue()
+    config.locale = primevueLocaleMessages[locale]
 
     return nextTick()
 }

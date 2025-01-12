@@ -1,7 +1,6 @@
 import { prettyPrint } from '@base2/pretty-print-object'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import axiosInstance from '@/features/keycloak/services/api'
-import { handleApiError } from '@/utils/HandleError'
 import type { EventStatus } from '@/features/event/model/event_status'
 import type { EventResults } from '@/features/event/model/event_results'
 import { GenericService } from '@/features/generic/services/GenericService'
@@ -56,29 +55,21 @@ export class EventService extends GenericService<SportEvent> {
         })
     }
 
-    static async calculate(result_list_id: number, t: (key: string) => string) {
+    static async calculate(result_list_id: number, _t: (key: string) => string) {
         return axiosInstance
             .put(`${resultListUrl}/${result_list_id}/calculate`)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
-    static async getEventStatus(t: (key: string) => string): Promise<EventStatus[] | null> {
+    static async getEventStatus(_t: (key: string) => string): Promise<EventStatus[] | null> {
         return await axiosInstance
             .get<EventStatus[]>(eventStatusUrl)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
     static async getResultsById(
         id: string,
-        t: (key: string) => string,
+        _t: (key: string) => string,
     ): Promise<EventResults | null> {
         return await axiosInstance
             .get(`${eventUrl}/${id}/results`)
@@ -102,13 +93,9 @@ export class EventService extends GenericService<SportEvent> {
                 }
                 return null
             })
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
-    static async upload(formData: FormData, t: (key: string) => string) {
+    static async upload(formData: FormData, _t: (key: string) => string) {
         return axiosInstance
             .post('/upload', formData, {
                 headers: {
@@ -116,17 +103,13 @@ export class EventService extends GenericService<SportEvent> {
                 },
             })
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
     static async certificate(
         id: number,
         classResultShortName: string,
         personId: number,
-        t: (key: string) => string,
+        _t: (key: string) => string,
     ) {
         return axiosInstance
             .get(
@@ -157,13 +140,9 @@ export class EventService extends GenericService<SportEvent> {
                 document.body.removeChild(fileLink)
                 window.URL.revokeObjectURL(fileURL)
             })
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
-    static async getCertificate(certificate: Certificate | undefined, t: (key: string) => string) {
+    static async getCertificate(certificate: Certificate | undefined, _t: (key: string) => string) {
         if (!certificate || !certificate.event)
             return null
 
@@ -176,15 +155,11 @@ export class EventService extends GenericService<SportEvent> {
                     new Blob([response.data], { type: 'application/pdf' }),
                 )
             })
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
     static async getCertificateStats(
         id: number | undefined,
-        t: (key: string) => string,
+        _t: (key: string) => string,
     ): Promise<EventCertificateStats | null> {
         if (!id) {
             return null
@@ -192,37 +167,25 @@ export class EventService extends GenericService<SportEvent> {
         return axiosInstance
             .get(`${eventUrl}/${id}/certificate_stats`)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
-    static async removeEventCertificateStat(id: number, t: (key: string) => string) {
+    static async removeEventCertificateStat(id: number, _t: (key: string) => string) {
         if (!id)
             return null
         return axiosInstance
             .delete(`/event_certificate_stat/${id}`)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
-    static async getCertificateSchema(t: (key: string) => string) {
+    static async getCertificateSchema(_t: (key: string) => string) {
         return axiosInstance
             .get('/certificate_schema')
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 
     static async getCupScores(
         id: number | undefined,
-        t: (key: string) => string,
+        _t: (key: string) => string,
     ): Promise<CupScoreList[]> {
         if (!id) {
             return []
@@ -230,10 +193,6 @@ export class EventService extends GenericService<SportEvent> {
         return axiosInstance
             .get(`${resultListUrl}/${id}/cup_score_lists`)
             .then(response => response.data)
-            .catch((error) => {
-                handleApiError(error, t)
-                return null
-            })
     }
 }
 

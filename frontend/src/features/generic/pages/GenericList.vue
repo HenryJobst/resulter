@@ -11,8 +11,6 @@ import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
-import Spinner from '@/components/SpinnerComponent.vue'
-import ErrorMessage from '@/components/ErrorMessage.vue'
 import { toastDisplayDuration } from '@/utils/constants'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
@@ -226,28 +224,11 @@ const debouncedFilterInput = debounce((_filterModel: any, filterCallback: () => 
                 @click="reload"
             />
         </div>
-        <div
-            v-if="
-                entityQuery.status.value === 'pending' || deleteMutation.status.value === 'pending'
-            "
-        >
-            {{ t('messages.loading') }}
-            <Spinner />
-        </div>
-        <div
-            v-else-if="
-                entityQuery.status.value === 'error' || deleteMutation.status.value === 'error'
-            "
-        >
-            <ErrorMessage :message="t('messages.error', { message: entityQuery.error.value })" />
-            <ErrorMessage
-                :message="t('messages.error', { message: deleteMutation?.error.value?.message })"
-            />
-        </div>
         <div class="card">
             <DataTable
                 v-if="props.visible && dataValue?.content"
                 v-model:filters="settingsStore.settings.filters"
+                :loading="entityQuery.status.value === 'pending' || deleteMutation.status.value === 'pending'"
                 :value="dataValue?.content"
                 :paginator="settingsStore.settings.paginator"
                 :always-show-paginator="false"

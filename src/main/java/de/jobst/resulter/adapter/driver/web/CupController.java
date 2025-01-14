@@ -6,7 +6,10 @@ import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.application.CupService;
 import de.jobst.resulter.application.ResultListService;
+import de.jobst.resulter.application.config.ApiResponse;
+import de.jobst.resulter.application.config.ResponseUtil;
 import de.jobst.resulter.domain.*;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,31 +48,22 @@ public class CupController {
     }
 
     @GetMapping("/cup_types")
-    public ResponseEntity<List<CupTypeDto>> handleCupTypes() {
-        try {
-            List<CupTypeDto> cupTypes = Arrays.stream(CupType.values()).map(CupTypeDto::from).toList();
-            return ResponseEntity.ok(cupTypes);
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<ApiResponse<List<CupTypeDto>>> handleCupTypes(HttpServletRequest request) {
+        List<CupTypeDto> cupTypes = Arrays.stream(CupType.values()).map(CupTypeDto::from).toList();
+        return ResponseUtil.success(cupTypes, "Cup types successfully retrieved", request.getRequestURI());
     }
 
     @GetMapping("/cup")
-    public ResponseEntity<Page<CupDto>> searchCups(@RequestParam Optional<String> filter,
-                                                   @PageableDefault(size = 1000) Pageable pageable) {
-        try {
-            Page<Cup> cups = cupService.findAll(filter.orElse(null),
-                pageable != null ?
-                FilterAndSortConverter.mapOrderProperties(pageable, CupDto::mapOrdersDtoToDomain) :
-                Pageable.unpaged());
-            return ResponseEntity.ok(new PageImpl<>(cups.getContent().stream().map(CupDto::from).toList(),
-                FilterAndSortConverter.mapOrderProperties(cups.getPageable(), CupDto::mapOrdersDomainToDto),
-                cups.getTotalElements()));
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<ApiResponse<Page<CupDto>>> searchCups(@RequestParam(required = false) Optional<String> filter,
+                                                                @PageableDefault(size = 1000) Pageable pageable,
+                                                                HttpServletRequest request) {
+        Page<Cup> cups = cupService.findAll(filter.orElse(null),
+            pageable != null ?
+            FilterAndSortConverter.mapOrderProperties(pageable, CupDto::mapOrdersDtoToDomain) :
+            Pageable.unpaged());
+        return ResponseUtil.success(new PageImpl<>(cups.getContent().stream().map(CupDto::from).toList(),
+            FilterAndSortConverter.mapOrderProperties(cups.getPageable(), CupDto::mapOrdersDomainToDto),
+            cups.getTotalElements()), "Cups successfully retrieved", request.getRequestURI());
     }
 
     @GetMapping("/cup/{id}")
@@ -87,7 +81,8 @@ public class CupController {
     @GetMapping("/cup/{id}/results")
     public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
         try {
-            return cupService.getCupDetailed(CupId.of(id)).map(x -> ResponseEntity.ok(CupDetailedDto.from(x)))
+            return cupService.getCupDetailed(CupId.of(id))
+                .map(x -> ResponseEntity.ok(CupDetailedDto.from(x)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             logError(e);

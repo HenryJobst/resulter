@@ -1,36 +1,30 @@
-import PersonIndex from '@/features/person/PersonIndex.vue'
-import PersonList from '@/features/person/pages/PersonList.vue'
-import PersonNew from '@/features/person/pages/PersonNew.vue'
-import PersonEdit from '@/features/person/pages/PersonEdit.vue'
-import PersonMerge from '@/features/person/pages/PersonMerge.vue'
-
 export const personRouting = [
     {
         path: '/:locale/person',
         name: 'person-index',
-        component: PersonIndex,
+        component: () => import('@/features/person/PersonIndex.vue'),
         children: [
             {
                 path: '',
                 name: 'person-list',
-                component: PersonList,
+                component: () => import('@/features/person/pages/PersonList.vue'),
             },
             {
                 path: 'new',
                 name: 'person-new',
-                component: PersonNew,
+                component: () => import('@/features/person/pages/PersonNew.vue'),
             },
             {
                 path: 'person/:id',
                 name: 'person-edit',
                 props: true,
-                component: PersonEdit,
+                component: () => import('@/features/person/pages/PersonEdit.vue'),
             },
             {
                 path: 'person/:id/merge',
                 name: 'person-merge',
                 props: true,
-                component: PersonMerge,
+                component: () => import('@/features/person/pages/PersonMerge.vue'),
             },
         ],
     },

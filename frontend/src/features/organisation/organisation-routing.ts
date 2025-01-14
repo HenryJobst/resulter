@@ -1,29 +1,24 @@
-import OrganisationIndex from '@/features/organisation/OrganisationIndex.vue'
-import OrganisationList from '@/features/organisation/pages/OrganisationList.vue'
-import OrganisationNew from '@/features/organisation/pages/OrganisationNew.vue'
-import OrganisationEdit from '@/features/organisation/pages/OrganisationEdit.vue'
-
 export const organisationRouting = [
     {
         path: '/:locale/organisation',
         name: 'organisation-index',
-        component: OrganisationIndex,
+        component: () => import('@/features/organisation/OrganisationIndex.vue'),
         children: [
             {
                 path: '',
                 name: 'organisation-list',
-                component: OrganisationList,
+                component: () => import('@/features/organisation/pages/OrganisationList.vue'),
             },
             {
                 path: 'new',
                 name: 'organisation-new',
-                component: OrganisationNew,
+                component: () => import('@/features/organisation/pages/OrganisationNew.vue'),
             },
             {
                 path: 'organisation/:id',
                 name: 'organisation-edit',
                 props: true,
-                component: OrganisationEdit,
+                component: () => import('@/features/organisation/pages/OrganisationEdit.vue'),
             },
         ],
     },

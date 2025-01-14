@@ -1,42 +1,35 @@
-import EventIndex from '@/features/event/EventIndex.vue'
-import EventList from '@/features/event/pages/EventList.vue'
-import EventNew from '@/features/event/pages/EventNew.vue'
-import EventEdit from '@/features/event/pages/EventEdit.vue'
-import EventImport from '@/features/event/pages/EventImport.vue'
-import EventResults from '@/features/event/pages/EventResults.vue'
-
 export const eventRouting = [
     {
         path: '/:locale/event',
         name: 'event-index',
-        component: EventIndex,
+        component: () => import('@/features/event/EventIndex.vue'),
         children: [
             {
                 path: '',
                 name: 'event-list',
-                component: EventList,
+                component: () => import('@/features/event/pages/EventList.vue'),
             },
             {
                 path: 'new',
                 name: 'event-new',
-                component: EventNew,
+                component: () => import('@/features/event/pages/EventNew.vue'),
             },
             {
                 path: 'import',
                 name: 'event-import',
-                component: EventImport,
+                component: () => import('@/features/event/pages/EventImport.vue'),
             },
             {
                 path: ':id/edit',
                 name: 'event-edit',
                 props: true,
-                component: EventEdit,
+                component: () => import('@/features/event/pages/EventEdit.vue'),
             },
             {
                 path: ':id/results',
                 name: 'event-results',
                 props: true,
-                component: EventResults,
+                component: () => import('@/features/event/pages/EventResults.vue'),
             },
         ],
     },

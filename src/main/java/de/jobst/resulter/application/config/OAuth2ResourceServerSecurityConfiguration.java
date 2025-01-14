@@ -16,6 +16,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+
 
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
 
     public static final long CORS_PREFLIGHT_CACHE_MAX_AGE = 3600L;
     public static final String ADMIN = "ADMIN";
+    public static final String ENDPOINT_ADMIN = "ENDPOINT_ADMIN";
     private final JwtAuthConverter jwtAuthConverter;
 
     @Value("#{'${cors.allowed-origins}'.split(',')}")
@@ -62,10 +65,10 @@ public class OAuth2ResourceServerSecurityConfiguration {
             .permitAll()
             .requestMatchers("/v3/api-docs/**")
             .permitAll()
-            .requestMatchers("/actuator/health")
+            .requestMatchers(EndpointRequest.to("health"))
             .permitAll()
             .requestMatchers("/actuator/**")
-            .hasRole(ADMIN)
+            .hasAnyRole(ADMIN, ENDPOINT_ADMIN)
             .requestMatchers("/admin/**")
             .hasRole(ADMIN)
             .requestMatchers(HttpMethod.POST, "/upload", "/media/upload")

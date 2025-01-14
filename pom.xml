@@ -19,6 +19,7 @@
         <annotations.version>24.1.0</annotations.version>
         <archunit.version>1.3.0</archunit.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
+        <commons-text.version>1.13.0</commons-text.version>
         <itext-core.version>8.0.5</itext-core.version>
         <jackson-databind.version>2.16.2</jackson-databind.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
@@ -30,6 +31,7 @@
         <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <micrometer-bom.version>1.14.2</micrometer-bom.version>
         <native.maven.plugin.version>0.10.0</native.maven.plugin.version>
         <p6spy-spring-boot-starter.version>1.10.0</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
@@ -39,7 +41,6 @@
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <tika-core.version>3.0.0</tika-core.version>
         <turkraft-springfilter-core.version>3.1.8</turkraft-springfilter-core.version>
-        <commons-text.version>1.13.0</commons-text.version>
     </properties>
     <profiles>
         <profile>
@@ -131,6 +132,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
@@ -270,6 +275,15 @@
 
     </dependencies>
     <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-bom</artifactId>
+                <version>${micrometer-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
     </dependencyManagement>
 
     <build>

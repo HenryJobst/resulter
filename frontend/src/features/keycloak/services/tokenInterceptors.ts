@@ -4,6 +4,7 @@ import KeycloakService from '@/features/keycloak/services/keycloak'
 import { handleApiError } from '@/utils/HandleError'
 import { sameErrorTimeout } from '@/utils/constants'
 import { i18n } from '@/i18n'
+import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
 
 function setup(store: any) {
     axiosInstance.interceptors.request.use(
@@ -43,8 +44,20 @@ function setup(store: any) {
         }
     }
 
+    const isApiResponse = (data: any): data is ApiResponse<unknown> => {
+        return data && typeof data.success === 'boolean' && 'message' in data
+    }
+
     axiosInstance.interceptors.response.use(
-        response => response,
+        (response) => {
+            if (isApiResponse(response.data)) {
+                const apiResponse = response.data as ApiResponse<unknown>
+                if (!apiResponse.success) {
+                    handleError(new Error(apiResponse.message))
+                }
+            }
+            return response
+        },
         async (error) => {
             const originalConfig = error.config
 

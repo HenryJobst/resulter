@@ -1,6 +1,8 @@
+import type { LocalizableString } from '@/features/keycloak/model/localizableString'
+
 export interface ApiResponse<T> {
     success: boolean // Indicates whether the request was successful or not
-    message: string // Descriptive message about the result
+    message: LocalizableString // Descriptive message about the result
     data: T | null // The actual response data of type T (nullable for error cases)
     errors: string[] // List of errors if the request failed
     errorCode: number // Integer code representing the error type

@@ -7,6 +7,8 @@ import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.application.CupService;
 import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.application.config.ApiResponse;
+import de.jobst.resulter.application.config.LocalizableString;
+import de.jobst.resulter.application.config.MessageKeys;
 import de.jobst.resulter.application.config.ResponseUtil;
 import de.jobst.resulter.domain.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,7 +52,8 @@ public class CupController {
     @GetMapping("/cup_types")
     public ResponseEntity<ApiResponse<List<CupTypeDto>>> handleCupTypes(HttpServletRequest request) {
         List<CupTypeDto> cupTypes = Arrays.stream(CupType.values()).map(CupTypeDto::from).toList();
-        return ResponseUtil.success(cupTypes, "Cup types successfully retrieved", request.getRequestURI());
+        return ResponseUtil.success(cupTypes,
+            LocalizableString.of(MessageKeys.SUCCESSFULLY_RETRIEVED), request.getRequestURI());
     }
 
     @GetMapping("/cup")
@@ -63,7 +66,9 @@ public class CupController {
             Pageable.unpaged());
         return ResponseUtil.success(new PageImpl<>(cups.getContent().stream().map(CupDto::from).toList(),
             FilterAndSortConverter.mapOrderProperties(cups.getPageable(), CupDto::mapOrdersDomainToDto),
-            cups.getTotalElements()), "Cups successfully retrieved", request.getRequestURI());
+            cups.getTotalElements()),
+            LocalizableString.of(MessageKeys.SUCCESSFULLY_RETRIEVED),
+            request.getRequestURI());
     }
 
     @GetMapping("/cup/{id}")

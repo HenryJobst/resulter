@@ -15,22 +15,30 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneralException(Exception ex, HttpServletRequest request) {
-        return ResponseUtil.error(Collections.singletonList(ex.getMessage()), "An unexpected error occurred", 1001,
-            request.getRequestURI(), ex);
+        return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
+            LocalizableString.of(MessageKeys.UNEXPECTED_ERROR),
+            AdditionalStatusCodes.UNEXPECTED.value(),
+            request.getRequestURI(),
+            ex);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(ResourceNotFoundException ex,
-                                                                HttpServletRequest request) {
-        return ResponseUtil.error(Collections.singletonList(ex.getMessage()), "Resource not found", HttpStatus.NOT_FOUND.value(),
-            request.getRequestURI(), ex);
+                                                                               HttpServletRequest request) {
+        return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
+            LocalizableString.of(MessageKeys.RESOURCE_NOT_FOUND),
+            HttpStatus.NOT_FOUND.value(),
+            request.getRequestURI(),
+            ex);
     }
 
     @ExceptionHandler(ResponseNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleResponseNotFoundException(ResponseNotFoundException ex,
-                                                                HttpServletRequest request) {
-        return ResponseUtil.error(Collections.singletonList(ex.getMessage()), "Response data not found",
+                                                                               HttpServletRequest request) {
+        return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
+            LocalizableString.of(MessageKeys.RESPONSE_NOT_FOUND),
             HttpStatus.NO_CONTENT.value(),
-            request.getRequestURI(), ex);
+            request.getRequestURI(),
+            ex);
     }
 }

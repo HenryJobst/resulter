@@ -1,10 +1,11 @@
 import { ToastEventBus } from 'primevue'
 import axiosInstance from '@/features/keycloak/services/api'
 import KeycloakService from '@/features/keycloak/services/keycloak'
-import { handleApiError } from '@/utils/HandleError'
+import { BackendError, handleApiError } from '@/utils/HandleError'
 import { sameErrorTimeout } from '@/utils/constants'
 import { i18n } from '@/i18n'
 import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
+import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
 
 function setup(store: any) {
     axiosInstance.interceptors.request.use(
@@ -20,10 +21,15 @@ function setup(store: any) {
 
     const errorCache = new Set<string>()
 
-    const handleError = (error: unknown) => {
+    const handleError = (error: any) => {
         const t: (key: string, object?: any) => string = i18n.global.t
+
+        const apiResponse: ApiResponse<unknown> | undefined = getApiResponse(error.response)
+
         const errorMessage
-            = error instanceof Error ? error.message : t('errors.reallyUnknownApiError')
+            = apiResponse
+                ? t(`backend.${apiResponse.message.messageKey.key}`, apiResponse.message.messageParameters)
+                : t('errors.reallyUnknownApiError')
 
         if (errorCache.has(errorMessage)) {
             return
@@ -38,22 +44,26 @@ function setup(store: any) {
         catch (reason: any) {
             ToastEventBus.emit('add', {
                 severity: 'error',
-                summary: reason.name,
+                summary: reason instanceof BackendError ? reason.message : reason.name,
                 detail: reason.stack,
             })
         }
     }
 
-    const isApiResponse = (data: any): data is ApiResponse<unknown> => {
-        return data && typeof data.success === 'boolean' && 'message' in data
-    }
-
     axiosInstance.interceptors.response.use(
         (response) => {
-            if (isApiResponse(response.data)) {
-                const apiResponse = response.data as ApiResponse<unknown>
+            const apiResponse = getApiResponse(response)
+            if (apiResponse) {
+                const t: (key: string, object?: any) => string = i18n.global.t
                 if (!apiResponse.success) {
-                    handleError(new Error(apiResponse.message))
+                    handleError(
+                        new Error(
+                            t(
+                                apiResponse.message.messageKey.key,
+                                apiResponse.message.messageParameters,
+                            ),
+                        ),
+                    )
                 }
             }
             return response

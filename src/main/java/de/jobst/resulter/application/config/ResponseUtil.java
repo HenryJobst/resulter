@@ -21,7 +21,7 @@ public class ResponseUtil {
         }
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> success(T data, String message, String path) {
+    public static <T> ResponseEntity<ApiResponse<T>> success(T data, LocalizableString message, String path) {
         ApiResponse<T> response = new ApiResponse<>();
         response.setSuccess(true);
         response.setMessage(message);
@@ -33,7 +33,7 @@ public class ResponseUtil {
         return ResponseEntity.ok(response);
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> error(List<String> errors, String message, int errorCode,
+    public static <T> ResponseEntity<ApiResponse<T>> error(List<String> errors, LocalizableString message, int errorCode,
                                                           String path,
                                            Exception ex) {
         logError(ex);
@@ -51,8 +51,8 @@ public class ResponseUtil {
         return ResponseEntity.internalServerError().body(response);
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> error(String error, String message, int errorCode, String path,
+    public static <T> ResponseEntity<ApiResponse<T>> error(LocalizableString message, int errorCode, String path,
                                                           Exception ex) {
-        return error(Collections.singletonList(error), message, errorCode, path, ex);
+        return error(Collections.singletonList(ex.getMessage()), message, errorCode, path, ex);
     }
 }

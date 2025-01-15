@@ -89,7 +89,8 @@
         "download": "Runterladen",
         "year": "Jahr",
         "action": "Aktion | Aktionen",
-        "person_merge": "Person zum Zusammenführen"
+        "person_merge": "Person zum Zusammenführen",
+        "error": "Fehler"
     },
     "result_state": {
         "OK": "OK",
@@ -168,12 +169,12 @@
         "details": "Details..."
     },
     "errors": {
-        "notFound": "Die angefragte Ressource nicht gefunden. {name}, {message}",
+        "notFound": "Die angefragte Ressource wurde nicht gefunden. {message}",
         "conflict": "Die angefragte Änderung der Ressource verursacht einen Konflikt. {name}, {message}",
         "unauthorized": "Unberechtigter Zugriff abgewiesen. {name}, {message}",
         "badRequest": "Die angefragte Änderung der Ressource war fehlerhaft aufgebaut. {name}, {message}",
         "forbidden": "Zugriff verboten. {name}, {message}",
-        "internalServerError": "Interner Server Fehler. {name}, {message}",
+        "internalServerError": "Serverfehler: {message}",
         "unknownApiError": "Unbekannter Api-Fehler. {name}, {message}",
         "unknownError": "Unbekannter Fehler. {name}, {message}",
         "noResponseError": "Keine Antwort vom Server erhalten. {name}, {message}, {code}",
@@ -186,5 +187,11 @@
         "futurePlans": "Zukünftige Erweiterungen sollen Berechnungen von Cup- und Ranglistenpunkten sowie eine Auswertung von Splittzeiten ermöglichen.",
         "contact": "Für Anfragen, schreiben Sie uns bitte eine E-Mail an",
         "emailAddress": "resulter{'@'}olberlin.de"
+    },
+    "backend": {
+        "unexpected_error": "Unerwarteter Fehler",
+        "resource_not_found": "Ressource nicht gefunden",
+        "response_not_found": "Antwort nicht gefunden",
+        "successfully_retrieved": "Erfolgreich abgerufen"
     }
 }

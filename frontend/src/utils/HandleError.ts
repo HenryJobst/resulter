@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios'
+import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
 
-class NotFoundException extends Error {
+export class BackendError extends Error {
     constructor(message: string) {
         super(message) // Übergabe der Fehlermeldung an die Basisklasse
         // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
@@ -8,7 +9,16 @@ class NotFoundException extends Error {
     }
 }
 
-class BadRequestException extends Error {
+class NotFoundException extends BackendError {
+    constructor(name: string, message: string) {
+        super(message) // Übergabe der Fehlermeldung an die Basisklasse
+        this.name = name
+        // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
+        Object.setPrototypeOf(this, new.target.prototype)
+    }
+}
+
+class BadRequestException extends BackendError {
     constructor(message: string) {
         super(message) // Übergabe der Fehlermeldung an die Basisklasse
         // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
@@ -16,7 +26,7 @@ class BadRequestException extends Error {
     }
 }
 
-class UnauthorizedException extends Error {
+class UnauthorizedException extends BackendError {
     constructor(message: string) {
         super(message) // Übergabe der Fehlermeldung an die Basisklasse
         // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
@@ -24,7 +34,7 @@ class UnauthorizedException extends Error {
     }
 }
 
-class ForbiddenException extends Error {
+class ForbiddenException extends BackendError {
     constructor(message: string) {
         super(message) // Übergabe der Fehlermeldung an die Basisklasse
         // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
@@ -32,7 +42,7 @@ class ForbiddenException extends Error {
     }
 }
 
-class ConflictException extends Error {
+class ConflictException extends BackendError {
     constructor(message: string) {
         super(message) // Übergabe der Fehlermeldung an die Basisklasse
         // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
@@ -40,9 +50,10 @@ class ConflictException extends Error {
     }
 }
 
-class InternalServerErrorException extends Error {
-    constructor(message: string) {
+class InternalServerErrorException extends BackendError {
+    constructor(name: string, message: string) {
         super(message) // Übergabe der Fehlermeldung an die Basisklasse
+        this.name = name
         // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
         Object.setPrototypeOf(this, new.target.prototype)
     }
@@ -64,38 +75,42 @@ class NetworkErrorException extends Error {
 
 export function handleApiError(error: unknown, t: (key: string, object?: any) => string) {
     if (error instanceof AxiosError) {
+        const name = error.name
         if (error.response) {
+            const apiResponse = getApiResponse(error.response)
+            const message = apiResponse
+                ? t(`backend.${apiResponse.message.messageKey.key}`, apiResponse.message.messageParameters)
+                : error.message
             // Got response from server
             switch (error.response.status) {
                 case 400:
                     throw new BadRequestException(
-                        t('errors.badRequest', { name: error.name, message: error.message }),
+                        t('errors.badRequest', { name, message }),
                     )
                 case 401:
                     throw new UnauthorizedException(
-                        t('errors.unauthorized', { name: error.name, message: error.message }),
+                        t('errors.unauthorized', { name, message }),
                     )
                 case 403:
                     throw new ForbiddenException(
-                        t('errors.forbidden', { name: error.name, message: error.message }),
+                        t('errors.forbidden', { name, message }),
                     )
                 case 404:
-                    throw new NotFoundException(
-                        t('errors.notFound', { name: error.name, message: error.message }),
-                    )
+                    throw new NotFoundException(t('labels.error'), t('errors.notFound', { message }))
                 case 409:
                     throw new ConflictException(
-                        t('errors.conflict', { name: error.name, message: error.message }),
+                        t('errors.conflict', { name, message }),
                     )
                 case 500:
                     throw new InternalServerErrorException(
-                        t('errors.internalServerError', { name: error.name, message: error.message }),
+                        t('labels.error'),
+                        t('errors.internalServerError', { message }),
                     )
                 default:
-                    if (error.code)
-                        console.log(error.code)
-
-                    throw new Error(t('errors.unknownApiError', { name: error.name, message: error.message }))
+                    if (error.code) {
+                        console.log(`Error code: ${error.code}`)
+                    }
+                    throw new Error(t('errors.unknownApiError', { name, message }))
             }
         }
         else if (error.request) {
@@ -106,7 +121,7 @@ export function handleApiError(error: unknown, t: (key: string, object?: any) =>
             else {
                 throw new Error(
                     t('errors.noResponseError', {
-                        name: error.name,
+                        name,
                         message: error.message,
                         code: error.code,
                     }),

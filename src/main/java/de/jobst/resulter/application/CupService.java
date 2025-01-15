@@ -8,6 +8,7 @@ import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -87,7 +88,9 @@ public class CupService {
     }
 
     public Page<Cup> findAll(@Nullable String filterString, @NonNull Pageable pageable) {
-        return cupRepository.findAll(filterString, pageable);
+        //throw new UnsupportedOperationException("Not implemented yet");
+        throw new ResourceNotFoundException("Resource not found.");
+        //return cupRepository.findAll(filterString, pageable);
     }
 
     public Optional<CupDetailed> getCupDetailed(CupId cupId) {

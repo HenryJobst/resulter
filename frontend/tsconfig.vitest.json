@@ -3,11 +3,13 @@
     "compilerOptions": {
         "composite": true,
         "lib": [],
+        "rootDir": "./",
         "types": [
             "node",
             "jsdom"
         ],
-        "noEmit": false
+        "noEmit": false,
+        "outDir": "./dist"
     },
     "exclude": []
 }

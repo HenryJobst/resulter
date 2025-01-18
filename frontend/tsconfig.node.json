@@ -7,24 +7,26 @@
             "dom",
             "esnext"
         ],
+        "rootDir": "./",
         "module": "ESNext",
         // "moduleResolution": "Bundler",
         "moduleResolution": "node",
         /* Disallow inconsistently-cased references to the same file. */
 
         "resolveJsonModule": true,
-        /* "types": [ "node" ], */
         "types": [
             "node"
         ],
         "strict": true,
         "noEmit": false,
+        "outDir": "./dist",
         "esModuleInterop": true,
         /* Skip type checking of declaration files. */
         "forceConsistentCasingInFileNames": true,
         /* Type declaration files to be included in compilation. */
         /* Advanced Options */
         "skipLibCheck": true
+
     },
     "include": [
         "vite.config.*",

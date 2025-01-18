@@ -3,12 +3,14 @@
     "compilerOptions": {
         "composite": true,
         "baseUrl": ".",
+        "rootDir": "./",
         "paths": {
             "@/*": [
                 "./src/*"
             ]
         },
-        "noEmit": false
+        "noEmit": false,
+        "outDir": "./dist"
     },
     "include": [
         "env.d.ts",

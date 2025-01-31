@@ -264,7 +264,7 @@ public class XMLImportService {
                 Gender.of(p.getSex())))
             .collect(Collectors.toSet());
         persons = personService.findOrCreate(persons);
-        return persons.stream().collect(Collectors.toMap(Person::getDomainKey, x -> x));
+        return persons.stream().distinct().collect(Collectors.toMap(Person::getDomainKey, x -> x));
     }
 
     @NonNull
@@ -355,7 +355,7 @@ public class XMLImportService {
             GivenName.of(p.getName().getGiven())),
             null != p.getBirthDate() ?
             BirthDate.of(p.getBirthDate().toGregorianCalendar().toZonedDateTime().toLocalDate()) :
-            BirthDate.of(null));
+            BirthDate.of(null), Gender.of(p.getSex()));
     }
 
     @NonNull

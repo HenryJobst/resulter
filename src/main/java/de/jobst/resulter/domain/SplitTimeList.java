@@ -46,5 +46,24 @@ public class SplitTimeList {
     }
 
     public record DomainKey(EventId eventId, ResultListId resultListId, ClassResultShortName classResultShortName,
-                            PersonId personId, RaceNumber raceNumber) {}
+                            PersonId personId, RaceNumber raceNumber) implements Comparable<DomainKey> {
+
+        @Override
+        public int compareTo(@NonNull DomainKey o) {
+            int val = personId.compareTo(o.personId);
+            if (val == 0) {
+                val = classResultShortName.compareTo(o.classResultShortName);
+                if (val == 0) {
+                    val = raceNumber.compareTo(o.raceNumber);
+                    if (val == 0) {
+                        val = resultListId.compareTo(o.resultListId);
+                        if (val == 0) {
+                            val = eventId.compareTo(o.eventId);
+                        }
+                    }
+                }
+            }
+            return val;
+        }
+    }
 }

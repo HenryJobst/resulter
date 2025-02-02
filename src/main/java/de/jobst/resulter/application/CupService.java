@@ -59,16 +59,16 @@ public class CupService {
         return cupRepository.findOrCreate(cup);
     }
 
-    public Optional<Cup> findById(CupId cupId) {
+    private Optional<Cup> findById(CupId cupId) {
         return cupRepository.findById(cupId);
     }
 
+    public Cup getById(CupId cupId) {
+        return cupRepository.findById(cupId).orElseThrow(ResourceNotFoundException::new);
+    }
 
     public Cup updateCup(CupId id, CupName name, CupType type, Year year, Collection<EventId> eventIds) {
-        Collection<Event> events = eventRepository.findAllById(eventIds);
-        return findById(id)
-                   .map(it -> it.update(name, type, year, events))
-                   .map(cupRepository::save).orElse(null);
+        return cupRepository.save(getById(id).update(name, type, year, eventRepository.findAllById(eventIds)));
     }
 
     public Cup createCup(String name, CupType type, Year year, Collection<EventId> eventIds) {
@@ -77,54 +77,45 @@ public class CupService {
         return cupRepository.save(cup);
     }
 
-    public boolean deleteCup(CupId cupId) {
-        Optional<Cup> optionalCup = findById(cupId);
-        if (optionalCup.isEmpty()) {
-            return false;
-        }
-        Cup cup = optionalCup.get();
+    public void deleteCup(CupId cupId) {
+        Cup cup = getById(cupId);
         cupRepository.deleteCup(cup);
-        return true;
     }
 
     public Page<Cup> findAll(@Nullable String filterString, @NonNull Pageable pageable) {
-        //throw new UnsupportedOperationException("Not implemented yet");
-        throw new ResourceNotFoundException("Resource not found.");
-        //return cupRepository.findAll(filterString, pageable);
+        return cupRepository.findAll(filterString, pageable);
     }
 
-    public Optional<CupDetailed> getCupDetailed(CupId cupId) {
-        return Optional.ofNullable(cupRepository.findById(cupId)).map(x -> {
-            Cup cup = x.orElseThrow();
-            List<Event> events = cup.getEvents().stream().toList();
-            List<Race> races = raceService.findAllByEvents(events);
-            List<EventResultList> eventResultLists = events.stream()
-                .map(event -> new EventResultLists(event, resultListService.findByEventId(event.getId())))
-                .flatMap(rl2 -> rl2.resultLists().stream().map(rl -> new EventResultList(rl2.event(), rl)))
-                .sorted()
-                .toList();
-            List<List<CupScoreList>> cupScoreLists = eventResultLists.stream()
-                .map(r -> resultListService.getCupScoreLists(r.resultList().getId(), cupId).stream().toList())
-                .toList();
+    public CupDetailed getCupDetailed(CupId cupId) {
+        Cup cup = getById(cupId);
+        List<Event> events = cup.getEvents().stream().toList();
+        List<Race> races = raceService.findAllByEvents(events);
+        List<EventResultList> eventResultLists = events.stream()
+            .map(event -> new EventResultLists(event, resultListService.findByEventId(event.getId())))
+            .flatMap(rl2 -> rl2.resultLists().stream().map(rl -> new EventResultList(rl2.event(), rl)))
+            .sorted()
+            .toList();
+        List<List<CupScoreList>> cupScoreLists = eventResultLists.stream()
+            .map(r -> resultListService.getCupScoreLists(r.resultList().getId(), cupId).stream().toList())
+            .toList();
 
-            var strategy = cup.getCupTypeCalculationStrategy(null);
+        var strategy = cup.getCupTypeCalculationStrategy(null);
 
-            ClassResultAggregationResult classResultAggregationResult = cup.getType().isGroupedByOrganisation() ?
-                                                                        null :
-                                                                        calculateClassResultGroupedSums(events,
-                                                                            eventResultLists,
-                                                                            races,
-                                                                            cupScoreLists,
-                                                                            strategy);
+        ClassResultAggregationResult classResultAggregationResult = cup.getType().isGroupedByOrganisation() ?
+                                                                    null :
+                                                                    calculateClassResultGroupedSums(events,
+                                                                        eventResultLists,
+                                                                        races,
+                                                                        cupScoreLists,
+                                                                        strategy);
 
-            return new CupDetailed(cup,
-                cup.getType().isGroupedByOrganisation() ?
-                calculateOrganisationGroupedSums(events, eventResultLists, races, cupScoreLists) :
-                classResultAggregationResult.eventRacesCupScores(),
-                cup.getType().isGroupedByOrganisation() ?
-                List.of() :
-                Objects.requireNonNull(classResultAggregationResult).aggregatedPersonScoresList());
-        });
+        return new CupDetailed(cup,
+            cup.getType().isGroupedByOrganisation() ?
+            calculateOrganisationGroupedSums(events, eventResultLists, races, cupScoreLists) :
+            classResultAggregationResult.eventRacesCupScores(),
+            cup.getType().isGroupedByOrganisation() ?
+            List.of() :
+            Objects.requireNonNull(classResultAggregationResult).aggregatedPersonScoresList());
     }
 
     private Map<ClassResultShortName, List<PersonWithScore>> aggregatePersonScoresGroupedByClass(List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores,
@@ -310,12 +301,7 @@ public class CupService {
 
     @Transactional
     public List<CupScoreListDto> calculateScore(CupId id) {
-        Optional<Cup> cupOptional = findById(id);
-        if (cupOptional.isEmpty()) {
-            // no cup for this id
-            return List.of();
-        }
-        Cup cup = cupOptional.get();
+        Cup cup = getById(id);
         Collection<Event> events = cup.getEvents();
         Collection<ResultList> resultLists = events.stream().flatMap(event -> {
             Collection<ResultList> resultListsByEvent = resultListService.findByEventId(event.getId());

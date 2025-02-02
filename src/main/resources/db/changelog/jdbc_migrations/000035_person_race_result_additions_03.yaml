@@ -1,0 +1,37 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000035_person_race_result_additions_03
+            author : Henry Jobst
+            comment : add column organisation_id to person_race_result
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   columnExists :
+                                tableName : person_race_result
+                                columnName : organisation_id
+            changes :
+                -   addColumn :
+                        tableName : person_race_result
+                        columns :
+                            -   column :
+                                    name : organisation_id
+                                    type : bigint
+                                    constraints :
+                                        nullable : true
+                                        foreignKeyName : fk_person_race_result_organisation
+                -   addForeignKeyConstraint :
+                        baseTableName : person_race_result
+                        baseColumnNames : organisation_id
+                        constraintName : fk_person_race_result_organisation
+                        referencedTableName : organisation
+                        referencedColumnNames : id
+                        onDelete : restrict
+                        onUpdate : restrict
+                - sql:
+                      sql: >
+                          UPDATE person_race_result prr
+                          SET organisation_id = pr.organisation_id
+                          FROM person_result pr
+                          WHERE prr.person_id = pr.person_id
+                          AND prr.class_result_short_name = pr.class_result_short_name
+                          AND prr.result_list_id = pr.result_list_id; 

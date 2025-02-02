@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.adapter.driver.web.jaxb.OverallResult;
 import de.jobst.resulter.application.*;
 import de.jobst.resulter.domain.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.NonNull;
@@ -19,6 +20,7 @@ import java.util.stream.Stream;
 import static java.time.ZoneOffset.UTC;
 
 @Service
+@Slf4j
 public class XMLImportService {
 
     private final XmlParser xmlParser;
@@ -59,7 +61,7 @@ public class XMLImportService {
                                                                                     ClassResultShortName classResultShortName,
                                                                                     PersonId personId) {
         List<de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult> results = personResult.getResults();
-        results = results.stream().flatMap(personRaceResult -> {
+        results = results.stream().filter(XMLImportService::isReallyStarted).flatMap(personRaceResult -> {
             OverallResult overallResult = personRaceResult.getOverallResult();
             if (overallResult != null) {
                 var overallPersonRaceResult = new de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult();
@@ -78,6 +80,7 @@ public class XMLImportService {
             }
         }).toList();
         return results.stream()
+            .filter(XMLImportService::isReallyStarted)
             .map(personRaceResult -> Pair.of(PersonRaceResult.of(classResultShortName.value(),
                     personId.value(),
                     ObjectUtils.isNotEmpty(personRaceResult.getStartTime()) ?
@@ -107,6 +110,12 @@ public class XMLImportService {
                         .map(x -> new SplitTime(ControlCode.of(x.getControlCode()), PunchTime.of(x.getTime()), null))
                         .toList())))
             .toList();
+    }
+
+    private static boolean isReallyStarted(de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult personRaceResult) {
+        return !personRaceResult.getStatus().value().equals(ResultStatus.NOT_COMPETING.value()) &&
+               !personRaceResult.getStatus().value().equals(ResultStatus.DID_NOT_START.value()) &&
+               !personRaceResult.getStatus().value().equals(ResultStatus.DID_NOT_ENTER.value());
     }
 
     public static <A, B> Pair<List<A>, List<B>> convertListPairToListsPair(List<Pair<A, B>> listPair) {
@@ -236,8 +245,16 @@ public class XMLImportService {
     private Event importEvent(de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList,
                               Map<String, Organisation> organisationByName) {
 
-        ZonedDateTime eventStartDate =
-            resultList.getClassResults().stream().flatMap(x -> x.getPersonResults().stream()).map(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult::getResults).flatMap(Collection::stream).map(de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult::getStartTime).filter(Objects::nonNull).map(x -> x.toInstant().atZone(UTC)).min(Comparator.naturalOrder()).orElse(null);
+        ZonedDateTime eventStartDate = resultList.getClassResults()
+            .stream()
+            .flatMap(x -> x.getPersonResults().stream())
+            .map(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult::getResults)
+            .flatMap(Collection::stream)
+            .map(de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult::getStartTime)
+            .filter(Objects::nonNull)
+            .map(x -> x.toInstant().atZone(UTC))
+            .min(Comparator.naturalOrder())
+            .orElse(null);
         if (eventStartDate != null) {
             int currentMinute = eventStartDate.getMinute();
             int nextValidMinute = (int) (Math.floor(currentMinute / 15.0) * 15) % 60;
@@ -245,7 +262,8 @@ public class XMLImportService {
         }
 
         // Event
-        Event event = Event.of(resultList.getEvent().getName(), eventStartDate,
+        Event event = Event.of(resultList.getEvent().getName(),
+            eventStartDate,
             resultList.getEvent().getOrganisers().stream().map(x -> organisationByName.get(x.getName())).toList());
         event = eventService.findOrCreate(event);
         return event;
@@ -355,7 +373,8 @@ public class XMLImportService {
             GivenName.of(p.getName().getGiven())),
             null != p.getBirthDate() ?
             BirthDate.of(p.getBirthDate().toGregorianCalendar().toZonedDateTime().toLocalDate()) :
-            BirthDate.of(null), Gender.of(p.getSex()));
+            BirthDate.of(null),
+            Gender.of(p.getSex()));
     }
 
     @NonNull

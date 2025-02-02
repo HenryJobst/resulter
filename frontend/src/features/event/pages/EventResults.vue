@@ -95,20 +95,34 @@ function formatCreateTime(date: Date | string, locale: Ref<Locale>) {
 }
 
 function getResultListLabel(resultList: ResultList) {
+    const names = raceQuery.data.value?.content.filter(r => r.id === resultList.raceId).map(r => r.name)
     let name = raceQuery.data.value?.content.find(r => r.id === resultList.raceId)?.name
-    if (!name) {
+    const manyRacesExists = names?.length ?? 0 > 1
+    if (!name || manyRacesExists) {
         const raceNumber = resultList.classResults
             .flatMap(c => c.personResults)
             .flatMap(pr => pr.raceNumber)
             .reduce(a => a)
             .toString()
         if (raceNumber !== '0') {
-            name = t('labels.race_number', {
+            const nameAddition = t('labels.race_number', {
                 raceNumber,
             })
+            if (name) {
+                name = `${name} - ${nameAddition}`
+            }
+            else {
+                name = nameAddition
+            }
         }
         else {
-            name = t('labels.overall')
+            const nameAddition = t('labels.overall')
+            if (name) {
+                name = `${name} - ${nameAddition}`
+            }
+            else {
+                name = nameAddition
+            }
         }
     }
     return `${(name ? `${name}, ` : '') + t('labels.created')} ${

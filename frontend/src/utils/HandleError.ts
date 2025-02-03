@@ -1,11 +1,11 @@
 import { AxiosError } from 'axios'
 import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
+import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
 
-export class BackendError extends Error {
+export class BackendException extends Error {
     public readonly baseError: Error
-    constructor(name: string, baseError: Error, message?: string) {
+    constructor(baseError: Error, message?: string) {
         super(message || baseError.name)
-        this.name = name
         this.stack = baseError.stack
         this.baseError = baseError
         // Workaround für die Vererbung in TypeScript (wichtig bei `Error`):
@@ -16,6 +16,7 @@ export class BackendError extends Error {
 class NetworkErrorException extends Error {
     public readonly details?: string
     public readonly baseError: Error
+
     constructor(name: string, baseError: Error, message?: string, details?: string) {
         super(message || baseError.name)
         this.name = name
@@ -29,13 +30,15 @@ class NetworkErrorException extends Error {
 
 export function handleApiError(error: unknown, t: (key: string, object?: any) => string) {
     if (error instanceof AxiosError) {
-        const name = error.name
         if (error.response) {
             const apiResponse = getApiResponse(error.response)
             const message = apiResponse
-                ? t(`backend.${apiResponse.message.messageKey.key}`, apiResponse.message.messageParameters)
+                ? t(
+                    `backend.${apiResponse.message.messageKey.key}`,
+                    apiResponse.message.messageParameters,
+                )
                 : error.message
-            throw new BackendError(t('labels.error'), error, t('errors.internalServerError', { message }))
+            throw new BackendException(error, message)
         }
         else if (error.request) {
             // no response
@@ -45,7 +48,7 @@ export function handleApiError(error: unknown, t: (key: string, object?: any) =>
             else {
                 throw new Error(
                     t('errors.noResponseError', {
-                        name,
+                        name: error.name,
                         message: error.message,
                         code: error.code,
                     }),
@@ -58,4 +61,30 @@ export function handleApiError(error: unknown, t: (key: string, object?: any) =>
             ? error
             : new Error(t('errors.unknownError', { name: '', message: '' }))
     }
+}
+
+export function getMessage(error: any): string {
+    return error instanceof BackendException ? error.message : (error.name ?? error.message)
+}
+
+export function getDetail(error: any, t: (key: string, object?: any) => string): string {
+    if (error instanceof BackendException) {
+        if (error.baseError instanceof AxiosError && error.baseError.response) {
+            const apiResponse: ApiResponse<unknown> | undefined = getApiResponse(
+                error.baseError.response,
+            )
+            if (apiResponse) {
+                if (apiResponse.errors) {
+                    return apiResponse!.errors.join(', ')
+                }
+                else {
+                    return t(
+                        `backend.${apiResponse!.message.messageKey.key}`,
+                        apiResponse!.message.messageParameters,
+                    )
+                }
+            }
+        }
+    }
+    return error.stack
 }

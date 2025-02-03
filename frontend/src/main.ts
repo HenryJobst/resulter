@@ -11,6 +11,7 @@ import messages from '@intlify/unplugin-vue-i18n/messages'
 import Tooltip from 'primevue/tooltip'
 import Lara from '@primevue/themes/lara'
 import { definePreset } from '@primevue/themes'
+import { AxiosError } from 'axios'
 import App from './App.vue'
 import { setupRouter } from './router'
 import AuthStorePlugin from '@/features/keycloak/plugins/authStorePlugin'
@@ -20,6 +21,7 @@ import { setupI18n } from '@/i18n'
 
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
+import { getErrorStore } from '@/features/common/stores/getErrorStore'
 
 const savedLocale = localStorage.getItem('userLocale')
 // get user language from browser
@@ -34,7 +36,7 @@ const i18n = setupI18n({
     messages,
 })
 
-const pinia = createPinia()
+export const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
 const router = setupRouter(i18n)
@@ -113,6 +115,26 @@ function renderApp() {
     app.use(i18n)
     app.use(router)
     app.mount('#app')
+
+    // Global error handler
+    app.config.errorHandler = (err) => {
+        if (err instanceof AxiosError) {
+            const axiosError = err as AxiosError
+            if (axiosError?.isAxiosError) {
+                // ignore error, error reporting is already handled by the axios token interceptor
+                return
+            }
+        }
+
+        console.error('Global error:', err)
+        const errorStore = getErrorStore()
+        errorStore.addError(err)
+        if (router.currentRoute.value.name !== 'start-page') {
+            router.push({ name: 'start-page' }).catch(() => {
+                /* ignore to prevent error loop */
+            })
+        }
+    }
 }
 
 keycloakService.callInit(renderApp).then()

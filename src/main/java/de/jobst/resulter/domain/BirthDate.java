@@ -12,6 +12,6 @@ public record BirthDate(LocalDate value) implements Comparable<BirthDate> {
 
     @Override
     public int compareTo(@NonNull BirthDate o) {
-        return value.compareTo(o.value);
+        return value != null && o.value != null ? value.compareTo(o.value) : value == null ? -1 : 1;
     }
 }

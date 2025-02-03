@@ -95,7 +95,9 @@ function formatCreateTime(date: Date | string, locale: Ref<Locale>) {
 }
 
 function getResultListLabel(resultList: ResultList) {
-    const names = raceQuery.data.value?.content.filter(r => r.id === resultList.raceId).map(r => r.name)
+    const names = raceQuery.data.value?.content
+        .filter(r => r.id === resultList.raceId)
+        .map(r => r.name)
     let name = raceQuery.data.value?.content.find(r => r.id === resultList.raceId)?.name
     const manyRacesExists = names?.length ?? 0 > 1
     if (!name || manyRacesExists) {
@@ -116,18 +118,10 @@ function getResultListLabel(resultList: ResultList) {
             }
         }
         else {
-            const nameAddition = t('labels.overall')
-            if (name) {
-                name = `${name} - ${nameAddition}`
-            }
-            else {
-                name = nameAddition
-            }
+            name = t('labels.overall')
         }
     }
-    return `${(name ? `${name}, ` : '') + t('labels.created')} ${
-        formatCreateTime(resultList.createTime, locale).value
-    }, ${t(`result_list_state.${resultList.status.toUpperCase()}`)}`
+    return `${(name ? `${name}, ` : '') + t('labels.created')} ${formatCreateTime(resultList.createTime, locale).value}`
 }
 
 function createResultListTreeNodes(
@@ -142,6 +136,7 @@ function createResultListTreeNodes(
         const resultList = resultLists[i]
         const certificateEnabled: boolean
             = (event.value?.certificate ?? false) !== false && (resultLists.length === 1 || i === 0)
+        const cupScoreEnabled: boolean = resultLists.length === 1 || i > 0
         const resultListCupScoreLists = cupScoreLists ? cupScoreLists[i] : undefined
         const resultListCompleteCupScoreLists = resultListCupScoreLists
             ? resultListCupScoreLists.filter(x => x.status === 'COMPLETE')
@@ -149,6 +144,9 @@ function createResultListTreeNodes(
         treeNodes.push({
             key: resultList.id.toString(),
             label: getResultListLabel(resultList),
+            data: {
+                cupScoreEnabled,
+            },
             children: [
                 {
                     key: `${resultList.id.toString()}-table`,
@@ -156,6 +154,7 @@ function createResultListTreeNodes(
                         resultList.id,
                         resultList.classResults,
                         certificateEnabled,
+                        cupScoreEnabled,
                         resultListCompleteCupScoreLists,
                     ),
                     type: 'tree',
@@ -181,6 +180,7 @@ function getPersonResults(
     resultListId: number,
     classResult: ClassResult,
     certificateEnabled: boolean | undefined,
+    cupScoreEnabled: boolean | undefined,
     cupScoreLists: CupScoreList[] | undefined,
 ): ResultListIdPersonResults {
     return {
@@ -188,6 +188,7 @@ function getPersonResults(
         classResultShortName: classResult.shortName,
         personResults: classResult.personResults,
         certificateEnabled,
+        cupScoreEnabled,
         cupScoreLists,
     }
 }
@@ -216,6 +217,7 @@ function createClassResultTreeNodes(
     resultListId: number,
     classResults: ClassResult[] | undefined,
     certificateEnabled: boolean | undefined,
+    cupScoreEnabled: boolean | undefined,
     cupScoreLists: CupScoreList[] | undefined,
 ): TreeNode[] {
     if (!classResults)
@@ -232,6 +234,7 @@ function createClassResultTreeNodes(
                         resultListId,
                         classResult,
                         certificateEnabled,
+                        cupScoreEnabled,
                         filterCupScoresByClassResult(cupScoreLists, classResult.shortName),
                     ),
                     type: 'dataTable',
@@ -325,7 +328,7 @@ function navigateToList() {
                             {{ slotProps?.node?.label }}
                         </div>
                         <Button
-                            v-if="authStore.isAdmin"
+                            v-if="authStore.isAdmin && slotProps?.node?.data?.cupScoreEnabled"
                             v-tooltip="t('labels.calculate')"
                             icon="pi pi-calculator"
                             class="ml-5"

@@ -58,29 +58,34 @@ public class XMLImportService {
     private static List<Pair<PersonRaceResult, SplitTimeList>> getPersonRaceResults(de.jobst.resulter.adapter.driver.web.jaxb.PersonResult personResult,
                                                                                     EventId eventId,
                                                                                     ResultListId resultListId,
+                                                                                    Race race,
                                                                                     ClassResultShortName classResultShortName,
                                                                                     PersonId personId) {
         List<de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult> results = personResult.getResults();
-        results = results.stream().filter(XMLImportService::isReallyStarted).flatMap(personRaceResult -> {
-            OverallResult overallResult = personRaceResult.getOverallResult();
-            if (overallResult != null) {
-                var overallPersonRaceResult = new de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult();
-                overallPersonRaceResult.setRaceNumber(BigInteger.valueOf(0));
-                overallPersonRaceResult.setBibNumber(personRaceResult.getBibNumber());
-                overallPersonRaceResult.setStartTime(personRaceResult.getStartTime());
-                overallPersonRaceResult.setFinishTime(personRaceResult.getFinishTime());
-                overallPersonRaceResult.setTime(overallResult.getTime());
-                overallPersonRaceResult.setPosition(overallResult.getPosition());
-                overallPersonRaceResult.setStatus(overallResult.getStatus());
-                overallPersonRaceResult.setTimeBehind(overallResult.getTimeBehind());
-                personRaceResult.setOverallResult(null);
-                return Stream.of(overallPersonRaceResult, personRaceResult);
-            } else {
-                return Stream.of(personRaceResult);
-            }
-        }).toList();
+        results = results.stream()
+            .filter(x -> isReallyStarted(x) && x.getRaceNumber().byteValue() == race.getRaceNumber().value())
+            .flatMap(personRaceResult -> {
+                OverallResult overallResult = personRaceResult.getOverallResult();
+                if (overallResult != null) {
+                    var overallPersonRaceResult = new de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult();
+                    overallPersonRaceResult.setRaceNumber(BigInteger.valueOf(0));
+                    overallPersonRaceResult.setBibNumber(personRaceResult.getBibNumber());
+                    overallPersonRaceResult.setStartTime(personRaceResult.getStartTime());
+                    overallPersonRaceResult.setFinishTime(personRaceResult.getFinishTime());
+                    overallPersonRaceResult.setTime(overallResult.getTime());
+                    overallPersonRaceResult.setPosition(overallResult.getPosition());
+                    overallPersonRaceResult.setStatus(overallResult.getStatus());
+                    overallPersonRaceResult.setTimeBehind(overallResult.getTimeBehind());
+                    personRaceResult.setOverallResult(null);
+                    return Stream.of(overallPersonRaceResult, personRaceResult);
+                } else {
+                    return Stream.of(personRaceResult);
+                }
+            })
+            .toList();
         return results.stream()
             .filter(XMLImportService::isReallyStarted)
+            .filter(x -> x.getRaceNumber().byteValue() == race.getRaceNumber().value() || x.getRaceNumber().byteValue() == 0)
             .map(personRaceResult -> Pair.of(PersonRaceResult.of(classResultShortName.value(),
                     personId.value(),
                     ObjectUtils.isNotEmpty(personRaceResult.getStartTime()) ?
@@ -139,31 +144,52 @@ public class XMLImportService {
 
         List<Race> races = importRaces(resultList, event);
 
-        ResultList domainResultList = importResultListHead(event, races, resultList);
+        List<ResultList> resultLists = races.stream().map(race -> {
+            ResultList domainResultList = importResultListHead(event, race, resultList);
 
-        Map<Course.DomainKey, Course> courseByDomainKey = importCourses(event, resultList);
+            Map<Course.DomainKey, Course> courseByDomainKey = importCourses(event, resultList);
 
-        domainResultList = importResultListBody(event,
-            races,
-            domainResultList,
-            resultList,
-            organisationByName,
-            personByDomainKey,
-            courseByDomainKey);
+            domainResultList = importResultListBody(event,
+                race,
+                domainResultList,
+                resultList,
+                organisationByName,
+                personByDomainKey,
+                courseByDomainKey);
+            return domainResultList;
+        }).toList();
 
-        return new ImportResult(event, countriesByCode, organisationByName, personByDomainKey, domainResultList);
+        return new ImportResult(event, countriesByCode, organisationByName, personByDomainKey, resultLists);
     }
 
     @NonNull
     private List<Race> importRaces(de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList, Event event) {
-        return resultList.getEvent().getRaces().stream().map(raceOfResult -> raceService.findOrCreate(Race.of(event.getId(),
-            raceOfResult != null ? raceOfResult.getName() : null,
-            raceOfResult != null ? raceOfResult.getRaceNumber().byteValue() : RaceNumber.empty().value()))).toList();
+        List<Byte> raceNumbers = resultList.getClassResults()
+            .stream()
+            .flatMap(x -> x.getPersonResults().stream())
+            .flatMap(x -> x.getResults().stream())
+            .filter(x -> x.getRaceNumber() != null)
+            .map(x -> x.getRaceNumber().byteValue())
+            .distinct()
+            .toList();
+
+        return raceNumbers.stream()
+            .map(raceNumber -> Race.of(event.getId(),
+                resultList.getEvent()
+                    .getRaces()
+                    .stream()
+                    .filter(x -> x.getRaceNumber().byteValue() == raceNumber)
+                    .findAny()
+                    .map(de.jobst.resulter.adapter.driver.web.jaxb.Race::getName)
+                    .orElse(null),
+                raceNumber))
+            .map(raceService::findOrCreate)
+            .toList();
     }
 
     @NonNull
     private ResultList importResultListBody(Event event,
-                                            List<Race> races,
+                                            Race race,
                                             ResultList partialResultList,
                                             de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList,
                                             Map<String, Organisation> organisationByName,
@@ -176,7 +202,7 @@ public class XMLImportService {
                 var clazz = classResult.getClazz();
                 var personResults = convertListPairToListsPair(getPersonResults(classResult,
                     event.getId(),
-                    races.stream().sorted().findFirst().orElseThrow().getId(),
+                    race,
                     finalDomainResultList.getId(),
                     ClassResultShortName.of(clazz.getShortName()),
                     organisationByName,
@@ -223,12 +249,12 @@ public class XMLImportService {
     }
 
     private ResultList importResultListHead(Event event,
-                                            List<Race> races,
+                                            Race race,
                                             de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList) {
         // Result list
         ResultList domainResultList = new ResultList(ResultListId.empty(),
             event.getId(),
-            races.stream().sorted().findFirst().orElseThrow().getId(),
+            race.getId(),
             resultList.getCreator(),
             ObjectUtils.isNotEmpty(resultList.getCreateTime()) ?
             resultList.getCreateTime().toInstant().atZone(resultList.getCreateTime().getTimeZone().toZoneId()) :
@@ -378,7 +404,7 @@ public class XMLImportService {
     @NonNull
     private List<Pair<PersonResult, List<SplitTimeList>>> getPersonResults(de.jobst.resulter.adapter.driver.web.jaxb.ClassResult classResult,
                                                                            EventId eventId,
-                                                                           RaceId raceId,
+                                                                           Race race,
                                                                            ResultListId resultListId,
                                                                            ClassResultShortName classResultShortName,
                                                                            Map<String, Organisation> organisationByName,
@@ -400,6 +426,7 @@ public class XMLImportService {
                 convertListPairToListsPair(getPersonRaceResults(personResult,
                     eventId,
                     resultListId,
+                    race,
                     classResultShortName,
                     personId));
             return Pair.of(PersonResult.of(classResultShortName,
@@ -412,7 +439,7 @@ public class XMLImportService {
     }
 
     public record ImportResult(Event event, Map<String, Country> countryMap, Map<String, Organisation> organisationMap,
-                               Map<Person.DomainKey, Person> personMap, ResultList resultLists) {
+                               Map<Person.DomainKey, Person> personMap, List<ResultList> resultLists) {
 
     }
 

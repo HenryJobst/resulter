@@ -6,5 +6,6 @@ export interface ResultListIdPersonResults {
     classResultShortName: string
     personResults: PersonResult[]
     certificateEnabled: boolean | undefined
+    cupScoreEnabled: boolean | undefined
     cupScoreLists: CupScoreList[] | undefined
 }

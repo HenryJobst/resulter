@@ -150,11 +150,13 @@ function certificate(resultListId: number, classResultShortName: string, data: P
                 {{ resultColumn(slotProps.data) }}
             </template>
         </Column>
-        <Column v-for="cup in cups" :key="cup.id" :header="cup.type.id">
-            <template #body="slotProps">
-                {{ cupScore(cup, slotProps.data, props.data.cupScoreLists) }}
-            </template>
-        </Column>
+        <div v-if="props.data.cupScoreEnabled">
+            <Column v-for="cup in cups" :key="cup.id" :header="cup.type?.id">
+                <template #body="slotProps">
+                    {{ cupScore(cup, slotProps.data, props.data.cupScoreLists) }}
+                </template>
+            </Column>
+        </div>
         <Column>
             <template #body="slotProps">
                 <Button

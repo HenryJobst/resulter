@@ -48,30 +48,35 @@ public class ResultList implements Comparable<ResultList> {
 
     @Override
     public int compareTo(@NonNull ResultList o) {
-        int var = Objects.compare(this.createTime, o.createTime, ZonedDateTime::compareTo);
+        int var = 0;
+
+        // order by race number
+        if (this.getClassResults() != null && o.getClassResults() != null) {
+            var = this.getRaceNumber().compareTo(o.getRaceNumber());
+        }
+
+        if (var == 0) {
+            var = Objects.compare(this.createTime, o.createTime, ZonedDateTime::compareTo);
+        }
+
         if (var == 0) {
             var = this.raceId.compareTo(o.raceId);
         }
-        if (var == 0) {
-            // order by race number
-            if (this.getClassResults() != null && o.getClassResults() != null) {
-                var = this.getClassResults()
-                    .stream()
-                    .flatMap(x -> x.personResults().value().stream())
-                    .flatMap(x -> x.personRaceResults().value().stream())
-                    .findFirst()
-                    .orElseThrow()
-                    .getRaceNumber()
-                    .compareTo(o.getClassResults()
-                        .stream()
-                        .flatMap(x -> x.personResults().value().stream())
-                        .flatMap(x -> x.personRaceResults().value().stream())
-                        .findFirst()
-                        .orElseThrow()
-                        .getRaceNumber());
-            }
-        }
         return var;
+    }
+
+    @NonNull
+    public RaceNumber getRaceNumber() {
+        if (getClassResults() == null) {
+            return RaceNumber.empty();
+        }
+        return getClassResults()
+            .stream()
+            .flatMap(x -> x.personResults().value().stream())
+            .flatMap(x -> x.personRaceResults().value().stream())
+            .findFirst()
+            .orElseThrow()
+            .getRaceNumber();
     }
 
     public CupScoreList calculate(Cup cup, String creator,

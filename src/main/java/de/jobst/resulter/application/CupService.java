@@ -292,7 +292,7 @@ public class CupService {
                                 .toList());
                     }).sorted().toList());
                 } else {
-                    return new RaceOrganisationGroupedCupScore(race, null);
+                    return new RaceOrganisationGroupedCupScore(race, List.of());
                 }
             }).sorted().toList();
             return new EventRacesCupScore(event, eventRaces, List.of());
@@ -306,7 +306,7 @@ public class CupService {
         Collection<ResultList> resultLists = events.stream().flatMap(event -> {
             Collection<ResultList> resultListsByEvent = resultListService.findByEventId(event.getId());
             return resultListsByEvent.stream();
-        }).toList();
+        }).filter(x -> x.getRaceNumber().value() > 0).toList();
 
         Set<OrganisationId> referencedOrganisationIds = resultLists.stream()
             .flatMap(resultList -> resultList.getReferencedOrganisationIds().stream())

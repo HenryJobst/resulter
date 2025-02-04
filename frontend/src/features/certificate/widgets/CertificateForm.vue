@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
 import { useI18n } from 'vue-i18n'
-import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
 import Drawer from 'primevue/drawer'
@@ -17,6 +16,7 @@ import { mediaService } from '@/features/media/services/media.service'
 import type { MediaKey } from '@/features/media/model/media_key'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { Media } from '@/features/media/model/media'
+import NumberedTextarea from '@/features/certificate/widgets/NumberedTextarea.vue'
 
 const certificate = defineModel({
     type: Object as () => Certificate,
@@ -216,13 +216,7 @@ watch(
                         </Drawer>
                     </div>
                     <div class="col">
-                        <Textarea
-                            id="layoutDescription"
-                            v-model="certificate.layoutDescription"
-                            rows="20"
-                            cols="60"
-                            style="overflow: auto; min-height: 300px;"
-                        />
+                        <NumberedTextarea id="layoutDescription" v-model="certificate.layoutDescription" />
                     </div>
                 </div>
                 <div class="flex flex-row">

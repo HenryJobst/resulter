@@ -8,6 +8,8 @@ import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ResponseNotFoundException;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
+@Validated
 public class EventController {
 
     private final EventService eventService;
@@ -187,28 +191,21 @@ public class EventController {
     @PutMapping("/event/{id}/certificate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ByteArrayResource> getCertificate(@PathVariable Long id,
-                                                            @RequestBody EventCertificateDto eventCertificateDto) {
-        try {
-            CertificateService.Certificate certificate =
-                resultListService.createCertificate(EventId.of(id), eventCertificateDto);
-            if (null != certificate) {
-                return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION.toLowerCase(),
-                        "inline; filename=\"" + certificate.filename() + "\"")
-                    .contentLength(certificate.size())
-                    .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
-                    .body(certificate.resource());
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
+                                                            @Valid @RequestBody
+                                                            EventCertificateDto eventCertificateDto) {
+        CertificateService.Certificate certificate =
+            resultListService.createCertificate(EventId.of(id), eventCertificateDto);
+        if (null != certificate) {
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION.toLowerCase(),
+                    "inline; filename=\"" + certificate.filename() + "\"")
+                .contentLength(certificate.size())
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(certificate.resource());
+        } else {
+            throw new ResponseNotFoundException("Certificate could not be created");
         }
+
     }
 
     @PutMapping("/event/{id}/calculate")

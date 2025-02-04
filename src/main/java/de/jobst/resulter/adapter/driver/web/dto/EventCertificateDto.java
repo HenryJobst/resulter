@@ -1,12 +1,15 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.EventCertificate;
+import jakarta.validation.Valid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 
-public record EventCertificateDto(Long id, String name, EventKeyDto event, String layoutDescription,
-                                  MediaFileKeyDto blankCertificate, boolean primary) {
+public record EventCertificateDto(Long id, String name,
+                                  @Valid EventKeyDto event,
+                                  String layoutDescription,
+                                  @Valid MediaFileKeyDto blankCertificate, boolean primary) {
 
     static public EventCertificateDto from(EventCertificate eventCertificate, String thumbnailPath) {
         return new EventCertificateDto(ObjectUtils.isNotEmpty(eventCertificate.getId()) ?

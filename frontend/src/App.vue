@@ -8,6 +8,7 @@ import Menubar from 'primevue/menubar'
 import Button from 'primevue/button'
 import { type PrimeVueLocaleOptions, usePrimeVue } from 'primevue/config'
 import moment from 'moment/min/moment-with-locales'
+import ConfirmDialog from 'primevue/confirmdialog'
 import { SUPPORT_LOCALES } from './i18n'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import BackendVersion from '@/features/backend_version/BackendVersion.vue'
@@ -271,7 +272,7 @@ function setDetails(details: string) {
                                 fill="currentColor"
                             />
                         </svg>
-                        <div class="p-toast-message-text" data-pc-section="messagetext">
+                        <div class="p-toast-message-text ml-2" data-pc-section="messagetext">
                             <span class="p-toast-summary" data-pc-section="summary">
                                 {{ slotProps.message.summary }}
                             </span>
@@ -282,6 +283,8 @@ function setDetails(details: string) {
                             icon="pi pi-ellipsis-h"
                             :severity="slotProps.message.severity"
                             variant="text"
+                            outlined
+                            rounded
                             @click="setDetails(slotProps.message.detail)"
                         />
                     </div>

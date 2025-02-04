@@ -44,13 +44,11 @@ import java.util.Optional;
 public class CertificateService {
 
     public static final String SCHEMA_CERTIFICATE_SCHEMA_JSON = "schema/certificate_schema.json";
-
-    @Value("#{'${resulter.media-file-path}'}")
-    private String mediaFilePath;
-
     @Getter
     private final String certificateSchema;
     private final JsonSchemaValidator jsonSchemaValidator;
+    @Value("#{'${resulter.media-file-path}'}")
+    private String mediaFilePath;
 
     public CertificateService() {
         TextFileLoader schemaLoader = new TextFileLoader();
@@ -167,6 +165,48 @@ public class CertificateService {
         return paragraph;
     }
 
+    public static FontProgram loadFont(String fontNameOrPath) {
+        InputStream fontStream =
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("fonts/" + fontNameOrPath);
+        if (fontStream == null) {
+            throw new RuntimeException("Font file not found: " + fontNameOrPath);
+        }
+
+        FontProgram fontProgram;
+        try {
+            fontProgram = FontProgramFactory.createFont(fontStream.readAllBytes(), true);
+        } catch (IOException e) {
+            throw new RuntimeException("Error loading font: " + fontNameOrPath, e);
+        } finally {
+            try {
+                fontStream.close();
+            } catch (IOException e) {
+                log.error("Error closing InputStream", e);
+            }
+        }
+        return fontProgram;
+    }
+
+    @Nullable
+    private static PdfFont getPdfFont(String fontNameOrPath) {
+        PdfFont font = null;
+        if (fontNameOrPath != null) {
+            try {
+                if (StandardFonts.isStandardFont(fontNameOrPath)) {
+                    font = PdfFontFactory.createFont(fontNameOrPath);
+                } else {
+                    FontProgram fontProgram = loadFont(fontNameOrPath);
+                    font = PdfFontFactory.createFont(fontProgram,
+                        PdfEncodings.IDENTITY_H,
+                        PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+                }
+            } catch (IOException e) {
+                log.error(MessageFormat.format("Error loading font: {0}", fontNameOrPath), e);
+            }
+        }
+        return font;
+    }
+
     private Image createImageBlock(MediaBlock mediaParagraph) throws MalformedURLException {
         Path basePath = Paths.get(mediaFilePath);
         ImageData imageData = ImageDataFactory.create(basePath.resolve(mediaParagraph.media()).toString());
@@ -215,7 +255,7 @@ public class CertificateService {
         }
     }
 
-    public Certificate createCertificate(Event event, EventCertificate eventCertificate) throws IOException {
+    public Certificate createCertificate(Event event, @NonNull EventCertificate eventCertificate) {
         Person p = Person.of("Mustermann", "Max", null, Gender.M);
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
         PersonRaceResult prr = PersonRaceResult.of("H35-",
@@ -233,7 +273,7 @@ public class CertificateService {
                                          Optional<Organisation> organisation,
                                          @NonNull Event event,
                                          @NonNull EventCertificate eventCertificate,
-                                         @NonNull PersonRaceResult personResult) throws IOException {
+                                         @NonNull PersonRaceResult personResult) {
 
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -253,16 +293,22 @@ public class CertificateService {
 
         if (!report.isSuccess()) {
             filename = "LayoutDescriptionErrors.pdf";
-            log.error("Error validating layout description: " + report);
+            log.debug("Error validating layout description: " + report);
             document.add(new Paragraph("Error validating layout description: " + report));
         } else {
-            MediaFile blankCertificate = Objects.requireNonNull(eventCertificate).getBlankCertificate();
             PdfCanvas canvas = new PdfCanvas(pdfDocument.addNewPage());
             Path basePath = Paths.get(mediaFilePath);
-            ImageData image = ImageDataFactory.create(basePath.resolve(Objects.requireNonNull(blankCertificate)
-                .getMediaFileName()
-                .value()).toString());
-            canvas.addImageFittedIntoRectangle(image, pageSize, false);
+            try {
+                if (eventCertificate.getBlankCertificate() != null) {
+                    MediaFile blankCertificate = Objects.requireNonNull(eventCertificate).getBlankCertificate();
+                    ImageData image = ImageDataFactory.create(basePath.resolve(Objects.requireNonNull(blankCertificate)
+                        .getMediaFileName()
+                        .value()).toString());
+                    canvas.addImageFittedIntoRectangle(image, pageSize, false);
+                }
+            } catch (MalformedURLException e) {
+                log.error("Error loading blank certificate image", e);
+            }
 
             var documentAndParagraphDefinitionsWithPlaceholders =
                 JsonToTextParagraph.loadDefinitions(Objects.requireNonNull(eventCertificate.getLayoutDescription())
@@ -318,51 +364,9 @@ public class CertificateService {
 
         byte[] pdfContents = byteArrayOutputStream.toByteArray();
         ByteArrayResource resource = new ByteArrayResource(pdfContents);
+
         return new Certificate(filename, resource, pdfContents.length);
     }
-
-    public static FontProgram loadFont(String fontNameOrPath) {
-        InputStream fontStream =
-            Thread.currentThread().getContextClassLoader().getResourceAsStream("fonts/" + fontNameOrPath);
-        if (fontStream == null) {
-            throw new RuntimeException("Font file not found: " + fontNameOrPath);
-        }
-
-        FontProgram fontProgram;
-        try {
-            fontProgram = FontProgramFactory.createFont(fontStream.readAllBytes(), true);
-        } catch (IOException e) {
-            throw new RuntimeException("Error loading font: " + fontNameOrPath, e);
-        } finally {
-            try {
-                fontStream.close();
-            } catch (IOException e) {
-                log.error("Error closing InputStream", e);
-            }
-        }
-        return fontProgram;
-    }
-
-    @Nullable
-    private static PdfFont getPdfFont(String fontNameOrPath) {
-        PdfFont font = null;
-        if (fontNameOrPath != null) {
-            try {
-                if (StandardFonts.isStandardFont(fontNameOrPath)) {
-                    font = PdfFontFactory.createFont(fontNameOrPath);
-                } else {
-                    FontProgram fontProgram = loadFont(fontNameOrPath);
-                    font = PdfFontFactory.createFont(fontProgram,
-                        PdfEncodings.IDENTITY_H,
-                        PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-                }
-            } catch (IOException e) {
-                log.error(MessageFormat.format("Error loading font: {0}", fontNameOrPath), e);
-            }
-        }
-        return font;
-    }
-
 
     public record Certificate(String filename, ByteArrayResource resource, int size) {}
 }

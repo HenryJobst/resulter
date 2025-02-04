@@ -1,5 +1,5 @@
 import { setActivePinia } from 'pinia'
-import { pinia } from '@/main' // Importiere die Pinia-Instanz
+import { pinia } from '@/main'
 import { useErrorStore } from '@/features/common/stores/useErrorStore'
 
 /**

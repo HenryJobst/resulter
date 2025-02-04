@@ -1,7 +1,9 @@
 package de.jobst.resulter.domain;
 
+import com.fasterxml.uuid.Generators;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -47,9 +49,12 @@ public class EventCertificate {
                                       MediaFile blankCertificate,
                                       boolean primary) {
         return new EventCertificate(EventCertificateId.of(id),
-            EventCertificateName.of(name),
+            EventCertificateName.of(StringUtils.isEmpty(name) ? Generators.timeBasedEpochGenerator().generate()
+                .toString() : name),
             event,
-            EventCertificateLayoutDescription.of(eventCertificateLayoutDescription),
+            EventCertificateLayoutDescription.of(StringUtils.isEmpty(eventCertificateLayoutDescription) ?
+                                                 "{\"paragraphs\" : []}" :
+                                                 eventCertificateLayoutDescription),
             blankCertificate,
             primary);
     }

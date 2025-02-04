@@ -7,6 +7,7 @@ import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.application.config.SpringSecurityAuditorAware;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -162,20 +163,17 @@ public class ResultListService {
         return certificate;
     }
 
-    public CertificateService.Certificate createCertificate(EventId eventId, EventCertificateDto eventCertificateDto)
-        throws IOException {
+    public CertificateService.Certificate createCertificate(EventId eventId, EventCertificateDto eventCertificateDto) {
 
-        Optional<Event> optionalEvent = eventRepository.findById(eventId);
-        if (optionalEvent.isEmpty()) {
-            // no event
-            return null;
-        }
-        Event event = optionalEvent.get();
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new ResourceNotFoundException(
+            "Event not found"));
+        MediaFile blankCertificate =
+            eventCertificateDto.blankCertificate() == null ? null :
+            mediaFileRepository.findById(MediaFileId.of(eventCertificateDto.blankCertificate().id())).orElse(null);
         EventCertificate eventCertificate = EventCertificate.of(EventCertificateId.empty().value(),
             eventCertificateDto.name(),
             event,
-            eventCertificateDto.layoutDescription(),
-            mediaFileRepository.findById(MediaFileId.of(eventCertificateDto.blankCertificate().id())).orElse(null),
+            eventCertificateDto.layoutDescription(), blankCertificate,
             eventCertificateDto.primary());
 
         return certificateService.createCertificate(event, eventCertificate);

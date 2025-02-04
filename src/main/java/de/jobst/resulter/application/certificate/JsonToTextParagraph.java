@@ -13,18 +13,22 @@ import java.util.List;
 public class JsonToTextParagraph {
 
     public static Pair<DocumentDefinition, List<ParagraphDefinition>> loadDefinitions(String jsonSource,
-                                                                                      boolean isFilePath)
-        throws IOException {
+                                                                                      boolean isFilePath) {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Block.class, new BlockDeserializer());
         module.addDeserializer(TextBlock.class, new TextBlockDeserializer());
         mapper.registerModule(module);
         JsonNode root;
-        if (isFilePath) {
-            root = mapper.readTree(new File(jsonSource));
-        } else {
-            root = mapper.readTree(jsonSource);
+
+        try {
+            if (isFilePath) {
+                root = mapper.readTree(new File(jsonSource));
+            } else {
+                root = mapper.readTree(jsonSource);
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Certificate layout description couldn't be loaded.", e);
         }
 
         TypeFactory typeFactory = mapper.getTypeFactory();

@@ -21,10 +21,10 @@ function setup(store: any) {
 
     const errorCache = new Set<string>()
 
-    const handleError = (error: any) => {
+    const handleError = async (error: any) => {
         const t: (key: string, object?: any) => string = i18n.global.t
 
-        const apiResponse: ApiResponse<unknown> | undefined = getApiResponse(error.response)
+        const apiResponse: ApiResponse<unknown> | undefined = await getApiResponse(error.response)
 
         const errorMessage = apiResponse
             ? t(
@@ -41,7 +41,7 @@ function setup(store: any) {
         setTimeout(() => errorCache.delete(errorMessage), sameErrorTimeout)
 
         try {
-            handleApiError(error, t)
+            await handleApiError(error, t)
         }
         catch (reason: any) {
             ToastEventBus.emit('add', {
@@ -83,7 +83,7 @@ function setup(store: any) {
                 }
             }
 
-            handleError(error)
+            await handleError(error)
 
             // need reject, otherwise vue query will register success instead of error
             return Promise.reject(error)

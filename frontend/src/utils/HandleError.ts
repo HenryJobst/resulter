@@ -28,10 +28,10 @@ class NetworkErrorException extends Error {
     }
 }
 
-export function handleApiError(error: unknown, t: (key: string, object?: any) => string) {
+export async function handleApiError(error: unknown, t: (key: string, object?: any) => string) {
     if (error instanceof AxiosError) {
         if (error.response) {
-            const apiResponse = getApiResponse(error.response)
+            const apiResponse = await getApiResponse(error.response)
             const message = apiResponse
                 ? t(
                     `backend.${apiResponse.message.messageKey.key}`,
@@ -67,10 +67,10 @@ export function getMessage(error: any): string {
     return error instanceof BackendException ? error.message : (error.name ?? error.message)
 }
 
-export function getDetail(error: any, t: (key: string, object?: any) => string): string {
+export async function getDetail(error: any, t: (key: string, object?: any) => string): Promise<string> {
     if (error instanceof BackendException) {
         if (error.baseError instanceof AxiosError && error.baseError.response) {
-            const apiResponse: ApiResponse<unknown> | undefined = getApiResponse(
+            const apiResponse: ApiResponse<unknown> | undefined = await getApiResponse(
                 error.baseError.response,
             )
             if (apiResponse) {

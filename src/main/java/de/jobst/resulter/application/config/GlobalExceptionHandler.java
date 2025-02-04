@@ -1,34 +1,26 @@
 package de.jobst.resulter.application.config;
 
+import de.jobst.resulter.domain.util.OptimisticEntityLockException;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Arrays;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
+import java.util.List;
 
 @RestControllerAdvice
-@Slf4j
 public class GlobalExceptionHandler {
-
-    private static void logError(Exception e) {
-        log.error(e.getMessage());
-        log.error(Arrays.toString(e.getStackTrace()));
-        if (Objects.nonNull(e.getCause())) {
-            log.error(e.getCause().getMessage());
-        }
-    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneralException(Exception ex, HttpServletRequest request) {
-        logError(ex);
         return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
             LocalizableString.of(MessageKeys.UNEXPECTED_ERROR),
             AdditionalStatusCodes.UNEXPECTED.value(),
@@ -39,7 +31,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(ResourceNotFoundException ex,
                                                                                HttpServletRequest request) {
-        logError(ex);
         return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
             LocalizableString.of(MessageKeys.RESOURCE_NOT_FOUND),
             HttpStatus.NOT_FOUND.value(),
@@ -50,7 +41,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResponseNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleResponseNotFoundException(ResponseNotFoundException ex,
                                                                                HttpServletRequest request) {
-        logError(ex);
         return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
             LocalizableString.of(MessageKeys.RESPONSE_NOT_FOUND),
             HttpStatus.NO_CONTENT.value(),
@@ -58,12 +48,11 @@ public class GlobalExceptionHandler {
             ex);
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponse<Object>> handleDataIntegrityViolationException(DataIntegrityViolationException ex,
-                                                                               HttpServletRequest request) {
-        logError(ex);
+    @ExceptionHandler(OptimisticEntityLockException.class)
+    public ResponseEntity<ApiResponse<Object>> handleOptimisticEntityLockException(OptimisticEntityLockException ex,
+                                                                                   HttpServletRequest request) {
         return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
-            LocalizableString.of(MessageKeys.DATA_INTEGRITY_VIOLATION),
+            LocalizableString.of(MessageKeys.ENTITY_LOCK_CONFLICT),
             HttpStatus.CONFLICT.value(),
             request.getRequestURI(),
             ex);
@@ -71,12 +60,44 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex,
-                                                                               HttpServletRequest request) {
-        logError(ex);
+                                                                              HttpServletRequest request) {
         return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
-            LocalizableString.of(MessageKeys.ILLEGAL_ARGUMENT),
+            LocalizableString.of(MessageKeys.BAD_REQUEST),
             HttpStatus.BAD_REQUEST.value(),
             request.getRequestURI(),
             ex);
     }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(ConstraintViolationException ex,
+                                                                                  HttpServletRequest request) {
+        List<String> errors = ex.getConstraintViolations().stream()
+            .map(violation -> MessageFormat.format("Invalid value ''{0}'' for {1}, {2}",
+                violation.getInvalidValue(),
+                violation.getPropertyPath(),
+                violation.getMessage()))
+            .toList();
+        return ResponseUtil.error(errors,
+            LocalizableString.of(MessageKeys.BAD_REQUEST),
+            HttpStatus.BAD_REQUEST.value(),
+            request.getRequestURI(),
+            ex);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Object>> handleValidationExceptions(MethodArgumentNotValidException ex,
+                                                                          HttpServletRequest request) {
+        List<String> errors = new ArrayList<>();
+        ex.getBindingResult()
+            .getFieldErrors()
+            .forEach(error -> errors.add(MessageFormat.format("{0}: {1}",
+                error.getField(),
+                error.getDefaultMessage())));
+        return ResponseUtil.error(errors,
+            LocalizableString.of(MessageKeys.BAD_REQUEST),
+            HttpStatus.BAD_REQUEST.value(),
+            request.getRequestURI(),
+            ex);
+    }
+
 }

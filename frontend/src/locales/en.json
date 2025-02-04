@@ -89,7 +89,12 @@
         "download": "Download",
         "year": "Year",
         "action": "Action | Actions",
-        "person_merge": "Person to merge"
+        "person_merge": "Person to merge",
+        "error": "Error",
+        "message": "Message | Messages",
+        "deleteAll": "Delete all",
+        "detail": "Detail|Details",
+        "timestamp": "Timestamp"
     },
     "messages": {
         "new_cup": "New cup",
@@ -121,7 +126,8 @@
         "entity_changed": "{entity} changed",
         "entity_deleted": "{entity} deleted",
         "detail": "Detail",
-        "details": "Details..."
+        "details": "Details...",
+        "noMessages": "No messages"
     },
     "result_state": {
         "OK": "OK",

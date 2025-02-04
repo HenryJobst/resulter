@@ -1,7 +1,7 @@
 import { ToastEventBus } from 'primevue'
 import axiosInstance from '@/features/keycloak/services/api'
 import { getDetail, getMessage, handleApiError } from '@/utils/HandleError'
-import { sameErrorTimeout } from '@/utils/constants'
+import { errorToastDisplayDuration, sameErrorTimeout } from '@/utils/constants'
 import { i18n } from '@/i18n'
 import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
 import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
@@ -48,7 +48,7 @@ function setup(store: any) {
                 severity: 'error',
                 summary: getMessage(reason),
                 detail: getDetail(reason, t),
-                life: 10000,
+                life: errorToastDisplayDuration,
             })
             const errorStore = getErrorStore()
             errorStore.addError(reason)

@@ -90,13 +90,21 @@ function getMediaKeyFromId(id: number | null): MediaKey | null {
 }
 
 function handleEventSelectionChange(ev: SelectChangeEvent) {
-    if (ev.value && certificate.value && eventQuery.data.value)
+    if (ev.value && certificate.value && eventQuery.data.value) {
         certificate.value.event = getEventKeyFromId(ev.value.id)!
+    }
+    else {
+        certificate.value.event = null
+    }
 }
 
 function handleMediaSelectionChange(ev: SelectChangeEvent) {
-    if (ev.value && certificate.value && mediaQuery.data.value && mediaQuery.data.value.content)
+    if (ev.value && certificate.value && mediaQuery.data.value && mediaQuery.data.value.content) {
         certificate.value.blankCertificate = getMediaKeyFromId(ev.value.id)!
+    }
+    else {
+        certificate.value.blankCertificate = null
+    }
 }
 
 watch(
@@ -133,7 +141,7 @@ watch(
                             :placeholder="t('messages.select')"
                             class="w-full md:w-14rem"
                             filter
-                            :disabled="certificate.event !== null"
+                            show-clear
                             @change="handleEventSelectionChange"
                         />
                     </div>
@@ -159,6 +167,7 @@ watch(
                             :placeholder="t('messages.select')"
                             class="w-full md:w-14rem"
                             filter
+                            show-clear
                             @change="handleMediaSelectionChange"
                         >
                             <template #option="value">
@@ -201,7 +210,7 @@ watch(
                             v-model:visible="visibleRight"
                             :header="t('labels.schema')"
                             position="right"
-                            class="w-7/12"
+                            class="w-7"
                         >
                             <pre>{{ formattedSchema }}</pre>
                         </Drawer>
@@ -236,7 +245,8 @@ watch(
                             raised
                             rounded
                             severity="primary"
-                            class="mb-2 pi pi-refresh"
+                            icon="pi pi-refresh"
+                            class="mb-2"
                             :aria-label="t('labels.reload')"
                             @click="certificateQuery.refetch()"
                         />

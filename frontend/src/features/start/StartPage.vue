@@ -5,6 +5,7 @@ import Button from 'primevue/button'
 import { BackendException, getDetail } from '@/utils/HandleError'
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 import { useErrorStore } from '@/features/common/stores/useErrorStore'
+import { formatDateTime } from '@/features/generic/services/GenericFunctions'
 
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
@@ -56,7 +57,7 @@ async function showErrorDetail(id: number) {
                     <th style="width: 6rem; text-align: left">
                         {{ t("labels.type") }}
                     </th>
-                    <th style="width: 8rem; text-align: left">
+                    <th style="width: 15rem; text-align: left">
                         {{ t("labels.timestamp") }}
                     </th>
                     <th style="width: 30rem; text-align: left">
@@ -70,7 +71,7 @@ async function showErrorDetail(id: number) {
             <tbody>
                 <tr v-for="error in errorStore.errors" :key="error.id">
                     <td>{{ t("labels.error") }}</td>
-                    <td>{{ error.timestamp }}</td>
+                    <td>{{ formatDateTime(error.timestamp) }}</td>
                     <td>
                         {{
                             error.originalError instanceof BackendException

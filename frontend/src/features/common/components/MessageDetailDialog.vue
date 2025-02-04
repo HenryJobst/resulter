@@ -1,6 +1,7 @@
-<script setup="lang='ts'">
+<script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { watch } from 'vue'
+import Dialog from 'primevue/dialog'
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore.ts'
 
 const { t } = useI18n()

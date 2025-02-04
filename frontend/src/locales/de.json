@@ -90,7 +90,11 @@
         "year": "Jahr",
         "action": "Aktion | Aktionen",
         "person_merge": "Person zum Zusammenführen",
-        "error": "Fehler"
+        "error": "Fehler",
+        "message": "Meldung | Meldungen",
+        "deleteAll": "Alle löschen",
+        "detail": "Detail|Details",
+        "timestamp": "Zeitstempel"
     },
     "result_state": {
         "OK": "OK",
@@ -166,7 +170,8 @@
         "entity_changed": "{entity} geändert",
         "entity_deleted": "{entity} gelöscht",
         "detail": "Detail",
-        "details": "Details..."
+        "details": "Details...",
+        "noMessages": "Keine Meldungen"
     },
     "errors": {
         "notFound": "Die angefragte Ressource wurde nicht gefunden. {message}",

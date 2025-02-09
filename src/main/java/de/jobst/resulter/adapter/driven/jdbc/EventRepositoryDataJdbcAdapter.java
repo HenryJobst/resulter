@@ -106,9 +106,10 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         };
     }
 
+    @NonNull
     @Override
     @Transactional
-    public Event save(Event event) {
+    public Event save(@NonNull Event event) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setEventDboResolver(getIdResolver());
         dboResolvers.setPersonDboResolver(id -> personJdbcRepository.findById(id.value()).orElseThrow());

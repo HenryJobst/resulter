@@ -50,17 +50,13 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-    public Event updateEvent(EventId id,
+    public @NonNull Event updateEvent(EventId id,
                              @NonNull EventName name,
                              @Nullable DateTime startDate,
                              @NonNull EventStatus status,
                              @NonNull Collection<OrganisationId> organisationIds,
                              @Nullable EventCertificateId certificateId) {
-        Optional<Event> optionalEvent = findById(id);
-        if (optionalEvent.isEmpty()) {
-            return null;
-        }
-        Event event = optionalEvent.get();
+        Event event = findById(id).orElseThrow(ResourceNotFoundException::new);
         List<Organisation> organisations = organisationRepository.findByIds(organisationIds);
         EventCertificate certificate =
             certificateId != null ? eventCertificateRepository.findById(certificateId).orElseThrow() : null;

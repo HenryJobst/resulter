@@ -23,8 +23,9 @@ public class InMemoryEventRepository implements EventRepository {
     private final AtomicLong sequence = new AtomicLong(0);
     private final List<Event> savedEvents = new ArrayList<>();
 
+    @NonNull
     @Override
-    public Event save(Event event) {
+    public Event save(@NonNull Event event) {
         if (ObjectUtils.isEmpty(event.getId()) || event.getId().value() == 0) {
             event.setId(EventId.of(sequence.incrementAndGet()));
         }

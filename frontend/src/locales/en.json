@@ -183,7 +183,8 @@
         "unknownApiError": "Unknown api error. {name}, {message}",
         "unknownError": "Unknown error. {name}, {message}",
         "noResponseError": "No response error. {name}, {message}, {code}",
-        "networkError": "Network error"
+        "networkError": "Network error",
+        "reallyUnknownApiError": "Unknown api error"
     },
     "about": {
         "title": "About Resulter",

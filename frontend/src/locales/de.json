@@ -183,7 +183,8 @@
         "unknownApiError": "Unbekannter Api-Fehler. {name}, {message}",
         "unknownError": "Unbekannter Fehler. {name}, {message}",
         "noResponseError": "Keine Antwort vom Server erhalten. {name}, {message}, {code}",
-        "networkError": "Netzwerkfehler"
+        "networkError": "Netzwerkfehler",
+        "reallyUnknownApiError": "Unbekannter Api-Fehler"
     },
     "about": {
         "title": "Über Resulter",

@@ -175,7 +175,6 @@ public class EventController {
         }
     }
 
-
     @PutMapping("/event/{id}/certificate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ByteArrayResource> getCertificate(@PathVariable Long id,
@@ -194,24 +193,5 @@ public class EventController {
             throw new ResponseNotFoundException("Certificate could not be created");
         }
 
-    }
-
-    @PutMapping("/event/{id}/calculate")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EventDto> calculateEvent(@PathVariable Long id) {
-        try {
-            Event event = null; //eventService.calculateEvent(EventId.of(id));
-            if (null != event) {
-                return ResponseEntity.ok(EventDto.from(event));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
     }
 }

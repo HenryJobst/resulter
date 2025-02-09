@@ -8,6 +8,7 @@ import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -42,116 +46,66 @@ public class EventController {
         this.resultListService = resultListService;
     }
 
-    private static void logError(Exception e) {
-        log.error(e.getMessage());
-        if (Objects.nonNull(e.getCause())) {
-            log.error(e.getCause().getMessage());
-        }
-    }
-
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
-        try {
-            List<Event> events = eventService.findAll();
-            return ResponseEntity.ok(events.stream().map(EventDto::from).toList());
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        List<Event> events = eventService.findAll();
+        return ResponseEntity.ok(events.stream().map(EventDto::from).toList());
     }
 
     @GetMapping("/event")
     public ResponseEntity<Page<EventDto>> searchEvents(@RequestParam Optional<String> filter, Pageable pageable) {
-        try {
-            Page<Event> events = eventService.findAll(filter.orElse(null),
-                pageable != null ?
-                FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain) :
-                Pageable.unpaged());
-            return ResponseEntity.ok(new PageImpl<>(events.getContent().stream().map(EventDto::from).toList(),
-                FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
-                events.getTotalElements()));
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        Page<Event> events = eventService.findAll(filter.orElse(null),
+            pageable != null ?
+            FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain) :
+            Pageable.unpaged());
+        return ResponseEntity.ok(new PageImpl<>(events.getContent().stream().map(EventDto::from).toList(),
+            FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
+            events.getTotalElements()));
     }
 
     @GetMapping("/event_status")
     public ResponseEntity<List<EventStatusDto>> handleEventTypes() {
-        try {
-            List<EventStatusDto> eventStatus = Arrays.stream(EventStatus.values()).map(EventStatusDto::from).toList();
-            return ResponseEntity.ok(eventStatus);
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        List<EventStatusDto> eventStatus = Arrays.stream(EventStatus.values()).map(EventStatusDto::from).toList();
+        return ResponseEntity.ok(eventStatus);
     }
 
     @PostMapping("/event")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> createEvent(@RequestBody EventDto eventDto) {
-        try {
-            Event event = eventService.createEvent(eventDto.name(),
-                ObjectUtils.isNotEmpty(eventDto.startTime()) ?
-                ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME) :
-                null,
-                eventDto.organisations() == null ?
-                new HashSet<>() :
-                eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()));
-            if (null != event) {
-                return ResponseEntity.ok(EventDto.from(event));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
+        Event event = eventService.createEvent(eventDto.name(),
+            ObjectUtils.isNotEmpty(eventDto.startTime()) ?
+            ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME) :
+            null,
+            eventDto.organisations() == null ?
+            new HashSet<>() :
+            eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()));
+        if (null == event) {
+            throw new ResponseNotFoundException("Event could not be created");
         }
+        return ResponseEntity.ok(EventDto.from(event));
     }
 
 
     @GetMapping("/event/{id}")
     public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
-        try {
-            Optional<Event> event = eventService.findById(EventId.of(id));
-            return event.map(value -> ResponseEntity.ok(EventDto.from(value)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
+        return ResponseEntity.ok(EventDto.from(event));
     }
 
     @PutMapping("/event/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
-        try {
-            Event event = eventService.updateEvent(EventId.of(id),
-                EventName.of(eventDto.name()),
-                ObjectUtils.isNotEmpty(eventDto.startTime()) ?
-                DateTime.of(ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME)) :
-                null,
-                EventStatus.fromValue(eventDto.state().id()),
-                eventDto.organisations() == null ?
-                new HashSet<>() :
-                eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()),
-                eventDto.certificate() != null ? EventCertificateId.of(eventDto.certificate().id()) : null);
-
-            if (null != event) {
-                return ResponseEntity.ok(EventDto.from(event));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        Event event = eventService.updateEvent(EventId.of(id),
+            EventName.of(eventDto.name()),
+            ObjectUtils.isNotEmpty(eventDto.startTime()) ?
+            DateTime.of(ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME)) :
+            null,
+            EventStatus.fromValue(eventDto.state().id()),
+            eventDto.organisations() == null ?
+            new HashSet<>() :
+            eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()),
+            eventDto.certificate() != null ? EventCertificateId.of(eventDto.certificate().id()) : null);
+        return ResponseEntity.ok(EventDto.from(event));
     }
 
     @DeleteMapping("/event/{id}")
@@ -163,16 +117,8 @@ public class EventController {
 
     @GetMapping("/event/{id}/results")
     public ResponseEntity<EventResultsDto> getEventResults(@PathVariable Long id) {
-        try {
-            Optional<Event> event = eventService.findById(EventId.of(id));
-
-            return event.map(value -> ResponseEntity.ok(EventResultsDto.from(value, resultListService)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
-
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
+        return ResponseEntity.ok(EventResultsDto.from(event, resultListService));
     }
 
     @PutMapping("/event/{id}/certificate")

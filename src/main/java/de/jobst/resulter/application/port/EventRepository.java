@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface EventRepository {
 
-    Event save(Event event);
+    @NonNull Event save(@NonNull Event event);
 
     void deleteEvent(Event event);
 

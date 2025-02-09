@@ -121,16 +121,17 @@ watch(
         <div class="flex flex-row">
             <div class="flex flex-col">
                 <div class="flex flex-row">
+                    <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
+                    <div class="col flex flex-grow">
+                        <InputText id="name" v-model="certificate.name" type="text" class="flex-grow" />
+                    </div>
+                </div>
+                <div class="flex flex-row">
                     <label for="event" class="col-fixed w-32">{{ t('labels.event') }}</label>
-                    <div class="col">
+                    <div class="col flex">
                         <span v-if="eventQuery.status.value === 'pending'">{{
                             t('messages.loading')
                         }}</span>
-                        <span v-else-if="eventQuery.status.value === 'error'">
-                            {{
-                                t('messages.error', { message: eventQuery.error.toLocaleString() })
-                            }}
-                        </span>
                         <Select
                             v-else-if="eventQuery.data.value"
                             id="event"
@@ -139,7 +140,7 @@ watch(
                             option-label="name"
                             data-key="id"
                             :placeholder="t('messages.select')"
-                            class="w-full md:w-14rem"
+                            class="flex flex-grow"
                             filter
                             show-clear
                             @change="handleEventSelectionChange"
@@ -148,15 +149,10 @@ watch(
                 </div>
                 <div class="flex flex-row">
                     <label for="media" class="col-fixed w-32">{{ t('labels.background') }}</label>
-                    <div class="col">
+                    <div class="col flex">
                         <span v-if="mediaQuery.status.value === 'pending'">{{
                             t('messages.loading')
                         }}</span>
-                        <span v-else-if="mediaQuery.status.value === 'error'">
-                            {{
-                                t('messages.error', { message: mediaQuery.error.toLocaleString() })
-                            }}
-                        </span>
                         <Select
                             v-else-if="mediaQuery.data.value"
                             id="media"
@@ -165,7 +161,7 @@ watch(
                             data-key="id"
                             option-label="fileName"
                             :placeholder="t('messages.select')"
-                            class="w-full md:w-14rem"
+                            class="flex flex-grow"
                             filter
                             show-clear
                             @change="handleMediaSelectionChange"
@@ -185,15 +181,9 @@ watch(
                         </Select>
                     </div>
                 </div>
-                <div class="flex flex-row">
-                    <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
-                    <div class="col">
-                        <InputText id="name" v-model="certificate.name" type="text" />
-                    </div>
-                </div>
                 <div class="flex flex-col">
                     <div class="flex flex-row flex-wrap">
-                        <label for="layoutDescription" class="col-fixed w-32">{{
+                        <label for="layoutDescription" class="col-fixed w-60">{{
                             t('labels.layout_description')
                         }}</label>
                         <Button
@@ -249,9 +239,6 @@ watch(
                 <span v-if="certificateQuery.status.value === 'pending'">{{
                     t('messages.loading')
                 }}</span>
-                <span v-else-if="certificateQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: mediaQuery.error.toLocaleString() }) }}
-                </span>
                 <div v-else-if="certificateQuery.data.value" style="border: 1px solid #ccc">
                     <VuePdfEmbed :source="certificateQuery.data.value" :width="500" />
                 </div>

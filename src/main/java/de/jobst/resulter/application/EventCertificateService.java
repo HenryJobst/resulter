@@ -4,6 +4,7 @@ import de.jobst.resulter.adapter.driver.web.dto.EventKeyDto;
 import de.jobst.resulter.adapter.driver.web.dto.MediaFileKeyDto;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -44,32 +45,26 @@ public class EventCertificateService {
         return eventCertificateRepository.findAll();
     }
 
-    public EventCertificate updateEventCertificate(EventCertificateId id,
+    public @NonNull EventCertificate updateEventCertificate(EventCertificateId id,
                                                    EventCertificateName name,
                                                    EventKeyDto event,
                                                    EventCertificateLayoutDescription eventCertificateLayoutDescription,
                                                    MediaFileKeyDto mediaFile,
                                                    boolean primary) {
-        Optional<EventCertificate> optionalEventCertificate = findById(id);
-        if (optionalEventCertificate.isEmpty()) {
-            return null;
-        }
-        Optional<Event> optionalEvent = eventRepository.findById(EventId.of(event.id()));
-        if (optionalEvent.isEmpty()) {
-            return null;
-        }
-        Optional<MediaFile> optionalMediaFile = mediaFileRepository.findById(MediaFileId.of(mediaFile.id()));
-        if (optionalMediaFile.isEmpty()) {
-            return null;
-        }
-        EventCertificate eventCertificate = optionalEventCertificate.get();
+        EventCertificate eventCertificate = findById(id).orElseThrow(ResourceNotFoundException::new);
+        Optional<Event> optionalEvent = event != null ? eventRepository.findById(EventId.of(event.id())) :
+                                        Optional.empty();
+
+        Optional<MediaFile> optionalMediaFile =
+            mediaFile != null ? mediaFileRepository.findById(MediaFileId.of(mediaFile.id())) : Optional.empty();
+
         eventCertificate.update(name,
-            optionalEvent.get(),
+            optionalEvent.orElse(null),
             eventCertificateLayoutDescription,
-            optionalMediaFile.get(),
+            optionalMediaFile.orElse(null),
             primary);
 
-        if (eventCertificate.isPrimary()) {
+        if (optionalEvent.isPresent() && eventCertificate.isPrimary()) {
             List<EventCertificate> eventCertificates =
                 eventCertificateRepository.findAllByEvent(optionalEvent.get().getId())
                     .stream()
@@ -78,27 +73,23 @@ public class EventCertificateService {
             eventCertificates.forEach(x -> x.setPrimary(false));
             eventCertificateRepository.saveAll(eventCertificates);
             optionalEvent.get().setCertificate(eventCertificate);
-        } else if (optionalEvent.get().getCertificate() != null &&
+        } else if (optionalEvent.isPresent() &&
+                   optionalEvent.get().getCertificate() != null &&
                    optionalEvent.get().getCertificate().getId().equals(eventCertificate.getId())) {
             optionalEvent.get().setCertificate(null);
         }
         EventCertificate savedEventCertificate = eventCertificateRepository.save(eventCertificate);
-        eventRepository.save(optionalEvent.get());
+        optionalEvent.ifPresent(eventRepository::save);
         return savedEventCertificate;
     }
 
     @Transactional
-    public boolean deleteEventCertificate(EventCertificateId eventCertificateCertificateId) {
-        Optional<EventCertificate> optionalEventCertificate = findById(eventCertificateCertificateId);
-        if (optionalEventCertificate.isEmpty()) {
-            return false;
-        }
-        eventCertificateRepository.delete(optionalEventCertificate.get());
-        return true;
+    public void deleteEventCertificate(EventCertificateId eventCertificateCertificateId) {
+        EventCertificate eventCertificate = findById(eventCertificateCertificateId).orElseThrow(ResourceNotFoundException::new);
+        eventCertificateRepository.delete(eventCertificate);
     }
 
-
-    public EventCertificate createEventCertificate(String eventCertificateCertificateName,
+    public @NonNull EventCertificate createEventCertificate(String eventCertificateCertificateName,
                                                    EventKeyDto event,
                                                    String eventCertificateLayoutDescription,
                                                    MediaFileKeyDto mediaFile,
@@ -106,19 +97,16 @@ public class EventCertificateService {
 
         Optional<Event> optionalEvent =
             event != null ? eventRepository.findById(EventId.of(event.id())) : Optional.empty();
-        if (optionalEvent.isEmpty()) {
-            return null;
-        }
+
         Optional<MediaFile> optionalMediaFile =
             mediaFile != null ? mediaFileRepository.findById(MediaFileId.of(mediaFile.id())) : Optional.empty();
-        if (optionalMediaFile.isEmpty()) {
-            return null;
-        }
-        EventCertificate eventCertificateCertificate = EventCertificate.of(EventCertificateId.empty().value(),
+
+        EventCertificate eventCertificateCertificate = EventCertificate.of(
+            EventCertificateId.empty().value(),
             eventCertificateCertificateName,
-            optionalEvent.get(),
+            optionalEvent.orElse(null),
             eventCertificateLayoutDescription,
-            optionalMediaFile.get(),
+            optionalMediaFile.orElse(null),
             primary);
         return eventCertificateRepository.save(eventCertificateCertificate);
     }

@@ -1,5 +1,8 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.constraints.CreateDtoGroup;
+import de.jobst.resulter.adapter.driver.web.constraints.KeyDtoGroup;
+import de.jobst.resulter.adapter.driver.web.constraints.ValidId;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.application.EventCertificateService;
 import de.jobst.resulter.domain.EventCertificate;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
@@ -21,6 +25,7 @@ import java.util.Optional;
 
 @RestController
 @Slf4j
+@Validated
 public class EventCertificateController {
 
     private final EventCertificateService eventCertificateService;
@@ -65,27 +70,13 @@ public class EventCertificateController {
     @PostMapping("/event_certificate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventCertificateDto> createEventCertificate(
-        @RequestBody EventCertificateDto eventCertificateDto) {
-        try {
-            EventCertificate eventCertificate =
-                eventCertificateService.createEventCertificate(eventCertificateDto.name(),
-                    eventCertificateDto.event(),
-                    eventCertificateDto.layoutDescription(),
-                    eventCertificateDto.blankCertificate(),
-                    eventCertificateDto.primary());
-
-            if (null != eventCertificate) {
-                return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        @Validated(CreateDtoGroup.class) @RequestBody EventCertificateDto eventCertificateDto) {
+        EventCertificate eventCertificate = eventCertificateService.createEventCertificate(eventCertificateDto.name(),
+            eventCertificateDto.event(),
+            eventCertificateDto.layoutDescription(),
+            eventCertificateDto.blankCertificate(),
+            eventCertificateDto.primary());
+        return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));
     }
 
 
@@ -104,48 +95,23 @@ public class EventCertificateController {
 
     @PutMapping("/event_certificate/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EventCertificateDto> updateEventCertificate(@PathVariable Long id,
-                                                                      @RequestBody
+    public ResponseEntity<EventCertificateDto> updateEventCertificate(@ValidId @PathVariable Long id,
+                                                                      @RequestBody @Validated(KeyDtoGroup.class)
                                                                       EventCertificateDto eventCertificateDto) {
-        try {
-            EventCertificate eventCertificate =
-                eventCertificateService.updateEventCertificate(EventCertificateId.of(id),
-                    EventCertificateName.of(eventCertificateDto.name()),
-                    eventCertificateDto.event(),
-                    EventCertificateLayoutDescription.of(eventCertificateDto.layoutDescription()),
-                    eventCertificateDto.blankCertificate(),
-                    eventCertificateDto.primary());
+        EventCertificate eventCertificate = eventCertificateService.updateEventCertificate(EventCertificateId.of(id),
+            EventCertificateName.of(eventCertificateDto.name()),
+            eventCertificateDto.event(),
+            EventCertificateLayoutDescription.of(eventCertificateDto.layoutDescription()),
+            eventCertificateDto.blankCertificate(),
+            eventCertificateDto.primary());
 
-            if (null != eventCertificate) {
-                return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath));
     }
 
     @DeleteMapping("/event_certificate/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Boolean> deleteEventCertificate(@PathVariable Long id) {
-        try {
-            boolean success = eventCertificateService.deleteEventCertificate(EventCertificateId.of(id));
-            if (success) {
-                return ResponseEntity.ok(Boolean.TRUE);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<Void> deleteEventCertificate(@ValidId @PathVariable Long id) {
+        eventCertificateService.deleteEventCertificate(EventCertificateId.of(id));
+        return ResponseEntity.noContent().build();
     }
 }

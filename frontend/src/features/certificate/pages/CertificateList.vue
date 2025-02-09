@@ -15,15 +15,15 @@ const settingStoreSuffix: string = 'certificate'
 const listLabel = computed(() => t('labels.certificate', 2))
 const columns: GenericListColumn[] = [
     {
-        label: 'labels.event',
-        field: 'event.name',
+        label: 'labels.name',
+        field: 'name',
         sortable: true,
         filterable: true,
         filterType: 'input',
     },
     {
-        label: 'labels.name',
-        field: 'name',
+        label: 'labels.event',
+        field: 'event.name',
         sortable: true,
         filterable: true,
         filterType: 'input',

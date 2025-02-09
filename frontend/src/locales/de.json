@@ -197,6 +197,8 @@
         "unexpected_error": "Unerwarteter Fehler",
         "resource_not_found": "Ressource nicht gefunden",
         "response_not_found": "Antwort nicht gefunden",
-        "successfully_retrieved": "Erfolgreich abgerufen"
+        "successfully_retrieved": "Erfolgreich abgerufen",
+        "bad_request": "Fehlerhafte Anfrage",
+        "entity_lock_conflict": "Daten bereits geändert, bitte neu laden"
     }
 }

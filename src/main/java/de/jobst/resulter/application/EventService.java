@@ -2,6 +2,7 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -80,15 +81,10 @@ public class EventService {
     }
 
     @Transactional
-    public boolean deleteEvent(EventId eventId) {
-        Optional<Event> optionalEvent = findById(eventId);
-        if (optionalEvent.isEmpty()) {
-            return false;
-        }
+    public void deleteEvent(EventId eventId) {
+        Event event = findById(eventId).orElseThrow(ResourceNotFoundException::new);
         eventCertificateStatRepository.deleteAllByEventId(eventId);
-        eventCertificateRepository.deleteAllByEventId(eventId);
-        eventRepository.deleteEvent(optionalEvent.get());
-        return true;
+        eventRepository.deleteEvent(event);
     }
 
 

@@ -21,7 +21,7 @@ LABEL org.opencontainers.image.licenses='CC BY-NC-ND 4.0'
 
 COPY package.json ./
 
-RUN corepack enable pnpm
+RUN npm install -g corepack@latest && corepack enable pnpm && pnpm --version
 
 RUN pnpm install
 

@@ -1,11 +1,11 @@
-import { ToastEventBus } from 'primevue'
-import axiosInstance from '@/features/keycloak/services/api'
-import { getDetail, getMessage, handleApiError } from '@/utils/HandleError'
-import { errorToastDisplayDuration, sameErrorTimeout } from '@/utils/constants'
-import { i18n } from '@/i18n'
 import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
-import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
 import { getErrorStore } from '@/features/common/stores/getErrorStore'
+import axiosInstance from '@/features/keycloak/services/api'
+import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
+import { i18n } from '@/i18n'
+import { errorToastDisplayDuration, sameErrorTimeout } from '@/utils/constants'
+import { getDetail, getMessage, handleApiError } from '@/utils/HandleError'
+import { ToastEventBus } from 'primevue'
 
 function setup(store: any) {
     axiosInstance.interceptors.request.use(
@@ -28,9 +28,9 @@ function setup(store: any) {
 
         const errorMessage = apiResponse
             ? t(
-                `backend.${apiResponse.message.messageKey.key}`,
-                apiResponse.message.messageParameters,
-            )
+                    `backend.${apiResponse.message.messageKey.key}`,
+                    apiResponse.message.messageParameters,
+                )
             : t('errors.reallyUnknownApiError')
 
         if (errorCache.has(errorMessage)) {
@@ -47,7 +47,7 @@ function setup(store: any) {
             ToastEventBus.emit('add', {
                 severity: 'error',
                 summary: getMessage(reason),
-                detail: getDetail(reason, t),
+                detail: (await getDetail(reason, t)),
                 life: errorToastDisplayDuration,
             })
             const errorStore = getErrorStore()

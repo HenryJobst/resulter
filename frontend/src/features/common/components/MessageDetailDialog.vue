@@ -1,19 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { watch } from 'vue'
-import Dialog from 'primevue/dialog'
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore.ts'
+import Dialog from 'primevue/dialog'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
 const messageDetailStore = useMessageDetailStore()
-
-watch(
-    () => messageDetailStore.isVisible,
-    (newData) => {
-        console.log('MessageDetailDialog.watch(isVisible): ', newData)
-    },
-)
 </script>
 
 <template>

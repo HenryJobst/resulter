@@ -57,10 +57,14 @@ public class EventCertificateDbo {
         if (eventCertificate.getId().isPersistent()) {
             eventCertificateDbo = dboResolvers.getEventCertificateDboResolver().findDboById(eventCertificate.getId());
             eventCertificateDbo.setName(eventCertificate.getName().value());
-            eventCertificateDbo.setEvent(AggregateReference.to(eventCertificate.getEvent().getId().value()));
+            if (null != eventCertificate.getEvent()) {
+                eventCertificateDbo.setEvent(AggregateReference.to(eventCertificate.getEvent().getId().value()));
+            }
         } else {
             eventCertificateDbo = new EventCertificateDbo(eventCertificate.getName().value(),
-                AggregateReference.to(eventCertificate.getEvent().getId().value()));
+                eventCertificate.getEvent() != null ?
+                AggregateReference.to(eventCertificate.getEvent().getId().value()) :
+                null);
         }
 
         if (ObjectUtils.isNotEmpty(eventCertificate.getBlankCertificate())) {
@@ -90,7 +94,7 @@ public class EventCertificateDbo {
         return eventCertificateDbos.stream()
             .map(it -> EventCertificate.of(it.id,
                 it.name,
-                eventResolver.apply(it.event.getId()),
+                it.event != null ? eventResolver.apply(it.event.getId()) : null,
                 it.layoutDescription != null ? it.layoutDescription : null,
                 it.blankCertificate != null ? mediaFileResolver.apply(it.blankCertificate.getId()) : null,
                 it.primary))

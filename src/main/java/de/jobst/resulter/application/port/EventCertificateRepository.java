@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface EventCertificateRepository {
 
-    EventCertificate save(EventCertificate event);
+    @NonNull EventCertificate save(@NonNull EventCertificate event);
 
     void delete(EventCertificate event);
 

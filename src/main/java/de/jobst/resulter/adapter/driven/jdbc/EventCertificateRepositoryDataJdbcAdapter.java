@@ -96,7 +96,7 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
 
     @Override
     @Transactional
-    public EventCertificate save(EventCertificate eventCertificate) {
+    public @NonNull EventCertificate save(@NonNull EventCertificate eventCertificate) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setEventCertificateDboResolver(getIdResolver());
         dboResolvers.setPersonDboResolver(id -> personJdbcRepository.findById(id.value()).orElseThrow());

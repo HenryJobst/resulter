@@ -27,8 +27,9 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
     private final AtomicLong sequence = new AtomicLong(0);
     private final List<EventCertificate> savedEventCertificates = new ArrayList<>();
 
+    @NonNull
     @Override
-    public EventCertificate save(EventCertificate eventCertificate) {
+    public EventCertificate save(@NonNull EventCertificate eventCertificate) {
         if (ObjectUtils.isEmpty(eventCertificate.getId()) || eventCertificate.getId().value() == 0) {
             eventCertificate.setId(EventCertificateId.of(sequence.incrementAndGet()));
         }

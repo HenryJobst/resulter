@@ -17,7 +17,7 @@ public class EventCertificate {
     @NonNull
     private EventCertificateName name;
 
-    @NonNull
+    @Nullable
     private Event event;
 
     @Nullable
@@ -30,7 +30,7 @@ public class EventCertificate {
 
     public EventCertificate(@NonNull EventCertificateId id,
                             @NonNull EventCertificateName name,
-                            @NonNull Event event,
+                            @Nullable Event event,
                             @Nullable EventCertificateLayoutDescription layoutDescription,
                             @Nullable MediaFile blankCertificate,
                             boolean primary) {

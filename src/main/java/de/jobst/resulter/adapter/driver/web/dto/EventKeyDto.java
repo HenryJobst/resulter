@@ -1,10 +1,12 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
+import de.jobst.resulter.adapter.driver.web.constraints.ValidId;
 import de.jobst.resulter.domain.Event;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.lang.NonNull;
 
-public record EventKeyDto(Long id, String name) implements Comparable<EventKeyDto> {
+public record EventKeyDto(@ValidId Long id,
+                          String name) implements Comparable<EventKeyDto> {
 
     static public EventKeyDto from(Event event) {
         return new EventKeyDto(ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0,

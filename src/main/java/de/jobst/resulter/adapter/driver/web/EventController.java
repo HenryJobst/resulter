@@ -156,21 +156,9 @@ public class EventController {
 
     @DeleteMapping("/event/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Boolean> deleteEvent(@PathVariable Long id) {
-        try {
-            boolean success = eventService.deleteEvent(EventId.of(id));
-            if (success) {
-                return ResponseEntity.ok(Boolean.TRUE);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
+        eventService.deleteEvent(EventId.of(id));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/event/{id}/results")

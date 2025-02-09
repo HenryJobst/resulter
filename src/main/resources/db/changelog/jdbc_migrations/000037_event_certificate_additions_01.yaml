@@ -1,0 +1,28 @@
+databaseChangeLog:
+    - changeSet:
+          id: 000020_modify_event_certificate_fk
+          author: Henry Jobst
+          preConditions:
+              - onFail: MARK_RAN
+              - tableExists:
+                    tableName: event_certificate
+          comment: "Modify event_certificate.event_id to be nullable and update FK to ON DELETE SET NULL"
+          changes:
+              - dropForeignKeyConstraint:
+                    baseTableName: event_certificate
+                    constraintName: fk_event_certificate_event
+              - modifyDataType:
+                    columnName: event_id
+                    newDataType: bigint
+                    tableName: event_certificate
+              - dropNotNullConstraint:
+                    columnName: event_id
+                    tableName: event_certificate
+              - addForeignKeyConstraint:
+                    baseTableName: event_certificate
+                    baseColumnNames: event_id
+                    constraintName: fk_event_certificate_event
+                    referencedTableName: event
+                    referencedColumnNames: id
+                    onDelete: set null
+                    onUpdate: cascade

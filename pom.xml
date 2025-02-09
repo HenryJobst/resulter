@@ -11,7 +11,7 @@
     </parent>
     <groupId>de.jobst</groupId>
     <artifactId>resulter</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <name>resulter-api</name>
     <description>Backend for resulter web app</description>
     <properties>

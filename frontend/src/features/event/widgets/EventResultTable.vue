@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
+import type { Cup } from '@/features/cup/model/cup'
+import type { CupScoreList } from '@/features/event/model/cup_score_list'
+import type { PersonResult } from '@/features/event/model/person_result'
+import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
+import type { Organisation } from '@/features/organisation/model/organisation'
+import type { Person } from '@/features/person/model/person'
+import { cupService } from '@/features/cup/services/cup.service'
+import { EventService } from '@/features/event/services/event.service'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { organisationService } from '@/features/organisation/services/organisation.service'
+import { personService } from '@/features/person/services/person.service'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import moment from 'moment'
 import Button from 'primevue/button'
+import Column from 'primevue/column'
+import DataTable from 'primevue/datatable'
 import { computed } from 'vue'
-import { personService } from '@/features/person/services/person.service'
-import { organisationService } from '@/features/organisation/services/organisation.service'
-import type { PersonResult } from '@/features/event/model/person_result'
-import type { Person } from '@/features/person/model/person'
-import type { Organisation } from '@/features/organisation/model/organisation'
-import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
-import { EventService } from '@/features/event/services/event.service'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import { cupService } from '@/features/cup/services/cup.service'
-import type { Cup } from '@/features/cup/model/cup'
-import type { CupScoreList } from '@/features/event/model/cup_score_list'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ data: ResultListIdPersonResults, eventId: number }>()
 
@@ -32,8 +32,8 @@ const cups = computed((): Cup[] => {
     const cupIds = new Set(allCupIds)
     return cupQuery.data?.value?.content
         ? cupQuery.data.value.content.filter((x) => {
-            return cupIds.has(x.id)
-        })
+                return cupIds.has(x.id)
+            })
         : []
 })
 
@@ -90,7 +90,7 @@ function birthYearColumn(data: any): string {
 
 function findPerson(personId: number): Person | undefined {
     if (personId && personQuery.data.value)
-        return personQuery.data.value.content.find(p => p.id === personId)
+        return personQuery.data.value.content.find(value => value?.id === personId)
 
     return undefined
 }

@@ -24,12 +24,19 @@ public class InMemoryPersonRepository implements PersonRepository {
 
     @Override
     public Person save(Person person) {
+        Person savedPerson;
         if (ObjectUtils.isEmpty(person.getId()) || person.getId().value() == 0) {
-            person.setId(PersonId.of(sequence.incrementAndGet()));
+            savedPerson = new Person(
+                PersonId.of(sequence.incrementAndGet()),
+                person.getPersonName(),
+                person.getBirthDate(),
+                person.getGender());
+        } else {
+            savedPerson = person;
         }
-        persons.put(person.getId(), person);
-        savedPersons.add(person);
-        return person;
+        persons.put(person.getId(), savedPerson);
+        savedPersons.add(savedPerson);
+        return savedPerson;
     }
 
     @Override

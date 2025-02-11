@@ -46,7 +46,7 @@ public class CountryController {
         try {
             Optional<Country> country = countryService.findById(CountryId.of(id));
             return country.map(value -> ResponseEntity.ok(CountryDto.from(value)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                    .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             logError(e);
             return ResponseEntity.internalServerError().build();
@@ -55,32 +55,16 @@ public class CountryController {
 
     @PutMapping("/country/{id}")
     public ResponseEntity<CountryDto> updateCountry(@PathVariable Long id, @RequestBody CountryDto countryDto) {
-        try {
-            Country country = countryService.updateCountry(CountryId.of(id),
-                CountryCode.of(countryDto.code()),
-                CountryName.of(countryDto.name()));
-            if (null != country) {
-                return ResponseEntity.ok(CountryDto.from(country));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (DataIntegrityViolationException e) {
-            logError(e);
-            return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        Country country = countryService.updateCountry(
+                CountryId.of(id), CountryCode.of(countryDto.code()), CountryName.of(countryDto.name()));
+        return ResponseEntity.ok(CountryDto.from(country));
     }
 
     @PostMapping("/country")
     public ResponseEntity<CountryDto> createCountry(@RequestBody CountryDto countryDto) {
         try {
             Country country =
-                countryService.createCountry(CountryCode.of(countryDto.code()), CountryName.of(countryDto.name()));
+                    countryService.createCountry(CountryCode.of(countryDto.code()), CountryName.of(countryDto.name()));
             if (null != country) {
                 return ResponseEntity.ok(CountryDto.from(country));
             } else {

@@ -1,22 +1,18 @@
 package de.jobst.resulter.domain;
 
-import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
-@SuppressWarnings("FieldMayBeFinal")
 @Getter
-public class Country {
+public final class Country {
 
     @NonNull
-    @Setter
-    private CountryId id;
+    private final CountryId id;
 
-    private CountryCode code;
-    private CountryName name;
+    private final CountryCode code;
+    private final CountryName name;
 
     public Country(@NonNull CountryId id, @NonNull CountryCode code, @NonNull CountryName name) {
         this.id = id;
@@ -36,13 +32,6 @@ public class Country {
         return new Country(CountryId.empty(), code, name);
     }
 
-    public void update(CountryCode code, CountryName name) {
-        ValueObjectChecks.requireNotNull(code);
-        ValueObjectChecks.requireNotNull(name);
-        this.code = code;
-        this.name = name;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -52,11 +41,11 @@ public class Country {
             return false;
         }
         Country country = (Country) o;
-        return Objects.equals(id, country.id) && Objects.equals(code, country.code);
+        return Objects.equals(id, country.id) && Objects.equals(code, country.code) && Objects.equals(name, country.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, code);
+        return Objects.hash(id, code, name);
     }
 }

@@ -6,7 +6,6 @@ import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
-import de.jobst.resulter.domain.PersonId;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,8 +32,9 @@ class PersonServiceTest {
 
     @Test
     void findDoubles_shouldReturnListOfDoubles() {
-        Person person = Person.of("John", "Doe", LocalDate.of(1990, 1, 1), Gender.M);
-        person.setId(PersonId.of(1L));
+        Person person = Person.of(
+            1L,
+            "John", "Doe", LocalDate.of(1990, 1, 1), Gender.M);
 
         List<Person> allPersons = Arrays.asList(person,
             Person.of("John", "Doe", LocalDate.of(1990, 1, 1), Gender.M),
@@ -50,8 +50,7 @@ class PersonServiceTest {
 
     @Test
     void findDoubles_shouldReturnEmptyListWhenNoDoubles() {
-        Person person = Person.of("John", "Doe", LocalDate.of(1990, 1, 1), Gender.M);
-        person.setId(PersonId.of(1L));
+        Person person = Person.of(1L, "John", "Doe", LocalDate.of(1990, 1, 1), Gender.M);
 
         List<Person> allPersons = Arrays.asList(person, Person.of("Meier", "Jim", LocalDate.of(1990, 2, 2), Gender.M));
 

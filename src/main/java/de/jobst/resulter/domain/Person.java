@@ -1,46 +1,39 @@
 package de.jobst.resulter.domain;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
-@SuppressWarnings("FieldMayBeFinal")
 @Getter
-public class Person implements Comparable<Person> {
+public final class Person implements Comparable<Person> {
 
     @NonNull
-    @Setter
-    private PersonId id;
+    private final PersonId id;
 
-    private PersonName personName;
-    private BirthDate birthDate;
-    private Gender gender;
-
-    public void update(@NonNull PersonName personName, @NonNull BirthDate birthDate, @NonNull Gender gender) {
-        this.personName = personName;
-        this.birthDate = birthDate;
-        this.gender = gender;
-    }
+    private final PersonName personName;
+    private final BirthDate birthDate;
+    private final Gender gender;
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (!(o instanceof Person person)) {
             return false;
         }
 
-        return id.equals(person.id) && personName.equals(person.personName) &&
-               Objects.equals(birthDate, person.birthDate) && gender == person.gender;
+        return id.equals(person.id) &&
+               Objects.equals(personName, person.personName) &&
+               Objects.equals(birthDate, person.birthDate) &&
+               Objects.equals(gender, person.gender);
     }
 
     @Override
     public int hashCode() {
         int result = id.hashCode();
-        result = 31 * result + personName.hashCode();
+        result = 31 * result + Objects.hashCode(personName);
         result = 31 * result + Objects.hashCode(birthDate);
-        result = 31 * result + gender.hashCode();
+        result = 31 * result + Objects.hashCode(gender);
         return result;
     }
 
@@ -52,12 +45,12 @@ public class Person implements Comparable<Person> {
             if (val == 0) {
                 if (birthDate != null && o.birthDate != null) {
                     val = birthDate.compareTo(o.birthDate);
-                } else if (birthDate == null && o.birthDate == null) {
-                    val = 0;
-                } else if (birthDate == null) {
-                    val = -1;
-                } else {
-                    val = 1;
+                } else if (birthDate != null || o.birthDate != null) {
+                    if (birthDate == null) {
+                        val = -1;
+                    } else {
+                        val = 1;
+                    }
                 }
             }
             if (val == 0) {
@@ -105,12 +98,14 @@ public class Person implements Comparable<Person> {
         if (val == 0) {
             if (this.birthDate != null && o.birthDate != null) {
                 val = this.birthDate.compareTo(o.birthDate);
-            } else if (this.birthDate == null && o.birthDate == null) {
-                val = 0;
-            } else if (this.birthDate == null) {
-                val = -1;
             } else {
-                val = 1;
+                if (this.birthDate != null || o.birthDate != null) {
+                    if (this.birthDate == null) {
+                        val = -1;
+                    } else {
+                        val = 1;
+                    }
+                }
             }
         }
         if (val == 0) {

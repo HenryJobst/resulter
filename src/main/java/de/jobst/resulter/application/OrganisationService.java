@@ -3,6 +3,7 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.port.CountryRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -46,33 +47,31 @@ public class OrganisationService {
         return organisationRepository.findByIds(childOrganisations);
     }
 
-    public Organisation updateOrganisation(OrganisationId id,
-                                           OrganisationName name,
-                                           OrganisationShortName shortName,
-                                           OrganisationType type,
-                                           CountryId countryId,
-                                           Collection<OrganisationId> childOrganisationIds) {
+    public @NonNull Organisation updateOrganisation(
+            @NonNull OrganisationId id,
+            @NonNull OrganisationName name,
+            @NonNull OrganisationShortName shortName,
+            @NonNull OrganisationType type,
+            @Nullable CountryId countryId,
+            @NonNull Collection<OrganisationId> childOrganisationIds) {
 
-        Optional<Organisation> optionalOrganisation = findById(id);
-        if (optionalOrganisation.isEmpty()) {
-            return null;
-        }
-        Optional<Country> optionalCountry = countryRepository.findById(countryId);
-        if (optionalCountry.isEmpty()) {
-            return null;
-        }
+        Optional<Country> optionalCountry = Optional.ofNullable(countryId).flatMap(countryRepository::findById);
         List<Organisation> childOrganisations = findByIds(childOrganisationIds);
-        Organisation organisation = optionalOrganisation.get();
-        organisation.update(name, shortName, type, optionalCountry.get(), childOrganisations);
-        return organisationRepository.save(organisation);
+        return organisationRepository.save(new Organisation(
+                findById(id).orElseThrow(ResourceNotFoundException::new).getId(),
+                name,
+                shortName,
+                type,
+                optionalCountry.orElse(null),
+                childOrganisations));
     }
 
-
-    public Organisation createOrganisation(OrganisationName name,
-                                           OrganisationShortName shortName,
-                                           OrganisationType type,
-                                           CountryId countryId,
-                                           Collection<OrganisationId> childOrganisationIds) {
+    public Organisation createOrganisation(
+            OrganisationName name,
+            OrganisationShortName shortName,
+            OrganisationType type,
+            CountryId countryId,
+            Collection<OrganisationId> childOrganisationIds) {
 
         Optional<Country> optionalCountry = countryRepository.findById(countryId);
         if (optionalCountry.isEmpty()) {

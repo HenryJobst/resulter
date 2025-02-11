@@ -86,7 +86,6 @@ public class OrganisationController {
     @PutMapping("/organisation/{id}")
     public ResponseEntity<OrganisationDto> updateOrganisation(@PathVariable Long id,
                                                               @RequestBody OrganisationDto organisationDto) {
-        try {
             Organisation organisation = organisationService.updateOrganisation(OrganisationId.of(id),
                 OrganisationName.of(organisationDto.name()),
                 OrganisationShortName.of(organisationDto.shortName()),
@@ -95,21 +94,7 @@ public class OrganisationController {
                 organisationDto.childOrganisations() == null ?
                 new ArrayList<>() :
                 organisationDto.childOrganisations().stream().map(x -> OrganisationId.of(x.id())).toList());
-            if (null != organisation) {
-                return ResponseEntity.ok(OrganisationDto.from(organisation));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (DataIntegrityViolationException e) {
-            logError(e);
-            return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+            return ResponseEntity.ok(OrganisationDto.from(organisation));
     }
 
     @PostMapping("/organisation")

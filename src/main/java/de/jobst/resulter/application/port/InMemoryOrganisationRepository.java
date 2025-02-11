@@ -25,12 +25,21 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
 
     @Override
     public Organisation save(Organisation organisation) {
+        Organisation savedOrganisation;
         if (ObjectUtils.isEmpty(organisation.getId()) || organisation.getId().value() == 0) {
-            organisation.setId(OrganisationId.of(sequence.incrementAndGet()));
+            savedOrganisation = new Organisation(
+                OrganisationId.of(sequence.incrementAndGet()),
+                organisation.getName(),
+                organisation.getShortName(),
+                organisation.getType(),
+                organisation.getCountry(),
+                organisation.getChildOrganisations());
+        } else {
+            savedOrganisation = organisation;
         }
-        organisations.put(organisation.getId(), organisation);
-        savedOrganisations.add(organisation);
-        return organisation;
+        organisations.put(organisation.getId(), savedOrganisation);
+        savedOrganisations.add(savedOrganisation);
+        return savedOrganisation;
     }
 
     @Override

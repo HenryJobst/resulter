@@ -5,6 +5,8 @@ import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.CountryCode;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.CountryName;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -36,14 +38,8 @@ public class CountryService {
         return countryRepository.findById(id);
     }
 
-    public Country updateCountry(CountryId id, CountryCode code, CountryName name) {
-        Optional<Country> optionalCountry = findById(id);
-        if (optionalCountry.isEmpty()) {
-            return null;
-        }
-        Country country = optionalCountry.get();
-        country.update(code, name);
-        return countryRepository.save(country);
+    public @NonNull Country updateCountry(CountryId id, CountryCode code, CountryName name) {
+        return countryRepository.save(new Country(findById(id).orElseThrow(ResourceNotFoundException::new).getId(), code, name));
     }
 
     public Country createCountry(CountryCode code, CountryName name) {

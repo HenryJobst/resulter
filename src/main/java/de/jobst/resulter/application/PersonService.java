@@ -5,6 +5,7 @@ import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -72,14 +73,10 @@ public class PersonService {
         return personRepository.findOrCreate(persons);
     }
 
-    public Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender) {
-        Optional<Person> optionalPerson = findById(personId);
-        if (optionalPerson.isEmpty()) {
-            return null;
-        }
-        Person person = optionalPerson.get();
-        person.update(personName, birthDate, gender);
-        return personRepository.save(person);
+    public @NonNull Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender) {
+        return findById(personId)
+                .map(person -> personRepository.save(new Person(person.getId(), personName, birthDate, gender)))
+                .orElseThrow(ResourceNotFoundException::new);
     }
 
     public Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable) {

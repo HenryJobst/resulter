@@ -27,8 +27,7 @@ public class ClassResultDbo {
     @Column("name")
     private String name;
 
-    @NonNull
-    @Column("short_name")
+    @NonNull @Column("short_name")
     private String shortName;
 
     @Column("gender")
@@ -45,27 +44,29 @@ public class ClassResultDbo {
     }
 
     public static ClassResultDbo from(ClassResult classResult) {
-        ClassResultDbo classResultDbo = new ClassResultDbo(classResult.classResultName().value());
-        classResultDbo.setShortName(Objects.requireNonNull(Objects.requireNonNull(classResult.classResultShortName())
-            .value()));
+        ClassResultDbo classResultDbo =
+                new ClassResultDbo(classResult.classResultName().value());
+        classResultDbo.setShortName(Objects.requireNonNull(
+                Objects.requireNonNull(classResult.classResultShortName()).value()));
         classResultDbo.setGender(classResult.gender());
-        classResultDbo.setPersonResults(classResult.personResults()
-            .value()
-            .stream()
-            .map(PersonResultDbo::from)
-            .collect(Collectors.toSet()));
+        classResultDbo.setPersonResults(classResult.personResults().value().stream()
+                .map(PersonResultDbo::from)
+                .collect(Collectors.toSet()));
         classResultDbo.setCourse(
-            classResult.courseId() == null ? null : AggregateReference.to(classResult.courseId().value()));
+                classResult.courseId() == null
+                        ? null
+                        : AggregateReference.to(classResult.courseId().value()));
         return classResultDbo;
     }
 
-    static public Collection<ClassResult> asClassResults(Collection<ClassResultDbo> classResultDbos) {
+    public static Collection<ClassResult> asClassResults(Collection<ClassResultDbo> classResultDbos) {
         return classResultDbos.stream()
-            .map(it -> ClassResult.of(it.name,
-                it.shortName,
-                it.gender,
-                PersonResultDbo.asPersonResults(it.getPersonResults()),
-                it.course == null ? null : CourseId.of(it.course.getId())))
-            .toList();
+                .map(it -> ClassResult.of(
+                        it.name,
+                        it.shortName,
+                        it.gender,
+                        PersonResultDbo.asPersonResults(it.getPersonResults()),
+                        it.course == null ? null : CourseId.of(it.course.getId())))
+                .toList();
     }
 }

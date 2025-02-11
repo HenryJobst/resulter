@@ -445,14 +445,13 @@
                             <version>${cleanthat.version}</version>
                         </cleanthat>
 
-                        <eclipse>
-                            <!-- Optional: Specify the Eclipse JDT version to use. -->
-                            <version>${eclipse-jdt.version}</version>
-                            <!-- Optional: Specify a file which contains all formatting options. -->
-                            <file>${project.basedir}/eclipse-formatter.xml</file>
-                        </eclipse>
+                        <palantirJavaFormat>
+                            <version>2.50.0</version>                     <!-- optional -->
+                            <style>PALANTIR</style>                       <!-- or AOSP/GOOGLE (optional) -->
+                            <formatJavadoc>false</formatJavadoc>          <!-- defaults to false (optional, requires at least Palantir 2.39.0) -->
+                        </palantirJavaFormat>
 
-                        <!--importOrder / -->
+                        <importOrder />
                         <!--removeUnusedImports / -->
                         <formatAnnotations />
 

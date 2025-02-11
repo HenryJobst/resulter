@@ -440,7 +440,8 @@
                     </formats>
                     <!-- define a language-specific format -->
                     <java>
-                        <!-- noi need to specify files, inferred automatically, but you can if
+                        <ratchetFrom>origin/main</ratchetFrom>
+                        <!-- no need to specify files, inferred automatically, but you can if
                         you want -->
                         <includes>
                             <include>src/main/java/**/*.java</include>

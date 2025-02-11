@@ -27,7 +27,8 @@ public class ClassResultDbo {
     @Column("name")
     private String name;
 
-    @NonNull @Column("short_name")
+    @NonNull
+    @Column("short_name")
     private String shortName;
 
     @Column("gender")

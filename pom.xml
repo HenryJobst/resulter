@@ -451,9 +451,9 @@
                             <formatJavadoc>false</formatJavadoc>          <!-- defaults to false (optional, requires at least Palantir 2.39.0) -->
                         </palantirJavaFormat>
 
-                        <importOrder />
+                        <!--importOrder / -->
                         <!--removeUnusedImports / -->
-                        <formatAnnotations />
+                        <!--formatAnnotations /   -->
 
                     </java>
                 </configuration>

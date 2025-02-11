@@ -46,6 +46,7 @@
         <google-java-format.version>1.25.2</google-java-format.version>
         <cleanthat.version>2.22</cleanthat.version>
         <eclipse-jdt.version>4.34</eclipse-jdt.version>
+        <equalsverifier.version>3.19</equalsverifier.version>
     </properties>
     <profiles>
         <profile>
@@ -292,6 +293,12 @@
             <version>${spotless-maven-plugin.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>nl.jqno.equalsverifier</groupId>
+            <artifactId>equalsverifier</artifactId>
+            <version>${equalsverifier.version}</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
     <dependencyManagement>

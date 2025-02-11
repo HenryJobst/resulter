@@ -20,12 +20,18 @@ public class InMemoryCountryRepository implements CountryRepository {
 
     @Override
     public Country save(Country country) {
+        Country savedCountry;
         if (ObjectUtils.isEmpty(country.getId()) || country.getId().value() == 0) {
-            country.setId(CountryId.of(sequence.incrementAndGet()));
+            savedCountry = new Country(
+                CountryId.of(sequence.incrementAndGet()),
+                country.getCode(),
+                country.getName());
+        } else {
+            savedCountry = country;
         }
-        countries.put(country.getId(), country);
-        savedCountrys.add(country);
-        return country;
+        countries.put(country.getId(), savedCountry);
+        savedCountrys.add(savedCountry);
+        return savedCountry;
     }
 
     @Override

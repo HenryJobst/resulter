@@ -7,12 +7,10 @@ import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -83,26 +81,11 @@ public class PersonController {
 
     @PutMapping("/person/{id}")
     public ResponseEntity<PersonDto> updatePerson(@PathVariable Long id, @RequestBody PersonDto personDto) {
-        try {
             Person person = personService.updatePerson(PersonId.of(id),
                 PersonName.of(personDto.familyName(), personDto.givenName()),
                 ObjectUtils.isNotEmpty(personDto.birthDate()) ? BirthDate.of(personDto.birthDate()) : null,
                 Gender.of(personDto.gender().id()));
-            if (null != person) {
                 return ResponseEntity.ok(PersonDto.from(person));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (DataIntegrityViolationException e) {
-            logError(e);
-            return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
     }
 
     @GetMapping("/gender")

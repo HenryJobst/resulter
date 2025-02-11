@@ -20,12 +20,21 @@ public class InMemoryCourseRepository implements CourseRepository {
 
     @Override
     public Course save(Course course) {
+        Course savedCourse;
         if (ObjectUtils.isEmpty(course.getId()) || course.getId().value() == 0) {
-            course.setId(CourseId.of(sequence.incrementAndGet()));
+            savedCourse = new Course(
+                CourseId.of(sequence.incrementAndGet()),
+                course.getEventId(),
+                course.getCourseName(),
+                course.getCourseLength(),
+                course.getCourseClimb(),
+                course.getNumberOfControls());
+        } else {
+            savedCourse = course;
         }
-        courses.put(course.getId(), course);
-        savedCourses.add(course);
-        return course;
+        courses.put(course.getId(), savedCourse);
+        savedCourses.add(savedCourse);
+        return savedCourse;
     }
 
     @Override

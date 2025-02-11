@@ -1,26 +1,23 @@
 package de.jobst.resulter.domain;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.util.Objects;
 
-@SuppressWarnings("FieldMayBeFinal")
 @Getter
-public class Course implements Comparable<Course> {
+public final class Course implements Comparable<Course> {
 
     @NonNull
-    @Setter
-    private CourseId id;
+    private final CourseId id;
     @NonNull
     private final EventId eventId;
 
-    private CourseName courseName;
-    private CourseLength courseLength;
-    private CourseClimb courseClimb;
-    private NumberOfControls numberOfControls;
+    private final CourseName courseName;
+    private final CourseLength courseLength;
+    private final CourseClimb courseClimb;
+    private final NumberOfControls numberOfControls;
 
     @Override
     public boolean equals(Object o) {
@@ -30,12 +27,12 @@ public class Course implements Comparable<Course> {
         if (!(o instanceof Course course)) {
             return false;
         }
-        return Objects.equals(id, course.id) && Objects.equals(courseName, course.courseName);
+        return Objects.equals(id, course.id) && Objects.equals(courseName, course.courseName) && Objects.equals(eventId, course.eventId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, courseName);
+        return Objects.hash(id, courseName, eventId);
     }
 
     public record DomainKey(EventId eventId, CourseName courseName) implements Comparable<DomainKey> {

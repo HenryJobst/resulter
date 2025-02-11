@@ -1,8 +1,6 @@
 package de.jobst.resulter.domain;
 
-import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -11,26 +9,23 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Getter
-public class Organisation implements Comparable<Organisation> {
+public final class Organisation implements Comparable<Organisation> {
 
     @NonNull
-    @Setter
-    private OrganisationId id;
+    private final OrganisationId id;
 
     @NonNull
-    private OrganisationName name;
-    private OrganisationShortName shortName;
+    private final OrganisationName name;
+    private final OrganisationShortName shortName;
 
     @NonNull
-    private OrganisationType type;
+    private final OrganisationType type;
 
     @Nullable
-    @Setter
-    private Country country;
+    private final Country country;
 
     @NonNull
-    @Setter
-    private Collection<Organisation> childOrganisations;
+    private final Collection<Organisation> childOrganisations;
 
     public Organisation(@NonNull OrganisationId id,
                         @NonNull OrganisationName name,
@@ -105,19 +100,6 @@ public class Organisation implements Comparable<Organisation> {
         return val;
     }
 
-    public void update(@NonNull OrganisationName name,
-                       @NonNull OrganisationShortName shortName,
-                       @NonNull OrganisationType type,
-                       @NonNull Country country,
-                       @NonNull Collection<Organisation> childOrganisations) {
-        ValueObjectChecks.requireNotNull(name);
-        this.name = name;
-        this.shortName = shortName;
-        this.type = type;
-        this.country = country;
-        this.childOrganisations = childOrganisations;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -127,12 +109,13 @@ public class Organisation implements Comparable<Organisation> {
             return false;
         }
         Organisation that = (Organisation) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(shortName,
+            that.shortName) && Objects.equals(country, that.country);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, name, shortName, country);
     }
 
     public boolean containsOrganisationWithShortName(String name) {

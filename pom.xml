@@ -42,6 +42,10 @@
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <tika-core.version>3.0.0</tika-core.version>
         <turkraft-springfilter-core.version>3.1.8</turkraft-springfilter-core.version>
+        <spotless-maven-plugin.version>2.44.2</spotless-maven-plugin.version>
+        <google-java-format.version>1.25.2</google-java-format.version>
+        <cleanthat.version>2.22</cleanthat.version>
+        <eclipse-jdt.version>4.34</eclipse-jdt.version>
     </properties>
     <profiles>
         <profile>
@@ -282,6 +286,12 @@
             <version>${commons-text.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>${spotless-maven-plugin.version}</version>
+        </dependency>
+
 
     </dependencies>
     <dependencyManagement>
@@ -399,7 +409,58 @@
                     </nonFilteredFileExtensions>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless-maven-plugin.version}</version>
+                <configuration>
+                    <formats>
+                        <!-- you can define as many formats as you want, each is independent -->
+                        <format>
+                            <!-- define the files to apply to -->
+                            <includes>
+                                <include>.gitattributes</include>
+                                <include>.gitignore</include>
+                            </includes>
+                            <!-- define the steps to apply to those files -->
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                            <indent>
+                                <tabs>true</tabs>
+                                <spacesPerTab>4</spacesPerTab>
+                            </indent>
+                        </format>
+                    </formats>
+                    <!-- define a language-specific format -->
+                    <java>
+                        <!-- noi need to specify files, inferred automatically, but you can if
+                        you want -->
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                        </includes>
+
+                        <!-- Cleanthat will refactor your code, but it may break your style: apply it before your formatter -->
+                        <cleanthat>
+                            <version>${cleanthat.version}</version>
+                        </cleanthat>
+
+                        <eclipse>
+                            <!-- Optional: Specify the Eclipse JDT version to use. -->
+                            <version>${eclipse-jdt.version}</version>
+                            <!-- Optional: Specify a file which contains all formatting options. -->
+                            <file>${project.basedir}/eclipse-formatter.xml</file>
+                        </eclipse>
+
+                        <!--importOrder / -->
+                        <!--removeUnusedImports / -->
+                        <formatAnnotations />
+
+                    </java>
+                </configuration>
+            </plugin>
         </plugins>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

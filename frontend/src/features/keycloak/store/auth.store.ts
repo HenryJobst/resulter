@@ -1,7 +1,7 @@
+import type { User } from '@/features/keycloak/model/user'
+import KeycloakService from '@/features/keycloak/services/keycloak'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import KeycloakService from '@/features/keycloak/services/keycloak'
-import type { User } from '@/features/keycloak/model/user'
 
 export const useAuthStore = defineStore(
     'authStore',

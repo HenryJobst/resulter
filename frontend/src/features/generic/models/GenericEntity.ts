@@ -1,3 +1,3 @@
 export interface GenericEntity {
-    id: number
+    id: number | undefined
 }

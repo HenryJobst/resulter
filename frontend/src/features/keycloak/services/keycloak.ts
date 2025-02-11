@@ -1,12 +1,7 @@
+import type { KeycloakConfig } from 'keycloak-js'
 import Keycloak from 'keycloak-js'
 
-interface KeycloakOptions {
-    url: string
-    clientId: string
-    realm: string
-}
-
-function getOptions() {
+function getOptions(): KeycloakConfig {
     return {
         url: import.meta.env.VITE_KEYCLOAK_URL as string,
         clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID as string,
@@ -14,17 +9,17 @@ function getOptions() {
     }
 }
 
-const options: KeycloakOptions = getOptions()
+const options: KeycloakConfig = getOptions()
 
 function getKeycloak() {
     if (!options.url)
-        console.log('Missing options.url')
+        console.log('keycloak.ts:getKeycloak:Missing options.url')
 
     if (!options.clientId)
-        console.log('Missing options.clientId')
+        console.log('keycloak.ts:getKeycloak:Missing options.clientId')
 
     if (!options.realm)
-        console.log('Missing options.realm')
+        console.log('keycloak.ts:getKeycloak:Missing options.realm')
 
     return new Keycloak(options)
 }
@@ -34,14 +29,6 @@ const keycloak = getKeycloak()
 let authenticated: boolean = false
 let store: any = null // Define the store type based on your store structure
 
-// Custom error handling function
-function handleError(error: Error, message: string): void {
-    console.error(message)
-    console.error(error)
-    console.error(options)
-    // Implement additional logging or user feedback mechanisms here
-}
-
 async function init(onInitCallback: () => void): Promise<void> {
     try {
         authenticated = await keycloak.init({
@@ -49,38 +36,26 @@ async function init(onInitCallback: () => void): Promise<void> {
             onLoad: 'check-sso',
             silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
         })
-        onInitCallback()
     }
-    catch (error) {
-        handleError(error as Error, 'Keycloak init failed')
+    finally {
         onInitCallback()
     }
 }
 
 async function initStore(storeInstance: any): Promise<void> {
     // Define the storeInstance type based on your store structure
-    try {
-        store = storeInstance
-        store.initOauth(keycloak)
+    store = storeInstance
+    store.initOauth(keycloak)
 
-        if (!authenticated) {
-            // Implement a more integrated user experience for unauthenticated users
-            // alert('Not authenticated')
-        }
-    }
-    catch (error) {
-        handleError(error as Error, 'Keycloak init failed')
+    if (!authenticated) {
+        // Implement a more integrated user experience for unauthenticated users
+        // alert('Not authenticated')
     }
 }
 
 async function login(url?: string, locale?: string): Promise<Keycloak | undefined> {
-    try {
-        keycloak.login({ redirectUri: url, locale }).then()
-        return keycloak
-    }
-    catch (error) {
-        handleError(error as Error, 'Failed to refresh token')
-    }
+    keycloak.login({ redirectUri: url, locale }).then()
+    return keycloak
 }
 
 async function logout(url?: string): Promise<void> {
@@ -88,14 +63,9 @@ async function logout(url?: string): Promise<void> {
 }
 
 async function refreshToken(): Promise<Keycloak | undefined> {
-    try {
-        const minValidity: number = Math.floor((keycloak.tokenParsed?.exp ?? 0) - Date.now() / 1000)
-        await keycloak.updateToken(minValidity > 0 ? minValidity : 30)
-        return keycloak
-    }
-    catch (error) {
-        handleError(error as Error, 'Failed to refresh token')
-    }
+    const minValidity: number = Math.floor((keycloak.tokenParsed?.exp ?? 0) - Date.now() / 1000)
+    await keycloak.updateToken(minValidity > 0 ? minValidity : 30)
+    return keycloak
 }
 
 const KeycloakService = {

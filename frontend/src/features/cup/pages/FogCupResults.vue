@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
+import type { OrganisationScore } from '@/features/cup/model/organisation_score'
+import type { PersonWithScore } from '@/features/cup/model/person_with_score'
+import { personService } from '@/features/person/services/person.service'
 import { useQuery } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
-import type { OrganisationScore } from '@/features/cup/model/organisation_score'
-import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
-import { personService } from '@/features/person/services/person.service'
-import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 
 defineProps<{
     cupName: string
@@ -20,9 +20,11 @@ const personQuery = useQuery({
 })
 
 function person(personId: number) {
-    const person = personQuery.data.value?.find(p => p.id === personId) ?? undefined
-    if (person) {
-        return `${person?.givenName} ${person?.familyName}`
+    if (personQuery.data?.value && Array.isArray(personQuery.data.value)) {
+        const person = personQuery.data.value.find(p => p.id === personId) ?? undefined
+        if (person) {
+            return `${person?.givenName} ${person?.familyName}`
+        }
     }
     return ''
 }
@@ -119,7 +121,9 @@ function calculateRanks(scores: OrganisationScore[]): { org: OrganisationScore, 
                     </thead>
                     <tbody>
                         <tr
-                            v-for="{ org, rank } in calculateRanks(overallScores.filter((o) => o.score > 0))"
+                            v-for="{ org, rank } in calculateRanks(
+                                overallScores.filter((o) => o.score > 0),
+                            )"
                             :key="org.organisation.id"
                             class=""
                         >
@@ -152,7 +156,9 @@ function calculateRanks(scores: OrganisationScore[]): { org: OrganisationScore, 
                     Details:
                 </h2>
                 <table
-                    v-for="{ org, rank } in calculateRanks(overallScores.filter((o) => o.score > 0))"
+                    v-for="{ org, rank } in calculateRanks(
+                        overallScores.filter((o) => o.score > 0),
+                    )"
                     :key="org.organisation.id"
                     class="my-3"
                 >

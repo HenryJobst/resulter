@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import InputText from 'primevue/inputtext'
-import { useI18n } from 'vue-i18n'
-import Checkbox from 'primevue/checkbox'
-import Button from 'primevue/button'
-import Drawer from 'primevue/drawer'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import Select, { type SelectChangeEvent } from 'primevue/select'
-import VuePdfEmbed from 'vue-pdf-embed'
-import { computed, ref, watch } from 'vue'
-import { prettyPrint } from '@base2/pretty-print-object'
 import type { Certificate } from '@/features/certificate/model/certificate'
-import { EventService, eventService } from '@/features/event/services/event.service'
 import type { EventKey } from '@/features/event/model/event_key'
-import { mediaService } from '@/features/media/services/media.service'
-import type { MediaKey } from '@/features/media/model/media_key'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { Media } from '@/features/media/model/media'
+import type { MediaKey } from '@/features/media/model/media_key'
+import type { SelectChangeEvent } from 'primevue/select'
 import NumberedTextarea from '@/features/certificate/widgets/NumberedTextarea.vue'
+import { EventService, eventService } from '@/features/event/services/event.service'
+import { mediaService } from '@/features/media/services/media.service'
+import { prettyPrint } from '@base2/pretty-print-object'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import Button from 'primevue/button'
+import Checkbox from 'primevue/checkbox'
+import Drawer from 'primevue/drawer'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import VuePdfEmbed from 'vue-pdf-embed'
 
 const certificate = defineModel({
     type: Object as () => Certificate,
@@ -59,17 +60,16 @@ const formattedSchema = computed(() => {
 })
 
 function getEventKeyFromId(id: number | null): EventKey | null {
-    if (!eventQuery.data.value)
+    if (!eventQuery.data?.value || !Array.isArray(eventQuery.data?.value)) {
         return null
+    }
 
-    const event: SportEvent | undefined = eventQuery.data.value?.find(
-        ev => ev.id === id,
-    )
+    const event: SportEvent | undefined = eventQuery.data.value?.find(ev => ev.id === id)
     if (event !== undefined) {
         return {
             id: event.id,
             name: event.name,
-        }
+        } as EventKey
     }
     return null
 }
@@ -123,7 +123,12 @@ watch(
                 <div class="flex flex-row">
                     <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
                     <div class="col flex flex-grow">
-                        <InputText id="name" v-model="certificate.name" type="text" class="flex-grow" />
+                        <InputText
+                            id="name"
+                            v-model="certificate.name"
+                            type="text"
+                            class="flex-grow"
+                        />
                     </div>
                 </div>
                 <div class="flex flex-row">
@@ -206,7 +211,10 @@ watch(
                         </Drawer>
                     </div>
                     <div class="col">
-                        <NumberedTextarea id="layoutDescription" v-model="certificate.layoutDescription" />
+                        <NumberedTextarea
+                            id="layoutDescription"
+                            v-model="certificate.layoutDescription"
+                        />
                     </div>
                 </div>
                 <div class="flex flex-row">

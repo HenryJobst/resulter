@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { useI18n } from 'vue-i18n'
-import { useToast } from 'primevue/usetoast'
-import { type RouteLocationRaw, useRouter } from 'vue-router'
-import Button from 'primevue/button'
-import { prettyPrint } from '@base2/pretty-print-object'
-import { computed, onMounted, ref, watch } from 'vue'
-import { toastDisplayDuration } from '@/utils/constants'
-import ErrorMessage from '@/components/ErrorMessage.vue'
-import Spinner from '@/components/SpinnerComponent.vue'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
+import type { RouteLocationRaw } from 'vue-router'
+import ErrorMessage from '@/components/ErrorMessage.vue'
+import Spinner from '@/components/SpinnerComponent.vue'
+import { toastDisplayDuration } from '@/utils/constants'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import Button from 'primevue/button'
+import { useToast } from 'primevue/usetoast'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 interface Props {
     entityService: IGenericService<GenericEntity>
@@ -50,23 +50,19 @@ const formData = ref<GenericEntity | null>(null)
 const entityQuery = useQuery({
     queryKey: [...props.queryKey!, props.entityId],
     queryFn: () => {
-        console.log('GenericEdit:useQuery:entityQuery', props.entityId)
         return props.entityService?.getById(Number.parseInt(props.entityId), t)
     },
 })
 
 onMounted(() => {
-    console.log('GenericEdit:onMounted')
-    if (entityQuery.data.value)
+    if (entityQuery.data.value) {
         formData.value = { ...entityQuery.data.value }
-
-    console.log('GenericEdit:onMounted:formData', prettyPrint(formData.value))
+    }
 })
 
 watch(
     () => props.entityId,
-    (newEntityId) => {
-        console.log('GenericEdit:watch:entityId', newEntityId)
+    () => {
         entityQuery.refetch()
     },
 )
@@ -75,7 +71,6 @@ watch(
 watch(
     () => entityQuery.data,
     (newData) => {
-        console.log('GenericEdit:watch:entityQuery.data', prettyPrint(newData))
         if (newData && newData.value)
             formData.value = { ...newData.value }
         else formData.value = null // oder setzen Sie einen Default-Wert

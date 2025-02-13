@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import type { OrganisationScore } from '@/features/cup/model/organisation_score'
-import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
-import { personService } from '@/features/person/services/person.service'
-import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 import type { AggregatedPersonScores } from '@/features/cup/model/aggregated_person_scores'
+import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
+import type { OrganisationScore } from '@/features/cup/model/organisation_score'
+import type { PersonWithScore } from '@/features/cup/model/person_with_score'
+import { personService } from '@/features/person/services/person.service'
+import { useQuery } from '@tanstack/vue-query'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     cupName: string
@@ -23,9 +23,11 @@ const personQuery = useQuery({
 })
 
 function person(personId: number) {
-    const person = personQuery.data.value?.find(p => p.id === personId) ?? undefined
-    if (person) {
-        return `${person?.givenName} ${person?.familyName}`
+    if (personQuery.data?.value && Array.isArray(personQuery.data.value)) {
+        const person = personQuery.data.value.find(p => p.id === personId) ?? undefined
+        if (person) {
+            return `${person?.givenName} ${person?.familyName}`
+        }
     }
     return ''
 }
@@ -85,7 +87,9 @@ function findScoreForEventAndClassResultAndPerson(
     return eventScore?.raceClassResultGroupedCupScores
         ?.flatMap(x => x.classResultScores || [])
         .find(it => it.classResultShortName === classShortName)
-        ?.personWithScores?.find(it => it.personId === personId)?.score
+        ?.personWithScores
+        ?.find(it => it.personId === personId)
+        ?.score
 }
 </script>
 

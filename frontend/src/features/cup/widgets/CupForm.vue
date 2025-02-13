@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
+import type { Cup } from '@/features/cup/model/cup'
+import type { EventKey } from '@/features/event/model/event_key'
+import type { MultiSelectChangeEvent } from 'primevue/multiselect'
+import { CupService } from '@/features/cup/services/cup.service'
+import { eventService } from '@/features/event/services/event.service'
+import { useQuery } from '@tanstack/vue-query'
 import InputNumber from 'primevue/inputnumber'
+import InputText from 'primevue/inputtext'
+import MultiSelect from 'primevue/multiselect'
+import Select from 'primevue/select'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import MultiSelect, { type MultiSelectChangeEvent } from 'primevue/multiselect'
-import { useQuery } from '@tanstack/vue-query'
-import type { Cup } from '@/features/cup/model/cup'
-import { CupService } from '@/features/cup/services/cup.service'
-import type { EventKey } from '@/features/event/model/event_key'
-import { eventService } from '@/features/event/services/event.service'
 
 const props = defineProps<{
     cup: Cup
@@ -44,25 +45,20 @@ const cupTypesQuery = useQuery({
     queryFn: () => CupService.getCupTypes(t),
 })
 
-function getEventKeysFromIds(ids: number[]): EventKey[] | null {
-    if (!eventQuery.data.value || !eventQuery.data.value)
-        return null
+function getEventKeysFromIds(ids: number[]): EventKey[] {
+    if (!eventQuery.data?.value || !Array.isArray(eventQuery.data?.value)) {
+        return []
+    }
 
+    const events = eventQuery.data.value
     return ids
-        .map((id) => {
-            return eventQuery.data.value?.find(b => b.id === id)
-        })
-        .filter(ev => ev !== undefined)
-        .map((ev) => {
-            return {
-                id: ev!.id,
-                name: ev!.name,
-            }
-        })
+        .map(id => events.find(b => b.id === id))
+        .filter(ev => ev !== undefined && ev.id !== undefined)
+        .map(ev => ({ id: ev!.id, name: ev!.name }) as EventKey)
 }
 
 function handleSelectionChange(ev: MultiSelectChangeEvent) {
-    if (ev.value && cup.value && eventQuery.data.value && eventQuery.data.value) {
+    if (ev.value && cup.value && eventQuery.data?.value) {
         cup.value.events = getEventKeysFromIds(ev.value)!
     }
 }

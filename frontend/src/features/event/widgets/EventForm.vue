@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import InputText from 'primevue/inputtext'
-import { computed, onBeforeUpdate, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+import type { Certificate } from '@/features/certificate/model/certificate'
+import type { CertificateKey } from '@/features/certificate/model/certificate_key'
+import type { SportEvent } from '@/features/event/model/sportEvent'
 
-import DatePicker from 'primevue/datepicker'
-import MultiSelect, { type MultiSelectChangeEvent } from 'primevue/multiselect'
-import { useQuery } from '@tanstack/vue-query'
-import Select, { type SelectChangeEvent } from 'primevue/select'
-import { prettyPrint } from '@base2/pretty-print-object'
+import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
+import type { MultiSelectChangeEvent } from 'primevue/multiselect'
+import type { SelectChangeEvent } from 'primevue/select'
+import { certificateService } from '@/features/certificate/services/certificate.service'
 import { EventService } from '@/features/event/services/event.service'
 import { organisationService } from '@/features/organisation/services/organisation.service'
-import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
-import { certificateService } from '@/features/certificate/services/certificate.service'
-import type { SportEvent } from '@/features/event/model/sportEvent'
-import type { CertificateKey } from '@/features/certificate/model/certificate_key'
-import type { Certificate } from '@/features/certificate/model/certificate'
+import { prettyPrint } from '@base2/pretty-print-object'
+import { useQuery } from '@tanstack/vue-query'
+import DatePicker from 'primevue/datepicker'
+import InputText from 'primevue/inputtext'
+import MultiSelect from 'primevue/multiselect'
+import Select from 'primevue/select'
+import { computed, onBeforeUpdate, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     event: SportEvent
@@ -33,20 +35,21 @@ const event = computed({
 
 const certificateQuery = useQuery({
     queryKey: ['certificates'],
-    queryFn: () => certificateService.getAll(t),
+    queryFn: () => certificateService.getAllUnpaged(t),
 })
 
 const l_organisations = computed({
     get: () => (event.value ? event.value.organisations.map(org => org.id) : []),
     set: (ids) => {
-        if (event.value)
-            event.value.organisations = getOrganisationKeysFromIds(ids)!
+        if (event.value) {
+            event.value.organisations = getOrganisationKeysFromIds(ids)
+        }
     },
 })
 
 const organisationQuery = useQuery({
     queryKey: ['organisations'],
-    queryFn: () => organisationService.getAll(t),
+    queryFn: () => organisationService.getAllUnpaged(t),
 })
 
 const eventStatusQuery = useQuery({
@@ -116,21 +119,16 @@ onMounted(() => {
         dateTime.value = new Date(props.event.startTime)
 })
 
-function getOrganisationKeysFromIds(ids: number[]): OrganisationKey[] | null {
-    if (!organisationQuery.data.value || !organisationQuery.data.value.content)
-        return null
+function getOrganisationKeysFromIds(ids: number[]): OrganisationKey[] {
+    if (!organisationQuery.data?.value || !Array.isArray(organisationQuery.data?.value)) {
+        return []
+    }
 
+    const organisations = organisationQuery.data.value
     return ids
-        .map((id) => {
-            return organisationQuery.data.value?.content.find(b => b.id === id)
-        })
-        .filter(org => org !== undefined)
-        .map((org) => {
-            return {
-                id: org!.id,
-                name: org!.name,
-            }
-        })
+        .map(id => organisations.find(b => b.id === id))
+        .filter(org => org !== undefined && org.id !== undefined)
+        .map(org => ({ id: org!.id, name: org!.name }) as OrganisationKey)
 }
 
 function handleSelectionChange(ev: MultiSelectChangeEvent) {
@@ -138,9 +136,8 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
         ev.value
         && event.value
         && organisationQuery.data.value
-        && organisationQuery.data.value.content
     ) {
-        event.value.organisations = getOrganisationKeysFromIds(ev.value)!
+        event.value.organisations = getOrganisationKeysFromIds(ev.value)
     }
 }
 
@@ -150,13 +147,14 @@ onBeforeUpdate(() => {
 })
 
 function getCertificateKeyFromId(id: number | null): CertificateKey | null {
-    if (!certificateQuery.data.value || !certificateQuery.data.value.content)
+    if (!certificateQuery.data.value || !Array.isArray(certificateQuery.data.value)) {
         return null
+    }
 
-    const certificate: Certificate | undefined = certificateQuery.data.value?.content.find(
+    const certificate: Certificate | undefined = certificateQuery.data?.value.find(
         certificate => certificate.id === id,
     )
-    if (certificate !== undefined) {
+    if (certificate) {
         return {
             id: certificate.id,
             name: certificate.name,
@@ -170,7 +168,6 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
         ev.value
         && event.value
         && certificateQuery.data.value
-        && certificateQuery.data.value.content
     ) {
         event.value.certificate = getCertificateKeyFromId(ev.value.id)!
     }
@@ -219,9 +216,6 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
                 <span v-if="eventStatusQuery.status.value === 'pending'">{{
                     t('messages.loading')
                 }}</span>
-                <span v-else-if="eventStatusQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: eventStatusQuery.error.toLocaleString() }) }}
-                </span>
                 <Select
                     v-else-if="eventStatusQuery.data.value"
                     id="state"
@@ -242,10 +236,6 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
                 <span v-if="organisationQuery.status.value === 'pending'">{{
                     t('messages.loading')
                 }}</span>
-                <span v-else-if="organisationQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: organisationQuery.error.toLocaleString() }) }}
-                </span>
-
                 <div
                     v-else-if="organisationQuery.data && organisationQuery.data.value"
                     class="card"
@@ -253,7 +243,7 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
                     <MultiSelect
                         id="organisations"
                         v-model="l_organisations"
-                        :options="organisationQuery.data.value.content"
+                        :options="organisationQuery.data.value"
                         data-key="id"
                         filter
                         option-label="name"
@@ -271,14 +261,11 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
                 <span v-if="certificateQuery.status.value === 'pending'">{{
                     t('messages.loading')
                 }}</span>
-                <span v-else-if="certificateQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: certificateQuery.error.toLocaleString() }) }}
-                </span>
                 <Select
                     v-else-if="certificateQuery.data.value"
                     id="certificate"
                     v-model="event.certificate"
-                    :options="certificateQuery.data.value.content"
+                    :options="certificateQuery.data.value"
                     option-label="name"
                     data-key="id"
                     :placeholder="t('messages.select')"

@@ -1,7 +1,7 @@
+import type { TableSettings } from '@/features/generic/models/table_settings'
 // stores/settingsStore.js
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { TableSettings } from '@/features/generic/models/table_settings'
 
 export function settingsStoreFactory(id: string, initialSettings?: TableSettings) {
     return defineStore(`settings-${id}`, () => {

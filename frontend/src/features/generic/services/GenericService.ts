@@ -1,10 +1,10 @@
-import type { DataTableFilterMetaData } from 'primevue/datatable'
-import { sfAnd, sfEqual, sfLike } from 'spring-filter-query-builder'
-import type { IGenericService } from '@/features/generic/services/IGenericService'
-import axiosInstance from '@/features/keycloak/services/api'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
-import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
+import type { TableSettings } from '@/features/generic/models/table_settings'
+import type { IGenericService } from '@/features/generic/services/IGenericService'
+import type { DataTableFilterMetaData } from 'primevue/datatable'
+import axiosInstance from '@/features/keycloak/services/api'
+import { sfAnd, sfEqual, sfLike } from 'spring-filter-query-builder'
 
 function getSortParam(field: string | ((item: any) => string), order: number | null | undefined) {
     const direction = order === 1 ? 'asc' : 'desc'

@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { Ref } from 'vue'
-import { computed } from 'vue'
-import { CupService } from '@/features/cup/services/cup.service'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import KristallCupResults from '@/features/cup/pages/KristallCupResults.vue'
+import type { AggregatedPersonScores } from '@/features/cup/model/aggregated_person_scores'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
+import type { Ref } from 'vue'
 import FogCupResults from '@/features/cup/pages/FogCupResults.vue'
+import KristallCupResults from '@/features/cup/pages/KristallCupResults.vue'
 import NorCupResults from '@/features/cup/pages/NorCupResults.vue'
-import type { AggregatedPersonScores } from '@/features/cup/model/aggregated_person_scores'
+import { CupService } from '@/features/cup/services/cup.service'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import Button from 'primevue/button'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{ id: string }>()
 
@@ -82,9 +82,6 @@ const aggregatedPersonScores: Ref<AggregatedPersonScores[]> = computed(
         />
     </div>
     <span v-if="cupResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-    <span v-else-if="cupResultsQuery.status.value === 'error'">
-        {{ t('messages.error', { message: cupResultsQuery.error.toLocaleString() }) }}
-    </span>
     <div v-else-if="cupData" class="card flex justify-content-start ml-3">
         <KristallCupResults
             v-if="cupData.type?.id === 'KRISTALL'"

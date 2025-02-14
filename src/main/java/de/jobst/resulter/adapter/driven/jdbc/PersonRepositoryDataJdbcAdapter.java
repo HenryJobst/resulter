@@ -9,6 +9,10 @@ import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -17,12 +21,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -33,9 +31,8 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     private final FilterStringConverter filterStringConverter;
     private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
 
-
-    public PersonRepositoryDataJdbcAdapter(PersonJdbcRepository personJdbcRepository,
-                                           FilterStringConverter filterStringConverter) {
+    public PersonRepositoryDataJdbcAdapter(
+            PersonJdbcRepository personJdbcRepository, FilterStringConverter filterStringConverter) {
         this.personJdbcRepository = personJdbcRepository;
         this.filterStringConverter = filterStringConverter;
         this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
@@ -44,7 +41,8 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     @Override
     public Person save(Person person) {
         DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setPersonDboResolver(id -> personJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setPersonDboResolver(
+                id -> personJdbcRepository.findById(id.value()).orElseThrow());
         PersonDbo personEntity = PersonDbo.from(person, dboResolvers);
         PersonDbo savedPersonEntity = personJdbcRepository.save(personEntity);
         return savedPersonEntity.asPerson();
@@ -52,7 +50,10 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     @Override
     public List<Person> findAll() {
-        return personJdbcRepository.findAll().stream().map(it -> it.asPerson()).sorted().toList();
+        return personJdbcRepository.findAll().stream()
+                .map(it -> it.asPerson())
+                .sorted()
+                .toList();
     }
 
     @Override
@@ -63,10 +64,8 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     @Override
     public Person findOrCreate(Person person) {
-        Optional<PersonDbo> personEntity =
-            personJdbcRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(person.getPersonName()
-                    .familyName()
-                    .value(),
+        Optional<PersonDbo> personEntity = personJdbcRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(
+                person.getPersonName().familyName().value(),
                 person.getPersonName().givenName().value(),
                 person.getBirthDate().value(),
                 person.getGender());
@@ -88,35 +87,47 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         Page<PersonDbo> page;
         if (filter != null) {
             PersonDbo personDbo = new PersonDbo();
-            AtomicReference<ExampleMatcher> matcher = new AtomicReference<>(ExampleMatcher.matching()
-                //.withIgnorePaths("")
-            );
+            AtomicReference<ExampleMatcher> matcher = new AtomicReference<>(
+                    ExampleMatcher.matching()
+                    // .withIgnorePaths("")
+                    );
             FilterNode filterNode = filterStringConverter.convert(filter);
             log.info("FilterNode: {}", filterNode);
             MappingFilterNodeTransformResult transformResult = filterNodeTransformer.transform(filterNode);
             transformResult.filterMap().forEach((key, value) -> {
-                if (key.equals("familyName")) {
-                    String unquotedValue = value.value().replace("'", "");
-                    personDbo.setFamilyName(unquotedValue);
-                    matcher.set(matcher.get().withMatcher("familyName", m -> m.stringMatcher(value.matcher())));
+                String unquotedValue = value.value().replace("'", "");
+                switch (key) {
+                    case "familyName" -> {
+                        personDbo.setFamilyName(unquotedValue);
+                        matcher.set(matcher.get().withMatcher("familyName", m -> m.stringMatcher(value.matcher())));
+                    }
+                    case "givenName" -> {
+                        personDbo.setGivenName(unquotedValue);
+                        matcher.set(matcher.get().withMatcher("givenName", m -> m.stringMatcher(value.matcher())));
+                    }
+                    case "id" -> {
+                        personDbo.setId(Long.parseLong(unquotedValue));
+                        matcher.set(matcher.get().withMatcher("id", ExampleMatcher.GenericPropertyMatcher::exact));
+                    }
                 }
             });
 
-            page = personJdbcRepository.findAll(Example.of(personDbo, matcher.get()),
-                FilterAndSortConverter.mapOrderProperties(pageable, PersonDbo::mapOrdersDomainToDbo));
+            page = personJdbcRepository.findAll(
+                    Example.of(personDbo, matcher.get()),
+                    FilterAndSortConverter.mapOrderProperties(pageable, PersonDbo::mapOrdersDomainToDbo));
 
         } else {
-            page = personJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
-                PersonDbo::mapOrdersDomainToDbo));
+            page = personJdbcRepository.findAll(
+                    FilterAndSortConverter.mapOrderProperties(pageable, PersonDbo::mapOrdersDomainToDbo));
         }
-        return new PageImpl<>(page.stream().map(x -> PersonDbo.asPerson(x)).toList(),
-            FilterAndSortConverter.mapOrderProperties(page.getPageable(), EventDbo::mapOrdersDboToDomain),
-            page.getTotalElements());
+        return new PageImpl<>(
+                page.stream().map(x -> PersonDbo.asPerson(x)).toList(),
+                FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
+                page.getTotalElements());
     }
 
     @Override
     public void delete(Person person) {
         personJdbcRepository.deleteById(person.getId().value());
     }
-
 }

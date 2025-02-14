@@ -1,10 +1,10 @@
-import { isRef, nextTick, ref } from 'vue'
 import type { Composer, I18n, I18nMode, I18nOptions, Locale, VueI18n } from 'vue-i18n'
-import { createI18n } from 'vue-i18n'
-import { usePrimeVue } from 'primevue/config'
-import en from '@/locales/en.json'
 import de from '@/locales/de.json'
+import en from '@/locales/en.json'
 import { primevueLocaleMessages } from '@/PrimevueMessages'
+import { usePrimeVue } from 'primevue/config'
+import { isRef, nextTick, ref } from 'vue'
+import { createI18n } from 'vue-i18n'
 
 export const SUPPORT_LOCALES: string[] = ['en', 'de']
 export const reloadAfterI18nSwitch = ref<number>(0)

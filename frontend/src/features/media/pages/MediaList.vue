@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import GenericList from '@/features/generic/pages/GenericList.vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { mediaService } from '@/features/media/services/media.service'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`

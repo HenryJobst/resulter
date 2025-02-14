@@ -1,5 +1,5 @@
-import type { DataTableFilterMeta, DataTableSortMeta } from 'primevue/datatable'
 import type { PageSettings } from '@/features/generic/models/table_base_settings'
+import type { DataTableFilterMeta, DataTableSortMeta } from 'primevue/datatable'
 
 export interface TableSettings extends PageSettings {
     first: number

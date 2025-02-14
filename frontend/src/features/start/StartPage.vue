@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import Panel from 'primevue/panel'
-import Button from 'primevue/button'
-import { BackendException, getDetail } from '@/utils/HandleError'
-import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 import { useErrorStore } from '@/features/common/stores/useErrorStore'
+import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 import { formatDateTime } from '@/features/generic/services/GenericFunctions'
+import { BackendException, getDetail } from '@/utils/HandleError'
+import Button from 'primevue/button'
+import Panel from 'primevue/panel'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
 

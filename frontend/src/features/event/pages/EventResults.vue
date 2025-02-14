@@ -1,23 +1,25 @@
 <script lang="ts" setup>
-import { useQueries, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { type Locale, useI18n } from 'vue-i18n'
+import type { ClassResult } from '@/features/event/model/class_result'
+import type { CupScoreList } from '@/features/event/model/cup_score_list'
+import type { ResultList } from '@/features/event/model/result_list'
+import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
 import type { TreeNode } from 'primevue/treenode'
-import { type Ref, computed } from 'vue'
-import Tree from 'primevue/tree'
+import type { Ref } from 'vue'
+import type { Locale } from 'vue-i18n'
+import { courseService } from '@/features/course/services/course.service'
+import { EventService, eventService } from '@/features/event/services/event.service'
+import EventCertificateStatsTable from '@/features/event/widgets/EventCertificateStatsTable.vue'
+import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { raceService } from '@/features/race/services/race.service'
+import { useQueries, useQuery, useQueryClient } from '@tanstack/vue-query'
+import moment from 'moment/min/moment-with-locales'
 import Button from 'primevue/button'
 import Panel from 'primevue/panel'
+import Tree from 'primevue/tree'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import moment from 'moment/min/moment-with-locales'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import type { ResultList } from '@/features/event/model/result_list'
-import { courseService } from '@/features/course/services/course.service'
-import { raceService } from '@/features/race/services/race.service'
-import type { ClassResult } from '@/features/event/model/class_result'
-import { EventService, eventService } from '@/features/event/services/event.service'
-import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
-import type { ResultListIdPersonResults } from '@/features/event/model/result_list_id_person_results'
-import EventCertificateStatsTable from '@/features/event/widgets/EventCertificateStatsTable.vue'
-import type { CupScoreList } from '@/features/event/model/cup_score_list'
 
 const props = defineProps<{ id: string }>()
 
@@ -58,12 +60,12 @@ const eventCertificateStatsQuery = useQuery({
 
 const courseQuery = useQuery({
     queryKey: ['courses'],
-    queryFn: () => courseService.getAll(t),
+    queryFn: () => courseService.getAllUnpaged(t),
 })
 
 const raceQuery = useQuery({
     queryKey: ['races'],
-    queryFn: () => raceService.getAll(t),
+    queryFn: () => raceService.getAllUnpaged(t),
 })
 
 const cupPointsQueries = useQueries({
@@ -95,10 +97,14 @@ function formatCreateTime(date: Date | string, locale: Ref<Locale>) {
 }
 
 function getResultListLabel(resultList: ResultList) {
-    const names = raceQuery.data.value?.content
+    if (!raceQuery.data?.value || !Array.isArray(raceQuery.data.value)) {
+        return ''
+    }
+
+    const names = raceQuery.data?.value
         .filter(r => r.id === resultList.raceId)
         .map(r => r.name)
-    let name = raceQuery.data.value?.content.find(r => r.id === resultList.raceId)?.name
+    let name = raceQuery.data?.value.find(r => r.id === resultList.raceId)?.name
     const manyRacesExists = names?.length ?? 0 > 1
     if (!name || manyRacesExists) {
         const raceNumber = resultList.classResults
@@ -257,8 +263,9 @@ const treeNodes = computed(() => {
 })
 
 function findCourse(slotProps: any) {
-    if (slotProps.courseId && courseQuery.data.value)
-        return courseQuery.data.value.content.find(c => c.id === slotProps.courseId)
+    if (slotProps.courseId && courseQuery.data?.value && Array.isArray(courseQuery.data.value)) {
+        return courseQuery.data.value.find(c => c.id === slotProps.courseId)
+    }
 
     return null
 }
@@ -313,9 +320,6 @@ function navigateToList() {
     />
     <!-- Button v-if="authStore.isAdmin" :label="t('labels.calculate')" @click="calculate()" / -->
     <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-    <span v-else-if="eventResultsQuery.status.value === 'error'">
-        {{ t('messages.error', { message: eventResultsQuery.error.toLocaleString() }) }}
-    </span>
     <div v-else-if="eventResultsQuery.data && eventId" class="card flex justify-content-start">
         <div class="flex flex-col flex-grow w-full">
             <h1 class="mt-3 font-extrabold">

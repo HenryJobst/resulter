@@ -3,6 +3,8 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.domain.MediaFile;
 import de.jobst.resulter.domain.MediaFileId;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,8 +12,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -46,6 +46,14 @@ public class MediaFileRepositoryDataJdbcAdapter implements MediaFileRepository {
     @Override
     public void delete(MediaFileId mediaFileId) {
         mediaFileJdbcRepository.deleteById(mediaFileId.value());
+    }
+
+    @Override
+    public List<MediaFile> findAll() {
+        return mediaFileJdbcRepository.findAll().stream()
+                .map(MediaFileDbo::asMediaFile)
+                .sorted()
+                .toList();
     }
 
     @Override

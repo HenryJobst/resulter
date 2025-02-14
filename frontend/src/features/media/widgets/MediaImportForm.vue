@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { getCurrentInstance, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useToast } from 'primevue/usetoast'
-import FileUpload, { type FileUploadUploaderEvent } from 'primevue/fileupload'
-import ProgressBar from 'primevue/progressbar'
+import type { Media } from '@/features/media/model/media'
+import type { Upload } from '@/features/media/model/upload'
+import type { FileUploadUploaderEvent } from 'primevue/fileupload'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { fileSizeTypes } from '@/features/media/util/file_size_types'
+import { acceptedFileTypes } from '@/features/media/util/file_types'
+import { toastDisplayDuration } from '@/utils/constants'
 import Badge from 'primevue/badge'
 import Button from 'primevue/button'
-import type { Upload } from '@/features/media/model/upload'
-import type { Media } from '@/features/media/model/media'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import FileUpload from 'primevue/fileupload'
+import ProgressBar from 'primevue/progressbar'
 
-import { toastDisplayDuration } from '@/utils/constants'
-import { acceptedFileTypes } from '@/features/media/util/file_types'
-import { fileSizeTypes } from '@/features/media/util/file_size_types'
+import { useToast } from 'primevue/usetoast'
+import { getCurrentInstance, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ media?: Media, uploader: any }>()
 const emit = defineEmits(['mediaSubmit'])

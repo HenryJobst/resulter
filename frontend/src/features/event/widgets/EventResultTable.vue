@@ -24,14 +24,14 @@ const { t } = useI18n()
 
 const cupQuery = useQuery({
     queryKey: ['cups'],
-    queryFn: () => cupService.getAll(t),
+    queryFn: () => cupService.getAllUnpaged(t),
 })
 
 const cups = computed((): Cup[] => {
     const allCupIds = props.data?.cupScoreLists ? props.data.cupScoreLists.map(x => x.cupId) : []
     const cupIds = new Set(allCupIds)
-    return cupQuery.data?.value?.content
-        ? cupQuery.data.value.content.filter((x) => {
+    return cupQuery.data?.value && Array.isArray(cupQuery.data?.value)
+        ? cupQuery.data.value.filter((x) => {
                 return cupIds.has(x.id)
             })
         : []
@@ -60,12 +60,12 @@ function formatBirthYear(date: string | Date): string {
 
 const personQuery = useQuery({
     queryKey: ['persons'],
-    queryFn: () => personService.getAll(t),
+    queryFn: () => personService.getAllUnpaged(t),
 })
 
 const organisationQuery = useQuery({
     queryKey: ['organisations'],
-    queryFn: () => organisationService.getAll(t),
+    queryFn: () => organisationService.getAllUnpaged(t),
 })
 
 function resultColumn(data: PersonResult): string {
@@ -89,15 +89,15 @@ function birthYearColumn(data: any): string {
 }
 
 function findPerson(personId: number): Person | undefined {
-    if (personId && personQuery.data.value)
-        return personQuery.data.value.content.find(value => value?.id === personId)
+    if (personId && personQuery.data?.value && Array.isArray(personQuery.data.value))
+        return personQuery.data.value.find(p => p?.id === personId)
 
     return undefined
 }
 
 function findOrganisation(organisationId: number): Organisation | undefined {
-    if (organisationId && organisationQuery.data.value)
-        return organisationQuery.data.value.content.find(o => o.id === organisationId)
+    if (organisationId && organisationQuery.data.value && Array.isArray(organisationQuery.data.value))
+        return organisationQuery.data.value.find(o => o?.id === organisationId)
 
     return undefined
 }

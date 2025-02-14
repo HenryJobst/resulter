@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import type { Media } from '@/features/media/model/media'
+import type { FileUploadUploaderEvent } from 'primevue/fileupload'
+import { MediaService, mediaService } from '@/features/media/services/media.service'
+import { acceptedFileTypes } from '@/features/media/util/file_types'
+import MediaImportForm from '@/features/media/widgets/MediaImportForm.vue'
+import { toastDisplayDuration } from '@/utils/constants'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
+import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { useToast } from 'primevue/usetoast'
-import type { FileUploadUploaderEvent } from 'primevue/fileupload'
-import MediaImportForm from '@/features/media/widgets/MediaImportForm.vue'
-import { MediaService, mediaService } from '@/features/media/services/media.service'
-import { toastDisplayDuration } from '@/utils/constants'
-import type { Media } from '@/features/media/model/media'
-import { acceptedFileTypes } from '@/features/media/util/file_types'
 
 const { t } = useI18n()
 

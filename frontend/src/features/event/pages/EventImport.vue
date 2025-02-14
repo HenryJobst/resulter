@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import type { SportEvent } from '@/features/event/model/sportEvent'
+import type { FileUploadUploaderEvent } from 'primevue/fileupload'
+import { EventService, eventService } from '@/features/event/services/event.service'
+import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
+import { toastDisplayDuration } from '@/utils/constants'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
+import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { useToast } from 'primevue/usetoast'
-import type { FileUploadUploaderEvent } from 'primevue/fileupload'
-import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
-import { EventService, eventService } from '@/features/event/services/event.service'
-import { toastDisplayDuration } from '@/utils/constants'
-import type { SportEvent } from '@/features/event/model/sportEvent'
 
 const { t } = useI18n()
 

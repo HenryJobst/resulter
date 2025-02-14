@@ -11,6 +11,13 @@ import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.validation.Valid;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -54,37 +53,42 @@ public class EventController {
 
     @GetMapping("/event")
     public ResponseEntity<Page<EventDto>> searchEvents(@RequestParam Optional<String> filter, Pageable pageable) {
-        Page<Event> events = eventService.findAll(filter.orElse(null),
-            pageable != null ?
-            FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain) :
-            Pageable.unpaged());
-        return ResponseEntity.ok(new PageImpl<>(events.getContent().stream().map(EventDto::from).toList(),
-            FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
-            events.getTotalElements()));
+        Page<Event> events = eventService.findAll(
+                filter.orElse(null),
+                pageable != null
+                        ? FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain)
+                        : Pageable.unpaged());
+        return ResponseEntity.ok(new PageImpl<>(
+                events.getContent().stream().map(EventDto::from).toList(),
+                FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
+                events.getTotalElements()));
     }
 
     @GetMapping("/event_status")
     public ResponseEntity<List<EventStatusDto>> handleEventTypes() {
-        List<EventStatusDto> eventStatus = Arrays.stream(EventStatus.values()).map(EventStatusDto::from).toList();
+        List<EventStatusDto> eventStatus =
+                Arrays.stream(EventStatus.values()).map(EventStatusDto::from).toList();
         return ResponseEntity.ok(eventStatus);
     }
 
     @PostMapping("/event")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> createEvent(@RequestBody EventDto eventDto) {
-        Event event = eventService.createEvent(eventDto.name(),
-            ObjectUtils.isNotEmpty(eventDto.startTime()) ?
-            ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME) :
-            null,
-            eventDto.organisations() == null ?
-            new HashSet<>() :
-            eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()));
+        Event event = eventService.createEvent(
+                eventDto.name(),
+                ObjectUtils.isNotEmpty(eventDto.startTime())
+                        ? ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME)
+                        : null,
+                eventDto.organisations() == null
+                        ? new HashSet<>()
+                        : eventDto.organisations().stream()
+                                .map(x -> OrganisationId.of(x.id()))
+                                .collect(Collectors.toSet()));
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
         return ResponseEntity.ok(EventDto.from(event));
     }
-
 
     @GetMapping("/event/{id}")
     public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
@@ -95,16 +99,21 @@ public class EventController {
     @PutMapping("/event/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
-        Event event = eventService.updateEvent(EventId.of(id),
-            EventName.of(eventDto.name()),
-            ObjectUtils.isNotEmpty(eventDto.startTime()) ?
-            DateTime.of(ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME)) :
-            null,
-            EventStatus.fromValue(eventDto.state().id()),
-            eventDto.organisations() == null ?
-            new HashSet<>() :
-            eventDto.organisations().stream().map(x -> OrganisationId.of(x.id())).collect(Collectors.toSet()),
-            eventDto.certificate() != null ? EventCertificateId.of(eventDto.certificate().id()) : null);
+        Event event = eventService.updateEvent(
+                EventId.of(id),
+                EventName.of(eventDto.name()),
+                ObjectUtils.isNotEmpty(eventDto.startTime())
+                        ? DateTime.of(ZonedDateTime.parse(eventDto.startTime(), DateTimeFormatter.ISO_DATE_TIME))
+                        : null,
+                EventStatus.fromValue(eventDto.state().id()),
+                eventDto.organisations() == null
+                        ? new HashSet<>()
+                        : eventDto.organisations().stream()
+                                .map(x -> OrganisationId.of(x.id()))
+                                .collect(Collectors.toSet()),
+                eventDto.certificate() != null
+                        ? EventCertificateId.of(eventDto.certificate().id())
+                        : null);
         return ResponseEntity.ok(EventDto.from(event));
     }
 
@@ -123,21 +132,20 @@ public class EventController {
 
     @PutMapping("/event/{id}/certificate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ByteArrayResource> getCertificate(@PathVariable Long id,
-                                                            @Valid @RequestBody
-                                                            EventCertificateDto eventCertificateDto) {
+    public ResponseEntity<ByteArrayResource> getCertificate(
+            @PathVariable Long id, @Valid @RequestBody EventCertificateDto eventCertificateDto) {
         CertificateService.Certificate certificate =
-            resultListService.createCertificate(EventId.of(id), eventCertificateDto);
+                resultListService.createCertificate(EventId.of(id), eventCertificateDto);
         if (null != certificate) {
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION.toLowerCase(),
-                    "inline; filename=\"" + certificate.filename() + "\"")
-                .contentLength(certificate.size())
-                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
-                .body(certificate.resource());
+                    .header(
+                            HttpHeaders.CONTENT_DISPOSITION.toLowerCase(),
+                            "inline; filename=\"" + certificate.filename() + "\"")
+                    .contentLength(certificate.size())
+                    .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                    .body(certificate.resource());
         } else {
             throw new ResponseNotFoundException("Certificate could not be created");
         }
-
     }
 }

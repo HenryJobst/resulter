@@ -1,24 +1,21 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import DataTable, {
-    type DataTableFilterEvent,
-    type DataTablePageEvent,
-    type DataTableSortEvent,
-} from 'primevue/datatable'
-import Column from 'primevue/column'
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import { useI18n } from 'vue-i18n'
-import { useToast } from 'primevue/usetoast'
-import { toastDisplayDuration } from '@/utils/constants'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
-import type { IGenericService } from '@/features/generic/services/IGenericService'
-import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
-import { getValueByPath, truncateString } from '@/utils/tools'
 import type { TableSettings } from '@/features/generic/models/table_settings'
+import type { IGenericService } from '@/features/generic/services/IGenericService'
+import type { DataTableFilterEvent, DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import { formatDate, formatTime, formatYear } from '@/features/generic/services/GenericFunctions'
+import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
+import { toastDisplayDuration } from '@/utils/constants'
+import { getValueByPath, truncateString } from '@/utils/tools'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import Button from 'primevue/button'
+import Column from 'primevue/column'
+import DataTable from 'primevue/datatable'
+import InputText from 'primevue/inputtext'
+import { useToast } from 'primevue/usetoast'
+import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
     entityService: Object as () => IGenericService<any>,
@@ -226,9 +223,9 @@ const debouncedFilterInput = debounce((_filterModel: any, filterCallback: () => 
         </div>
         <div class="card">
             <DataTable
-                v-if="props.visible && dataValue?.content"
+                v-if="props.visible"
                 v-model:filters="settingsStore.settings.filters"
-                :loading="entityQuery.status.value === 'pending' || deleteMutation.status.value === 'pending'"
+                :loading="entityQuery.status.value === 'pending' || deleteMutation.status.value === 'pending' || (dataValue?.content === undefined)"
                 :value="dataValue?.content"
                 :paginator="settingsStore.settings.paginator"
                 :always-show-paginator="false"

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import moment from 'moment'
-import Button from 'primevue/button'
-import { useQueryClient } from '@tanstack/vue-query'
-import { useToast } from 'primevue/usetoast'
 import type { EventCertificateStat } from '@/features/event/model/event_certificate_stat'
 import type { EventCertificateStats } from '@/features/event/model/event_certificate_stats'
 import { EventService } from '@/features/event/services/event.service'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { toastDisplayDuration } from '@/utils/constants'
+import { useQueryClient } from '@tanstack/vue-query'
+import moment from 'moment'
+import Button from 'primevue/button'
+import Column from 'primevue/column'
+import DataTable from 'primevue/datatable'
+import { useToast } from 'primevue/usetoast'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ data: EventCertificateStats | undefined | null }>()
 

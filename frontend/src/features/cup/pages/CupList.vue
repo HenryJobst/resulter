@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import type { TableSettings } from '@/features/generic/models/table_settings'
-import GenericList from '@/features/generic/pages/GenericList.vue'
 import { cupService } from '@/features/cup/services/cup.service'
+import GenericList from '@/features/generic/pages/GenericList.vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import Button from 'primevue/button'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
 const { t } = useI18n()

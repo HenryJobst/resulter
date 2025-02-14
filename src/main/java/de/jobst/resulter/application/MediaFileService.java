@@ -2,6 +2,11 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.domain.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
 import org.apache.tika.Tika;
@@ -17,18 +22,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.UUID;
-
 @Service
 public class MediaFileService {
 
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
+
     @Value("#{'${resulter.media-file-path-thumbnails}'}")
     private String mediaFileThumbnailsPath;
+
     @Value("#{'${resulter.media-file-thumbnails-size}'}")
     private int mediaFileThumbnailSize;
 
@@ -38,29 +40,48 @@ public class MediaFileService {
         this.mediaFileRepository = mediaFileRepository;
     }
 
-    public MediaFile storeMediaFile(MultipartFile file) throws IOException, MimeTypeException {
-        FilePathAndName filePathAndName = getFilePathAndName(file, mediaFilePath);
+    public MediaFile storeMediaFile(MultipartFile file) {
+        FilePathAndName filePathAndName;
+        try {
+            filePathAndName = getFilePathAndName(file, mediaFilePath);
+        } catch (IOException | MimeTypeException e) {
+            throw new RuntimeException(e);
+        }
 
         File originalFile = new File(filePathAndName.filePath());
-        file.transferTo(originalFile);
+        try {
+            file.transferTo(originalFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         File thumbnailDir = new File(mediaFileThumbnailsPath);
 
-        File thumbnailFile = Thumbnails.of(originalFile)
-            .size(mediaFileThumbnailSize, mediaFileThumbnailSize)
-            .outputFormat("jpg")
-            .asFiles(thumbnailDir, Rename.SUFFIX_DOT_THUMBNAIL)
-            .getFirst();
+        File thumbnailFile;
+        try {
+            thumbnailFile = Thumbnails.of(originalFile)
+                    .size(mediaFileThumbnailSize, mediaFileThumbnailSize)
+                    .outputFormat("jpg")
+                    .asFiles(thumbnailDir, Rename.SUFFIX_DOT_THUMBNAIL)
+                    .getFirst();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        MediaFile mediaFile =
-            MediaFile.of(filePathAndName.fileName(), thumbnailFile.getName(), getContentType(file), file.getSize());
+        MediaFile mediaFile;
+        try {
+            mediaFile = MediaFile.of(
+                    filePathAndName.fileName(), thumbnailFile.getName(), getContentType(file), file.getSize());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return mediaFileRepository.save(mediaFile);
     }
 
     @NonNull
     private FilePathAndName getFilePathAndName(MultipartFile file, String mediaFilePath)
-        throws IOException, MimeTypeException {
+            throws IOException, MimeTypeException {
         String fileName = StringUtils.cleanPath(getFilename(file));
         String filePath = Optional.ofNullable(mediaFilePath).orElseThrow() + fileName;
         return new FilePathAndName(fileName, filePath);
@@ -97,13 +118,16 @@ public class MediaFileService {
         return type.getExtension();
     }
 
-
     public boolean delete(MediaFileId mediaFileId) {
         if (mediaFileId.isPersistent()) {
             mediaFileRepository.delete(mediaFileId);
             return true;
         }
         return false;
+    }
+
+    public List<MediaFile> findAll() {
+        return mediaFileRepository.findAll();
     }
 
     public Page<MediaFile> findAll(@Nullable String filter, @NonNull Pageable pageable) {
@@ -114,11 +138,12 @@ public class MediaFileService {
         return mediaFileRepository.findById(mediaFileId);
     }
 
-    public MediaFile update(MediaFileId mediaFileId,
-                            MediaFileName mediaFileName,
-                            MediaFileContentType mediaFileContentType,
-                            MediaFileSize mediaFileSize,
-                            MediaFileDescription mediaFileDescription) {
+    public MediaFile update(
+            MediaFileId mediaFileId,
+            MediaFileName mediaFileName,
+            MediaFileContentType mediaFileContentType,
+            MediaFileSize mediaFileSize,
+            MediaFileDescription mediaFileDescription) {
         Optional<MediaFile> optionalMediaFile = findById(mediaFileId);
         if (optionalMediaFile.isEmpty()) {
             return null;
@@ -127,5 +152,4 @@ public class MediaFileService {
         mediaFile.update(mediaFileName, mediaFileContentType, mediaFileSize, mediaFileDescription);
         return mediaFileRepository.save(mediaFile);
     }
-
 }

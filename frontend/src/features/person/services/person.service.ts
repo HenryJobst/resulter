@@ -1,7 +1,7 @@
-import axiosInstance from '@/features/keycloak/services/api'
-import type { Person } from '@/features/person/model/person'
 import type { Gender } from '@/features/person/model/gender'
+import type { Person } from '@/features/person/model/person'
 import { GenericService } from '@/features/generic/services/GenericService'
+import axiosInstance from '@/features/keycloak/services/api'
 
 const personUrl: string = '/person'
 const genderUrl: string = '/gender'

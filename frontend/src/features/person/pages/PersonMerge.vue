@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed, ref } from 'vue'
-import Select from 'primevue/select'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { useToast } from 'primevue/usetoast'
-import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import PersonForm from '@/features/person/widgets/PersonForm.vue'
-import { PersonService, personService } from '@/features/person/services/person.service'
 import type { Person } from '@/features/person/model/person'
+import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { formatYear } from '@/features/generic/services/GenericFunctions'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { PersonService, personService } from '@/features/person/services/person.service'
+import PersonForm from '@/features/person/widgets/PersonForm.vue'
 import { toastDisplayDuration } from '@/utils/constants'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import Select from 'primevue/select'
+import { useToast } from 'primevue/usetoast'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ id: string, locale?: string }>()
 
@@ -76,9 +76,6 @@ function mergePerson() {
                 <span v-if="personDoublesQuery.status.value === 'pending'">{{
                     t('messages.loading')
                 }}</span>
-                <span v-else-if="personDoublesQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: personDoublesQuery.error.toLocaleString() }) }}
-                </span>
                 <Select
                     v-else-if="personDoublesQuery.data"
                     id="personToMerge"

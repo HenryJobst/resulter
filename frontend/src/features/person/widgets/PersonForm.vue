@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import InputText from 'primevue/inputtext'
-import { useI18n } from 'vue-i18n'
-import { useQuery } from '@tanstack/vue-query'
-import { computed } from 'vue'
-import Select from 'primevue/select'
-import DatePicker from 'primevue/datepicker'
-import { PersonService } from '@/features/person/services/person.service'
 import type { Person } from '@/features/person/model/person'
+import { PersonService } from '@/features/person/services/person.service'
+import { useQuery } from '@tanstack/vue-query'
+import DatePicker from 'primevue/datepicker'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
     person: Person
@@ -114,9 +114,6 @@ const birthDate = computed({
                 <span v-if="genderQuery.status.value === 'pending'">{{
                     t('messages.loading')
                 }}</span>
-                <span v-else-if="genderQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: genderQuery.error.toLocaleString() }) }}
-                </span>
                 <Select
                     v-else-if="genderQuery.data"
                     id="gender"

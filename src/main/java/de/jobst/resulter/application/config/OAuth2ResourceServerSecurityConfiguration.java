@@ -1,6 +1,8 @@
 package de.jobst.resulter.application.config;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -16,10 +18,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
-
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -58,58 +56,66 @@ public class OAuth2ResourceServerSecurityConfiguration {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/createDatabase")
-            .hasRole(ADMIN)
-            .requestMatchers("/public/**")
-            .permitAll()
-            .requestMatchers("/swagger-ui/**")
-            .permitAll()
-            .requestMatchers("/v3/api-docs/**")
-            .permitAll()
-            .requestMatchers(EndpointRequest.to("health"))
-            .permitAll()
-            .requestMatchers("/actuator/**")
-            .hasAnyRole(ADMIN, ENDPOINT_ADMIN)
-            .requestMatchers("/admin/**")
-            .hasRole(ADMIN)
-            .requestMatchers(HttpMethod.POST, "/upload", "/media/upload")
-            .hasRole(ADMIN)
-            .requestMatchers(HttpMethod.GET,
-                "/certificate_schema",
-                "/course",
-                "/cup",
-                "/cup/{id}/results",
-                "/cup_status",
-                "/cup_types",
-                "/event",
-                "/event/all",
-                "/event/{id}",
-                "/event/{id}/certificate_stats",
-                "/event/{id}/results",
-                "/event_certificate",
-                "/event_status",
-                "/media",
-                "/organisation",
-                "/person",
-                "/person/all",
-                "/race",
-                "/result_list/{id}/certificate",
-                "/result_list/{id}/cup_score_lists",
-                "/version")
-            .permitAll()
-            .anyRequest()
-            .hasRole(ADMIN));
-        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(
-            jwtAuthConverter)));
+                .hasRole(ADMIN)
+                .requestMatchers("/public/**")
+                .permitAll()
+                .requestMatchers("/swagger-ui/**")
+                .permitAll()
+                .requestMatchers("/v3/api-docs/**")
+                .permitAll()
+                .requestMatchers(EndpointRequest.to("health"))
+                .permitAll()
+                .requestMatchers("/actuator/**")
+                .hasAnyRole(ADMIN, ENDPOINT_ADMIN)
+                .requestMatchers("/admin/**")
+                .hasRole(ADMIN)
+                .requestMatchers(HttpMethod.POST, "/upload", "/media/upload")
+                .hasRole(ADMIN)
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/certificate_schema",
+                        "/course",
+                        "/course/all",
+                        "/cup",
+                        "/cup/all",
+                        "/cup/{id}/results",
+                        "/cup_status",
+                        "/cup_types",
+                        "/event",
+                        "/event/all",
+                        "/event/{id}",
+                        "/event/{id}/certificate_stats",
+                        "/event/{id}/results",
+                        "/event_certificate",
+                        "/event_status",
+                        "/media",
+                        "/media/all",
+                        "/organisation",
+                        "/organisation/all",
+                        "/person",
+                        "/person/all",
+                        "/race",
+                        "/race/all",
+                        "/result_list/{id}/certificate",
+                        "/result_list/{id}/cup_score_lists",
+                        "/version")
+                .permitAll()
+                .anyRequest()
+                .hasRole(ADMIN));
+        http.oauth2ResourceServer(
+                oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthConverter)));
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-        http.csrf(csrf -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/createDatabase",
-            HttpMethod.POST.name())));
+        http.csrf(csrf ->
+                csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/createDatabase", HttpMethod.POST.name())));
 
         return http.build();
     }
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithm(SignatureAlgorithm.RS512).build();
+        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+                .jwsAlgorithm(SignatureAlgorithm.RS512)
+                .build();
     }
 }

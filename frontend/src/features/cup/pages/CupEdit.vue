@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import { cupService } from '@/features/cup/services/cup.service'
-import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import type { Cup } from '@/features/cup/model/cup'
+import { cupService } from '@/features/cup/services/cup.service'
 import CupForm from '@/features/cup/widgets/CupForm.vue'
+import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ id: string, locale?: string }>()
 
@@ -42,10 +42,6 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.c
         <span v-if="cupQuery.status.value === 'pending' || cupMutation.status.value === 'pending'">
             {{ t('messages.loading') }}
             <Spinner />
-        </span>
-        <span v-else-if="cupQuery.status.value === 'error' || cupMutation.status.value === 'error'">
-            <ErrorMessage :message="t('messages.error', { message: cupQuery.error.value })" />
-            <ErrorMessage :message="t('messages.error', { message: cupMutation.error.value })" />
         </span>
         <CupForm
             v-else-if="cupQuery.data"

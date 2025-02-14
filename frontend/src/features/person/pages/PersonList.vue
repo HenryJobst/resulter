@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import Button from 'primevue/button'
+import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
+import type { TableSettings } from '@/features/generic/models/table_settings'
 import GenericList from '@/features/generic/pages/GenericList.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import { personService } from '@/features/person/services/person.service'
-import type { TableSettings } from '@/features/generic/models/table_settings'
+import Button from 'primevue/button'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
 const { t } = useI18n()
@@ -16,7 +16,7 @@ const entityLabel: string = 'person'
 const settingStoreSuffix: string = 'person'
 const listLabel = computed(() => t('labels.person', 2))
 const columns: GenericListColumn[] = [
-    { label: 'labels.no', field: 'id', sortable: true },
+    { label: 'labels.no', field: 'id', sortable: true, filterable: true, filterType: 'input' },
     { label: 'labels.family_name', field: 'familyName', sortable: true, filterable: true, filterType: 'input' },
     { label: 'labels.given_name', field: 'givenName', sortable: true, filterable: true, filterType: 'input' },
     { label: 'labels.gender', field: 'gender', type: 'enum', sortable: true },

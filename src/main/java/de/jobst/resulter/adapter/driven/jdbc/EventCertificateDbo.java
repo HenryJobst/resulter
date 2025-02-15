@@ -3,10 +3,10 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.MediaFile;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.With;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
+import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
@@ -16,11 +16,8 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
-
 @Data
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "event_certificate")
 public class EventCertificateDbo {
@@ -28,7 +25,7 @@ public class EventCertificateDbo {
     @Id
     @With
     @Column("id")
-    private final Long id;
+    private Long id;
 
     @Column("event_id")
     private AggregateReference<EventDbo, Long> event;
@@ -43,7 +40,7 @@ public class EventCertificateDbo {
     private String layoutDescription;
 
     @Column("primary")
-    private boolean primary;
+    private Boolean primary;
 
     public EventCertificateDbo(String name, AggregateReference<EventDbo, Long> event) {
         this.id = null;
@@ -51,32 +48,35 @@ public class EventCertificateDbo {
         this.event = event;
     }
 
-    public static EventCertificateDbo from(@NonNull EventCertificate eventCertificate,
-                                           @NonNull DboResolvers dboResolvers) {
+    public static EventCertificateDbo from(
+            @NonNull EventCertificate eventCertificate, @NonNull DboResolvers dboResolvers) {
         EventCertificateDbo eventCertificateDbo;
         if (eventCertificate.getId().isPersistent()) {
             eventCertificateDbo = dboResolvers.getEventCertificateDboResolver().findDboById(eventCertificate.getId());
             eventCertificateDbo.setName(eventCertificate.getName().value());
             if (null != eventCertificate.getEvent()) {
-                eventCertificateDbo.setEvent(AggregateReference.to(eventCertificate.getEvent().getId().value()));
+                eventCertificateDbo.setEvent(AggregateReference.to(
+                        eventCertificate.getEvent().getId().value()));
             }
         } else {
-            eventCertificateDbo = new EventCertificateDbo(eventCertificate.getName().value(),
-                eventCertificate.getEvent() != null ?
-                AggregateReference.to(eventCertificate.getEvent().getId().value()) :
-                null);
+            eventCertificateDbo = new EventCertificateDbo(
+                    eventCertificate.getName().value(),
+                    eventCertificate.getEvent() != null
+                            ? AggregateReference.to(
+                                    eventCertificate.getEvent().getId().value())
+                            : null);
         }
 
         if (ObjectUtils.isNotEmpty(eventCertificate.getBlankCertificate())) {
-            eventCertificateDbo.setBlankCertificate(AggregateReference.to(eventCertificate.getBlankCertificate()
-                .getId()
-                .value()));
+            eventCertificateDbo.setBlankCertificate(AggregateReference.to(
+                    eventCertificate.getBlankCertificate().getId().value()));
         } else {
             eventCertificateDbo.setBlankCertificate(null);
         }
 
         if (ObjectUtils.isNotEmpty(eventCertificate.getLayoutDescription())) {
-            eventCertificateDbo.setLayoutDescription(eventCertificate.getLayoutDescription().value());
+            eventCertificateDbo.setLayoutDescription(
+                    eventCertificate.getLayoutDescription().value());
         } else {
             eventCertificateDbo.setLayoutDescription(null);
         }
@@ -86,30 +86,36 @@ public class EventCertificateDbo {
         return eventCertificateDbo;
     }
 
-    static public List<EventCertificate> asEventCertificates(
-        @NonNull Collection<EventCertificateDbo> eventCertificateDbos,
-        Function<Long, Event> eventResolver,
-        Function<Long, MediaFile> mediaFileResolver) {
+    public static List<EventCertificate> asEventCertificates(
+            @NonNull Collection<EventCertificateDbo> eventCertificateDbos,
+            Function<Long, Event> eventResolver,
+            Function<Long, MediaFile> mediaFileResolver) {
 
         return eventCertificateDbos.stream()
-            .map(it -> EventCertificate.of(it.id,
-                it.name,
-                it.event != null ? eventResolver.apply(it.event.getId()) : null,
-                it.layoutDescription != null ? it.layoutDescription : null,
-                it.blankCertificate != null ? mediaFileResolver.apply(it.blankCertificate.getId()) : null,
-                it.primary))
-            .toList();
+                .map(it -> EventCertificate.of(
+                        it.id,
+                        it.name,
+                        it.event != null ? eventResolver.apply(it.event.getId()) : null,
+                        it.layoutDescription != null ? it.layoutDescription : null,
+                        it.blankCertificate != null ? mediaFileResolver.apply(it.blankCertificate.getId()) : null,
+                        it.primary))
+                .toList();
     }
 
-    static public EventCertificate asEventCertificate(@NonNull EventCertificateDbo eventCertificateDbo,
-                                                      Function<Long, Event> eventResolver,
-                                                      Function<Long, MediaFile> mediaFileResolver) {
-        return asEventCertificates(List.of(eventCertificateDbo), eventResolver, mediaFileResolver).getFirst();
+    public static EventCertificate asEventCertificate(
+            @NonNull EventCertificateDbo eventCertificateDbo,
+            Function<Long, Event> eventResolver,
+            Function<Long, MediaFile> mediaFileResolver) {
+        return asEventCertificates(List.of(eventCertificateDbo), eventResolver, mediaFileResolver)
+                .getFirst();
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {
         return switch (order.getProperty()) {
             case "id.value" -> "id";
+            case "name.value" -> "name";
+            case "event.id.value" -> "event.id";
+            case "event.name.value" -> "event.name";
             default -> order.getProperty();
         };
     }
@@ -117,6 +123,9 @@ public class EventCertificateDbo {
     public static String mapOrdersDboToDomain(Sort.Order order) {
         return switch (order.getProperty()) {
             case "id" -> "id.value";
+            case "name" -> "name.value";
+            case "event.id" -> "event.id.value";
+            case "event.name" -> "event.name.value";
             default -> order.getProperty();
         };
     }

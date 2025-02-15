@@ -19,7 +19,7 @@ const columns: GenericListColumn[] = [
     { label: 'labels.name', field: 'name', sortable: true, filterable: true, filterType: 'input' },
     { label: 'labels.short_name', field: 'shortName', sortable: true, filterable: true, filterType: 'input' },
     { label: 'labels.type', field: 'type', type: 'enum', sortable: true },
-    { label: 'labels.country', field: 'country.name', sortable: true },
+    { label: 'labels.country', field: 'country.name', sortable: false },
     {
         label: 'labels.child_organisation',
         field: 'childOrganisations',
@@ -43,6 +43,12 @@ const initialTableSettings: TableSettings = {
     nullSortOrder: 1,
     defaultSortOrder: 1,
     filters: undefined,
+    removableSort: true,
+    rowHover: true,
+    stateStorage: 'session',
+    stateKey: 'OrganisationList',
+    scrollable: true,
+    stripedRows: true,
 }
 </script>
 

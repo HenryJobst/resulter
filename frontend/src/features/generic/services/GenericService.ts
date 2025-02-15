@@ -16,12 +16,6 @@ function getSortParam(field: string | ((item: any) => string), order: number | n
 
 function createUrlSearchParams(tableSettings: TableSettings) {
     const urlSearchParams = new URLSearchParams()
-    if (tableSettings.sortField) {
-        urlSearchParams.append(
-            'sort',
-            getSortParam(tableSettings.sortField, tableSettings.sortOrder),
-        )
-    }
 
     if (tableSettings.nullSortOrder !== 1)
         urlSearchParams.append('nullSortOrder', tableSettings.nullSortOrder.toString())
@@ -39,6 +33,27 @@ function createUrlSearchParams(tableSettings: TableSettings) {
             urlSearchParams.append('sort', s)
         })
     }
+
+    // default sort only, if no sort for sortField exists
+    if (tableSettings.sortField) {
+        let fieldExists = false
+        if (typeof tableSettings.sortField === 'string') {
+            const sortField: string = tableSettings.sortField
+            const sortParam = urlSearchParams.getAll('sort')
+            if (sortParam && Array.isArray(sortParam)) {
+                sortParam.forEach((s) => {
+                    fieldExists = fieldExists || s.startsWith(sortField)
+                })
+            }
+        }
+        if (!fieldExists) {
+            urlSearchParams.append(
+                'sort',
+                getSortParam(tableSettings.sortField, tableSettings.sortOrder),
+            )
+        }
+    }
+
     if (tableSettings.paginator) {
         if (tableSettings.page)
             urlSearchParams.append('page', tableSettings.page.toString())

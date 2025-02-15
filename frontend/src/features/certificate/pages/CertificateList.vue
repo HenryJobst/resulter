@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
-import GenericList from '@/features/generic/pages/GenericList.vue'
+import type { TableSettings } from '@/features/generic/models/table_settings.ts'
 import { certificateService } from '@/features/certificate/services/certificate.service'
+import GenericList from '@/features/generic/pages/GenericList.vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
@@ -24,16 +25,14 @@ const columns: GenericListColumn[] = [
     {
         label: 'labels.event',
         field: 'event.name',
-        sortable: true,
-        filterable: true,
-        filterType: 'input',
+        sortable: false,
+        filterable: false,
     },
     {
         label: 'labels.background',
         field: 'blankCertificate.fileName',
-        sortable: true,
-        filterable: true,
-        filterType: 'input',
+        sortable: false,
+        filterable: false,
     },
     {
         label: 'labels.background_preview',
@@ -43,6 +42,28 @@ const columns: GenericListColumn[] = [
         filterable: false,
     },
 ]
+
+const initialTableSettings: TableSettings = {
+    first: 0,
+    rows: 10,
+    page: 0,
+    paginator: true,
+    paginatorPosition: 'both',
+    rowsPerPageOptions: [5, 10, 20, 50, 100, 200, 500],
+    sortMode: 'multiple',
+    multiSortMeta: undefined,
+    sortField: 'name',
+    sortOrder: 1,
+    nullSortOrder: 1,
+    defaultSortOrder: 1,
+    filters: undefined,
+    removableSort: true,
+    rowHover: true,
+    stateStorage: 'session',
+    stateKey: 'CertificateList',
+    scrollable: true,
+    stripedRows: true,
+}
 </script>
 
 <template>
@@ -59,6 +80,7 @@ const columns: GenericListColumn[] = [
         :visible="authStore.isAuthenticated"
         :edit-enabled="true"
         :delete-enabled="true"
+        :initial-table-settings="initialTableSettings"
     />
 </template>
 

@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import axios from 'axios'
 
 // Define the structure for environment variables if needed
 interface EnvVariables {

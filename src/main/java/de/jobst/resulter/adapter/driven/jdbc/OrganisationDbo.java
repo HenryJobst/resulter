@@ -3,10 +3,12 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationType;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.With;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
@@ -16,13 +18,8 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 @Data
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "organisation")
 public class OrganisationDbo {
@@ -69,29 +66,39 @@ public class OrganisationDbo {
         organisationDbo.setType(organisation.getType());
 
         if (organisation.getCountry() != null) {
-            organisationDbo.setCountry(AggregateReference.to(organisation.getCountry().getId().value()));
+            organisationDbo.setCountry(
+                    AggregateReference.to(organisation.getCountry().getId().value()));
         } else {
             organisationDbo.setCountry(null);
         }
 
-        organisationDbo.setChildOrganisations(organisation.getChildOrganisations()
-            .stream()
-            .map(it -> new OrganisationOrganisationDbo(it.getId().value()))
-            .collect(Collectors.toSet()));
+        organisationDbo.setChildOrganisations(organisation.getChildOrganisations().stream()
+                .map(it -> new OrganisationOrganisationDbo(it.getId().value()))
+                .collect(Collectors.toSet()));
 
         return organisationDbo;
     }
 
-    public Organisation asOrganisation(Function<Long, Organisation> organisationResolver,
-                                       Function<Long, Country> countryResolver) {
-        return Organisation.of(id,
-            name,
-            shortName,
-            type.value(),
-            country != null ? countryResolver.apply(country.getId()) : null,
-            childOrganisations == null ?
-            new ArrayList<>() :
-            childOrganisations.stream().map(x -> organisationResolver.apply(x.id.getId())).toList());
+    public static Organisation asOrganisation(
+            @NonNull OrganisationDbo organisationDbo,
+            Function<Long, Organisation> organisationResolver,
+            Function<Long, Country> countryResolver) {
+        return organisationDbo.asOrganisation(organisationResolver, countryResolver);
+    }
+
+    public Organisation asOrganisation(
+            Function<Long, Organisation> organisationResolver, Function<Long, Country> countryResolver) {
+        return Organisation.of(
+                id,
+                name,
+                shortName,
+                type.value(),
+                country != null ? countryResolver.apply(country.getId()) : null,
+                childOrganisations == null
+                        ? new ArrayList<>()
+                        : childOrganisations.stream()
+                                .map(x -> organisationResolver.apply(x.id.getId()))
+                                .toList());
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

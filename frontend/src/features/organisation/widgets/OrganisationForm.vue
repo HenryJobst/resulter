@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import Select from 'primevue/select'
+import type { Organisation } from '@/features/organisation/model/organisation'
+import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
+import { countryService } from '@/features/country/services/country.service'
+import { OrganisationService } from '@/features/organisation/services/organisation.service'
+import { useQuery } from '@tanstack/vue-query'
 import InputText from 'primevue/inputtext'
 import MultiSelect from 'primevue/multiselect'
-import { useI18n } from 'vue-i18n'
-import { useQuery } from '@tanstack/vue-query'
+import Select from 'primevue/select'
 import { computed, ref, watch } from 'vue'
-import type { Organisation } from '@/features/organisation/model/organisation'
-import { OrganisationService } from '@/features/organisation/services/organisation.service'
-import { countryService } from '@/features/country/services/country.service'
-import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     entityService: OrganisationService
@@ -24,7 +24,7 @@ const { t } = useI18n()
 
 const organisationQuery = useQuery({
     queryKey: props.queryKey,
-    queryFn: () => props.entityService.getAll(t),
+    queryFn: () => props.entityService.getAllUnpaged(t),
 })
 
 const organisationTypesQuery = useQuery({
@@ -44,7 +44,7 @@ const localizedOrganisationTypeOptions = computed(() => {
 
 const countryQuery = useQuery({
     queryKey: ['countries'],
-    queryFn: () => countryService.getAll(t),
+    queryFn: () => countryService.getAllUnpaged(t),
 })
 
 const childOrganisations = ref<number[]>()
@@ -54,26 +54,22 @@ watch(() => organisation.value, (newValue: Organisation) => {
         childOrganisations.value = newValue.childOrganisations.map(org => org.id)
 })
 
-function getOrganisationKeysFromIds(ids: number[]): OrganisationKey[] | null {
-    if (!organisationQuery.data.value || !organisationQuery.data.value.content)
-        return null
+function getOrganisationKeysFromIds(ids: number[]): OrganisationKey[] {
+    if (!organisationQuery.data?.value || !Array.isArray(organisationQuery.data?.value)) {
+        return []
+    }
 
+    const organisations = organisationQuery.data.value
     return ids
-        .map((id) => {
-            return organisationQuery.data.value?.content.find(b => b.id === id)
-        })
-        .filter(org => org !== undefined)
-        .map((org) => {
-            return {
-                id: org!.id,
-                name: org!.name,
-            }
-        })
+        .map(id => organisations.find(b => b.id === id))
+        .filter(org => org !== undefined && org.id !== undefined)
+        .map(org => ({ id: org!.id, name: org!.name }) as OrganisationKey)
 }
 
 watch(() => childOrganisations.value, (newValue: number[] | undefined) => {
-    if (organisation.value && newValue)
-        organisation.value.childOrganisations = getOrganisationKeysFromIds(newValue)!
+    if (organisation.value && newValue) {
+        organisation.value.childOrganisations = getOrganisationKeysFromIds(newValue)
+    }
 })
 </script>
 
@@ -97,9 +93,6 @@ watch(() => childOrganisations.value, (newValue: number[] | undefined) => {
                 <span v-if="organisationTypesQuery.status.value === 'pending'">{{
                     t('messages.loading')
                 }}</span>
-                <span v-else-if="organisationTypesQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: organisationTypesQuery.error.toLocaleString() }) }}
-                </span>
                 <Select
                     v-else-if="organisationTypesQuery.data"
                     id="type"
@@ -116,16 +109,12 @@ watch(() => childOrganisations.value, (newValue: number[] | undefined) => {
             <label for="country" class="col-fixed w-40">{{ t('labels.country') }}</label>
             <div class="col">
                 <span v-if="countryQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-                <span v-else-if="countryQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: countryQuery.error.toLocaleString() }) }}
-                </span>
                 <Select
-                    v-else-if="countryQuery.data && countryQuery.data.value"
+                    v-else-if="countryQuery.data?.value"
                     id="country"
-                    v-model="organisation.country.id"
+                    v-model="organisation.country"
                     :options="countryQuery.data.value"
                     option-label="name"
-                    option-value="id"
                     data-key="id"
                     :placeholder="t('messages.select')"
                     class="w-full md:w-14rem"
@@ -138,15 +127,11 @@ watch(() => childOrganisations.value, (newValue: number[] | undefined) => {
             }}</label>
             <div class="col">
                 <span v-if="organisationQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-                <span v-else-if="organisationQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: organisationQuery.error.toLocaleString() }) }}
-                </span>
-
                 <div v-else-if="organisationQuery.data && organisationQuery.data.value" class="card">
                     <MultiSelect
                         id="organisations"
                         v-model="childOrganisations"
-                        :options="organisationQuery.data.value.content"
+                        :options="organisationQuery.data.value"
                         data-key="id"
                         filter
                         option-label="name"

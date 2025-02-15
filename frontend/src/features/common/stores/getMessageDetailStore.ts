@@ -1,7 +1,7 @@
-import { setActivePinia } from 'pinia'
+import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 
 import { pinia } from '@/main' // Importiere die Pinia-Instanz
-import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
+import { setActivePinia } from 'pinia'
 
 /**
  * Zugriff auf den MessageDetailStore außerhalb von `setup`.

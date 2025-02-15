@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { defineModel, onMounted, ref, watch } from 'vue'
 import Textarea from 'primevue/textarea'
+import { defineModel, onMounted, ref, watch } from 'vue'
 
 const modelValue = defineModel({
     type: String,

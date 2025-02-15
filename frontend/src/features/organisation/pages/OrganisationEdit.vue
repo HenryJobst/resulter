@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
 import { organisationService } from '@/features/organisation/services/organisation.service'
+import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ id: string, locale?: string }>()
 

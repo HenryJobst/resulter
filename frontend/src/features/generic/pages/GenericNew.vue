@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { useI18n } from 'vue-i18n'
-import { useToast } from 'primevue/usetoast'
-import { useRouter } from 'vue-router'
-import Button from 'primevue/button'
-import { toastDisplayDuration } from '@/utils/constants'
-import ErrorMessage from '@/components/ErrorMessage.vue'
-import Spinner from '@/components/SpinnerComponent.vue'
-import type { IGenericService } from '@/features/generic/services/IGenericService'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
+import type { IGenericService } from '@/features/generic/services/IGenericService'
+import Spinner from '@/components/SpinnerComponent.vue'
+import { toastDisplayDuration } from '@/utils/constants'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import Button from 'primevue/button'
+import { useToast } from 'primevue/usetoast'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 interface Props {
     entity: GenericEntity
@@ -70,9 +69,6 @@ function navigateToList() {
         <div v-if="entityMutation.status.value === 'pending'">
             {{ t('messages.loading') }}
             <Spinner />
-        </div>
-        <div v-else-if="entityMutation.status.value === 'error'">
-            <ErrorMessage :message="t('messages.error', { message: entityMutation.error.value })" />
         </div>
         <form @submit.prevent="submitHandler">
             <slot :form-data="{ data: formData }" />

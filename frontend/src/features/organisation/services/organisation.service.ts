@@ -1,7 +1,7 @@
-import axiosInstance from '@/features/keycloak/services/api'
 import type { Organisation } from '@/features/organisation/model/organisation'
 import type { OrganisationType } from '@/features/organisation/model/organisationtype'
 import { GenericService } from '@/features/generic/services/GenericService'
+import axiosInstance from '@/features/keycloak/services/api'
 
 const organisationUrl: string = '/organisation'
 const organisationTypeUrl: string = '/organisation_types'

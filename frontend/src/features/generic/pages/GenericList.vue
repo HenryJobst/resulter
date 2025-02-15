@@ -70,10 +70,13 @@ const settingsStore = useSettingsStore()
 
 onMounted(() => {
     props.columns?.forEach((col) => {
-        if (col.filterable && settingsStore.settings.filters) {
-            settingsStore.settings.filters[col.field] = {
-                value: null,
-                matchMode: col.filterMatchMode || 'contains',
+        const filters = settingsStore.settings.filters
+        if (col.filterable && filters) {
+            if (filters && !(col.field in filters)) {
+                filters[col.field] = {
+                    value: null,
+                    matchMode: col.filterMatchMode || 'contains',
+                }
             }
         }
     })
@@ -92,6 +95,12 @@ const queryKeys = computed(() => {
         settingsStore.settings.nullSortOrder,
         settingsStore.settings.defaultSortOrder,
         settingsStore.settings.filters,
+        settingsStore.settings.removableSort,
+        settingsStore.settings.rowHover,
+        settingsStore.settings.stateStorage,
+        settingsStore.settings.stateKey,
+        settingsStore.settings.scrollable,
+        settingsStore.settings.stripedRows,
     ]
 })
 
@@ -158,6 +167,8 @@ function sortChanged(e: DataTableSortEvent) {
     settingsStore.settings.page = e.first / e.rows
     settingsStore.settings.rows = e.rows
     settingsStore.settings.multiSortMeta = e.multiSortMeta
+    settingsStore.settings.sortField = e.sortField
+    settingsStore.settings.sortOrder = e.sortOrder
 }
 
 function filterChanged(_e: DataTableFilterEvent) {
@@ -167,7 +178,7 @@ function filterChanged(_e: DataTableFilterEvent) {
 
 function getSortable(col: GenericListColumn) {
     // console.log('Get sortable for ' + col.field + ':' + col.sortable)
-    return col.sortable ? col.sortable : true
+    return col?.sortable ?? false
 }
 
 function debounce<T extends (...args: any[]) => any>(
@@ -237,9 +248,15 @@ const debouncedFilterInput = debounce((_filterModel: any, filterCallback: () => 
                 :sort-mode="settingsStore.settings.sortMode"
                 :multi-sort-meta="settingsStore.settings.multiSortMeta"
                 :sort-field="settingsStore.settings.sortField"
-                :sort-order="settingsStore.settings.sortOrder"
+                :sort-order="settingsStore.settings.sortOrder ?? undefined"
                 :null-sort-order="settingsStore.settings.nullSortOrder"
                 :default-sort-order="settingsStore.settings.defaultSortOrder"
+                :removable-sort="settingsStore.settings.removableSort"
+                :row-hover="settingsStore.settings.rowHover"
+                :state-storage="settingsStore.settings.stateStorage"
+                :state-key="settingsStore.settings.stateKey"
+                :scrollable="settingsStore.settings.scrollable"
+                :striped-rows="settingsStore.settings.stripedRows"
                 :filter-display="props.filterDisplay"
                 :lazy="true"
                 size="small"
@@ -345,12 +362,14 @@ const debouncedFilterInput = debounce((_filterModel: any, filterCallback: () => 
                         {{ truncateString(slotProps.data, col.field, col.truncate || 1000) }}
                     </template>
                     <template v-if="col.filterable" #filter="{ filterModel, filterCallback }">
-                        <InputText
-                            v-model="filterModel.value"
-                            type="text"
-                            class="p-column-filter"
-                            @input="debouncedFilterInput(filterModel, filterCallback)"
-                        />
+                        <div v-if="filterModel">
+                            <InputText
+                                v-model="filterModel.value"
+                                type="text"
+                                class="p-column-filter"
+                                @input="debouncedFilterInput(filterModel, filterCallback)"
+                            />
+                        </div>
                     </template>
                 </Column>
             </DataTable>

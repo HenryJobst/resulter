@@ -17,8 +17,8 @@ const settingStoreSuffix: string = 'cup'
 const listLabel = computed(() => t('labels.cup', 2))
 const columns: GenericListColumn[] = [
     { label: 'labels.name', field: 'name', sortable: true, filterable: true, filterType: 'input' },
-    { label: 'labels.year', field: 'year', sortable: true },
-    { label: 'labels.event', label_count: 2, field: 'events', type: 'list', sortable: true },
+    { label: 'labels.year', field: 'year', sortable: true, filterable: true, filterType: 'input' },
+    { label: 'labels.event', label_count: 2, field: 'events', type: 'list', sortable: false },
 ]
 
 const initialTableSettings: TableSettings = {
@@ -35,6 +35,12 @@ const initialTableSettings: TableSettings = {
     nullSortOrder: 1,
     defaultSortOrder: 1,
     filters: undefined,
+    removableSort: true,
+    rowHover: true,
+    stateStorage: 'session',
+    stateKey: 'CupList',
+    scrollable: true,
+    stripedRows: true,
 }
 </script>
 

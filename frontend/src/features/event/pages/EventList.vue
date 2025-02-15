@@ -22,7 +22,7 @@ const columns: GenericListColumn[] = [
     { label: 'labels.date', field: 'startTime', type: 'date', sortable: true },
     { label: 'labels.time', field: 'startTime', type: 'time', sortable: true },
     { label: 'labels.state', field: 'state', type: 'enum', sortable: true },
-    { label: 'labels.organisation', field: 'organisations', type: 'list', sortable: true },
+    { label: 'labels.organisation', field: 'organisations', type: 'list', sortable: false },
 ]
 
 const organisationQuery = useQuery({
@@ -45,6 +45,12 @@ const initialTableSettings: TableSettings = {
     nullSortOrder: 1,
     defaultSortOrder: 1,
     filters: undefined,
+    removableSort: true,
+    rowHover: true,
+    stateStorage: 'session',
+    stateKey: 'EventList',
+    scrollable: true,
+    stripedRows: true,
 }
 </script>
 

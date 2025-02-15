@@ -37,6 +37,12 @@ const initialTableSettings: TableSettings = {
     nullSortOrder: 1,
     defaultSortOrder: 1,
     filters: undefined,
+    removableSort: true,
+    rowHover: true,
+    stateStorage: 'session',
+    stateKey: 'PersonList',
+    scrollable: true,
+    stripedRows: true,
 }
 </script>
 

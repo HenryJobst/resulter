@@ -1,23 +1,29 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import com.turkraft.springfilter.converter.FilterStringConverter;
+import com.turkraft.springfilter.parser.node.FilterNode;
+import com.turkraft.springfilter.transformer.FilterNodeTransformer;
+import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
+import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
 import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.domain.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.data.domain.*;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
+@Slf4j
 public class CupRepositoryDataJdbcAdapter implements CupRepository {
 
     private final CupJdbcRepository cupJdbcRepository;
@@ -25,14 +31,21 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     private final CountryJdbcRepository countryJdbcRepository;
     private final OrganisationJdbcRepository organisationJdbcRepository;
 
-    public CupRepositoryDataJdbcAdapter(CupJdbcRepository cupJdbcRepository,
-                                        EventJdbcRepository eventJdbcRepository,
-                                        CountryJdbcRepository countryJdbcRepository,
-                                        OrganisationJdbcRepository organisationJdbcRepository) {
+    private final FilterStringConverter filterStringConverter;
+    private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
+
+    public CupRepositoryDataJdbcAdapter(
+            CupJdbcRepository cupJdbcRepository,
+            EventJdbcRepository eventJdbcRepository,
+            CountryJdbcRepository countryJdbcRepository,
+            OrganisationJdbcRepository organisationJdbcRepository,
+            FilterStringConverter filterStringConverter) {
         this.cupJdbcRepository = cupJdbcRepository;
         this.eventJdbcRepository = eventJdbcRepository;
         this.countryJdbcRepository = countryJdbcRepository;
         this.organisationJdbcRepository = organisationJdbcRepository;
+        this.filterStringConverter = filterStringConverter;
+        this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
     }
 
     @NonNull
@@ -45,12 +58,12 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
 
-
     @NonNull
     private Function<Long, Organisation> getOrganisationResolver() {
-        return id -> organisationJdbcRepository.findById(id)
-            .orElseThrow()
-            .asOrganisation(getOrganisationResolver(), getCountryResolver());
+        return id -> organisationJdbcRepository
+                .findById(id)
+                .orElseThrow()
+                .asOrganisation(getOrganisationResolver(), getCountryResolver());
     }
 
     @Transactional
@@ -63,10 +76,14 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     public Cup save(Cup cup) {
 
         DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setCupDboDboResolver(id -> cupJdbcRepository.findById(id.value()).orElseThrow());
-        dboResolvers.setEventDboResolver(id -> eventJdbcRepository.findById(id.value()).orElseThrow());
-        dboResolvers.setCountryDboResolver(id -> countryJdbcRepository.findById(id.value()).orElseThrow());
-        dboResolvers.setOrganisationDboResolver(id -> organisationJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setCupDboDboResolver(
+                id -> cupJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setEventDboResolver(
+                id -> eventJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setCountryDboResolver(
+                id -> countryJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setOrganisationDboResolver(
+                id -> organisationJdbcRepository.findById(id.value()).orElseThrow());
 
         CupDbo cupDbo = CupDbo.from(cup, dboResolvers);
         CupDbo savedCupEntity = cupJdbcRepository.save(cupDbo);
@@ -77,8 +94,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Transactional(readOnly = true)
     public List<Cup> findAll() {
         Iterable<CupDbo> resultList = this.cupJdbcRepository.findAll();
-        return CupDbo.asCups(resultList,
-            getEventResolver());
+        return CupDbo.asCups(resultList, getEventResolver());
     }
 
     @Transactional(readOnly = true)
@@ -116,11 +132,46 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     }
 
     @Override
-    public Page<Cup> findAll(@Nullable String filterString, @NonNull Pageable pageable) {
-        Page<CupDbo> page = cupJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
-            CupDbo::mapOrdersDboToDomain));
-        return new PageImpl<>(page.stream().map((CupDbo cupDbo) -> CupDbo.asCup(cupDbo, getEventResolver())).toList(),
-            FilterAndSortConverter.mapOrderProperties(page.getPageable(), CupDbo::mapOrdersDomainToDbo),
-            page.getTotalElements());
+    public Page<Cup> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+        Page<CupDbo> page;
+        if (filter != null) {
+            CupDbo cupDbo = new CupDbo();
+            AtomicReference<ExampleMatcher> matcher = new AtomicReference<>(
+                    ExampleMatcher.matching()
+                    // .withIgnorePaths("")
+                    );
+            FilterNode filterNode = filterStringConverter.convert(filter);
+            log.info("FilterNode: {}", filterNode);
+            MappingFilterNodeTransformResult transformResult = filterNodeTransformer.transform(filterNode);
+            transformResult.filterMap().forEach((key, value) -> {
+                String unquotedValue = value.value().replace("'", "");
+                switch (key) {
+                    case "name" -> {
+                        cupDbo.setName(unquotedValue);
+                        matcher.set(matcher.get().withMatcher("name", m -> m.stringMatcher(value.matcher())));
+                    }
+                    case "year" -> {
+                        cupDbo.setYear(Integer.parseInt(unquotedValue));
+                        matcher.set(matcher.get().withMatcher("year", ExampleMatcher.GenericPropertyMatcher::exact));
+                    }
+                    case "id" -> {
+                        cupDbo.setId(Long.parseLong(unquotedValue));
+                        matcher.set(matcher.get().withMatcher("id", ExampleMatcher.GenericPropertyMatcher::exact));
+                    }
+                }
+            });
+
+            page = cupJdbcRepository.findAll(
+                    Example.of(cupDbo, matcher.get()),
+                    FilterAndSortConverter.mapOrderProperties(pageable, CupDbo::mapOrdersDomainToDbo));
+
+        } else {
+            page = cupJdbcRepository.findAll(
+                    FilterAndSortConverter.mapOrderProperties(pageable, CupDbo::mapOrdersDomainToDbo));
+        }
+        return new PageImpl<>(
+                page.stream().map(x -> CupDbo.asCup(x, getEventResolver())).toList(),
+                FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
+                page.getTotalElements());
     }
 }

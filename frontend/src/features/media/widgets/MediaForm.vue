@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import type { Media } from '@/features/media/model/media'
+import type { MediaService } from '@/features/media/services/media.service'
 import InputText from 'primevue/inputtext'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import type { Media } from '@/features/media/model/media'
 
-import type { MediaService } from '@/features/media/services/media.service'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     media: Media

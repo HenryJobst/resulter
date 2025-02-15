@@ -1,17 +1,16 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.MediaFile;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.With;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "media_file")
 public class MediaFileDbo {
@@ -55,10 +54,11 @@ public class MediaFileDbo {
             mediaFileDbo.setContentType(mediaFile.getContentType().value());
             mediaFileDbo.setFileSize(mediaFile.getMediaFileSize().value());
         } else {
-            mediaFileDbo = new MediaFileDbo(mediaFile.getMediaFileName().value(),
-                mediaFile.getThumbnailFileName().value(),
-                mediaFile.getContentType().value(),
-                mediaFile.getMediaFileSize().value());
+            mediaFileDbo = new MediaFileDbo(
+                    mediaFile.getMediaFileName().value(),
+                    mediaFile.getThumbnailFileName().value(),
+                    mediaFile.getContentType().value(),
+                    mediaFile.getMediaFileSize().value());
         }
 
         if (mediaFile.getDescription() != null) {
@@ -70,8 +70,31 @@ public class MediaFileDbo {
         return mediaFileDbo;
     }
 
+    public static MediaFile asMediaFile(MediaFileDbo mediaFile) {
+        return mediaFile.asMediaFile();
+    }
+
     public MediaFile asMediaFile() {
         return MediaFile.of(id, fileName, thumbnailFileName, contentType, fileSize, description);
     }
 
+    public static String mapOrdersDomainToDbo(Sort.Order order) {
+        return switch (order.getProperty()) {
+            case "id.value" -> "id";
+            case "fileName.value" -> "fileName";
+            case "description.value" -> "description";
+            case "contentType.value" -> "contentType";
+            default -> order.getProperty();
+        };
+    }
+
+    public static String mapOrdersDboToDomain(Sort.Order order) {
+        return switch (order.getProperty()) {
+            case "id" -> "id.value";
+            case "fileName" -> "fileName.value";
+            case "description" -> "description.value";
+            case "contentType" -> "contentType.value";
+            default -> order.getProperty();
+        };
+    }
 }

@@ -1,9 +1,9 @@
-import { URL, fileURLToPath } from 'node:url'
-
 import { dirname, resolve } from 'node:path'
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+
+import { fileURLToPath, URL } from 'node:url'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import packageInfo from './package.json'
 

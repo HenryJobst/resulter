@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
-import EventForm from '@/features/event/widgets/EventForm.vue'
-import { eventService } from '@/features/event/services/event.service'
 import type { SportEvent } from '@/features/event/model/sportEvent'
+import { eventService } from '@/features/event/services/event.service'
+import EventForm from '@/features/event/widgets/EventForm.vue'
+import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ id: string, locale?: string }>()
 

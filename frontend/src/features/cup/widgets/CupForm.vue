@@ -30,8 +30,9 @@ const cup = computed({
 const l_events = computed({
     get: () => (cup.value ? cup.value.events.map(ev => ev.id) : []),
     set: (ids) => {
-        if (cup.value)
-            cup.value.events = getEventKeysFromIds(ids)!
+        if (cup.value) {
+            cup.value.events = getEventKeysFromIds(ids)
+        }
     },
 })
 
@@ -59,7 +60,7 @@ function getEventKeysFromIds(ids: number[]): EventKey[] {
 
 function handleSelectionChange(ev: MultiSelectChangeEvent) {
     if (ev.value && cup.value && eventQuery.data?.value) {
-        cup.value.events = getEventKeysFromIds(ev.value)!
+        cup.value.events = getEventKeysFromIds(ev.value)
     }
 }
 </script>
@@ -93,9 +94,6 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
                 <span v-if="cupTypesQuery.status.value === 'pending'">{{
                     t('messages.loading')
                 }}</span>
-                <span v-else-if="cupTypesQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: cupTypesQuery.error.toLocaleString() }) }}
-                </span>
                 <Select
                     v-else-if="cupTypesQuery.data && cupTypesQuery.data.value"
                     id="type"
@@ -114,9 +112,6 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
                 <span v-if="eventQuery.status.value === 'pending'">{{
                     t('messages.loading')
                 }}</span>
-                <span v-else-if="eventQuery.status.value === 'error'">
-                    {{ t('messages.error', { message: eventQuery.error.toLocaleString() }) }}
-                </span>
                 <div v-else-if="eventQuery.data && eventQuery.data.value" class="card">
                     <MultiSelect
                         id="events"

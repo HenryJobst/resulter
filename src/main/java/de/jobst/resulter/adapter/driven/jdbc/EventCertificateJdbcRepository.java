@@ -1,17 +1,19 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import java.util.Collection;
+import java.util.Optional;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.Optional;
-
 @Repository
 public interface EventCertificateJdbcRepository
-    extends CrudRepository<EventCertificateDbo, Long>, PagingAndSortingRepository<EventCertificateDbo, Long> {
+        extends CrudRepository<EventCertificateDbo, Long>,
+                PagingAndSortingRepository<EventCertificateDbo, Long>,
+                QueryByExampleExecutor<EventCertificateDbo> {
 
     @NonNull
     Collection<EventCertificateDbo> findAll();

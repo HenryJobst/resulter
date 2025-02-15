@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed, ref } from 'vue'
 import type { Organisation } from '@/features/organisation/model/organisation'
 import GenericNew from '@/features/generic/pages/GenericNew.vue'
-import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { organisationService } from '@/features/organisation/services/organisation.service'
+import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()

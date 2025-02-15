@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import type { ResultList } from '@/features/event/model/result_list'
 import type { Race } from '@/features/race/model/race'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ resultList: ResultList, race: Race }>()
 const { t } = useI18n()

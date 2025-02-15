@@ -1,5 +1,5 @@
-import { GenericService } from '@/features/generic/services/GenericService'
 import type { Certificate } from '@/features/certificate/model/certificate'
+import { GenericService } from '@/features/generic/services/GenericService'
 
 const certificateUrl: string = '/event_certificate'
 

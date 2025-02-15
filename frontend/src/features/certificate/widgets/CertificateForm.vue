@@ -35,7 +35,7 @@ const eventQuery = useQuery({
 
 const mediaQuery = useQuery({
     queryKey: ['media'],
-    queryFn: () => mediaService.getAll(t),
+    queryFn: () => mediaService.getAllUnpaged(t),
 })
 
 const certificateQuery = useQuery({
@@ -75,10 +75,11 @@ function getEventKeyFromId(id: number | null): EventKey | null {
 }
 
 function getMediaKeyFromId(id: number | null): MediaKey | null {
-    if (!mediaQuery.data.value || !mediaQuery.data.value.content)
+    if (!mediaQuery.data?.value || !Array.isArray(mediaQuery.data.value)) {
         return null
+    }
 
-    const media: Media | undefined = mediaQuery.data.value?.content.find(media => media.id === id)
+    const media: Media | undefined = mediaQuery.data?.value.find(media => media.id === id)
     if (media !== undefined) {
         return {
             id: media.id,
@@ -90,7 +91,7 @@ function getMediaKeyFromId(id: number | null): MediaKey | null {
 }
 
 function handleEventSelectionChange(ev: SelectChangeEvent) {
-    if (ev.value && certificate.value && eventQuery.data.value) {
+    if (ev.value && certificate.value && eventQuery.data?.value) {
         certificate.value.event = getEventKeyFromId(ev.value.id)!
     }
     else {
@@ -99,7 +100,7 @@ function handleEventSelectionChange(ev: SelectChangeEvent) {
 }
 
 function handleMediaSelectionChange(ev: SelectChangeEvent) {
-    if (ev.value && certificate.value && mediaQuery.data.value && mediaQuery.data.value.content) {
+    if (ev.value && certificate.value && mediaQuery.data?.value) {
         certificate.value.blankCertificate = getMediaKeyFromId(ev.value.id)!
     }
     else {
@@ -162,7 +163,7 @@ watch(
                             v-else-if="mediaQuery.data.value"
                             id="media"
                             :model-value="certificate.blankCertificate"
-                            :options="mediaQuery.data.value.content"
+                            :options="mediaQuery.data?.value"
                             data-key="id"
                             option-label="fileName"
                             :placeholder="t('messages.select')"

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
+import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 import type { RaceOrganisationGroupedCupScore } from '@/features/cup/model/race_organisation_grouped_cup_score'
+import { computed } from 'vue'
 
 const props = defineProps<{
     cupName: string

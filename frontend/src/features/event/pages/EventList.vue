@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
-import GenericList from '@/features/generic/pages/GenericList.vue'
-import { organisationService } from '@/features/organisation/services/organisation.service'
-import { eventService } from '@/features/event/services/event.service'
 import type { TableSettings } from '@/features/generic/models/table_settings'
+import { eventService } from '@/features/event/services/event.service'
+import GenericList from '@/features/generic/pages/GenericList.vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { organisationService } from '@/features/organisation/services/organisation.service'
+import { useQuery } from '@tanstack/vue-query'
+import Button from 'primevue/button'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
@@ -22,7 +22,7 @@ const columns: GenericListColumn[] = [
     { label: 'labels.date', field: 'startTime', type: 'date', sortable: true },
     { label: 'labels.time', field: 'startTime', type: 'time', sortable: true },
     { label: 'labels.state', field: 'state', type: 'enum', sortable: true },
-    { label: 'labels.organisation', field: 'organisations', type: 'list', sortable: true },
+    { label: 'labels.organisation', field: 'organisations', type: 'list', sortable: false },
 ]
 
 const organisationQuery = useQuery({
@@ -45,6 +45,12 @@ const initialTableSettings: TableSettings = {
     nullSortOrder: 1,
     defaultSortOrder: 1,
     filters: undefined,
+    removableSort: true,
+    rowHover: true,
+    stateStorage: 'session',
+    stateKey: 'EventList',
+    scrollable: true,
+    stripedRows: true,
 }
 </script>
 

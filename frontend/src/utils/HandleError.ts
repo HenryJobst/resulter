@@ -1,6 +1,6 @@
-import { AxiosError } from 'axios'
-import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
 import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
+import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
+import { AxiosError } from 'axios'
 
 export class BackendException extends Error {
     public readonly baseError: Error
@@ -34,9 +34,9 @@ export async function handleApiError(error: unknown, t: (key: string, object?: a
             const apiResponse = await getApiResponse(error.response)
             const message = apiResponse
                 ? t(
-                    `backend.${apiResponse.message.messageKey.key}`,
-                    apiResponse.message.messageParameters,
-                )
+                        `backend.${apiResponse.message.messageKey.key}`,
+                        apiResponse.message.messageParameters,
+                    )
                 : error.message
             throw new BackendException(error, message)
         }

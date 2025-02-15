@@ -1,27 +1,27 @@
-import './assets/main.css'
+import { getErrorStore } from '@/features/common/stores/getErrorStore'
 
-import { createApp } from 'vue'
+import AuthStorePlugin from '@/features/keycloak/plugins/authStorePlugin'
+import keycloakService from '@/features/keycloak/services/keycloak'
+import { setupI18n } from '@/i18n'
+import messages from '@intlify/unplugin-vue-i18n/messages'
+import { definePreset } from '@primevue/themes'
+import Lara from '@primevue/themes/lara'
+import { VueQueryPlugin } from '@tanstack/vue-query'
+import { AxiosError } from 'axios'
 import { createPinia } from 'pinia'
 // noinspection SpellCheckingInspection
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import { VueQueryPlugin } from '@tanstack/vue-query'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
-import messages from '@intlify/unplugin-vue-i18n/messages'
 import Tooltip from 'primevue/tooltip'
-import Lara from '@primevue/themes/lara'
-import { definePreset } from '@primevue/themes'
-import { AxiosError } from 'axios'
+import { createApp } from 'vue'
 import App from './App.vue'
+
 import { setupRouter } from './router'
-import AuthStorePlugin from '@/features/keycloak/plugins/authStorePlugin'
-import keycloakService from '@/features/keycloak/services/keycloak'
 
-import { setupI18n } from '@/i18n'
-
+import './assets/main.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
-import { getErrorStore } from '@/features/common/stores/getErrorStore'
 
 const savedLocale = localStorage.getItem('userLocale')
 // get user language from browser

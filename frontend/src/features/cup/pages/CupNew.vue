@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed, ref } from 'vue'
 import type { Cup } from '@/features/cup/model/cup'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import GenericNew from '@/features/generic/pages/GenericNew.vue'
 import { cupService } from '@/features/cup/services/cup.service'
 import CupForm from '@/features/cup/widgets/CupForm.vue'
+import GenericNew from '@/features/generic/pages/GenericNew.vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()

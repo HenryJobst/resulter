@@ -2,7 +2,6 @@
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
 import type { RouteLocationRaw } from 'vue-router'
-import ErrorMessage from '@/components/ErrorMessage.vue'
 import Spinner from '@/components/SpinnerComponent.vue'
 import { toastDisplayDuration } from '@/utils/constants'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
@@ -123,14 +122,6 @@ function navigateToList() {
         >
             {{ t('messages.loading') }}
             <Spinner />
-        </div>
-        <div
-            v-else-if="
-                entityQuery.status.value === 'error' || entityMutation.status.value === 'error'
-            "
-        >
-            <ErrorMessage :message="t('messages.error', { message: entityQuery.error.value })" />
-            <ErrorMessage :message="t('messages.error', { message: entityMutation.error.value })" />
         </div>
         <form @submit.prevent="submitHandler">
             <slot :form-data="{ data: formData }" />

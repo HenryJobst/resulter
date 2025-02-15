@@ -1,10 +1,10 @@
-import type { DataTableFilterMetaData } from 'primevue/datatable'
-import { sfAnd, sfEqual, sfLike } from 'spring-filter-query-builder'
-import type { IGenericService } from '@/features/generic/services/IGenericService'
-import axiosInstance from '@/features/keycloak/services/api'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
-import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
+import type { TableSettings } from '@/features/generic/models/table_settings'
+import type { IGenericService } from '@/features/generic/services/IGenericService'
+import type { DataTableFilterMetaData } from 'primevue/datatable'
+import axiosInstance from '@/features/keycloak/services/api'
+import { sfAnd, sfEqual, sfLike } from 'spring-filter-query-builder'
 
 function getSortParam(field: string | ((item: any) => string), order: number | null | undefined) {
     const direction = order === 1 ? 'asc' : 'desc'
@@ -16,12 +16,6 @@ function getSortParam(field: string | ((item: any) => string), order: number | n
 
 function createUrlSearchParams(tableSettings: TableSettings) {
     const urlSearchParams = new URLSearchParams()
-    if (tableSettings.sortField) {
-        urlSearchParams.append(
-            'sort',
-            getSortParam(tableSettings.sortField, tableSettings.sortOrder),
-        )
-    }
 
     if (tableSettings.nullSortOrder !== 1)
         urlSearchParams.append('nullSortOrder', tableSettings.nullSortOrder.toString())
@@ -39,6 +33,27 @@ function createUrlSearchParams(tableSettings: TableSettings) {
             urlSearchParams.append('sort', s)
         })
     }
+
+    // default sort only, if no sort for sortField exists
+    if (tableSettings.sortField) {
+        let fieldExists = false
+        if (typeof tableSettings.sortField === 'string') {
+            const sortField: string = tableSettings.sortField
+            const sortParam = urlSearchParams.getAll('sort')
+            if (sortParam && Array.isArray(sortParam)) {
+                sortParam.forEach((s) => {
+                    fieldExists = fieldExists || s.startsWith(sortField)
+                })
+            }
+        }
+        if (!fieldExists) {
+            urlSearchParams.append(
+                'sort',
+                getSortParam(tableSettings.sortField, tableSettings.sortOrder),
+            )
+        }
+    }
+
     if (tableSettings.paginator) {
         if (tableSettings.page)
             urlSearchParams.append('page', tableSettings.page.toString())

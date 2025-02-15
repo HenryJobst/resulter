@@ -1,5 +1,5 @@
-import type { Organisation } from '@/features/organisation/model/organisation'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
+import type { Organisation } from '@/features/organisation/model/organisation'
 
 export interface OrganisationScore {
     organisation: Organisation

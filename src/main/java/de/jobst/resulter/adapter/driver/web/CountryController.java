@@ -6,17 +6,13 @@ import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.CountryCode;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.CountryName;
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -30,27 +26,23 @@ public class CountryController {
         this.countryService = countryService;
     }
 
+    @GetMapping("/country/all")
+    public ResponseEntity<List<CountryDto>> getAllCountries() {
+        List<Country> countries = countryService.findAll();
+        return ResponseEntity.ok(countries.stream().map(CountryDto::from).toList());
+    }
+
     @GetMapping("/country")
     public ResponseEntity<List<CountryDto>> handleCountries() {
-        try {
-            List<Country> countries = countryService.findAll();
-            return ResponseEntity.ok(countries.stream().map(CountryDto::from).toList());
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        List<Country> countries = countryService.findAll();
+        return ResponseEntity.ok(countries.stream().map(CountryDto::from).toList());
     }
 
     @GetMapping("/country/{id}")
     public ResponseEntity<CountryDto> getCountry(@PathVariable Long id) {
-        try {
-            Optional<Country> country = countryService.findById(CountryId.of(id));
-            return country.map(value -> ResponseEntity.ok(CountryDto.from(value)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
+        Optional<Country> country = countryService.findById(CountryId.of(id));
+        return country.map(value -> ResponseEntity.ok(CountryDto.from(value)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/country/{id}")
@@ -62,30 +54,12 @@ public class CountryController {
 
     @PostMapping("/country")
     public ResponseEntity<CountryDto> createCountry(@RequestBody CountryDto countryDto) {
-        try {
-            Country country =
-                    countryService.createCountry(CountryCode.of(countryDto.code()), CountryName.of(countryDto.name()));
-            if (null != country) {
-                return ResponseEntity.ok(CountryDto.from(country));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (DataIntegrityViolationException e) {
-            logError(e);
-            return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
-        } catch (IllegalArgumentException e) {
-            logError(e);
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logError(e);
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    private static void logError(Exception e) {
-        log.error(e.getMessage());
-        if (Objects.nonNull(e.getCause())) {
-            log.error(e.getCause().getMessage());
+        Country country =
+                countryService.createCountry(CountryCode.of(countryDto.code()), CountryName.of(countryDto.name()));
+        if (null != country) {
+            return ResponseEntity.ok(CountryDto.from(country));
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 }

@@ -26,9 +26,11 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
         "D/H12 Be",
         "D/H10B",
         "D/H10 B",
+        "D/H10 Be",
         "D/H12 Beg.",
         "D10B",
-        "H10B");
+        "H10B",
+        "KL");
 
     String mainClassWomenLong = "D19L";
     Set<String> mainClassesWomenLong = Set.of("D19", "D19L", "D19AL", "D20", "D21", "D21L", "D21AL");

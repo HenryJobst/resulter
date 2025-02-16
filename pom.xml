@@ -47,6 +47,7 @@
         <cleanthat.version>2.22</cleanthat.version>
         <eclipse-jdt.version>4.34</eclipse-jdt.version>
         <equalsverifier.version>3.19</equalsverifier.version>
+        <dotenv-java.version>3.1.0</dotenv-java.version>
     </properties>
     <profiles>
         <profile>
@@ -106,6 +107,13 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>io.github.cdimascio</groupId>
+                    <artifactId>dotenv-java</artifactId>
+                    <version>${dotenv-java.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
     <dependencies>

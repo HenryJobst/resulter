@@ -21,7 +21,9 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 public class ResulterApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ResulterApplication.class, args);
+        SpringApplication app = new SpringApplication(ResulterApplication.class);
+        app.addInitializers(new DotenvInitializer());
+        app.run(args);
     }
 
     static class ResulterApplicationRuntimeHints implements RuntimeHintsRegistrar {

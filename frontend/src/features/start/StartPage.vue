@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useErrorStore } from '@/features/common/stores/useErrorStore'
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
-import { formatDateTime } from '@/features/generic/services/GenericFunctions'
+import { formatDateAndTime } from '@/features/generic/services/GenericFunctions'
 import { BackendException, getDetail } from '@/utils/HandleError'
 import Button from 'primevue/button'
 import Panel from 'primevue/panel'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
+const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
 const errorStore = useErrorStore()
 const messageDetailStore = useMessageDetailStore()
@@ -71,12 +71,12 @@ async function showErrorDetail(id: number) {
             <tbody>
                 <tr v-for="error in errorStore.errors" :key="error.id">
                     <td>{{ t("labels.error") }}</td>
-                    <td>{{ formatDateTime(error.timestamp) }}</td>
+                    <td>{{ formatDateAndTime(error.timestamp ?? new Date(Date.now()), locale) }}</td>
                     <td>
                         {{
                             error.originalError instanceof BackendException
-                                ? error.originalError.message
-                                : (error.originalError.name ?? error.originalError.message)
+                                ? (error.originalError as BackendException).message
+                                : ((error.originalError as Error).name ?? (error.originalError as Error).message)
                         }}
                     </td>
                     <td>

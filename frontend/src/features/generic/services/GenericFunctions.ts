@@ -1,5 +1,3 @@
-import { computed } from 'vue'
-
 const dateOptions: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'long',
@@ -28,62 +26,51 @@ const timeOptions: Intl.DateTimeFormatOptions = {
     hour12: false,
 }
 
-const formatDateFunction = computed(() => {
-    return (date: string | Date, locale: Intl.LocalesArgument) => {
-        if (!date)
-            return ''
-        if (typeof date === 'string')
-            return new Date(date).toLocaleDateString(locale, dateOptions)
+type DateInput = string | Date
+type FormatOptions = 'date' | 'datetime' | 'year' | 'time'
 
-        return date.toLocaleDateString(locale, dateOptions)
-    }
-})
-
-const formatDateTimeFunction = computed(() => {
-    return (date: string | Date, locale: Intl.LocalesArgument) => {
-        if (!date)
-            return ''
-        if (typeof date === 'string')
-            return new Date(date).toLocaleDateString(locale, dateTimeOptions)
-
-        return date.toLocaleDateString(locale, dateTimeOptions)
-    }
-})
-
-const formatYearFunction = computed(() => {
-    return (date: string | Date, locale: Intl.LocalesArgument) => {
-        if (!date)
-            return ''
-        if (typeof date === 'string')
-            return new Date(date).toLocaleDateString(locale, yearOptions)
-
-        return date.toLocaleDateString(locale, yearOptions)
-    }
-})
-
-const formatTimeFunction = computed(() => {
-    return (time: string | Date, locale: Intl.LocalesArgument) => {
-        if (!time)
-            return ''
-        if (typeof time === 'string')
-            return new Date(time).toLocaleTimeString(locale, timeOptions)
-
-        return time.toLocaleTimeString(locale, timeOptions)
-    }
-})
-
-export function formatDate(date: string, locale: Intl.LocalesArgument) {
-    return formatDateFunction.value(date, locale)
+const formatOptionsMap: Record<FormatOptions, Intl.DateTimeFormatOptions> = {
+    date: dateOptions,
+    datetime: dateTimeOptions,
+    year: yearOptions,
+    time: timeOptions,
 }
 
-export function formatDateTime(date: string, locale: Intl.LocalesArgument) {
-    return formatDateTimeFunction.value(date, locale)
+/**
+ * Formatiert ein Datum oder eine Uhrzeit basierend auf dem angegebenen Typ
+ * @param input - Das zu formatierende Datum (String oder Date-Objekt)
+ * @param locale - Die zu verwendende Locale
+ * @param type - Der gewünschte Formatierungstyp
+ * @returns Formatierter String
+ */
+function formatDateTime(input: DateInput, locale: Intl.LocalesArgument, type: FormatOptions): string {
+    if (!input)
+        return ''
+
+    const date = typeof input === 'string' ? new Date(input) : input
+    if (Number.isNaN(date.getTime())) {
+        console.error(`Fehler beim Formatieren des Datums: ${new Error('Ungültiges Datum')}`)
+        return ''
+    }
+
+    const options = formatOptionsMap[type]
+    return type === 'time'
+        ? date.toLocaleTimeString(locale, options)
+        : date.toLocaleDateString(locale, options)
 }
 
-export function formatYear(date: string, locale: Intl.LocalesArgument) {
-    return formatYearFunction.value(date, locale)
+export function formatDate(date: DateInput, locale: Intl.LocalesArgument): string {
+    return formatDateTime(date, locale, 'date')
 }
 
-export function formatTime(time: string, locale: Intl.LocalesArgument) {
-    return formatTimeFunction.value(time, locale)
+export function formatDateAndTime(date: DateInput, locale: Intl.LocalesArgument): string {
+    return formatDateTime(date, locale, 'datetime')
+}
+
+export function formatYear(date: DateInput, locale: Intl.LocalesArgument): string {
+    return formatDateTime(date, locale, 'year')
+}
+
+export function formatTime(time: DateInput, locale: Intl.LocalesArgument): string {
+    return formatDateTime(time, locale, 'time')
 }

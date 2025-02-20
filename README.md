@@ -2,7 +2,7 @@
 
 # **Resulter**
 
-[![version](https://img.shields.io/badge/version-1.3.1-blue)]()
+[![version](https://img.shields.io/badge/version-1.3.2-blue)]()
 [![license](https://img.shields.io/badge/license-CC%20BY--NC--ND%204.0-blue)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
 
@@ -44,21 +44,27 @@ Architecture.
    git clone https://github.com/HenryJobst/resulter.git
    ```
 
-2. Switch to the backend directory and start the SpringBoot server:
+2. Create and edit environment file
+
+    ```bash
+    cp .env.example .env
+    ```
+   
+3. Switch to the backend directory and start the SpringBoot server:
 
    ```bash
    cd backend
    ./mvnw spring-boot:run
    ```
 
-3. Switch to the frontend directory and start the Vue.js frontend:
+4. Switch to the frontend directory and start the Vue.js frontend:
 
    ```bash
    cd frontend
    npm install
    npm run serve
    ```
-4. Deployment
+5. Deployment
 
 - there are separate deployment scripts (build.sh) to build docker images for frontend and backend
 - there is a compose file to start the whole application with database in docker containers
@@ -122,21 +128,27 @@ implementiert ist.
     git clone https://github.com/HenryJobst/resulter.git
     ```
 
-2. Wechseln Sie in das Backend-Verzeichnis und starten Sie den SpringBoot-Server:
+2. Environment-Datei anlegen und anpassen
+
+    ```bash
+    cp .env.example .env
+    ```
+   
+3. Wechseln Sie in das Backend-Verzeichnis und starten Sie den SpringBoot-Server:
 
     ```bash
     cd backend
     ./mvnw spring-boot:run
     ```
 
-3. Wechseln Sie in das Frontend-Verzeichnis und starten Sie das Vue.js-Frontend:
+4. Wechseln Sie in das Frontend-Verzeichnis und starten Sie das Vue.js-Frontend:
 
     ```bash
     cd frontend
     npm install
     npm run serve
     ```
-4. Deployment
+5. Deployment
 
 - es gibt je ein Script (build.sh) um Docker-Images für Frontend und Backend zu bauen
 - im Verzeichnis deploy/resulter gibt es ein Docker-Compose-File mit dem die komplette Anwendung mit Datenbank gestartet

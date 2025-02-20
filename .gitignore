@@ -45,3 +45,4 @@ src/main/.DS_Store
 /build-images-with-act.sh
 /testdb.mv.db
 /testdb.trace.db
+/prometheus/prometheus_api_token

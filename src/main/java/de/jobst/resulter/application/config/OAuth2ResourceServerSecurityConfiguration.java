@@ -1,6 +1,5 @@
 package de.jobst.resulter.application.config;
 
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -14,10 +13,13 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +30,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
     public static final String ADMIN = "ADMIN";
     public static final String ENDPOINT_ADMIN = "ENDPOINT_ADMIN";
     private final JwtAuthConverter jwtAuthConverter;
+    private final PrometheusApiTokenFilter prometheusApiTokenFilter;
 
     @Value("#{'${cors.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;
@@ -35,8 +38,10 @@ public class OAuth2ResourceServerSecurityConfiguration {
     @Value("#{'${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}'}")
     private String jwkSetUri;
 
-    public OAuth2ResourceServerSecurityConfiguration(JwtAuthConverter jwtAuthConverter) {
+    public OAuth2ResourceServerSecurityConfiguration(JwtAuthConverter jwtAuthConverter,
+                                                     PrometheusApiTokenFilter prometheusApiTokenFilter) {
         this.jwtAuthConverter = jwtAuthConverter;
+        this.prometheusApiTokenFilter = prometheusApiTokenFilter;
     }
 
     @Bean
@@ -65,6 +70,8 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 .permitAll()
                 .requestMatchers(EndpointRequest.to("health"))
                 .permitAll()
+                .requestMatchers(EndpointRequest.to("prometheus"))
+                .authenticated()
                 .requestMatchers("/actuator/**")
                 .hasAnyRole(ADMIN, ENDPOINT_ADMIN)
                 .requestMatchers("/admin/**")
@@ -102,6 +109,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 .permitAll()
                 .anyRequest()
                 .hasRole(ADMIN));
+        http.addFilterBefore(prometheusApiTokenFilter, UsernamePasswordAuthenticationFilter.class);
         http.oauth2ResourceServer(
                 oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthConverter)));
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

@@ -82,7 +82,7 @@ developments.
 
 ## License
 
-Resulter © 2023-2024 by Henry Jobst is licensed
+Resulter © 2023-2025 by Henry Jobst is licensed
 under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) - see [LICENSE.txt](LICENSE.txt) for
 details.
 
@@ -167,6 +167,6 @@ vermeiden.
 
 ## Lizenz
 
-Das Projekt Resulter © 2023-2024 von Henry Jobst ist unter der
+Das Projekt Resulter © 2023-2025 von Henry Jobst ist unter der
 Lizenz [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) lizenziert -
 siehe [LICENSE.txt](LICENSE.txt) für Details.

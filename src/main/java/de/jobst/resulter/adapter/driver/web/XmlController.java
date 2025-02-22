@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Objects;
+import java.io.IOException;
 
 @Controller
 @PreAuthorize("hasRole('ADMIN')")
@@ -30,16 +30,13 @@ public class XmlController {
     @PostMapping("/upload")
     @ResponseBody
     public ResponseEntity<String> handleFileUpload(@RequestParam(FILE) MultipartFile file) {
+        Event event = null;
         try {
-            Event event = importService.importFile(file.getInputStream()).event();
-            return ResponseEntity.ok(event.toString());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            if (Objects.nonNull(e.getCause())) {
-                log.error(e.getCause().getMessage());
-            }
-            return ResponseEntity.internalServerError().build();
+            event = importService.importFile(file.getInputStream()).event();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+        return ResponseEntity.ok(event.toString());
     }
 
 }

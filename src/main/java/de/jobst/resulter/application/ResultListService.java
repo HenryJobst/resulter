@@ -11,7 +11,6 @@ import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -39,14 +38,17 @@ public class ResultListService {
 
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
 
-    public ResultListService(ResultListRepository resultListRepository,
-                             CupRepository cupRepository, EventRepository eventRepository,
-                             OrganisationRepository organisationRepository,
-                             PersonRepository personRepository,
-                             CertificateService certificateService,
-                             MediaFileRepository mediaFileRepository,
-                             EventCertificateStatRepository eventCertificateStatRepository,
-                             CupScoreListRepository cupScoreListRepository, SpringSecurityAuditorAware springSecurityAuditorAware) {
+    public ResultListService(
+            ResultListRepository resultListRepository,
+            CupRepository cupRepository,
+            EventRepository eventRepository,
+            OrganisationRepository organisationRepository,
+            PersonRepository personRepository,
+            CertificateService certificateService,
+            MediaFileRepository mediaFileRepository,
+            EventCertificateStatRepository eventCertificateStatRepository,
+            CupScoreListRepository cupScoreListRepository,
+            SpringSecurityAuditorAware springSecurityAuditorAware) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -82,7 +84,9 @@ public class ResultListService {
     @Transactional
     public List<CupScoreListDto> calculateScore(ResultListId id) {
         Optional<ResultList> resultListOptional = findById(id);
-        if (resultListOptional.isEmpty() || resultListOptional.get().getClassResults() == null || resultListOptional.get().getClassResults().isEmpty()) {
+        if (resultListOptional.isEmpty()
+                || resultListOptional.get().getClassResults() == null
+                || resultListOptional.get().getClassResults().isEmpty()) {
             // no result list for id
             return List.of();
         }
@@ -94,26 +98,25 @@ public class ResultListService {
         }
         Set<OrganisationId> referencedOrganisationIds = resultList.getReferencedOrganisationIds();
         Map<OrganisationId, Organisation> organisationById =
-            organisationRepository.loadOrganisationTree(referencedOrganisationIds);
+                organisationRepository.loadOrganisationTree(referencedOrganisationIds);
         String creator = springSecurityAuditorAware.getCurrentAuditor().orElse(SpringSecurityAuditorAware.UNKNOWN);
         ZonedDateTime now = ZonedDateTime.now();
         List<CupScoreList> cupScoreLists = cups.stream()
-            .map(cup -> resultList.calculate(cup, creator, now, cup.getCupTypeCalculationStrategy(organisationById)))
-            .collect(Collectors.toList());
-        cupScoreListRepository.deleteAllByDomainKey(cupScoreLists.stream()
-            .map(CupScoreList::getDomainKey)
-            .collect(Collectors.toSet()));
-        return cupScoreListRepository.saveAll(cupScoreLists).stream().map(CupScoreListDto::from).toList();
+                .map(cup ->
+                        resultList.calculate(cup, creator, now, cup.getCupTypeCalculationStrategy(organisationById)))
+                .collect(Collectors.toList());
+        cupScoreListRepository.deleteAllByDomainKey(
+                cupScoreLists.stream().map(CupScoreList::getDomainKey).collect(Collectors.toSet()));
+        return cupScoreListRepository.saveAll(cupScoreLists).stream()
+                .map(CupScoreListDto::from)
+                .toList();
     }
 
-
     @Transactional
-    public CertificateService.Certificate createCertificate(ResultListId resultListId,
-                                                            ClassResultShortName classResultShortName,
-                                                            PersonId personId) throws IOException {
-        ResultList resultList = resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(resultListId,
-            classResultShortName,
-            personId);
+    public CertificateService.Certificate createCertificate(
+            ResultListId resultListId, ClassResultShortName classResultShortName, PersonId personId) {
+        ResultList resultList = resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(
+                resultListId, classResultShortName, personId);
         if (resultList == null || resultList.getClassResults() == null) {
             // no result list
             return null;
@@ -131,32 +134,29 @@ public class ResultListService {
         }
         Event event = optionalEvent.get();
 
-        Optional<PersonResult> personResult = resultList.getClassResults()
-            .stream()
-            .flatMap(classResult -> classResult.personResults().value().stream())
-            .filter(x -> x.personId().equals(person.getId()))
-            .findFirst();
+        Optional<PersonResult> personResult = resultList.getClassResults().stream()
+                .flatMap(classResult -> classResult.personResults().value().stream())
+                .filter(x -> x.personId().equals(person.getId()))
+                .findFirst();
 
         if (personResult.isEmpty()) {
             // no person result
             return null;
         }
-        Optional<Organisation> organisation = organisationRepository.findById(personResult.get().organisationId());
+        Optional<Organisation> organisation =
+                organisationRepository.findById(personResult.get().organisationId());
 
         Optional<PersonRaceResult> personRaceResult =
-            personResult.get().personRaceResults().value().stream().findFirst();
+                personResult.get().personRaceResults().value().stream().findFirst();
         if (personRaceResult.isEmpty()) {
             return null;
         }
 
-        CertificateService.Certificate certificate = certificateService.createCertificate(person,
-            organisation,
-            event,
-            Objects.requireNonNull(event.getCertificate()),
-            personRaceResult.get());
+        CertificateService.Certificate certificate = certificateService.createCertificate(
+                person, organisation, event, Objects.requireNonNull(event.getCertificate()), personRaceResult.get());
 
         EventCertificateStat eventCertificateStat =
-            EventCertificateStat.of(EventCertificateStatId.empty().value(), event, person, Instant.now());
+                EventCertificateStat.of(EventCertificateStatId.empty().value(), event, person, Instant.now());
 
         eventCertificateStatRepository.save(eventCertificateStat);
 
@@ -165,25 +165,29 @@ public class ResultListService {
 
     public CertificateService.Certificate createCertificate(EventId eventId, EventCertificateDto eventCertificateDto) {
 
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new ResourceNotFoundException(
-            "Event not found"));
-        MediaFile blankCertificate =
-            eventCertificateDto.blankCertificate() == null ? null :
-            mediaFileRepository.findById(MediaFileId.of(eventCertificateDto.blankCertificate().id())).orElse(null);
-        EventCertificate eventCertificate = EventCertificate.of(EventCertificateId.empty().value(),
-            eventCertificateDto.name(),
-            event,
-            eventCertificateDto.layoutDescription(), blankCertificate,
-            eventCertificateDto.primary());
+        Event event =
+                eventRepository.findById(eventId).orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+        MediaFile blankCertificate = eventCertificateDto.blankCertificate() == null
+                ? null
+                : mediaFileRepository
+                        .findById(MediaFileId.of(
+                                eventCertificateDto.blankCertificate().id()))
+                        .orElse(null);
+        EventCertificate eventCertificate = EventCertificate.of(
+                EventCertificateId.empty().value(),
+                eventCertificateDto.name(),
+                event,
+                eventCertificateDto.layoutDescription(),
+                blankCertificate,
+                eventCertificateDto.primary());
 
         return certificateService.createCertificate(event, eventCertificate);
     }
 
     public List<EventCertificateStatDto> getCertificateStats(EventId eventId) {
-        return eventCertificateStatRepository.findAllByEvent(eventId)
-            .stream()
-            .map(EventCertificateStatDto::from)
-            .toList();
+        return eventCertificateStatRepository.findAllByEvent(eventId).stream()
+                .map(EventCertificateStatDto::from)
+                .toList();
     }
 
     public void deleteEventCertificateStat(EventCertificateStatId id) {

@@ -5,19 +5,13 @@ import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
 import de.jobst.resulter.application.EventService;
+import de.jobst.resulter.application.RaceService;
 import de.jobst.resulter.application.ResultListService;
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.validation.Valid;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +25,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @RestController
 @Slf4j
 @Validated
@@ -38,11 +40,13 @@ public class EventController {
 
     private final EventService eventService;
     private final ResultListService resultListService;
+    private final RaceService raceService;
 
     @Autowired
-    public EventController(EventService eventService, ResultListService resultListService) {
+    public EventController(EventService eventService, ResultListService resultListService, RaceService raceService) {
         this.eventService = eventService;
         this.resultListService = resultListService;
+        this.raceService = raceService;
     }
 
     @GetMapping("/event/all")
@@ -127,7 +131,7 @@ public class EventController {
     @GetMapping("/event/{id}/results")
     public ResponseEntity<EventResultsDto> getEventResults(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
-        return ResponseEntity.ok(EventResultsDto.from(event, resultListService));
+        return ResponseEntity.ok(EventResultsDto.from(event, resultListService, raceService));
     }
 
     @PutMapping("/event/{id}/certificate")

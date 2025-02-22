@@ -8,4 +8,6 @@ export interface ResultList {
     createTime: string | Date
     status: string
     classResults: ClassResult[]
+    isCertificateAvailable: boolean
+    isCupScoreAvailable: boolean
 }

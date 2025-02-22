@@ -131,8 +131,13 @@ public class XMLImportService {
     }
 
     @Transactional
-    ImportResult importFile(InputStream inputStream) throws Exception {
-        var resultList = xmlParser.parseXmlFile(inputStream);
+    ImportResult importFile(InputStream inputStream) {
+        de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList;
+        try {
+            resultList = xmlParser.parseXmlFile(inputStream);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         Map<String, Country> countriesByCode = importCountries(resultList);
 

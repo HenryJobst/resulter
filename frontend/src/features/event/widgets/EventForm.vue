@@ -9,7 +9,6 @@ import type { SelectChangeEvent } from 'primevue/select'
 import { certificateService } from '@/features/certificate/services/certificate.service'
 import { EventService } from '@/features/event/services/event.service'
 import { organisationService } from '@/features/organisation/services/organisation.service'
-import { prettyPrint } from '@base2/pretty-print-object'
 import { useQuery } from '@tanstack/vue-query'
 import DatePicker from 'primevue/datepicker'
 import InputText from 'primevue/inputtext'
@@ -142,15 +141,14 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
 }
 
 onBeforeUpdate(() => {
-    console.log('EventForm:onBeforeUpdate:props.event', prettyPrint(props.event))
-    console.log('EventForm:onBeforeUpdate:dateTime', prettyPrint(dateTime.value))
+    // console.log('EventForm:onBeforeUpdate:props.event', prettyPrint(props.event))
+    // console.log('EventForm:onBeforeUpdate:dateTime', prettyPrint(dateTime.value))
 })
 
 function getCertificateKeyFromId(id: number | null): CertificateKey | null {
     if (!certificateQuery.data.value || !Array.isArray(certificateQuery.data.value)) {
         return null
     }
-
     const certificate: Certificate | undefined = certificateQuery.data?.value.find(
         certificate => certificate.id === id,
     )
@@ -237,7 +235,7 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
                     t('messages.loading')
                 }}</span>
                 <div
-                    v-else-if="organisationQuery.data && organisationQuery.data.value"
+                    v-else-if="organisationQuery.data && organisationQuery.data.value && Array.isArray(organisationQuery.data.value)"
                     class="card"
                 >
                     <MultiSelect

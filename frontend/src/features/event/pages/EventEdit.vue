@@ -28,7 +28,7 @@ const editLabel = computed(() => t('messages.edit_entity', { entity: t('labels.e
     >
         <template #default="{ formData }">
             <EventForm
-                v-if="formData"
+                v-if="formData && formData.data"
                 v-model="formData.data"
                 :event="formData.data as SportEvent"
                 :entity-service="eventService"

@@ -140,9 +140,8 @@ function createResultListTreeNodes(
     const treeNodes: TreeNode[] = []
     for (let i = 0; i < resultLists.length; i++) {
         const resultList = resultLists[i]
-        const certificateEnabled: boolean
-            = (event.value?.certificate ?? false) !== false && (resultLists.length === 1 || i === 0)
-        const cupScoreEnabled: boolean = resultLists.length === 1 || i > 0
+        const certificateEnabled = resultList.isCertificateAvailable
+        const cupScoreEnabled = resultList.isCupScoreAvailable
         const resultListCupScoreLists = cupScoreLists ? cupScoreLists[i] : undefined
         const resultListCompleteCupScoreLists = resultListCupScoreLists
             ? resultListCupScoreLists.filter(x => x.status === 'COMPLETE')

@@ -40,39 +40,21 @@ export const useAuthStore = defineStore(
         }
 
         async function login(url?: string, locale?: string) {
-            try {
-                const keycloak = await KeycloakService.callLogin(
-                    url || import.meta.env.VITE_APP_URL,
-                    locale,
-                )
-                takeCredentials(keycloak)
-            }
-            catch (error) {
-                console.error(error)
-                // Implement additional error handling as needed
-            }
+            const keycloak = await KeycloakService.callLogin(
+                url || import.meta.env.VITE_APP_URL,
+                locale,
+            )
+            takeCredentials(keycloak)
         }
 
         async function logout() {
-            try {
-                await KeycloakService.callLogout(import.meta.env.VITE_APP_URL)
-                clearUserData()
-            }
-            catch (error) {
-                console.error(error)
-                // Implement additional error handling as needed
-            }
+            await KeycloakService.callLogout(import.meta.env.VITE_APP_URL)
+            clearUserData()
         }
 
         async function refreshUserToken() {
-            try {
-                const keycloak = await KeycloakService.callTokenRefresh()
-                initOauth(keycloak, false)
-            }
-            catch (error) {
-                console.error(error)
-                // Implement additional error handling as needed
-            }
+            const keycloak = await KeycloakService.callTokenRefresh()
+            initOauth(keycloak, false)
         }
 
         function clearUserData() {

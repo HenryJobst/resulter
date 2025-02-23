@@ -11,11 +11,12 @@ import Button from 'primevue/button'
 import { usePrimeVue } from 'primevue/config'
 import ConfirmDialog from 'primevue/confirmdialog'
 import Menubar from 'primevue/menubar'
+import Select from 'primevue/select'
 import Toast from 'primevue/toast'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { SUPPORT_LOCALES } from './i18n'
+import { getFlagClass, SUPPORT_LOCALES } from './i18n'
 
 const router = useRouter()
 const { t, locale } = useI18n()
@@ -70,6 +71,10 @@ async function switchPrimeVueLocale(locale: string) {
 
     const primeVueLocale = primeVueLocales.value[locale]
     Object.assign(primevue.config.locale!, primeVueLocale)
+}
+
+function showImprint() {
+    router.push({ name: 'imprint-page', params: { locale: currentLocale.value } })
 }
 
 watch(currentLocale, (val) => {
@@ -159,11 +164,11 @@ function setDetails(details: string) {
             </template>
             <template #end>
                 <!-- Sprachauswahl und Logout -->
-                <div class="flex flex-row flex-wrap justify-content-end">
+                <div class="flex flex-row flex-wrap justify-content-end align-items-center">
                     <a
                         v-if="!authStore.isAuthenticated"
                         href="#"
-                        class="text-xl mr-4"
+                        class="text-2xl mr-4"
                         @click="authStore.login(fullUrl, currentLocale)"
                     >
                         {{ t('navigations.login') }}
@@ -171,22 +176,32 @@ function setDetails(details: string) {
                     <a
                         v-if="authStore.isAuthenticated"
                         href="#"
-                        class="text-xl mr-4"
+                        class="text-2xl mr-4"
                         @click="authStore.logout()"
                     >
                         {{ t('navigations.logout') }}
                     </a>
-                    <div class="flex flex-row flex-nowrap">
-                        <label class="mr-2 mt-1" for="locale-select">{{ t('labels.language') }}</label>
-                        <select id="locale-select" v-model="currentLocale" class="form-select">
-                            <option
-                                v-for="optionLocale in SUPPORT_LOCALES"
-                                :key="optionLocale"
-                                :value="optionLocale"
-                            >
-                                {{ optionLocale }}
-                            </option>
-                        </select>
+                    <div class="flex flex-row flex-nowrap align-items-center">
+                        <Select
+                            v-model="currentLocale"
+                            :options="SUPPORT_LOCALES"
+                            class="w-full"
+                            style="border: none; background: none; outline: none; outline-color: currentColor; box-shadow: none"
+                            :aria-label="t('labels.select_language')"
+                        >
+                            <template #value="{ value }">
+                                <span :class="`${getFlagClass(value)}`" />
+                                <span class="sr-only">{{ value }}</span>
+                            </template>
+                            <template #option="{ option }">
+                                <span :class="`mr-2 ${getFlagClass(option)}`" />
+                                <span class="sr-only">{{ option }}</span>
+                                <div>{{ option }}</div>
+                            </template>
+                            <template #dropdownicon>
+                                <i class="pi pi-language" />
+                            </template>
+                        </Select>
                     </div>
                 </div>
             </template>
@@ -310,6 +325,15 @@ function setDetails(details: string) {
             <div v-if="authStore.authenticated" class="ml-4">
                 {{ t('labels.login_user', { username: authStore.user.username }) }}
             </div>
+        </div>
+        <div class="flex items-right">
+            <a
+                href="#"
+                class="mr-4"
+                @click="showImprint"
+            >
+                {{ t('navigations.imprint') }}
+            </a>
         </div>
     </footer>
 </template>

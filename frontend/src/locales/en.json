@@ -14,7 +14,8 @@
         "media-files": "Media",
         "certificates": "Certificates",
         "login": "Login",
-        "logout": "Logout"
+        "logout": "Logout",
+        "imprint": "Imprint"
     },
     "labels": {
         "no": "#",
@@ -94,7 +95,9 @@
         "message": "Message | Messages",
         "deleteAll": "Delete all",
         "detail": "Detail|Details",
-        "timestamp": "Timestamp"
+        "timestamp": "Timestamp",
+        "select_language": "Select language",
+        "defaultImpressText": "Impress not set!"
     },
     "messages": {
         "new_cup": "New cup",

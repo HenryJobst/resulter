@@ -4,6 +4,7 @@ import { aboutRouting } from '@/features/about/about-routing'
 import { certificateRouting } from '@/features/certificate/certificate-routing'
 import { cupRouting } from '@/features/cup/cup-routing'
 import { eventRouting } from '@/features/event/event-routing'
+import { imprintRouting } from '@/features/imprint/imprint-routing'
 import { mediaRouting } from '@/features/media/media-routing'
 import { organisationRouting } from '@/features/organisation/organisation-routing'
 import { personRouting } from '@/features/person/person-routing'
@@ -25,6 +26,7 @@ export function setupRouter(i18n: I18n): Router {
         ...cupRouting,
         ...mediaRouting,
         ...certificateRouting,
+        ...imprintRouting,
         {
             path: '/:pathMatch(.*)*',
             redirect: () => `/${locale}`,

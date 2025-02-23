@@ -22,6 +22,7 @@ import { setupRouter } from './router'
 import './assets/main.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
+import 'flag-icons/css/flag-icons.min.css'
 
 const savedLocale = localStorage.getItem('userLocale')
 // get user language from browser

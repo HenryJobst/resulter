@@ -25,6 +25,7 @@
         "@tanstack/vue-query-devtools": "^5.66.0",
         "axios": "^1.7.9",
         "cors": "^2.8.5",
+        "flag-icons": "^7.3.2",
         "keycloak-js": "^26.1.1",
         "moment": "^2.30.1",
         "moment-timezone": "^0.5.47",

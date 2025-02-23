@@ -29,6 +29,11 @@ export function getLocale(i18n: I18n): string {
     }
 }
 
+export function getFlagClass(locale: string): string {
+    const option = locale === 'en' ? 'gb' : locale
+    return `fi fi-${option}`
+}
+
 export function setLocale(i18n: I18n, locale: Locale): void {
     if (isComposer(i18n.global, i18n.mode)) {
         i18n.global.locale.value = locale

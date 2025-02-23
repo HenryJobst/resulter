@@ -14,7 +14,8 @@
         "media-files": "Medien",
         "certificates": "Urkunden",
         "login": "Login",
-        "logout": "Logout"
+        "logout": "Logout",
+        "imprint": "Impressum"
     },
     "labels": {
         "no": "#",
@@ -94,7 +95,9 @@
         "message": "Meldung | Meldungen",
         "deleteAll": "Alle löschen",
         "detail": "Detail|Details",
-        "timestamp": "Zeitstempel"
+        "timestamp": "Zeitstempel",
+        "select_language": "Sprache auswählen",
+        "defaultImpressText": "Impressum nicht gesetzt!"
     },
     "result_state": {
         "OK": "OK",

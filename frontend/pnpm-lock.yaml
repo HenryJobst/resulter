@@ -23,6 +23,9 @@ dependencies:
   cors:
     specifier: ^2.8.5
     version: 2.8.5
+  flag-icons:
+    specifier: ^7.3.2
+    version: 7.3.2
   keycloak-js:
     specifier: ^26.1.1
     version: 26.1.1
@@ -7527,6 +7530,10 @@ packages:
       locate-path: 7.2.0
       path-exists: 5.0.0
     dev: true
+
+  /flag-icons@7.3.2:
+    resolution: {integrity: sha512-QkaZ6Zvai8LIjx+UNAHUJ5Dhz9OLZpBDwCRWxF6YErxIcR16jTkIFm3bFu54EkvKQy4+wicW+Gm7/0631wVQyQ==}
+    dev: false
 
   /flat-cache@3.2.0:
     resolution: {integrity: sha512-CYcENa+FtcUKLmhhqyctpclsq7QF38pKjZHsGNiSQF5r4FtoKDWabFDl3hzaEQMvT1LHEysw5twgLvpYYb4vbw==}

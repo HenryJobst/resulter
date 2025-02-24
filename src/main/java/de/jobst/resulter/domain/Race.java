@@ -2,15 +2,19 @@ package de.jobst.resulter.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.util.Objects;
 
 @SuppressWarnings("FieldMayBeFinal")
+@AggregateRoot
 @Getter
 public class Race implements Comparable<Race> {
 
+    @Identity
     @NonNull
     @Setter
     private RaceId id;

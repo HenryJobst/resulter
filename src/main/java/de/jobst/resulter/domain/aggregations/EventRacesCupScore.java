@@ -1,4 +1,6 @@
-package de.jobst.resulter.domain;
+package de.jobst.resulter.domain.aggregations;
+
+import de.jobst.resulter.domain.Event;
 
 import java.util.List;
 

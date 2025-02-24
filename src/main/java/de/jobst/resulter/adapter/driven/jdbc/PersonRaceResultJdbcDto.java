@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.aggregations.PersonRaceResults;
 import org.springframework.lang.NonNull;
 
 import java.time.OffsetDateTime;

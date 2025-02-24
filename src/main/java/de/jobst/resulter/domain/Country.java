@@ -1,13 +1,17 @@
 package de.jobst.resulter.domain;
 
 import lombok.Getter;
+import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
+@AggregateRoot
 @Getter
 public final class Country {
 
+    @Identity
     @NonNull
     private final CountryId id;
 

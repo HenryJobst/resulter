@@ -1,5 +1,8 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
+
+@ValueObject
 public record PersonResultId(long value) {
 
     public static PersonResultId of(long value) {

@@ -1,8 +1,10 @@
 package de.jobst.resulter.domain;
 
-import de.jobst.resulter.domain.scoring.*;
+import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
 import lombok.Getter;
 import lombok.Setter;
+import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -10,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@AggregateRoot
 @Getter
 public class ResultList implements Comparable<ResultList> {
 
@@ -23,6 +26,7 @@ public class ResultList implements Comparable<ResultList> {
     private final ZonedDateTime createTime;
     @Nullable
     private final String status;
+    @Identity
     @NonNull
     @Setter
     private ResultListId id;

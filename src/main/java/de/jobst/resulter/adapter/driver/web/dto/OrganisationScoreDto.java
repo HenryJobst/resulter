@@ -1,6 +1,6 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.domain.OrganisationScore;
+import de.jobst.resulter.domain.aggregations.OrganisationScore;
 
 import java.util.List;
 

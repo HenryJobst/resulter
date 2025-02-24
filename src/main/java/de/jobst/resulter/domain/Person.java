@@ -1,14 +1,18 @@
 package de.jobst.resulter.domain;
 
 import lombok.Getter;
+import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
+@AggregateRoot
 @Getter
 public final class Person implements Comparable<Person> {
 
+    @Identity
     @NonNull
     private final PersonId id;
 

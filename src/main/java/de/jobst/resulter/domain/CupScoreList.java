@@ -2,15 +2,19 @@ package de.jobst.resulter.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 
+@AggregateRoot
 @Getter
 public class CupScoreList {
 
+    @Identity
     @NonNull
     @Setter
     private CupScoreListId id;

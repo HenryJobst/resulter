@@ -3,6 +3,8 @@ package de.jobst.resulter.domain;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import lombok.Getter;
 import lombok.Setter;
+import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -13,11 +15,13 @@ import java.util.Objects;
 import java.util.function.Function;
 
 
+@AggregateRoot
 @Getter
 public class Event implements Comparable<Event> {
 
     @NonNull
     private final DateTime endTime;
+    @Identity
     @NonNull
     @Setter
     private EventId id;

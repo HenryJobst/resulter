@@ -1,9 +1,11 @@
 package de.jobst.resulter.domain;
 
 import lombok.Getter;
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+@ValueObject
 @Getter
 public class SplitTime implements Comparable<SplitTime> {
 

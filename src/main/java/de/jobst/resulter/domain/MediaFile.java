@@ -3,12 +3,16 @@ package de.jobst.resulter.domain;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jmolecules.ddd.annotation.Entity;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+@Entity
 @Getter
 public class MediaFile implements Comparable<MediaFile> {
 
+    @Identity
     @NonNull
     @Setter
     private MediaFileId id;

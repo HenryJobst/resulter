@@ -3,11 +3,13 @@ package de.jobst.resulter.domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 
+@ValueObject
 @Getter
 @AllArgsConstructor
 public class PersonRaceResult implements Comparable<PersonRaceResult> {

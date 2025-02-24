@@ -1,6 +1,7 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -8,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@ValueObject
 public record ClassResult(@NonNull ClassResultName classResultName, @NonNull ClassResultShortName classResultShortName,
                           @NonNull Gender gender, @NonNull PersonResults personResults, @Nullable CourseId courseId)
     implements Comparable<ClassResult> {

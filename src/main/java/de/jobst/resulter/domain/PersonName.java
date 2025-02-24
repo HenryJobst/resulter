@@ -1,9 +1,11 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
 import java.text.MessageFormat;
 
+@ValueObject
 public record PersonName(FamilyName familyName, GivenName givenName) implements Comparable<PersonName> {
 
     public String getFullName() {

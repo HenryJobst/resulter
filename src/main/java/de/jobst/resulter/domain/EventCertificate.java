@@ -4,13 +4,17 @@ import com.fasterxml.uuid.Generators;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.jmolecules.ddd.annotation.Entity;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+@Entity
 @Getter
 @Setter
 public class EventCertificate {
 
+    @Identity
     @NonNull
     private EventCertificateId id;
 

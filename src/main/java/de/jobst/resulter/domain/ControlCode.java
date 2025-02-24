@@ -1,7 +1,9 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
+@ValueObject
 public record ControlCode(String value) implements Comparable<ControlCode> {
     public static ControlCode of(String value) {
         return new ControlCode(value);

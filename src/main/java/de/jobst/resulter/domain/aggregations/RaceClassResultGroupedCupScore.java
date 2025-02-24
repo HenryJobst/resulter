@@ -1,5 +1,7 @@
-package de.jobst.resulter.domain;
+package de.jobst.resulter.domain.aggregations;
 
+import de.jobst.resulter.domain.ClassResultScores;
+import de.jobst.resulter.domain.Race;
 import org.springframework.lang.NonNull;
 
 import java.util.List;

@@ -1,8 +1,10 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ValueObjectChecks;
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
+@ValueObject
 public record EventCertificateName(String value) implements Comparable<EventCertificateName> {
 
     public static EventCertificateName of(String name) {

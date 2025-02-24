@@ -1,6 +1,7 @@
 package de.jobst.resulter;
 
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
+import org.jmolecules.architecture.hexagonal.Application;
 import org.springframework.aot.hint.ExecutableMode;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
@@ -14,6 +15,7 @@ import java.util.Collections;
 
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
+@Application
 @SpringBootApplication
 @EnableJdbcRepositories
 @ImportRuntimeHints(ResulterApplication.ResulterApplicationRuntimeHints.class)

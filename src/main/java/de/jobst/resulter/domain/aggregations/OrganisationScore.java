@@ -1,5 +1,7 @@
-package de.jobst.resulter.domain;
+package de.jobst.resulter.domain.aggregations;
 
+import de.jobst.resulter.domain.Organisation;
+import de.jobst.resulter.domain.PersonWithScore;
 import org.springframework.lang.NonNull;
 
 import java.util.List;

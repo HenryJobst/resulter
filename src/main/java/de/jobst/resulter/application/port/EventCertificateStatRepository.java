@@ -3,6 +3,7 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.EventCertificateStat;
 import de.jobst.resulter.domain.EventCertificateStatId;
 import de.jobst.resulter.domain.EventId;
+import org.jmolecules.ddd.annotation.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -11,6 +12,7 @@ import org.springframework.lang.Nullable;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface EventCertificateStatRepository {
 
     EventCertificateStat save(EventCertificateStat eventCertificateStat);

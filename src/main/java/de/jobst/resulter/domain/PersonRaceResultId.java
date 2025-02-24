@@ -1,5 +1,8 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
+
+@ValueObject
 public record PersonRaceResultId(long value) implements Comparable<PersonRaceResultId> {
 
     public static PersonRaceResultId of(long value) {

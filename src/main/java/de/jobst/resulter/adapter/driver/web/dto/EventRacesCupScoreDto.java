@@ -1,6 +1,6 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.domain.EventRacesCupScore;
+import de.jobst.resulter.domain.aggregations.EventRacesCupScore;
 
 import java.util.List;
 

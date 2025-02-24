@@ -2,6 +2,7 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
+import org.jmolecules.ddd.annotation.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -9,6 +10,7 @@ import org.springframework.lang.Nullable;
 
 import java.util.*;
 
+@Repository
 public interface OrganisationRepository {
 
     Organisation save(Organisation organisation);

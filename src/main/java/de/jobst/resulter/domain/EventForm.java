@@ -1,5 +1,8 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
+
+@ValueObject
 public enum EventForm {
 
     INDIVIDUAL("Individual"),

@@ -1,7 +1,10 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
+
 import java.util.Objects;
 
+@ValueObject
 public enum OrganisationType {
     IOF("IOF"),
     IOF_REGION("IOFRegion"),

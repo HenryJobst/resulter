@@ -1,9 +1,11 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
+@ValueObject
 public record EventCertificateStatId(Long value) implements Comparable<EventCertificateStatId> {
 
     public static EventCertificateStatId of(Long value) {

@@ -1,7 +1,9 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
+@ValueObject
 public record CupId(long value) implements Comparable<CupId> {
 
     @Override

@@ -7,6 +7,7 @@ import de.jobst.resulter.application.port.CupScoreListRepository;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.aggregations.*;
 import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.springframework.data.domain.Page;

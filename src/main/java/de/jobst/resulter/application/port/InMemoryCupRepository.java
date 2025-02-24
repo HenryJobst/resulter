@@ -66,7 +66,7 @@ public class InMemoryCupRepository implements CupRepository {
     public Collection<Cup> findByEvent(EventId eventId) {
         return this.cups.values()
             .stream()
-            .filter(it -> it.getEvents().stream().anyMatch(x -> x.getId().equals(eventId)))
+            .filter(it -> it.getEvents().stream().anyMatch(x -> x.equals(eventId)))
             .toList();
     }
 

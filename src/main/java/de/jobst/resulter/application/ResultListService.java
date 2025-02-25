@@ -37,18 +37,20 @@ public class ResultListService {
     private final CupScoreListRepository cupScoreListRepository;
 
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
+    private final EventService eventService;
+    private final PersonService personService;
 
     public ResultListService(
-            ResultListRepository resultListRepository,
-            CupRepository cupRepository,
-            EventRepository eventRepository,
-            OrganisationRepository organisationRepository,
-            PersonRepository personRepository,
-            CertificateService certificateService,
-            MediaFileRepository mediaFileRepository,
-            EventCertificateStatRepository eventCertificateStatRepository,
-            CupScoreListRepository cupScoreListRepository,
-            SpringSecurityAuditorAware springSecurityAuditorAware) {
+        ResultListRepository resultListRepository,
+        CupRepository cupRepository,
+        EventRepository eventRepository,
+        OrganisationRepository organisationRepository,
+        PersonRepository personRepository,
+        CertificateService certificateService,
+        MediaFileRepository mediaFileRepository,
+        EventCertificateStatRepository eventCertificateStatRepository,
+        CupScoreListRepository cupScoreListRepository,
+        SpringSecurityAuditorAware springSecurityAuditorAware, EventService eventService, PersonService personService) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -59,6 +61,8 @@ public class ResultListService {
         this.eventCertificateStatRepository = eventCertificateStatRepository;
         this.cupScoreListRepository = cupScoreListRepository;
         this.springSecurityAuditorAware = springSecurityAuditorAware;
+        this.eventService = eventService;
+        this.personService = personService;
     }
 
     public ResultList findOrCreate(ResultList resultList) {
@@ -156,7 +160,7 @@ public class ResultListService {
                 person, organisation, event, Objects.requireNonNull(event.getCertificate()), personRaceResult.get());
 
         EventCertificateStat eventCertificateStat =
-                EventCertificateStat.of(EventCertificateStatId.empty().value(), event, person, Instant.now());
+                EventCertificateStat.of(EventCertificateStatId.empty().value(), event.getId(), person.getId(), Instant.now());
 
         eventCertificateStatRepository.save(eventCertificateStat);
 
@@ -186,7 +190,7 @@ public class ResultListService {
 
     public List<EventCertificateStatDto> getCertificateStats(EventId eventId) {
         return eventCertificateStatRepository.findAllByEvent(eventId).stream()
-                .map(EventCertificateStatDto::from)
+                .map(x -> EventCertificateStatDto.from(x, eventService, personService))
                 .toList();
     }
 

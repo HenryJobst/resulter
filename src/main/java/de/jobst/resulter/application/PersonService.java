@@ -61,6 +61,10 @@ public class PersonService {
         return personRepository.findOrCreate(person);
     }
 
+    public Person getById(PersonId personId) {
+        return personRepository.findById(personId).orElseThrow(ResourceNotFoundException::new);
+    }
+
     public Optional<Person> findById(PersonId personId) {
         return personRepository.findById(personId);
     }

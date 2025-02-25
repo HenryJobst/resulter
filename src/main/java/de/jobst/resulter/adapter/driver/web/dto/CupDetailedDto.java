@@ -34,7 +34,7 @@ public record CupDetailedDto(
                 cup.getType().isGroupedByOrganisation()
                         ? cup.getOverallOrganisationScores().stream()
                                 .map(entry -> new OrganisationScoreDto(
-                                        OrganisationDto.from(entry.organisation(), countryService),
+                                        OrganisationDto.from(entry.organisation(), countryService, organisationService),
                                         entry.score(),
                                         entry.personWithScores().stream()
                                                 .map(PersonWithScoreDto::from)

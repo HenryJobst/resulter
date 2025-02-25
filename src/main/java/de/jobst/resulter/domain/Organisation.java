@@ -8,6 +8,7 @@ import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 
 @AggregateRoot
@@ -30,7 +31,7 @@ public final class Organisation implements Comparable<Organisation> {
     private final CountryId country;
 
     @NonNull
-    private final Collection<Organisation> childOrganisations;
+    private final Collection<OrganisationId> childOrganisations;
 
     public Organisation(
             @NonNull OrganisationId id,
@@ -38,7 +39,7 @@ public final class Organisation implements Comparable<Organisation> {
             @NonNull OrganisationShortName shortName,
             @NonNull OrganisationType type,
             @Nullable CountryId country,
-            @NonNull Collection<Organisation> childOrganisations) {
+            @NonNull Collection<OrganisationId> childOrganisations) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;
@@ -71,7 +72,7 @@ public final class Organisation implements Comparable<Organisation> {
             @NonNull String shortName,
             @NonNull String type,
             @Nullable CountryId country,
-            @NonNull Collection<Organisation> childOrganisations) {
+            @NonNull Collection<OrganisationId> childOrganisations) {
         return new Organisation(
                 OrganisationId.of(id),
                 OrganisationName.of(name),
@@ -86,7 +87,7 @@ public final class Organisation implements Comparable<Organisation> {
             @NonNull OrganisationShortName shortName,
             @NonNull OrganisationType type,
             @Nullable CountryId country,
-            @NonNull Collection<Organisation> childOrganisations) {
+            @NonNull Collection<OrganisationId> childOrganisations) {
         return new Organisation(OrganisationId.empty(), name, shortName, type, country, childOrganisations);
     }
 
@@ -130,15 +131,21 @@ public final class Organisation implements Comparable<Organisation> {
         return Objects.hash(id, name, shortName, country);
     }
 
-    public boolean containsOrganisationWithShortName(String name) {
+    public boolean containsOrganisationWithShortName(String name, Map<OrganisationId, Organisation> organisationById) {
         if (getShortName().value().equals(name)) {
             return true;
         }
-        return getChildOrganisations().stream().anyMatch(subOrg -> subOrg.containsOrganisationWithShortName(name));
+        return getChildOrganisations().stream().anyMatch(subOrg -> {
+            Organisation subOrganisation = organisationById.get(subOrg);
+            return subOrganisation.containsOrganisationWithShortName(name, organisationById);
+        });
     }
 
-    public boolean containsOrganisationWithId(OrganisationId id) {
+    public boolean containsOrganisationWithId(OrganisationId id, Map<OrganisationId, Organisation> organisationById) {
         return getId().equals(id)
-                || childOrganisations.stream().anyMatch(subOrg -> subOrg.containsOrganisationWithId(id));
+                || childOrganisations.stream().anyMatch(subOrg -> {
+                    Organisation subOrganisation = organisationById.get(subOrg);
+                    return subOrganisation.containsOrganisationWithId(id, organisationById);
+                });
     }
 }

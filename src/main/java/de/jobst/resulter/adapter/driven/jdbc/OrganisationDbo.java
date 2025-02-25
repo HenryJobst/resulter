@@ -1,9 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.Country;
-import de.jobst.resulter.domain.CountryId;
-import de.jobst.resulter.domain.Organisation;
-import de.jobst.resulter.domain.OrganisationType;
+import de.jobst.resulter.domain.*;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
@@ -76,7 +73,7 @@ public class OrganisationDbo {
         }
 
         organisationDbo.setChildOrganisations(organisation.getChildOrganisations().stream()
-                .map(it -> new OrganisationOrganisationDbo(it.getId().value()))
+                .map(it -> new OrganisationOrganisationDbo(it.value()))
                 .collect(Collectors.toSet()));
 
         return organisationDbo;
@@ -100,7 +97,7 @@ public class OrganisationDbo {
                 childOrganisations == null
                         ? new ArrayList<>()
                         : childOrganisations.stream()
-                                .map(x -> organisationResolver.apply(x.id.getId()))
+                                .map(x -> OrganisationId.of(x.id.getId()))
                                 .toList());
     }
 

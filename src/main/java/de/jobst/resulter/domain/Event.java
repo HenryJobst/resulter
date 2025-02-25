@@ -41,6 +41,7 @@ public class Event implements Comparable<Event> {
     @NonNull
     private Collection<OrganisationId> organisationIds;
 
+    @Association
     @Nullable
     @Setter
     private EventCertificateId certificate;

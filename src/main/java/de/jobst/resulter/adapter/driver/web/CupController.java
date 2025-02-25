@@ -5,12 +5,8 @@ import de.jobst.resulter.adapter.driver.web.dto.CupDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.application.CupService;
+import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.domain.*;
-import java.time.Year;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +17,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @Slf4j
 public class CupController {
 
     private final CupService cupService;
+    private final EventService eventService;
 
     @Autowired
-    public CupController(CupService cupService) {
+    public CupController(CupService cupService, EventService eventService) {
         this.cupService = cupService;
+        this.eventService = eventService;
     }
 
     @GetMapping("/cup_types")
@@ -41,7 +45,7 @@ public class CupController {
     @GetMapping("/cup/all")
     public ResponseEntity<List<CupDto>> getAllCups() {
         List<Cup> cups = cupService.findAll();
-        return ResponseEntity.ok(cups.stream().map(CupDto::from).toList());
+        return ResponseEntity.ok(cups.stream().map(x -> CupDto.from(x, eventService)).toList());
     }
 
     @GetMapping("/cup")
@@ -53,19 +57,19 @@ public class CupController {
                         ? FilterAndSortConverter.mapOrderProperties(pageable, CupDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
         return ResponseEntity.ok(new PageImpl<>(
-                cups.getContent().stream().map(CupDto::from).toList(),
+                cups.getContent().stream().map(x -> CupDto.from(x, eventService)).toList(),
                 FilterAndSortConverter.mapOrderProperties(cups.getPageable(), CupDto::mapOrdersDomainToDto),
                 cups.getTotalElements()));
     }
 
     @GetMapping("/cup/{id}")
     public ResponseEntity<CupDto> getCup(@PathVariable Long id) {
-        return ResponseEntity.ok(CupDto.from(cupService.getById(CupId.of(id))));
+        return ResponseEntity.ok(CupDto.from(cupService.getById(CupId.of(id)), eventService));
     }
 
     @GetMapping("/cup/{id}/results")
     public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
-        return ResponseEntity.ok(CupDetailedDto.from(cupService.getCupDetailed(CupId.of(id))));
+        return ResponseEntity.ok(CupDetailedDto.from(cupService.getCupDetailed(CupId.of(id)), eventService));
     }
 
     @PutMapping("/cup/{id}")
@@ -79,7 +83,7 @@ public class CupController {
                 cupDto.events() == null
                         ? new ArrayList<>()
                         : cupDto.events().stream().map(x -> EventId.of(x.id())).toList());
-        return ResponseEntity.ok(CupDto.from(cup));
+        return ResponseEntity.ok(CupDto.from(cup, eventService));
     }
 
     @PostMapping("/cup")
@@ -95,7 +99,7 @@ public class CupController {
                                 .map(x -> EventId.of(x.id()))
                                 .filter(ObjectUtils::isNotEmpty)
                                 .toList());
-        return ResponseEntity.ok(CupDto.from(cup));
+        return ResponseEntity.ok(CupDto.from(cup, eventService));
     }
 
     @DeleteMapping("/cup/{id}")

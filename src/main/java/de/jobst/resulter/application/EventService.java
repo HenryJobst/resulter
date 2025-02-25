@@ -42,12 +42,28 @@ public class EventService {
         return eventRepository.findOrCreate(event);
     }
 
+    public Event getById(EventId eventId) {
+        return eventRepository.findById(eventId).orElseThrow(ResourceNotFoundException::new);
+    }
+
+    public List<Event> getByIds(Collection<EventId> eventIds) {
+        List<Event> events = eventRepository.findAllById(eventIds);
+        if (events.size() != eventIds.size()) {
+            throw new ResourceNotFoundException();
+        }
+        return events;
+    }
+
     public Optional<Event> findById(EventId eventId) {
         return eventRepository.findById(eventId);
     }
 
     public List<Event> findAll() {
         return eventRepository.findAll();
+    }
+
+    public List<Event> findAllById(Collection<EventId> eventIds) {
+        return eventRepository.findAllById(eventIds);
     }
 
     public @NonNull Event updateEvent(EventId id,

@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.application.CountryService;
+import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.Organisation;
 import org.apache.commons.lang3.ObjectUtils;
@@ -9,18 +10,29 @@ import org.springframework.data.domain.Sort;
 import java.util.List;
 import java.util.Optional;
 
-public record OrganisationDto(Long id, String name, String shortName, OrganisationTypeDto type, CountryKeyDto country,
-                              List<OrganisationKeyDto> childOrganisations) {
+public record OrganisationDto(
+        Long id,
+        String name,
+        String shortName,
+        OrganisationTypeDto type,
+        CountryKeyDto country,
+        List<OrganisationKeyDto> childOrganisations) {
 
-    static public OrganisationDto from(Organisation organisation, CountryService countryService) {
-        Optional<Country> country = Optional.ofNullable(organisation.getCountry()).map(
-            countryService::getById);
-        return new OrganisationDto(ObjectUtils.isNotEmpty(organisation.getId()) ? organisation.getId().value() : 0,
-            organisation.getName().value(),
-            organisation.getShortName().value(),
-            OrganisationTypeDto.from(organisation.getType()),
-            country.map(CountryKeyDto::from).orElse(null),
-            organisation.getChildOrganisations().stream().map(OrganisationKeyDto::from).toList());
+    public static OrganisationDto from(
+            Organisation organisation, CountryService countryService, OrganisationService organisationService) {
+        Optional<Country> country =
+                Optional.ofNullable(organisation.getCountry()).map(countryService::getById);
+        return new OrganisationDto(
+                ObjectUtils.isNotEmpty(organisation.getId())
+                        ? organisation.getId().value()
+                        : 0,
+                organisation.getName().value(),
+                organisation.getShortName().value(),
+                OrganisationTypeDto.from(organisation.getType()),
+                country.map(CountryKeyDto::from).orElse(null),
+                organisation.getChildOrganisations().stream()
+                        .map(o -> OrganisationKeyDto.from(organisationService.getById(o)))
+                        .toList());
     }
 
     public static String mapOrdersDtoToDomain(Sort.Order order) {

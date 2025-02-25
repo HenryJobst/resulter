@@ -36,8 +36,9 @@ public class OrganisationController {
     @GetMapping("/organisation/all")
     public ResponseEntity<List<OrganisationDto>> getAllOrganisations() {
         List<Organisation> organisations = organisationService.findAll();
-        return ResponseEntity.ok(
-                organisations.stream().map(o -> OrganisationDto.from(o, countryService)).toList());
+        return ResponseEntity.ok(organisations.stream()
+                .map(o -> OrganisationDto.from(o, countryService, organisationService))
+                .toList());
     }
 
     @GetMapping("/organisation")
@@ -49,7 +50,9 @@ public class OrganisationController {
                         ? FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
         return ResponseEntity.ok(new PageImpl<>(
-                organisations.getContent().stream().map(o -> OrganisationDto.from(o, countryService)).toList(),
+                organisations.getContent().stream()
+                        .map(o -> OrganisationDto.from(o, countryService, organisationService))
+                        .toList(),
                 FilterAndSortConverter.mapOrderProperties(
                         organisations.getPageable(), OrganisationDto::mapOrdersDomainToDto),
                 organisations.getTotalElements()));
@@ -59,7 +62,7 @@ public class OrganisationController {
     public ResponseEntity<OrganisationDto> getOrganisation(@PathVariable Long id) {
         Optional<Organisation> organisation = organisationService.findById(OrganisationId.of(id));
         return organisation
-                .map(value -> ResponseEntity.ok(OrganisationDto.from(value, countryService)))
+                .map(value -> ResponseEntity.ok(OrganisationDto.from(value, countryService, organisationService)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -87,7 +90,7 @@ public class OrganisationController {
                         : organisationDto.childOrganisations().stream()
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
-        return ResponseEntity.ok(OrganisationDto.from(organisation, countryService));
+        return ResponseEntity.ok(OrganisationDto.from(organisation, countryService, organisationService));
     }
 
     @PostMapping("/organisation")
@@ -105,7 +108,7 @@ public class OrganisationController {
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
         if (null != organisation) {
-            return ResponseEntity.ok(OrganisationDto.from(organisation, countryService));
+            return ResponseEntity.ok(OrganisationDto.from(organisation, countryService, organisationService));
         } else {
             return ResponseEntity.notFound().build();
         }

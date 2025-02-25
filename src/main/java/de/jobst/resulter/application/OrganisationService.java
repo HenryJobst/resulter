@@ -67,7 +67,7 @@ public class OrganisationService {
                 shortName,
                 type,
                 optionalCountry.map(Country::getId).orElse(null),
-                childOrganisations));
+                childOrganisations.stream().map(Organisation::getId).toList()));
     }
 
     public Organisation createOrganisation(
@@ -82,8 +82,12 @@ public class OrganisationService {
             return null;
         }
         List<Organisation> childOrganisations = findByIds(childOrganisationIds);
-        Organisation organisation = Organisation.of(name, shortName, type,
-            optionalCountry.map(Country::getId).orElse(null), childOrganisations);
+        Organisation organisation = Organisation.of(
+                name,
+                shortName,
+                type,
+                optionalCountry.map(Country::getId).orElse(null),
+                childOrganisations.stream().map(Organisation::getId).toList());
         return organisationRepository.save(organisation);
     }
 

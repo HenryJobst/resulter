@@ -12,10 +12,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -49,8 +46,8 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
 
     @Override
     public void deleteAllByEventId(EventId eventId) {
-        eventCertificates.values().removeIf(eventCertificate -> eventCertificate.getEvent().getId().equals(eventId));
-        savedEventCertificates.removeIf(eventCertificate -> eventCertificate.getEvent().getId().equals(eventId));
+        eventCertificates.values().removeIf(eventCertificate -> Objects.equals(eventCertificate.getEvent(), eventId));
+        savedEventCertificates.removeIf(eventCertificate -> Objects.equals(eventCertificate.getEvent(), eventId));
     }
 
     @Override
@@ -73,7 +70,7 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
         List<EventCertificate> result = new ArrayList<>();
         eventCertificates.values()
             .stream()
-            .filter(eventCertificate -> eventCertificate.getEvent().getId().equals(id))
+            .filter(eventCertificate -> Objects.equals(eventCertificate.getEvent(), id))
             .forEach(result::add);
         return result;
     }

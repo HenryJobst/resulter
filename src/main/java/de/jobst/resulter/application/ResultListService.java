@@ -176,7 +176,7 @@ public class ResultListService {
         EventCertificate eventCertificate = EventCertificate.of(
                 EventCertificateId.empty().value(),
                 eventCertificateDto.name(),
-                event,
+                event.getId(),
                 eventCertificateDto.layoutDescription(),
                 blankCertificate,
                 eventCertificateDto.primary());

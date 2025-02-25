@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.adapter.driver.web.constraints.FullDtoGroup;
 import de.jobst.resulter.adapter.driver.web.constraints.KeyDtoGroup;
 import de.jobst.resulter.adapter.driver.web.constraints.ValidId;
+import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.domain.EventCertificate;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.ObjectUtils;
@@ -18,14 +19,14 @@ public record EventCertificateDto(
         @Validated({KeyDtoGroup.class, FullDtoGroup.class}) MediaFileKeyDto blankCertificate,
         @NotNull boolean primary) {
 
-    public static EventCertificateDto from(EventCertificate eventCertificate, String thumbnailPath) {
+    public static EventCertificateDto from(EventCertificate eventCertificate, String thumbnailPath, EventService eventService) {
         return new EventCertificateDto(
                 ObjectUtils.isNotEmpty(eventCertificate.getId())
                         ? eventCertificate.getId().value()
                         : 0,
                 eventCertificate.getName().value(),
                 ObjectUtils.isNotEmpty(eventCertificate.getEvent())
-                        ? EventKeyDto.from(eventCertificate.getEvent())
+                        ? EventKeyDto.from(eventService.getById(eventCertificate.getEvent()))
                         : null,
                 ObjectUtils.isNotEmpty(eventCertificate.getLayoutDescription())
                         ? eventCertificate.getLayoutDescription().value()

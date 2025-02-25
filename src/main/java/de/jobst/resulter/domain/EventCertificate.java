@@ -4,6 +4,7 @@ import com.fasterxml.uuid.Generators;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Entity;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
@@ -21,12 +22,14 @@ public class EventCertificate {
     @NonNull
     private EventCertificateName name;
 
+    @Association
     @Nullable
-    private Event event;
+    private EventId event;
 
     @Nullable
     private EventCertificateLayoutDescription layoutDescription;
 
+    @Association
     @Nullable
     private MediaFile blankCertificate;
 
@@ -35,7 +38,7 @@ public class EventCertificate {
     public EventCertificate(
             @NonNull EventCertificateId id,
             @NonNull EventCertificateName name,
-            @Nullable Event event,
+            @Nullable EventId event,
             @Nullable EventCertificateLayoutDescription layoutDescription,
             @Nullable MediaFile blankCertificate,
             boolean primary) {
@@ -50,7 +53,7 @@ public class EventCertificate {
     public static EventCertificate of(
             Long id,
             String name,
-            Event event,
+            EventId event,
             String eventCertificateLayoutDescription,
             MediaFile blankCertificate,
             boolean primary) {
@@ -73,7 +76,7 @@ public class EventCertificate {
 
     public void update(
             EventCertificateName name,
-            Event event,
+            EventId event,
             EventCertificateLayoutDescription eventCertificateLayoutDescription,
             MediaFile mediaFile,
             boolean primary) {

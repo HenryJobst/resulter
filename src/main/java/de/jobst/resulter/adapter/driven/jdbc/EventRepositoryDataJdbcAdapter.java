@@ -86,8 +86,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @NonNull
     private Function<Long, EventCertificate> getEventCertificateResolver() {
         return id -> EventCertificateDbo.asEventCertificate(eventCertificateJdbcRepository.findById(id).orElseThrow(),
-            getEventResolver(),
-            getMediaFileResolver());
+                getMediaFileResolver());
     }
 
     @NonNull
@@ -101,8 +100,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
                 eventCertificateJdbcRepository.findByEventAndPrimary(AggregateReference.to(id.value()), true);
             return optionalEventCertificateDbo.map(eventCertificateDbo -> EventCertificateDbo.asEventCertificate(
                 eventCertificateDbo,
-                eventId -> event,
-                getMediaFileResolver())).orElse(null);
+                    getMediaFileResolver())).orElse(null);
         };
     }
 

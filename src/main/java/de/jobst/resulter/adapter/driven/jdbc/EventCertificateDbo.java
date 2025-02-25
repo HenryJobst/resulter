@@ -4,6 +4,9 @@ import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.MediaFile;
 import de.jobst.resulter.domain.MediaFileId;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Id;
@@ -13,10 +16,6 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
 
 @Data
 @NoArgsConstructor
@@ -57,21 +56,20 @@ public class EventCertificateDbo {
             eventCertificateDbo = dboResolvers.getEventCertificateDboResolver().findDboById(eventCertificate.getId());
             eventCertificateDbo.setName(eventCertificate.getName().value());
             if (null != eventCertificate.getEvent()) {
-                eventCertificateDbo.setEvent(AggregateReference.to(
-                        eventCertificate.getEvent().value()));
+                eventCertificateDbo.setEvent(
+                        AggregateReference.to(eventCertificate.getEvent().value()));
             }
         } else {
             eventCertificateDbo = new EventCertificateDbo(
                     eventCertificate.getName().value(),
                     eventCertificate.getEvent() != null
-                            ? AggregateReference.to(
-                                    eventCertificate.getEvent().value())
+                            ? AggregateReference.to(eventCertificate.getEvent().value())
                             : null);
         }
 
         if (ObjectUtils.isNotEmpty(eventCertificate.getBlankCertificate())) {
-            eventCertificateDbo.setBlankCertificate(AggregateReference.to(
-                    eventCertificate.getBlankCertificate().value()));
+            eventCertificateDbo.setBlankCertificate(
+                    AggregateReference.to(eventCertificate.getBlankCertificate().value()));
         } else {
             eventCertificateDbo.setBlankCertificate(null);
         }
@@ -89,7 +87,8 @@ public class EventCertificateDbo {
     }
 
     public static List<EventCertificate> asEventCertificates(
-            @NonNull Collection<EventCertificateDbo> eventCertificateDbos, Function<Long, MediaFile> mediaFileResolver) {
+            @NonNull Collection<EventCertificateDbo> eventCertificateDbos,
+            Function<Long, MediaFile> mediaFileResolver) {
 
         return eventCertificateDbos.stream()
                 .map(it -> EventCertificate.of(

@@ -3,6 +3,9 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventCertificateId;
 import de.jobst.resulter.domain.EventId;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
@@ -11,10 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -27,7 +26,8 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
     @NonNull
     @Override
     public EventCertificate save(@NonNull EventCertificate eventCertificate) {
-        if (ObjectUtils.isEmpty(eventCertificate.getId()) || eventCertificate.getId().value() == 0) {
+        if (ObjectUtils.isEmpty(eventCertificate.getId())
+                || eventCertificate.getId().value() == 0) {
             eventCertificate.setId(EventCertificateId.of(sequence.incrementAndGet()));
         }
         eventCertificates.put(eventCertificate.getId(), eventCertificate);
@@ -37,7 +37,8 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
 
     @Override
     public void delete(EventCertificate eventCertificate) {
-        if (ObjectUtils.isEmpty(eventCertificate.getId()) || eventCertificate.getId().value() == 0) {
+        if (ObjectUtils.isEmpty(eventCertificate.getId())
+                || eventCertificate.getId().value() == 0) {
             return;
         }
         eventCertificates.remove(eventCertificate.getId());
@@ -68,10 +69,9 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
     @Override
     public List<EventCertificate> findAllByEvent(EventId id) {
         List<EventCertificate> result = new ArrayList<>();
-        eventCertificates.values()
-            .stream()
-            .filter(eventCertificate -> Objects.equals(eventCertificate.getEvent(), id))
-            .forEach(result::add);
+        eventCertificates.values().stream()
+                .filter(eventCertificate -> Objects.equals(eventCertificate.getEvent(), id))
+                .forEach(result::add);
         return result;
     }
 
@@ -79,7 +79,6 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
     public void saveAll(List<EventCertificate> eventCertificates) {
         eventCertificates.forEach(this::save);
     }
-
 
     @SuppressWarnings("unused")
     public List<EventCertificate> savedEventCertificates() {
@@ -95,5 +94,4 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
     public void resetSaveCount() {
         savedEventCertificates.clear();
     }
-
 }

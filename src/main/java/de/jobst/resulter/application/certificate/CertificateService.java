@@ -19,14 +19,6 @@ import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TabAlignment;
 import de.jobst.resulter.application.MediaFileService;
 import de.jobst.resulter.domain.*;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,17 +31,28 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class CertificateService {
 
     public static final String SCHEMA_CERTIFICATE_SCHEMA_JSON = "schema/certificate_schema.json";
+
     @Getter
     private final String certificateSchema;
+
     private final JsonSchemaValidator jsonSchemaValidator;
+
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
+
     private final MediaFileService mediaFileService;
 
     public CertificateService(MediaFileService mediaFileService) {
@@ -67,11 +70,8 @@ public class CertificateService {
         jsonSchemaValidator = new JsonSchemaValidator();
     }
 
-    private static Text createTextBlock(TextBlock textBlock,
-                                        PdfFont font,
-                                        PdfFont boldFont,
-                                        PdfFont italicFont,
-                                        PdfFont boldItalicFont) {
+    private static Text createTextBlock(
+            TextBlock textBlock, PdfFont font, PdfFont boldFont, PdfFont italicFont, PdfFont boldItalicFont) {
         Text text = new Text(textBlock.text().content());
         setGlobalFonts(textBlock, boldFont, italicFont, boldItalicFont, text);
         setLocalFont(textBlock, text);
@@ -88,9 +88,10 @@ public class CertificateService {
 
     private static void setColor(TextBlock textBlock, Text text) {
         if (textBlock.text().color() != null) {
-            text.setFontColor(new DeviceRgb(textBlock.text().color().r(),
-                textBlock.text().color().g(),
-                textBlock.text().color().b()));
+            text.setFontColor(new DeviceRgb(
+                    textBlock.text().color().r(),
+                    textBlock.text().color().g(),
+                    textBlock.text().color().b()));
         }
     }
 
@@ -110,11 +111,8 @@ public class CertificateService {
         }
     }
 
-    private static void setGlobalFonts(TextBlock textBlock,
-                                       PdfFont boldFont,
-                                       PdfFont italicFont,
-                                       PdfFont boldItalicFont,
-                                       Text text) {
+    private static void setGlobalFonts(
+            TextBlock textBlock, PdfFont boldFont, PdfFont italicFont, PdfFont boldItalicFont, Text text) {
         if (textBlock.text().bold()) {
             if (textBlock.text().italic()) {
                 if (boldItalicFont != null) {
@@ -141,11 +139,10 @@ public class CertificateService {
 
     private static void applyTabStops(ParagraphDefinition paragraphDefinition, Paragraph paragraph) {
         if (paragraphDefinition.tabStops() != null) {
-            paragraphDefinition.tabStops()
-                .stream()
-                .map(tabStopDefinition -> new TabStop(tabStopDefinition.position(),
-                    TabAlignment.valueOf(tabStopDefinition.alignment())))
-                .forEach(paragraph::addTabStops);
+            paragraphDefinition.tabStops().stream()
+                    .map(tabStopDefinition -> new TabStop(
+                            tabStopDefinition.position(), TabAlignment.valueOf(tabStopDefinition.alignment())))
+                    .forEach(paragraph::addTabStops);
         } else {
             paragraph.addTabStops(new TabStop(261.5f, TabAlignment.CENTER));
         }
@@ -171,7 +168,7 @@ public class CertificateService {
 
     public static FontProgram loadFont(String fontNameOrPath) {
         InputStream fontStream =
-            Thread.currentThread().getContextClassLoader().getResourceAsStream("fonts/" + fontNameOrPath);
+                Thread.currentThread().getContextClassLoader().getResourceAsStream("fonts/" + fontNameOrPath);
         if (fontStream == null) {
             throw new RuntimeException("Font file not found: " + fontNameOrPath);
         }
@@ -200,9 +197,8 @@ public class CertificateService {
                     font = PdfFontFactory.createFont(fontNameOrPath);
                 } else {
                     FontProgram fontProgram = loadFont(fontNameOrPath);
-                    font = PdfFontFactory.createFont(fontProgram,
-                        PdfEncodings.IDENTITY_H,
-                        PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+                    font = PdfFontFactory.createFont(
+                            fontProgram, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
                 }
             } catch (IOException e) {
                 log.error(MessageFormat.format("Error loading font: {0}", fontNameOrPath), e);
@@ -213,72 +209,75 @@ public class CertificateService {
 
     private Image createImageBlock(MediaBlock mediaParagraph) throws MalformedURLException {
         Path basePath = Paths.get(mediaFilePath);
-        ImageData imageData = ImageDataFactory.create(basePath.resolve(mediaParagraph.media()).toString());
+        ImageData imageData =
+                ImageDataFactory.create(basePath.resolve(mediaParagraph.media()).toString());
         Image image = new Image(imageData);
         image.setWidth(mediaParagraph.width());
         return image;
     }
 
-    private Paragraph createParagraph(ParagraphDefinition paragraphDefinition,
-                                      PdfFont font,
-                                      PdfFont boldFont,
-                                      PdfFont italicFont,
-                                      PdfFont boldItalicFont) {
+    private Paragraph createParagraph(
+            ParagraphDefinition paragraphDefinition,
+            PdfFont font,
+            PdfFont boldFont,
+            PdfFont italicFont,
+            PdfFont boldItalicFont) {
         Paragraph paragraph = getParagraph(paragraphDefinition);
         applyTabStops(paragraphDefinition, paragraph);
         applyBlocks(paragraphDefinition, paragraph, font, boldFont, italicFont, boldItalicFont);
         return paragraph;
     }
 
-    private void applyBlocks(ParagraphDefinition paragraphDefinition,
-                             Paragraph paragraph,
-                             PdfFont font,
-                             PdfFont boldFont,
-                             PdfFont italicFont,
-                             PdfFont boldItalicFont) {
+    private void applyBlocks(
+            ParagraphDefinition paragraphDefinition,
+            Paragraph paragraph,
+            PdfFont font,
+            PdfFont boldFont,
+            PdfFont italicFont,
+            PdfFont boldItalicFont) {
         if (paragraphDefinition.blocks() != null) {
-            paragraphDefinition.blocks()
-                .stream()
-                .sorted(Comparator.comparingInt(ParagraphDefinition.ParagraphDefinitionBlock::getTabPosition))
-                .map(block -> {
-                    if (block.block() instanceof TextBlock textBlock) {
-                        return createTextBlock(textBlock, font, boldFont, italicFont, boldItalicFont);
-                    } else if (block.block() instanceof MediaBlock mediaBlock) {
-                        try {
-                            return createImageBlock(mediaBlock);
-                        } catch (MalformedURLException e) {
-                            throw new RuntimeException(e);
+            paragraphDefinition.blocks().stream()
+                    .sorted(Comparator.comparingInt(ParagraphDefinition.ParagraphDefinitionBlock::getTabPosition))
+                    .map(block -> {
+                        if (block.block() instanceof TextBlock textBlock) {
+                            return createTextBlock(textBlock, font, boldFont, italicFont, boldItalicFont);
+                        } else if (block.block() instanceof MediaBlock mediaBlock) {
+                            try {
+                                return createImageBlock(mediaBlock);
+                            } catch (MalformedURLException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
-                    }
-                    return null;
-                })
-                .forEach(element -> {
-                    paragraph.add(new Tab());
-                    paragraph.add(element);
-                });
+                        return null;
+                    })
+                    .forEach(element -> {
+                        paragraph.add(new Tab());
+                        paragraph.add(element);
+                    });
         }
     }
 
     public Certificate createCertificate(Event event, @NonNull EventCertificate eventCertificate) {
         Person p = Person.of("Mustermann", "Max", null, Gender.M);
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
-        PersonRaceResult prr = PersonRaceResult.of("H35-",
-            p.getId().value(),
-            ZonedDateTime.now(),
-            ZonedDateTime.now(),
-            Double.valueOf("1934"),
-            1L,
-            (byte) 1,
-            ResultStatus.OK);
+        PersonRaceResult prr = PersonRaceResult.of(
+                "H35-",
+                p.getId().value(),
+                ZonedDateTime.now(),
+                ZonedDateTime.now(),
+                Double.valueOf("1934"),
+                1L,
+                (byte) 1,
+                ResultStatus.OK);
         return createCertificate(p, Optional.of(organisation), event, eventCertificate, prr);
     }
 
-    public Certificate createCertificate(@NonNull Person person,
-                                         Optional<Organisation> organisation,
-                                         @NonNull Event event,
-                                         @NonNull EventCertificate eventCertificate,
-                                         @NonNull PersonRaceResult personResult) {
-
+    public Certificate createCertificate(
+            @NonNull Person person,
+            Optional<Organisation> organisation,
+            @NonNull Event event,
+            @NonNull EventCertificate eventCertificate,
+            @NonNull PersonRaceResult personResult) {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
@@ -286,14 +285,14 @@ public class CertificateService {
         PageSize pageSize = PageSize.A4;
         Document document = new Document(pdfDocument, pageSize);
 
-        String filename = MessageFormat.format("Certificate_{0}_{1}_{2}.pdf",
-            event.getName().value().replace("\n", ""),
-            person.getPersonName().familyName().value(),
-            person.getPersonName().givenName().value());
+        String filename = MessageFormat.format(
+                "Certificate_{0}_{1}_{2}.pdf",
+                event.getName().value().replace("\n", ""),
+                person.getPersonName().familyName().value(),
+                person.getPersonName().givenName().value());
 
-        ProcessingReport report =
-            jsonSchemaValidator.validateJsonAgainstSchema(Objects.requireNonNull(eventCertificate.getLayoutDescription())
-                .value(), certificateSchema);
+        ProcessingReport report = jsonSchemaValidator.validateJsonAgainstSchema(
+                Objects.requireNonNull(eventCertificate.getLayoutDescription()).value(), certificateSchema);
 
         if (!report.isSuccess()) {
             filename = "LayoutDescriptionErrors.pdf";
@@ -304,20 +303,23 @@ public class CertificateService {
             Path basePath = Paths.get(mediaFilePath);
             try {
                 if (eventCertificate.getBlankCertificate() != null) {
-                    MediaFileId blankCertificateId = Objects.requireNonNull(eventCertificate).getBlankCertificate();
+                    MediaFileId blankCertificateId =
+                            Objects.requireNonNull(eventCertificate).getBlankCertificate();
                     MediaFile blankCertificate = mediaFileService.getById(blankCertificateId);
                     ImageData image = ImageDataFactory.create(basePath.resolve(Objects.requireNonNull(blankCertificate)
-                        .getMediaFileName()
-                        .value()).toString());
+                                    .getMediaFileName()
+                                    .value())
+                            .toString());
                     canvas.addImageFittedIntoRectangle(image, pageSize, false);
                 }
             } catch (MalformedURLException e) {
                 log.error("Error loading blank certificate image", e);
             }
 
-            var documentAndParagraphDefinitionsWithPlaceholders =
-                JsonToTextParagraph.loadDefinitions(Objects.requireNonNull(eventCertificate.getLayoutDescription())
-                    .value(), false);
+            var documentAndParagraphDefinitionsWithPlaceholders = JsonToTextParagraph.loadDefinitions(
+                    Objects.requireNonNull(eventCertificate.getLayoutDescription())
+                            .value(),
+                    false);
             DocumentDefinition documentDefinition = documentAndParagraphDefinitionsWithPlaceholders.getLeft();
 
             MarginsDefinition margins = new MarginsDefinition(30.0f, 30.0f, 20.0f, 20.0f);
@@ -343,26 +345,19 @@ public class CertificateService {
             System.out.println("Center: " + center);
 
             List<ParagraphDefinition> paragraphDefinitionsWithPlaceholders =
-                documentAndParagraphDefinitionsWithPlaceholders.getRight();
+                    documentAndParagraphDefinitionsWithPlaceholders.getRight();
 
             List<ParagraphDefinition> paragraphDefinitions = TextBlockProcessor.processPlaceholders(
-                paragraphDefinitionsWithPlaceholders,
-                person,
-                organisation.orElse(null),
-                event,
-                personResult);
+                    paragraphDefinitionsWithPlaceholders, person, organisation.orElse(null), event, personResult);
 
             PdfFont finalFont = font;
             PdfFont finalBoldFont = boldFont;
             PdfFont finalItalicFont = italicFont;
             PdfFont finalBoldItalicFont = boldItalicFont;
             paragraphDefinitions.stream()
-                .map(paragraphDefinition -> createParagraph(paragraphDefinition,
-                    finalFont,
-                    finalBoldFont,
-                    finalItalicFont,
-                    finalBoldItalicFont))
-                .forEach(document::add);
+                    .map(paragraphDefinition -> createParagraph(
+                            paragraphDefinition, finalFont, finalBoldFont, finalItalicFont, finalBoldItalicFont))
+                    .forEach(document::add);
         }
 
         document.close();

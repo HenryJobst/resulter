@@ -4,7 +4,6 @@ import org.jmolecules.ddd.annotation.ValueObject;
 
 @ValueObject
 public enum EventClassStatus {
-
     NORMAL("Normal"),
     DIVIDED("Divided"),
     JOINED("Joined"),
@@ -28,5 +27,4 @@ public enum EventClassStatus {
         }
         throw new IllegalArgumentException(v);
     }
-
 }

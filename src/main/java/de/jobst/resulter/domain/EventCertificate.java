@@ -32,12 +32,13 @@ public class EventCertificate {
 
     private boolean primary;
 
-    public EventCertificate(@NonNull EventCertificateId id,
-                            @NonNull EventCertificateName name,
-                            @Nullable Event event,
-                            @Nullable EventCertificateLayoutDescription layoutDescription,
-                            @Nullable MediaFile blankCertificate,
-                            boolean primary) {
+    public EventCertificate(
+            @NonNull EventCertificateId id,
+            @NonNull EventCertificateName name,
+            @Nullable Event event,
+            @Nullable EventCertificateLayoutDescription layoutDescription,
+            @Nullable MediaFile blankCertificate,
+            boolean primary) {
         this.id = id;
         this.name = name;
         this.event = event;
@@ -46,28 +47,36 @@ public class EventCertificate {
         this.primary = primary;
     }
 
-    public static EventCertificate of(Long id,
-                                      String name,
-                                      Event event,
-                                      String eventCertificateLayoutDescription,
-                                      MediaFile blankCertificate,
-                                      boolean primary) {
-        return new EventCertificate(EventCertificateId.of(id),
-            EventCertificateName.of(StringUtils.isEmpty(name) ? Generators.timeBasedEpochGenerator().generate()
-                .toString() : name),
-            event,
-            EventCertificateLayoutDescription.of(StringUtils.isEmpty(eventCertificateLayoutDescription) ?
-                                                 "{\"paragraphs\" : []}" :
-                                                 eventCertificateLayoutDescription),
-            blankCertificate,
-            primary);
+    public static EventCertificate of(
+            Long id,
+            String name,
+            Event event,
+            String eventCertificateLayoutDescription,
+            MediaFile blankCertificate,
+            boolean primary) {
+        return new EventCertificate(
+                EventCertificateId.of(id),
+                EventCertificateName.of(
+                        StringUtils.isEmpty(name)
+                                ? Generators.timeBasedEpochGenerator()
+                                        .generate()
+                                        .toString()
+                                : name),
+                event,
+                EventCertificateLayoutDescription.of(
+                        StringUtils.isEmpty(eventCertificateLayoutDescription)
+                                ? "{\"paragraphs\" : []}"
+                                : eventCertificateLayoutDescription),
+                blankCertificate,
+                primary);
     }
 
-    public void update(EventCertificateName name,
-                       Event event,
-                       EventCertificateLayoutDescription eventCertificateLayoutDescription,
-                       MediaFile mediaFile,
-                       boolean primary) {
+    public void update(
+            EventCertificateName name,
+            Event event,
+            EventCertificateLayoutDescription eventCertificateLayoutDescription,
+            MediaFile mediaFile,
+            boolean primary) {
         this.name = name;
         this.event = event;
         this.layoutDescription = eventCertificateLayoutDescription;

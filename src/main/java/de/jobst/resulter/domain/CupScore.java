@@ -4,14 +4,12 @@ import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
 @ValueObject
-public record CupScore(PersonId personId, OrganisationId organisationId,
-                       ClassResultShortName classResultShortName,
-                       double score)
-    implements Comparable<CupScore> {
+public record CupScore(
+        PersonId personId, OrganisationId organisationId, ClassResultShortName classResultShortName, double score)
+        implements Comparable<CupScore> {
 
-    public static CupScore of(PersonId personId, OrganisationId organisationId,
-                              ClassResultShortName classResultShortName,
-                              double score) {
+    public static CupScore of(
+            PersonId personId, OrganisationId organisationId, ClassResultShortName classResultShortName, double score) {
         return new CupScore(personId, organisationId, classResultShortName, score);
     }
 
@@ -26,5 +24,4 @@ public record CupScore(PersonId personId, OrganisationId organisationId,
         }
         return val;
     }
-
 }

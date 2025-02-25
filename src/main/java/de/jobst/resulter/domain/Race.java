@@ -1,13 +1,12 @@
 package de.jobst.resulter.domain;
 
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-
-import java.util.Objects;
 
 @SuppressWarnings("FieldMayBeFinal")
 @AggregateRoot
@@ -28,10 +27,8 @@ public class Race implements Comparable<Race> {
     @NonNull
     private RaceNumber raceNumber;
 
-    public Race(@NonNull RaceId id,
-                @NonNull EventId eventId,
-                @Nullable RaceName raceName,
-                @NonNull RaceNumber raceNumber) {
+    public Race(
+            @NonNull RaceId id, @NonNull EventId eventId, @Nullable RaceName raceName, @NonNull RaceNumber raceNumber) {
         this.id = id;
         this.eventId = eventId;
         this.raceName = raceName;
@@ -45,7 +42,6 @@ public class Race implements Comparable<Race> {
     public static Race of(EventId eventId, RaceName raceName, RaceNumber raceNumber) {
         return new Race(RaceId.empty(), eventId, raceName, raceNumber);
     }
-
 
     public static Race of(EventId eventId, String raceName, Byte raceNumber) {
         return Race.of(eventId, RaceName.of(raceName), RaceNumber.of(raceNumber));
@@ -66,5 +62,4 @@ public class Race implements Comparable<Race> {
         }
         return val;
     }
-
 }

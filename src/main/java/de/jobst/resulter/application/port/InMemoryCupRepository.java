@@ -3,6 +3,9 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.EventId;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
@@ -11,10 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -46,11 +45,10 @@ public class InMemoryCupRepository implements CupRepository {
 
     @Override
     public Cup findOrCreate(Cup cup) {
-        return cups.values()
-            .stream()
-            .filter(it -> Objects.equals(it.getName(), cup.getName()))
-            .findAny()
-            .orElseGet(() -> save(cup));
+        return cups.values().stream()
+                .filter(it -> Objects.equals(it.getName(), cup.getName()))
+                .findAny()
+                .orElseGet(() -> save(cup));
     }
 
     @Override
@@ -64,10 +62,9 @@ public class InMemoryCupRepository implements CupRepository {
 
     @Override
     public Collection<Cup> findByEvent(EventId eventId) {
-        return this.cups.values()
-            .stream()
-            .filter(it -> it.getEventIds().stream().anyMatch(x -> x.equals(eventId)))
-            .toList();
+        return this.cups.values().stream()
+                .filter(it -> it.getEventIds().stream().anyMatch(x -> x.equals(eventId)))
+                .toList();
     }
 
     @Override
@@ -89,5 +86,4 @@ public class InMemoryCupRepository implements CupRepository {
     public void resetSaveCount() {
         savedCups.clear();
     }
-
 }

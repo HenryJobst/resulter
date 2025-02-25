@@ -2,14 +2,13 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.aggregations.PersonRaceResults;
-import org.springframework.lang.NonNull;
-
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.lang.NonNull;
 
 public record PersonRaceResultJdbcDto(
         Long eventId,

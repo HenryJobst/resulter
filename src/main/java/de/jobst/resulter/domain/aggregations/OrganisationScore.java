@@ -2,12 +2,11 @@ package de.jobst.resulter.domain.aggregations;
 
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.PersonWithScore;
+import java.util.List;
 import org.springframework.lang.NonNull;
 
-import java.util.List;
-
-public record OrganisationScore(Organisation organisation, Double score,
-                                List<PersonWithScore> personWithScores) implements Comparable<OrganisationScore> {
+public record OrganisationScore(Organisation organisation, Double score, List<PersonWithScore> personWithScores)
+        implements Comparable<OrganisationScore> {
 
     @Override
     public int compareTo(@NonNull OrganisationScore o) {

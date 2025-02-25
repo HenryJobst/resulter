@@ -4,16 +4,15 @@ import de.jobst.resulter.application.port.CountryRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class OrganisationService {
@@ -36,6 +35,10 @@ public class OrganisationService {
 
     public Collection<Organisation> findOrCreate(Collection<Organisation> organisations) {
         return organisationRepository.findOrCreate(organisations);
+    }
+
+    public Organisation getById(OrganisationId id) {
+        return organisationRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 
     public Optional<Organisation> findById(OrganisationId organisationId) {

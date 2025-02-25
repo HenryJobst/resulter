@@ -4,14 +4,13 @@ import de.jobst.resulter.application.port.RaceRepository;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -26,7 +25,8 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
     @Override
     public Race save(Race race) {
         DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setRaceDboResolver(id -> raceJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setRaceDboResolver(
+                id -> raceJdbcRepository.findById(id.value()).orElseThrow());
         RaceDbo raceEntity = RaceDbo.from(race, dboResolvers);
         RaceDbo savedRaceEntity = raceJdbcRepository.save(raceEntity);
         return savedRaceEntity.asRace();
@@ -34,7 +34,10 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
 
     @Override
     public List<Race> findAll() {
-        return raceJdbcRepository.findAll().stream().map(RaceDbo::asRace).sorted().toList();
+        return raceJdbcRepository.findAll().stream()
+                .map(RaceDbo::asRace)
+                .sorted()
+                .toList();
     }
 
     @Override
@@ -45,8 +48,8 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
 
     @Override
     public Race findOrCreate(Race race) {
-        Optional<RaceDbo> raceEntity =
-            raceJdbcRepository.findByEventIdAndNumber(AggregateReference.to(race.getEventId().value()),
+        Optional<RaceDbo> raceEntity = raceJdbcRepository.findByEventIdAndNumber(
+                AggregateReference.to(race.getEventId().value()),
                 race.getRaceNumber().value());
         if (raceEntity.isEmpty()) {
             return save(race);
@@ -63,8 +66,12 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
 
     @Override
     public List<Race> findAllByEventIds(List<EventId> events) {
-        return raceJdbcRepository.findAllByEventIdIn(events.stream()
-            .map(event -> AggregateReference.<EventDbo, Long>to(event.value()))
-            .toList()).stream().map(RaceDbo::asRace).toList();
+        return raceJdbcRepository
+                .findAllByEventIdIn(events.stream()
+                        .map(event -> AggregateReference.<EventDbo, Long>to(event.value()))
+                        .toList())
+                .stream()
+                .map(RaceDbo::asRace)
+                .toList();
     }
 }

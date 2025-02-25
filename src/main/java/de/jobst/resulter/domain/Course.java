@@ -1,12 +1,11 @@
 package de.jobst.resulter.domain;
 
+import java.util.Objects;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-
-import java.util.Objects;
 
 @AggregateRoot
 @Getter
@@ -15,6 +14,7 @@ public final class Course implements Comparable<Course> {
     @Identity
     @NonNull
     private final CourseId id;
+
     @NonNull
     private final EventId eventId;
 
@@ -31,7 +31,9 @@ public final class Course implements Comparable<Course> {
         if (!(o instanceof Course course)) {
             return false;
         }
-        return Objects.equals(id, course.id) && Objects.equals(courseName, course.courseName) && Objects.equals(eventId, course.eventId);
+        return Objects.equals(id, course.id)
+                && Objects.equals(courseName, course.courseName)
+                && Objects.equals(eventId, course.eventId);
     }
 
     @Override
@@ -51,12 +53,13 @@ public final class Course implements Comparable<Course> {
         }
     }
 
-    public Course(@NonNull CourseId id,
-                  @NonNull EventId eventId,
-                  @NonNull CourseName courseName,
-                  @Nullable CourseLength courseLength,
-                  @Nullable CourseClimb courseClimb,
-                  @Nullable NumberOfControls numberOfControls) {
+    public Course(
+            @NonNull CourseId id,
+            @NonNull EventId eventId,
+            @NonNull CourseName courseName,
+            @Nullable CourseLength courseLength,
+            @Nullable CourseClimb courseClimb,
+            @Nullable NumberOfControls numberOfControls) {
         this.id = id;
         this.eventId = eventId;
         this.courseName = courseName;
@@ -65,25 +68,24 @@ public final class Course implements Comparable<Course> {
         this.numberOfControls = numberOfControls;
     }
 
-    public static Course of(EventId eventId,
-                            CourseName courseName,
-                            CourseLength courseLength,
-                            CourseClimb courseClimb,
-                            NumberOfControls numberOfControls) {
+    public static Course of(
+            EventId eventId,
+            CourseName courseName,
+            CourseLength courseLength,
+            CourseClimb courseClimb,
+            NumberOfControls numberOfControls) {
         return new Course(CourseId.empty(), eventId, courseName, courseLength, courseClimb, numberOfControls);
     }
 
-    public static Course of(EventId eventId,
-                            String courseName,
-                            Double courseLength,
-                            Double courseClimb,
-                            Integer numberOfControls) {
-        return new Course(CourseId.empty(),
-            eventId,
-            CourseName.of(courseName),
-            CourseLength.of(courseLength),
-            CourseClimb.of(courseClimb),
-            NumberOfControls.of(numberOfControls));
+    public static Course of(
+            EventId eventId, String courseName, Double courseLength, Double courseClimb, Integer numberOfControls) {
+        return new Course(
+                CourseId.empty(),
+                eventId,
+                CourseName.of(courseName),
+                CourseLength.of(courseLength),
+                CourseClimb.of(courseClimb),
+                NumberOfControls.of(numberOfControls));
     }
 
     @Override

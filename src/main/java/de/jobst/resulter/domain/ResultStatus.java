@@ -1,12 +1,10 @@
 package de.jobst.resulter.domain;
 
-import org.jmolecules.ddd.annotation.ValueObject;
-
 import java.util.Objects;
+import org.jmolecules.ddd.annotation.ValueObject;
 
 @ValueObject
 public enum ResultStatus {
-
     OK("OK"),
     FINISHED("Finished"),
     MISSING_PUNCH("MissingPunch"),
@@ -33,12 +31,11 @@ public enum ResultStatus {
     }
 
     public static ResultStatus fromValue(String v) {
-        for (ResultStatus c: ResultStatus.values()) {
+        for (ResultStatus c : ResultStatus.values()) {
             if (Objects.equals(c.value, v)) {
                 return c;
             }
         }
         throw new IllegalArgumentException(v);
     }
-
 }

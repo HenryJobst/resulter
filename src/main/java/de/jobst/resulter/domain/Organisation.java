@@ -1,14 +1,13 @@
 package de.jobst.resulter.domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
 
 @AggregateRoot
 @Getter
@@ -20,6 +19,7 @@ public final class Organisation implements Comparable<Organisation> {
 
     @NonNull
     private final OrganisationName name;
+
     private final OrganisationShortName shortName;
 
     @NonNull
@@ -31,12 +31,13 @@ public final class Organisation implements Comparable<Organisation> {
     @NonNull
     private final Collection<Organisation> childOrganisations;
 
-    public Organisation(@NonNull OrganisationId id,
-                        @NonNull OrganisationName name,
-                        @NonNull OrganisationShortName shortName,
-                        @NonNull OrganisationType type,
-                        @Nullable Country country,
-                        @NonNull Collection<Organisation> childOrganisations) {
+    public Organisation(
+            @NonNull OrganisationId id,
+            @NonNull OrganisationName name,
+            @NonNull OrganisationShortName shortName,
+            @NonNull OrganisationType type,
+            @Nullable Country country,
+            @NonNull Collection<Organisation> childOrganisations) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;
@@ -50,37 +51,41 @@ public final class Organisation implements Comparable<Organisation> {
     }
 
     public static Organisation of(String name, String shortName, @Nullable Country country) {
-        return Organisation.of(OrganisationId.empty().value(),
-            name,
-            shortName,
-            OrganisationType.OTHER.value(),
-            country,
-            new ArrayList<>());
+        return Organisation.of(
+                OrganisationId.empty().value(),
+                name,
+                shortName,
+                OrganisationType.OTHER.value(),
+                country,
+                new ArrayList<>());
     }
 
     public static Organisation of(long id, String name, String shortName) {
         return Organisation.of(id, name, shortName, OrganisationType.OTHER.value(), null, new ArrayList<>());
     }
 
-    public static Organisation of(long id,
-                                  @NonNull String name,
-                                  @NonNull String shortName,
-                                  @NonNull String type,
-                                  @Nullable Country country,
-                                  @NonNull Collection<Organisation> childOrganisations) {
-        return new Organisation(OrganisationId.of(id),
-            OrganisationName.of(name),
-            OrganisationShortName.of(shortName),
-            OrganisationType.fromValue(type),
-            country,
-            childOrganisations);
+    public static Organisation of(
+            long id,
+            @NonNull String name,
+            @NonNull String shortName,
+            @NonNull String type,
+            @Nullable Country country,
+            @NonNull Collection<Organisation> childOrganisations) {
+        return new Organisation(
+                OrganisationId.of(id),
+                OrganisationName.of(name),
+                OrganisationShortName.of(shortName),
+                OrganisationType.fromValue(type),
+                country,
+                childOrganisations);
     }
 
-    public static Organisation of(@NonNull OrganisationName name,
-                                  @NonNull OrganisationShortName shortName,
-                                  @NonNull OrganisationType type,
-                                  @Nullable Country country,
-                                  @NonNull Collection<Organisation> childOrganisations) {
+    public static Organisation of(
+            @NonNull OrganisationName name,
+            @NonNull OrganisationShortName shortName,
+            @NonNull OrganisationType type,
+            @Nullable Country country,
+            @NonNull Collection<Organisation> childOrganisations) {
         return new Organisation(OrganisationId.empty(), name, shortName, type, country, childOrganisations);
     }
 
@@ -93,7 +98,9 @@ public final class Organisation implements Comparable<Organisation> {
         if (val == 0) {
             if (null != country) {
                 if (null != o.country) {
-                    val = country.getName().value().compareTo(o.country.getName().value());
+                    val = country.getName()
+                            .value()
+                            .compareTo(o.country.getName().value());
                 } else {
                     val = 1;
                 }
@@ -113,8 +120,10 @@ public final class Organisation implements Comparable<Organisation> {
             return false;
         }
         Organisation that = (Organisation) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(shortName,
-            that.shortName) && Objects.equals(country, that.country);
+        return Objects.equals(id, that.id)
+                && Objects.equals(name, that.name)
+                && Objects.equals(shortName, that.shortName)
+                && Objects.equals(country, that.country);
     }
 
     @Override
@@ -130,7 +139,7 @@ public final class Organisation implements Comparable<Organisation> {
     }
 
     public boolean containsOrganisationWithId(OrganisationId id) {
-        return getId().equals(id) ||
-               childOrganisations.stream().anyMatch(subOrg -> subOrg.containsOrganisationWithId(id));
+        return getId().equals(id)
+                || childOrganisations.stream().anyMatch(subOrg -> subOrg.containsOrganisationWithId(id));
     }
 }

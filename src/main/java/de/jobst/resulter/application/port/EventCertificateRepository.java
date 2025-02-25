@@ -3,19 +3,19 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventCertificateId;
 import de.jobst.resulter.domain.EventId;
+import java.util.List;
+import java.util.Optional;
 import org.jmolecules.ddd.annotation.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import java.util.List;
-import java.util.Optional;
-
 @Repository
 public interface EventCertificateRepository {
 
-    @NonNull EventCertificate save(@NonNull EventCertificate event);
+    @NonNull
+    EventCertificate save(@NonNull EventCertificate event);
 
     void delete(EventCertificate event);
 

@@ -1,3 +1,2 @@
-//@ApplicationLayer
+// @ApplicationLayer
 package de.jobst.resulter.application;
-

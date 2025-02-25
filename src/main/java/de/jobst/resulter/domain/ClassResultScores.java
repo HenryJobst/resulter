@@ -1,13 +1,12 @@
 package de.jobst.resulter.domain;
 
+import java.util.List;
 import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
-import java.util.List;
-
 @ValueObject
-public record ClassResultScores(ClassResultShortName classResultShortName,
-                                List<PersonWithScore> personWithScores) implements Comparable<ClassResultScores> {
+public record ClassResultScores(ClassResultShortName classResultShortName, List<PersonWithScore> personWithScores)
+        implements Comparable<ClassResultScores> {
 
     @Override
     public int compareTo(@NonNull ClassResultScores o) {

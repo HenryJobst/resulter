@@ -3,13 +3,12 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Repository;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -41,12 +40,11 @@ public class InMemoryRaceRepository implements RaceRepository {
 
     @Override
     public Race findOrCreate(Race race) {
-        return races.values()
-            .stream()
-            .filter(it -> Objects.equals(it.getRaceName(), race.getRaceName()) &&
-                          Objects.equals(it.getRaceNumber(), race.getRaceNumber()))
-            .findAny()
-            .orElseGet(() -> save(race));
+        return races.values().stream()
+                .filter(it -> Objects.equals(it.getRaceName(), race.getRaceName())
+                        && Objects.equals(it.getRaceNumber(), race.getRaceNumber()))
+                .findAny()
+                .orElseGet(() -> save(race));
     }
 
     @Override
@@ -56,7 +54,9 @@ public class InMemoryRaceRepository implements RaceRepository {
 
     @Override
     public List<Race> findAllByEventIds(List<EventId> eventIds) {
-        return races.values().stream().filter(race -> eventIds.contains(race.getEventId())).toList();
+        return races.values().stream()
+                .filter(race -> eventIds.contains(race.getEventId()))
+                .toList();
     }
 
     @SuppressWarnings("unused")
@@ -73,5 +73,4 @@ public class InMemoryRaceRepository implements RaceRepository {
     public void resetSaveCount() {
         savedRaces.clear();
     }
-
 }

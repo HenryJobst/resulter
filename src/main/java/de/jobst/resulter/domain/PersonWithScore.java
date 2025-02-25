@@ -5,7 +5,7 @@ import org.springframework.lang.NonNull;
 
 @ValueObject
 public record PersonWithScore(PersonId id, Double score, ClassResultShortName classResultShortName)
-    implements Comparable<PersonWithScore> {
+        implements Comparable<PersonWithScore> {
 
     @Override
     public int compareTo(@NonNull PersonWithScore o) {

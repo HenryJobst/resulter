@@ -1,11 +1,10 @@
 package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.*;
-import org.jmolecules.ddd.annotation.Repository;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.jmolecules.ddd.annotation.Repository;
 
 @Repository
 public interface ResultListRepository {
@@ -24,9 +23,8 @@ public interface ResultListRepository {
 
     Optional<ResultList> findById(ResultListId resultListId);
 
-    ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
-                                                                    ClassResultShortName classResultShortName,
-                                                                    PersonId personId);
+    ResultList findByResultListIdAndClassResultShortNameAndPersonId(
+            ResultListId resultListId, ClassResultShortName classResultShortName, PersonId personId);
 
     void replacePersonId(PersonId oldPersonId, PersonId newPersonId);
 }

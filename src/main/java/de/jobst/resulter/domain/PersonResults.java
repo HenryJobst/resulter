@@ -1,8 +1,7 @@
 package de.jobst.resulter.domain;
 
-import org.jmolecules.ddd.annotation.ValueObject;
-
 import java.util.Collection;
+import org.jmolecules.ddd.annotation.ValueObject;
 
 @ValueObject
 public record PersonResults(Collection<PersonResult> value) {

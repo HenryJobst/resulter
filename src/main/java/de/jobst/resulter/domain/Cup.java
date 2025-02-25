@@ -3,14 +3,16 @@ package de.jobst.resulter.domain;
 import de.jobst.resulter.domain.scoring.*;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import jakarta.annotation.Nullable;
-import java.time.Year;
-import java.util.Collection;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
+
+import java.time.Year;
+import java.util.Collection;
+import java.util.Map;
 
 @AggregateRoot
 @Setter
@@ -30,6 +32,7 @@ public class Cup implements Comparable<Cup> {
     @NonNull
     private Year year;
 
+    @Association
     @NonNull
     private Collection<EventId> eventIds;
 

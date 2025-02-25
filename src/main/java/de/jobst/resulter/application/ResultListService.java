@@ -39,6 +39,7 @@ public class ResultListService {
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
     private final EventService eventService;
     private final PersonService personService;
+    private final EventCertificateService eventCertificateService;
 
     public ResultListService(
             ResultListRepository resultListRepository,
@@ -52,7 +53,8 @@ public class ResultListService {
             CupScoreListRepository cupScoreListRepository,
             SpringSecurityAuditorAware springSecurityAuditorAware,
             EventService eventService,
-            PersonService personService) {
+            PersonService personService,
+            EventCertificateService eventCertificateService) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -65,6 +67,7 @@ public class ResultListService {
         this.springSecurityAuditorAware = springSecurityAuditorAware;
         this.eventService = eventService;
         this.personService = personService;
+        this.eventCertificateService = eventCertificateService;
     }
 
     public ResultList findOrCreate(ResultList resultList) {
@@ -159,7 +162,11 @@ public class ResultListService {
         }
 
         CertificateService.Certificate certificate = certificateService.createCertificate(
-                person, organisation, event, Objects.requireNonNull(event.getCertificate()), personRaceResult.get());
+                person,
+                organisation,
+                event,
+                eventCertificateService.getById(Objects.requireNonNull(event.getCertificate())),
+                personRaceResult.get());
 
         EventCertificateStat eventCertificateStat = EventCertificateStat.of(
                 EventCertificateStatId.empty().value(), event.getId(), person.getId(), Instant.now());

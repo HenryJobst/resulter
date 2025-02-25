@@ -1,17 +1,19 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ValueObjectChecks;
+import lombok.Getter;
+import lombok.Setter;
+import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Association;
+import org.jmolecules.ddd.annotation.Identity;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.function.Function;
-import lombok.Getter;
-import lombok.Setter;
-import org.jmolecules.ddd.annotation.AggregateRoot;
-import org.jmolecules.ddd.annotation.Identity;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 @AggregateRoot
 @Getter
@@ -35,12 +37,13 @@ public class Event implements Comparable<Event> {
     @NonNull
     private EventStatus eventState;
 
+    @Association
     @NonNull
     private Collection<OrganisationId> organisationIds;
 
     @Nullable
     @Setter
-    private EventCertificate certificate;
+    private EventCertificateId certificate;
 
     public Event(
             @NonNull EventId id,
@@ -49,7 +52,7 @@ public class Event implements Comparable<Event> {
             @Nullable DateTime endTime,
             @NonNull Collection<OrganisationId> organisationIds,
             @NonNull EventStatus eventState,
-            @Nullable EventCertificate certificate) {
+            @Nullable EventCertificateId certificate) {
         this.id = id;
         this.name = eventName;
         this.startTime = startTime;
@@ -95,7 +98,7 @@ public class Event implements Comparable<Event> {
             @Nullable ZonedDateTime endTime,
             @NonNull Collection<OrganisationId> organisations,
             @NonNull EventStatus eventState,
-            @Nullable EventCertificate certificate) {
+            @Nullable EventCertificateId certificate) {
         return new Event(
                 EventId.of(id),
                 EventName.of(eventName),
@@ -111,7 +114,7 @@ public class Event implements Comparable<Event> {
             @Nullable DateTime startTime,
             @NonNull EventStatus status,
             @NonNull Collection<OrganisationId> organisations,
-            @Nullable EventCertificate certificate) {
+            @Nullable EventCertificateId certificate) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
@@ -132,6 +135,6 @@ public class Event implements Comparable<Event> {
     }
 
     public void withCertificate(Function<EventId, EventCertificate> primaryEventCertificateResolver) {
-        setCertificate(primaryEventCertificateResolver.apply(id));
+        setCertificate(primaryEventCertificateResolver.apply(id).getId());
     }
 }

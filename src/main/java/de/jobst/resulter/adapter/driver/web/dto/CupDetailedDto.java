@@ -1,12 +1,14 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.application.CountryService;
+import de.jobst.resulter.application.EventCertificateService;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
-import de.jobst.resulter.domain.CupDetailed;
-import java.util.List;
+import de.jobst.resulter.domain.aggregations.CupDetailed;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+
+import java.util.List;
 
 @Slf4j
 public record CupDetailedDto(
@@ -22,7 +24,8 @@ public record CupDetailedDto(
             CupDetailed cup,
             EventService eventService,
             OrganisationService organisationService,
-            CountryService countryService) {
+            CountryService countryService,
+            EventCertificateService eventCertificateService) {
         return new CupDetailedDto(
                 ObjectUtils.isNotEmpty(cup.getId()) ? cup.getId().value() : 0,
                 cup.getName().value(),
@@ -31,7 +34,7 @@ public record CupDetailedDto(
                         .map(x -> EventKeyDto.from(eventService.getById(x)))
                         .toList(),
                 cup.getEventRacesCupScore().stream()
-                        .map(x -> EventRacesCupScoreDto.from(x, organisationService, countryService))
+                        .map(x -> EventRacesCupScoreDto.from(x, organisationService, countryService, eventCertificateService))
                         .toList(),
                 cup.getType().isGroupedByOrganisation()
                         ? cup.getOverallOrganisationScores().stream()

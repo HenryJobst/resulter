@@ -5,14 +5,15 @@ import de.jobst.resulter.adapter.driver.web.dto.MediaFileKeyDto;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EventCertificateService {
@@ -75,10 +76,10 @@ public class EventCertificateService {
                             .toList();
             eventCertificates.forEach(x -> x.setPrimary(false));
             eventCertificateRepository.saveAll(eventCertificates);
-            optionalEvent.get().setCertificate(eventCertificate);
+            optionalEvent.get().setCertificate(eventCertificate.getId());
         } else if (optionalEvent.isPresent()
                 && optionalEvent.get().getCertificate() != null
-                && optionalEvent.get().getCertificate().getId().equals(eventCertificate.getId())) {
+                && optionalEvent.get().getCertificate().equals(eventCertificate.getId())) {
             optionalEvent.get().setCertificate(null);
         }
         EventCertificate savedEventCertificate = eventCertificateRepository.save(eventCertificate);
@@ -118,5 +119,9 @@ public class EventCertificateService {
 
     public Page<EventCertificate> findAll(@Nullable String filter, @NonNull Pageable pageable) {
         return eventCertificateRepository.findAll(filter, pageable);
+    }
+
+    public EventCertificate getById(EventCertificateId id) {
+        return eventCertificateRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 }

@@ -41,16 +41,18 @@ public class ResultListService {
     private final PersonService personService;
 
     public ResultListService(
-        ResultListRepository resultListRepository,
-        CupRepository cupRepository,
-        EventRepository eventRepository,
-        OrganisationRepository organisationRepository,
-        PersonRepository personRepository,
-        CertificateService certificateService,
-        MediaFileRepository mediaFileRepository,
-        EventCertificateStatRepository eventCertificateStatRepository,
-        CupScoreListRepository cupScoreListRepository,
-        SpringSecurityAuditorAware springSecurityAuditorAware, EventService eventService, PersonService personService) {
+            ResultListRepository resultListRepository,
+            CupRepository cupRepository,
+            EventRepository eventRepository,
+            OrganisationRepository organisationRepository,
+            PersonRepository personRepository,
+            CertificateService certificateService,
+            MediaFileRepository mediaFileRepository,
+            EventCertificateStatRepository eventCertificateStatRepository,
+            CupScoreListRepository cupScoreListRepository,
+            SpringSecurityAuditorAware springSecurityAuditorAware,
+            EventService eventService,
+            PersonService personService) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -159,8 +161,8 @@ public class ResultListService {
         CertificateService.Certificate certificate = certificateService.createCertificate(
                 person, organisation, event, Objects.requireNonNull(event.getCertificate()), personRaceResult.get());
 
-        EventCertificateStat eventCertificateStat =
-                EventCertificateStat.of(EventCertificateStatId.empty().value(), event.getId(), person.getId(), Instant.now());
+        EventCertificateStat eventCertificateStat = EventCertificateStat.of(
+                EventCertificateStatId.empty().value(), event.getId(), person.getId(), Instant.now());
 
         eventCertificateStatRepository.save(eventCertificateStat);
 

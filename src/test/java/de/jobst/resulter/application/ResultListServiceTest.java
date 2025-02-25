@@ -2,10 +2,6 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +10,9 @@ import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Properties;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 class ResultListServiceTest {
 
@@ -36,34 +35,32 @@ class ResultListServiceTest {
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
         Event e = Event.of("BBM Mittel-OL 2024");
         String layoutDescription =
-            Files.readString(Paths.get("src/test/resources/certificate" + "/test_layout_description_3" + ".json"));
+                Files.readString(Paths.get("src/test/resources/certificate" + "/test_layout_description_3" + ".json"));
 
-        MediaFile mediaFile =
-            MediaFile.of("Urkunde_BTFB_2023.jpg", "thumbnails/Urkunde_BTFB_2023.thumbnail.jpg", "image/jpeg", 100000L);
+        MediaFile mediaFile = MediaFile.of(
+                "Urkunde_BTFB_2023.jpg", "thumbnails/Urkunde_BTFB_2023.thumbnail.jpg", "image/jpeg", 100000L);
 
         Mockito.when(mediaFileService.getById(mediaFile.getId())).thenReturn(mediaFile);
 
-        EventCertificate eventCertificate = EventCertificate.of(EventCertificateId.empty().value(),
-            "Test-Zertifikat",
-            e.getId(),
-            layoutDescription,
-            mediaFile.getId(),
-            true);
+        EventCertificate eventCertificate = EventCertificate.of(
+                EventCertificateId.empty().value(),
+                "Test-Zertifikat",
+                e.getId(),
+                layoutDescription,
+                mediaFile.getId(),
+                true);
 
-        PersonRaceResult prr = PersonRaceResult.of("H35-",
-            p.getId().value(),
-            ZonedDateTime.now(),
-            ZonedDateTime.now(),
-            Double.valueOf("1934"),
-            1L,
-            (byte) 1,
-            ResultStatus.OK);
-        CertificateService.Certificate certificate =
-            new CertificateService(this.mediaFilePath, mediaFileService).createCertificate(p,
-            Optional.of(organisation),
-            e,
-            eventCertificate,
-            prr);
+        PersonRaceResult prr = PersonRaceResult.of(
+                "H35-",
+                p.getId().value(),
+                ZonedDateTime.now(),
+                ZonedDateTime.now(),
+                Double.valueOf("1934"),
+                1L,
+                (byte) 1,
+                ResultStatus.OK);
+        CertificateService.Certificate certificate = new CertificateService(this.mediaFilePath, mediaFileService)
+                .createCertificate(p, Optional.of(organisation), e, eventCertificate, prr);
 
         File file = new File(certificate.filename());
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {

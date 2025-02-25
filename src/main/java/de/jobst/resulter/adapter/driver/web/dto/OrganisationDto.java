@@ -4,11 +4,10 @@ import de.jobst.resulter.application.CountryService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.Organisation;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.data.domain.Sort;
-
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.domain.Sort;
 
 public record OrganisationDto(
         Long id,

@@ -4,10 +4,9 @@ import de.jobst.resulter.application.CountryService;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.CupDetailed;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-
-import java.util.List;
 
 @Slf4j
 public record CupDetailedDto(
@@ -20,7 +19,10 @@ public record CupDetailedDto(
         List<AggregatedPersonScoresDto> aggregatedPersonScores) {
 
     public static CupDetailedDto from(
-            CupDetailed cup, EventService eventService, OrganisationService organisationService, CountryService countryService) {
+            CupDetailed cup,
+            EventService eventService,
+            OrganisationService organisationService,
+            CountryService countryService) {
         return new CupDetailedDto(
                 ObjectUtils.isNotEmpty(cup.getId()) ? cup.getId().value() : 0,
                 cup.getName().value(),

@@ -81,8 +81,8 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
             Optional<EventCertificateDbo> optionalEventCertificateDbo =
                     eventCertificateJdbcRepository.findByEventAndPrimary(AggregateReference.to(id.value()), true);
             return optionalEventCertificateDbo
-                    .map(eventCertificateDbo -> EventCertificateDbo.asEventCertificate(
-                            eventCertificateDbo, getMediaFileResolver()))
+                    .map(eventCertificateDbo ->
+                            EventCertificateDbo.asEventCertificate(eventCertificateDbo, getMediaFileResolver()))
                     .orElse(null);
         };
     }
@@ -119,8 +119,7 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
                 id -> countryJdbcRepository.findById(id.value()).orElseThrow());
         EventCertificateDbo eventCertificateEntity = EventCertificateDbo.from(eventCertificate, dboResolvers);
         EventCertificateDbo savedEventCertificateEntity = eventCertificateJdbcRepository.save(eventCertificateEntity);
-        return EventCertificateDbo.asEventCertificate(
-                savedEventCertificateEntity, getMediaFileResolver());
+        return EventCertificateDbo.asEventCertificate(savedEventCertificateEntity, getMediaFileResolver());
     }
 
     @Override

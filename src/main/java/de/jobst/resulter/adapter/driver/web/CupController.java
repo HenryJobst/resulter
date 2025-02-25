@@ -9,6 +9,11 @@ import de.jobst.resulter.application.CupService;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.*;
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Year;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -35,8 +34,11 @@ public class CupController {
     private final CountryService countryService;
 
     @Autowired
-    public CupController(CupService cupService, EventService eventService, OrganisationService organisationService,
-                         CountryService countryService) {
+    public CupController(
+            CupService cupService,
+            EventService eventService,
+            OrganisationService organisationService,
+            CountryService countryService) {
         this.cupService = cupService;
         this.eventService = eventService;
         this.organisationService = organisationService;
@@ -79,8 +81,8 @@ public class CupController {
 
     @GetMapping("/cup/{id}/results")
     public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                CupDetailedDto.from(cupService.getCupDetailed(CupId.of(id)), eventService, organisationService, countryService));
+        return ResponseEntity.ok(CupDetailedDto.from(
+                cupService.getCupDetailed(CupId.of(id)), eventService, organisationService, countryService));
     }
 
     @PutMapping("/cup/{id}")

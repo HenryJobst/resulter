@@ -6,6 +6,11 @@ import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,12 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
 @Service
 public class PersonService {
 
@@ -29,8 +28,11 @@ public class PersonService {
     private final SplitTimeListRepository splitTimeListRepository;
     private final CupScoreListRepository cupScoreListRepository;
 
-    public PersonService(PersonRepository personRepository, ResultListRepository resultListRepository,
-                         SplitTimeListRepository splitTimeListRepository, CupScoreListRepository cupScoreListRepository) {
+    public PersonService(
+            PersonRepository personRepository,
+            ResultListRepository resultListRepository,
+            SplitTimeListRepository splitTimeListRepository,
+            CupScoreListRepository cupScoreListRepository) {
         this.personRepository = personRepository;
         this.resultListRepository = resultListRepository;
         this.splitTimeListRepository = splitTimeListRepository;
@@ -101,12 +103,12 @@ public class PersonService {
     @NonNull
     List<Person> findDoubles(Person person, List<Person> all) {
         return all.stream()
-            .filter(p -> !p.getId().equals(person.getId()))
-            .map(p -> new PersonSimilarity(p, calculateSimilarity(p, person)))
-            .filter(ps -> isSimilar(ps.similarity))
-            .sorted((p1, p2) -> Double.compare(p2.similarity, p1.similarity))
-            .map(PersonSimilarity::person)
-            .toList();
+                .filter(p -> !p.getId().equals(person.getId()))
+                .map(p -> new PersonSimilarity(p, calculateSimilarity(p, person)))
+                .filter(ps -> isSimilar(ps.similarity))
+                .sorted((p1, p2) -> Double.compare(p2.similarity, p1.similarity))
+                .map(PersonSimilarity::person)
+                .toList();
     }
 
     private boolean isSimilarDate(long daysBetween) {
@@ -116,17 +118,20 @@ public class PersonService {
     private double calculateSimilarity(Person person1, Person person2) {
         // calculate a similarity score for sorting
         double score = 0.0;
-        double familyNameSimilarity =
-            getSimilarity(person1.getPersonName().familyName().value(), person2.getPersonName().familyName().value());
+        double familyNameSimilarity = getSimilarity(
+                person1.getPersonName().familyName().value(),
+                person2.getPersonName().familyName().value());
         if (isJaroWinklerSimilar(familyNameSimilarity)) {
             score += 1000.0 - (1000.0 * familyNameSimilarity);
         }
-        double givenNameSimilarity =
-            getSimilarity(person1.getPersonName().givenName().value(), person2.getPersonName().givenName().value());
+        double givenNameSimilarity = getSimilarity(
+                person1.getPersonName().givenName().value(),
+                person2.getPersonName().givenName().value());
         if (isJaroWinklerSimilar(givenNameSimilarity)) {
             score += 100.0 - (100.0 * givenNameSimilarity);
         }
-        long daysBetween = getDaysBetween(person1.getBirthDate().value(), person2.getBirthDate().value());
+        long daysBetween = getDaysBetween(
+                person1.getBirthDate().value(), person2.getBirthDate().value());
         if (isSimilarDate(daysBetween)) {
             score += 10.0 - (10.0 * Math.abs(daysBetween) / 30.0);
         }

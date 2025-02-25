@@ -1,13 +1,12 @@
 package de.jobst.resulter.domain;
 
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Entity;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
-
-import java.time.Instant;
 
 @Entity
 @Getter

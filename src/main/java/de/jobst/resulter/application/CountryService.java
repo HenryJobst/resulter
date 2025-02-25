@@ -34,6 +34,10 @@ public class CountryService {
         return countryRepository.findOrCreate(countries);
     }
 
+    public Country getById(CountryId countryId) {
+        return countryRepository.findById(countryId).orElseThrow(ResourceNotFoundException::new);
+    }
+
     public Optional<Country> findById(CountryId id) {
         return countryRepository.findById(id);
     }

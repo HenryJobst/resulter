@@ -4,15 +4,11 @@ import de.jobst.resulter.adapter.driver.web.dto.CupDetailedDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
+import de.jobst.resulter.application.CountryService;
 import de.jobst.resulter.application.CupService;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.*;
-import java.time.Year;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +19,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @Slf4j
 public class CupController {
@@ -30,12 +32,15 @@ public class CupController {
     private final CupService cupService;
     private final EventService eventService;
     private final OrganisationService organisationService;
+    private final CountryService countryService;
 
     @Autowired
-    public CupController(CupService cupService, EventService eventService, OrganisationService organisationService) {
+    public CupController(CupService cupService, EventService eventService, OrganisationService organisationService,
+                         CountryService countryService) {
         this.cupService = cupService;
         this.eventService = eventService;
         this.organisationService = organisationService;
+        this.countryService = countryService;
     }
 
     @GetMapping("/cup_types")
@@ -75,7 +80,7 @@ public class CupController {
     @GetMapping("/cup/{id}/results")
     public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
         return ResponseEntity.ok(
-                CupDetailedDto.from(cupService.getCupDetailed(CupId.of(id)), eventService, organisationService));
+                CupDetailedDto.from(cupService.getCupDetailed(CupId.of(id)), eventService, organisationService, countryService));
     }
 
     @PutMapping("/cup/{id}")

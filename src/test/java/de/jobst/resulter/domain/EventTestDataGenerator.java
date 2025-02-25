@@ -49,7 +49,7 @@ public class EventTestDataGenerator {
         String clubName = "O-Club";
         String clubShortName = "OC";
         Country country = Country.of(CountryId.empty().value(), "NED", "NED");
-        Organisation organisation = Organisation.of(clubName, clubShortName, country);
+        Organisation organisation = Organisation.of(clubName, clubShortName, country.getId());
 
 
         Person person = Person.of(FamilyName.of(familyName), GivenName.of(givenName), birthDate, personGender);

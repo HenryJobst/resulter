@@ -1,13 +1,14 @@
 package de.jobst.resulter.domain;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 @AggregateRoot
 @Getter
@@ -26,7 +27,7 @@ public final class Organisation implements Comparable<Organisation> {
     private final OrganisationType type;
 
     @Nullable
-    private final Country country;
+    private final CountryId country;
 
     @NonNull
     private final Collection<Organisation> childOrganisations;
@@ -36,7 +37,7 @@ public final class Organisation implements Comparable<Organisation> {
             @NonNull OrganisationName name,
             @NonNull OrganisationShortName shortName,
             @NonNull OrganisationType type,
-            @Nullable Country country,
+            @Nullable CountryId country,
             @NonNull Collection<Organisation> childOrganisations) {
         this.id = id;
         this.name = name;
@@ -50,7 +51,7 @@ public final class Organisation implements Comparable<Organisation> {
         return Organisation.of(name, shortName, null);
     }
 
-    public static Organisation of(String name, String shortName, @Nullable Country country) {
+    public static Organisation of(String name, String shortName, @Nullable CountryId country) {
         return Organisation.of(
                 OrganisationId.empty().value(),
                 name,
@@ -69,7 +70,7 @@ public final class Organisation implements Comparable<Organisation> {
             @NonNull String name,
             @NonNull String shortName,
             @NonNull String type,
-            @Nullable Country country,
+            @Nullable CountryId country,
             @NonNull Collection<Organisation> childOrganisations) {
         return new Organisation(
                 OrganisationId.of(id),
@@ -84,7 +85,7 @@ public final class Organisation implements Comparable<Organisation> {
             @NonNull OrganisationName name,
             @NonNull OrganisationShortName shortName,
             @NonNull OrganisationType type,
-            @Nullable Country country,
+            @Nullable CountryId country,
             @NonNull Collection<Organisation> childOrganisations) {
         return new Organisation(OrganisationId.empty(), name, shortName, type, country, childOrganisations);
     }
@@ -98,9 +99,7 @@ public final class Organisation implements Comparable<Organisation> {
         if (val == 0) {
             if (null != country) {
                 if (null != o.country) {
-                    val = country.getName()
-                            .value()
-                            .compareTo(o.country.getName().value());
+                    val = country.compareTo(o.country);
                 } else {
                     val = 1;
                 }

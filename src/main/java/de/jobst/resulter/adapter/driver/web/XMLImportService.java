@@ -1,22 +1,23 @@
 package de.jobst.resulter.adapter.driver.web;
 
-import static java.time.ZoneOffset.UTC;
-
 import de.jobst.resulter.adapter.driver.web.jaxb.OverallResult;
 import de.jobst.resulter.application.*;
 import de.jobst.resulter.domain.*;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.time.ZoneOffset.UTC;
 
 @Service
 @Slf4j
@@ -399,10 +400,8 @@ public class XMLImportService {
                                         o.getName(),
                                         o.getShortName(),
                                         OrganisationType.OTHER.value(),
-                                        (null == o.getCountry()
-                                                ? null
-                                                : countriesByCode.get(
-                                                        o.getCountry().getCode())),
+                                        (null == o.getCountry() ? null :
+                                         countriesByCode.get(o.getCountry().getCode()).getId()),
                                         new ArrayList<>()))
                                 .sorted(),
                         // organisations from persons
@@ -418,7 +417,7 @@ public class XMLImportService {
                                         (null == o.getCountry()
                                                 ? null
                                                 : countriesByCode.get(
-                                                        o.getCountry().getCode())),
+                                                        o.getCountry().getCode()).getId()),
                                         new ArrayList<>()))
                                 .sorted())
                 .collect(Collectors.toSet());

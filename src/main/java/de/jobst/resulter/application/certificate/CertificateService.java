@@ -17,6 +17,7 @@ import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TabAlignment;
+import de.jobst.resulter.application.MediaFileService;
 import de.jobst.resulter.domain.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -49,15 +50,18 @@ public class CertificateService {
     private final JsonSchemaValidator jsonSchemaValidator;
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
+    private final MediaFileService mediaFileService;
 
-    public CertificateService() {
+    public CertificateService(MediaFileService mediaFileService) {
+        this.mediaFileService = mediaFileService;
         TextFileLoader schemaLoader = new TextFileLoader();
         certificateSchema = schemaLoader.loadTextFile(SCHEMA_CERTIFICATE_SCHEMA_JSON);
         jsonSchemaValidator = new JsonSchemaValidator();
     }
 
-    public CertificateService(String mediaFilePath) {
+    public CertificateService(String mediaFilePath, MediaFileService mediaFileService) {
         this.mediaFilePath = mediaFilePath;
+        this.mediaFileService = mediaFileService;
         TextFileLoader schemaLoader = new TextFileLoader();
         certificateSchema = schemaLoader.loadTextFile(SCHEMA_CERTIFICATE_SCHEMA_JSON);
         jsonSchemaValidator = new JsonSchemaValidator();
@@ -300,7 +304,8 @@ public class CertificateService {
             Path basePath = Paths.get(mediaFilePath);
             try {
                 if (eventCertificate.getBlankCertificate() != null) {
-                    MediaFile blankCertificate = Objects.requireNonNull(eventCertificate).getBlankCertificate();
+                    MediaFileId blankCertificateId = Objects.requireNonNull(eventCertificate).getBlankCertificate();
+                    MediaFile blankCertificate = mediaFileService.getById(blankCertificateId);
                     ImageData image = ImageDataFactory.create(basePath.resolve(Objects.requireNonNull(blankCertificate)
                         .getMediaFileName()
                         .value()).toString());

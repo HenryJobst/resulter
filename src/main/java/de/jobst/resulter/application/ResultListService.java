@@ -178,7 +178,7 @@ public class ResultListService {
                 eventCertificateDto.name(),
                 event.getId(),
                 eventCertificateDto.layoutDescription(),
-                blankCertificate,
+                blankCertificate != null ? blankCertificate.getId() : null,
                 eventCertificateDto.primary());
 
         return certificateService.createCertificate(event, eventCertificate);

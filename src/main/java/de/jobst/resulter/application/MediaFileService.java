@@ -2,11 +2,7 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.domain.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
 import org.apache.tika.Tika;
@@ -21,6 +17,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class MediaFileService {
@@ -132,6 +134,10 @@ public class MediaFileService {
 
     public Page<MediaFile> findAll(@Nullable String filter, @NonNull Pageable pageable) {
         return mediaFileRepository.findAll(filter, pageable);
+    }
+
+    public MediaFile getById(MediaFileId mediaFileId) {
+        return mediaFileRepository.findById(mediaFileId).orElseThrow(ResourceNotFoundException::new);
     }
 
     public Optional<MediaFile> findById(MediaFileId mediaFileId) {

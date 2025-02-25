@@ -4,6 +4,7 @@ import de.jobst.resulter.adapter.driver.web.constraints.FullDtoGroup;
 import de.jobst.resulter.adapter.driver.web.constraints.KeyDtoGroup;
 import de.jobst.resulter.adapter.driver.web.constraints.ValidId;
 import de.jobst.resulter.application.EventService;
+import de.jobst.resulter.application.MediaFileService;
 import de.jobst.resulter.domain.EventCertificate;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.ObjectUtils;
@@ -19,7 +20,8 @@ public record EventCertificateDto(
         @Validated({KeyDtoGroup.class, FullDtoGroup.class}) MediaFileKeyDto blankCertificate,
         @NotNull boolean primary) {
 
-    public static EventCertificateDto from(EventCertificate eventCertificate, String thumbnailPath, EventService eventService) {
+    public static EventCertificateDto from(EventCertificate eventCertificate, String thumbnailPath,
+                                           EventService eventService, MediaFileService mediaFileService) {
         return new EventCertificateDto(
                 ObjectUtils.isNotEmpty(eventCertificate.getId())
                         ? eventCertificate.getId().value()
@@ -32,7 +34,9 @@ public record EventCertificateDto(
                         ? eventCertificate.getLayoutDescription().value()
                         : null,
                 ObjectUtils.isNotEmpty(eventCertificate.getBlankCertificate())
-                        ? MediaFileKeyDto.from(eventCertificate.getBlankCertificate(), thumbnailPath)
+                        ? MediaFileKeyDto.from(
+                        mediaFileService.getById(
+                            eventCertificate.getBlankCertificate()), thumbnailPath)
                         : null,
                 eventCertificate.isPrimary());
     }

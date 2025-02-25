@@ -3,6 +3,8 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +17,11 @@ import java.util.Properties;
 
 class ResultListServiceTest {
 
-    private String mediaFilePath;
+    private final String mediaFilePath;
+
+    @SuppressWarnings("unused")
+    @MockitoBean
+    private MediaFileService mediaFileService;
 
     public ResultListServiceTest() throws IOException {
         Properties properties = new Properties();
@@ -35,11 +41,13 @@ class ResultListServiceTest {
         MediaFile mediaFile =
             MediaFile.of("Urkunde_BTFB_2023.jpg", "thumbnails/Urkunde_BTFB_2023.thumbnail.jpg", "image/jpeg", 100000L);
 
+        Mockito.when(mediaFileService.getById(mediaFile.getId())).thenReturn(mediaFile);
+
         EventCertificate eventCertificate = EventCertificate.of(EventCertificateId.empty().value(),
             "Test-Zertifikat",
             e.getId(),
             layoutDescription,
-            mediaFile,
+            mediaFile.getId(),
             true);
 
         PersonRaceResult prr = PersonRaceResult.of("H35-",
@@ -50,7 +58,8 @@ class ResultListServiceTest {
             1L,
             (byte) 1,
             ResultStatus.OK);
-        CertificateService.Certificate certificate = new CertificateService(this.mediaFilePath).createCertificate(p,
+        CertificateService.Certificate certificate =
+            new CertificateService(this.mediaFilePath, mediaFileService).createCertificate(p,
             Optional.of(organisation),
             e,
             eventCertificate,

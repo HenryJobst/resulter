@@ -6,6 +6,7 @@ import de.jobst.resulter.adapter.driver.web.constraints.ValidId;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.application.EventCertificateService;
 import de.jobst.resulter.application.EventService;
+import de.jobst.resulter.application.MediaFileService;
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventCertificateId;
 import de.jobst.resulter.domain.EventCertificateLayoutDescription;
@@ -31,14 +32,19 @@ public class EventCertificateController {
 
     private final EventCertificateService eventCertificateService;
     private final EventService eventService;
+    private final MediaFileService mediaFileService;
 
     @Value("#{'${resulter.media-file-path-thumbnails}'}")
     private String mediaFileThumbnailsPath;
 
     @Autowired
-    public EventCertificateController(EventCertificateService eventCertificateService, EventService eventService) {
+    public EventCertificateController(
+            EventCertificateService eventCertificateService,
+            EventService eventService,
+            MediaFileService mediaFileService) {
         this.eventCertificateService = eventCertificateService;
         this.eventService = eventService;
+        this.mediaFileService = mediaFileService;
     }
 
     @GetMapping("/event_certificate/all")
@@ -46,7 +52,7 @@ public class EventCertificateController {
     public ResponseEntity<List<EventCertificateDto>> getAllEventCertificates() {
         List<EventCertificate> eventCertificates = eventCertificateService.findAll();
         return ResponseEntity.ok(eventCertificates.stream()
-                .map(x -> EventCertificateDto.from(x, mediaFileThumbnailsPath, eventService))
+                .map(x -> EventCertificateDto.from(x, mediaFileThumbnailsPath, eventService, mediaFileService))
                 .toList());
     }
 
@@ -61,7 +67,7 @@ public class EventCertificateController {
                         : Pageable.unpaged());
         return ResponseEntity.ok(new PageImpl<>(
                 eventCertificates.getContent().stream()
-                        .map(x -> EventCertificateDto.from(x, mediaFileThumbnailsPath, eventService))
+                        .map(x -> EventCertificateDto.from(x, mediaFileThumbnailsPath, eventService, mediaFileService))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(
                         eventCertificates.getPageable(), EventCertificateDto::mapOrdersDomainToDto),
@@ -78,7 +84,8 @@ public class EventCertificateController {
                 eventCertificateDto.layoutDescription(),
                 eventCertificateDto.blankCertificate(),
                 eventCertificateDto.primary());
-        return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath, eventService));
+        return ResponseEntity.ok(
+                EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath, eventService, mediaFileService));
     }
 
     @GetMapping("/event_certificate/{id}")
@@ -86,7 +93,8 @@ public class EventCertificateController {
     public ResponseEntity<EventCertificateDto> getEventCertificate(@PathVariable Long id) {
         Optional<EventCertificate> eventCertificate = eventCertificateService.findById(EventCertificateId.of(id));
         return eventCertificate
-                .map(value -> ResponseEntity.ok(EventCertificateDto.from(value, mediaFileThumbnailsPath, eventService)))
+                .map(value -> ResponseEntity.ok(
+                        EventCertificateDto.from(value, mediaFileThumbnailsPath, eventService, mediaFileService)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -103,7 +111,8 @@ public class EventCertificateController {
                 eventCertificateDto.blankCertificate(),
                 eventCertificateDto.primary());
 
-        return ResponseEntity.ok(EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath, eventService));
+        return ResponseEntity.ok(
+                EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath, eventService, mediaFileService));
     }
 
     @DeleteMapping("/event_certificate/{id}")

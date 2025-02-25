@@ -19,14 +19,6 @@ import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TabAlignment;
 import de.jobst.resulter.application.MediaFileService;
 import de.jobst.resulter.domain.*;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +31,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -254,7 +253,8 @@ public class CertificateService {
         }
     }
 
-    public Certificate createCertificate(Event event, @NonNull EventCertificate eventCertificate, @NonNull MediaFileService mediaFileService) {
+    public Certificate createCertificate(
+            Event event, @NonNull EventCertificate eventCertificate, @NonNull MediaFileService mediaFileService) {
         Person p = Person.of("Mustermann", "Max", null, Gender.M);
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
         PersonRaceResult prr = PersonRaceResult.of(
@@ -275,8 +275,7 @@ public class CertificateService {
             @NonNull Event event,
             @NonNull EventCertificate eventCertificate,
             @NonNull PersonRaceResult personResult,
-            @NonNull
-            MediaFileService mediaFileService) {
+            @NonNull MediaFileService mediaFileService) {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);

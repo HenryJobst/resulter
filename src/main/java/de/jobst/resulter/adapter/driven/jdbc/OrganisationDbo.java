@@ -1,13 +1,9 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Country;
+import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationType;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
@@ -17,6 +13,13 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -67,7 +70,7 @@ public class OrganisationDbo {
 
         if (organisation.getCountry() != null) {
             organisationDbo.setCountry(
-                    AggregateReference.to(organisation.getCountry().getId().value()));
+                    AggregateReference.to(organisation.getCountry().value()));
         } else {
             organisationDbo.setCountry(null);
         }
@@ -93,7 +96,7 @@ public class OrganisationDbo {
                 name,
                 shortName,
                 type.value(),
-                country != null ? countryResolver.apply(country.getId()) : null,
+                Optional.ofNullable(country).map(x -> CountryId.of(x.getId())).orElse(null),
                 childOrganisations == null
                         ? new ArrayList<>()
                         : childOrganisations.stream()

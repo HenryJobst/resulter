@@ -2,12 +2,9 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationDto;
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationTypeDto;
+import de.jobst.resulter.application.CountryService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,23 +14,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
 @Slf4j
 public class OrganisationController {
 
     private final OrganisationService organisationService;
+    private final CountryService countryService;
 
     @Autowired
-    public OrganisationController(OrganisationService organisationService) {
+    public OrganisationController(OrganisationService organisationService, CountryService countryService) {
         this.organisationService = organisationService;
+        this.countryService = countryService;
     }
 
     @GetMapping("/organisation/all")
     public ResponseEntity<List<OrganisationDto>> getAllOrganisations() {
         List<Organisation> organisations = organisationService.findAll();
         return ResponseEntity.ok(
-                organisations.stream().map(OrganisationDto::from).toList());
+                organisations.stream().map(o -> OrganisationDto.from(o, countryService)).toList());
     }
 
     @GetMapping("/organisation")
@@ -45,7 +49,7 @@ public class OrganisationController {
                         ? FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
         return ResponseEntity.ok(new PageImpl<>(
-                organisations.getContent().stream().map(OrganisationDto::from).toList(),
+                organisations.getContent().stream().map(o -> OrganisationDto.from(o, countryService)).toList(),
                 FilterAndSortConverter.mapOrderProperties(
                         organisations.getPageable(), OrganisationDto::mapOrdersDomainToDto),
                 organisations.getTotalElements()));
@@ -55,7 +59,7 @@ public class OrganisationController {
     public ResponseEntity<OrganisationDto> getOrganisation(@PathVariable Long id) {
         Optional<Organisation> organisation = organisationService.findById(OrganisationId.of(id));
         return organisation
-                .map(value -> ResponseEntity.ok(OrganisationDto.from(value)))
+                .map(value -> ResponseEntity.ok(OrganisationDto.from(value, countryService)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -83,7 +87,7 @@ public class OrganisationController {
                         : organisationDto.childOrganisations().stream()
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
-        return ResponseEntity.ok(OrganisationDto.from(organisation));
+        return ResponseEntity.ok(OrganisationDto.from(organisation, countryService));
     }
 
     @PostMapping("/organisation")
@@ -101,7 +105,7 @@ public class OrganisationController {
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
         if (null != organisation) {
-            return ResponseEntity.ok(OrganisationDto.from(organisation));
+            return ResponseEntity.ok(OrganisationDto.from(organisation, countryService));
         } else {
             return ResponseEntity.notFound().build();
         }

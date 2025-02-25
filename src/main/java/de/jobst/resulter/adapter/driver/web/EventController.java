@@ -10,6 +10,13 @@ import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.validation.Valid;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -44,10 +43,11 @@ public class EventController {
 
     @Autowired
     public EventController(
-        EventService eventService,
-        ResultListService resultListService,
-        RaceService raceService,
-        OrganisationService organisationService, EventCertificateService eventCertificateService) {
+            EventService eventService,
+            ResultListService resultListService,
+            RaceService raceService,
+            OrganisationService organisationService,
+            EventCertificateService eventCertificateService) {
         this.eventService = eventService;
         this.resultListService = resultListService;
         this.raceService = raceService;
@@ -58,8 +58,9 @@ public class EventController {
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
         List<Event> events = eventService.findAll();
-        return ResponseEntity.ok(
-                events.stream().map(x -> EventDto.from(x, organisationService, eventCertificateService)).toList());
+        return ResponseEntity.ok(events.stream()
+                .map(x -> EventDto.from(x, organisationService, eventCertificateService))
+                .toList());
     }
 
     @GetMapping("/event")

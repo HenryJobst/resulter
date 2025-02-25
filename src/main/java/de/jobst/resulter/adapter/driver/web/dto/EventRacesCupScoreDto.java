@@ -4,7 +4,6 @@ import de.jobst.resulter.application.CountryService;
 import de.jobst.resulter.application.EventCertificateService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.aggregations.EventRacesCupScore;
-
 import java.util.List;
 
 public record EventRacesCupScoreDto(

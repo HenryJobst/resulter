@@ -3,12 +3,11 @@ package de.jobst.resulter.domain.aggregations;
 import de.jobst.resulter.application.AggregatedPersonScores;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ClassResultShortNameScoreSummary;
-import lombok.Getter;
-import org.springframework.lang.NonNull;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.Getter;
+import org.springframework.lang.NonNull;
 
 @Getter
 public class CupDetailed extends Cup {

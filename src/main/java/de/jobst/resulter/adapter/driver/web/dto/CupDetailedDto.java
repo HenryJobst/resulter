@@ -5,10 +5,9 @@ import de.jobst.resulter.application.EventCertificateService;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.aggregations.CupDetailed;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-
-import java.util.List;
 
 @Slf4j
 public record CupDetailedDto(
@@ -34,7 +33,8 @@ public record CupDetailedDto(
                         .map(x -> EventKeyDto.from(eventService.getById(x)))
                         .toList(),
                 cup.getEventRacesCupScore().stream()
-                        .map(x -> EventRacesCupScoreDto.from(x, organisationService, countryService, eventCertificateService))
+                        .map(x -> EventRacesCupScoreDto.from(
+                                x, organisationService, countryService, eventCertificateService))
                         .toList(),
                 cup.getType().isGroupedByOrganisation()
                         ? cup.getOverallOrganisationScores().stream()

@@ -1,16 +1,15 @@
 package de.jobst.resulter.domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
 
 @AggregateRoot
 @Getter

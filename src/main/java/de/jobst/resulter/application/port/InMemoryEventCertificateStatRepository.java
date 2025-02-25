@@ -49,8 +49,8 @@ public class InMemoryEventCertificateStatRepository implements EventCertificateS
     @Override
     public void deleteAllByEventId(EventId eventId) {
         eventCertificateStats.values()
-            .removeIf(eventCertificate -> eventCertificate.getEvent().getId().equals(eventId));
-        savedEventCertificateStats.removeIf(eventCertificate -> eventCertificate.getEvent().getId().equals(eventId));
+            .removeIf(eventCertificate -> eventCertificate.getEvent().equals(eventId));
+        savedEventCertificateStats.removeIf(eventCertificate -> eventCertificate.getEvent().equals(eventId));
     }
 
     @Override
@@ -79,7 +79,7 @@ public class InMemoryEventCertificateStatRepository implements EventCertificateS
         List<EventCertificateStat> result = new ArrayList<>();
         eventCertificateStats.values()
             .stream()
-            .filter(eventCertificate -> eventCertificate.getEvent().getId().equals(id))
+            .filter(eventCertificate -> eventCertificate.getEvent().equals(id))
             .forEach(result::add);
         return result;
     }

@@ -1,8 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.EventCertificateStat;
-import de.jobst.resulter.domain.Person;
+import de.jobst.resulter.domain.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,13 +52,13 @@ public class EventCertificateStatDbo {
         if (eventCertificateStat.getId().isPersistent()) {
             eventCertificateStatDbo =
                 dboResolvers.getEventCertificateStatDboResolver().findDboById(eventCertificateStat.getId());
-            eventCertificateStatDbo.setEvent(AggregateReference.to(eventCertificateStat.getEvent().getId().value()));
-            eventCertificateStatDbo.setPerson(AggregateReference.to(eventCertificateStat.getPerson().getId().value()));
+            eventCertificateStatDbo.setEvent(AggregateReference.to(eventCertificateStat.getEvent().value()));
+            eventCertificateStatDbo.setPerson(AggregateReference.to(eventCertificateStat.getPerson().value()));
             eventCertificateStatDbo.setGenerated(Timestamp.from(eventCertificateStat.getGenerated()));
         } else {
             eventCertificateStatDbo =
-                new EventCertificateStatDbo(AggregateReference.to(eventCertificateStat.getEvent().getId().value()),
-                    AggregateReference.to(eventCertificateStat.getPerson().getId().value()),
+                new EventCertificateStatDbo(AggregateReference.to(eventCertificateStat.getEvent().value()),
+                    AggregateReference.to(eventCertificateStat.getPerson().value()),
                     Timestamp.from(eventCertificateStat.getGenerated()));
         }
 
@@ -73,9 +71,8 @@ public class EventCertificateStatDbo {
         Function<Long, Person> personResolver) {
 
         return eventCertificateStatDbos.stream()
-            .map(it -> EventCertificateStat.of(it.id,
-                eventResolver.apply(it.event.getId()),
-                personResolver.apply(it.person.getId()),
+            .map(it -> EventCertificateStat.of(it.id, EventId.of(it.event.getId()),
+                PersonId.of(it.person.getId()),
                 it.generated.toInstant()))
             .toList();
     }

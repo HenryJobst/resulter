@@ -8,12 +8,13 @@ import de.jobst.resulter.application.config.SpringSecurityAuditorAware;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ResultListService {
@@ -39,6 +40,7 @@ public class ResultListService {
     private final EventService eventService;
     private final PersonService personService;
     private final EventCertificateService eventCertificateService;
+    private final MediaFileService mediaFileService;
 
     public ResultListService(
             ResultListRepository resultListRepository,
@@ -53,7 +55,8 @@ public class ResultListService {
             SpringSecurityAuditorAware springSecurityAuditorAware,
             EventService eventService,
             PersonService personService,
-            EventCertificateService eventCertificateService) {
+            EventCertificateService eventCertificateService,
+            MediaFileService mediaFileService) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -67,6 +70,7 @@ public class ResultListService {
         this.eventService = eventService;
         this.personService = personService;
         this.eventCertificateService = eventCertificateService;
+        this.mediaFileService = mediaFileService;
     }
 
     public ResultList findOrCreate(ResultList resultList) {
@@ -165,7 +169,8 @@ public class ResultListService {
                 organisation,
                 event,
                 eventCertificateService.getById(Objects.requireNonNull(event.getCertificate())),
-                personRaceResult.get());
+                personRaceResult.get(),
+                mediaFileService);
 
         EventCertificateStat eventCertificateStat = EventCertificateStat.of(
                 EventCertificateStatId.empty().value(), event.getId(), person.getId(), Instant.now());
@@ -193,7 +198,7 @@ public class ResultListService {
                 blankCertificate != null ? blankCertificate.getId() : null,
                 eventCertificateDto.primary());
 
-        return certificateService.createCertificate(event, eventCertificate);
+        return certificateService.createCertificate(event, eventCertificate, mediaFileService);
     }
 
     public List<EventCertificateStatDto> getCertificateStats(EventId eventId) {

@@ -1,23 +1,27 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @AggregateRoot
 @Getter
 public class ResultList implements Comparable<ResultList> {
 
+    @Association
     @NonNull
     private final EventId eventId;
 
+    @Association
     @NonNull
     private final RaceId raceId;
 

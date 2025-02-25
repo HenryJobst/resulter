@@ -1,11 +1,13 @@
 package de.jobst.resulter.domain;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
+
+import java.util.List;
 
 @AggregateRoot
 @Getter
@@ -16,15 +18,18 @@ public class SplitTimeList {
     @Setter
     private SplitTimeListId id;
 
+    @Association
     @NonNull
     private final EventId eventId;
 
+    @Association
     @NonNull
     private final ResultListId resultListId;
 
     @NonNull
     private final ClassResultShortName classResultShortName;
 
+    @Association
     @NonNull
     private final PersonId personId;
 

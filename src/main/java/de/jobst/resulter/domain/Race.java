@@ -1,12 +1,14 @@
 package de.jobst.resulter.domain;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+
+import java.util.Objects;
 
 @SuppressWarnings("FieldMayBeFinal")
 @AggregateRoot
@@ -18,6 +20,7 @@ public class Race implements Comparable<Race> {
     @Setter
     private RaceId id;
 
+    @Association
     @NonNull
     private EventId eventId;
 

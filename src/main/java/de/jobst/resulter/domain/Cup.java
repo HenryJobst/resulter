@@ -28,15 +28,15 @@ public class Cup implements Comparable<Cup> {
     @NonNull
     private Year year;
     @NonNull
-    private Collection<EventId> events;
+    private Collection<EventId> eventIds;
 
     public Cup(@NonNull CupId id, @NonNull CupName name, @NonNull CupType type, @NonNull Year year,
-               @NonNull Collection<EventId> events) {
+               @NonNull Collection<EventId> eventIds) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.year = year;
-        this.events = events;
+        this.eventIds = eventIds;
     }
 
     static public Cup of(long id,
@@ -57,7 +57,7 @@ public class Cup implements Comparable<Cup> {
         setName(name);
         setType(type);
         setYear(year);
-        setEvents(events);
+        setEventIds(events);
         return this;
     }
 

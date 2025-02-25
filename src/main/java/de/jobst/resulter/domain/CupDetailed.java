@@ -26,7 +26,7 @@ public class CupDetailed extends Cup {
 
     public CupDetailed(@NonNull Cup cup, @NonNull List<EventRacesCupScore> eventRacesCupScore,
                        List<AggregatedPersonScores> aggregatedPersonScoresList) {
-        super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEvents());
+        super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEventIds());
 
         this.eventRacesCupScore = eventRacesCupScore;
         if (cup.getType().isGroupedByOrganisation()) {

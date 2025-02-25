@@ -4,7 +4,6 @@ import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.application.config.SpringSecurityAuditorAware;
 import de.jobst.resulter.application.port.CupRepository;
 import de.jobst.resulter.application.port.CupScoreListRepository;
-import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.aggregations.*;
@@ -30,7 +29,7 @@ public class CupService {
     private final OrganisationService organisationService;
     private final RaceService raceService;
     private final ResultListService resultListService;
-    private final EventRepository eventRepository;
+    private final EventService eventService;
     private final CupScoreListRepository cupScoreListRepository;
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
 
@@ -39,7 +38,7 @@ public class CupService {
                       OrganisationService organisationService,
                       RaceService raceService,
                       ResultListService resultListService,
-                      EventRepository eventRepository,
+                      EventService eventService,
                       CupScoreListRepository cupScoreListRepository,
                       SpringSecurityAuditorAware springSecurityAuditorAware) {
         this.cupRepository = cupRepository;
@@ -47,7 +46,7 @@ public class CupService {
         this.organisationService = organisationService;
         this.raceService = raceService;
         this.resultListService = resultListService;
-        this.eventRepository = eventRepository;
+        this.eventService = eventService;
         this.cupScoreListRepository = cupScoreListRepository;
         this.springSecurityAuditorAware = springSecurityAuditorAware;
     }
@@ -60,21 +59,18 @@ public class CupService {
         return cupRepository.findOrCreate(cup);
     }
 
-    private Optional<Cup> findById(CupId cupId) {
-        return cupRepository.findById(cupId);
-    }
-
     public Cup getById(CupId cupId) {
         return cupRepository.findById(cupId).orElseThrow(ResourceNotFoundException::new);
     }
 
     public Cup updateCup(CupId id, CupName name, CupType type, Year year, Collection<EventId> eventIds) {
-        return cupRepository.save(getById(id).update(name, type, year, eventRepository.findAllById(eventIds)));
+        var events = eventService.findAllById(eventIds);
+        return cupRepository.save(getById(id).update(name, type, year,
+            events.stream().map(Event::getId).toList()));
     }
 
     public Cup createCup(String name, CupType type, Year year, Collection<EventId> eventIds) {
-        var events = eventRepository.findAllById(eventIds);
-        Cup cup = Cup.of(CupId.empty().value(), name, type, year, events);
+        Cup cup = Cup.of(CupId.empty().value(), name, type, year, eventIds);
         return cupRepository.save(cup);
     }
 
@@ -89,10 +85,10 @@ public class CupService {
 
     public CupDetailed getCupDetailed(CupId cupId) {
         Cup cup = getById(cupId);
-        List<Event> events = cup.getEvents().stream().toList();
-        List<Race> races = raceService.findAllByEvents(events);
-        List<EventResultList> eventResultLists = events.stream()
-            .map(event -> new EventResultLists(event, resultListService.findByEventId(event.getId())))
+        List<EventId> eventIds = cup.getEventIds().stream().toList();
+        List<Race> races = raceService.findAllByEventIds(eventIds);
+        List<EventResultList> eventResultLists = eventIds.stream()
+            .map(eventId -> new EventResultLists(eventService.getById(eventId), resultListService.findByEventId(eventId)))
             .flatMap(rl2 -> rl2.resultLists().stream().map(rl -> new EventResultList(rl2.event(), rl)))
             .sorted()
             .toList();
@@ -102,6 +98,7 @@ public class CupService {
 
         var strategy = cup.getCupTypeCalculationStrategy(null);
 
+        List<Event> events = eventService.getByIds(cup.getEventIds());
         ClassResultAggregationResult classResultAggregationResult = cup.getType().isGroupedByOrganisation() ?
                                                                     null :
                                                                     calculateClassResultGroupedSums(events,
@@ -303,7 +300,7 @@ public class CupService {
     @Transactional
     public List<CupScoreListDto> calculateScore(CupId id) {
         Cup cup = getById(id);
-        Collection<Event> events = cup.getEvents();
+        Collection<Event> events = eventService.getByIds(cup.getEventIds());
         Collection<ResultList> resultLists = events.stream().flatMap(event -> {
             Collection<ResultList> resultListsByEvent = resultListService.findByEventId(event.getId());
             return resultListsByEvent.stream();

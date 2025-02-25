@@ -96,7 +96,7 @@ public class ResultList implements Comparable<ResultList> {
 
     private boolean invalid(Cup cup) {
         // event is not in given cup
-        return cup.getEvents().stream().filter(it -> it.getId().equals(this.eventId)).findAny().isEmpty();
+        return cup.getEventIds().stream().filter(it -> it.equals(this.eventId)).findAny().isEmpty();
     }
 
     private List<CupScore> calculate(Cup cup, CupTypeCalculationStrategy cupTypeCalculationStrategy) {

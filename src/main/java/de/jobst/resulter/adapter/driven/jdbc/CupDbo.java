@@ -56,7 +56,7 @@ public class CupDbo {
             cupDbo = new CupDbo(cup.getName().value());
         }
 
-        cupDbo.setEvents(cup.getEvents().stream()
+        cupDbo.setEvents(cup.getEventIds().stream()
                 .map(it -> new CupEventDbo(it.value()))
                 .collect(Collectors.toSet()));
 

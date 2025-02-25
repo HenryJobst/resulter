@@ -2,6 +2,10 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,9 +14,6 @@ import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Properties;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 class ResultListServiceTest {
 
@@ -59,8 +60,8 @@ class ResultListServiceTest {
                 1L,
                 (byte) 1,
                 ResultStatus.OK);
-        CertificateService.Certificate certificate = new CertificateService(this.mediaFilePath, mediaFileService)
-                .createCertificate(p, Optional.of(organisation), e, eventCertificate, prr);
+        CertificateService.Certificate certificate = new CertificateService(this.mediaFilePath)
+                .createCertificate(p, Optional.of(organisation), e, eventCertificate, prr, mediaFileService);
 
         File file = new File(certificate.filename());
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {

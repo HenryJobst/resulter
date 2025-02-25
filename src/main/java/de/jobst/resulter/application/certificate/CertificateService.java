@@ -19,6 +19,14 @@ import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TabAlignment;
 import de.jobst.resulter.application.MediaFileService;
 import de.jobst.resulter.domain.*;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,13 +39,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -53,18 +54,14 @@ public class CertificateService {
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
 
-    private final MediaFileService mediaFileService;
-
-    public CertificateService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
+    public CertificateService() {
         TextFileLoader schemaLoader = new TextFileLoader();
         certificateSchema = schemaLoader.loadTextFile(SCHEMA_CERTIFICATE_SCHEMA_JSON);
         jsonSchemaValidator = new JsonSchemaValidator();
     }
 
-    public CertificateService(String mediaFilePath, MediaFileService mediaFileService) {
+    public CertificateService(String mediaFilePath) {
         this.mediaFilePath = mediaFilePath;
-        this.mediaFileService = mediaFileService;
         TextFileLoader schemaLoader = new TextFileLoader();
         certificateSchema = schemaLoader.loadTextFile(SCHEMA_CERTIFICATE_SCHEMA_JSON);
         jsonSchemaValidator = new JsonSchemaValidator();
@@ -257,7 +254,7 @@ public class CertificateService {
         }
     }
 
-    public Certificate createCertificate(Event event, @NonNull EventCertificate eventCertificate) {
+    public Certificate createCertificate(Event event, @NonNull EventCertificate eventCertificate, @NonNull MediaFileService mediaFileService) {
         Person p = Person.of("Mustermann", "Max", null, Gender.M);
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
         PersonRaceResult prr = PersonRaceResult.of(
@@ -269,7 +266,7 @@ public class CertificateService {
                 1L,
                 (byte) 1,
                 ResultStatus.OK);
-        return createCertificate(p, Optional.of(organisation), event, eventCertificate, prr);
+        return createCertificate(p, Optional.of(organisation), event, eventCertificate, prr, mediaFileService);
     }
 
     public Certificate createCertificate(
@@ -277,7 +274,9 @@ public class CertificateService {
             Optional<Organisation> organisation,
             @NonNull Event event,
             @NonNull EventCertificate eventCertificate,
-            @NonNull PersonRaceResult personResult) {
+            @NonNull PersonRaceResult personResult,
+            @NonNull
+            MediaFileService mediaFileService) {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);

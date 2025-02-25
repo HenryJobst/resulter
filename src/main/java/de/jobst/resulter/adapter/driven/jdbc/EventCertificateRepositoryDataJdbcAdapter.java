@@ -72,17 +72,17 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
     @NonNull
     private Function<Long, EventCertificate> getEventCertificateResolver() {
         return id -> EventCertificateDbo.asEventCertificate(
-                eventCertificateJdbcRepository.findById(id).orElseThrow(), getEventResolver(), getMediaFileResolver());
+                eventCertificateJdbcRepository.findById(id).orElseThrow(), getMediaFileResolver());
     }
 
     @NonNull
-    private Function<EventId, EventCertificate> getPrimaryEventCertificateResolver(@NonNull Event event) {
+    private Function<EventId, EventCertificate> getPrimaryEventCertificateResolver() {
         return id -> {
             Optional<EventCertificateDbo> optionalEventCertificateDbo =
                     eventCertificateJdbcRepository.findByEventAndPrimary(AggregateReference.to(id.value()), true);
             return optionalEventCertificateDbo
                     .map(eventCertificateDbo -> EventCertificateDbo.asEventCertificate(
-                            eventCertificateDbo, eventId -> event, getMediaFileResolver()))
+                            eventCertificateDbo, getMediaFileResolver()))
                     .orElse(null);
         };
     }
@@ -96,7 +96,7 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
     private Function<Long, Event> getEventResolver() {
         return id -> {
             var event = EventDbo.asEvent(eventJdbcRepository.findById(id).orElseThrow(), getOrganisationResolver());
-            event.withCertificate(getPrimaryEventCertificateResolver(event));
+            event.withCertificate(getPrimaryEventCertificateResolver());
             return event;
         };
     }
@@ -120,7 +120,7 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
         EventCertificateDbo eventCertificateEntity = EventCertificateDbo.from(eventCertificate, dboResolvers);
         EventCertificateDbo savedEventCertificateEntity = eventCertificateJdbcRepository.save(eventCertificateEntity);
         return EventCertificateDbo.asEventCertificate(
-                savedEventCertificateEntity, getEventResolver(), getMediaFileResolver());
+                savedEventCertificateEntity, getMediaFileResolver());
     }
 
     @Override
@@ -132,7 +132,7 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
     @Transactional(readOnly = true)
     public List<EventCertificate> findAll() {
         Collection<EventCertificateDbo> resultList = eventCertificateJdbcRepository.findAll();
-        return EventCertificateDbo.asEventCertificates(resultList, getEventResolver(), getMediaFileResolver());
+        return EventCertificateDbo.asEventCertificates(resultList, getMediaFileResolver());
     }
 
     @Transactional(readOnly = true)
@@ -144,7 +144,7 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
     @Transactional(readOnly = true)
     public Optional<EventCertificate> findById(EventCertificateId eventCertificateId) {
         return findDboById(eventCertificateId)
-                .map(x -> EventCertificateDbo.asEventCertificate(x, getEventResolver(), getMediaFileResolver()));
+                .map(x -> EventCertificateDbo.asEventCertificate(x, getMediaFileResolver()));
     }
 
     @Override
@@ -184,7 +184,7 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
         }
         return new PageImpl<>(
                 page.stream()
-                        .map(x -> EventCertificateDbo.asEventCertificate(x, getEventResolver(), getMediaFileResolver()))
+                        .map(x -> EventCertificateDbo.asEventCertificate(x, getMediaFileResolver()))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
                 page.getTotalElements());
@@ -193,7 +193,7 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
     @Override
     public List<EventCertificate> findAllByEvent(EventId id) {
         return eventCertificateJdbcRepository.findAllByEvent(AggregateReference.to(id.value())).stream()
-                .map(x -> EventCertificateDbo.asEventCertificate(x, getEventResolver(), getMediaFileResolver()))
+                .map(x -> EventCertificateDbo.asEventCertificate(x, getMediaFileResolver()))
                 .toList();
     }
 

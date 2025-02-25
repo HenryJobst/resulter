@@ -37,7 +37,7 @@ class ResultListServiceTest {
 
         EventCertificate eventCertificate = EventCertificate.of(EventCertificateId.empty().value(),
             "Test-Zertifikat",
-            e,
+            e.getId(),
             layoutDescription,
             mediaFile,
             true);

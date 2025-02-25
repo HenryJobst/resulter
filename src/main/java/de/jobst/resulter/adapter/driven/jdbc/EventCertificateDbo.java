@@ -1,11 +1,8 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventCertificate;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.MediaFile;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
 import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Id;
@@ -15,6 +12,10 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 
 @Data
 @NoArgsConstructor
@@ -56,14 +57,14 @@ public class EventCertificateDbo {
             eventCertificateDbo.setName(eventCertificate.getName().value());
             if (null != eventCertificate.getEvent()) {
                 eventCertificateDbo.setEvent(AggregateReference.to(
-                        eventCertificate.getEvent().getId().value()));
+                        eventCertificate.getEvent().value()));
             }
         } else {
             eventCertificateDbo = new EventCertificateDbo(
                     eventCertificate.getName().value(),
                     eventCertificate.getEvent() != null
                             ? AggregateReference.to(
-                                    eventCertificate.getEvent().getId().value())
+                                    eventCertificate.getEvent().value())
                             : null);
         }
 
@@ -87,15 +88,13 @@ public class EventCertificateDbo {
     }
 
     public static List<EventCertificate> asEventCertificates(
-            @NonNull Collection<EventCertificateDbo> eventCertificateDbos,
-            Function<Long, Event> eventResolver,
-            Function<Long, MediaFile> mediaFileResolver) {
+            @NonNull Collection<EventCertificateDbo> eventCertificateDbos, Function<Long, MediaFile> mediaFileResolver) {
 
         return eventCertificateDbos.stream()
                 .map(it -> EventCertificate.of(
                         it.id,
                         it.name,
-                        it.event != null ? eventResolver.apply(it.event.getId()) : null,
+                        it.event != null ? EventId.of(it.event.getId()) : null,
                         it.layoutDescription != null ? it.layoutDescription : null,
                         it.blankCertificate != null ? mediaFileResolver.apply(it.blankCertificate.getId()) : null,
                         it.primary))
@@ -103,10 +102,8 @@ public class EventCertificateDbo {
     }
 
     public static EventCertificate asEventCertificate(
-            @NonNull EventCertificateDbo eventCertificateDbo,
-            Function<Long, Event> eventResolver,
-            Function<Long, MediaFile> mediaFileResolver) {
-        return asEventCertificates(List.of(eventCertificateDbo), eventResolver, mediaFileResolver)
+            @NonNull EventCertificateDbo eventCertificateDbo, Function<Long, MediaFile> mediaFileResolver) {
+        return asEventCertificates(List.of(eventCertificateDbo), mediaFileResolver)
                 .getFirst();
     }
 

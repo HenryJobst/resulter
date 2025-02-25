@@ -59,7 +59,7 @@ public class EventCertificateService {
             mediaFile != null ? mediaFileRepository.findById(MediaFileId.of(mediaFile.id())) : Optional.empty();
 
         eventCertificate.update(name,
-            optionalEvent.orElse(null),
+            optionalEvent.map(Event::getId).orElse(null),
             eventCertificateLayoutDescription,
             optionalMediaFile.orElse(null),
             primary);
@@ -104,7 +104,7 @@ public class EventCertificateService {
         EventCertificate eventCertificateCertificate = EventCertificate.of(
             EventCertificateId.empty().value(),
             eventCertificateCertificateName,
-            optionalEvent.orElse(null),
+            optionalEvent.map(Event::getId).orElse(null),
             eventCertificateLayoutDescription,
             optionalMediaFile.orElse(null),
             primary);

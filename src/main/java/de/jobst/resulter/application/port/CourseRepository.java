@@ -2,11 +2,10 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Course;
 import de.jobst.resulter.domain.CourseId;
-import org.jmolecules.ddd.annotation.Repository;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.jmolecules.ddd.annotation.Repository;
 
 @Repository
 public interface CourseRepository {

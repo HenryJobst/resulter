@@ -1,12 +1,11 @@
 package de.jobst.resulter.domain;
 
+import java.time.LocalDate;
+import java.util.Objects;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
-
-import java.time.LocalDate;
-import java.util.Objects;
 
 @AggregateRoot
 @Getter
@@ -26,10 +25,10 @@ public final class Person implements Comparable<Person> {
             return false;
         }
 
-        return id.equals(person.id) &&
-               Objects.equals(personName, person.personName) &&
-               Objects.equals(birthDate, person.birthDate) &&
-               Objects.equals(gender, person.gender);
+        return id.equals(person.id)
+                && Objects.equals(personName, person.personName)
+                && Objects.equals(birthDate, person.birthDate)
+                && Objects.equals(gender, person.gender);
     }
 
     @Override
@@ -41,7 +40,8 @@ public final class Person implements Comparable<Person> {
         return result;
     }
 
-    public record DomainKey(PersonName personName, BirthDate birthDate, Gender gender) implements Comparable<DomainKey> {
+    public record DomainKey(PersonName personName, BirthDate birthDate, Gender gender)
+            implements Comparable<DomainKey> {
 
         @Override
         public int compareTo(@NonNull DomainKey o) {
@@ -80,17 +80,19 @@ public final class Person implements Comparable<Person> {
     }
 
     public static Person of(String familyName, String givenName, LocalDate birthDate, Gender gender) {
-        return new Person(PersonId.empty(),
-            PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
-            BirthDate.of(birthDate),
-            gender);
+        return new Person(
+                PersonId.empty(),
+                PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
+                BirthDate.of(birthDate),
+                gender);
     }
 
     public static Person of(long id, String familyName, String givenName, LocalDate birthDate, Gender gender) {
-        return new Person(PersonId.of(id),
-            PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
-            BirthDate.of(birthDate),
-            gender);
+        return new Person(
+                PersonId.of(id),
+                PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
+                BirthDate.of(birthDate),
+                gender);
     }
 
     @Override

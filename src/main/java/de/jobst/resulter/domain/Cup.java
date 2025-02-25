@@ -3,15 +3,14 @@ package de.jobst.resulter.domain;
 import de.jobst.resulter.domain.scoring.*;
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import jakarta.annotation.Nullable;
+import java.time.Year;
+import java.util.Collection;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
-
-import java.time.Year;
-import java.util.Collection;
-import java.util.Map;
 
 @AggregateRoot
 @Setter
@@ -21,17 +20,25 @@ public class Cup implements Comparable<Cup> {
     @Identity
     @NonNull
     private CupId id;
+
     @NonNull
     private CupName name;
+
     @NonNull
     private CupType type;
+
     @NonNull
     private Year year;
+
     @NonNull
     private Collection<EventId> eventIds;
 
-    public Cup(@NonNull CupId id, @NonNull CupName name, @NonNull CupType type, @NonNull Year year,
-               @NonNull Collection<EventId> eventIds) {
+    public Cup(
+            @NonNull CupId id,
+            @NonNull CupName name,
+            @NonNull CupType type,
+            @NonNull Year year,
+            @NonNull Collection<EventId> eventIds) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -39,11 +46,12 @@ public class Cup implements Comparable<Cup> {
         this.eventIds = eventIds;
     }
 
-    static public Cup of(long id,
-                         @NonNull String cupName,
-                         @NonNull CupType type,
-                         @NonNull Year year,
-                         @NonNull Collection<EventId> events) {
+    public static Cup of(
+            long id,
+            @NonNull String cupName,
+            @NonNull CupType type,
+            @NonNull Year year,
+            @NonNull Collection<EventId> events) {
         return new Cup(CupId.of(id), CupName.of(cupName), type, year, events);
     }
 
@@ -61,8 +69,8 @@ public class Cup implements Comparable<Cup> {
         return this;
     }
 
-    public CupTypeCalculationStrategy getCupTypeCalculationStrategy(@Nullable Map<OrganisationId,
-                                                                    Organisation> organisationById) {
+    public CupTypeCalculationStrategy getCupTypeCalculationStrategy(
+            @Nullable Map<OrganisationId, Organisation> organisationById) {
         return switch (getType()) {
             case CupType.NOR -> new NORCalculationStrategy(organisationById);
             case CupType.KRISTALL -> new KristallCalculationStrategy(organisationById);

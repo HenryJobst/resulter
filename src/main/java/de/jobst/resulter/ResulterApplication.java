@@ -1,5 +1,8 @@
 package de.jobst.resulter;
 
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
+
+import java.util.Collections;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import org.jmolecules.architecture.hexagonal.Application;
 import org.springframework.aot.hint.ExecutableMode;
@@ -10,10 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
-
-import java.util.Collections;
-
-import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
 @Application
 @SpringBootApplication
@@ -34,10 +33,9 @@ public class ResulterApplication {
         @Override
         public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
             hints.reflection()
-                .registerType(ChangeLogHistoryServiceFactory.class,
-                    (type) -> type.withConstructor(Collections.emptyList(), ExecutableMode.INVOKE));
+                    .registerType(
+                            ChangeLogHistoryServiceFactory.class,
+                            (type) -> type.withConstructor(Collections.emptyList(), ExecutableMode.INVOKE));
         }
     }
-
 }
-

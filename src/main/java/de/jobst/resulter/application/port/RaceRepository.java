@@ -3,11 +3,10 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
-import org.jmolecules.ddd.annotation.Repository;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.jmolecules.ddd.annotation.Repository;
 
 @Repository
 public interface RaceRepository {

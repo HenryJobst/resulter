@@ -1,8 +1,7 @@
 package de.jobst.resulter.domain;
 
-import org.jmolecules.ddd.annotation.ValueObject;
-
 import java.util.Objects;
+import org.jmolecules.ddd.annotation.ValueObject;
 
 @ValueObject
 public record OrganisationId(Long value) {

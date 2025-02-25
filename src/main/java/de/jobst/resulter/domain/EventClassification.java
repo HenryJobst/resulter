@@ -4,7 +4,6 @@ import org.jmolecules.ddd.annotation.ValueObject;
 
 @ValueObject
 public enum EventClassification {
-
     INTERNATIONAL("International"),
     NATIONAL("National"),
     REGIONAL("Regional"),

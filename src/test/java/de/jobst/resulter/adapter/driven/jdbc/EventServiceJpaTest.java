@@ -2,7 +2,10 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.adapter.TestConfig;
 import de.jobst.resulter.application.EventService;
-import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventName;
+import de.jobst.resulter.domain.EventTestDataGenerator;
+import de.jobst.resulter.domain.TestEventResult;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +21,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
 @DataJdbcTest(properties = {"spring.test.database.replace=NONE", "resulter.repository.inmemory=false"})
-@ContextConfiguration(classes = {TestConfig.class}, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(
+        classes = {TestConfig.class},
+        loader = AnnotationConfigContextLoader.class)
 @EntityScan(basePackages = {"de.jobst.resulter.adapter.driven.jdbc"})
 @EnableJdbcRepositories(basePackages = "de.jobst.resulter.adapter.driven.jdbc")
-@Import({EventRepositoryDataJdbcAdapter.class, EventService.class, CupRepositoryDataJdbcAdapter.class,
-    PersonRepositoryDataJdbcAdapter.class, OrganisationRepositoryDataJdbcAdapter.class})
+@Import({
+    EventRepositoryDataJdbcAdapter.class,
+    EventService.class,
+    CupRepositoryDataJdbcAdapter.class,
+    PersonRepositoryDataJdbcAdapter.class,
+    OrganisationRepositoryDataJdbcAdapter.class
+})
 class EventServiceJpaTest {
 
     @Autowired
@@ -38,12 +48,15 @@ class EventServiceJpaTest {
 
         Event savedEvent = eventService.findOrCreate(event);
 
-        Event changedEvent = eventService.updateEvent(savedEvent.getId(),
-            EventName.of("ChangedEvent"),
-            savedEvent.getStartTime(),
-            savedEvent.getEventState(),
-            savedEvent.getOrganisations().stream().map(Organisation::getId).toList(),
-            savedEvent.getCertificate() != null ? savedEvent.getCertificate().getId() : null);
+        Event changedEvent = eventService.updateEvent(
+                savedEvent.getId(),
+                EventName.of("ChangedEvent"),
+                savedEvent.getStartTime(),
+                savedEvent.getEventState(),
+                savedEvent.getOrganisationIds(),
+                savedEvent.getCertificate() != null
+                        ? savedEvent.getCertificate().getId()
+                        : null);
 
         assertThat(changedEvent).isNotNull();
         /* TODO transform test to new domain entity and dbo structure

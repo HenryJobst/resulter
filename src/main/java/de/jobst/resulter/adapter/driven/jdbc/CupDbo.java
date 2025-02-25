@@ -1,6 +1,12 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.*;
+import java.time.Year;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Id;
@@ -10,13 +16,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
-
-import java.time.Year;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Data
 @NoArgsConstructor
@@ -78,9 +77,7 @@ public class CupDbo {
                         it.name,
                         it.type,
                         Year.of(it.year),
-                        it.events.stream()
-                                .map(x -> EventId.of(x.id.getId()))
-                                .toList()))
+                        it.events.stream().map(x -> EventId.of(x.id.getId())).toList()))
                 .toList();
     }
 

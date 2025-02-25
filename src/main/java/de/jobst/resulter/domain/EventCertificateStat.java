@@ -1,12 +1,11 @@
 package de.jobst.resulter.domain;
 
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.Entity;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
-
-import java.time.Instant;
 
 @Entity
 @Getter
@@ -26,10 +25,11 @@ public class EventCertificateStat {
     @NonNull
     private Instant generated;
 
-    public EventCertificateStat(@NonNull EventCertificateStatId id,
-                                @NonNull Event event,
-                                @NonNull Person person,
-                                @NonNull Instant generated) {
+    public EventCertificateStat(
+            @NonNull EventCertificateStatId id,
+            @NonNull Event event,
+            @NonNull Person person,
+            @NonNull Instant generated) {
         this.id = id;
         this.event = event;
         this.person = person;

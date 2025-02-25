@@ -4,11 +4,10 @@ import de.jobst.resulter.application.port.RaceRepository;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
-import org.springframework.stereotype.Service;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
 
 @Service
 public class RaceService {

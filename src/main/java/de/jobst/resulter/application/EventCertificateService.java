@@ -61,7 +61,7 @@ public class EventCertificateService {
         eventCertificate.update(name,
             optionalEvent.map(Event::getId).orElse(null),
             eventCertificateLayoutDescription,
-            optionalMediaFile.orElse(null),
+            optionalMediaFile.map(MediaFile::getId).orElse(null),
             primary);
 
         if (optionalEvent.isPresent() && eventCertificate.isPrimary()) {
@@ -106,7 +106,7 @@ public class EventCertificateService {
             eventCertificateCertificateName,
             optionalEvent.map(Event::getId).orElse(null),
             eventCertificateLayoutDescription,
-            optionalMediaFile.orElse(null),
+            optionalMediaFile.map(MediaFile::getId).orElse(null),
             primary);
         return eventCertificateRepository.save(eventCertificateCertificate);
     }

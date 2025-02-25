@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.MediaFile;
+import de.jobst.resulter.domain.MediaFileId;
 import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Id;
@@ -70,7 +71,7 @@ public class EventCertificateDbo {
 
         if (ObjectUtils.isNotEmpty(eventCertificate.getBlankCertificate())) {
             eventCertificateDbo.setBlankCertificate(AggregateReference.to(
-                    eventCertificate.getBlankCertificate().getId().value()));
+                    eventCertificate.getBlankCertificate().value()));
         } else {
             eventCertificateDbo.setBlankCertificate(null);
         }
@@ -96,7 +97,7 @@ public class EventCertificateDbo {
                         it.name,
                         it.event != null ? EventId.of(it.event.getId()) : null,
                         it.layoutDescription != null ? it.layoutDescription : null,
-                        it.blankCertificate != null ? mediaFileResolver.apply(it.blankCertificate.getId()) : null,
+                        it.blankCertificate != null ? MediaFileId.of(it.blankCertificate.getId()) : null,
                         it.primary))
                 .toList();
     }

@@ -31,7 +31,7 @@ public class EventCertificate {
 
     @Association
     @Nullable
-    private MediaFile blankCertificate;
+    private MediaFileId blankCertificate;
 
     private boolean primary;
 
@@ -40,7 +40,7 @@ public class EventCertificate {
             @NonNull EventCertificateName name,
             @Nullable EventId event,
             @Nullable EventCertificateLayoutDescription layoutDescription,
-            @Nullable MediaFile blankCertificate,
+            @Nullable MediaFileId blankCertificate,
             boolean primary) {
         this.id = id;
         this.name = name;
@@ -55,7 +55,7 @@ public class EventCertificate {
             String name,
             EventId event,
             String eventCertificateLayoutDescription,
-            MediaFile blankCertificate,
+            MediaFileId blankCertificate,
             boolean primary) {
         return new EventCertificate(
                 EventCertificateId.of(id),
@@ -78,7 +78,7 @@ public class EventCertificate {
             EventCertificateName name,
             EventId event,
             EventCertificateLayoutDescription eventCertificateLayoutDescription,
-            MediaFile mediaFile,
+            MediaFileId mediaFile,
             boolean primary) {
         this.name = name;
         this.event = event;

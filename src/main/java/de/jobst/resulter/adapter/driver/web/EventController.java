@@ -4,22 +4,12 @@ import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
-import de.jobst.resulter.application.EventService;
-import de.jobst.resulter.application.OrganisationService;
-import de.jobst.resulter.application.RaceService;
-import de.jobst.resulter.application.ResultListService;
+import de.jobst.resulter.application.*;
 import de.jobst.resulter.application.certificate.CertificateService;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.validation.Valid;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +23,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @RestController
 @Slf4j
 @Validated
@@ -42,24 +40,26 @@ public class EventController {
     private final ResultListService resultListService;
     private final RaceService raceService;
     private final OrganisationService organisationService;
+    private final EventCertificateService eventCertificateService;
 
     @Autowired
     public EventController(
-            EventService eventService,
-            ResultListService resultListService,
-            RaceService raceService,
-            OrganisationService organisationService) {
+        EventService eventService,
+        ResultListService resultListService,
+        RaceService raceService,
+        OrganisationService organisationService, EventCertificateService eventCertificateService) {
         this.eventService = eventService;
         this.resultListService = resultListService;
         this.raceService = raceService;
         this.organisationService = organisationService;
+        this.eventCertificateService = eventCertificateService;
     }
 
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
         List<Event> events = eventService.findAll();
         return ResponseEntity.ok(
-                events.stream().map(x -> EventDto.from(x, organisationService)).toList());
+                events.stream().map(x -> EventDto.from(x, organisationService, eventCertificateService)).toList());
     }
 
     @GetMapping("/event")
@@ -71,7 +71,7 @@ public class EventController {
                         : Pageable.unpaged());
         return ResponseEntity.ok(new PageImpl<>(
                 events.getContent().stream()
-                        .map(x -> EventDto.from(x, organisationService))
+                        .map(x -> EventDto.from(x, organisationService, eventCertificateService))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
                 events.getTotalElements()));
@@ -100,13 +100,13 @@ public class EventController {
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
-        return ResponseEntity.ok(EventDto.from(event, organisationService));
+        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService));
     }
 
     @GetMapping("/event/{id}")
     public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
-        return ResponseEntity.ok(EventDto.from(event, organisationService));
+        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService));
     }
 
     @PutMapping("/event/{id}")
@@ -127,7 +127,7 @@ public class EventController {
                 eventDto.certificate() != null
                         ? EventCertificateId.of(eventDto.certificate().id())
                         : null);
-        return ResponseEntity.ok(EventDto.from(event, organisationService));
+        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService));
     }
 
     @DeleteMapping("/event/{id}")

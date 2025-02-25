@@ -1,11 +1,13 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
+import de.jobst.resulter.application.EventCertificateService;
 import de.jobst.resulter.application.OrganisationService;
 import de.jobst.resulter.domain.Event;
-import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
+
+import java.util.List;
 
 public record EventDto(
         Long id,
@@ -15,7 +17,7 @@ public record EventDto(
         List<OrganisationKeyDto> organisations,
         EventCertificateKeyDto certificate) {
 
-    public static EventDto from(Event event, OrganisationService organisationService) {
+    public static EventDto from(Event event, OrganisationService organisationService, EventCertificateService eventCertificateService) {
         return new EventDto(
                 ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0,
                 event.getName().value(),
@@ -31,7 +33,9 @@ public record EventDto(
                         })
                         .toList(),
                 ObjectUtils.isNotEmpty(event.getCertificate())
-                        ? EventCertificateKeyDto.from(event.getCertificate())
+                        ? EventCertificateKeyDto.from(
+                            eventCertificateService.getById(
+                            event.getCertificate()))
                         : null);
     }
 

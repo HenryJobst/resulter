@@ -1,8 +1,9 @@
 package de.jobst.resulter.domain;
 
-import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
+
+import java.util.Objects;
 
 @ValueObject
 public record CountryId(Long value) implements Comparable<CountryId> {

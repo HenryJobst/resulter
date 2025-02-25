@@ -1,7 +1,5 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import de.jobst.resulter.adapter.TestConfig;
 import de.jobst.resulter.application.EventService;
 import de.jobst.resulter.domain.Event;
@@ -18,6 +16,8 @@ import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
 @DataJdbcTest(properties = {"spring.test.database.replace=NONE", "resulter.repository.inmemory=false"})
@@ -55,7 +55,7 @@ class EventServiceJpaTest {
                 savedEvent.getEventState(),
                 savedEvent.getOrganisationIds(),
                 savedEvent.getCertificate() != null
-                        ? savedEvent.getCertificate().getId()
+                        ? savedEvent.getCertificate()
                         : null);
 
         assertThat(changedEvent).isNotNull();

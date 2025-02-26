@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.adapter.driven.inmemory.*;
 import de.jobst.resulter.application.port.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,7 +12,7 @@ public class EventServiceFactory {
                                                  OrganisationRepository organisationRepository,
                                                  EventCertificateRepository eventCertificateRepository,
                                                  EventCertificateStatRepository eventCertificateStatRepository) {
-        return new EventService(eventRepository,
+        return new EventServiceImpl(eventRepository,
             personRepository,
             organisationRepository,
             eventCertificateRepository,

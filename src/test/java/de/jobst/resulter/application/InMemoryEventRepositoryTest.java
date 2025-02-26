@@ -1,6 +1,6 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.application.port.InMemoryEventRepository;
+import de.jobst.resulter.adapter.driven.inmemory.InMemoryEventRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventName;
 import org.junit.jupiter.api.Test;

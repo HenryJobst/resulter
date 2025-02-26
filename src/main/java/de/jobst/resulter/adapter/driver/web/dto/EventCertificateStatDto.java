@@ -1,7 +1,7 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.application.EventService;
-import de.jobst.resulter.application.PersonService;
+import de.jobst.resulter.application.port.EventService;
+import de.jobst.resulter.application.port.PersonService;
 import de.jobst.resulter.domain.EventCertificateStat;
 import java.time.Instant;
 

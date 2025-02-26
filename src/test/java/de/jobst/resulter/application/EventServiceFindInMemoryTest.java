@@ -1,5 +1,6 @@
 package de.jobst.resulter.application;
 
+import de.jobst.resulter.adapter.driven.inmemory.*;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;

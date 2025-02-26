@@ -1,6 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
-import de.jobst.resulter.application.config.DataSourceManager;
+import de.jobst.resulter.springapp.config.DataSourceManager;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

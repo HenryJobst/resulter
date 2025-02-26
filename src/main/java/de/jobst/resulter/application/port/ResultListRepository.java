@@ -1,12 +1,15 @@
 package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.*;
+import org.jmolecules.architecture.hexagonal.SecondaryPort;
+import org.jmolecules.ddd.annotation.Repository;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.jmolecules.ddd.annotation.Repository;
 
 @Repository
+@SecondaryPort
 public interface ResultListRepository {
 
     ResultList save(ResultList resultList);

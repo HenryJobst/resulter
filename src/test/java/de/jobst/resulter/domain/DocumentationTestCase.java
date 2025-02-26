@@ -1,6 +1,6 @@
 package de.jobst.resulter.domain;
 
-import de.jobst.resulter.ResulterApplication;
+import de.jobst.resulter.springapp.ResulterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.modulith.core.ApplicationModules;
 import org.springframework.modulith.docs.Documenter;

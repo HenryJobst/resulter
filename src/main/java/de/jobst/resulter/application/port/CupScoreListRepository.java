@@ -4,11 +4,14 @@ import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupScoreList;
 import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.ResultListId;
-import java.util.List;
-import java.util.Set;
+import org.jmolecules.architecture.hexagonal.SecondaryPort;
 import org.jmolecules.ddd.annotation.Repository;
 
+import java.util.List;
+import java.util.Set;
+
 @Repository
+@SecondaryPort
 public interface CupScoreListRepository {
 
     void deleteAllByDomainKey(Set<CupScoreList.DomainKey> cupScoreList);

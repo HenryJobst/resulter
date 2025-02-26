@@ -1,6 +1,6 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.application.EventService;
+import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.domain.Cup;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;

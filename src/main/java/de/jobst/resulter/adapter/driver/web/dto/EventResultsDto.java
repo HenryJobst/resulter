@@ -1,7 +1,7 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.application.RaceService;
-import de.jobst.resulter.application.ResultListService;
+import de.jobst.resulter.application.port.RaceService;
+import de.jobst.resulter.application.port.ResultListService;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.ResultList;

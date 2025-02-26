@@ -4,13 +4,12 @@ import de.jobst.resulter.adapter.driver.web.dto.CupDetailedDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
-import de.jobst.resulter.application.*;
+import de.jobst.resulter.application.port.CupService;
+import de.jobst.resulter.application.port.EventCertificateService;
+import de.jobst.resulter.application.port.EventService;
+import de.jobst.resulter.application.port.OrganisationService;
+import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.domain.*;
-import java.time.Year;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j

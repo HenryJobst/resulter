@@ -4,8 +4,8 @@ import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
-import de.jobst.resulter.application.*;
-import de.jobst.resulter.application.certificate.CertificateService;
+import de.jobst.resulter.application.certificate.CertificateServiceImpl;
+import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
@@ -148,7 +148,7 @@ public class EventController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ByteArrayResource> getCertificate(
             @PathVariable Long id, @Valid @RequestBody EventCertificateDto eventCertificateDto) {
-        CertificateService.Certificate certificate =
+        CertificateServiceImpl.Certificate certificate =
                 resultListService.createCertificate(EventId.of(id), eventCertificateDto);
         if (null != certificate) {
             return ResponseEntity.ok()

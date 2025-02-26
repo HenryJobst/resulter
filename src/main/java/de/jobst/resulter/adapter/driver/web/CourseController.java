@@ -1,7 +1,7 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.CourseDto;
-import de.jobst.resulter.application.CourseService;
+import de.jobst.resulter.application.port.CourseService;
 import de.jobst.resulter.domain.Course;
 import java.util.List;
 import java.util.Optional;

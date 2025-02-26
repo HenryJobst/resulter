@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PersonServiceTest {
 
-    private PersonService personService;
+    private PersonServiceImpl personService;
 
     @BeforeEach
     void setUp() {
@@ -27,7 +27,7 @@ class PersonServiceTest {
         ResultListRepository resultListRepository = Mockito.mock(ResultListRepository.class);
         SplitTimeListRepository splitTimeListRepository = Mockito.mock(SplitTimeListRepository.class);
         CupScoreListRepository cupScoreListRepository = Mockito.mock(CupScoreListRepository.class);
-        personService = new PersonService(personRepository, resultListRepository, splitTimeListRepository, cupScoreListRepository);
+        personService = new PersonServiceImpl(personRepository, resultListRepository, splitTimeListRepository, cupScoreListRepository);
     }
 
     @Test

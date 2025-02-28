@@ -1,4 +1,4 @@
-package de.jobst.resulter.application;
+package de.jobst.resulter.domain.aggregations;
 
 import de.jobst.resulter.domain.ClassResultShortName;
 import de.jobst.resulter.domain.PersonWithScore;

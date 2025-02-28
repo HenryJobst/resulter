@@ -1,6 +1,5 @@
 package de.jobst.resulter.domain.aggregations;
 
-import de.jobst.resulter.application.AggregatedPersonScores;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ClassResultShortNameScoreSummary;
 import java.util.*;

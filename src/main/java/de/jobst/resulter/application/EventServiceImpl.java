@@ -76,12 +76,12 @@ public class EventServiceImpl implements EventService {
     @NonNull
     @Override
     public Event updateEvent(
-        EventId id,
-        @NonNull EventName name,
-        @Nullable DateTime startDate,
-        @NonNull EventStatus status,
-        @NonNull Collection<OrganisationId> organisationIds,
-        @Nullable EventCertificateId certificateId) {
+            EventId id,
+            @NonNull EventName name,
+            @Nullable DateTime startDate,
+            @NonNull EventStatus status,
+            @NonNull Collection<OrganisationId> organisationIds,
+            @Nullable EventCertificateId certificateId) {
         Event event = findById(id).orElseThrow(ResourceNotFoundException::new);
         List<Organisation> organisations = organisationRepository.findByIds(organisationIds);
         EventCertificate certificate = certificateId != null
@@ -95,13 +95,8 @@ public class EventServiceImpl implements EventService {
                 certificate != null ? certificate.getId() : null);
         if (certificate != null) {
             List<EventCertificate> eventCertificates = eventCertificateRepository.findAllByEvent(event.getId());
-            eventCertificates.forEach(eventCertificate -> {
-                if (eventCertificate.getId().equals(certificateId)) {
-                    eventCertificate.setPrimary(true);
-                } else {
-                    eventCertificate.setPrimary(false);
-                }
-            });
+            eventCertificates.forEach(eventCertificate ->
+                    eventCertificate.setPrimary(eventCertificate.getId().equals(certificateId)));
             eventCertificateRepository.saveAll(eventCertificates);
             eventCertificateRepository.save(certificate);
         }

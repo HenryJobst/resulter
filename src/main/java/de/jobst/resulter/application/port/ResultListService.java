@@ -1,8 +1,5 @@
 package de.jobst.resulter.application.port;
 
-import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
-import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
-import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.domain.*;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
@@ -26,15 +23,15 @@ public interface ResultListService {
     Collection<ResultList> findByEventId(EventId id);
 
     @Transactional
-    List<CupScoreListDto> calculateScore(ResultListId id);
+    List<CupScoreList> calculateScore(ResultListId id);
 
     @Transactional
     CertificateServiceImpl.Certificate createCertificate(
             ResultListId resultListId, ClassResultShortName classResultShortName, PersonId personId);
 
-    CertificateServiceImpl.Certificate createCertificate(EventId eventId, EventCertificateDto eventCertificateDto);
+    CertificateServiceImpl.Certificate createCertificate(Event event, EventCertificate eventCertificate);
 
-    List<EventCertificateStatDto> getCertificateStats(EventId eventId);
+    List<EventCertificateStat> getCertificateStats(EventId eventId);
 
     void deleteEventCertificateStat(EventCertificateStatId id);
 

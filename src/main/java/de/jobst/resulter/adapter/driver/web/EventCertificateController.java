@@ -7,12 +7,7 @@ import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.MediaFileService;
-import de.jobst.resulter.domain.EventCertificate;
-import de.jobst.resulter.domain.EventCertificateId;
-import de.jobst.resulter.domain.EventCertificateLayoutDescription;
-import de.jobst.resulter.domain.EventCertificateName;
-import java.util.List;
-import java.util.Optional;
+import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -78,10 +76,9 @@ public class EventCertificateController {
     public ResponseEntity<EventCertificateDto> createEventCertificate(
             @Validated(CreateDtoGroup.class) @RequestBody EventCertificateDto eventCertificateDto) {
         EventCertificate eventCertificate = eventCertificateService.createEventCertificate(
-                eventCertificateDto.name(),
-                eventCertificateDto.event(),
+                eventCertificateDto.name(), EventId.of(eventCertificateDto.event().id()),
                 eventCertificateDto.layoutDescription(),
-                eventCertificateDto.blankCertificate(),
+                MediaFileId.of(eventCertificateDto.blankCertificate().id()),
                 eventCertificateDto.primary());
         return ResponseEntity.ok(
                 EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath, eventService, mediaFileService));
@@ -105,9 +102,9 @@ public class EventCertificateController {
         EventCertificate eventCertificate = eventCertificateService.updateEventCertificate(
                 EventCertificateId.of(id),
                 EventCertificateName.of(eventCertificateDto.name()),
-                eventCertificateDto.event(),
+                EventId.of(eventCertificateDto.event().id()),
                 EventCertificateLayoutDescription.of(eventCertificateDto.layoutDescription()),
-                eventCertificateDto.blankCertificate(),
+                MediaFileId.of(eventCertificateDto.blankCertificate().id()),
                 eventCertificateDto.primary());
 
         return ResponseEntity.ok(

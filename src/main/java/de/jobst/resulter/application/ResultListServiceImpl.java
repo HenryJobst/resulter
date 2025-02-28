@@ -1,13 +1,8 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
-import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
-import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
-import de.jobst.resulter.application.port.CertificateService;
 import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
-import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.springapp.config.SpringSecurityAuditorAware;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,15 +26,11 @@ public class ResultListServiceImpl implements ResultListService {
 
     private final CertificateService certificateService;
 
-    private final MediaFileRepository mediaFileRepository;
-
     private final EventCertificateStatRepository eventCertificateStatRepository;
 
     private final CupScoreListRepository cupScoreListRepository;
 
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
-    private final EventService eventService;
-    private final PersonService personService;
     private final EventCertificateService eventCertificateService;
     private final MediaFileService mediaFileService;
 
@@ -49,14 +40,9 @@ public class ResultListServiceImpl implements ResultListService {
             EventRepository eventRepository,
             OrganisationRepository organisationRepository,
             PersonRepository personRepository,
-            CertificateService certificateService,
-            MediaFileRepository mediaFileRepository,
-            EventCertificateStatRepository eventCertificateStatRepository,
+            CertificateService certificateService, EventCertificateStatRepository eventCertificateStatRepository,
             CupScoreListRepository cupScoreListRepository,
-            SpringSecurityAuditorAware springSecurityAuditorAware,
-            EventService eventService,
-            PersonService personService,
-            EventCertificateService eventCertificateService,
+            SpringSecurityAuditorAware springSecurityAuditorAware, EventCertificateService eventCertificateService,
             MediaFileService mediaFileService) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
@@ -64,12 +50,9 @@ public class ResultListServiceImpl implements ResultListService {
         this.organisationRepository = organisationRepository;
         this.personRepository = personRepository;
         this.certificateService = certificateService;
-        this.mediaFileRepository = mediaFileRepository;
         this.eventCertificateStatRepository = eventCertificateStatRepository;
         this.cupScoreListRepository = cupScoreListRepository;
         this.springSecurityAuditorAware = springSecurityAuditorAware;
-        this.eventService = eventService;
-        this.personService = personService;
         this.eventCertificateService = eventCertificateService;
         this.mediaFileService = mediaFileService;
     }
@@ -101,7 +84,7 @@ public class ResultListServiceImpl implements ResultListService {
 
     @Transactional
     @Override
-    public List<CupScoreListDto> calculateScore(ResultListId id) {
+    public List<CupScoreList> calculateScore(ResultListId id) {
         Optional<ResultList> resultListOptional = findById(id);
         if (resultListOptional.isEmpty()
                 || resultListOptional.get().getClassResults() == null
@@ -126,9 +109,7 @@ public class ResultListServiceImpl implements ResultListService {
                 .collect(Collectors.toList());
         cupScoreListRepository.deleteAllByDomainKey(
                 cupScoreLists.stream().map(CupScoreList::getDomainKey).collect(Collectors.toSet()));
-        return cupScoreListRepository.saveAll(cupScoreLists).stream()
-                .map(CupScoreListDto::from)
-                .toList();
+        return cupScoreListRepository.saveAll(cupScoreLists);
     }
 
     @Transactional
@@ -189,32 +170,14 @@ public class ResultListServiceImpl implements ResultListService {
     }
 
     @Override
-    public CertificateServiceImpl.Certificate createCertificate(EventId eventId, EventCertificateDto eventCertificateDto) {
-
-        Event event =
-                eventRepository.findById(eventId).orElseThrow(() -> new ResourceNotFoundException("Event not found"));
-        MediaFile blankCertificate = eventCertificateDto.blankCertificate() == null
-                ? null
-                : mediaFileRepository
-                        .findById(MediaFileId.of(
-                                eventCertificateDto.blankCertificate().id()))
-                        .orElse(null);
-        EventCertificate eventCertificate = EventCertificate.of(
-                EventCertificateId.empty().value(),
-                eventCertificateDto.name(),
-                event.getId(),
-                eventCertificateDto.layoutDescription(),
-                blankCertificate != null ? blankCertificate.getId() : null,
-                eventCertificateDto.primary());
+    public CertificateServiceImpl.Certificate createCertificate(Event event, EventCertificate eventCertificate) {
 
         return certificateService.createCertificate(event, eventCertificate, mediaFileService);
     }
 
     @Override
-    public List<EventCertificateStatDto> getCertificateStats(EventId eventId) {
-        return eventCertificateStatRepository.findAllByEvent(eventId).stream()
-                .map(x -> EventCertificateStatDto.from(x, eventService, personService))
-                .toList();
+    public List<EventCertificateStat> getCertificateStats(EventId eventId) {
+        return eventCertificateStatRepository.findAllByEvent(eventId);
     }
 
     @Override

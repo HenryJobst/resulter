@@ -10,13 +10,6 @@ import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.validation.Valid;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +23,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @RestController
 @Slf4j
 @Validated
@@ -40,19 +41,21 @@ public class EventController {
     private final RaceService raceService;
     private final OrganisationService organisationService;
     private final EventCertificateService eventCertificateService;
+    private final MediaFileService mediaFileService;
 
     @Autowired
     public EventController(
-            EventService eventService,
-            ResultListService resultListService,
-            RaceService raceService,
-            OrganisationService organisationService,
-            EventCertificateService eventCertificateService) {
+        EventService eventService,
+        ResultListService resultListService,
+        RaceService raceService,
+        OrganisationService organisationService,
+        EventCertificateService eventCertificateService, MediaFileService mediaFileService) {
         this.eventService = eventService;
         this.resultListService = resultListService;
         this.raceService = raceService;
         this.organisationService = organisationService;
         this.eventCertificateService = eventCertificateService;
+        this.mediaFileService = mediaFileService;
     }
 
     @GetMapping("/event/all")
@@ -148,8 +151,20 @@ public class EventController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ByteArrayResource> getCertificate(
             @PathVariable Long id, @Valid @RequestBody EventCertificateDto eventCertificateDto) {
+
+        Event event = eventService.getById(EventId.of(id));
+        MediaFile blankCertificate =
+            mediaFileService.getById(MediaFileId.of(eventCertificateDto.blankCertificate().id()));
+
+        EventCertificate eventCertificate = EventCertificate.of(
+            EventCertificateId.empty().value(),
+            eventCertificateDto.name(),
+            event.getId(),
+            eventCertificateDto.layoutDescription(),
+            blankCertificate != null ? blankCertificate.getId() : null,
+            eventCertificateDto.primary());
         CertificateServiceImpl.Certificate certificate =
-                resultListService.createCertificate(EventId.of(id), eventCertificateDto);
+                resultListService.createCertificate(event, eventCertificate);
         if (null != certificate) {
             return ResponseEntity.ok()
                     .header(

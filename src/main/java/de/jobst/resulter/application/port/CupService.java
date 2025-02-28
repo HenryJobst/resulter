@@ -1,6 +1,5 @@
 package de.jobst.resulter.application.port;
 
-import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.aggregations.CupDetailed;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
@@ -34,6 +33,6 @@ public interface CupService {
     CupDetailed getCupDetailed(CupId cupId);
 
     @Transactional
-    List<CupScoreListDto> calculateScore(CupId id);
+    List<CupScoreList> calculateScore(CupId id);
 
 }

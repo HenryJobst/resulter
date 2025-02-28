@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.TestConfig;
 import de.jobst.resulter.application.port.EventService;
-import de.jobst.resulter.application.EventServiceImpl;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventName;
 import de.jobst.resulter.domain.EventTestDataGenerator;
@@ -28,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @EnableJdbcRepositories(basePackages = "de.jobst.resulter.adapter.driven.jdbc")
 @Import({
     EventRepositoryDataJdbcAdapter.class,
-    EventServiceImpl.class,
+    EventService.class,
     CupRepositoryDataJdbcAdapter.class,
     PersonRepositoryDataJdbcAdapter.class,
     OrganisationRepositoryDataJdbcAdapter.class

@@ -1,6 +1,5 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.aggregations.*;
@@ -349,7 +348,7 @@ public class CupServiceImpl implements CupService {
 
     @Transactional
     @Override
-    public List<CupScoreListDto> calculateScore(CupId id) {
+    public List<CupScoreList> calculateScore(CupId id) {
         Cup cup = getById(id);
         Collection<Event> events = eventService.getByIds(cup.getEventIds());
         Collection<ResultList> resultLists = events.stream()
@@ -376,9 +375,7 @@ public class CupServiceImpl implements CupService {
                 .collect(Collectors.toList());
         cupScoreListRepository.deleteAllByDomainKey(
                 cupScoreLists.stream().map(CupScoreList::getDomainKey).collect(Collectors.toSet()));
-        return cupScoreListRepository.saveAll(cupScoreLists).stream()
-                .map(CupScoreListDto::from)
-                .toList();
+        return cupScoreListRepository.saveAll(cupScoreLists);
     }
 
     private record ClassPersonKey(ClassResultShortName classResultShortName, PersonId personId) {}

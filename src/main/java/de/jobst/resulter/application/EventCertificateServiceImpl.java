@@ -1,7 +1,5 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.driver.web.dto.EventKeyDto;
-import de.jobst.resulter.adapter.driver.web.dto.MediaFileKeyDto;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
@@ -53,16 +51,16 @@ public class EventCertificateServiceImpl implements EventCertificateService {
     public EventCertificate updateEventCertificate(
         EventCertificateId id,
         EventCertificateName name,
-        EventKeyDto event,
+        EventId event,
         EventCertificateLayoutDescription eventCertificateLayoutDescription,
-        MediaFileKeyDto mediaFile,
+        MediaFileId mediaFile,
         boolean primary) {
         EventCertificate eventCertificate = findById(id).orElseThrow(ResourceNotFoundException::new);
         Optional<Event> optionalEvent =
-                event != null ? eventRepository.findById(EventId.of(event.id())) : Optional.empty();
+                event != null ? eventRepository.findById(event) : Optional.empty();
 
         Optional<MediaFile> optionalMediaFile =
-                mediaFile != null ? mediaFileRepository.findById(MediaFileId.of(mediaFile.id())) : Optional.empty();
+                mediaFile != null ? mediaFileRepository.findById(mediaFile) : Optional.empty();
 
         eventCertificate.update(
                 name,
@@ -103,16 +101,16 @@ public class EventCertificateServiceImpl implements EventCertificateService {
     @Override
     public EventCertificate createEventCertificate(
         String eventCertificateCertificateName,
-        EventKeyDto event,
+        EventId event,
         String eventCertificateLayoutDescription,
-        MediaFileKeyDto mediaFile,
+        MediaFileId mediaFile,
         boolean primary) {
 
         Optional<Event> optionalEvent =
-                event != null ? eventRepository.findById(EventId.of(event.id())) : Optional.empty();
+                event != null ? eventRepository.findById(event) : Optional.empty();
 
         Optional<MediaFile> optionalMediaFile =
-                mediaFile != null ? mediaFileRepository.findById(MediaFileId.of(mediaFile.id())) : Optional.empty();
+                mediaFile != null ? mediaFileRepository.findById(mediaFile) : Optional.empty();
 
         EventCertificate eventCertificateCertificate = EventCertificate.of(
                 EventCertificateId.empty().value(),

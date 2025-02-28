@@ -1,15 +1,13 @@
 package de.jobst.resulter.adapter.driver.web;
 
-import de.jobst.resulter.adapter.driver.web.dto.CupDetailedDto;
-import de.jobst.resulter.adapter.driver.web.dto.CupDto;
-import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
-import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
+import de.jobst.resulter.adapter.driver.web.dto.*;
 import de.jobst.resulter.application.port.CupService;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.aggregations.CupDetailed;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,12 +85,37 @@ public class CupController {
 
     @GetMapping("/cup/{id}/results")
     public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
-        return ResponseEntity.ok(CupDetailedDto.from(
-                cupService.getCupDetailed(CupId.of(id)),
-                eventService,
-                organisationService,
-                countryService,
-                eventCertificateService));
+        CupDetailed cupDetailed = cupService.getCupDetailed(CupId.of(id));
+        return ResponseEntity.ok(createCupDetailedDto(cupDetailed));
+    }
+
+    @NonNull
+    private CupDetailedDto createCupDetailedDto(CupDetailed cupDetailed) {
+        return CupDetailedDto.from(ObjectUtils.isNotEmpty(cupDetailed.getId()) ? cupDetailed.getId().value() : 0,
+            cupDetailed.getName().value(),
+            CupTypeDto.from(cupDetailed.getType()),
+            cupDetailed.getEventIds().stream().map(x -> EventKeyDto.from(eventService.getById(x))).toList(),
+            cupDetailed.getEventRacesCupScore()
+                .stream()
+                .map(x -> EventRacesCupScoreDto.from(x, organisationService, countryService, eventCertificateService))
+                .toList(),
+            cupDetailed.getType().isGroupedByOrganisation() ?
+            cupDetailed.getOverallOrganisationScores()
+                .stream()
+                .map(entry -> new OrganisationScoreDto(OrganisationDto.from(entry.organisation(),
+                    countryService,
+                    organisationService),
+                    entry.score(),
+                    entry.personWithScores().stream().map(PersonWithScoreDto::from).toList()))
+                .toList() :
+            List.of(),
+            cupDetailed.getType().isGroupedByOrganisation() ?
+            List.of() :
+            cupDetailed.getAggregatedPersonScoresList()
+                .stream()
+                .map(it -> new AggregatedPersonScoresDto(it.classResultShortName().value(),
+                    it.personWithScoreList().stream().map(PersonWithScoreDto::from).toList()))
+                .toList());
     }
 
     @PutMapping("/cup/{id}")
@@ -134,7 +158,7 @@ public class CupController {
     @PutMapping("/cup/{id}/calculate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CupScoreListDto>> calculateCup(@PathVariable Long id) {
-        List<CupScoreListDto> cupScoreLists = cupService.calculateScore(CupId.of(id));
-        return ResponseEntity.ok(cupScoreLists);
+        List<CupScoreList> cupScoreLists = cupService.calculateScore(CupId.of(id));
+        return ResponseEntity.ok(cupScoreLists.stream().map(CupScoreListDto::from).toList());
     }
 }

@@ -33,6 +33,7 @@
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <micrometer-bom.version>1.14.2</micrometer-bom.version>
+        <mockito-core.version>5.15.2</mockito-core.version>
         <native.maven.plugin.version>0.10.0</native.maven.plugin.version>
         <p6spy-spring-boot-starter.version>1.10.0</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
@@ -348,6 +349,12 @@
             <groupId>org.springframework.modulith</groupId>
             <artifactId>spring-modulith-docs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -526,6 +533,14 @@
                         <!--formatAnnotations /   -->
 
                     </java>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                 </configuration>
             </plugin>
         </plugins>

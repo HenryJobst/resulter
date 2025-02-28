@@ -1,6 +1,5 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.driven.inmemory.*;
 import de.jobst.resulter.application.port.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,15 +16,6 @@ public class EventServiceFactory {
             organisationRepository,
             eventCertificateRepository,
             eventCertificateStatRepository);
-    }
-
-    @NotNull
-    public static EventService withDefaults() {
-        return createServiceWith(new InMemoryEventRepository(),
-            new InMemoryPersonRepository(),
-            new InMemoryOrganisationRepository(),
-            new InMemoryEventCertificateRepository(),
-            new InMemoryEventCertificateStatRepository());
     }
 
 }

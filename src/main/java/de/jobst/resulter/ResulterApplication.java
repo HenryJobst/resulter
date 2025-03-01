@@ -1,5 +1,6 @@
-package de.jobst.resulter.springapp;
+package de.jobst.resulter;
 
+import de.jobst.resulter.springapp.DotenvInitializer;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import org.springframework.aot.hint.ExecutableMode;
 import org.springframework.aot.hint.RuntimeHints;

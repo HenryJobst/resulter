@@ -151,9 +151,9 @@ function setDetails(details: string) {
                 <img
                     :alt="t('labels.logo')"
                     class="mr-6"
-                    src="@/assets/Logo_Resulter_Circle.png"
+                    src="@/assets/Logo_Resulter_60px.png"
                     width="60"
-                    height="60"
+                    height="59"
                 >
             </template>
             <!-- Navigation -->

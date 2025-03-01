@@ -200,6 +200,7 @@
     "backend": {
         "unexpected_error": "Unerwarteter Fehler",
         "resource_not_found": "Ressource nicht gefunden",
+        "no_resource_found": "Keine Ressource gefunden",
         "response_not_found": "Antwort nicht gefunden",
         "successfully_retrieved": "Erfolgreich abgerufen",
         "bad_request": "Fehlerhafte Anfrage",

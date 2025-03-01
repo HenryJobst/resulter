@@ -1,4 +1,4 @@
-<img src="Logo_Resulter.png" alt="Resulter Logo" width="250"/>
+<img src="./frontend/src/assets/Logo_Resulter_Circle.png" alt="Resulter Logo" width="512"/>
 
 # **Resulter**
 

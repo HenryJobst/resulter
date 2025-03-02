@@ -57,6 +57,15 @@ public class MediaFile implements Comparable<MediaFile> {
     }
 
     public static MediaFile of(
+        @NonNull Long id,
+        @NonNull String fileName,
+        @NonNull String thumbnailFileName,
+        @NonNull String contentType,
+        @NonNull Long fileSize) {
+        return MediaFile.of(id, fileName, thumbnailFileName, contentType, fileSize, null);
+    }
+
+    public static MediaFile of(
             @NonNull String fileName,
             @NonNull String thumbnailFileName,
             @NonNull String contentType,

@@ -5,7 +5,6 @@ import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,14 +18,13 @@ class ResultListServiceTest {
 
     private final String mediaFilePath;
 
-    @SuppressWarnings("unused")
-    @MockitoBean
-    private MediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
 
     public ResultListServiceTest() throws IOException {
         Properties properties = new Properties();
         properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("application.properties"));
         mediaFilePath = properties.getProperty("resulter.media-file-path");
+        mediaFileService = Mockito.mock(MediaFileService.class);
     }
 
     @Test
@@ -38,7 +36,7 @@ class ResultListServiceTest {
         String layoutDescription =
                 Files.readString(Paths.get("src/test/resources/certificate" + "/test_layout_description_3" + ".json"));
 
-        MediaFile mediaFile = MediaFile.of(
+        MediaFile mediaFile = MediaFile.of(1L,
                 "Urkunde_BTFB_2023.jpg", "thumbnails/Urkunde_BTFB_2023.thumbnail.jpg", "image/jpeg", 100000L);
 
         Mockito.when(mediaFileService.getById(mediaFile.getId())).thenReturn(mediaFile);

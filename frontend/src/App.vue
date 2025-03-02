@@ -171,6 +171,8 @@ function setDetails(details: string) {
                     src="@/assets/Logo_Resulter_60px.webp"
                     width="60"
                     height="59"
+                    type="image/webp"
+                    fetchpriority="high"
                 >
             </template>
             <!-- Navigation -->

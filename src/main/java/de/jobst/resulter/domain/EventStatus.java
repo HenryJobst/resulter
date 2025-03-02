@@ -1,5 +1,8 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
+
+@ValueObject
 public enum EventStatus {
     PLANNED("Planned"),
     APPLIED("Applied"),
@@ -26,8 +29,7 @@ public enum EventStatus {
         return value;
     }
 
-    static public EventStatus getDefault() {
+    public static EventStatus getDefault() {
         return EventStatus.SANCTIONED;
     }
-
 }

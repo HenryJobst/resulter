@@ -1,18 +1,18 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.CountryDto;
-import de.jobst.resulter.application.CountryService;
+import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.CountryCode;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.CountryName;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -21,7 +21,6 @@ public class CountryController {
 
     private final CountryService countryService;
 
-    @Autowired
     public CountryController(CountryService countryService) {
         this.countryService = countryService;
     }

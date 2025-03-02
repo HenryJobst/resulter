@@ -1,11 +1,12 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ValueObjectChecks;
-import org.springframework.lang.NonNull;
-
 import java.util.Collection;
 import java.util.Map;
+import org.jmolecules.ddd.annotation.ValueObject;
+import org.springframework.lang.NonNull;
 
+@ValueObject
 public class CupScores {
 
     private final Map<CupType, CupScore> cupScores;
@@ -33,5 +34,4 @@ public class CupScores {
     public Collection<CupScore> values() {
         return this.cupScores.values();
     }
-
 }

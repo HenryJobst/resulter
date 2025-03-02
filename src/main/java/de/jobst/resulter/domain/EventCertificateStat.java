@@ -1,42 +1,49 @@
 package de.jobst.resulter.domain;
 
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
+import org.jmolecules.ddd.annotation.Association;
+import org.jmolecules.ddd.annotation.Entity;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 
-import java.time.Instant;
-
+@Entity
 @Getter
 @Setter
 public class EventCertificateStat {
 
+    @Identity
     @NonNull
     private EventCertificateStatId id;
 
+    @Association
     @NonNull
-    private Event event;
+    private EventId event;
 
+    @Association
     @NonNull
-    private Person person;
+    private PersonId person;
 
     @NonNull
     private Instant generated;
 
-    public EventCertificateStat(@NonNull EventCertificateStatId id,
-                                @NonNull Event event,
-                                @NonNull Person person,
-                                @NonNull Instant generated) {
+    public EventCertificateStat(
+            @NonNull EventCertificateStatId id,
+            @NonNull EventId event,
+            @NonNull PersonId person,
+            @NonNull Instant generated) {
         this.id = id;
         this.event = event;
         this.person = person;
         this.generated = generated;
     }
 
-    public static EventCertificateStat of(Long id, Event event, Person person, Instant generated) {
+    public static EventCertificateStat of(Long id, EventId event, PersonId person, Instant generated) {
         return new EventCertificateStat(EventCertificateStatId.of(id), event, person, generated);
     }
 
-    public void update(Event event, Person person, Instant generated) {
+    public void update(EventId event, PersonId person, Instant generated) {
         this.event = event;
         this.person = person;
         this.generated = generated;

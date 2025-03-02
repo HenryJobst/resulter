@@ -1,30 +1,32 @@
 package de.jobst.resulter.domain;
 
 import lombok.Getter;
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+@ValueObject
 @Getter
 public class SplitTime implements Comparable<SplitTime> {
 
     @NonNull
     private final ControlCode controlCode;
+
     @NonNull
     private final PunchTime punchTime;
+
     @Nullable
     private final SplitTimeListId splitTimeListId;
 
-    public SplitTime(@NonNull ControlCode controlCode,
-                     @NonNull PunchTime punchTime,
-                     @Nullable SplitTimeListId splitTimeListId) {
+    public SplitTime(
+            @NonNull ControlCode controlCode, @NonNull PunchTime punchTime, @Nullable SplitTimeListId splitTimeListId) {
         this.controlCode = controlCode;
         this.punchTime = punchTime;
         this.splitTimeListId = splitTimeListId;
     }
 
-    public static SplitTime of(@Nullable String controlCode,
-                               @Nullable Double punchTime,
-                               @Nullable SplitTimeListId splitTimeListId) {
+    public static SplitTime of(
+            @Nullable String controlCode, @Nullable Double punchTime, @Nullable SplitTimeListId splitTimeListId) {
         return new SplitTime(ControlCode.of(controlCode), PunchTime.of(punchTime), splitTimeListId);
     }
 

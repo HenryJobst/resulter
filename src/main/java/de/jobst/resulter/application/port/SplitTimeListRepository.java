@@ -3,11 +3,15 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
+import org.jmolecules.architecture.hexagonal.SecondaryPort;
+import org.jmolecules.ddd.annotation.Repository;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
+@SecondaryPort
 public interface SplitTimeListRepository {
 
     Optional<SplitTimeList> findById(SplitTimeListId splitTimeListId);

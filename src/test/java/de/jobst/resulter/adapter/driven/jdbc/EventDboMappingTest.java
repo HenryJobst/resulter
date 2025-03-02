@@ -1,14 +1,13 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventTestDataGenerator;
 import de.jobst.resulter.domain.TestEventResult;
+import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
 class EventDboMappingTest {
@@ -23,8 +22,8 @@ class EventDboMappingTest {
         assertThat(event.getName().value()).isEqualTo(EventTestDataGenerator.A_EVENT_NAME);
         assertThat(event.getStartTime()).isNotNull();
         assertThat(event.getStartTime().value()).isNull();
-        assertThat(event.getOrganisations()).isNotNull();
-        assertThat(event.getOrganisations()).isEmpty();
+        assertThat(event.getOrganisationIds()).isNotNull();
+        assertThat(event.getOrganisationIds()).isEmpty();
         assertThat(event.getEventState()).isNull();
     }
 

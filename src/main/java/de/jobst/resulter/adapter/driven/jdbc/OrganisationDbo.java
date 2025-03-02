@@ -1,10 +1,9 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.Country;
-import de.jobst.resulter.domain.Organisation;
-import de.jobst.resulter.domain.OrganisationType;
+import de.jobst.resulter.domain.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -67,13 +66,13 @@ public class OrganisationDbo {
 
         if (organisation.getCountry() != null) {
             organisationDbo.setCountry(
-                    AggregateReference.to(organisation.getCountry().getId().value()));
+                    AggregateReference.to(organisation.getCountry().value()));
         } else {
             organisationDbo.setCountry(null);
         }
 
         organisationDbo.setChildOrganisations(organisation.getChildOrganisations().stream()
-                .map(it -> new OrganisationOrganisationDbo(it.getId().value()))
+                .map(it -> new OrganisationOrganisationDbo(it.value()))
                 .collect(Collectors.toSet()));
 
         return organisationDbo;
@@ -93,11 +92,11 @@ public class OrganisationDbo {
                 name,
                 shortName,
                 type.value(),
-                country != null ? countryResolver.apply(country.getId()) : null,
+                Optional.ofNullable(country).map(x -> CountryId.of(x.getId())).orElse(null),
                 childOrganisations == null
                         ? new ArrayList<>()
                         : childOrganisations.stream()
-                                .map(x -> organisationResolver.apply(x.id.getId()))
+                                .map(x -> OrganisationId.of(x.id.getId()))
                                 .toList());
     }
 

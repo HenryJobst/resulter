@@ -1,7 +1,9 @@
 package de.jobst.resulter.domain;
 
-public enum EventForm {
+import org.jmolecules.ddd.annotation.ValueObject;
 
+@ValueObject
+public enum EventForm {
     INDIVIDUAL("Individual"),
     TEAM("Team"),
     RELAY("Relay");
@@ -23,5 +25,4 @@ public enum EventForm {
         }
         throw new IllegalArgumentException(v);
     }
-
 }

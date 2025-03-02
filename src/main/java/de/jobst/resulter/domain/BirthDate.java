@@ -1,9 +1,10 @@
 package de.jobst.resulter.domain;
 
+import java.time.LocalDate;
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
-import java.time.LocalDate;
-
+@ValueObject
 public record BirthDate(LocalDate value) implements Comparable<BirthDate> {
 
     public static BirthDate of(LocalDate birthDate) {

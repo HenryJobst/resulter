@@ -2,6 +2,8 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
+import org.jmolecules.architecture.hexagonal.SecondaryPort;
+import org.jmolecules.ddd.annotation.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -11,6 +13,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
+@SecondaryPort
 public interface PersonRepository {
 
     Person save(Person event);

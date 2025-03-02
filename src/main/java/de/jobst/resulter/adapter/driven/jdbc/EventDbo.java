@@ -3,6 +3,15 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventStatus;
 import de.jobst.resulter.domain.Organisation;
+import de.jobst.resulter.domain.OrganisationId;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,15 +25,6 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.sql.Timestamp;
-import java.time.ZoneId;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
 @Table(name = "event")
@@ -37,14 +37,19 @@ public class EventDbo {
 
     @Column("name")
     private String name;
+
     @Column("start_time")
     private Timestamp startTime;
+
     @Column("start_time_zone")
     private String startTimeZone;
+
     @Column("end_time")
     private Timestamp endTime;
+
     @Column("end_time_zone")
     private String endTimeZone;
+
     @Column("state")
     private EventStatus state;
 
@@ -91,25 +96,27 @@ public class EventDbo {
             eventDbo.setState(null);
         }
 
-        eventDbo.setOrganisations(event.getOrganisations()
-            .stream()
-            .map(x -> new EventOrganisationDbo(x.getId().value()))
-            .collect(Collectors.toSet()));
+        eventDbo.setOrganisations(event.getOrganisationIds().stream()
+                .map(x -> new EventOrganisationDbo(x.value()))
+                .collect(Collectors.toSet()));
 
         return eventDbo;
     }
 
-    static public List<Event> asEvents(@NonNull Collection<EventDbo> eventDbos,
-                                       Function<Long, Organisation> organisationResolver) {
+    public static List<Event> asEvents(
+            @NonNull Collection<EventDbo> eventDbos, Function<Long, Organisation> organisationResolver) {
 
         return eventDbos.stream()
-            .map(it -> Event.of(it.id,
-                it.name,
-                it.startTime != null ? it.startTime.toInstant().atZone(ZoneId.of(it.startTimeZone)) : null,
-                it.endTime != null ? it.endTime.toInstant().atZone(ZoneId.of(it.endTimeZone)) : null,
-                it.organisations.stream().map(x -> organisationResolver.apply(x.id.getId())).toList(),
-                it.state))
-            .toList();
+                .map(it -> Event.of(
+                        it.id,
+                        it.name,
+                        it.startTime != null ? it.startTime.toInstant().atZone(ZoneId.of(it.startTimeZone)) : null,
+                        it.endTime != null ? it.endTime.toInstant().atZone(ZoneId.of(it.endTimeZone)) : null,
+                        it.organisations.stream()
+                                .map(x -> OrganisationId.of(x.id.getId()))
+                                .toList(),
+                        it.state))
+                .toList();
     }
 
     public static Event asEvent(@NonNull EventDbo eventDbo, Function<Long, Organisation> organisationResolver) {

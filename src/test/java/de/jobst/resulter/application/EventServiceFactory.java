@@ -11,20 +11,11 @@ public class EventServiceFactory {
                                                  OrganisationRepository organisationRepository,
                                                  EventCertificateRepository eventCertificateRepository,
                                                  EventCertificateStatRepository eventCertificateStatRepository) {
-        return new EventService(eventRepository,
+        return new EventServiceImpl(eventRepository,
             personRepository,
             organisationRepository,
             eventCertificateRepository,
             eventCertificateStatRepository);
-    }
-
-    @NotNull
-    public static EventService withDefaults() {
-        return createServiceWith(new InMemoryEventRepository(),
-            new InMemoryPersonRepository(),
-            new InMemoryOrganisationRepository(),
-            new InMemoryEventCertificateRepository(),
-            new InMemoryEventCertificateStatRepository());
     }
 
 }

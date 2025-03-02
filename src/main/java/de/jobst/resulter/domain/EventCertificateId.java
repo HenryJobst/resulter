@@ -1,10 +1,11 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.adapter.driver.web.constraints.ValidId;
+import java.util.Objects;
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
-import java.util.Objects;
-
+@ValueObject
 public record EventCertificateId(@ValidId Long value) implements Comparable<EventCertificateId> {
 
     public static EventCertificateId of(Long value) {

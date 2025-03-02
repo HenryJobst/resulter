@@ -1,13 +1,17 @@
 package de.jobst.resulter.application.port;
 
-import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
+import org.jmolecules.architecture.hexagonal.SecondaryPort;
+import org.jmolecules.ddd.annotation.Repository;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
+@SecondaryPort
 public interface RaceRepository {
 
     Race save(Race event);
@@ -20,5 +24,5 @@ public interface RaceRepository {
 
     Collection<Race> findOrCreate(Collection<Race> races);
 
-    List<Race> findAllByEvents(List<Event> events);
+    List<Race> findAllByEventIds(List<EventId> eventIds);
 }

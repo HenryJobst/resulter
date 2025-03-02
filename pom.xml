@@ -17,7 +17,7 @@
     <properties>
         <java.version>21</java.version>
         <annotations.version>24.1.0</annotations.version>
-        <archunit.version>1.3.0</archunit.version>
+        <archunit.version>1.4.0</archunit.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
         <commons-text.version>1.13.0</commons-text.version>
         <itext-core.version>8.0.5</itext-core.version>
@@ -33,12 +33,13 @@
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <micrometer-bom.version>1.14.2</micrometer-bom.version>
+        <mockito-core.version>5.15.2</mockito-core.version>
         <native.maven.plugin.version>0.10.0</native.maven.plugin.version>
         <p6spy-spring-boot-starter.version>1.10.0</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
         <spring-oxm.version>6.2.1</spring-oxm.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.7.0</springdoc-openapi-starter-webmvc-ui.version>
-        <testcontainers.version>1.20.4</testcontainers.version>
+        <testcontainers.version>1.20.5</testcontainers.version>
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <tika-core.version>3.0.0</tika-core.version>
         <turkraft-springfilter-core.version>3.1.8</turkraft-springfilter-core.version>
@@ -48,6 +49,12 @@
         <eclipse-jdt.version>4.34</eclipse-jdt.version>
         <equalsverifier.version>3.19</equalsverifier.version>
         <dotenv-java.version>3.1.0</dotenv-java.version>
+        <jmolecules-archunit.version>1.6.0</jmolecules-archunit.version>
+        <jmolecules-bom.version>2023.2.1</jmolecules-bom.version>
+        <jmolecules-hexagonal-architecture.version>1.10.0
+        </jmolecules-hexagonal-architecture.version>
+        <jmolecules-layered-architecture.version>1.10.0</jmolecules-layered-architecture.version>
+        <spring-modulith-bom.version>1.3.3</spring-modulith-bom.version>
     </properties>
     <profiles>
         <profile>
@@ -217,6 +224,7 @@
             <artifactId>archunit</artifactId>
             <version>${archunit.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -308,6 +316,45 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-ddd</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jmolecules.integrations</groupId>
+            <artifactId>jmolecules-archunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-layered-architecture</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-hexagonal-architecture</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmolecules.integrations</groupId>
+            <artifactId>jmolecules-apt</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>${archunit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-docs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -317,6 +364,20 @@
                 <version>${micrometer-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jmolecules</groupId>
+                <artifactId>jmolecules-bom</artifactId>
+                <version>${jmolecules-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.modulith</groupId>
+                <artifactId>spring-modulith-bom</artifactId>
+                <version>${spring-modulith-bom.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -472,6 +533,14 @@
                         <!--formatAnnotations /   -->
 
                     </java>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                 </configuration>
             </plugin>
         </plugins>

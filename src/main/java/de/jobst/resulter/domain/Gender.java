@@ -1,7 +1,9 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
+@ValueObject
 public enum Gender {
     M("M"),
     F("F"),

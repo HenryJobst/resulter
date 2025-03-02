@@ -3,8 +3,8 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatsDto;
-import de.jobst.resulter.application.ResultListService;
-import de.jobst.resulter.application.certificate.CertificateService;
+import de.jobst.resulter.application.certificate.CertificateServiceImpl;
+import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,25 +22,35 @@ public class ResultListController {
 
     private final ResultListService resultListService;
     private final CertificateService certificateService;
+    private final PersonService personService;
+    private final EventService eventService;
 
     @Autowired
-    public ResultListController(ResultListService resultListService, CertificateService certificateService) {
+    public ResultListController(ResultListService resultListService, CertificateService certificateService,
+                                PersonService personService,
+                                EventService eventService) {
         this.resultListService = resultListService;
         this.certificateService = certificateService;
+        this.personService = personService;
+        this.eventService = eventService;
     }
 
     @GetMapping("/event/{id}/certificate_stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventCertificateStatsDto> getCertificateStats(@PathVariable Long id) {
-        List<EventCertificateStatDto> eventCertificateStatDtos = resultListService.getCertificateStats(EventId.of(id));
+        List<EventCertificateStatDto> eventCertificateStatDtos = resultListService.getCertificateStats(EventId.of(id)).stream()
+                .map(x -> EventCertificateStatDto.from(x, eventService, personService))
+                .toList();
         return ResponseEntity.ok(new EventCertificateStatsDto(eventCertificateStatDtos));
     }
 
     @PutMapping("/result_list/{id}/calculate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CupScoreListDto>> calculateResultListScore(@PathVariable Long id) {
-        List<CupScoreListDto> cupScoreLists = resultListService.calculateScore(ResultListId.of(id));
-        return ResponseEntity.ok(cupScoreLists);
+        List<CupScoreList> cupScoreLists = resultListService.calculateScore(ResultListId.of(id));
+        return ResponseEntity.ok(cupScoreLists.stream()
+                .map(CupScoreListDto::from)
+                .toList());
     }
 
     @GetMapping("/result_list/{id}/cup_score_lists")
@@ -54,7 +64,7 @@ public class ResultListController {
     @GetMapping("/result_list/{id}/certificate")
     public ResponseEntity<ByteArrayResource> getCertificate(
             @PathVariable Long id, @RequestParam String classResultShortName, @RequestParam Long personId) {
-        CertificateService.Certificate certificate = resultListService.createCertificate(
+        CertificateServiceImpl.Certificate certificate = resultListService.createCertificate(
                 ResultListId.of(id), ClassResultShortName.of(classResultShortName), PersonId.of(personId));
         if (null != certificate) {
             return ResponseEntity.ok()

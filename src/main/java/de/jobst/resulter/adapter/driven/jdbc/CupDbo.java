@@ -1,14 +1,10 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.Cup;
-import de.jobst.resulter.domain.CupId;
-import de.jobst.resulter.domain.CupType;
-import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.*;
 import java.time.Year;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.*;
@@ -59,8 +55,8 @@ public class CupDbo {
             cupDbo = new CupDbo(cup.getName().value());
         }
 
-        cupDbo.setEvents(cup.getEvents().stream()
-                .map(it -> new CupEventDbo(it.getId().value()))
+        cupDbo.setEvents(cup.getEventIds().stream()
+                .map(it -> new CupEventDbo(it.value()))
                 .collect(Collectors.toSet()));
 
         if (ObjectUtils.isNotEmpty(cup.getType())) {
@@ -74,21 +70,19 @@ public class CupDbo {
         return cupDbo;
     }
 
-    public static List<Cup> asCups(@NonNull Iterable<CupDbo> cupDbos, Function<Long, Event> eventResolver) {
+    public static List<Cup> asCups(@NonNull Iterable<CupDbo> cupDbos) {
         return StreamSupport.stream(cupDbos.spliterator(), true)
                 .map(it -> Cup.of(
                         it.id,
                         it.name,
                         it.type,
                         Year.of(it.year),
-                        it.events.stream()
-                                .map(x -> eventResolver.apply(x.id.getId()))
-                                .toList()))
+                        it.events.stream().map(x -> EventId.of(x.id.getId())).toList()))
                 .toList();
     }
 
-    public static Cup asCup(@NonNull CupDbo cupDbo, Function<Long, Event> eventResolver) {
-        return asCups(List.of(cupDbo), eventResolver).getFirst();
+    public static Cup asCup(@NonNull CupDbo cupDbo) {
+        return asCups(List.of(cupDbo)).getFirst();
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

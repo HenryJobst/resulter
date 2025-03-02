@@ -87,14 +87,14 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
 
         CupDbo cupDbo = CupDbo.from(cup, dboResolvers);
         CupDbo savedCupEntity = cupJdbcRepository.save(cupDbo);
-        return CupDbo.asCup(savedCupEntity, getEventResolver());
+        return CupDbo.asCup(savedCupEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Cup> findAll() {
         Iterable<CupDbo> resultList = this.cupJdbcRepository.findAll();
-        return CupDbo.asCups(resultList, getEventResolver());
+        return CupDbo.asCups(resultList);
     }
 
     @Transactional(readOnly = true)
@@ -105,7 +105,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Cup> findById(CupId cupId) {
-        return findDboById(cupId).map((CupDbo cupDbo) -> CupDbo.asCup(cupDbo, getEventResolver()));
+        return findDboById(cupId).map((CupDbo cupDbo) -> CupDbo.asCup(cupDbo));
     }
 
     @Override
@@ -116,7 +116,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
             return save(cup);
         }
         CupDbo entity = cupEntity.get();
-        return CupDbo.asCup(entity, getEventResolver());
+        return CupDbo.asCup(entity);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Transactional
     public List<Cup> findByEvent(EventId eventId) {
         List<CupDbo> cups = cupJdbcRepository.findByEventId(eventId.value());
-        return CupDbo.asCups(cups, getEventResolver());
+        return CupDbo.asCups(cups);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
                     FilterAndSortConverter.mapOrderProperties(pageable, CupDbo::mapOrdersDomainToDbo));
         }
         return new PageImpl<>(
-                page.stream().map(x -> CupDbo.asCup(x, getEventResolver())).toList(),
+                page.stream().map(x -> CupDbo.asCup(x)).toList(),
                 FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
                 page.getTotalElements());
     }

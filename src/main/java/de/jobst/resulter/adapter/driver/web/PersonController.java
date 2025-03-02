@@ -2,7 +2,7 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.GenderDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonDto;
-import de.jobst.resulter.application.PersonService;
+import de.jobst.resulter.application.port.PersonService;
 import de.jobst.resulter.domain.*;
 import java.util.Arrays;
 import java.util.List;

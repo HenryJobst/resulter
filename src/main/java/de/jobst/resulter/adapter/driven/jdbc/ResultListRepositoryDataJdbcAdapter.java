@@ -116,6 +116,14 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
+        if (resultListJdbcRepository.existsByPersonIdInPersonRaceResult(oldPersonId.value())) {
+            long updatedRows =
+                resultListJdbcRepository.replacePersonIdInPersonRaceResult(oldPersonId.value(), newPersonId.value());
+                log.debug("Updated {} rows in person_race_result with person_id {} to person_id {}",
+                    updatedRows,
+                    oldPersonId,
+                    newPersonId);
+        }
         if (resultListJdbcRepository.existsByPersonId(oldPersonId.value())) {
             long updatedRows =
                 resultListJdbcRepository.replacePersonIdInPersonResult(oldPersonId.value(), newPersonId.value());

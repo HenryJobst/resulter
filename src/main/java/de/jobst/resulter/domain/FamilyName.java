@@ -1,8 +1,10 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.StringUtils;
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
+@ValueObject
 public record FamilyName(String value) implements Comparable<FamilyName> {
 
     public static FamilyName of(String value) {

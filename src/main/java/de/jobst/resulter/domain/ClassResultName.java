@@ -1,7 +1,9 @@
 package de.jobst.resulter.domain;
 
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
+@ValueObject
 public record ClassResultName(String value) {
     public static ClassResultName of(String name) {
         return new ClassResultName(name);

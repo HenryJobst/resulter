@@ -4,10 +4,8 @@ import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
-import de.jobst.resulter.application.EventService;
-import de.jobst.resulter.application.RaceService;
-import de.jobst.resulter.application.ResultListService;
-import de.jobst.resulter.application.certificate.CertificateService;
+import de.jobst.resulter.application.certificate.CertificateServiceImpl;
+import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
@@ -41,18 +39,31 @@ public class EventController {
     private final EventService eventService;
     private final ResultListService resultListService;
     private final RaceService raceService;
+    private final OrganisationService organisationService;
+    private final EventCertificateService eventCertificateService;
+    private final MediaFileService mediaFileService;
 
     @Autowired
-    public EventController(EventService eventService, ResultListService resultListService, RaceService raceService) {
+    public EventController(
+        EventService eventService,
+        ResultListService resultListService,
+        RaceService raceService,
+        OrganisationService organisationService,
+        EventCertificateService eventCertificateService, MediaFileService mediaFileService) {
         this.eventService = eventService;
         this.resultListService = resultListService;
         this.raceService = raceService;
+        this.organisationService = organisationService;
+        this.eventCertificateService = eventCertificateService;
+        this.mediaFileService = mediaFileService;
     }
 
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
         List<Event> events = eventService.findAll();
-        return ResponseEntity.ok(events.stream().map(EventDto::from).toList());
+        return ResponseEntity.ok(events.stream()
+                .map(x -> EventDto.from(x, organisationService, eventCertificateService))
+                .toList());
     }
 
     @GetMapping("/event")
@@ -63,7 +74,9 @@ public class EventController {
                         ? FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
         return ResponseEntity.ok(new PageImpl<>(
-                events.getContent().stream().map(EventDto::from).toList(),
+                events.getContent().stream()
+                        .map(x -> EventDto.from(x, organisationService, eventCertificateService))
+                        .toList(),
                 FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
                 events.getTotalElements()));
     }
@@ -91,13 +104,13 @@ public class EventController {
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
-        return ResponseEntity.ok(EventDto.from(event));
+        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService));
     }
 
     @GetMapping("/event/{id}")
     public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
-        return ResponseEntity.ok(EventDto.from(event));
+        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService));
     }
 
     @PutMapping("/event/{id}")
@@ -118,7 +131,7 @@ public class EventController {
                 eventDto.certificate() != null
                         ? EventCertificateId.of(eventDto.certificate().id())
                         : null);
-        return ResponseEntity.ok(EventDto.from(event));
+        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService));
     }
 
     @DeleteMapping("/event/{id}")
@@ -138,8 +151,20 @@ public class EventController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ByteArrayResource> getCertificate(
             @PathVariable Long id, @Valid @RequestBody EventCertificateDto eventCertificateDto) {
-        CertificateService.Certificate certificate =
-                resultListService.createCertificate(EventId.of(id), eventCertificateDto);
+
+        Event event = eventService.getById(EventId.of(id));
+        MediaFile blankCertificate =
+            mediaFileService.getById(MediaFileId.of(eventCertificateDto.blankCertificate().id()));
+
+        EventCertificate eventCertificate = EventCertificate.of(
+            EventCertificateId.empty().value(),
+            eventCertificateDto.name(),
+            event.getId(),
+            eventCertificateDto.layoutDescription(),
+            blankCertificate != null ? blankCertificate.getId() : null,
+            eventCertificateDto.primary());
+        CertificateServiceImpl.Certificate certificate =
+                resultListService.createCertificate(event, eventCertificate);
         if (null != certificate) {
             return ResponseEntity.ok()
                     .header(

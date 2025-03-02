@@ -1,13 +1,16 @@
 package de.jobst.resulter.domain;
 
+import java.util.Objects;
 import lombok.Getter;
+import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 
-import java.util.Objects;
-
+@AggregateRoot
 @Getter
 public final class Country {
 
+    @Identity
     @NonNull
     private final CountryId id;
 
@@ -41,7 +44,9 @@ public final class Country {
             return false;
         }
         Country country = (Country) o;
-        return Objects.equals(id, country.id) && Objects.equals(code, country.code) && Objects.equals(name, country.name);
+        return Objects.equals(id, country.id)
+                && Objects.equals(code, country.code)
+                && Objects.equals(name, country.name);
     }
 
     @Override

@@ -1,9 +1,10 @@
 package de.jobst.resulter.domain;
 
+import java.time.ZonedDateTime;
+import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 
-import java.time.ZonedDateTime;
-
+@ValueObject
 public record DateTime(ZonedDateTime value) implements Comparable<DateTime> {
     public static DateTime of(ZonedDateTime value) {
         return new DateTime(value);

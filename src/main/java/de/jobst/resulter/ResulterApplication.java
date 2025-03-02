@@ -1,5 +1,6 @@
 package de.jobst.resulter;
 
+import de.jobst.resulter.springapp.DotenvInitializer;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import org.springframework.aot.hint.ExecutableMode;
 import org.springframework.aot.hint.RuntimeHints;
@@ -32,10 +33,9 @@ public class ResulterApplication {
         @Override
         public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
             hints.reflection()
-                .registerType(ChangeLogHistoryServiceFactory.class,
-                    (type) -> type.withConstructor(Collections.emptyList(), ExecutableMode.INVOKE));
+                    .registerType(
+                            ChangeLogHistoryServiceFactory.class,
+                            (type) -> type.withConstructor(Collections.emptyList(), ExecutableMode.INVOKE));
         }
     }
-
 }
-

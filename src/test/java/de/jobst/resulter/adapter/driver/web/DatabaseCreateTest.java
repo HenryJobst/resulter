@@ -1,6 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
-import de.jobst.resulter.adapter.TestConfig;
+import de.jobst.resulter.TestConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.domain.EntityScan;

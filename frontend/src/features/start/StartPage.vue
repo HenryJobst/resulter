@@ -29,7 +29,7 @@ async function showErrorDetail(id: number) {
 <template>
     <h2>{{ t('pages.start') }}</h2>
 
-    <img alt="Logo" class="my-4" src="@/assets/Logo_Resulter_400px.png" width="400" height="396">
+    <img alt="Logo" class="my-4" src="@/assets/Logo_Resulter_400px.webp" width="400" height="396">
 
     <Panel :header="t('labels.message', 2)" class="my-4" toggleable>
         <template #icons>

@@ -7,6 +7,7 @@ import messages from '@intlify/unplugin-vue-i18n/messages'
 import { definePreset } from '@primevue/themes'
 import Lara from '@primevue/themes/lara'
 import { VueQueryPlugin } from '@tanstack/vue-query'
+import { createHead } from '@unhead/vue'
 import { AxiosError } from 'axios'
 import { createPinia } from 'pinia'
 // noinspection SpellCheckingInspection
@@ -23,6 +24,8 @@ import './assets/main.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
 import 'flag-icons/css/flag-icons.min.css'
+
+const head = createHead()
 
 const savedLocale = localStorage.getItem('userLocale')
 // get user language from browser
@@ -96,6 +99,7 @@ const MyPreset = definePreset(Lara, {
 
 function renderApp() {
     const app = createApp(App)
+    app.use(head)
     app.directive('tooltip', Tooltip)
     app.use(PrimeVue, {
         ripple: true,

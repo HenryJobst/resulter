@@ -151,7 +151,7 @@ function setDetails(details: string) {
                 <img
                     :alt="t('labels.logo')"
                     class="mr-6"
-                    src="@/assets/Logo_Resulter_60px.png"
+                    src="@/assets/Logo_Resulter_60px.webp"
                     width="60"
                     height="59"
                 >

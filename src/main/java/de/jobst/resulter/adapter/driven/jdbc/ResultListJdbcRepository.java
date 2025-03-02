@@ -99,4 +99,20 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     long replacePersonIdInPersonResult(@Param("oldPersonId") Long oldPersonId,
                                        @Param("newPersonId") Long newPersonId);
 
+    @Query("""
+    SELECT COUNT(p) > 0
+    FROM person_race_result p
+    WHERE p.person_id = :oldPersonId
+    """)
+    boolean existsByPersonIdInPersonRaceResult(@Param("oldPersonId") Long oldPersonId);
+
+    @Modifying
+    @Query("""
+        UPDATE person_race_result
+        SET person_id = :newPersonId
+        WHERE person_id = :oldPersonId;
+        """)
+    long replacePersonIdInPersonRaceResult(@Param("oldPersonId") Long oldPersonId,
+                                           @Param("newPersonId") Long newPersonId);
+
 }

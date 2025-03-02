@@ -3,12 +3,13 @@ import type { GenericListColumn } from '@/features/generic/models/GenericListCol
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
-import type { DataTableFilterEvent, DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
+import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import { formatDate, formatTime, formatYear } from '@/features/generic/services/GenericFunctions'
 import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
 import { toastDisplayDuration } from '@/utils/constants'
 import { getValueByPath, truncateString } from '@/utils/tools'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useDebounceFn } from '@vueuse/core'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
@@ -171,37 +172,15 @@ function sortChanged(e: DataTableSortEvent) {
     settingsStore.settings.sortOrder = e.sortOrder
 }
 
-function filterChanged(_e: DataTableFilterEvent) {
-    // console.log(`Filters: ${prettyPrint(e)}`)
-    // settingsStore.settings.filters = e.filters
-}
-
 function getSortable(col: GenericListColumn) {
     // console.log('Get sortable for ' + col.field + ':' + col.sortable)
     return col?.sortable ?? false
 }
 
-function debounce<T extends (...args: any[]) => any>(
-    fn: T,
-    delay: number,
-): (...args: Parameters<T>) => void {
-    let timeoutID: ReturnType<typeof setTimeout> | null = null
-
-    return function (this: any, ...args: Parameters<T>) {
-        if (timeoutID !== null)
-            clearTimeout(timeoutID)
-
-        timeoutID = setTimeout(() => {
-            fn.apply(this, args)
-        }, delay)
-    }
-}
-
-const delay = 800
-const debounceFilterChanged = debounce(filterChanged, delay)
-const debouncedFilterInput = debounce((_filterModel: any, filterCallback: () => void) => {
+const FILTER_INPUT_DELAY = 800
+const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: () => void) => {
     filterCallback()
-}, delay)
+}, FILTER_INPUT_DELAY)
 </script>
 
 <template>
@@ -263,7 +242,6 @@ const debouncedFilterInput = debounce((_filterModel: any, filterCallback: () => 
                 class="p-datatable-sm"
                 @page="pageChanged"
                 @sort="sortChanged"
-                @filter="debounceFilterChanged"
             >
                 <!-- ... Action columns ... -->
                 <Column class="text-left" :header="t('labels.action', 2)">

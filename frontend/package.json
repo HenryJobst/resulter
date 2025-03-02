@@ -23,6 +23,7 @@
         "@primevue/themes": "^4.2.5",
         "@tanstack/vue-query": "^5.66.0",
         "@tanstack/vue-query-devtools": "^5.66.0",
+        "@vueuse/core": "^12.7.0",
         "axios": "^1.7.9",
         "cors": "^2.8.5",
         "flag-icons": "^7.3.2",

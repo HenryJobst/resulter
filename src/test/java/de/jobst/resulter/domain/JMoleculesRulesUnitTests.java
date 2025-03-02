@@ -8,7 +8,7 @@ import org.jmolecules.archunit.JMoleculesDddRules;
 
 @SuppressWarnings("unused")
 @AnalyzeClasses(packages = "de.jobst.resulter")
-class JMoleculesRulesUnitTest {
+class JMoleculesRulesUnitTests {
 
     @ArchTest
     ArchRule dddRules = JMoleculesDddRules.all();

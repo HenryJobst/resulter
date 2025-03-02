@@ -1,15 +1,13 @@
 package de.jobst.resulter.domain;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+
+import java.util.*;
 
 @AggregateRoot
 @Getter
@@ -138,16 +136,20 @@ public final class Organisation implements Comparable<Organisation> {
             return true;
         }
         return getChildOrganisations().stream().anyMatch(subOrg -> {
-            Organisation subOrganisation = organisationById.get(subOrg);
-            return subOrganisation.containsOrganisationWithShortName(name, organisationById);
+            Optional<Organisation> subOrganisation = Optional.ofNullable(organisationById.get(subOrg));
+            return subOrganisation
+                    .map(o -> o.containsOrganisationWithShortName(name, organisationById))
+                    .orElse(false);
         });
     }
 
     public boolean containsOrganisationWithId(OrganisationId id, Map<OrganisationId, Organisation> organisationById) {
         return getId().equals(id)
                 || childOrganisations.stream().anyMatch(subOrg -> {
-                    Organisation subOrganisation = organisationById.get(subOrg);
-                    return subOrganisation.containsOrganisationWithId(id, organisationById);
+                    Optional<Organisation> subOrganisation = Optional.ofNullable(organisationById.get(subOrg));
+                    return subOrganisation
+                            .map(o -> o.containsOrganisationWithId(id, organisationById))
+                            .orElse(false);
                 });
     }
 }

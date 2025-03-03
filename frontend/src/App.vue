@@ -40,6 +40,7 @@ const frontendVersion = __APP_VERSION__
 const prefetchUrl = import.meta.env.VITE_KEYCLOAK_URL
 
 useHead({
+    title: 'Resulter',
     meta: [{
         charset: 'UTF-8',
     }, {

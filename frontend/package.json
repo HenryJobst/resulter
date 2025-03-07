@@ -40,7 +40,7 @@
         "spring-filter-query-builder": "^1.1.1",
         "unocss": "^65.4.3",
         "vue": "^3.5.13",
-        "vue-i18n": "^11.1.1",
+        "vue-i18n": "^11.1.2",
         "vue-pdf-embed": "^2.1.2",
         "vue-router": "^4.5.0"
     },

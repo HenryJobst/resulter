@@ -6,7 +6,6 @@ import MessageDetailDialog from '@/features/common/components/MessageDetailDialo
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
-import { useHead } from '@unhead/vue'
 import moment from 'moment/min/moment-with-locales'
 import Button from 'primevue/button'
 import { usePrimeVue } from 'primevue/config'
@@ -36,22 +35,6 @@ const primeVueLocales: Ref<LocaleMessages> = ref({})
 const primevue = usePrimeVue()
 
 const frontendVersion = __APP_VERSION__
-
-const prefetchUrl = import.meta.env.VITE_KEYCLOAK_URL
-
-useHead({
-    title: 'Resulter',
-    meta: [{
-        charset: 'UTF-8',
-    }, {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1.0',
-    }],
-    link: [
-        { rel: 'dns-prefetch', href: prefetchUrl },
-        { rel: 'icon', href: '/favicon.ico' },
-    ],
-})
 
 onMounted(() => {
     fullUrl.value = cleanUrl(window.location.href)

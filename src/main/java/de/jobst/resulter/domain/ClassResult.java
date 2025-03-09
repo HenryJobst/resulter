@@ -1,12 +1,13 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ValueObject
 public record ClassResult(
@@ -42,8 +43,8 @@ public record ClassResult(
                 .sorted()
                 .toList();
         var organisationByPerson = personResults.stream()
-                .collect(Collectors.toMap(
-                        PersonResult::personId, v -> v.organisationId() != null ? v.organisationId() : null));
+                .filter(v -> null != v.organisationId())
+                .collect(Collectors.toMap(PersonResult::personId, PersonResult::organisationId));
         List<PersonRaceResult> personRaceResults = personResults.stream()
                 .flatMap(it -> it.personRaceResults().value().stream())
                 .filter(y -> y.getState().equals(ResultStatus.OK))

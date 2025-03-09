@@ -138,8 +138,7 @@ public class XMLImportService {
 
     private static boolean isReallyStarted(
             de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult personRaceResult) {
-        return !personRaceResult.getStatus().value().equals(ResultStatus.NOT_COMPETING.value())
-                && !personRaceResult.getStatus().value().equals(ResultStatus.DID_NOT_START.value())
+        return !personRaceResult.getStatus().value().equals(ResultStatus.DID_NOT_START.value())
                 && !personRaceResult.getStatus().value().equals(ResultStatus.DID_NOT_ENTER.value());
     }
 

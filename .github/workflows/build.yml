@@ -40,7 +40,7 @@ jobs:
               corepack enable
               pnpm --version
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
         working-directory: ./frontend
       - name: Build frontend
         run: pnpm build

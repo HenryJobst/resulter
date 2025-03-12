@@ -28,7 +28,7 @@ COPY package.json ./
 
 RUN npm install -g corepack@latest && corepack enable pnpm && pnpm --version
 
-RUN pnpm install
+RUN pnpm install --no-frozen-lockfile
 
 COPY . .
 

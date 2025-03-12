@@ -39,7 +39,7 @@
         <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
         <spring-oxm.version>6.2.1</spring-oxm.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.7.0</springdoc-openapi-starter-webmvc-ui.version>
-        <testcontainers.version>1.20.5</testcontainers.version>
+        <testcontainers.version>1.20.6</testcontainers.version>
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <tika-core.version>3.0.0</tika-core.version>
         <turkraft-springfilter-core.version>3.1.8</turkraft-springfilter-core.version>

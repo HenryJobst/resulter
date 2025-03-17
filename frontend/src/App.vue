@@ -145,7 +145,7 @@ function setDetails(details: string) {
 </script>
 
 <template>
-    <header class="bg-gray-200 p-4 h-full">
+    <header class="p-4 h-full">
         <Menubar :model="navItems">
             <!-- Logo -->
             <template #start>
@@ -317,7 +317,7 @@ function setDetails(details: string) {
         <VueQueryDevtools />
     </div>
 
-    <footer class="flex justify-between items-center bg-gray-200 p-4">
+    <footer class="flex justify-between items-center p-4">
         <div class="flex items-center">
             <div>
                 {{ t('labels.frontend_version', { version: frontendVersion }) }}

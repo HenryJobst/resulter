@@ -75,6 +75,7 @@ public class Cup implements Comparable<Cup> {
             @Nullable Map<OrganisationId, Organisation> organisationById) {
         return switch (getType()) {
             case CupType.NOR -> new NORCalculationStrategy(organisationById);
+            case CupType.KJ -> new KJCalculationStrategy(organisationById);
             case CupType.KRISTALL -> new KristallCalculationStrategy(organisationById);
             case CupType.NEBEL -> new NebelCalculationStrategy(organisationById);
             case CupType.ADD -> new AddCalculationStrategy();

@@ -7,6 +7,7 @@ import org.jmolecules.ddd.annotation.ValueObject;
 public enum CupType {
     ADD("ADD"),
     NOR("NOR"),
+    KJ("KJ"),
     NEBEL("NEBEL"),
     KRISTALL("KRISTALL"),
     ;
@@ -32,6 +33,6 @@ public enum CupType {
 
     public boolean isGroupedByOrganisation() {
         // cup results are grouped by organisation
-        return this == NEBEL || this == KRISTALL;
+        return this == KJ || this == NEBEL || this == KRISTALL;
     }
 }

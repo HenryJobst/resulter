@@ -158,6 +158,12 @@ public class PersonServiceImpl implements PersonService {
         return person;
     }
 
+    @Override
+    public void deletePerson(PersonId personId) {
+        Person person = findById(personId).orElseThrow(ResourceNotFoundException::new);
+        personRepository.delete(person);
+    }
+
     private void replacePerson(Person merge, Person person) {
         resultListRepository.replacePersonId(merge.getId(), person.getId());
         splitTimeListRepository.replacePersonId(merge.getId(), person.getId());

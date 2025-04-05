@@ -4,9 +4,6 @@ import de.jobst.resulter.adapter.driver.web.dto.GenderDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonDto;
 import de.jobst.resulter.application.port.PersonService;
 import de.jobst.resulter.domain.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
@@ -63,6 +64,13 @@ public class PersonController {
                 ObjectUtils.isNotEmpty(personDto.birthDate()) ? BirthDate.of(personDto.birthDate()) : null,
                 Gender.of(personDto.gender().id()));
         return ResponseEntity.ok(PersonDto.from(person));
+    }
+
+    @DeleteMapping("/person/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deletePerson(@PathVariable Long id) {
+        personService.deletePerson(PersonId.of(id));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/gender")

@@ -31,5 +31,5 @@ public interface PersonRepository {
 
     Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable);
 
-    void delete(Person merge);
+    void delete(Person person);
 }

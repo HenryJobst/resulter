@@ -35,4 +35,7 @@ public interface PersonService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     Person mergePersons(PersonId personId, PersonId mergeId);
+
+    @Transactional
+    void deletePerson(PersonId personId);
 }

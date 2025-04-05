@@ -141,7 +141,8 @@
     "gender": {
         "M": "M",
         "F": "W",
-        "B": "D"
+        "B": "D",
+        "U": "U"
     },
     "messages": {
         "new_cup": "Neuer Cup",

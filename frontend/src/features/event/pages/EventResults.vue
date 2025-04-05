@@ -34,10 +34,14 @@ const eventResultsQuery = useQuery({
 })
 
 const eventId = computed(() => {
-    return eventResultsQuery.data.value?.resultLists[0].eventId
+    const resultLists = eventResultsQuery.data.value?.resultLists
+    return Array.isArray(resultLists) && resultLists.length > 0 ? resultLists[0].eventId : undefined
 })
 
-const enabled = computed(() => !!eventResultsQuery.data.value?.resultLists[0].eventId)
+const enabled = computed(() => {
+    const resultLists = eventResultsQuery.data.value?.resultLists
+    return !!(resultLists && resultLists[0]?.eventId)
+})
 
 const eventQuery = useQuery({
     queryKey: ['events', eventId.value],
@@ -174,9 +178,11 @@ function createResultListTreeNodes(
 function getClassResultLabel(a: ClassResult) {
     let courseData = ''
     if (a.courseId != null) {
-        courseData = ` - ${courseLengthColumn(a)} ${t('labels.length_abbreviation')} - ${courseClimbColumn(a)} ${t(
-            'labels.climb_abbreviation',
-        )} - ${courseControlsColumn(a)} ${t('labels.control_abbreviation')}`
+        const controls = courseControlsColumn(a)
+        courseData = ` - ${courseLengthColumn(a)} ${t('labels.length_abbreviation')} - ${courseClimbColumn(a)} ${t('labels.climb_abbreviation')}`
+        if (controls !== '') {
+            courseData += ` - ${controls} ${t('labels.control_abbreviation')}`
+        }
     }
     return `${a.name} (${a.personResults.length})${courseData}`
 }
@@ -287,8 +293,9 @@ function courseClimbColumn(slotProps: any): string {
 
 function courseControlsColumn(slotProps: any): string {
     const course = findCourse(slotProps)
-    if (course)
+    if (course && course.controls) {
         return course.controls.toFixed(0)
+    }
 
     return ''
 }

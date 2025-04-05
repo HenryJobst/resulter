@@ -15,5 +15,5 @@ public interface CountryJdbcRepository
     @NonNull
     Collection<CountryDbo> findAll();
 
-    Optional<CountryDbo> findByName(String name);
+    Optional<CountryDbo> findByCode(String code);
 }

@@ -9,10 +9,6 @@ import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -21,6 +17,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -63,22 +64,21 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     }
 
     @Override
-    public Person findOrCreate(Person person) {
-        Optional<PersonDbo> personEntity = personJdbcRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(
-                person.getPersonName().familyName().value(),
-                person.getPersonName().givenName().value(),
-                person.getBirthDate().value(),
-                person.getGender());
-        if (personEntity.isEmpty()) {
-            return save(person);
-        }
-        PersonDbo entity = personEntity.get();
-        return entity.asPerson();
+    public PersonPerson findOrCreate(Person person) {
+        Optional<PersonDbo> personEntity =
+            personJdbcRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(
+                    person.getPersonName().familyName().value(),
+                    person.getPersonName().givenName().value(),
+                    person.getBirthDate().value(),
+                    person.getGender());
+
+        return personEntity.map(personDbo -> new PersonPerson(person, personDbo.asPerson()))
+            .orElseGet(() -> new PersonPerson(person, save(person)));
     }
 
     @Override
     @Transactional
-    public Collection<Person> findOrCreate(Collection<Person> persons) {
+    public Collection<PersonPerson> findOrCreate(Collection<Person> persons) {
         return persons.stream().map(this::findOrCreate).toList();
     }
 

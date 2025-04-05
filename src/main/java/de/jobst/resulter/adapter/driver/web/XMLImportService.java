@@ -5,6 +5,7 @@ import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -66,7 +67,10 @@ public class XMLImportService {
         List<de.jobst.resulter.adapter.driver.web.jaxb.PersonRaceResult> results = personResult.getResults();
         results = results.stream()
                 .filter(x -> isReallyStarted(x)
-                        && x.getRaceNumber().byteValue() == race.getRaceNumber().value())
+                        && Optional.ofNullable(x.getRaceNumber())
+                                        .orElse(BigInteger.ONE)
+                                        .byteValue()
+                                == race.getRaceNumber().value())
                 .flatMap(personRaceResult -> {
                     OverallResult overallResult = personRaceResult.getOverallResult();
                     if (overallResult != null) {
@@ -88,9 +92,11 @@ public class XMLImportService {
                 .toList();
         return results.stream()
                 .filter(XMLImportService::isReallyStarted)
-                .filter(x ->
-                        x.getRaceNumber().byteValue() == race.getRaceNumber().value()
-                                || x.getRaceNumber().byteValue() == 0)
+                .filter(x -> Optional.ofNullable(x.getRaceNumber())
+                                        .orElse(BigInteger.ONE)
+                                        .byteValue()
+                                == race.getRaceNumber().value()
+                        || x.getRaceNumber().byteValue() == 0)
                 .map(personRaceResult -> Pair.of(
                         PersonRaceResult.of(
                                 classResultShortName.value(),
@@ -117,9 +123,9 @@ public class XMLImportService {
                                 Objects.nonNull(personRaceResult.getPosition())
                                         ? personRaceResult.getPosition().longValue()
                                         : null,
-                                ObjectUtils.isNotEmpty(personRaceResult.getRaceNumber())
-                                        ? personRaceResult.getRaceNumber().byteValue()
-                                        : (byte) 1,
+                                Optional.ofNullable(personRaceResult.getRaceNumber())
+                                        .orElse(BigInteger.ONE)
+                                        .byteValue(),
                                 ResultStatus.fromValue(
                                         personRaceResult.getStatus().value())),
                         new SplitTimeList(
@@ -128,7 +134,9 @@ public class XMLImportService {
                                 resultListId,
                                 classResultShortName,
                                 personId,
-                                RaceNumber.of(personRaceResult.getRaceNumber().byteValue()),
+                                RaceNumber.of(Optional.ofNullable(personRaceResult.getRaceNumber())
+                                        .orElse(BigInteger.ONE)
+                                        .byteValue()),
                                 personRaceResult.getSplitTimes().stream()
                                         .map(x -> new SplitTime(
                                                 ControlCode.of(x.getControlCode()), PunchTime.of(x.getTime()), null))
@@ -194,8 +202,9 @@ public class XMLImportService {
         List<Byte> raceNumbers = resultList.getClassResults().stream()
                 .flatMap(x -> x.getPersonResults().stream())
                 .flatMap(x -> x.getResults().stream())
-                .filter(x -> x.getRaceNumber() != null)
-                .map(x -> x.getRaceNumber().byteValue())
+                .map(x -> Optional.ofNullable(x.getRaceNumber())
+                        .orElse(BigInteger.ONE)
+                        .byteValue())
                 .distinct()
                 .toList();
 
@@ -233,13 +242,16 @@ public class XMLImportService {
                                     event.getId(),
                                     race,
                                     finalDomainResultList.getId(),
-                                    ClassResultShortName.of(clazz.getShortName()),
+                                    ClassResultShortName.of(
+                                            StringUtils.isNotBlank(clazz.getShortName())
+                                                    ? clazz.getShortName()
+                                                    : clazz.getName()),
                                     organisationByName,
                                     personByDomainKey));
                             return Pair.of(
                                     ClassResult.of(
                                             clazz.getName(),
-                                            clazz.getShortName(),
+                                            StringUtils.isNotBlank(clazz.getShortName()) ? clazz.getShortName() : clazz.getName(),
                                             Gender.of(clazz.getSex()),
                                             personResults.getFirst(),
                                             classResult.getCourses().stream()
@@ -282,7 +294,11 @@ public class XMLImportService {
                                 .get(new SplitTimeList.DomainKey(
                                         event.getId(),
                                         finalDomainResultList.getId(),
-                                        x.classResultShortName(),
+                                        StringUtils.isNotBlank(
+                                                        x.classResultShortName().value())
+                                                ? x.classResultShortName()
+                                                : ClassResultShortName.of(
+                                                        x.classResultName().value()),
                                         y.personId(),
                                         z.getRaceNumber()))
                                 .getId());
@@ -363,8 +379,10 @@ public class XMLImportService {
                                         : null),
                         Gender.of(p.getSex())))
                 .collect(Collectors.toSet());
-        persons = personService.findOrCreate(persons);
-        return persons.stream().distinct().collect(Collectors.toMap(Person::getDomainKey, x -> x));
+        Collection<PersonRepository.PersonPerson> personPersons = personService.findOrCreate(persons);
+        return personPersons.stream()
+                .distinct()
+                .collect(Collectors.toMap(x -> x.source().getDomainKey(), PersonRepository.PersonPerson::target));
     }
 
     @NonNull
@@ -378,7 +396,10 @@ public class XMLImportService {
                         CourseName.of(c.getName()),
                         CourseLength.of(c.getLength()),
                         CourseClimb.of(c.getClimb()),
-                        NumberOfControls.of(c.getNumberOfControls().intValue())))
+                        NumberOfControls.of(
+                                null != c.getNumberOfControls()
+                                        ? c.getNumberOfControls().intValue()
+                                        : null)))
                 .collect(Collectors.toSet());
         if (courses.isEmpty()) {
             return Map.of();
@@ -397,7 +418,7 @@ public class XMLImportService {
                                 .map(o -> Organisation.of(
                                         OrganisationId.empty().value(),
                                         o.getName(),
-                                        o.getShortName(),
+                                        StringUtils.isBlank(o.getShortName()) ? o.getName() : o.getShortName(),
                                         OrganisationType.OTHER.value(),
                                         (null == o.getCountry()
                                                 ? null
@@ -414,7 +435,7 @@ public class XMLImportService {
                                 .map(o -> Organisation.of(
                                         OrganisationId.empty().value(),
                                         o.getName(),
-                                        o.getShortName(),
+                                        StringUtils.isBlank(o.getShortName()) ? o.getName() : o.getShortName(),
                                         OrganisationType.OTHER.value(),
                                         (null == o.getCountry()
                                                 ? null
@@ -455,7 +476,15 @@ public class XMLImportService {
                                 .filter(Objects::nonNull))
                 .collect(Collectors.toSet());
 
-        countries = this.countryService.findOrCreate(countries);
+        List<Country> uniqueCountries = new ArrayList<>(countries.stream()
+                .collect(Collectors.toMap(
+                        Country::getCode,
+                        country -> country,
+                        (existing, replacement) -> (existing.getName() != null ? existing : replacement),
+                        LinkedHashMap::new))
+                .values());
+
+        countries = this.countryService.findOrCreate(uniqueCountries);
         return countries.stream().collect(Collectors.toMap(x -> x.getCode().value(), x -> x));
     }
 

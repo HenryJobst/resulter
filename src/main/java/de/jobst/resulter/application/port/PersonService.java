@@ -16,7 +16,7 @@ import java.util.Optional;
 @PrimaryPort
 public interface PersonService {
 
-    Person findOrCreate(Person person);
+    PersonRepository.PersonPerson findOrCreate(Person person);
 
     Person getById(PersonId personId);
 
@@ -24,7 +24,7 @@ public interface PersonService {
 
     List<Person> findAll();
 
-    Collection<Person> findOrCreate(Collection<Person> persons);
+    Collection<PersonRepository.PersonPerson> findOrCreate(Collection<Person> persons);
 
     @NonNull
     Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender);

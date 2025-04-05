@@ -1,8 +1,10 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Gender;
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
@@ -19,8 +21,18 @@ public interface PersonJdbcRepository
     @NonNull
     Collection<PersonDbo> findAll();
 
-    Optional<PersonDbo> findByFamilyNameAndGivenNameAndBirthDateAndGender(String familyName,
-                                                                          String givenName,
-                                                                          LocalDate birthDate,
-                                                                          Gender gender);
+    @Query("""
+    SELECT * FROM person
+    WHERE family_name = :familyName
+      AND given_name = :givenName
+      AND birth_date = COALESCE(:birthDate, birth_date)
+      AND (:gender = 'U' OR gender = COALESCE(:gender, gender))
+      ORDER BY family_name, given_name, birth_date ASC nulls last, gender ASC nulls last
+      LIMIT 1
+    """)
+    Optional<PersonDbo> findByFamilyNameAndGivenNameAndBirthDateAndGender(
+                                          @Param("familyName") String familyName,
+                                          @Param("givenName") String givenName,
+                                          @Param("birthDate") LocalDate birthDate,
+                                          @Param("gender") Gender gender);
 }

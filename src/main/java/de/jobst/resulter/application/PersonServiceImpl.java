@@ -58,7 +58,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Person findOrCreate(Person person) {
+    public PersonRepository.PersonPerson findOrCreate(Person person) {
         return personRepository.findOrCreate(person);
     }
 
@@ -78,7 +78,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Collection<Person> findOrCreate(Collection<Person> persons) {
+    public Collection<PersonRepository.PersonPerson> findOrCreate(Collection<Person> persons) {
         return personRepository.findOrCreate(persons);
     }
 
@@ -96,6 +96,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Person> findDoubles(PersonId personId) {
         return findDoubles(personRepository.findById(personId).orElseThrow());
     }
@@ -106,7 +107,6 @@ public class PersonServiceImpl implements PersonService {
         return findDoubles(person, all);
     }
 
-    @Transactional(readOnly = true)
     @NonNull
     List<Person> findDoubles(Person person, List<Person> all) {
         return all.stream()

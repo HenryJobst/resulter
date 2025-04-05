@@ -51,18 +51,18 @@ public class InMemoryPersonRepository implements PersonRepository {
     }
 
     @Override
-    public Person findOrCreate(Person person) {
-        return persons.values()
+    public PersonPerson findOrCreate(Person person) {
+        return new PersonPerson(person, persons.values()
             .stream()
             .filter(it -> Objects.equals(it.getPersonName(), person.getPersonName()) &&
                           Objects.equals(it.getBirthDate(), person.getBirthDate()) &&
                           Objects.equals(it.getGender(), person.getGender()))
             .findAny()
-            .orElseGet(() -> save(person));
+            .orElseGet(() -> save(person)));
     }
 
     @Override
-    public Collection<Person> findOrCreate(Collection<Person> persons) {
+    public Collection<PersonPerson> findOrCreate(Collection<Person> persons) {
         return persons.stream().map(this::findOrCreate).toList();
     }
 

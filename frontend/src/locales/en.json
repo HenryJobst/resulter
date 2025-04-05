@@ -174,7 +174,8 @@
     "gender": {
         "M": "M",
         "F": "F",
-        "B": "B"
+        "B": "B",
+        "U": "U"
     },
     "errors": {
         "notFound": "Requested ressource not found. {name}, {message}",

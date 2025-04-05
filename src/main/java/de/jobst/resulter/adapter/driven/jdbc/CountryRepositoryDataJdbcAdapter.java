@@ -47,7 +47,7 @@ public class CountryRepositoryDataJdbcAdapter implements CountryRepository {
     @Override
     @Transactional
     public Country findOrCreate(Country country) {
-        Optional<CountryDbo> countryEntity = countryJdbcRepository.findByName(country.getName().value());
+        Optional<CountryDbo> countryEntity = countryJdbcRepository.findByCode(country.getCode().value());
         if (countryEntity.isEmpty()) {
             return save(country);
         }

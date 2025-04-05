@@ -23,9 +23,11 @@ public interface PersonRepository {
 
     Optional<Person> findById(PersonId PersonId);
 
-    Person findOrCreate(Person person);
+    record PersonPerson(Person source, Person target) {}
 
-    Collection<Person> findOrCreate(Collection<Person> persons);
+    PersonPerson findOrCreate(Person person);
+
+    Collection<PersonPerson> findOrCreate(Collection<Person> persons);
 
     Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable);
 

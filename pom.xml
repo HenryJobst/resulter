@@ -48,7 +48,7 @@
         <cleanthat.version>2.22</cleanthat.version>
         <eclipse-jdt.version>4.34</eclipse-jdt.version>
         <equalsverifier.version>3.19</equalsverifier.version>
-        <dotenv-java.version>3.1.0</dotenv-java.version>
+        <dotenv-java.version>3.2.0</dotenv-java.version>
         <jmolecules-archunit.version>1.6.0</jmolecules-archunit.version>
         <jmolecules-bom.version>2023.2.1</jmolecules-bom.version>
         <jmolecules-hexagonal-architecture.version>1.10.0

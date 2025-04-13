@@ -3,18 +3,49 @@ databaseChangeLog:
           id: 000029_event_additions
           author: Henry Jobst
           preConditions:
-              - columnExists:
-                    tableName: event
-                    columnName: start_time
-              - columnExists:
-                    tableName: event
-                    columnName: end_time
-              - sqlCheck:
-                    expectedResult: "timestamp with time zone"
-                    sql: "SELECT data_type FROM information_schema.columns WHERE table_name = 'event' AND column_name = 'start_time'"
-              - sqlCheck:
-                    expectedResult: "timestamp with time zone"
-                    sql: "SELECT data_type FROM information_schema.columns WHERE table_name = 'event' AND column_name = 'end_time'"
+              - onFail: MARK_RAN
+              - onError: HALT
+              - or:
+                    - and:
+                          - dbms:
+                                type: postgresql
+                          - columnExists:
+                                tableName: event
+                                columnName: start_time
+                          - columnExists:
+                                tableName: event
+                                columnName: end_time
+                          - sqlCheck:
+                                expectedResult: "timestamp with time zone"
+                                sql: "SELECT data_type FROM information_schema.columns WHERE table_name = 'event' AND column_name = 'start_time'"
+                          - sqlCheck:
+                                expectedResult: "timestamp with time zone"
+                                sql: "SELECT data_type FROM information_schema.columns WHERE table_name = 'event' AND column_name = 'end_time'"
+                    - and:
+                          - dbms:
+                                type: h2
+                          - columnExists:
+                                tableName: event
+                                columnName: start_time
+                          - columnExists:
+                                tableName: event
+                                columnName: end_time
+                          - sqlCheck:
+                                expectedResult: "1"
+                                sql: |
+                                    SELECT COUNT(*) 
+                                    FROM INFORMATION_SCHEMA.COLUMNS 
+                                    WHERE UPPER(TABLE_NAME) = 'EVENT' 
+                                    AND UPPER(COLUMN_NAME) = 'START_TIME' 
+                                    AND UPPER(DATA_TYPE) LIKE 'TIMESTAMP%'
+                          - sqlCheck:
+                                expectedResult: "1"
+                                sql: |
+                                    SELECT COUNT(*) 
+                                    FROM INFORMATION_SCHEMA.COLUMNS 
+                                    WHERE UPPER(TABLE_NAME) = 'EVENT' 
+                                    AND UPPER(COLUMN_NAME) = 'END_TIME' 
+                                    AND UPPER(DATA_TYPE) LIKE 'TIMESTAMP%'
           comment: Change column type for start_time and end_time to timestamp
           changes:
               - modifyDataType:

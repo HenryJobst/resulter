@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.TestConfig;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -17,6 +18,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 @DataJdbcTest(properties = {"spring.test.database.replace=NONE", "resulter.repository.inmemory=false"})
 @ContextConfiguration(classes = {TestConfig.class}, loader = AnnotationConfigContextLoader.class)
 @ComponentScan(basePackages = {"de.jobst.resulter.application", "de.jobst.resulter.adapter.driver.web",

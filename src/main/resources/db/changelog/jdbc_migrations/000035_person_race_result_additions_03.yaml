@@ -1,37 +1,64 @@
-databaseChangeLog :
-    -   changeSet :
-            id : 000035_person_race_result_additions_03
-            author : Henry Jobst
-            comment : add column organisation_id to person_race_result
-            preConditions :
-                -   onFail : MARK_RAN
-                -   not :
-                        -   columnExists :
-                                tableName : person_race_result
-                                columnName : organisation_id
-            changes :
-                -   addColumn :
-                        tableName : person_race_result
-                        columns :
-                            -   column :
-                                    name : organisation_id
-                                    type : bigint
-                                    constraints :
-                                        nullable : true
-                                        foreignKeyName : fk_person_race_result_organisation
-                -   addForeignKeyConstraint :
-                        baseTableName : person_race_result
-                        baseColumnNames : organisation_id
-                        constraintName : fk_person_race_result_organisation
-                        referencedTableName : organisation
-                        referencedColumnNames : id
-                        onDelete : restrict
-                        onUpdate : restrict
-                - sql:
-                      sql: >
-                          UPDATE person_race_result prr
-                          SET organisation_id = pr.organisation_id
-                          FROM person_result pr
-                          WHERE prr.person_id = pr.person_id
-                          AND prr.class_result_short_name = pr.class_result_short_name
-                          AND prr.result_list_id = pr.result_list_id; 
+databaseChangeLog:
+    - changeSet:
+          id: 000035_person_race_result_additions_03
+          author: Henry Jobst
+          comment: add column organisation_id to person_race_result
+          preConditions:
+              - onFail: MARK_RAN
+              - not:
+                    - columnExists:
+                          tableName: person_race_result
+                          columnName: organisation_id
+          changes:
+              - addColumn:
+                    tableName: person_race_result
+                    columns:
+                        - column:
+                              name: organisation_id
+                              type: bigint
+                              constraints:
+                                  nullable: true
+              - addForeignKeyConstraint:
+                    baseTableName: person_race_result
+                    baseColumnNames: organisation_id
+                    constraintName: fk_person_race_result_organisation
+                    referencedTableName: organisation
+                    referencedColumnNames: id
+                    onDelete: restrict
+                    onUpdate: restrict
+    - changeSet:
+          id: 000035_person_race_result_additions_03_postgresql_update
+          author: Henry Jobst
+          comment: Update organisation_id in person_race_result (PostgreSQL)
+          preConditions:
+              - onFail: MARK_RAN
+              - dbms:
+                    type: postgresql
+          changes:
+              - sql:
+                    sql: >
+                        UPDATE person_race_result prr
+                        SET organisation_id = pr.organisation_id
+                        FROM person_result pr
+                        WHERE prr.person_id = pr.person_id
+                        AND prr.class_result_short_name = pr.class_result_short_name
+                        AND prr.result_list_id = pr.result_list_id;
+    - changeSet:
+          id: 000035_person_race_result_additions_03_h2_update
+          author: Henry Jobst
+          comment: Update organisation_id in person_race_result (H2)
+          preConditions:
+              - onFail: MARK_RAN
+              - dbms:
+                    type: h2
+          changes:
+              - sql:
+                    sql: >
+                        MERGE INTO person_race_result prr
+                        USING person_result pr ON (
+                            prr.person_id = pr.person_id
+                            AND prr.class_result_short_name = pr.class_result_short_name
+                            AND prr.result_list_id = pr.result_list_id
+                        )
+                        WHEN MATCHED THEN
+                            UPDATE SET prr.organisation_id = pr.organisation_id;

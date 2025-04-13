@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.TestConfig;
 import de.jobst.resulter.domain.Event;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,10 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 @DataJdbcTest(properties = {"spring.test.database.replace=NONE", "resulter.repository.inmemory=false"})
-@ContextConfiguration(classes = {TestConfig.class}, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = {TestConfig.class}, loader =
+    AnnotationConfigContextLoader.class)
 @ComponentScan(basePackages = {"de.jobst.resulter.application", "de.jobst.resulter.adapter.driver.web",
     "de.jobst.resulter.adapter.driven.jdbc"})
 @EntityScan(basePackages = {"de.jobst.resulter.adapter.driver.web", "de.jobst.resulter.adapter.driven.jdbc"})

@@ -5,6 +5,7 @@ import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { Ref } from 'vue'
 import FogCupResults from '@/features/cup/pages/FogCupResults.vue'
 import KristallCupResults from '@/features/cup/pages/KristallCupResults.vue'
+import KjPokalResults from '@/features/cup/pages/KjPokalResults.vue'
 import NorCupResults from '@/features/cup/pages/NorCupResults.vue'
 import { CupService } from '@/features/cup/services/cup.service'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
@@ -91,6 +92,12 @@ const aggregatedPersonScores: Ref<AggregatedPersonScores[]> = computed(
         />
         <FogCupResults
             v-if="cupData.type?.id === 'NEBEL'"
+            :cup-name="cupData.name"
+            :overall-scores="overallOrganisationScores"
+            :event-races-cup-scores="eventRacesCupScores"
+        />
+        <KjPokalResults
+            v-if="cupData.type?.id === 'KJ'"
             :cup-name="cupData.name"
             :overall-scores="overallOrganisationScores"
             :event-races-cup-scores="eventRacesCupScores"

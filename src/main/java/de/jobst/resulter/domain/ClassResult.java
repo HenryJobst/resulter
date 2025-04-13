@@ -1,6 +1,7 @@
 package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
+import de.jobst.resulter.domain.scoring.KJCalculationStrategy;
 import org.jmolecules.ddd.annotation.ValueObject;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -45,11 +46,20 @@ public record ClassResult(
         var organisationByPerson = personResults.stream()
                 .filter(v -> null != v.organisationId())
                 .collect(Collectors.toMap(PersonResult::personId, PersonResult::organisationId));
-        List<PersonRaceResult> personRaceResults = personResults.stream()
-                .flatMap(it -> it.personRaceResults().value().stream())
-                .filter(y -> y.getState().equals(ResultStatus.OK))
-                .sorted()
-                .toList();
+
+        List<PersonRaceResult> personRaceResults;
+        if (cupTypeCalculationStrategy instanceof KJCalculationStrategy) {
+            personRaceResults = personResults.stream()
+                    .flatMap(it -> it.personRaceResults().value().stream())
+                    .toList();
+        } else {
+            personRaceResults = personResults.stream()
+                    .flatMap(it -> it.personRaceResults().value().stream())
+                    .filter(y -> y.getState().equals(ResultStatus.OK))
+                    .sorted()
+                    .toList();
+        }
+
         return cupTypeCalculationStrategy.calculate(cup, personRaceResults, organisationByPerson);
     }
 }

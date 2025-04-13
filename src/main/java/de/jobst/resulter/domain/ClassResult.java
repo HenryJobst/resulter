@@ -51,6 +51,9 @@ public record ClassResult(
         if (cupTypeCalculationStrategy instanceof KJCalculationStrategy) {
             personRaceResults = personResults.stream()
                     .flatMap(it -> it.personRaceResults().value().stream())
+                    .filter(y -> !y.getState().equals(ResultStatus.NOT_COMPETING)
+                            && !y.getState().equals(ResultStatus.DID_NOT_START)
+                            && !y.getState().equals(ResultStatus.DID_NOT_ENTER))
                     .toList();
         } else {
             personRaceResults = personResults.stream()

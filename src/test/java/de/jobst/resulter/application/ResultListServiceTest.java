@@ -3,6 +3,7 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.domain.*;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -23,7 +24,10 @@ class ResultListServiceTest {
     public ResultListServiceTest() throws IOException {
         Properties properties = new Properties();
         properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("application.properties"));
-        mediaFilePath = properties.getProperty("resulter.media-file-path");
+        String rawValue = properties.getProperty("resulter.media-file-path");
+        Dotenv dotenv = Dotenv.load();
+        String resulterMediaFilePath = dotenv.get("RESULTER_MEDIA_FILE_PATH");
+        mediaFilePath = rawValue.replace("${RESULTER_MEDIA_FILE_PATH}", resulterMediaFilePath);
         mediaFileService = Mockito.mock(MediaFileService.class);
     }
 

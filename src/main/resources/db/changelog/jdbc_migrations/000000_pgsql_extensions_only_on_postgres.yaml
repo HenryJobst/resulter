@@ -1,10 +1,12 @@
 databaseChangeLog :
-    -   preConditions :
-            -   dbms :
-                    type : postgresql
     -   changeSet :
             id : 0000000_pgsql_extensions_only_on_postgres
             author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   onError : HALT
+                -   dbms :
+                        type : postgresql
             changes :
                 -   sql :
                         splitStatements : false

@@ -3,7 +3,7 @@ package de.jobst.resulter.domain.util;
 public class StringUtils {
 
     public static String formatAsName(String text) {
-        if (text == null || text.isEmpty()) {
+        if (text == null || text.isBlank()) {
             return "";
         }
 
@@ -12,13 +12,25 @@ public class StringUtils {
 
         for (int i = 0; i < text.length(); i++) {
             char ch = text.charAt(i);
-            boolean isSeparator = isSeparator(ch);
 
-            if (isSeparator) {
-                if (!result.isEmpty() && !isSeparator(result.charAt(result.length() - 1))) {
-                    result.append(ch);
+            if (Character.isWhitespace(ch)) {
+                // Append single space only if last char wasn't a space or joiner
+                if (!result.isEmpty() && result.charAt(result.length() - 1) != ' ' && !isJoiner(result.charAt(result.length() - 1))) {
+                    result.append(' ');
                 }
                 newWord = true;
+            } else if (isJoiner(ch)) {
+                // Remove trailing space if present
+                if (!result.isEmpty() && result.charAt(result.length() - 1) == ' ') {
+                    result.setLength(result.length() - 1);
+                }
+                result.append(ch);
+                newWord = true;
+
+                // 🔥 SKIP whitespace after the joiner
+                while (i + 1 < text.length() && Character.isWhitespace(text.charAt(i + 1))) {
+                    i++;
+                }
             } else {
                 result.append(newWord ? Character.toUpperCase(ch) : Character.toLowerCase(ch));
                 newWord = false;
@@ -28,11 +40,8 @@ public class StringUtils {
         return result.toString().trim();
     }
 
-    private static boolean isSeparator(char ch) {
-        return ch == ' ' || ch == '-' || ch == '/' || ch == '+';
+    private static boolean isJoiner(char ch) {
+        return ch == '-' || ch == '/' || ch == '+' || ch == '\'';
     }
 
-    private static boolean isSpace(char ch) {
-        return ch == ' ';
-    }
 }

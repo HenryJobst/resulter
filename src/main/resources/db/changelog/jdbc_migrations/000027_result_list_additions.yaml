@@ -3,21 +3,33 @@ databaseChangeLog :
             id : 000027_result_list_additions
             author : Henry Jobst
             preConditions :
-                -   onFail : MARK_RAN
-                -   columnExists :
-                        tableName : result_list
-                        columnName : create_time
-                -   sqlCheck :
-                        expectedResult : "timestamp with time zone"
-                        sql : |
-                            SELECT data_type
-                            FROM information_schema.columns
-                            WHERE table_name = 'result_list'
-                            AND column_name = 'create_time'
+                - onFail : MARK_RAN
+                - onError : HALT
+                - or :
+                    -   and :
+                            -   dbms :
+                                    type : postgresql
+                            -   sqlCheck :
+                                    expectedResult : "timestamp with time zone"
+                                    sql : |
+                                        SELECT data_type
+                                        FROM information_schema.columns
+                                        WHERE table_name = 'result_list'
+                                        AND column_name = 'create_time'
+                    -   and :
+                            -   dbms :
+                                    type : h2
+                            -   sqlCheck :
+                                    expectedResult : "1"
+                                    sql : |
+                                        SELECT COUNT(*) 
+                                        FROM INFORMATION_SCHEMA.COLUMNS 
+                                        WHERE UPPER(TABLE_NAME) = 'RESULT_LIST' 
+                                        AND UPPER(COLUMN_NAME) = 'CREATE_TIME' 
+                                        AND UPPER(DATA_TYPE) LIKE 'TIMESTAMP%'
             comment : Change column type for create_time to timestamp
             changes :
                 -   modifyDataType :
                         tableName : result_list
                         columnName : create_time
                         newDataType : timestamp
-

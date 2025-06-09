@@ -28,7 +28,7 @@
         <jaxb2-maven-plugin.version>3.3.0</jaxb2-maven-plugin.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
         <junit-jupiter-api.version>5.13.0</junit-jupiter-api.version>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.38</lombok.version>
         <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>

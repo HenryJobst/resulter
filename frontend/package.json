@@ -38,7 +38,7 @@
         "primevue": "^4.3.5",
         "spring-filter-query-builder": "^1.1.1",
         "vue": "^3.5.16",
-        "vue-i18n": "^11.1.5",
+        "vue-i18n": "^11.1.7",
         "vue-pdf-embed": "^2.1.2",
         "vue-router": "^4.5.1"
     },

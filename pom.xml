@@ -20,7 +20,7 @@
         <archunit.version>1.4.0</archunit.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
         <commons-text.version>1.13.1</commons-text.version>
-        <itext-core.version>8.0.5</itext-core.version>
+        <itext-core.version>9.2.0</itext-core.version>
         <jackson-databind.version>2.16.2</jackson-databind.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
         <java-uuid-generator.version>5.1.0</java-uuid-generator.version>

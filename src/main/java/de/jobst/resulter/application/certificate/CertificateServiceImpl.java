@@ -100,10 +100,10 @@ public class CertificateServiceImpl implements CertificateService {
                 text.setFont(textFont);
             }
             if (textBlock.text().bold()) {
-                text.setBold();
+                text.simulateBold();
             }
             if (textBlock.text().italic()) {
-                text.setItalic();
+                text.simulateItalic();
             }
         }
     }
@@ -115,21 +115,21 @@ public class CertificateServiceImpl implements CertificateService {
                 if (boldItalicFont != null) {
                     text.setFont(boldItalicFont);
                 } else {
-                    text.setBold();
-                    text.setItalic();
+                    text.simulateBold();
+                    text.simulateItalic();
                 }
             } else {
                 if (boldFont != null) {
                     text.setFont(boldFont);
                 } else {
-                    text.setBold();
+                    text.simulateBold();
                 }
             }
         } else if (textBlock.text().italic()) {
             if (italicFont != null) {
                 text.setFont(italicFont);
             } else {
-                text.setItalic();
+                text.simulateItalic();
             }
         }
     }

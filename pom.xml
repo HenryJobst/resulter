@@ -42,7 +42,7 @@
         <testcontainers.version>1.21.2</testcontainers.version>
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <tika-core.version>3.0.0</tika-core.version>
-        <turkraft-springfilter-core.version>3.1.9</turkraft-springfilter-core.version>
+        <turkraft-springfilter-core.version>3.2.0</turkraft-springfilter-core.version>
         <spotless-maven-plugin.version>2.44.5</spotless-maven-plugin.version>
         <google-java-format.version>1.25.2</google-java-format.version>
         <cleanthat.version>2.22</cleanthat.version>

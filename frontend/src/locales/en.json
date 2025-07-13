@@ -15,7 +15,10 @@
         "certificates": "Certificates",
         "login": "Login",
         "logout": "Logout",
-        "imprint": "Imprint"
+        "imprint": "Imprint",
+        "users": "Users",
+        "groups": "Groups",
+        "roles": "Roles"
     },
     "labels": {
         "no": "#",

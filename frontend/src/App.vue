@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import type { PrimeVueLocaleOptions } from 'primevue/config'
+import type { MenuItem } from 'primevue/menuitem'
 import type { Ref } from 'vue'
-import BackendVersion from '@/features/backend_version/BackendVersion.vue'
-import MessageDetailDialog from '@/features/common/components/MessageDetailDialog.vue'
-import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import moment from 'moment/min/moment-with-locales'
 import Button from 'primevue/button'
@@ -13,10 +10,14 @@ import ConfirmDialog from 'primevue/confirmdialog'
 import Menubar from 'primevue/menubar'
 import Select from 'primevue/select'
 import Toast from 'primevue/toast'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import BackendVersion from '@/features/backend_version/BackendVersion.vue'
+import MessageDetailDialog from '@/features/common/components/MessageDetailDialog.vue'
 
+import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { getFlagClass, SUPPORT_LOCALES } from './i18n'
 
 const router = useRouter()
@@ -89,46 +90,101 @@ watch(currentLocale, (val) => {
     localStorage.setItem('userLocale', val)
 })
 
-const navItems = reactive([
+const navItems = ref<Array<MenuItem>>([
     {
-        show: true,
-        route: { name: 'start-page', params: { locale } },
-        label: computed(() => t('navigations.start')),
+        key: 'start',
+        label: () => t('navigations.start'),
+        command: () => {
+            router.push({ name: 'start-page', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
     },
     {
-        show: true,
-        route: { name: 'cup-list', params: { locale } },
-        label: computed(() => t('navigations.cups')),
+        key: 'cups',
+        label: () => t('navigations.cups'),
+        command: () => {
+            router.push({ name: 'cup-list', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
     },
     {
-        show: true,
-        route: { name: 'event-list', params: { locale } },
-        label: computed(() => t('navigations.events')),
+        key: 'events',
+        label: () => t('navigations.events'),
+        command: () => {
+            router.push({ name: 'event-list', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
     },
     {
-        show: authStore.isAdmin,
-        route: { name: 'organisation-list', params: { locale } },
-        label: computed(() => t('navigations.organisations')),
+        key: 'organisations',
+        visible: !!authStore.isAdmin,
+        label: () => t('navigations.organisations'),
+        command: () => {
+            router.push({ name: 'organisation-list', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
     },
     {
-        show: authStore.isAdmin,
-        route: { name: 'person-list', params: { locale } },
-        label: computed(() => t('navigations.persons')),
+        key: 'users',
+        visible: !!authStore.isAdmin,
+        label: () => t('navigations.users'),
+        command: () => {
+            router.push({ name: 'user-list', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
     },
     {
-        show: authStore.isAdmin,
-        route: { name: 'media-list', params: { locale } },
-        label: computed(() => t('navigations.media-files')),
+        key: 'roles',
+        visible: !!authStore.isAdmin,
+        label: () => t('navigations.roles'),
+        command: () => {
+            router.push({ name: 'role-list', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
     },
     {
-        show: authStore.isAdmin,
-        route: { name: 'certificate-list', params: { locale } },
-        label: computed(() => t('navigations.certificates')),
+        key: 'groups',
+        visible: !!authStore.isAdmin,
+        label: () => t('navigations.groups'),
+        command: () => {
+            router.push({ name: 'group-list', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
     },
     {
-        show: true,
-        route: { name: 'about-page', params: { locale } },
-        label: computed(() => t('navigations.about')),
+        key: 'persons',
+        visible: !!authStore.isAdmin,
+        label: () => t('navigations.persons'),
+        command: () => {
+            router.push({ name: 'person-list', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
+    },
+    {
+        key: 'media',
+        visible: !!authStore.isAdmin,
+        label: () => t('navigations.media-files'),
+        command: () => {
+            router.push({ name: 'media-list', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
+    },
+    {
+        key: 'certificates',
+        visible: !!authStore.isAdmin,
+        label: () => t('navigations.certificates'),
+        command: () => {
+            router.push({ name: 'certificate-list', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
+    },
+    {
+        key: 'about',
+        label: () => t('navigations.about'),
+        command: () => {
+            router.push({ name: 'about-page', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
     },
 ])
 
@@ -160,11 +216,11 @@ function setDetails(details: string) {
                 >
             </template>
             <!-- Navigation -->
-            <template #item="{ item }">
+            <!-- template #item="{ item }">
                 <router-link v-if="item.show" :to="item.route">
                     <span class="mr-4 text-2xl">{{ item.label }}</span>
                 </router-link>
-            </template>
+            </template -->
             <template #end>
                 <!-- Sprachauswahl und Logout -->
                 <div class="flex flex-row flex-wrap justify-content-end align-items-center">

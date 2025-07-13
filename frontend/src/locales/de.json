@@ -15,7 +15,10 @@
         "certificates": "Urkunden",
         "login": "Login",
         "logout": "Logout",
-        "imprint": "Impressum"
+        "imprint": "Impressum",
+        "users": "Benutzer",
+        "groups": "Gruppen",
+        "roles": "Rollen"
     },
     "labels": {
         "no": "#",

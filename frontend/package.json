@@ -54,7 +54,7 @@
         "@playwright/test": "^1.53.0",
         "@rollup/plugin-dynamic-import-vars": "^2.1.5",
         "@rushstack/eslint-patch": "^1.11.0",
-        "@tailwindcss/postcss": "^4.1.8",
+        "@tailwindcss/postcss": "^4.1.12",
         "@tsconfig/node18": "^18.2.4",
         "@types/jsdom": "^21.1.7",
         "@types/moment-duration-format": "^2.2.6",

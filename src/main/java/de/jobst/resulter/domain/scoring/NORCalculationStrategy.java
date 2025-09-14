@@ -27,6 +27,7 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
             "D/H10B",
             "D/H10 B",
             "D/H10 Be",
+            "D/H12b",
             "D/H12B",
             "D/H12 Beg.",
             "D10B",

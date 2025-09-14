@@ -19,6 +19,7 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
             "BL",
             "Beg",
             "Trim",
+            "Hasen",
             "Beginner",
             "OffK",
             "OffL",

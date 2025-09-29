@@ -22,7 +22,7 @@
         <commons-text.version>1.13.1</commons-text.version>
         <itext-core.version>9.2.0</itext-core.version>
         <jackson-databind.version>2.16.2</jackson-databind.version>
-        <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
+        <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
         <java-uuid-generator.version>5.1.0</java-uuid-generator.version>
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jaxb2-maven-plugin.version>3.3.0</jaxb2-maven-plugin.version>

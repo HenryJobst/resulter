@@ -14,6 +14,7 @@
                 "Times-Roman",
                 "ZapfDingbats",
                 "Amaranth-Regular.ttf",
+                "Montserrat-Regular.ttf",
                 "Satisfy-Regular.ttf",
                 "Tangerine-Regular.ttf"
             ]
@@ -52,7 +53,8 @@
                         "Courier-Bold",
                         "Helvetica-Bold",
                         "Times-Bold",
-                        "Amaranth-Bold.ttf"
+                        "Amaranth-Bold.ttf",
+                        "Montserrat-Bold.ttf"
                     ]
                 },
                 "italicFont" : {
@@ -62,7 +64,8 @@
                         "Courier-Oblique",
                         "Helvetica-Oblique",
                         "Times-Italic",
-                        "Amaranth-Italic.ttf"
+                        "Amaranth-Italic.ttf",
+                        "Montserrat-Italic.ttf"
                     ]
                 },
                 "boldItalicFont" : {
@@ -72,7 +75,8 @@
                         "Courier-BoldOblique",
                         "Helvetica-BoldOblique",
                         "Times-BoldItalic",
-                        "Amaranth-BoldItalic.ttf"
+                        "Amaranth-BoldItalic.ttf",
+                        "Montserrat-BoldItalic.ttf"
                     ]
                 }
             },

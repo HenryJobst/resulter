@@ -64,6 +64,15 @@ export function setI18nLanguage(i18n: I18n, locale: Locale): void {
 
 const getResourceMessages = (r: any) => r.default || r
 
+function mergePrimeVueLocale(base: any, override: any) {
+    if (!base) return override
+    const result = { ...base, ...override }
+    if (base.aria || override?.aria) {
+        result.aria = { ...(base.aria || {}), ...(override?.aria || {}) }
+    }
+    return result
+}
+
 export async function loadLocaleMessages(i18n: I18n, locale: Locale) {
     // load locale messages
     const messages = await import(`./locales/${locale}.json`).then(getResourceMessages)
@@ -73,7 +82,7 @@ export async function loadLocaleMessages(i18n: I18n, locale: Locale) {
 
     // set primevue locale
     const { config } = usePrimeVue()
-    config.locale = primevueLocaleMessages[locale]
+    config.locale = mergePrimeVueLocale(config.locale, primevueLocaleMessages[locale])
 
     return nextTick()
 }

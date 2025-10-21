@@ -14,7 +14,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import Tooltip from 'primevue/tooltip'
-import { createApp } from 'vue'
+import { createApp, unref } from 'vue'
 import App from './App.vue'
 
 import { setupRouter } from './router'
@@ -23,6 +23,7 @@ import './assets/main.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
 import 'flag-icons/css/flag-icons.min.css'
+import { primevueLocaleMessages } from '@/PrimevueMessages'
 
 const savedLocale = localStorage.getItem('userLocale')
 // get user language from browser
@@ -94,12 +95,21 @@ const MyPreset = definePreset(Lara, {
     },
 })
 
+function mergePrimeVueLocale(base: any, override: any) {
+    if (!base) return override
+    const result = { ...base, ...override }
+    if (base.aria || override?.aria) {
+        result.aria = { ...(base.aria || {}), ...(override?.aria || {}) }
+    }
+    return result
+}
+
 function renderApp() {
     const app = createApp(App)
     app.directive('tooltip', Tooltip)
     app.use(PrimeVue, {
         ripple: true,
-        locale: i18n.global.locale,
+        locale: primevueLocaleMessages[unref(i18n.global.locale) as string],
         theme: {
             preset: MyPreset,
             options: {
@@ -109,6 +119,11 @@ function renderApp() {
             },
         },
     })
+    // Ensure PrimeVue locale keeps defaults while applying our overrides
+    const primevue = app.config.globalProperties.$primevue
+    if (primevue?.config) {
+        primevue.config.locale = mergePrimeVueLocale(primevue.config.locale, primevueLocaleMessages[unref(i18n.global.locale) as string])
+    }
     app.use(AuthStorePlugin, { pinia })
     app.use(VueQueryPlugin)
     app.use(ToastService)

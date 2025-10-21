@@ -19,6 +19,7 @@ import MessageDetailDialog from '@/features/common/components/MessageDetailDialo
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { getFlagClass, SUPPORT_LOCALES } from './i18n'
+import { primevueLocaleMessages } from '@/PrimevueMessages'
 
 const router = useRouter()
 const { t, locale } = useI18n()
@@ -27,11 +28,14 @@ const authStore = useAuthStore()
 const currentLocale = ref(locale.value)
 const fullUrl = ref('')
 
-interface LocaleMessages {
-    [key: string]: PrimeVueLocaleOptions
+function mergePrimeVueLocale(base: any, override: any) {
+    if (!base) return override
+    const result = { ...base, ...override }
+    if (base.aria || override?.aria) {
+        result.aria = { ...(base.aria || {}), ...(override?.aria || {}) }
+    }
+    return result
 }
-
-const primeVueLocales: Ref<LocaleMessages> = ref({})
 
 const primevue = usePrimeVue()
 
@@ -59,20 +63,14 @@ function cleanUrl(url: string) {
 async function switchPrimeVueLocale(locale: string) {
     if (!locale)
         return
-    // noinspection SpellCheckingInspection
-    if (!primeVueLocales.value[locale]) {
-        try {
-            // noinspection TypeScriptCheckImport
-            const module = await import(`./locales/primevue/${locale}.json`)
-            primeVueLocales.value[locale] = module.default[locale]
-        }
-        catch (error) {
-            console.error('Failed to load locale:', error)
-        }
+
+    const override = primevueLocaleMessages[locale as keyof typeof primevueLocaleMessages]
+    if (!override) {
+        console.warn(`No PrimeVue locale for "${locale}", keeping current locale`)
+        return
     }
 
-    const primeVueLocale = primeVueLocales.value[locale]
-    Object.assign(primevue.config.locale!, primeVueLocale)
+    primevue.config.locale = mergePrimeVueLocale(primevue.config.locale, override)
 }
 
 function showImprint() {

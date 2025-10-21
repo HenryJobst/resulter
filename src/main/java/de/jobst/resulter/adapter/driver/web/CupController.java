@@ -94,7 +94,7 @@ public class CupController {
         return CupDetailedDto.from(ObjectUtils.isNotEmpty(cupDetailed.getId()) ? cupDetailed.getId().value() : 0,
             cupDetailed.getName().value(),
             CupTypeDto.from(cupDetailed.getType()),
-            cupDetailed.getEventIds().stream().map(x -> EventKeyDto.from(eventService.getById(x))).toList(),
+            cupDetailed.getEventIds().stream().map(x -> EventKeyDto.from(eventService.getById(x))).sorted().toList(),
             cupDetailed.getEventRacesCupScore()
                 .stream()
                 .map(x -> EventRacesCupScoreDto.from(x, organisationService, countryService, eventCertificateService))

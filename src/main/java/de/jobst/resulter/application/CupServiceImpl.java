@@ -106,7 +106,7 @@ public class CupServiceImpl implements CupService {
 
         var strategy = cup.getCupTypeCalculationStrategy(null);
 
-        List<Event> events = eventService.getByIds(cup.getEventIds());
+        List<Event> events = eventService.getByIds(cup.getEventIds()).stream().sorted().toList();
         ClassResultAggregationResult classResultAggregationResult =
                 cup.getType().isGroupedByOrganisation()
                         ? null

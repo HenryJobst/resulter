@@ -51,7 +51,7 @@
         "@nx/vue": "21.5.3",
         "@nx/web": "21.5.3",
         "@pinia/testing": "^1.0.2",
-        "@playwright/test": "^1.55.0",
+        "@playwright/test": "^1.56.1",
         "@rollup/plugin-dynamic-import-vars": "^2.1.5",
         "@rushstack/eslint-patch": "^1.12.0",
         "@tailwindcss/postcss": "^4.1.13",

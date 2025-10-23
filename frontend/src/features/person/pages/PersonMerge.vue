@@ -50,6 +50,7 @@ function mergePerson() {
     PersonService.merge(Number.parseInt(props.id), removeId, t).then(() => {
         personForMerge.value = null
         queryClient.removeQueries({ queryKey: [...queryKey, removeId], exact: true })
+        queryClient.removeQueries({ queryKey: [PERSON_DOUBLES, removeId], exact: true })
         queryClient.invalidateQueries({ queryKey: [PERSON_DOUBLES], refetchType: 'all' })
         toast.add({
             severity: 'info',

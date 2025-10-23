@@ -89,10 +89,9 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
         if (personRaceResultJdbcDtos.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.ofNullable(PersonRaceResultJdbcDto.asResultLists(personRaceResultJdbcDtos)
+        return PersonRaceResultJdbcDto.asResultLists(personRaceResultJdbcDtos)
             .stream()
-            .findFirst()
-            .orElse(null));
+            .findFirst();
     }
 
     @Override
@@ -116,21 +115,18 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
-        if (resultListJdbcRepository.existsByPersonIdInPersonRaceResult(oldPersonId.value())) {
-            long updatedRows =
-                resultListJdbcRepository.replacePersonIdInPersonRaceResult(oldPersonId.value(), newPersonId.value());
-                log.debug("Updated {} rows in person_race_result with person_id {} to person_id {}",
-                    updatedRows,
-                    oldPersonId,
-                    newPersonId);
-        }
-        if (resultListJdbcRepository.existsByPersonId(oldPersonId.value())) {
-            long updatedRows =
-                resultListJdbcRepository.replacePersonIdInPersonResult(oldPersonId.value(), newPersonId.value());
-            log.debug("Updated {} rows in person_result with person_id {} to person_id {}",
-                updatedRows,
-                oldPersonId,
-                newPersonId);
-        }
+        // 1. Clone parent rows (person_result) for the new person
+        long clonedRows = resultListJdbcRepository.cloneResultsForPerson(oldPersonId.value(), newPersonId.value());
+        log.debug("Cloned {} rows in person_result from person_id {} to {}", clonedRows, oldPersonId, newPersonId);
+
+        // 2. Update child rows (person_race_result) to point to new person
+        long updatedChildRows = resultListJdbcRepository.replacePersonIdInPersonRaceResult(oldPersonId.value(),
+            newPersonId.value());
+        log.debug("Updated {} rows in person_race_result from person_id {} to {}", updatedChildRows, oldPersonId, newPersonId);
+
+        // 3. Delete old parent rows
+        long deletedRows = resultListJdbcRepository.deleteByPersonId(oldPersonId.value());
+        log.debug("Deleted {} old rows in person_result with person_id {}", deletedRows, oldPersonId);
+
     }
 }

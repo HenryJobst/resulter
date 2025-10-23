@@ -20,7 +20,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     Collection<ResultListDbo> findAll();
 
     @Query("""
-           SELECT DISTINCT 
+           SELECT DISTINCT
                rl.event_id, rl.id AS result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
                cl.short_name AS class_list_short_name, cl.name AS class_list_name, cl.gender AS class_gender, cl.course_id,
                pr.person_id, pr.organisation_id,
@@ -83,29 +83,6 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
                                                        @Param("createTime") Timestamp createTime,
                                                        @Param("createTimeZone") String createTimeZone);
 
-    @Query("""
-    SELECT COUNT(p) > 0
-    FROM person_result p
-    WHERE p.person_id = :oldPersonId
-    """)
-    boolean existsByPersonId(@Param("oldPersonId") Long oldPersonId);
-
-    @Modifying
-    @Query("""
-        UPDATE person_result
-        SET person_id = :newPersonId
-        WHERE person_id = :oldPersonId;
-        """)
-    long replacePersonIdInPersonResult(@Param("oldPersonId") Long oldPersonId,
-                                       @Param("newPersonId") Long newPersonId);
-
-    @Query("""
-    SELECT COUNT(p) > 0
-    FROM person_race_result p
-    WHERE p.person_id = :oldPersonId
-    """)
-    boolean existsByPersonIdInPersonRaceResult(@Param("oldPersonId") Long oldPersonId);
-
     @Modifying
     @Query("""
         UPDATE person_race_result
@@ -115,4 +92,17 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     long replacePersonIdInPersonRaceResult(@Param("oldPersonId") Long oldPersonId,
                                            @Param("newPersonId") Long newPersonId);
 
+    @Modifying
+    @Query(value = """
+        INSERT INTO person_result (person_id, class_result_short_name, result_list_id, organisation_id)
+        SELECT :newPersonId, class_result_short_name, result_list_id, organisation_id
+        FROM person_result
+        WHERE person_id = :oldPersonId
+        ON CONFLICT DO NOTHING
+        """)
+    long cloneResultsForPerson(@Param("oldPersonId") Long oldPersonId, @Param("newPersonId") Long newPersonId);
+
+    @Modifying
+    @Query("DELETE FROM public.person_result pr WHERE pr.person_id = :personId")
+    long deleteByPersonId(@Param("personId") Long personId);
 }

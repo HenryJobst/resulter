@@ -43,3 +43,5 @@ coverage
 **/vite.config.{js,ts,mjs,mts,cjs,cts}.timestamp*
 
 .unlighthouse
+/bbm-sprint-2025.xml
+/bbm-sprint-2025-bbm.xml

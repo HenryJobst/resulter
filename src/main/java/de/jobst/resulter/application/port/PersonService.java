@@ -29,7 +29,25 @@ public interface PersonService {
     @NonNull
     Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender);
 
+    /**
+     * Unified search for persons with optional duplicate mode.
+     * @param filter optional filter expression
+     * @param pageable pageable and sort information
+     * @param duplicates when true, only persons that have potential duplicates are returned
+     */
+    Page<Person> findAllOrPossibleDuplicates(@Nullable String filter, @NonNull Pageable pageable, boolean duplicates);
+
+    /**
+     * Deprecated: use {@link #findAllOrPossibleDuplicates(String, Pageable, boolean)} with duplicates=false
+     */
+    @Deprecated
     Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable);
+
+    /**
+     * Deprecated: use {@link #findAllOrPossibleDuplicates(String, Pageable, boolean)} with duplicates=true
+     */
+    @Deprecated
+    Page<Person> findDuplicates(@Nullable String filter, @NonNull Pageable pageable);
 
     List<Person> findDoubles(PersonId personId);
 

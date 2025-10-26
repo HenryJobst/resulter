@@ -100,7 +100,8 @@
         "detail": "Detail|Details",
         "timestamp": "Zeitstempel",
         "select_language": "Sprache auswählen",
-        "defaultImpressText": "Impressum nicht gesetzt!"
+        "defaultImpressText": "Impressum nicht gesetzt!",
+        "possible_duplicates": "mögliche Dopplungen"
     },
     "result_state": {
         "OK": "OK",

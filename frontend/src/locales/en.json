@@ -100,7 +100,8 @@
         "detail": "Detail|Details",
         "timestamp": "Timestamp",
         "select_language": "Select language",
-        "defaultImpressText": "Impress not set!"
+        "defaultImpressText": "Impress not set!",
+        "possible_duplicates": "possible duplicates"
     },
     "messages": {
         "new_cup": "New cup",

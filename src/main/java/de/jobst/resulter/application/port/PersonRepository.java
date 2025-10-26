@@ -31,5 +31,7 @@ public interface PersonRepository {
 
     Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable);
 
+    Page<Person> findDuplicates(@Nullable String filter, @NonNull Pageable pageable);
+
     void delete(Person person);
 }

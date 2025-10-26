@@ -3,15 +3,15 @@ import type { GenericListColumn } from '@/features/generic/models/GenericListCol
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import GenericList from '@/features/generic/pages/GenericList.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import { personService } from '@/features/person/services/person.service'
+import { personService, duplicatePersonService } from '@/features/person/services/person.service'
 import Button from 'primevue/button'
-import { computed } from 'vue'
+import Checkbox from 'primevue/checkbox'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
 const { t } = useI18n()
 
-const queryKey: string = 'persons'
 const entityLabel: string = 'person'
 const settingStoreSuffix: string = 'person'
 const listLabel = computed(() => t('labels.person', 2))
@@ -44,45 +44,54 @@ const initialTableSettings: TableSettings = {
     scrollable: true,
     stripedRows: true,
 }
+
+const duplicatesOnly = ref(false)
+const currentService = computed(() => (duplicatesOnly.value ? duplicatePersonService : personService))
+const queryKey = computed(() => (duplicatesOnly.value ? 'persons-duplicates' : 'persons'))
 </script>
 
 <template>
-    <GenericList
-        v-if="authStore.isAdmin"
-        :entity-service="personService"
-        :query-key="queryKey"
-        :list-label="listLabel"
-        :entity-label="entityLabel"
-        router-prefix="person"
-        :settings-store-suffix="settingStoreSuffix"
-        :columns="columns"
-        :changeable="authStore.isAdmin"
-        :enum-type-label-prefixes="new Map([['gender', 'gender.']])"
-        filter-display="row"
-        :visible="authStore.isAdmin"
-        :initial-table-settings="initialTableSettings"
-    >
-        <template #extra_row_actions="{ value }">
-            <router-link
-                v-if="authStore.isAdmin"
-                :to="{
-                    name: `person-merge`,
-                    params: { id: value.id },
-                }"
-            >
-                <Button
+    <div v-if="authStore.isAdmin">
+        <div class="mb-3 flex align-items-center">
+            <Checkbox v-model="duplicatesOnly" :binary="true" input-id="duplicatesOnly" class="mr-2" />
+            <label for="duplicatesOnly">{{ t('labels.possible_duplicates') }}</label>
+        </div>
+        <GenericList
+            :entity-service="currentService"
+            :query-key="queryKey"
+            :list-label="listLabel"
+            :entity-label="entityLabel"
+            router-prefix="person"
+            :settings-store-suffix="settingStoreSuffix"
+            :columns="columns"
+            :changeable="authStore.isAdmin"
+            :enum-type-label-prefixes="new Map([['gender', 'gender.']])"
+            filter-display="row"
+            :visible="authStore.isAdmin"
+            :initial-table-settings="initialTableSettings"
+        >
+            <template #extra_row_actions="{ value }">
+                <router-link
                     v-if="authStore.isAdmin"
-                    v-tooltip="t('labels.merge')"
-                    icon="pi pi-link"
-                    class="mr-2 my-1"
-                    :aria-label="t('labels.merge')"
-                    outlined
-                    raised
-                    rounded
-                />
-            </router-link>
-        </template>
-    </GenericList>
+                    :to="{
+                        name: `person-merge`,
+                        params: { id: value.id },
+                    }"
+                >
+                    <Button
+                        v-if="authStore.isAdmin"
+                        v-tooltip="t('labels.merge')"
+                        icon="pi pi-link"
+                        class="mr-2 my-1"
+                        :aria-label="t('labels.merge')"
+                        outlined
+                        raised
+                        rounded
+                    />
+                </router-link>
+            </template>
+        </GenericList>
+    </div>
 </template>
 
 <style scoped>

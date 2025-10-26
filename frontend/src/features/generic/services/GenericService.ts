@@ -55,10 +55,10 @@ function createUrlSearchParams(tableSettings: TableSettings) {
     }
 
     if (tableSettings.paginator) {
-        if (tableSettings.page)
+        if (tableSettings.page !== undefined && tableSettings.page !== null)
             urlSearchParams.append('page', tableSettings.page.toString())
 
-        if (tableSettings.rows)
+        if (tableSettings.rows !== undefined && tableSettings.rows !== null)
             urlSearchParams.append('size', tableSettings.rows.toString())
     }
 
@@ -92,6 +92,12 @@ export class GenericService<T> implements IGenericService<T> {
         this.endpoint = endpoint
     }
 
+    // Hook for subclasses to inject fixed query params (e.g., duplicates=true)
+    // Return a simple map; values will be converted to strings.
+    protected getExtraParams(): Record<string, string | number | boolean> {
+        return {}
+    }
+
     async getAll(
         t: (key: string) => string,
         tableSettings?: TableSettings,
@@ -99,6 +105,14 @@ export class GenericService<T> implements IGenericService<T> {
         const urlSearchParams = tableSettings
             ? createUrlSearchParams(tableSettings)
             : new URLSearchParams()
+        // Merge in extra params from subclass hook
+        const extras = this.getExtraParams()
+        Object.keys(extras).forEach(k => {
+            const v = extras[k]
+            if (v !== undefined && v !== null) {
+                urlSearchParams.set(k, String(v))
+            }
+        })
         return await axiosInstance
             .get<RestPageResult<T>>(`${this.endpoint}`, { params: urlSearchParams })
             .then(response => response.data)

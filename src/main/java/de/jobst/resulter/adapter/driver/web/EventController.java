@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -63,6 +60,7 @@ public class EventController {
         List<Event> events = eventService.findAll();
         return ResponseEntity.ok(events.stream()
                 .map(x -> EventDto.from(x, organisationService, eventCertificateService))
+                .sorted(Comparator.reverseOrder())
                 .toList());
     }
 

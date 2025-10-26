@@ -3,10 +3,12 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.Event;
-import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
+
+import java.util.List;
+import java.util.Objects;
 
 public record EventDto(
         Long id,
@@ -14,7 +16,7 @@ public record EventDto(
         String startTime,
         EventStatusDto state,
         List<OrganisationKeyDto> organisations,
-        EventCertificateKeyDto certificate) {
+        EventCertificateKeyDto certificate) implements Comparable<EventDto> {
 
     public static EventDto from(
             Event event, OrganisationService organisationService, EventCertificateService eventCertificateService) {
@@ -59,5 +61,19 @@ public record EventDto(
             case "organisations" -> "organisations";
             default -> order.getProperty();
         };
+    }
+
+    @Override
+    public int compareTo(@NonNull EventDto o) {
+        int val = (Objects.nonNull(this.startTime) && Objects.nonNull(o.startTime)
+                   ? this.startTime.compareTo(o.startTime)
+                   : (this.startTime == o.startTime ? 0 : (Objects.nonNull(this.startTime) ? -1 : 1)));
+        if (val == 0) {
+            val = this.name.compareTo(o.name);
+        }
+        if (val == 0) {
+            val = this.id().compareTo(o.id());
+        }
+        return val;
     }
 }

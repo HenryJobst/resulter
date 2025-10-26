@@ -91,10 +91,11 @@ public class CupController {
 
     @NonNull
     private CupDetailedDto createCupDetailedDto(CupDetailed cupDetailed) {
+        List<EventKeyDto> eventKeyDtos =
+            cupDetailed.getEventIds().stream().map(x -> EventKeyDto.from(eventService.getById(x))).sorted().toList();
         return CupDetailedDto.from(ObjectUtils.isNotEmpty(cupDetailed.getId()) ? cupDetailed.getId().value() : 0,
             cupDetailed.getName().value(),
-            CupTypeDto.from(cupDetailed.getType()),
-            cupDetailed.getEventIds().stream().map(x -> EventKeyDto.from(eventService.getById(x))).sorted().toList(),
+            CupTypeDto.from(cupDetailed.getType()), eventKeyDtos,
             cupDetailed.getEventRacesCupScore()
                 .stream()
                 .map(x -> EventRacesCupScoreDto.from(x, organisationService, countryService, eventCertificateService))

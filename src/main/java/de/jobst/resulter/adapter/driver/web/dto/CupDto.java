@@ -2,9 +2,10 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.domain.Cup;
-import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
+
+import java.util.List;
 
 public record CupDto(Long id, String name, CupTypeDto type, Integer year, List<EventKeyDto> events) {
 
@@ -16,6 +17,7 @@ public record CupDto(Long id, String name, CupTypeDto type, Integer year, List<E
                 cup.getYear().getValue(),
                 cup.getEventIds().stream()
                         .map(x -> EventKeyDto.from(eventService.getById(x)))
+                        .sorted()
                         .toList());
     }
 

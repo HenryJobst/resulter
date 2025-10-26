@@ -152,6 +152,7 @@ function pageChanged(e: DataTablePageEvent) {
     console.log(`Pageable: ${prettyPrint(settingsStore.settings.paginator)}`)
     console.log(`Paginator position: ${prettyPrint(settingsStore.settings.paginatorPosition)}`)
     */
+    settingsStore.settings.first = e.first
     settingsStore.setPage(e.page)
     settingsStore.settings.rows = e.rows
     settingsStore.settings.multiSortMeta = e.multiSortMeta

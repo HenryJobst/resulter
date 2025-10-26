@@ -25,16 +25,18 @@ public class PersonServiceImpl implements PersonService {
     private final ResultListRepository resultListRepository;
     private final SplitTimeListRepository splitTimeListRepository;
     private final CupScoreListRepository cupScoreListRepository;
+    private final EventCertificateStatRepository eventCertificateStatRepository;
 
     public PersonServiceImpl(
-            PersonRepository personRepository,
-            ResultListRepository resultListRepository,
-            SplitTimeListRepository splitTimeListRepository,
-            CupScoreListRepository cupScoreListRepository) {
+        PersonRepository personRepository,
+        ResultListRepository resultListRepository,
+        SplitTimeListRepository splitTimeListRepository,
+        CupScoreListRepository cupScoreListRepository, EventCertificateStatRepository eventCertificateStatRepository) {
         this.personRepository = personRepository;
         this.resultListRepository = resultListRepository;
         this.splitTimeListRepository = splitTimeListRepository;
         this.cupScoreListRepository = cupScoreListRepository;
+        this.eventCertificateStatRepository = eventCertificateStatRepository;
     }
 
     private static boolean isJaroWinklerSimilar(double similarity) {
@@ -180,6 +182,7 @@ public class PersonServiceImpl implements PersonService {
         resultListRepository.replacePersonId(merge.getId(), person.getId());
         splitTimeListRepository.replacePersonId(merge.getId(), person.getId());
         cupScoreListRepository.replacePersonId(merge.getId(), person.getId());
+        eventCertificateStatRepository.replacePersonId(merge.getId(), person.getId());
     }
 
     record PersonSimilarity(Person person, double similarity) {}

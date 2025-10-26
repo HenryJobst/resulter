@@ -1,9 +1,6 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.application.port.CupScoreListRepository;
-import de.jobst.resulter.application.port.PersonRepository;
-import de.jobst.resulter.application.port.ResultListRepository;
-import de.jobst.resulter.application.port.SplitTimeListRepository;
+import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
@@ -27,7 +24,9 @@ class PersonServiceTest {
         ResultListRepository resultListRepository = Mockito.mock(ResultListRepository.class);
         SplitTimeListRepository splitTimeListRepository = Mockito.mock(SplitTimeListRepository.class);
         CupScoreListRepository cupScoreListRepository = Mockito.mock(CupScoreListRepository.class);
-        personService = new PersonServiceImpl(personRepository, resultListRepository, splitTimeListRepository, cupScoreListRepository);
+        EventCertificateStatRepository eventCertificateStatRepository = Mockito.mock(EventCertificateStatRepository.class);
+        personService = new PersonServiceImpl(personRepository, resultListRepository, splitTimeListRepository,
+            cupScoreListRepository, eventCertificateStatRepository);
     }
 
     @Test

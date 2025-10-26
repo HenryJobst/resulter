@@ -153,4 +153,9 @@ public class EventCertificateStatRepositoryDataJdbcAdapter implements EventCerti
     public void deleteById(EventCertificateStatId id) {
         eventCertificateStatJdbcRepository.deleteById(id.value());
     }
+
+    @Override
+    public long replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
+        return eventCertificateStatJdbcRepository.replacePersonId(oldPersonId.value(), newPersonId.value());
+    }
 }

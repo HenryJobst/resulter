@@ -37,12 +37,32 @@ public class PersonController {
     }
 
     @GetMapping("/person")
-    public ResponseEntity<Page<PersonDto>> searchPersons(@RequestParam Optional<String> filter, Pageable pageable) {
-        Page<Person> persons = personService.findAll(
+    public ResponseEntity<Page<PersonDto>> searchPersons(@RequestParam Optional<String> filter,
+                                                         @RequestParam Optional<Boolean> duplicates,
+                                                         Pageable pageable) {
+        boolean dup = duplicates.orElse(false);
+        Pageable mapped = pageable != null
+                ? FilterAndSortConverter.mapOrderProperties(pageable, PersonDto::mapOrdersDtoToDomain)
+                : Pageable.unpaged();
+        Page<Person> persons = personService.findAllOrPossibleDuplicates(
                 filter.orElse(null),
-                pageable != null
-                        ? FilterAndSortConverter.mapOrderProperties(pageable, PersonDto::mapOrdersDtoToDomain)
-                        : Pageable.unpaged());
+                mapped,
+                dup);
+        return ResponseEntity.ok(new PageImpl<>(
+                persons.getContent().stream().map(PersonDto::from).toList(),
+                FilterAndSortConverter.mapOrderProperties(persons.getPageable(), PersonDto::mapOrdersDomainToDto),
+                persons.getTotalElements()));
+    }
+
+    @GetMapping("/person/duplicates")
+    public ResponseEntity<Page<PersonDto>> searchDuplicatePersons(@RequestParam Optional<String> filter, Pageable pageable) {
+        Pageable mapped = pageable != null
+                ? FilterAndSortConverter.mapOrderProperties(pageable, PersonDto::mapOrdersDtoToDomain)
+                : Pageable.unpaged();
+        Page<Person> persons = personService.findAllOrPossibleDuplicates(
+                filter.orElse(null),
+                mapped,
+                true);
         return ResponseEntity.ok(new PageImpl<>(
                 persons.getContent().stream().map(PersonDto::from).toList(),
                 FilterAndSortConverter.mapOrderProperties(persons.getPageable(), PersonDto::mapOrdersDomainToDto),

@@ -91,8 +91,20 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    public Page<Person> findAllOrPossibleDuplicates(@Nullable String filter, @NonNull Pageable pageable, boolean duplicates) {
+        return duplicates ? personRepository.findDuplicates(filter, pageable) : personRepository.findAll(filter, pageable);
+    }
+
+    @Override
+    @Deprecated
     public Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable) {
-        return personRepository.findAll(filter, pageable);
+        return findAllOrPossibleDuplicates(filter, pageable, false);
+    }
+
+    @Override
+    @Deprecated
+    public Page<Person> findDuplicates(@Nullable String filter, @NonNull Pageable pageable) {
+        return findAllOrPossibleDuplicates(filter, pageable, true);
     }
 
     @Override

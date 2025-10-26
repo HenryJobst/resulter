@@ -72,6 +72,29 @@ public class InMemoryPersonRepository implements PersonRepository {
     }
 
     @Override
+    public Page<Person> findDuplicates(String filter, @NonNull Pageable pageable) {
+        // simple in-memory implementation for tests/dev
+        List<Person> all = new ArrayList<>(persons.values());
+        // optional basic filter on familyName/givenName/id substrings when filter string is simple like "familyName=='X'"
+        // For simplicity, ignore complex filters here.
+        Map<String, Long> counts = new HashMap<>();
+        for (Person p : all) {
+            String key = p.getPersonName().familyName().value() + "\u0000" + p.getPersonName().givenName().value();
+            counts.put(key, counts.getOrDefault(key, 0L) + 1);
+        }
+        List<Person> duplicates = all.stream()
+                .filter(p -> counts.getOrDefault(p.getPersonName().familyName().value() + "\u0000" + p.getPersonName().givenName().value(), 0L) > 1)
+                .sorted()
+                .toList();
+        int pageSize = pageable.isPaged() ? pageable.getPageSize() : duplicates.size();
+        int pageNumber = pageable.isPaged() ? pageable.getPageNumber() : 0;
+        int fromIndex = Math.min(pageNumber * pageSize, duplicates.size());
+        int toIndex = Math.min(fromIndex + pageSize, duplicates.size());
+        List<Person> content = duplicates.subList(fromIndex, toIndex);
+        return new PageImpl<>(content, pageable, duplicates.size());
+    }
+
+    @Override
     public void delete(Person person) {
         persons.remove(person.getId());
     }

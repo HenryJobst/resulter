@@ -38,4 +38,15 @@ export class PersonService extends GenericService<Person> {
     }
 }
 
+class DuplicatePersonService extends GenericService<Person> {
+    constructor() {
+        super(personUrl)
+    }
+
+    protected getExtraParams(): Record<string, string | number | boolean> {
+        return { duplicates: true }
+    }
+}
+
 export const personService = new PersonService()
+export const duplicatePersonService = new DuplicatePersonService()

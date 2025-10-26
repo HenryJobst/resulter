@@ -3,6 +3,7 @@ package de.jobst.resulter.application.port;
 import de.jobst.resulter.domain.EventCertificateStat;
 import de.jobst.resulter.domain.EventCertificateStatId;
 import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.PersonId;
 import org.jmolecules.architecture.hexagonal.SecondaryPort;
 import org.jmolecules.ddd.annotation.Repository;
 import org.springframework.data.domain.Page;
@@ -34,4 +35,6 @@ public interface EventCertificateStatRepository {
     void deleteAllByEventId(EventId eventId);
 
     void deleteById(EventCertificateStatId id);
+
+    long replacePersonId(PersonId oldPersonId, PersonId newPersonId);
 }

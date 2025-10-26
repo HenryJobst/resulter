@@ -4,12 +4,7 @@ import de.jobst.resulter.application.port.EventCertificateStatRepository;
 import de.jobst.resulter.domain.EventCertificateStat;
 import de.jobst.resulter.domain.EventCertificateStatId;
 import de.jobst.resulter.domain.EventId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import de.jobst.resulter.domain.PersonId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
@@ -18,6 +13,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -62,6 +64,11 @@ public class InMemoryEventCertificateStatRepository implements EventCertificateS
         eventCertificateStats.remove(id);
         savedEventCertificateStats.removeIf(
                 eventCertificate -> eventCertificate.getId().equals(id));
+    }
+
+    @Override
+    public long replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override

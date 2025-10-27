@@ -89,7 +89,7 @@
         "vite-plugin-vue-devtools": "^8.0.2",
         "vitest": "^3.2.4",
         "vue-mess-detector": "^0.67.0",
-        "vue-tsc": "^3.0.8"
+        "vue-tsc": "^3.1.2"
     },
     "simple-git-hooks": {
         "pre-commit": "pnpm lint-staged"

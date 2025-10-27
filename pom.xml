@@ -30,7 +30,7 @@
         <junit-jupiter-api.version>5.13.1</junit-jupiter-api.version>
         <lombok.version>1.18.38</lombok.version>
         <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <micrometer-bom.version>1.15.4</micrometer-bom.version>
         <mockito-core.version>5.15.2</mockito-core.version>

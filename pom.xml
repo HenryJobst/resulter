@@ -47,7 +47,7 @@
         <google-java-format.version>1.25.2</google-java-format.version>
         <cleanthat.version>2.22</cleanthat.version>
         <eclipse-jdt.version>4.34</eclipse-jdt.version>
-        <equalsverifier.version>4.1.1</equalsverifier.version>
+        <equalsverifier.version>4.2</equalsverifier.version>
         <dotenv-java.version>3.2.0</dotenv-java.version>
         <jmolecules-archunit.version>1.6.0</jmolecules-archunit.version>
         <jmolecules-bom.version>2023.3.4</jmolecules-bom.version>

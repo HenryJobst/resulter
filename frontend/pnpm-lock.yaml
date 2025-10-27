@@ -15,11 +15,11 @@ importers:
         specifier: ^1.2.3
         version: 1.2.3
       '@tanstack/vue-query':
-        specifier: ^5.90.1
-        version: 5.90.1(vue@3.5.21(typescript@5.9.2))
+        specifier: ^5.90.5
+        version: 5.90.5(vue@3.5.21(typescript@5.9.2))
       '@tanstack/vue-query-devtools':
         specifier: ^5.90.1
-        version: 5.90.1(@tanstack/vue-query@5.90.1(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))
+        version: 5.90.1(@tanstack/vue-query@5.90.5(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))
       '@vueuse/core':
         specifier: ^13.9.0
         version: 13.9.0(vue@3.5.21(typescript@5.9.2))
@@ -2476,8 +2476,8 @@ packages:
     resolution: {integrity: sha512-Wo1iKt2b9OT7d+YGhvEPD3DXvPv2etTusIMhMUoG7fbhmxcXCtIjJDEygy91Y2JFlwGyjqiBPRozme7UD8hoqg==}
     engines: {node: '>=12'}
 
-  '@tanstack/query-core@5.90.1':
-    resolution: {integrity: sha512-hmi8i+mWP3QnD8yq3+6LWri9IEZAlFbpbM/UVB+TJtp5RIxUfzuARqyW39b+HCfBKKnFKSHWMXNB5YN8lo/E/Q==}
+  '@tanstack/query-core@5.90.5':
+    resolution: {integrity: sha512-wLamYp7FaDq6ZnNehypKI5fNvxHPfTYylE0m/ZpuuzJfJqhR5Pxg9gvGBHZx4n7J+V5Rg5mZxHHTlv25Zt5u+w==}
 
   '@tanstack/query-devtools@5.90.1':
     resolution: {integrity: sha512-GtINOPjPUH0OegJExZ70UahT9ykmAhmtNVcmtdnOZbxLwT7R5OmRztR5Ahe3/Cu7LArEmR6/588tAycuaWb1xQ==}
@@ -2488,8 +2488,8 @@ packages:
       '@tanstack/vue-query': ^5.90.1
       vue: ^3.3.0
 
-  '@tanstack/vue-query@5.90.1':
-    resolution: {integrity: sha512-mFNLSFSj98+xmctL4uhzO1lyv4gv9MGpBBRipy+BKtj7VF+tlrfRFxDkcykN0y9+JlGhB51gHj813tVH7sa55A==}
+  '@tanstack/vue-query@5.90.5':
+    resolution: {integrity: sha512-bTEmgIb6o5BqkoJPNV7ZKKsDHjiVnNydORw1n6S/x0dppb3lTT5KFOotQ5PqZG3OQY+9AwA6RJJN3pEx+9j1Pg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -4918,6 +4918,9 @@ packages:
 
   magic-string@0.30.19:
     resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
+
+  magic-string@0.30.21:
+    resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
   map-stream@0.1.0:
     resolution: {integrity: sha512-CkYQrPYZfWnu/DAmVCpTSX/xHpKZ80eKh2lAkyA6AJTef6bW+6JpbQZN5rofum7da+SyN1bi5ctTm+lTfcCW3g==}
@@ -9365,20 +9368,20 @@ snapshots:
     dependencies:
       remove-accents: 0.5.0
 
-  '@tanstack/query-core@5.90.1': {}
+  '@tanstack/query-core@5.90.5': {}
 
   '@tanstack/query-devtools@5.90.1': {}
 
-  '@tanstack/vue-query-devtools@5.90.1(@tanstack/vue-query@5.90.1(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))':
+  '@tanstack/vue-query-devtools@5.90.1(@tanstack/vue-query@5.90.5(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))':
     dependencies:
       '@tanstack/query-devtools': 5.90.1
-      '@tanstack/vue-query': 5.90.1(vue@3.5.21(typescript@5.9.2))
+      '@tanstack/vue-query': 5.90.5(vue@3.5.21(typescript@5.9.2))
       vue: 3.5.21(typescript@5.9.2)
 
-  '@tanstack/vue-query@5.90.1(vue@3.5.21(typescript@5.9.2))':
+  '@tanstack/vue-query@5.90.5(vue@3.5.21(typescript@5.9.2))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
-      '@tanstack/query-core': 5.90.1
+      '@tanstack/query-core': 5.90.5
       '@vue/devtools-api': 6.6.4
       vue: 3.5.21(typescript@5.9.2)
       vue-demi: 0.14.10(vue@3.5.21(typescript@5.9.2))
@@ -12225,6 +12228,11 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  magic-string@0.30.21:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
+    optional: true
+
   map-stream@0.1.0: {}
 
   markdown-table@3.0.4: {}
@@ -13724,7 +13732,7 @@ snapshots:
     dependencies:
       acorn: 8.15.0
       estree-walker: 3.0.3
-      magic-string: 0.30.19
+      magic-string: 0.30.21
       unplugin: 2.3.10
     optional: true
 
@@ -13751,7 +13759,7 @@ snapshots:
       escape-string-regexp: 5.0.0
       estree-walker: 3.0.3
       local-pkg: 1.1.2
-      magic-string: 0.30.19
+      magic-string: 0.30.21
       mlly: 1.8.0
       pathe: 2.0.3
       picomatch: 4.0.3

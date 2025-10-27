@@ -28,7 +28,7 @@
         "axios": "^1.12.2",
         "cors": "^2.8.5",
         "flag-icons": "^7.5.0",
-        "keycloak-js": "^26.2.0",
+        "keycloak-js": "^26.2.1",
         "moment": "^2.30.1",
         "moment-timezone": "^0.6.0",
         "pinia": "^3.0.3",

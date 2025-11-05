@@ -123,14 +123,10 @@ public class CupServiceImpl implements CupService {
     }
 
     private Map<ClassResultShortName, List<PersonWithScore>> aggregatePersonScoresGroupedByClass(
-            List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores, CupTypeCalculationStrategy strategy) {
+            List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores, CupTypeCalculationStrategy strategy
+        , int eventsSize) {
 
-        int racesSize = raceClassResultGroupedCupScores.stream()
-                .map(x -> x.race().getId())
-                .collect(Collectors.toUnmodifiableSet())
-                .size();
-
-        int bestOfRacesCount = strategy.getBestOfRacesCount(racesSize);
+        int bestOfRacesCount = strategy.getBestOfRacesCount(eventsSize);
 
         // Sammeln aller Ergebnisse nach PersonId und ClassResultShortName
         Map<ClassPersonKey, List<PersonWithScore>> scoresByClassAndPerson = raceClassResultGroupedCupScores.stream()
@@ -204,7 +200,7 @@ public class CupServiceImpl implements CupService {
                 .toList();
 
         Map<ClassResultShortName, List<PersonWithScore>> aggregatedPersonScores =
-                aggregatePersonScoresGroupedByClass(allClassResultScores, strategy);
+                aggregatePersonScoresGroupedByClass(allClassResultScores, strategy, events.size());
 
         // Erzeuge die EventRacesCupScores für die Detailergebnisse der Races
         List<EventRacesCupScore> eventRacesCupScores = events.stream()

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.7</version>
+        <version>4.0.0-RC1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>de.jobst</groupId>
@@ -35,7 +35,7 @@
         <micrometer-bom.version>1.15.4</micrometer-bom.version>
         <mockito-core.version>5.15.2</mockito-core.version>
         <native-maven-plugin.version>0.10.0</native-maven-plugin.version>
-        <p6spy-spring-boot-starter.version>1.11.0</p6spy-spring-boot-starter.version>
+        <p6spy-spring-boot-starter.version>1.12.0</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.9.3</spotbugs-annotations.version>
         <spring-oxm.version>6.2.11</spring-oxm.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.8.13</springdoc-openapi-starter-webmvc-ui.version>
@@ -55,6 +55,8 @@
         </jmolecules-hexagonal-architecture.version>
         <jmolecules-layered-architecture.version>1.10.0</jmolecules-layered-architecture.version>
         <spring-modulith-bom.version>1.3.3</spring-modulith-bom.version>
+        <hibernate-enhance-maven-plugin.version>6.6.34.Final
+        </hibernate-enhance-maven-plugin.version>
     </properties>
     <profiles>
         <profile>
@@ -126,7 +128,7 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -241,11 +243,11 @@
             <artifactId>spotbugs-annotations</artifactId>
             <version>${spotbugs-annotations.version}</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.github.gavlyukovskiy</groupId>
             <artifactId>p6spy-spring-boot-starter</artifactId>
             <version>${p6spy-spring-boot-starter.version}</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext-core</artifactId>
@@ -402,7 +404,7 @@
             <plugin>
                 <groupId>org.hibernate.orm.tooling</groupId>
                 <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>${hibernate.version}</version>
+                <version>${hibernate-enhance-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>enhance</id>

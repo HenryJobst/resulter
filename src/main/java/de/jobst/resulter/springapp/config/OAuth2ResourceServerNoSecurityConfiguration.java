@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -59,8 +59,8 @@ public class OAuth2ResourceServerNoSecurityConfiguration {
             jwtAuthConverter)));
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-        http.csrf(csrf -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/createDatabase",
-            HttpMethod.POST.name())));
+        http.csrf(csrf -> csrf.ignoringRequestMatchers(
+            PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/createDatabase")));
 
         return http.build();
     }

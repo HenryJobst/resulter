@@ -1,12 +1,13 @@
 package de.jobst.resulter.domain;
 
+import org.jspecify.annotations.NonNull;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.springframework.lang.NonNull;
 
 public class EventTestDataGenerator {
 

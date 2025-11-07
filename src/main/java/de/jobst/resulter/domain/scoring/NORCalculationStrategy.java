@@ -1,7 +1,8 @@
 package de.jobst.resulter.domain.scoring;
 
 import de.jobst.resulter.domain.*;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,8 +12,8 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
 
     public static final CupType CUP_TYPE = CupType.NOR;
 
-    private final Map<OrganisationId, Organisation> organisationById;
-    private final Organisation norOrganisation;
+    @Nullable private final Map<OrganisationId, Organisation> organisationById;
+    @Nullable private final Organisation norOrganisation;
 
     Set<String> classesToSkip = Set.of(
             "BK",

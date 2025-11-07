@@ -1,14 +1,14 @@
 package de.jobst.resulter.domain.scoring;
 
 import de.jobst.resulter.domain.*;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
 
-    private final Map<OrganisationId, Organisation> organisationById;
+    @Nullable private final Map<OrganisationId, Organisation> organisationById;
 
     Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner", "OffK", "OffL", "D/H-12 Be");
     Set<String> organisationsToSkip = Set.of("ohne", "Volkssport");

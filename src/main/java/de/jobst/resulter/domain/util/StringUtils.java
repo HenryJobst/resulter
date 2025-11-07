@@ -1,8 +1,10 @@
 package de.jobst.resulter.domain.util;
 
+import org.jspecify.annotations.Nullable;
+
 public class StringUtils {
 
-    public static String formatAsName(String text) {
+    public static String formatAsName(@Nullable String text) {
         if (text == null || text.isBlank()) {
             return "";
         }

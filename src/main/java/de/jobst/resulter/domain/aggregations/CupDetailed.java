@@ -2,11 +2,10 @@ package de.jobst.resulter.domain.aggregations;
 
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ClassResultShortNameScoreSummary;
+import lombok.Getter;
+
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import lombok.Getter;
-import org.springframework.lang.NonNull;
 
 @Getter
 public class CupDetailed extends Cup {
@@ -15,13 +14,13 @@ public class CupDetailed extends Cup {
     private final List<EventRacesCupScore> eventRacesCupScore;
 
     // overall results by organisation (with score)
-    private List<OrganisationScore> overallOrganisationScores;
+    private List<OrganisationScore> overallOrganisationScores = List.of();
 
-    private List<AggregatedPersonScores> aggregatedPersonScoresList;
+    private List<AggregatedPersonScores> aggregatedPersonScoresList = List.of();
 
     public CupDetailed(
-            @NonNull Cup cup,
-            @NonNull List<EventRacesCupScore> eventRacesCupScore,
+            Cup cup,
+            List<EventRacesCupScore> eventRacesCupScore,
             List<AggregatedPersonScores> aggregatedPersonScoresList) {
         super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEventIds());
 
@@ -38,9 +37,7 @@ public class CupDetailed extends Cup {
 
         Map<Organisation, Double> organisationWithScore = this.eventRacesCupScore.stream()
                 .flatMap(x -> x.raceOrganisationGroupedCupScores().stream()
-                        .flatMap(raceCupScore -> Objects.nonNull(raceCupScore.organisationScores())
-                                ? raceCupScore.organisationScores().stream()
-                                : Stream.empty()))
+                        .flatMap(raceCupScore -> raceCupScore.organisationScores().stream()))
                 .collect(Collectors.groupingBy(
                         OrganisationScore::organisation, // Gruppieren nach Organisation
                         Collectors.summingDouble(OrganisationScore::score)));

@@ -1,10 +1,11 @@
 package de.jobst.resulter.domain.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 public class ValueObjectChecks {
 
-    public static void requireNotNull(Object value) {
+    public static void requireNotNull(@Nullable Object value) {
         if (value == null) {
             throw new IllegalArgumentException("Value must be not empty!");
         }

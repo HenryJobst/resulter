@@ -1,6 +1,7 @@
 package de.jobst.resulter.domain.scoring;
 
 import de.jobst.resulter.domain.*;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -12,7 +13,7 @@ public class KJCalculationStrategy implements CupTypeCalculationStrategy {
 
     private final Collection<OrganisationId> validClubs = new HashSet<>();
 
-    public KJCalculationStrategy(Map<OrganisationId, Organisation> organisationById) {
+    public KJCalculationStrategy(@Nullable Map<OrganisationId, Organisation> organisationById) {
         if (organisationById != null) {
             for (Map.Entry<OrganisationId, Organisation> entry : organisationById.entrySet()) {
                 if (entry == null) {

@@ -21,7 +21,7 @@ public class AddCalculationStrategy implements CupTypeCalculationStrategy {
     public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults,
                                     Map<PersonId, OrganisationId> organisationByPerson) {
 
-        return null;
+        return List.of();
     }
 
 }

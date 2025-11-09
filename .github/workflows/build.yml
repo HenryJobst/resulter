@@ -22,6 +22,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y maven
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots compile
+        working-directory: ./backend
 
   frontend-build:
     runs-on: ubuntu-latest

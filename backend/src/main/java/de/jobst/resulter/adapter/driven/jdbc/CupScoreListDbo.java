@@ -8,13 +8,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -32,6 +32,7 @@ public class CupScoreListDbo {
     @Id
     @With
     @Column("id")
+    @Nullable
     private Long id;
 
     @Column("cup_id")
@@ -41,12 +42,15 @@ public class CupScoreListDbo {
     private AggregateReference<ResultListDbo, Long> resultListId;
 
     @Column("creator")
+    @Nullable
     private String creator;
 
     @Column("create_time")
+    @Nullable
     private Timestamp createTime;
 
     @Column("create_time_zone")
+    @Nullable
     private String createTimeZone;
 
     @Column("status")
@@ -57,9 +61,9 @@ public class CupScoreListDbo {
 
     public CupScoreListDbo(AggregateReference<CupDbo, Long> cupId,
                            AggregateReference<ResultListDbo, Long> resultListId,
-                           String creator,
-                           Timestamp createTime,
-                           String createTimeZone) {
+                           @Nullable String creator,
+                           @Nullable Timestamp createTime,
+                           @Nullable String createTimeZone) {
         this.id = null;
         this.cupId = cupId;
         this.resultListId = resultListId;
@@ -68,11 +72,11 @@ public class CupScoreListDbo {
         this.createTimeZone = createTimeZone;
     }
 
-    public static List<CupScoreListDbo> from(List<CupScoreList> cupScoreLists, @NonNull DboResolvers dboResolvers) {
+    public static List<CupScoreListDbo> from(List<CupScoreList> cupScoreLists, DboResolvers dboResolvers) {
         return cupScoreLists.stream().map(x -> CupScoreListDbo.from(x, dboResolvers)).toList();
     }
 
-    public static CupScoreListDbo from(CupScoreList cupScoreList, @NonNull DboResolvers dboResolvers) {
+    public static CupScoreListDbo from(CupScoreList cupScoreList, DboResolvers dboResolvers) {
         CupScoreListDbo cupScoreListDbo;
         if (cupScoreList.getId().isPersistent()) {
             cupScoreListDbo = dboResolvers.getCupScoreListDboResolver().findDboById(cupScoreList.getId());

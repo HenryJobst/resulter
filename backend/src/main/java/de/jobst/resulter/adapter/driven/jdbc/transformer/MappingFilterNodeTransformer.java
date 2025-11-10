@@ -2,15 +2,16 @@ package de.jobst.resulter.adapter.driven.jdbc.transformer;
 
 import com.turkraft.springfilter.parser.node.*;
 import com.turkraft.springfilter.transformer.FilterNodeTransformer;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class MappingFilterNodeTransformer implements FilterNodeTransformer<MappingFilterNodeTransformResult> {
 
     protected final ConversionService conversionService;

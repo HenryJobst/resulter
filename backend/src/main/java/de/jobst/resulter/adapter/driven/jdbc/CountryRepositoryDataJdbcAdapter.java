@@ -27,6 +27,7 @@ public class CountryRepositoryDataJdbcAdapter implements CountryRepository {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setCountryDboResolver((id) -> countryJdbcRepository.findById(id.value()).orElseThrow());
         CountryDbo countryEntity = CountryDbo.from(country, dboResolvers);
+        assert countryEntity != null;
         CountryDbo savedCountryEntity = countryJdbcRepository.save(countryEntity);
         return savedCountryEntity.asCountry();
     }

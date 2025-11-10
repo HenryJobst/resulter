@@ -9,13 +9,13 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +26,7 @@ public class CupDbo {
     @Id
     @With
     @Column("id")
+    @Nullable
     private Long id;
 
     @Column("name")
@@ -35,6 +36,7 @@ public class CupDbo {
     private Set<CupEventDbo> events = new HashSet<>();
 
     @Column("type")
+    @Nullable
     private CupType type;
 
     @Column("year")
@@ -46,7 +48,7 @@ public class CupDbo {
         this.year = Year.now().getValue();
     }
 
-    public static CupDbo from(@NonNull Cup cup, @NonNull DboResolvers dboResolvers) {
+    public static CupDbo from(Cup cup, DboResolvers dboResolvers) {
         CupDbo cupDbo;
         if (cup.getId().value() != CupId.empty().value()) {
             cupDbo = dboResolvers.getCupDboDboResolver().findDboById(cup.getId());
@@ -70,18 +72,22 @@ public class CupDbo {
         return cupDbo;
     }
 
-    public static List<Cup> asCups(@NonNull Iterable<CupDbo> cupDbos) {
+    public static List<Cup> asCups(Iterable<CupDbo> cupDbos) {
         return StreamSupport.stream(cupDbos.spliterator(), true)
-                .map(it -> Cup.of(
-                        it.id,
-                        it.name,
-                        it.type,
-                        Year.of(it.year),
-                        it.events.stream().map(x -> EventId.of(x.id.getId())).toList()))
+                .map(it -> {
+                    assert it.id != null;
+                    assert it.type != null;
+                    return Cup.of(
+                            it.id,
+                            it.name,
+                            it.type,
+                            Year.of(it.year),
+                            it.events.stream().map(x -> EventId.of(x.id.getId())).toList());
+                })
                 .toList();
     }
 
-    public static Cup asCup(@NonNull CupDbo cupDbo) {
+    public static Cup asCup(CupDbo cupDbo) {
         return asCups(List.of(cupDbo)).getFirst();
     }
 

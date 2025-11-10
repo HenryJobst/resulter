@@ -6,12 +6,12 @@ import de.jobst.resulter.domain.Gender;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,13 +27,13 @@ public class ClassResultDbo {
     @Column("name")
     private String name;
 
-    @NonNull
     @Column("short_name")
     private String shortName;
 
     @Column("gender")
     private Gender gender;
 
+    @Nullable
     @Column("course_id")
     private AggregateReference<CourseDbo, Long> course;
 

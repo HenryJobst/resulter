@@ -63,9 +63,6 @@ public class CourseRepositoryDataJdbcAdapter implements CourseRepository {
     public Collection<Course> findOrCreate(Collection<Course> courses) {
         var eventIds = courses.stream().map(Course::getEventId).collect(Collectors.toSet());
         assert eventIds.size() == 1;
-        if (eventIds.isEmpty()) {
-            return List.of();
-        }
         Collection<CourseDbo> existingCourses =
             courseJdbcRepository.findAllByEventIdAndNameIn(AggregateReference.to(eventIds.stream()
                 .findFirst()

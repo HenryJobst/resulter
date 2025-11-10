@@ -5,12 +5,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
@@ -23,7 +23,7 @@ public class CourseDbo {
     private Long id;
 
     @Column("event_id")
-    private AggregateReference<EventDbo, Long> eventId;
+    private AggregateReference<@NonNull EventDbo, @NonNull Long> eventId;
 
     @Column("name")
     private String name;
@@ -37,7 +37,7 @@ public class CourseDbo {
     @Column("controls")
     private Integer controls;
 
-    public CourseDbo(AggregateReference<EventDbo, Long> eventId,
+    public CourseDbo(AggregateReference<@NonNull EventDbo, @NonNull Long> eventId,
                      String name,
                      Double length,
                      Double climb,

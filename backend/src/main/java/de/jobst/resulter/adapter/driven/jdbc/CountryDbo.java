@@ -5,11 +5,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
+
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
@@ -19,6 +21,7 @@ public class CountryDbo {
     @Id
     @With
     @Column("id")
+    @Nullable
     private Long id;
 
     @Column("code")
@@ -33,7 +36,7 @@ public class CountryDbo {
         this.name = code;
     }
 
-    public static CountryDbo from(Country country, @NonNull DboResolvers dboResolvers) {
+    public static @Nullable CountryDbo from(@Nullable Country country, DboResolvers dboResolvers) {
         if (null == country) {
             return null;
         }
@@ -49,6 +52,7 @@ public class CountryDbo {
     }
 
     public Country asCountry() {
+        assert Objects.nonNull(id);
         return Country.of(id, code, name);
     }
 }

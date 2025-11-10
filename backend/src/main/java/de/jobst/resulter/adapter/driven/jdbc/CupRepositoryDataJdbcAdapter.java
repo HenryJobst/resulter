@@ -13,11 +13,10 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.domain.*;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,17 +47,14 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
         this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
     }
 
-    @NonNull
     private Function<Long, Event> getEventResolver() {
         return id -> eventJdbcRepository.findById(id).orElseThrow().asEvent(getOrganisationResolver());
     }
 
-    @NonNull
     private Function<Long, Country> getCountryResolver() {
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
 
-    @NonNull
     private Function<Long, Organisation> getOrganisationResolver() {
         return id -> organisationJdbcRepository
                 .findById(id)
@@ -105,7 +101,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Cup> findById(CupId cupId) {
-        return findDboById(cupId).map((CupDbo cupDbo) -> CupDbo.asCup(cupDbo));
+        return findDboById(cupId).map(CupDbo::asCup);
     }
 
     @Override
@@ -132,7 +128,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     }
 
     @Override
-    public Page<Cup> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<Cup> findAll(@Nullable String filter, Pageable pageable) {
         Page<CupDbo> page;
         if (filter != null) {
             CupDbo cupDbo = new CupDbo();
@@ -170,7 +166,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
                     FilterAndSortConverter.mapOrderProperties(pageable, CupDbo::mapOrdersDomainToDbo));
         }
         return new PageImpl<>(
-                page.stream().map(x -> CupDbo.asCup(x)).toList(),
+                page.stream().map(CupDbo::asCup).toList(),
                 FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
                 page.getTotalElements());
     }

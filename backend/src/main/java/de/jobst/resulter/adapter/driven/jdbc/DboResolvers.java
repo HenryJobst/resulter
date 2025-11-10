@@ -4,28 +4,27 @@ import de.jobst.resulter.domain.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @NoArgsConstructor
 @Getter
 @Setter
 public class DboResolvers {
 
-    private DboResolver<CupId, CupDbo> cupDboDboResolver = null;
-    private DboResolver<EventId, EventDbo> eventDboResolver = null;
-    private DboResolver<RaceId, RaceDbo> raceDboResolver = null;
-    private DboResolver<PersonId, PersonDbo> personDboResolver = null;
-    private DboResolver<CourseId, CourseDbo> courseDboResolver = null;
-    private DboResolver<OrganisationId, OrganisationDbo> organisationDboResolver = null;
-    private DboResolver<CountryId, CountryDbo> countryDboResolver = null;
-    private DboResolver<ResultListId, ResultListDbo> resultListDboResolver = null;
-    private DboResolver<CupScoreListId, CupScoreListDbo> cupScoreListDboResolver = null;
-    private DboResolver<SplitTimeListId, SplitTimeListDbo> splitTimeListDboResolver = null;
-    private DboResolver<MediaFileId, MediaFileDbo> mediaFileDboResolver = null;
-    private DboResolver<EventCertificateId, EventCertificateDbo> eventCertificateDboResolver = null;
-    private DboResolver<EventCertificateStatId, EventCertificateStatDbo> eventCertificateStatDboResolver = null;
+    private @Nullable DboResolver<CupId, CupDbo> cupDboDboResolver = null;
+    private @Nullable DboResolver<EventId, EventDbo> eventDboResolver = null;
+    private @Nullable DboResolver<RaceId, RaceDbo> raceDboResolver = null;
+    private @Nullable DboResolver<PersonId, PersonDbo> personDboResolver = null;
+    private @Nullable DboResolver<CourseId, CourseDbo> courseDboResolver = null;
+    private @Nullable DboResolver<OrganisationId, OrganisationDbo> organisationDboResolver = null;
+    private @Nullable DboResolver<CountryId, CountryDbo> countryDboResolver = null;
+    private @Nullable DboResolver<ResultListId, ResultListDbo> resultListDboResolver = null;
+    private @Nullable DboResolver<CupScoreListId, CupScoreListDbo> cupScoreListDboResolver = null;
+    private @Nullable DboResolver<SplitTimeListId, SplitTimeListDbo> splitTimeListDboResolver = null;
+    private @Nullable DboResolver<MediaFileId, MediaFileDbo> mediaFileDboResolver = null;
+    private @Nullable DboResolver<EventCertificateId, EventCertificateDbo> eventCertificateDboResolver = null;
+    private @Nullable DboResolver<EventCertificateStatId, EventCertificateStatDbo> eventCertificateStatDboResolver = null;
 
-    @NonNull
     static DboResolvers empty() {
         return new DboResolvers();
     }

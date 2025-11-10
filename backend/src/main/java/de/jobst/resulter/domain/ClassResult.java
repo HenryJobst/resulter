@@ -3,8 +3,8 @@ package de.jobst.resulter.domain;
 import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
 import de.jobst.resulter.domain.scoring.KJCalculationStrategy;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;

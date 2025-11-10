@@ -11,7 +11,7 @@ import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 @AggregateRoot
 @Setter

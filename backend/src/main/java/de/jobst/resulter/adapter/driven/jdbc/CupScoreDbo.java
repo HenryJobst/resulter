@@ -8,11 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.Objects;
 @AllArgsConstructor
 public class CupScoreDbo implements Comparable<CupScoreDbo> {
 
-    @NonNull
     @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
 
@@ -31,7 +29,6 @@ public class CupScoreDbo implements Comparable<CupScoreDbo> {
     @Column("organisation_id")
     private AggregateReference<OrganisationDbo, Long> organisation;
 
-    @NonNull
     @Column("class_result_short_name")
     private String classResultShortName;
 
@@ -60,7 +57,7 @@ public class CupScoreDbo implements Comparable<CupScoreDbo> {
     }
 
     @Override
-    public int compareTo(@NonNull CupScoreDbo o) {
+    public int compareTo(CupScoreDbo o) {
         int val = Double.compare(score, o.score);
         if (val == 0) {
             val = classResultShortName.compareTo(o.classResultShortName);

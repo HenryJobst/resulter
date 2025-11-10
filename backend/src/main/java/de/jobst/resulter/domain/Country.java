@@ -4,7 +4,7 @@ import java.util.Objects;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 @AggregateRoot
 @Getter

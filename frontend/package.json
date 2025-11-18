@@ -5,7 +5,7 @@
     "private": true,
     "packageManager": "pnpm@10.17.1",
     "scripts": {
-        "dev": "vite --mode development",
+        "dev": "node --localstorage-file=.node-localstorage node_modules/vite/bin/vite.js --mode development",
         "build": "nx exec -- echo 'Ran type-check and build-only'",
         "preview": "nx vite:preview",
         "test:unit": "nx test",

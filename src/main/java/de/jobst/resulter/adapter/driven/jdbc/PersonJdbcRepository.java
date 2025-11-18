@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Gender;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -33,6 +34,6 @@ public interface PersonJdbcRepository
     Optional<PersonDbo> findByFamilyNameAndGivenNameAndBirthDateAndGender(
                                           @Param("familyName") String familyName,
                                           @Param("givenName") String givenName,
-                                          @Param("birthDate") LocalDate birthDate,
+                                          @Param("birthDate") @Nullable LocalDate birthDate,
                                           @Param("gender") Gender gender);
 }

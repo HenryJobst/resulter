@@ -56,7 +56,7 @@ cd frontend && pnpm test:unit src/features/event/services/EventService.spec.ts
 
 ## Technology Stack
 
-**Backend:** Java 21, Spring Boot 4.0.0-RC2, Spring Data JDBC (not JPA), PostgreSQL/H2, Liquibase, Maven, iText PDF, Testcontainers
+**Backend:** Java 21, Spring Boot 4.0.0, Spring Data JDBC (not JPA), PostgreSQL/H2, Liquibase, Maven, iText PDF, Testcontainers
 
 **Frontend:** TypeScript, Vue 3 (Composition API), Vite, Pinia, Tanstack Query, PrimeVue 4, Tailwind CSS, Vitest, Playwright/Cypress, pnpm, Nx
 
@@ -88,7 +88,11 @@ The backend follows strict hexagonal architecture with DDD principles enforced b
      - `jdbc/` - Spring Data JDBC repository implementations
      - `inmemory/` - In-memory implementations for testing
 
-**Key Pattern:** Dependencies point inward. Domain never depends on application or adapters. Application depends on domain but not adapters. Adapters depend on both but are pluggable.
+**Key Patterns:**
+- Dependencies point inward. Domain never depends on application or adapters. Application depends on domain but not adapters. Adapters depend on both but are pluggable.
+- Controllers (driver adapters) cannot autowire Repositories directly - they must use Services
+- Services cannot query the database directly - they must use Repository methods
+- Data flows: DTOs/Domain Entities between Controllers and Services; DBOs between Repositories and Services
 
 ### Frontend - Feature-Based Structure
 
@@ -111,6 +115,13 @@ features/
 ```
 
 ## Backend Coding Conventions
+
+### Dependency Injection
+
+- **Always use constructor injection** for dependencies in production code
+- Never use `@Autowired` field injection (except in test classes)
+- Declare dependencies as `private final` fields
+- Spring automatically performs constructor injection when there's a single constructor
 
 ### Database Entities (DBOs)
 
@@ -145,8 +156,9 @@ public interface EventRepository extends CrudRepository<EventDbo, Long> {
 
 - Port interface in `application/port/`
 - Implementation in `adapter/driven/jdbc/`
-- Use JPQL with `@Query` for custom queries
+- Use **native SQL** with `@Query` for custom queries (Spring Data JDBC, not JPA/JPQL)
 - Return DTOs for complex multi-join queries to avoid N+1 problems
+- No lazy loading - use explicit joins in queries
 
 ### Services
 
@@ -160,8 +172,11 @@ public interface EventService {
 // Implementation
 @Service
 public class EventServiceImpl implements EventService {
-    @Autowired
-    private EventRepository eventRepository;
+    private final EventRepository eventRepository;
+
+    public EventServiceImpl(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
+    }
 
     @Override
     @Transactional
@@ -176,9 +191,11 @@ public class EventServiceImpl implements EventService {
 
 - Pattern: Interface + `*ServiceImpl`
 - Annotate implementation with `@Service`
+- Use **constructor injection** for dependencies (not `@Autowired` field injection)
 - Use `@Transactional` for multi-DB operations
 - Return DTOs, not entities (unless necessary for internal use)
 - Use `.orElseThrow()` for existence checks
+- ServiceImpl classes should use Repository methods, not query database directly
 
 ### Controllers
 
@@ -186,8 +203,11 @@ public class EventServiceImpl implements EventService {
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
-    @Autowired
-    private EventService eventService;
+    private final EventService eventService;
+
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<EventDto>> createEvent(@RequestBody CreateEventRequest request) {
@@ -198,10 +218,12 @@ public class EventController {
 ```
 
 - Annotate: `@RestController`
-- Class-level `@RequestMapping` for base path
+- Class-level `@RequestMapping` for base path (e.g., `/api/events`)
+- Use **constructor injection** for dependencies (not `@Autowired` field injection)
 - Return `ResponseEntity<ApiResponse<T>>`
 - No try-catch blocks - GlobalExceptionHandler handles all exceptions
 - DTOs for request/response, never expose entities
+- Controllers should not autowire Repositories directly - use Services instead
 
 ### DTOs
 
@@ -230,21 +252,67 @@ public record EventDto(
 All API endpoints return `ApiResponse<T>`:
 
 ```java
-public record ApiResponse<T>(
-    boolean success,
-    T data,
-    String message,
-    List<String> errors
-) {
-    public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(true, data, null, null);
-    }
-
-    public static <T> ApiResponse<T> error(String message, List<String> errors) {
-        return new ApiResponse<>(false, null, message, errors);
-    }
+@Setter
+@Getter
+public class ApiResponse<T> {
+    private boolean success;              // was successful or not
+    private LocalizableString message;    // localizable message to describe the result
+    private T data;                       // actual response data of type T
+    private List<String> errors;          // list of errors if request failed
+    private int errorCode;                // integer error code for error classification
+    private long timestamp;               // time the response was generated
+    private String path;                  // URL path of the request (for debugging)
 }
 ```
+
+Use `ResponseUtil` helper methods for creating responses:
+- `ResponseUtil.success(data)` - for successful responses
+- `ResponseUtil.error(errors, message, errorCode, path, exception)` - for error responses
+
+### Error Handling
+
+All errors are handled centrally by `GlobalExceptionHandler` (annotated with `@RestControllerAdvice`):
+
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Object>> handleGeneralException(
+            Exception ex, HttpServletRequest request) {
+        return ResponseUtil.error(
+            Collections.singletonList(ex.getMessage()),
+            LocalizableString.of(MessageKeys.UNEXPECTED_ERROR),
+            AdditionalStatusCodes.UNEXPECTED.value(),
+            request.getRequestURI(),
+            ex);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(
+            ResourceNotFoundException ex, HttpServletRequest request) {
+        return ResponseUtil.error(
+            Collections.singletonList(ex.getMessage()),
+            LocalizableString.of(MessageKeys.RESOURCE_NOT_FOUND),
+            HttpStatus.NOT_FOUND.value(),
+            request.getRequestURI(),
+            ex);
+    }
+
+    // Additional handlers for:
+    // - ResponseNotFoundException
+    // - OptimisticEntityLockException
+    // - IllegalArgumentException
+    // - ConstraintViolationException
+    // - MethodArgumentNotValidException
+}
+```
+
+**Error Handling Rules:**
+- Controllers should NOT have try-catch blocks - let GlobalExceptionHandler handle all exceptions
+- Use `LocalizableString.of(MessageKeys.*)` for user-facing messages
+- Common exception types: `ResourceNotFoundException`, `OptimisticEntityLockException`, `IllegalArgumentException`
+- Validation errors are automatically caught and formatted with field-level details
 
 ## Frontend Coding Conventions
 
@@ -354,6 +422,7 @@ Also: DRY (Don't Repeat Yourself), KISS (Keep It Simple), YAGNI (You Aren't Gonn
 - Integration tests with Testcontainers (real PostgreSQL)
 - ArchUnit tests to validate architecture constraints
 - JMolecules annotations for architecture validation
+- `@Autowired` field injection is acceptable in test classes only
 
 **Frontend:**
 - Unit tests (Vitest) for services and utilities
@@ -394,6 +463,13 @@ XML result files (IOF format) parsed in `backend/src/main/java/de/jobst/resulter
 - PostgreSQL in production, H2 for dev/testing
 - Schema includes: events, persons, courses, results, cups, certificates, organizations
 
+## Deployment
+
+- Environment configuration: Copy `.env.example` to `.env` and configure
+- Backend Docker: `./backend/build.sh` builds Docker image
+- Frontend Docker: Separate `build.sh` in frontend directory
+- Full deployment: Docker Compose file available in `deploy/resulter/`
+
 ## Profiles
 
 - **dev** (default): H2 database, debug logging, Swagger UI enabled
@@ -409,7 +485,6 @@ XML result files (IOF format) parsed in `backend/src/main/java/de/jobst/resulter
 
 ## Version & License
 
-- Current version: 1.13.0
+- Current version: 1.14.0
 - License: CC BY-NC-ND 4.0 (non-commercial use only)
-- Branch: Currently on `spring-boot-4` branch (upgrading to Spring Boot 4.0.0-RC2)
 - Main branch: `main` for stable releases

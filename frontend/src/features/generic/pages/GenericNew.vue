@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
-import Spinner from '@/components/SpinnerComponent.vue'
-import { toastDisplayDuration } from '@/utils/constants'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import Spinner from '@/components/SpinnerComponent.vue'
+import { toastDisplayDuration } from '@/utils/constants'
 
 interface Props {
     entity: GenericEntity

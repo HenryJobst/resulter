@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { Person } from '@/features/person/model/person'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { personService } from '@/features/person/services/person.service'
 import PersonForm from '@/features/person/widgets/PersonForm.vue'
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ id: string, locale?: string }>()
 

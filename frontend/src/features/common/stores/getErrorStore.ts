@@ -1,6 +1,6 @@
+import { setActivePinia } from 'pinia'
 import { useErrorStore } from '@/features/common/stores/useErrorStore'
 import { pinia } from '@/main'
-import { setActivePinia } from 'pinia'
 
 /**
  * Zugriff auf den ErrorStore außerhalb von `setup`.

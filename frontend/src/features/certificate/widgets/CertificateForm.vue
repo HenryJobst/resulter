@@ -1,13 +1,10 @@
 <script setup lang="ts">
+import type { SelectChangeEvent } from 'primevue/select'
 import type { Certificate } from '@/features/certificate/model/certificate'
 import type { EventKey } from '@/features/event/model/event_key'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { Media } from '@/features/media/model/media'
 import type { MediaKey } from '@/features/media/model/media_key'
-import type { SelectChangeEvent } from 'primevue/select'
-import NumberedTextarea from '@/features/certificate/widgets/NumberedTextarea.vue'
-import { EventService, eventService } from '@/features/event/services/event.service'
-import { mediaService } from '@/features/media/services/media.service'
 import { prettyPrint } from '@base2/pretty-print-object'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
@@ -18,6 +15,9 @@ import Select from 'primevue/select'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import VuePdfEmbed from 'vue-pdf-embed'
+import NumberedTextarea from '@/features/certificate/widgets/NumberedTextarea.vue'
+import { EventService, eventService } from '@/features/event/services/event.service'
+import { mediaService } from '@/features/media/services/media.service'
 
 const certificate = defineModel({
     type: Object as () => Certificate,

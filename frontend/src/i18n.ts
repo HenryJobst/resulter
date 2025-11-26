@@ -1,10 +1,10 @@
 import type { Composer, I18n, I18nMode, I18nOptions, Locale, VueI18n } from 'vue-i18n'
-import de from '@/locales/de.json'
-import en from '@/locales/en.json'
-import { primevueLocaleMessages } from '@/PrimevueMessages'
 import { usePrimeVue } from 'primevue/config'
 import { isRef, nextTick, ref } from 'vue'
 import { createI18n } from 'vue-i18n'
+import de from '@/locales/de.json'
+import en from '@/locales/en.json'
+import { primevueLocaleMessages } from '@/PrimevueMessages'
 
 export const SUPPORT_LOCALES: string[] = ['en', 'de']
 export const reloadAfterI18nSwitch = ref<number>(0)
@@ -65,7 +65,8 @@ export function setI18nLanguage(i18n: I18n, locale: Locale): void {
 const getResourceMessages = (r: any) => r.default || r
 
 function mergePrimeVueLocale(base: any, override: any) {
-    if (!base) return override
+    if (!base)
+        return override
     const result = { ...base, ...override }
     if (base.aria || override?.aria) {
         result.aria = { ...(base.aria || {}), ...(override?.aria || {}) }

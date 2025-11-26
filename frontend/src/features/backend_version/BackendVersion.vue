@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import axiosInstance from '@/features/keycloak/services/api'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import axiosInstance from '@/features/keycloak/services/api'
 
 const { t } = useI18n()
 

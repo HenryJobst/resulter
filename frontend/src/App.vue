@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { PrimeVueLocaleOptions } from 'primevue/config'
 import type { MenuItem } from 'primevue/menuitem'
-import type { Ref } from 'vue'
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import moment from 'moment/min/moment-with-locales'
 import Button from 'primevue/button'
@@ -18,8 +16,8 @@ import MessageDetailDialog from '@/features/common/components/MessageDetailDialo
 
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import { getFlagClass, SUPPORT_LOCALES } from './i18n'
 import { primevueLocaleMessages } from '@/PrimevueMessages'
+import { getFlagClass, SUPPORT_LOCALES } from './i18n'
 
 const router = useRouter()
 const { t, locale } = useI18n()
@@ -29,7 +27,8 @@ const currentLocale = ref(locale.value)
 const fullUrl = ref('')
 
 function mergePrimeVueLocale(base: any, override: any) {
-    if (!base) return override
+    if (!base)
+        return override
     const result = { ...base, ...override }
     if (base.aria || override?.aria) {
         result.aria = { ...(base.aria || {}), ...(override?.aria || {}) }

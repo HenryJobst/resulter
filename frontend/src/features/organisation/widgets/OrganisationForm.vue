@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { Organisation } from '@/features/organisation/model/organisation'
 import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
-import { countryService } from '@/features/country/services/country.service'
-import { OrganisationService } from '@/features/organisation/services/organisation.service'
 import { useQuery } from '@tanstack/vue-query'
 import InputText from 'primevue/inputtext'
 import MultiSelect from 'primevue/multiselect'
 import Select from 'primevue/select'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { countryService } from '@/features/country/services/country.service'
+import { OrganisationService } from '@/features/organisation/services/organisation.service'
 
 const props = defineProps<{
     entityService: OrganisationService

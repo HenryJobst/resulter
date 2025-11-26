@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore.ts'
 import Dialog from 'primevue/dialog'
 import { useI18n } from 'vue-i18n'
+import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore.ts'
 
 const { t } = useI18n()
 

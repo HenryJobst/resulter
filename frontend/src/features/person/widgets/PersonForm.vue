@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { Person } from '@/features/person/model/person'
-import { PersonService } from '@/features/person/services/person.service'
 import { useQuery } from '@tanstack/vue-query'
 import DatePicker from 'primevue/datepicker'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { PersonService } from '@/features/person/services/person.service'
 
 interface Props {
     person: Person

@@ -1,13 +1,9 @@
 <script setup lang="ts">
+import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
-import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
-import { formatDate, formatTime, formatYear } from '@/features/generic/services/GenericFunctions'
-import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
-import { toastDisplayDuration } from '@/utils/constants'
-import { getValueByPath, truncateString } from '@/utils/tools'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useDebounceFn } from '@vueuse/core'
 import Button from 'primevue/button'
@@ -17,6 +13,10 @@ import InputText from 'primevue/inputtext'
 import { useToast } from 'primevue/usetoast'
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { formatDate, formatTime, formatYear } from '@/features/generic/services/GenericFunctions'
+import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
+import { toastDisplayDuration } from '@/utils/constants'
+import { getValueByPath, truncateString } from '@/utils/tools'
 
 const props = defineProps({
     entityService: Object as () => IGenericService<any>,

@@ -12,12 +12,9 @@ const props = defineProps<{
 }>()
 
 const allClassShortNames = computed(() => {
-    // Flache Liste aller `classShortName` aus allen `personWithScores` extrahieren
     const classNames = props.overallScores.flatMap(orgScore =>
         orgScore.personWithScores.map(person => person.classShortName),
     )
-
-    // Duplikate entfernen und sortieren
     return Array.from(new Set(classNames)).sort()
 })
 
@@ -31,7 +28,7 @@ function findOrganisationScore(org: OrganisationScore, raceCupScores: RaceOrgani
 
 function getTotalScoreByClass(scores: PersonWithScore[], targetClassShortName: string): string {
     const score = scores
-        .filter(person => person.classShortName === targetClassShortName) // Filtere nach classShortName
+        .filter(person => person.classShortName === targetClassShortName)
         .reduce((total, person) => total + person.score, 0)
     return score > 0 ? score.toString() : ''
 }
@@ -61,181 +58,122 @@ function calculateRanks(scores: OrganisationScore[]): { org: OrganisationScore, 
         return { org, rank }
     })
 }
+
+function getRankBadgeClass(rank: number): string {
+    if (rank === 1)
+        return 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white dark:from-yellow-500 dark:to-yellow-700'
+    if (rank === 2)
+        return 'bg-gradient-to-br from-gray-300 to-gray-500 text-white dark:from-gray-400 dark:to-gray-600'
+    if (rank === 3)
+        return 'bg-gradient-to-br from-orange-400 to-orange-600 text-white dark:from-orange-500 dark:to-orange-700'
+    return 'bg-adaptive-tertiary text-adaptive'
+}
 </script>
 
 <template>
-    <div class="cup-container">
-        <div id="page_header">
-            <table>
-                <thead>
-                    <tr>
-                        <th id="cup_name">
-                            <span class="nowrap">{{ cupName }}</span>
-                        </th>
-                        <th id="date_time">
-                            <span class="nowrap">{{}}</span>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th id="event_name">
-                            <span class="nowrap">Vereinswertung</span>
-                        </th>
-                        <th id="creation_text" />
-                    </tr>
-                </thead>
-            </table>
+    <div class="max-w-[90rem] mx-auto px-3 py-3 sm:px-4 lg:px-6">
+        <!-- Header Section -->
+        <div class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">
+            <div class="bg-gradient-to-r from-cyan-600 to-cyan-700 px-4 py-3">
+                <h1 class="text-xl font-bold text-white">
+                    {{ cupName }} - Vereinswertung
+                </h1>
+            </div>
         </div>
-        <div id="club_results">
-            <section v-if="!overallScores.length">
-                <p>Noch keine Punkte vorhanden.</p>
-            </section>
-            <section v-if="overallScores.length" class="">
-                <table>
-                    <thead>
+
+        <!-- Overall Scores Section -->
+        <div class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">
+            <div v-if="!overallScores.length" class="px-4 py-8 text-center">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-3">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <p class="text-gray-500 text-sm">
+                    Noch keine Punkte vorhanden.
+                </p>
+            </div>
+
+            <div v-else class="overflow-x-auto">
+                <table class="min-w-full text-xs">
+                    <thead class="bg-adaptive-secondary border-b-2 border-adaptive-strong">
                         <tr>
-                            <th class="top">
-                                Verein/Klassen
+                            <th scope="col" class="sticky left-0 z-10 bg-adaptive-secondary px-3 py-2 text-left text-xs font-semibold text-adaptive-secondary tracking-wider min-w-[200px]">
+                                Verein
                             </th>
-                            <th class="sum with-right-divider">
+                            <th scope="col" class="px-2 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider bg-cyan-highlight border-r-2 border-adaptive-strong w-16">
                                 Gesamt
                             </th>
-                            <th v-for="csn in allClassShortNames" :key="csn" class="cl">
+                            <th
+                                v-for="csn in allClassShortNames"
+                                :key="csn"
+                                scope="col"
+                                class="px-2 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider w-14"
+                            >
                                 {{ csn }}
                             </th>
                             <th
                                 v-for="(r, index) in eventRacesCupScores[0].raceOrganisationGroupedCupScores"
                                 :key="r.race.id"
-                                class="ev" :class="[index === 0 ? 'with-left-divider' : '']"
+                                scope="col"
+                                class="px-2 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider w-14"
+                                :class="[index === 0 ? 'border-l-2 border-adaptive-strong' : '']"
                             >
                                 {{ r.race.name }}
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr v-for="{ org, rank } in calculateRanks(overallScores)" :key="org.organisation.id" class="">
-                            <td class="cb">
-                                {{ `${rank}. ${org.organisation.shortName}` }}
+                    <tbody class="bg-adaptive">
+                        <tr
+                            v-for="({ org, rank }, index) in calculateRanks(overallScores)"
+                            :key="org.organisation.id"
+                            class="hover:bg-adaptive-tertiary transition-colors duration-150 border-b border-adaptive"
+                            :class="{ 'bg-adaptive-secondary': index % 2 === 1 }"
+                        >
+                            <td class="sticky left-0 z-10 bg-adaptive px-3 py-1.5 border-r border-adaptive">
+                                <div class="flex items-center space-x-2">
+                                    <span class="inline-flex items-center justify-center w-3rem h-6 flex-shrink-0 rounded-full text-xs font-bold" :class="getRankBadgeClass(rank)">
+                                        {{ rank }}
+                                    </span>
+                                    <span class="text-sm font-semibold text-adaptive">{{ org.organisation.shortName }}</span>
+                                </div>
                             </td>
-                            <td class="sum with-right-divider">
-                                {{ org.score }}
+                            <td class="px-2 py-1.5 text-center bg-cyan-highlight border-r-2 border-adaptive-strong">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-cyan-badge text-cyan-badge">
+                                    {{ org.score }}
+                                </span>
                             </td>
-                            <td v-for="csn in allClassShortNames" :key="csn" class="cl">
-                                {{ getTotalScoreByClass(org.personWithScores, csn) }}
+                            <td
+                                v-for="csn in allClassShortNames"
+                                :key="csn"
+                                class="px-2 py-1.5 text-center text-xs"
+                            >
+                                <span v-if="getTotalScoreByClass(org.personWithScores, csn)" class="text-adaptive font-semibold">
+                                    {{ getTotalScoreByClass(org.personWithScores, csn) }}
+                                </span>
+                                <span v-else class="text-adaptive-tertiary">-</span>
                             </td>
                             <td
                                 v-for="(r, index) in eventRacesCupScores[0].raceOrganisationGroupedCupScores"
                                 :key="r.race.id"
-                                class="ev" :class="[index === 0 ? 'with-left-divider' : '']"
+                                class="px-2 py-1.5 text-center text-xs"
+                                :class="[index === 0 ? 'border-l-2 border-adaptive-strong' : '']"
                             >
-                                {{ findOrganisationScore(org, r) }}
+                                <span v-if="findOrganisationScore(org, r)" class="text-adaptive font-semibold">
+                                    {{ findOrganisationScore(org, r) }}
+                                </span>
+                                <span v-else class="text-adaptive-tertiary">-</span>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-            </section>
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-body {
-    padding: 0;
-    font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: normal;
-    font-size: 100%;
-    line-height: 100%;
-    font-size-adjust: none;
-    font-stretch: normal;
-}
-table {
-    border-style: none;
-    margin: auto;
-}
-h2 {
-    font-size: medium;
-    margin-left: 10px;
-}
-div#page_header table {
-    border-style: solid none;
-    border-color: #000000;
-    border-width: 1px 0px;
-    margin: 0px auto 30px;
-    padding: 10px 5px;
-    border-collapse: separate;
-    width: 100%;
-}
-div#page_header #first_row {
-    vertical-align: text-top;
-    height: 40px;
-}
-div#page_header #cup_name,
-#event_name {
-    min-width: 300px;
-    text-align: left;
-}
-div#page_header #cup_name {
-    font-size: 120%;
-    text-align: left;
-}
-div#page_header #event_name {
-    vertical-align: text-bottom;
-}
-div#page_header #date_time {
-    min-width: 100px;
-    text-align: right;
-}
-div#page_header #creation_text {
-    text-align: right;
-    vertical-align: text-bottom;
-    font-size: 50%;
-}
-div#club_results {
-    margin-bottom: 30px;
-}
-div#club_results table {
-    font-size: 75%;
-    margin: auto;
-    border-collapse: collapse;
-}
-div#club_results th,
-td {
-    border-style: solid;
-    border-width: thin;
-    padding: 5px;
-}
-div#club_results th {
-    padding-bottom: 8px;
-    text-align: left;
-    vertical-align: middle;
-}
-div#club_results th.top {
-    width: 260px;
-}
-
-div#club_results td.sum {
-    font-weight: bold;
-}
-
-div#club_results th.cl,
-th.ev {
-    text-align: center;
-}
-
-div#club_results td.sum,
-td.cl,
-td.ev {
-    text-align: center;
-}
-
-.with-left-divider {
-    border-left: 2px solid #ccc !important;
-    padding-left: 8px !important;
-}
-
-.with-right-divider {
-    border-right: 2px solid #ccc !important;
-    padding-right: 8px !important;
+.sticky {
+    position: sticky;
 }
 </style>

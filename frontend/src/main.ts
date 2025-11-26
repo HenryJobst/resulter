@@ -1,9 +1,5 @@
-import { getErrorStore } from '@/features/common/stores/getErrorStore'
-
-import AuthStorePlugin from '@/features/keycloak/plugins/authStorePlugin'
-import keycloakService from '@/features/keycloak/services/keycloak'
-import { setupI18n } from '@/i18n'
 import messages from '@intlify/unplugin-vue-i18n/messages'
+
 import { definePreset } from '@primeuix/themes'
 import Lara from '@primeuix/themes/lara'
 import { VueQueryPlugin } from '@tanstack/vue-query'
@@ -15,15 +11,19 @@ import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import Tooltip from 'primevue/tooltip'
 import { createApp, unref } from 'vue'
+import { getErrorStore } from '@/features/common/stores/getErrorStore'
+import AuthStorePlugin from '@/features/keycloak/plugins/authStorePlugin'
+import keycloakService from '@/features/keycloak/services/keycloak'
+import { setupI18n } from '@/i18n'
+import { primevueLocaleMessages } from '@/PrimevueMessages'
+
 import App from './App.vue'
 
 import { setupRouter } from './router'
-
 import './assets/main.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
 import 'flag-icons/css/flag-icons.min.css'
-import { primevueLocaleMessages } from '@/PrimevueMessages'
 
 const savedLocale = localStorage.getItem('userLocale')
 // get user language from browser
@@ -96,7 +96,8 @@ const MyPreset = definePreset(Lara, {
 })
 
 function mergePrimeVueLocale(base: any, override: any) {
-    if (!base) return override
+    if (!base)
+        return override
     const result = { ...base, ...override }
     if (base.aria || override?.aria) {
         result.aria = { ...(base.aria || {}), ...(override?.aria || {}) }

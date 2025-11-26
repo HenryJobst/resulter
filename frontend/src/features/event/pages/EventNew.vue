@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { SportEvent } from '@/features/event/model/sportEvent'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { eventService } from '@/features/event/services/event.service'
 import EventForm from '@/features/event/widgets/EventForm.vue'
 import GenericNew from '@/features/generic/pages/GenericNew.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()

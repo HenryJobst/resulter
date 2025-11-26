@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import type { TableSettings } from '@/features/generic/models/table_settings'
-import GenericList from '@/features/generic/pages/GenericList.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import { personService, duplicatePersonService } from '@/features/person/services/person.service'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import GenericList from '@/features/generic/pages/GenericList.vue'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { duplicatePersonService, personService } from '@/features/person/services/person.service'
 
 const authStore = useAuthStore()
 const { t } = useI18n()

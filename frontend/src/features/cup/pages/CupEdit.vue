@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { Cup } from '@/features/cup/model/cup'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { cupService } from '@/features/cup/services/cup.service'
 import CupForm from '@/features/cup/widgets/CupForm.vue'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ id: string, locale?: string }>()
 

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import type { Person } from '@/features/person/model/person'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import Select from 'primevue/select'
+import { useToast } from 'primevue/usetoast'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { formatYear } from '@/features/generic/services/GenericFunctions'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { PersonService, personService } from '@/features/person/services/person.service'
 import PersonForm from '@/features/person/widgets/PersonForm.vue'
 import { toastDisplayDuration } from '@/utils/constants'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import Select from 'primevue/select'
-import { useToast } from 'primevue/usetoast'
-import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ id: string, locale?: string }>()
 

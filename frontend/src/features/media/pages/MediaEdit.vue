@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { Media } from '@/features/media/model/media'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
 import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { mediaService } from '@/features/media/services/media.service'
 import MediaForm from '@/features/media/widgets/MediaForm.vue'
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ id: string, locale?: string }>()
 

@@ -1,9 +1,7 @@
 <script setup lang="ts">
+import type { MultiSelectChangeEvent } from 'primevue/multiselect'
 import type { Cup } from '@/features/cup/model/cup'
 import type { EventKey } from '@/features/event/model/event_key'
-import type { MultiSelectChangeEvent } from 'primevue/multiselect'
-import { CupService } from '@/features/cup/services/cup.service'
-import { eventService } from '@/features/event/services/event.service'
 import { useQuery } from '@tanstack/vue-query'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
@@ -11,6 +9,8 @@ import MultiSelect from 'primevue/multiselect'
 import Select from 'primevue/select'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { CupService } from '@/features/cup/services/cup.service'
+import { eventService } from '@/features/event/services/event.service'
 
 const props = defineProps<{
     cup: Cup

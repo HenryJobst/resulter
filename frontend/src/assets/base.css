@@ -1,5 +1,131 @@
 @import "tailwindcss";
 
+/* Dark Mode CSS Variables */
+:root {
+    --bg-primary: 255 255 255; /* white */
+    --bg-secondary: 249 250 251; /* gray-50 */
+    --bg-tertiary: 243 244 246; /* gray-100 */
+    --text-primary: 17 24 39; /* gray-900 */
+    --text-secondary: 75 85 99; /* gray-600 */
+    --text-tertiary: 107 114 128; /* gray-500 */
+    --border-color: 229 231 235; /* gray-200 */
+    --border-color-strong: 209 213 219; /* gray-300 */
+    --purple-highlight-bg: 255 237 213; /* orange-50 */
+    --purple-badge-bg: 254 215 170; /* orange-100 */
+    --purple-badge-text: 154 52 18; /* orange-800 */
+    --blue-highlight-bg: 239 246 255; /* blue-50 */
+    --blue-badge-bg: 219 234 254; /* blue-100 */
+    --blue-badge-text: 30 64 175; /* blue-800 */
+    --cyan-highlight-bg: 236 254 255; /* cyan-50 */
+    --cyan-badge-bg: 207 250 254; /* cyan-100 */
+    --cyan-badge-text: 21 94 117; /* cyan-800 */
+    --emerald-highlight-bg: 236 253 245; /* emerald-50 */
+    --emerald-badge-bg: 209 250 229; /* emerald-100 */
+    --emerald-badge-text: 6 95 70; /* emerald-800 */
+    --gray-badge-bg: 243 244 246; /* gray-100 */
+    --gray-badge-text: 31 41 55; /* gray-800 */
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: 31 41 55; /* gray-800 */
+        --bg-secondary: 17 24 39; /* gray-900 */
+        --bg-tertiary: 55 65 81; /* gray-700 */
+        --text-primary: 243 244 246; /* gray-100 */
+        --text-secondary: 229 231 235; /* gray-200 */
+        --text-tertiary: 209 213 219; /* gray-300 */
+        --border-color: 75 85 99; /* gray-600 */
+        --border-color-strong: 55 65 81; /* gray-700 */
+        --purple-highlight-bg: 55 48 70; /* subtle dark purple-gray */
+        --purple-badge-bg: 107 33 168; /* purple-800 */
+        --purple-badge-text: 233 213 255; /* purple-100 */
+        --blue-highlight-bg: 48 55 70; /* subtle dark blue-gray */
+        --blue-badge-bg: 30 64 175; /* blue-800 */
+        --blue-badge-text: 219 234 254; /* blue-100 */
+        --cyan-highlight-bg: 48 63 70; /* subtle dark cyan-gray */
+        --cyan-badge-bg: 21 94 117; /* cyan-800 */
+        --cyan-badge-text: 207 250 254; /* cyan-100 */
+        --emerald-highlight-bg: 48 70 58; /* subtle dark emerald-gray */
+        --emerald-badge-bg: 6 95 70; /* emerald-800 */
+        --emerald-badge-text: 209 250 229; /* emerald-100 */
+        --gray-badge-bg: 55 65 81; /* gray-700 */
+        --gray-badge-text: 229 231 235; /* gray-200 */
+    }
+}
+
+/* Custom utility classes using CSS variables */
+@layer utilities {
+    .bg-adaptive {
+        background-color: rgb(var(--bg-primary));
+    }
+    .bg-adaptive-secondary {
+        background-color: rgb(var(--bg-secondary));
+    }
+    .bg-adaptive-tertiary {
+        background-color: rgb(var(--bg-tertiary));
+    }
+    .bg-purple-highlight {
+        background-color: rgb(var(--purple-highlight-bg));
+    }
+    .bg-purple-badge {
+        background-color: rgb(var(--purple-badge-bg));
+    }
+    .bg-blue-highlight {
+        background-color: rgb(var(--blue-highlight-bg));
+    }
+    .bg-blue-badge {
+        background-color: rgb(var(--blue-badge-bg));
+    }
+    .bg-cyan-highlight {
+        background-color: rgb(var(--cyan-highlight-bg));
+    }
+    .bg-cyan-badge {
+        background-color: rgb(var(--cyan-badge-bg));
+    }
+    .bg-emerald-highlight {
+        background-color: rgb(var(--emerald-highlight-bg));
+    }
+    .bg-emerald-badge {
+        background-color: rgb(var(--emerald-badge-bg));
+    }
+    .text-adaptive {
+        color: rgb(var(--text-primary));
+    }
+    .text-adaptive-secondary {
+        color: rgb(var(--text-secondary));
+    }
+    .text-adaptive-tertiary {
+        color: rgb(var(--text-tertiary));
+    }
+    .text-purple-badge {
+        color: rgb(var(--purple-badge-text));
+    }
+    .text-blue-badge {
+        color: rgb(var(--blue-badge-text));
+    }
+    .text-cyan-badge {
+        color: rgb(var(--cyan-badge-text));
+    }
+    .text-emerald-badge {
+        color: rgb(var(--emerald-badge-text));
+    }
+    .bg-gray-badge {
+        background-color: rgb(var(--gray-badge-bg));
+    }
+    .text-gray-badge {
+        color: rgb(var(--gray-badge-text));
+    }
+    .border-adaptive {
+        border-color: rgb(var(--border-color));
+    }
+    .border-adaptive-strong {
+        border-color: rgb(var(--border-color-strong));
+    }
+    .divide-adaptive > * + * {
+        border-color: rgb(var(--border-color));
+    }
+}
+
 /* Initial Values */
 /*
 :root {

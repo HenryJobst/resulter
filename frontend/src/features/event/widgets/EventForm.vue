@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import type { Certificate } from '@/features/certificate/model/certificate'
-import type { CertificateKey } from '@/features/certificate/model/certificate_key'
-import type { SportEvent } from '@/features/event/model/sportEvent'
-
-import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
 import type { MultiSelectChangeEvent } from 'primevue/multiselect'
 import type { SelectChangeEvent } from 'primevue/select'
-import { certificateService } from '@/features/certificate/services/certificate.service'
-import { EventService } from '@/features/event/services/event.service'
-import { organisationService } from '@/features/organisation/services/organisation.service'
+import type { Certificate } from '@/features/certificate/model/certificate'
+
+import type { CertificateKey } from '@/features/certificate/model/certificate_key'
+import type { SportEvent } from '@/features/event/model/sportEvent'
+import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
 import { useQuery } from '@tanstack/vue-query'
 import DatePicker from 'primevue/datepicker'
 import InputText from 'primevue/inputtext'
@@ -16,6 +13,9 @@ import MultiSelect from 'primevue/multiselect'
 import Select from 'primevue/select'
 import { computed, onBeforeUpdate, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { certificateService } from '@/features/certificate/services/certificate.service'
+import { EventService } from '@/features/event/services/event.service'
+import { organisationService } from '@/features/organisation/services/organisation.service'
 
 const props = defineProps<{
     event: SportEvent

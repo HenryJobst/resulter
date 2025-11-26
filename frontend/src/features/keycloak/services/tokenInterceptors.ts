@@ -1,11 +1,11 @@
 import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
+import { ToastEventBus } from 'primevue'
 import { getErrorStore } from '@/features/common/stores/getErrorStore'
 import axiosInstance from '@/features/keycloak/services/api'
 import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
 import { i18n } from '@/i18n'
 import { errorToastDisplayDuration, sameErrorTimeout } from '@/utils/constants'
 import { getDetail, getMessage, handleApiError } from '@/utils/HandleError'
-import { ToastEventBus } from 'primevue'
 
 function setup(store: any) {
     axiosInstance.interceptors.request.use(

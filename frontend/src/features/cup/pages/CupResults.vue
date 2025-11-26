@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import type { Ref } from 'vue'
 import type { AggregatedPersonScores } from '@/features/cup/model/aggregated_person_scores'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
-import type { Ref } from 'vue'
-import FogCupResults from '@/features/cup/pages/FogCupResults.vue'
-import KristallCupResults from '@/features/cup/pages/KristallCupResults.vue'
-import KjPokalResults from '@/features/cup/pages/KjPokalResults.vue'
-import NorCupResults from '@/features/cup/pages/NorCupResults.vue'
-import { CupService } from '@/features/cup/services/cup.service'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import FogCupResults from '@/features/cup/pages/FogCupResults.vue'
+import KjPokalResults from '@/features/cup/pages/KjPokalResults.vue'
+import KristallCupResults from '@/features/cup/pages/KristallCupResults.vue'
+import NorCupResults from '@/features/cup/pages/NorCupResults.vue'
+import { CupService } from '@/features/cup/services/cup.service'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const props = defineProps<{ id: string }>()
 

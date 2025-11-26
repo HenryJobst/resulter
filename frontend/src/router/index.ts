@@ -1,5 +1,7 @@
 import type { I18n } from 'vue-i18n'
 import type { Router, RouteRecordRaw } from 'vue-router'
+import { ToastEventBus } from 'primevue'
+import { createRouter, createWebHistory } from 'vue-router'
 import { aboutRouting } from '@/features/about/about-routing'
 import { certificateRouting } from '@/features/certificate/certificate-routing'
 import { cupRouting } from '@/features/cup/cup-routing'
@@ -10,8 +12,6 @@ import { organisationRouting } from '@/features/organisation/organisation-routin
 import { personRouting } from '@/features/person/person-routing'
 import { startRouting } from '@/features/start/start-routing'
 import { getLocale, loadLocaleMessages, setI18nLanguage, SUPPORT_LOCALES } from '@/i18n'
-import { ToastEventBus } from 'primevue'
-import { createRouter, createWebHistory } from 'vue-router'
 
 export function setupRouter(i18n: I18n): Router {
     const locale = getLocale(i18n)

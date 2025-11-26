@@ -1,10 +1,10 @@
+import type { DataTableFilterMetaData } from 'primevue/datatable'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
-import type { DataTableFilterMetaData } from 'primevue/datatable'
-import axiosInstance from '@/features/keycloak/services/api'
 import { sfAnd, sfEqual, sfLike } from 'spring-filter-query-builder'
+import axiosInstance from '@/features/keycloak/services/api'
 
 function getSortParam(field: string | ((item: any) => string), order: number | null | undefined) {
     const direction = order === 1 ? 'asc' : 'desc'
@@ -107,7 +107,7 @@ export class GenericService<T> implements IGenericService<T> {
             : new URLSearchParams()
         // Merge in extra params from subclass hook
         const extras = this.getExtraParams()
-        Object.keys(extras).forEach(k => {
+        Object.keys(extras).forEach((k) => {
             const v = extras[k]
             if (v !== undefined && v !== null) {
                 urlSearchParams.set(k, String(v))

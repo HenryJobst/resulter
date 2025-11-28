@@ -107,7 +107,7 @@ function getRankBadgeClass(rank: number): string {
     <div class="max-w-7xl mx-auto px-3 py-3 sm:px-4 lg:px-6">
         <!-- Header Section -->
         <div class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">
-            <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-3">
+            <div class="bg-gradient-to-r from-zinc-600 to-zinc-700 px-4 py-3">
                 <h1 class="text-xl font-bold text-white">
                     {{ cupName }} - Gesamtwertung
                 </h1>
@@ -136,7 +136,7 @@ function getRankBadgeClass(rank: number): string {
                     <tbody class="bg-adaptive">
                         <tr v-for="(event, index) in allEvents" :key="event.id" class="hover:bg-adaptive-tertiary transition-colors duration-150 border-b border-adaptive" :class="{ 'bg-adaptive-secondary': index % 2 === 1 }">
                             <td class="px-3 py-1.5 whitespace-nowrap">
-                                <span class="inline-flex items-center justify-center w-6 h-6 flex-shrink-0 rounded-full bg-emerald-badge text-emerald-badge font-semibold text-xs">
+                                <span class="inline-flex items-center justify-center w-6 h-6 flex-shrink-0 rounded-full bg-zinc-badge text-zinc-badge font-semibold text-xs">
                                     {{ index + 1 }}
                                 </span>
                             </td>
@@ -170,7 +170,7 @@ function getRankBadgeClass(rank: number): string {
                 :key="entry.classResultShortName"
                 class="bg-adaptive rounded shadow-sm border border-adaptive overflow-hidden transition-all duration-200 hover:shadow-md"
             >
-                <div class="px-4 py-2 bg-emerald-highlight border-b border-adaptive">
+                <div class="px-4 py-2 bg-zinc-highlight border-b border-adaptive">
                     <h3 class="text-base font-bold text-adaptive">
                         {{ entry.classResultShortName }}
                     </h3>
@@ -186,7 +186,7 @@ function getRankBadgeClass(rank: number): string {
                                 <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-adaptive-secondary tracking-wider">
                                     Name
                                 </th>
-                                <th scope="col" class="px-3 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider bg-emerald-highlight border-x-2 border-adaptive-strong w-20">
+                                <th scope="col" class="px-3 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider bg-zinc-highlight border-x-2 border-adaptive-strong w-20">
                                     Gesamt
                                 </th>
                                 <th
@@ -240,8 +240,8 @@ function getRankBadgeClass(rank: number): string {
                                         {{ person(pws.personId) }}
                                     </div>
                                 </td>
-                                <td class="px-3 py-1.5 text-center bg-emerald-highlight border-x-2 border-adaptive-strong">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold bg-emerald-badge text-emerald-badge">
+                                <td class="px-3 py-1.5 text-center bg-zinc-highlight border-x-2 border-adaptive-strong">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold bg-zinc-badge text-zinc-badge">
                                         {{ pws.score }}
                                     </span>
                                 </td>

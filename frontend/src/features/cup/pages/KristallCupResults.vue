@@ -74,7 +74,7 @@ function getRankBadgeClass(rank: number): string {
     <div class="max-w-[90rem] mx-auto px-3 py-3 sm:px-4 lg:px-6">
         <!-- Header Section -->
         <div class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">
-            <div class="bg-gradient-to-r from-cyan-600 to-cyan-700 px-4 py-3">
+            <div class="bg-gradient-to-r from-stone-600 to-stone-700 px-4 py-3">
                 <h1 class="text-xl font-bold text-white">
                     {{ cupName }} - Vereinswertung
                 </h1>
@@ -101,7 +101,7 @@ function getRankBadgeClass(rank: number): string {
                             <th scope="col" class="sticky left-0 z-10 bg-adaptive-secondary px-3 py-2 text-left text-xs font-semibold text-adaptive-secondary tracking-wider min-w-[200px]">
                                 Verein
                             </th>
-                            <th scope="col" class="px-2 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider bg-cyan-highlight border-r-2 border-adaptive-strong w-16">
+                            <th scope="col" class="px-2 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider bg-stone-highlight border-r-2 border-adaptive-strong w-16">
                                 Gesamt
                             </th>
                             <th
@@ -138,8 +138,8 @@ function getRankBadgeClass(rank: number): string {
                                     <span class="text-sm font-semibold text-adaptive">{{ org.organisation.shortName }}</span>
                                 </div>
                             </td>
-                            <td class="px-2 py-1.5 text-center bg-cyan-highlight border-r-2 border-adaptive-strong">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-cyan-badge text-cyan-badge">
+                            <td class="px-2 py-1.5 text-center bg-stone-highlight border-r-2 border-adaptive-strong">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-stone-badge text-stone-badge">
                                     {{ org.score }}
                                 </span>
                             </td>

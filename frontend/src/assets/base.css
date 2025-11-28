@@ -13,15 +13,15 @@
     --purple-highlight-bg: 255 237 213; /* orange-50 */
     --purple-badge-bg: 254 215 170; /* orange-100 */
     --purple-badge-text: 154 52 18; /* orange-800 */
-    --blue-highlight-bg: 239 246 255; /* blue-50 */
-    --blue-badge-bg: 219 234 254; /* blue-100 */
-    --blue-badge-text: 30 64 175; /* blue-800 */
-    --cyan-highlight-bg: 236 254 255; /* cyan-50 */
-    --cyan-badge-bg: 207 250 254; /* cyan-100 */
-    --cyan-badge-text: 21 94 117; /* cyan-800 */
-    --emerald-highlight-bg: 236 253 245; /* emerald-50 */
-    --emerald-badge-bg: 209 250 229; /* emerald-100 */
-    --emerald-badge-text: 6 95 70; /* emerald-800 */
+    --slate-highlight-bg: 241 245 249; /* blue-50 */
+    --slate-badge-bg: 226 232 240; /* blue-100 */
+    --slate-badge-text: 51 65 85; /* blue-800 */
+    --stone-highlight-bg: 250 250 249; /* cyan-50 */
+    --stone-badge-bg: 231 229 228; /* cyan-100 */
+    --stone-badge-text: 68 64 60; /* cyan-800 */
+    --zinc-highlight-bg: 244 244 245; /* emerald-50 */
+    --zinc-badge-bg: 228 228 231; /* emerald-100 */
+    --zinc-badge-text: 63 63 70; /* emerald-800 */
     --gray-badge-bg: 243 244 246; /* gray-100 */
     --gray-badge-text: 31 41 55; /* gray-800 */
 }
@@ -39,15 +39,15 @@
         --purple-highlight-bg: 55 48 70; /* subtle dark purple-gray */
         --purple-badge-bg: 107 33 168; /* purple-800 */
         --purple-badge-text: 233 213 255; /* purple-100 */
-        --blue-highlight-bg: 48 55 70; /* subtle dark blue-gray */
-        --blue-badge-bg: 30 64 175; /* blue-800 */
-        --blue-badge-text: 219 234 254; /* blue-100 */
-        --cyan-highlight-bg: 48 63 70; /* subtle dark cyan-gray */
-        --cyan-badge-bg: 21 94 117; /* cyan-800 */
-        --cyan-badge-text: 207 250 254; /* cyan-100 */
-        --emerald-highlight-bg: 48 70 58; /* subtle dark emerald-gray */
-        --emerald-badge-bg: 6 95 70; /* emerald-800 */
-        --emerald-badge-text: 209 250 229; /* emerald-100 */
+        --slate-highlight-bg: 51 65 85; /* subtle dark blue-gray */
+        --slate-badge-bg: 148 163 184; /* blue-800 */
+        --slate-badge-text: 226 232 240; /* blue-100 */
+        --stone-highlight-bg: 68 64 60; /* subtle dark cyan-gray */
+        --stone-badge-bg: 168 162 158; /* cyan-800 */
+        --stone-badge-text: 231 229 228; /* cyan-100 */
+        --zinc-highlight-bg: 63 63 70; /* subtle dark emerald-gray */
+        --zinc-badge-bg: 161 161 170; /* emerald-800 */
+        --zinc-badge-text: 228 228 231; /* emerald-100 */
         --gray-badge-bg: 55 65 81; /* gray-700 */
         --gray-badge-text: 229 231 235; /* gray-200 */
     }
@@ -70,23 +70,23 @@
     .bg-purple-badge {
         background-color: rgb(var(--purple-badge-bg));
     }
-    .bg-blue-highlight {
-        background-color: rgb(var(--blue-highlight-bg));
+    .bg-slate-highlight {
+        background-color: rgb(var(--slate-highlight-bg));
     }
-    .bg-blue-badge {
-        background-color: rgb(var(--blue-badge-bg));
+    .bg-slate-badge {
+        background-color: rgb(var(--slate-badge-bg));
     }
-    .bg-cyan-highlight {
-        background-color: rgb(var(--cyan-highlight-bg));
+    .bg-stone-highlight {
+        background-color: rgb(var(--stone-highlight-bg));
     }
-    .bg-cyan-badge {
-        background-color: rgb(var(--cyan-badge-bg));
+    .bg-stone-badge {
+        background-color: rgb(var(--stone-badge-bg));
     }
-    .bg-emerald-highlight {
-        background-color: rgb(var(--emerald-highlight-bg));
+    .bg-zinc-highlight {
+        background-color: rgb(var(--zinc-highlight-bg));
     }
-    .bg-emerald-badge {
-        background-color: rgb(var(--emerald-badge-bg));
+    .bg-zinc-badge {
+        background-color: rgb(var(--zinc-badge-bg));
     }
     .text-adaptive {
         color: rgb(var(--text-primary));
@@ -100,14 +100,14 @@
     .text-purple-badge {
         color: rgb(var(--purple-badge-text));
     }
-    .text-blue-badge {
-        color: rgb(var(--blue-badge-text));
+    .text-slate-badge {
+        color: rgb(var(--slate-badge-text));
     }
-    .text-cyan-badge {
-        color: rgb(var(--cyan-badge-text));
+    .text-stone-badge {
+        color: rgb(var(--stone-badge-text));
     }
-    .text-emerald-badge {
-        color: rgb(var(--emerald-badge-text));
+    .text-zinc-badge {
+        color: rgb(var(--zinc-badge-text));
     }
     .bg-gray-badge {
         background-color: rgb(var(--gray-badge-bg));

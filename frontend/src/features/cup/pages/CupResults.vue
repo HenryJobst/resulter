@@ -94,7 +94,7 @@ const aggregatedPersonScores: Ref<AggregatedPersonScores[]> = computed(
             v-if="cupData.type?.id === 'NEBEL'"
             :cup-name="cupData.name"
             :overall-scores="overallOrganisationScores"
-            :event-races-cup-scores="eventRacesCupScores"
+            :event-races-cup-score="eventRacesCupScores"
         />
         <KjPokalResults
             v-if="cupData.type?.id === 'KJ'"

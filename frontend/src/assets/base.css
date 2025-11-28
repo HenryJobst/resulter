@@ -40,14 +40,14 @@
         --purple-badge-bg: 107 33 168; /* purple-800 */
         --purple-badge-text: 233 213 255; /* purple-100 */
         --slate-highlight-bg: 51 65 85; /* subtle dark blue-gray */
-        --slate-badge-bg: 148 163 184; /* blue-800 */
-        --slate-badge-text: 226 232 240; /* blue-100 */
+        --slate-badge-bg: 71 85 105; /* slate-600 medium */
+        --slate-badge-text: 248 250 252; /* slate-50 very light */
         --stone-highlight-bg: 68 64 60; /* subtle dark cyan-gray */
-        --stone-badge-bg: 168 162 158; /* cyan-800 */
-        --stone-badge-text: 231 229 228; /* cyan-100 */
+        --stone-badge-bg: 87 83 78; /* stone-600 medium */
+        --stone-badge-text: 250 250 249; /* stone-50 very light */
         --zinc-highlight-bg: 63 63 70; /* subtle dark emerald-gray */
-        --zinc-badge-bg: 161 161 170; /* emerald-800 */
-        --zinc-badge-text: 228 228 231; /* emerald-100 */
+        --zinc-badge-bg: 82 82 91; /* zinc-600 medium */
+        --zinc-badge-text: 250 250 250; /* zinc-50 very light */
         --gray-badge-bg: 55 65 81; /* gray-700 */
         --gray-badge-text: 229 231 235; /* gray-200 */
     }

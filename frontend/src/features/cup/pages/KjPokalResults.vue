@@ -180,7 +180,7 @@ function getRankBadgeClass(rank: number): string {
                     <colgroup>
                         <col style="width: 350px;">
                         <col style="width: 80px;">
-                        <col v-for="(_race, index) in props.eventRacesCupScores" :key="index" style="width: 50px;">
+                        <col v-for="(index) in props.eventRacesCupScores" :key="index" style="width: 50px;">
                     </colgroup>
                     <thead class="bg-adaptive-secondary">
                         <tr>
@@ -191,7 +191,7 @@ function getRankBadgeClass(rank: number): string {
                                 Gesamt
                             </th>
                             <th
-                                v-for="(_race, index) in props.eventRacesCupScores"
+                                v-for="(index) in props.eventRacesCupScores"
                                 :key="index"
                                 scope="col"
                                 class="px-2 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider"

@@ -92,7 +92,7 @@ function getRankBadgeClass(rank: number): string {
     <div class="max-w-[90rem] mx-auto px-3 py-3 sm:px-4 lg:px-6">
         <!-- Header Section -->
         <div class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3">
+            <div class="bg-gradient-to-r from-slate-600 to-slate-700 px-4 py-3">
                 <h1 class="text-xl font-bold text-white">
                     {{ cupName }} - Gesamtwertung
                 </h1>
@@ -175,7 +175,7 @@ function getRankBadgeClass(rank: number): string {
                                 </div>
                             </td>
                             <td class="px-3 py-2 whitespace-nowrap text-right">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold bg-blue-badge text-blue-badge">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold bg-slate-badge text-slate-badge">
                                     {{ org.score }}
                                 </span>
                             </td>
@@ -211,7 +211,7 @@ function getRankBadgeClass(rank: number): string {
                                 {{ org.organisation.shortName }}
                             </h3>
                         </div>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-bold bg-blue-badge text-blue-badge whitespace-nowrap flex-shrink-0">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-bold bg-slate-badge text-slate-badge whitespace-nowrap flex-shrink-0">
                             {{ org.score }} Punkte
                         </span>
                     </div>

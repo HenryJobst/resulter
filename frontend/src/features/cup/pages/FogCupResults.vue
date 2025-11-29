@@ -146,21 +146,21 @@ function getRankBadgeClass(rank: number): string {
                                 <div v-if="rank <= 3" class="flex items-center justify-center">
                                     <img
                                         v-if="rank === 1"
-                                        src="@/assets/1.jpg"
+                                        src="@/assets/medal-gold.svg"
                                         alt="Erster Platz"
-                                        class="w-8 h-8 object-contain flex-shrink-0"
+                                        class="w-14 h-14 object-contain flex-shrink-0"
                                     >
                                     <img
                                         v-else-if="rank === 2"
-                                        src="@/assets/2.jpg"
+                                        src="@/assets/medal-silver.svg"
                                         alt="Zweiter Platz"
-                                        class="w-8 h-8 object-contain flex-shrink-0"
+                                        class="w-14 h-14 object-contain flex-shrink-0"
                                     >
                                     <img
                                         v-else-if="rank === 3"
-                                        src="@/assets/3.jpg"
+                                        src="@/assets/medal-bronze.svg"
                                         alt="Dritter Platz"
-                                        class="w-8 h-8 object-contain flex-shrink-0"
+                                        class="w-14 h-14 object-contain flex-shrink-0"
                                     >
                                 </div>
                                 <div v-else class="flex items-center justify-center">
@@ -204,7 +204,27 @@ function getRankBadgeClass(rank: number): string {
                 <div class="px-4 py-2 bg-gradient-to-r bg-adaptive-tertiary border-b border-adaptive">
                     <div class="flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2 flex-1">
-                            <span class="inline-flex items-center justify-center w-2rem h-5 flex-shrink-0 rounded-full text-xs font-bold" :class="getRankBadgeClass(rank)">
+                            <div v-if="rank <= 3" class="flex items-center justify-center">
+                                <img
+                                    v-if="rank === 1"
+                                    src="@/assets/medal-gold.svg"
+                                    alt="Erster Platz"
+                                    class="w-10 h-10 object-contain flex-shrink-0"
+                                >
+                                <img
+                                    v-else-if="rank === 2"
+                                    src="@/assets/medal-silver.svg"
+                                    alt="Zweiter Platz"
+                                    class="w-10 h-10 object-contain flex-shrink-0"
+                                >
+                                <img
+                                    v-else-if="rank === 3"
+                                    src="@/assets/medal-bronze.svg"
+                                    alt="Dritter Platz"
+                                    class="w-10 h-10 object-contain flex-shrink-0"
+                                >
+                            </div>
+                            <span v-else class="inline-flex items-center justify-center w-2rem h-5 flex-shrink-0 rounded-full text-xs font-bold" :class="getRankBadgeClass(rank)">
                                 {{ rank }}
                             </span>
                             <h3 class="text-base font-bold text-adaptive ml-1">

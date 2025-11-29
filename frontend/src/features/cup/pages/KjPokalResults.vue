@@ -191,7 +191,7 @@ function getRankBadgeClass(rank: number): string {
                                 Gesamt
                             </th>
                             <th
-                                v-for="(index) in props.eventRacesCupScores"
+                                v-for="(_race, index) in props.eventRacesCupScores"
                                 :key="index"
                                 scope="col"
                                 class="px-2 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider"
@@ -209,14 +209,34 @@ function getRankBadgeClass(rank: number): string {
                         >
                             <td class="px-3 py-1.5">
                                 <div class="flex items-center space-x-2">
-                                    <span class="inline-flex items-center justify-center w-2rem h-5 flex-shrink-0 rounded-full text-xs font-bold" :class="getRankBadgeClass(place)">
+                                    <div v-if="place <= 3" class="flex items-center justify-center w-2 flex-shrink-0">
+                                        <img
+                                            v-if="place === 1"
+                                            src="@/assets/medal-gold.svg"
+                                            alt="Erster Platz"
+                                            class="w-14 h-14 object-contain"
+                                        >
+                                        <img
+                                            v-else-if="place === 2"
+                                            src="@/assets/medal-silver.svg"
+                                            alt="Zweiter Platz"
+                                            class="w-14 h-14 object-contain"
+                                        >
+                                        <img
+                                            v-else-if="place === 3"
+                                            src="@/assets/medal-bronze.svg"
+                                            alt="Dritter Platz"
+                                            class="w-14 h-14 object-contain"
+                                        >
+                                    </div>
+                                    <span v-else class="inline-flex items-center justify-center w-2 h-6 flex-shrink-0 rounded-full text-xs font-bold" :class="getRankBadgeClass(place)">
                                         {{ place }}
                                     </span>
                                     <span class="text-sm font-semibold text-adaptive whitespace-nowrap">{{ combinedScore.club }}</span>
                                 </div>
                             </td>
                             <td class="px-3 py-1.5 text-center bg-purple-highlight">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold bg-purple-badge text-purple-badge">
+                                <span class="inline-flex items-center justify-center px-2 py-0.5 w-3rem rounded-full text-sm font-bold bg-purple-badge text-purple-badge">
                                     {{ combinedScore.total }}
                                 </span>
                             </td>
@@ -268,9 +288,12 @@ function getRankBadgeClass(rank: number): string {
                             <table class="min-w-full">
                                 <thead class="bg-adaptive-secondary border-b-2 border-adaptive-strong">
                                     <tr>
-                                        <th scope="col" class="px-3 py-1.5 text-left text-xs font-semibold text-adaptive-secondary">
+                                        <th scope="col" class="px-3 py-1.5 w-1 text-left text-xs font-semibold text-adaptive-secondary">
                                             Klasse
                                         </th>
+                                        <!-- th scope="col" class="px-3 py-1.5 text-left text-xs font-semibold text-adaptive-secondary">
+                                            Name
+                                        </th -->
                                         <th scope="col" class="px-3 py-1.5 text-right text-xs font-semibold text-adaptive-secondary">
                                             Punkte
                                         </th>
@@ -283,11 +306,14 @@ function getRankBadgeClass(rank: number): string {
                                         class="hover:bg-adaptive-tertiary transition-colors border-b border-adaptive"
                                         :class="{ 'bg-adaptive-secondary': index % 2 === 1 }"
                                     >
-                                        <td class="px-3 py-1">
+                                        <td class="px-3 py-1 w-1">
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-badge text-gray-badge">
                                                 {{ person.classShortName }}
                                             </span>
                                         </td>
+                                        <!-- td class="px-3 py-1 text-left text-adaptive-secondary text-xs font-semibold">
+                                            {{ person.personId }}
+                                        </td -->
                                         <td class="px-3 py-1 text-right text-adaptive-secondary text-xs font-semibold">
                                             {{ person.score }}
                                         </td>

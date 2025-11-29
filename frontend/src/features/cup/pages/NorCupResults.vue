@@ -136,7 +136,7 @@ function getRankBadgeClass(rank: number): string {
                     <tbody class="bg-adaptive">
                         <tr v-for="(event, index) in allEvents" :key="event.id" class="hover:bg-adaptive-tertiary transition-colors duration-150 border-b border-adaptive" :class="{ 'bg-adaptive-secondary': index % 2 === 1 }">
                             <td class="px-3 py-1.5 whitespace-nowrap">
-                                <span class="inline-flex items-center justify-center w-6 h-6 flex-shrink-0 rounded-full bg-zinc-badge text-zinc-badge font-semibold text-xs">
+                                <span class="inline-flex items-center justify-center w-8 h-8 flex-shrink-0 rounded-full bg-zinc-badge text-zinc-badge font-semibold text-xs">
                                     {{ index + 1 }}
                                 </span>
                             </td>
@@ -212,25 +212,25 @@ function getRankBadgeClass(rank: number): string {
                                     <div v-if="rank <= 3" class="flex items-center justify-center">
                                         <img
                                             v-if="rank === 1"
-                                            src="@/assets/1.jpg"
+                                            src="@/assets/medal-gold.svg"
                                             alt="Erster Platz"
-                                            class="w-8 h-8 object-contain"
+                                            class="w-14 h-14 object-contain"
                                         >
                                         <img
                                             v-else-if="rank === 2"
-                                            src="@/assets/2.jpg"
+                                            src="@/assets/medal-silver.svg"
                                             alt="Zweiter Platz"
-                                            class="w-8 h-8 object-contain"
+                                            class="w-14 h-14 object-contain"
                                         >
                                         <img
                                             v-else-if="rank === 3"
-                                            src="@/assets/3.jpg"
+                                            src="@/assets/medal-bronze.svg"
                                             alt="Dritter Platz"
-                                            class="w-8 h-8 object-contain"
+                                            class="w-14 h-14 object-contain"
                                         >
                                     </div>
                                     <div v-else class="flex items-center justify-center">
-                                        <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0 rounded-full text-xs font-semibold" :class="getRankBadgeClass(rank)">
+                                        <span class="inline-flex items-center justify-center w-8 h-8 flex-shrink-0 rounded-full text-xs font-semibold" :class="getRankBadgeClass(rank)">
                                             {{ rank }}
                                         </span>
                                     </div>

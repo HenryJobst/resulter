@@ -131,8 +131,28 @@ function getRankBadgeClass(rank: number): string {
                             :class="{ 'bg-adaptive-secondary': index % 2 === 1 }"
                         >
                             <td class="sticky left-0 z-10 bg-adaptive px-3 py-1.5 border-r border-adaptive">
-                                <div class="flex items-center space-x-2">
-                                    <span class="inline-flex items-center justify-center w-3rem h-6 flex-shrink-0 rounded-full text-xs font-bold" :class="getRankBadgeClass(rank)">
+                                <div class="flex items-center space-x-2 w-14rem">
+                                    <div v-if="rank <= 3" class="flex items-center justify-center w-2 flex-shrink-0">
+                                        <img
+                                            v-if="rank === 1"
+                                            src="@/assets/medal-gold.svg"
+                                            alt="Erster Platz"
+                                            class="w-20 h-8 object-contain"
+                                        >
+                                        <img
+                                            v-else-if="rank === 2"
+                                            src="@/assets/medal-silver.svg"
+                                            alt="Zweiter Platz"
+                                            class="w-20 h-8 object-contain"
+                                        >
+                                        <img
+                                            v-else-if="rank === 3"
+                                            src="@/assets/medal-bronze.svg"
+                                            alt="Dritter Platz"
+                                            class="w-20 h-8 object-contain"
+                                        >
+                                    </div>
+                                    <span v-else class="ml-1 inline-flex items-center justify-center w-2rem h-6 flex-shrink-0 rounded-full text-xs font-bold" :class="getRankBadgeClass(rank)">
                                         {{ rank }}
                                     </span>
                                     <span class="text-sm font-semibold text-adaptive">{{ org.organisation.shortName }}</span>

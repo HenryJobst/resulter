@@ -3,6 +3,10 @@ package de.jobst.resulter.adapter.driven.inmemory;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
@@ -10,10 +14,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -28,10 +28,10 @@ public class InMemoryPersonRepository implements PersonRepository {
         Person savedPerson;
         if (ObjectUtils.isEmpty(person.getId()) || person.getId().value() == 0) {
             savedPerson = new Person(
-                PersonId.of(sequence.incrementAndGet()),
-                person.getPersonName(),
-                person.getBirthDate(),
-                person.getGender());
+                    PersonId.of(sequence.incrementAndGet()),
+                    person.getPersonName(),
+                    person.getBirthDate(),
+                    person.getGender());
         } else {
             savedPerson = person;
         }
@@ -52,13 +52,14 @@ public class InMemoryPersonRepository implements PersonRepository {
 
     @Override
     public PersonPerson findOrCreate(Person person) {
-        return new PersonPerson(person, persons.values()
-            .stream()
-            .filter(it -> Objects.equals(it.getPersonName(), person.getPersonName()) &&
-                          Objects.equals(it.getBirthDate(), person.getBirthDate()) &&
-                          Objects.equals(it.getGender(), person.getGender()))
-            .findAny()
-            .orElseGet(() -> save(person)));
+        return new PersonPerson(
+                person,
+                persons.values().stream()
+                        .filter(it -> Objects.equals(it.getPersonName(), person.getPersonName())
+                                && Objects.equals(it.getBirthDate(), person.getBirthDate())
+                                && Objects.equals(it.getGender(), person.getGender()))
+                        .findAny()
+                        .orElseGet(() -> save(person)));
     }
 
     @Override
@@ -75,15 +76,21 @@ public class InMemoryPersonRepository implements PersonRepository {
     public Page<Person> findDuplicates(String filter, @NonNull Pageable pageable) {
         // simple in-memory implementation for tests/dev
         List<Person> all = new ArrayList<>(persons.values());
-        // optional basic filter on familyName/givenName/id substrings when filter string is simple like "familyName=='X'"
+        // optional basic filter on familyName/givenName/id substrings when filter string is simple like
+        // "familyName=='X'"
         // For simplicity, ignore complex filters here.
         Map<String, Long> counts = new HashMap<>();
         for (Person p : all) {
-            String key = p.getPersonName().familyName().value() + "\u0000" + p.getPersonName().givenName().value();
+            String key = p.getPersonName().familyName().value() + "\u0000"
+                    + p.getPersonName().givenName().value();
             counts.put(key, counts.getOrDefault(key, 0L) + 1);
         }
         List<Person> duplicates = all.stream()
-                .filter(p -> counts.getOrDefault(p.getPersonName().familyName().value() + "\u0000" + p.getPersonName().givenName().value(), 0L) > 1)
+                .filter(p -> counts.getOrDefault(
+                                p.getPersonName().familyName().value() + "\u0000"
+                                        + p.getPersonName().givenName().value(),
+                                0L)
+                        > 1)
                 .sorted()
                 .toList();
         int pageSize = pageable.isPaged() ? pageable.getPageSize() : duplicates.size();
@@ -114,4 +121,10 @@ public class InMemoryPersonRepository implements PersonRepository {
         savedPersons.clear();
     }
 
+    @Override
+    public Map<PersonId, Person> findAllById(Set<PersonId> idSet) {
+        return persons.values().stream()
+                .filter(person -> idSet.contains(person.getId()))
+                .collect(Collectors.toMap(Person::getId, person -> person));
+    }
 }

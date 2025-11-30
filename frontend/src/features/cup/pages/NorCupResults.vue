@@ -3,31 +3,21 @@ import type { AggregatedPersonScores } from '@/features/cup/model/aggregated_per
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
-import { useQuery } from '@tanstack/vue-query'
+import type { Person } from '@/features/person/model/person'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { personService } from '@/features/person/services/person.service'
 
 const props = defineProps<{
     cupName: string
     eventRacesCupScores: EventRacesCupScore[]
     overallScores: OrganisationScore[]
     aggregatedPersonScores: AggregatedPersonScores[]
+    persons: Record<number, Person>
 }>()
 
-const { t } = useI18n()
-
-const personQuery = useQuery({
-    queryKey: ['persons'],
-    queryFn: () => personService.getAllUnpaged(t),
-})
-
-function person(personId: number) {
-    if (personQuery.data?.value && Array.isArray(personQuery.data.value)) {
-        const person = personQuery.data.value.find(p => p.id === personId) ?? undefined
-        if (person) {
-            return `${person?.givenName} ${person?.familyName}`
-        }
+function person(personId: number): string {
+    const person = props.persons?.[personId]
+    if (person && person.givenName && person.familyName) {
+        return `${person.givenName} ${person.familyName}`
     }
     return ''
 }

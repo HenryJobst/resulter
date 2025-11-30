@@ -95,12 +95,14 @@ const aggregatedPersonScores: Ref<AggregatedPersonScores[]> = computed(
             :cup-name="cupData.name"
             :overall-scores="overallOrganisationScores"
             :event-races-cup-score="eventRacesCupScores"
+            :persons="cupData.persons"
         />
         <KjPokalResults
             v-if="cupData.type?.id === 'KJ'"
             :cup-name="cupData.name"
             :overall-scores="overallOrganisationScores"
             :event-races-cup-scores="eventRacesCupScores"
+            :persons="cupData.persons"
         />
         <NorCupResults
             v-if="cupData.type?.id === 'NOR'"
@@ -108,6 +110,7 @@ const aggregatedPersonScores: Ref<AggregatedPersonScores[]> = computed(
             :overall-scores="overallOrganisationScores"
             :event-races-cup-scores="eventRacesCupScores"
             :aggregated-person-scores="aggregatedPersonScores"
+            :persons="cupData.persons"
         />
     </div>
 </template>

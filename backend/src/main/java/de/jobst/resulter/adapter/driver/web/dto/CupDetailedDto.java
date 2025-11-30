@@ -1,8 +1,8 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public record CupDetailedDto(
@@ -12,12 +12,18 @@ public record CupDetailedDto(
         List<EventKeyDto> events,
         List<EventRacesCupScoreDto> eventRacesCupScores,
         List<OrganisationScoreDto> overallOrganisationScores,
-        List<AggregatedPersonScoresDto> aggregatedPersonScores) {
+        List<AggregatedPersonScoresDto> aggregatedPersonScores,
+        Map<Long, PersonDto> persons) {
 
-    public static CupDetailedDto from(long cupId, String name, CupTypeDto cupType, List<EventKeyDto> eventKeyDtos,
-                                      List<EventRacesCupScoreDto> eventRacesCupScoreDtos,
-                                      List<OrganisationScoreDto> overallOrganisationScoreDtos,
-                                      List<AggregatedPersonScoresDto> aggregatedPersonScoreDtos) {
+    public static CupDetailedDto from(
+            long cupId,
+            String name,
+            CupTypeDto cupType,
+            List<EventKeyDto> eventKeyDtos,
+            List<EventRacesCupScoreDto> eventRacesCupScoreDtos,
+            List<OrganisationScoreDto> overallOrganisationScoreDtos,
+            List<AggregatedPersonScoresDto> aggregatedPersonScoreDtos,
+            Map<Long, PersonDto> persons) {
         return new CupDetailedDto(
                 cupId,
                 name,
@@ -25,6 +31,7 @@ public record CupDetailedDto(
                 eventKeyDtos,
                 eventRacesCupScoreDtos,
                 overallOrganisationScoreDtos,
-                aggregatedPersonScoreDtos);
+                aggregatedPersonScoreDtos,
+                persons);
     }
 }

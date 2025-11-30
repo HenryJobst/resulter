@@ -3,6 +3,7 @@ import type { CupType } from '@/features/cup/model/cuptype'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { EventKey } from '@/features/event/model/event_key'
+import type { Person } from '@/features/person/model/person'
 
 export interface CupDetailed {
     id: number
@@ -12,4 +13,5 @@ export interface CupDetailed {
     eventRacesCupScores: EventRacesCupScore[]
     overallOrganisationScores: OrganisationScore[]
     aggregatedPersonScores: AggregatedPersonScores[]
+    persons: Record<number, Person>
 }

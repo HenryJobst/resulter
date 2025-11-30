@@ -2,10 +2,9 @@ package de.jobst.resulter.domain.aggregations;
 
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ClassResultShortNameScoreSummary;
-import lombok.Getter;
-
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 @Getter
 public class CupDetailed extends Cup {
@@ -18,13 +17,17 @@ public class CupDetailed extends Cup {
 
     private List<AggregatedPersonScores> aggregatedPersonScoresList = List.of();
 
+    private final Map<PersonId, Person> personsById;
+
     public CupDetailed(
             Cup cup,
             List<EventRacesCupScore> eventRacesCupScore,
-            List<AggregatedPersonScores> aggregatedPersonScoresList) {
+            List<AggregatedPersonScores> aggregatedPersonScoresList,
+            Map<PersonId, Person> personsById) {
         super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEventIds());
 
         this.eventRacesCupScore = eventRacesCupScore;
+        this.personsById = personsById;
         if (cup.getType().isGroupedByOrganisation()) {
             initializeGroupedByOrganisationData();
         } else {

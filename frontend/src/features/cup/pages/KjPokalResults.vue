@@ -2,12 +2,22 @@
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
+import type { Person } from '@/features/person/model/person'
 
 const props = defineProps<{
     cupName: string
     eventRacesCupScores: EventRacesCupScore[]
     overallScores: OrganisationScore[]
+    persons: Record<number, Person>
 }>()
+
+function getPersonName(personId: number): string {
+    const person = props.persons?.[personId]
+    if (person && person.givenName && person.familyName) {
+        return `${person.givenName} ${person.familyName}`
+    }
+    return ''
+}
 
 // define Types
 interface Race {
@@ -291,9 +301,9 @@ function getRankBadgeClass(rank: number): string {
                                         <th scope="col" class="px-3 py-1.5 w-1 text-left text-xs font-semibold text-adaptive-secondary">
                                             Klasse
                                         </th>
-                                        <!-- th scope="col" class="px-3 py-1.5 text-left text-xs font-semibold text-adaptive-secondary">
+                                        <th scope="col" class="px-3 py-1.5 text-left text-xs font-semibold text-adaptive-secondary">
                                             Name
-                                        </th -->
+                                        </th>
                                         <th scope="col" class="px-3 py-1.5 text-right text-xs font-semibold text-adaptive-secondary">
                                             Punkte
                                         </th>
@@ -311,9 +321,9 @@ function getRankBadgeClass(rank: number): string {
                                                 {{ person.classShortName }}
                                             </span>
                                         </td>
-                                        <!-- td class="px-3 py-1 text-left text-adaptive-secondary text-xs font-semibold">
-                                            {{ person.personId }}
-                                        </td -->
+                                        <td class="px-3 py-1 text-left text-adaptive-secondary text-xs font-semibold">
+                                            {{ getPersonName(person.personId) }}
+                                        </td>
                                         <td class="px-3 py-1 text-right text-adaptive-secondary text-xs font-semibold">
                                             {{ person.score }}
                                         </td>

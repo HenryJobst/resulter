@@ -9,6 +9,17 @@ import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -19,14 +30,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -74,15 +77,15 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     @Override
     public PersonPerson findOrCreate(Person person) {
-        Optional<PersonDbo> personEntity =
-            personJdbcRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(
-                    person.getPersonName().familyName().value(),
-                    person.getPersonName().givenName().value(),
-                    person.getBirthDate().value(),
-                    person.getGender());
+        Optional<PersonDbo> personEntity = personJdbcRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(
+                person.getPersonName().familyName().value(),
+                person.getPersonName().givenName().value(),
+                person.getBirthDate().value(),
+                person.getGender());
 
-        return personEntity.map(personDbo -> new PersonPerson(person, personDbo.asPerson()))
-            .orElseGet(() -> new PersonPerson(person, save(person)));
+        return personEntity
+                .map(personDbo -> new PersonPerson(person, personDbo.asPerson()))
+                .orElseGet(() -> new PersonPerson(person, save(person)));
     }
 
     @Override
@@ -125,9 +128,10 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
                 page.getTotalElements());
     }
 
-    private void applyTransformToExample(@NonNull MappingFilterNodeTransformResult transformResult,
-                                         @NonNull PersonDbo personDbo,
-                                         @NonNull AtomicReference<ExampleMatcher> matcher) {
+    private void applyTransformToExample(
+            @NonNull MappingFilterNodeTransformResult transformResult,
+            @NonNull PersonDbo personDbo,
+            @NonNull AtomicReference<ExampleMatcher> matcher) {
         transformResult.filterMap().forEach((key, value) -> {
             String unquotedValue = value.value().replace("'", "");
             switch (key) {
@@ -153,8 +157,10 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         transform.filterMap().forEach((key, val) -> {
             String unquoted = val.value().replace("'", "");
             switch (key) {
-                case "familyName" -> addStringFilter(where, params, "p" + ".family_name", "familyName", unquoted, val.matcher());
-                case "givenName" -> addStringFilter(where, params, "p" + ".given_name", "givenName", unquoted, val.matcher());
+                case "familyName" -> addStringFilter(
+                        where, params, "p" + ".family_name", "familyName", unquoted, val.matcher());
+                case "givenName" -> addStringFilter(
+                        where, params, "p" + ".given_name", "givenName", unquoted, val.matcher());
                 case "id" -> {
                     where.add("p" + ".id = :id");
                     params.addValue("id", Long.parseLong(unquoted));
@@ -170,7 +176,8 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     @Override
     public Page<Person> findDuplicates(@Nullable String filter, @NonNull Pageable pageable) {
         // Base join for duplicates
-        String base = "FROM person p JOIN (SELECT family_name, given_name FROM person GROUP BY family_name, given_name HAVING COUNT(*) > 1) d ON p.family_name = d.family_name AND p.given_name = d.given_name";
+        String base =
+                "FROM person p JOIN (SELECT family_name, given_name FROM person GROUP BY family_name, given_name HAVING COUNT(*) > 1) d ON p.family_name = d.family_name AND p.given_name = d.given_name";
 
         // Build WHERE and params using shared filter parsing
         SqlParts sqlParts;
@@ -187,11 +194,13 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         int limit = dboPageable.isPaged() ? dboPageable.getPageSize() : Integer.MAX_VALUE;
         int offset = dboPageable.isPaged() ? (dboPageable.getPageNumber() * dboPageable.getPageSize()) : 0;
 
-        String selectSql = "SELECT p.id, p.family_name, p.given_name, p.gender, p.birth_date " + base + sqlParts.whereSql + orderBy + " LIMIT :limit OFFSET :offset";
+        String selectSql = "SELECT p.id, p.family_name, p.given_name, p.gender, p.birth_date " + base
+                + sqlParts.whereSql + orderBy + " LIMIT :limit OFFSET :offset";
         sqlParts.params.addValue("limit", limit);
         sqlParts.params.addValue("offset", offset);
 
-        List<Person> content = namedParameterJdbcTemplate.query(selectSql, sqlParts.params, (rs, rowNum) -> mapPerson(rs));
+        List<Person> content =
+                namedParameterJdbcTemplate.query(selectSql, sqlParts.params, (rs, rowNum) -> mapPerson(rs));
 
         String countSql = "SELECT COUNT(*) " + base + sqlParts.whereSql;
         Long total = namedParameterJdbcTemplate.queryForObject(countSql, sqlParts.params, Long.class);
@@ -204,7 +213,13 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
                 page.getTotalElements());
     }
 
-    private static void addStringFilter(List<String> where, MapSqlParameterSource params, String column, String paramBase, String value, ExampleMatcher.StringMatcher matcher) {
+    private static void addStringFilter(
+            List<String> where,
+            MapSqlParameterSource params,
+            String column,
+            String paramBase,
+            String value,
+            ExampleMatcher.StringMatcher matcher) {
         String pattern;
         String valLower = value.toLowerCase();
         switch (matcher) {
@@ -225,13 +240,14 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         if (sort == null || !sort.isSorted()) return "";
         List<String> orders = new ArrayList<>();
         for (Sort.Order o : sort) {
-            String col = switch (o.getProperty()) {
-                case "id" -> "p.id";
-                case "givenName" -> "p.given_name";
-                case "gender" -> "p.gender";
-                case "birthDate" -> "p.birth_date";
-                default -> "p.family_name";
-            };
+            String col =
+                    switch (o.getProperty()) {
+                        case "id" -> "p.id";
+                        case "givenName" -> "p.given_name";
+                        case "gender" -> "p.gender";
+                        case "birthDate" -> "p.birth_date";
+                        default -> "p.family_name";
+                    };
             orders.add(col + (o.isAscending() ? " ASC" : " DESC"));
         }
         return orders.isEmpty() ? "" : (" ORDER BY " + String.join(", ", orders));
@@ -252,5 +268,16 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     @Override
     public void delete(Person person) {
         personJdbcRepository.deleteById(person.getId().value());
+    }
+
+    @Override
+    public Map<PersonId, Person> findAllById(Set<PersonId> idSet) {
+        return StreamSupport.stream(
+                        personJdbcRepository
+                                .findAllById(idSet.stream().map(PersonId::value).toList())
+                                .spliterator(),
+                        true)
+                .map(p -> PersonDbo.asPerson(p))
+                .collect(Collectors.toMap(Person::getId, person -> person));
     }
 }

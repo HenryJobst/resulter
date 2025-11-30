@@ -6,17 +6,16 @@ import de.jobst.resulter.domain.aggregations.*;
 import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.springapp.config.SpringSecurityAuditorAware;
+import java.time.Year;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Year;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class CupServiceImpl implements CupService {
@@ -29,6 +28,7 @@ public class CupServiceImpl implements CupService {
     private final EventService eventService;
     private final CupScoreListRepository cupScoreListRepository;
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
+    private final PersonRepository personRepository;
 
     public CupServiceImpl(
             CupRepository cupRepository,
@@ -38,7 +38,8 @@ public class CupServiceImpl implements CupService {
             ResultListService resultListService,
             EventService eventService,
             CupScoreListRepository cupScoreListRepository,
-            SpringSecurityAuditorAware springSecurityAuditorAware) {
+            SpringSecurityAuditorAware springSecurityAuditorAware,
+            PersonRepository personRepository) {
         this.cupRepository = cupRepository;
         this.organisationRepository = organisationRepository;
         this.organisationService = organisationService;
@@ -47,6 +48,7 @@ public class CupServiceImpl implements CupService {
         this.eventService = eventService;
         this.cupScoreListRepository = cupScoreListRepository;
         this.springSecurityAuditorAware = springSecurityAuditorAware;
+        this.personRepository = personRepository;
     }
 
     @Override
@@ -106,11 +108,38 @@ public class CupServiceImpl implements CupService {
 
         var strategy = cup.getCupTypeCalculationStrategy(null);
 
-        List<Event> events = eventService.getByIds(cup.getEventIds()).stream().sorted().toList();
+        List<Event> events =
+                eventService.getByIds(cup.getEventIds()).stream().sorted().toList();
         ClassResultAggregationResult classResultAggregationResult =
                 cup.getType().isGroupedByOrganisation()
                         ? null
                         : calculateClassResultGroupedSums(events, eventResultLists, races, cupScoreLists, strategy);
+
+        // Collect all unique person IDs from the cup scores
+        Set<PersonId> allPersonIds = new HashSet<>();
+
+        // Collect from aggregatedPersonScores (for class-grouped cups)
+        if (!cup.getType().isGroupedByOrganisation() && classResultAggregationResult != null) {
+            classResultAggregationResult.aggregatedPersonScoresList().stream()
+                    .flatMap(aps -> aps.personWithScoreList().stream())
+                    .map(PersonWithScore::id)
+                    .forEach(allPersonIds::add);
+        }
+
+        // Collect from eventRacesCupScores (for organisation-grouped cups)
+        eventResultLists.stream()
+                .flatMap(erl -> {
+                    return cupScoreLists.stream()
+                            .flatMap(Collection::stream)
+                            .filter(csl -> csl.getResultListId()
+                                    .equals(erl.resultList().getId()))
+                            .flatMap(csl -> csl.getCupScores().stream())
+                            .map(cupScore -> cupScore.personId());
+                })
+                .forEach(allPersonIds::add);
+
+        // Load all persons in bulk
+        Map<PersonId, Person> personsById = personRepository.findAllById(allPersonIds);
 
         return new CupDetailed(
                 cup,
@@ -119,12 +148,14 @@ public class CupServiceImpl implements CupService {
                         : classResultAggregationResult.eventRacesCupScores(),
                 cup.getType().isGroupedByOrganisation()
                         ? List.of()
-                        : Objects.requireNonNull(classResultAggregationResult).aggregatedPersonScoresList());
+                        : Objects.requireNonNull(classResultAggregationResult).aggregatedPersonScoresList(),
+                personsById);
     }
 
     private Map<ClassResultShortName, List<PersonWithScore>> aggregatePersonScoresGroupedByClass(
-            List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores, CupTypeCalculationStrategy strategy
-        , int eventsSize) {
+            List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores,
+            CupTypeCalculationStrategy strategy,
+            int eventsSize) {
 
         int bestOfRacesCount = strategy.getBestOfRacesCount(eventsSize);
 
@@ -183,7 +214,7 @@ public class CupServiceImpl implements CupService {
     }
 
     public record ClassResultAggregationResult(
-        List<EventRacesCupScore> eventRacesCupScores, List<AggregatedPersonScores> aggregatedPersonScoresList) {}
+            List<EventRacesCupScore> eventRacesCupScores, List<AggregatedPersonScores> aggregatedPersonScoresList) {}
 
     private ClassResultAggregationResult calculateClassResultGroupedSums(
             List<Event> events,

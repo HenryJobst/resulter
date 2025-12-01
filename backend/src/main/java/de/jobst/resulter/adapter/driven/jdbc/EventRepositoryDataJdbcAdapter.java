@@ -10,7 +10,6 @@ import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.*;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -73,7 +72,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         return id -> {
             Optional<EventCertificateDbo> optionalEventCertificateDbo =
                     eventCertificateJdbcRepository.findByEventAndPrimary(AggregateReference.to(id.value()), true);
-            return Objects.requireNonNull(optionalEventCertificateDbo.map(EventCertificateDbo::asEventCertificate).orElse(null));
+            return optionalEventCertificateDbo.map(EventCertificateDbo::asEventCertificate).orElse(null);
         };
     }
 

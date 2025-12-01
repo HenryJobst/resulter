@@ -1,6 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventCertificateStatRepository;
 import de.jobst.resulter.domain.*;
 import jakarta.validation.constraints.NotNull;

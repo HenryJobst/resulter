@@ -6,6 +6,7 @@ import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
 import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.application.port.*;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;

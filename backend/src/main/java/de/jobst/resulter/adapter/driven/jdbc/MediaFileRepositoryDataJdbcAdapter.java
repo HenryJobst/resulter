@@ -13,11 +13,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.domain.*;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,7 +70,7 @@ public class MediaFileRepositoryDataJdbcAdapter implements MediaFileRepository {
     }
 
     @Override
-    public Page<MediaFile> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<MediaFile> findAll(@Nullable String filter, Pageable pageable) {
         Page<MediaFileDbo> page;
         if (filter != null) {
             MediaFileDbo cupDbo = new MediaFileDbo();

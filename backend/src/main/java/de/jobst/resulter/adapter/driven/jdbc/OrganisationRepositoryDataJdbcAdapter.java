@@ -16,13 +16,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.domain.*;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +50,6 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
         this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
     }
 
-    @NonNull
     private static String getCteQuery() {
         return """
                WITH RECURSIVE parent_organisations AS (
@@ -80,7 +78,6 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
         return savedOrganisationEntity.asOrganisation(getOrganisationResolver(), getCountryResolver());
     }
 
-    @NonNull
     private Function<Long, Organisation> getOrganisationResolver() {
         return id -> organisationJdbcRepository
                 .findById(id)
@@ -88,7 +85,6 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
                 .asOrganisation(getOrganisationResolver(), getCountryResolver());
     }
 
-    @NonNull
     private Function<Long, Country> getCountryResolver() {
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
@@ -153,15 +149,15 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("idSet", idValues);
 
-        List<Long> resultList = namedParameterJdbcTemplate.queryForList(getCteQuery(), parameters, Long.class);
+        List<@Nullable Long> resultList = namedParameterJdbcTemplate.queryForList(getCteQuery(), parameters, Long.class);
         Set<OrganisationId> organisationIdSet =
-                resultList.stream().map(OrganisationId::of).collect(Collectors.toSet());
+                resultList.stream().filter(Objects::nonNull).map(OrganisationId::of).collect(Collectors.toSet());
 
         return findAllById(organisationIdSet);
     }
 
     @Override
-    public Page<Organisation> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<Organisation> findAll(@Nullable String filter, Pageable pageable) {
         Page<OrganisationDbo> page;
         if (filter != null) {
             OrganisationDbo organisationDbo = new OrganisationDbo();
@@ -206,7 +202,6 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
                 page.getTotalElements());
     }
 
-    @NonNull
     @Override
     public List<Organisation> findByIds(Collection<OrganisationId> childOrganisationIds) {
         var childOrganisations = organisationJdbcRepository.findAllById(

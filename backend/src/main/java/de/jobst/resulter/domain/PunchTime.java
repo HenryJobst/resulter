@@ -1,11 +1,11 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
-public record PunchTime(Double value) implements Comparable<PunchTime> {
-    public static PunchTime of(Double value) {
+public record PunchTime(@Nullable Double value) implements Comparable<PunchTime> {
+    public static PunchTime of(@Nullable Double value) {
         return new PunchTime(value);
     }
 
@@ -15,7 +15,7 @@ public record PunchTime(Double value) implements Comparable<PunchTime> {
     }
 
     @Override
-    public int compareTo(@NonNull PunchTime o) {
+    public int compareTo(PunchTime o) {
         if (value == null) {
             return (o.value == null) ? 0 : -1;
         }

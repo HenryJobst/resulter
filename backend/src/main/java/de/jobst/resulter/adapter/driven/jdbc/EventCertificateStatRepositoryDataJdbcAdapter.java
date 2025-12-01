@@ -4,12 +4,12 @@ import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventCertificateStatRepository;
 import de.jobst.resulter.domain.*;
 import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,20 +45,12 @@ public class EventCertificateStatRepositoryDataJdbcAdapter implements EventCerti
         return (EventCertificateStatId id) -> findDboById(id).orElseThrow();
     }
 
-    @NonNull
     private Function<Long, Organisation> getOrganisationResolver() {
         return id -> organisationJdbcRepository.findById(id)
             .orElseThrow()
             .asOrganisation(getOrganisationResolver(), getCountryResolver());
     }
 
-    @NonNull
-    private Function<Long, EventCertificateStat> getEventCertificateStatResolver() {
-        return id -> EventCertificateStatDbo.asEventCertificateStat(eventCertificateStatJdbcRepository.findById(id)
-            .orElseThrow(), getEventResolver(), getPersonResolver());
-    }
-
-    @NonNull
     private Function<Long, Country> getCountryResolver() {
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
@@ -114,7 +106,7 @@ public class EventCertificateStatRepositoryDataJdbcAdapter implements EventCerti
     }
 
     @Override
-    public Page<EventCertificateStat> findAll(String filter, @NonNull Pageable pageable) {
+    public Page<EventCertificateStat> findAll(@Nullable String filter, Pageable pageable) {
         Page<EventCertificateStatDbo> page =
             eventCertificateStatJdbcRepository.findAll(FilterAndSortConverter.mapOrderProperties(pageable,
                 EventCertificateStatDbo::mapOrdersDomainToDbo));

@@ -10,6 +10,7 @@ import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -57,7 +58,7 @@ public class EventCertificateController {
     @GetMapping("/event_certificate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<EventCertificateDto>> searchEventCertificates(
-            @RequestParam Optional<String> filter, Pageable pageable) {
+            @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
         Page<EventCertificate> eventCertificates = eventCertificateService.findAll(
                 filter.orElse(null),
                 pageable != null

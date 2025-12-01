@@ -10,17 +10,18 @@ import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.domain.*;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +35,6 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     private final OrganisationJdbcRepository organisationJdbcRepository;
     private final CountryJdbcRepository countryJdbcRepository;
     private final EventCertificateJdbcRepository eventCertificateJdbcRepository;
-    private final MediaFileJdbcRepository mediaFileJdbcRepository;
     private final FilterStringConverter filterStringConverter;
     private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
 
@@ -43,15 +43,12 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
             PersonJdbcRepository personJdbcRepository,
             OrganisationJdbcRepository organisationJdbcRepository,
             CountryJdbcRepository countryJdbcRepository,
-            EventCertificateJdbcRepository eventCertificateJdbcRepository,
-            MediaFileJdbcRepository mediaFileJdbcRepository,
-            FilterStringConverter filterStringConverter) {
+            EventCertificateJdbcRepository eventCertificateJdbcRepository, FilterStringConverter filterStringConverter) {
         this.eventJdbcRepository = eventJdbcRepository;
         this.personJdbcRepository = personJdbcRepository;
         this.organisationJdbcRepository = organisationJdbcRepository;
         this.countryJdbcRepository = countryJdbcRepository;
         this.eventCertificateJdbcRepository = eventCertificateJdbcRepository;
-        this.mediaFileJdbcRepository = mediaFileJdbcRepository;
         this.filterStringConverter = filterStringConverter;
         this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
     }
@@ -61,16 +58,6 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         return (EventId id) -> findDboById(id).orElseThrow();
     }
 
-    @NonNull
-    private Function<Long, Event> getEventResolver() {
-        return id -> {
-            Event event = EventDbo.asEvent(eventJdbcRepository.findById(id).orElseThrow(), getOrganisationResolver());
-            event.withCertificate(getPrimaryEventCertificateResolver(event));
-            return event;
-        };
-    }
-
-    @NonNull
     private Function<Long, Organisation> getOrganisationResolver() {
         return id -> organisationJdbcRepository
                 .findById(id)
@@ -78,37 +65,21 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
                 .asOrganisation(getOrganisationResolver(), getCountryResolver());
     }
 
-    @NonNull
-    private Function<Long, MediaFile> getMediaFileResolver() {
-        return id -> mediaFileJdbcRepository.findById(id).orElseThrow().asMediaFile();
-    }
-
-    @NonNull
-    private Function<Long, EventCertificate> getEventCertificateResolver() {
-        return id -> EventCertificateDbo.asEventCertificate(
-                eventCertificateJdbcRepository.findById(id).orElseThrow(), getMediaFileResolver());
-    }
-
-    @NonNull
     private Function<Long, Country> getCountryResolver() {
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
 
-    private Function<EventId, EventCertificate> getPrimaryEventCertificateResolver(@NonNull Event event) {
+    private Function<EventId, @Nullable EventCertificate> getPrimaryEventCertificateResolver() {
         return id -> {
             Optional<EventCertificateDbo> optionalEventCertificateDbo =
                     eventCertificateJdbcRepository.findByEventAndPrimary(AggregateReference.to(id.value()), true);
-            return optionalEventCertificateDbo
-                    .map(eventCertificateDbo ->
-                            EventCertificateDbo.asEventCertificate(eventCertificateDbo, getMediaFileResolver()))
-                    .orElse(null);
+            return Objects.requireNonNull(optionalEventCertificateDbo.map(EventCertificateDbo::asEventCertificate).orElse(null));
         };
     }
 
-    @NonNull
     @Override
     @Transactional
-    public Event save(@NonNull Event event) {
+    public Event save(Event event) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setEventDboResolver(getIdResolver());
         dboResolvers.setPersonDboResolver(
@@ -120,7 +91,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         EventDbo eventEntity = EventDbo.from(event, dboResolvers);
         EventDbo savedEventEntity = eventJdbcRepository.save(eventEntity);
         Event savedEvent = EventDbo.asEvent(savedEventEntity, getOrganisationResolver());
-        savedEvent.withCertificate(getPrimaryEventCertificateResolver(savedEvent));
+        savedEvent.withCertificate(getPrimaryEventCertificateResolver());
         return savedEvent;
     }
 
@@ -146,7 +117,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     public Optional<Event> findById(EventId eventId) {
         return findDboById(eventId).map(x -> {
             Event event = EventDbo.asEvent(x, getOrganisationResolver());
-            event.withCertificate(getPrimaryEventCertificateResolver(event));
+            event.withCertificate(getPrimaryEventCertificateResolver());
             return event;
         });
     }
@@ -160,12 +131,12 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
             return save(event);
         }
         Event savedEvent = EventDbo.asEvent(optionalEventDbo.get(), getOrganisationResolver());
-        savedEvent.withCertificate(getPrimaryEventCertificateResolver(savedEvent));
+        savedEvent.withCertificate(getPrimaryEventCertificateResolver());
         return savedEvent;
     }
 
     @Override
-    public Page<Event> findAll(String filter, @NonNull Pageable pageable) {
+    public Page<Event> findAll(@Nullable String filter, Pageable pageable) {
         Page<EventDbo> page;
         if (filter != null) {
             EventDbo eventDbo = new EventDbo();
@@ -195,7 +166,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
                 page.stream()
                         .map(x -> {
                             Event event = EventDbo.asEvent(x, getOrganisationResolver());
-                            event.withCertificate(getPrimaryEventCertificateResolver(event));
+                            event.withCertificate(getPrimaryEventCertificateResolver());
                             return event;
                         })
                         .toList(),

@@ -1,12 +1,14 @@
 package de.jobst.resulter.domain;
 
 import java.text.MessageFormat;
+import java.util.Comparator;
+
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record PersonName(FamilyName familyName, GivenName givenName) implements Comparable<PersonName> {
 
+    @SuppressWarnings("unused")
     public String getFullName() {
         return MessageFormat.format("{1} {0}", familyName.value(), givenName.value());
     }
@@ -19,12 +21,13 @@ public record PersonName(FamilyName familyName, GivenName givenName) implements 
         return new PersonName(FamilyName.of(familyName), GivenName.of(givenName));
     }
 
+    private static final Comparator<PersonName> COMPARATOR =
+        Comparator.comparing(PersonName::familyName)
+            .thenComparing(PersonName::givenName);
+
     @Override
-    public int compareTo(@NonNull PersonName o) {
-        int val = familyName.compareTo(o.familyName);
-        if (val == 0) {
-            val = givenName.compareTo(o.givenName);
-        }
-        return val;
+    public int compareTo(PersonName o) {
+        return COMPARATOR.compare(this, o);
     }
+
 }

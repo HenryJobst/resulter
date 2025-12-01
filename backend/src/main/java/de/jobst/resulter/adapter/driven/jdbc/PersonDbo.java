@@ -3,14 +3,15 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import lombok.*;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +22,7 @@ public class PersonDbo {
     @Id
     @With
     @Column("id")
+    @Nullable
     private Long id;
 
     @Column("family_name")
@@ -33,6 +35,7 @@ public class PersonDbo {
     private Gender gender;
 
     @Column("birth_date")
+    @Nullable
     private LocalDate birthDate;
 
     public PersonDbo(String familyName, String givenName) {
@@ -41,13 +44,10 @@ public class PersonDbo {
         this.givenName = givenName;
     }
 
-    public static PersonDbo from(Person person, @NonNull DboResolvers dboResolvers) {
-        if (null == person) {
-            return null;
-        }
+    public static PersonDbo from(Person person, DboResolvers dboResolvers) {
         PersonDbo personDbo;
         if (person.getId().isPersistent()) {
-            personDbo = dboResolvers.getPersonDboResolver().findDboById(person.getId());
+            personDbo = Optional.ofNullable(dboResolvers.getPersonDboResolver()).orElseThrow().findDboById(person.getId());
             personDbo.setFamilyName(person.getPersonName().familyName().value());
             personDbo.setGivenName(person.getPersonName().givenName().value());
         } else {
@@ -63,12 +63,12 @@ public class PersonDbo {
         return personDbo;
     }
 
-    public static Person asPerson(@NonNull PersonDbo personDbo) {
+    public static Person asPerson(PersonDbo personDbo) {
         return personDbo.asPerson();
     }
 
     public Person asPerson() {
-        return Person.of(id, familyName, givenName, birthDate, gender);
+        return Person.of(id != null ? id : 0, familyName, givenName, birthDate, gender);
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

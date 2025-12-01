@@ -6,13 +6,11 @@ import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
@@ -52,11 +50,12 @@ public class PersonServiceImpl implements PersonService {
         return jaroWinkler.apply(str1, str2);
     }
 
-    private static long getDaysBetween(LocalDate date1, LocalDate date2) {
-        if (date1 == null || date2 == null) {
+    private static long getDaysBetween(@org.jspecify.annotations.Nullable BirthDate date1,
+                                       @org.jspecify.annotations.Nullable BirthDate date2) {
+        if (date1 == null || date2 == null || date1.value() == null || date2.value() == null) {
             return 100_000; // a large number
         }
-        return ChronoUnit.DAYS.between(date1, date2);
+        return ChronoUnit.DAYS.between(date1.value(), date2.value());
     }
 
     @Override
@@ -84,7 +83,6 @@ public class PersonServiceImpl implements PersonService {
         return personRepository.findOrCreate(persons);
     }
 
-    @NonNull
     @Override
     public Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender) {
         return findById(personId)
@@ -93,19 +91,20 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Page<Person> findAllOrPossibleDuplicates(@Nullable String filter, @NonNull Pageable pageable, boolean duplicates) {
+    public Page<Person> findAllOrPossibleDuplicates(@org.jspecify.annotations.Nullable String filter, Pageable pageable,
+                                                    boolean duplicates) {
         return duplicates ? personRepository.findDuplicates(filter, pageable) : personRepository.findAll(filter, pageable);
     }
 
     @Override
     @Deprecated
-    public Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<Person> findAll(@Nullable String filter, Pageable pageable) {
         return findAllOrPossibleDuplicates(filter, pageable, false);
     }
 
     @Override
     @Deprecated
-    public Page<Person> findDuplicates(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<Person> findDuplicates(@Nullable String filter, Pageable pageable) {
         return findAllOrPossibleDuplicates(filter, pageable, true);
     }
 
@@ -115,13 +114,11 @@ public class PersonServiceImpl implements PersonService {
         return findDoubles(personRepository.findById(personId).orElseThrow());
     }
 
-    @NonNull
     private List<Person> findDoubles(Person person) {
         List<Person> all = personRepository.findAll();
         return findDoubles(person, all);
     }
 
-    @NonNull
     List<Person> findDoubles(Person person, List<Person> all) {
         return all.stream()
                 .filter(p -> !p.getId().equals(person.getId()))
@@ -152,7 +149,7 @@ public class PersonServiceImpl implements PersonService {
             score += 100.0 - (100.0 * givenNameSimilarity);
         }
         long daysBetween = getDaysBetween(
-                person1.getBirthDate().value(), person2.getBirthDate().value());
+                person1.getBirthDate(), person2.getBirthDate());
         if (isSimilarDate(daysBetween)) {
             score += 10.0 - (10.0 * Math.abs(daysBetween) / 30.0);
         }

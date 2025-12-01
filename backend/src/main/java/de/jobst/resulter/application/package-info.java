@@ -1,6 +1,3 @@
-@Application
-@ApplicationLayer
+@org.jspecify.annotations.NullMarked
 package de.jobst.resulter.application;
 
-import org.jmolecules.architecture.hexagonal.Application;
-import org.jmolecules.architecture.layered.ApplicationLayer;

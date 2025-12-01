@@ -3,7 +3,6 @@ package de.jobst.resulter.domain;
 import de.jobst.resulter.domain.scoring.CupTypeCalculationStrategy;
 import de.jobst.resulter.domain.scoring.KJCalculationStrategy;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -12,17 +11,17 @@ import java.util.stream.Collectors;
 
 @ValueObject
 public record ClassResult(
-        @NonNull ClassResultName classResultName,
-        @NonNull ClassResultShortName classResultShortName,
-        @NonNull Gender gender,
-        @NonNull PersonResults personResults,
+        ClassResultName classResultName,
+        ClassResultShortName classResultShortName,
+        Gender gender,
+        PersonResults personResults,
         @Nullable CourseId courseId)
         implements Comparable<ClassResult> {
 
     public static ClassResult of(
-            @NonNull String name,
-            @NonNull String shortName,
-            @NonNull Gender gender,
+            String name,
+            String shortName,
+            Gender gender,
             @Nullable Collection<PersonResult> personResults,
             @Nullable CourseId courseId) {
         return new ClassResult(
@@ -34,7 +33,7 @@ public record ClassResult(
     }
 
     @Override
-    public int compareTo(@NonNull ClassResult o) {
+    public int compareTo(ClassResult o) {
         return classResultName.compareTo(o.classResultName);
     }
 

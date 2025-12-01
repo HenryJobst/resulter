@@ -30,7 +30,7 @@ public class XmlController {
     @PostMapping("/upload")
     @ResponseBody
     public ResponseEntity<String> handleFileUpload(@RequestParam(FILE) MultipartFile file) {
-        Event event = null;
+        Event event;
         try {
             event = importService.importFile(file.getInputStream()).event();
         } catch (IOException e) {

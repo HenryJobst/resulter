@@ -18,12 +18,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +66,7 @@ public class CupController {
 
     @GetMapping("/cup")
     public ResponseEntity<Page<CupDto>> searchCups(
-            @RequestParam(required = false) Optional<String> filter, Pageable pageable) {
+            @RequestParam(required = false) Optional<String> filter, @Nullable Pageable pageable) {
         Page<Cup> cups = cupService.findAll(
                 filter.orElse(null),
                 pageable != null
@@ -91,7 +91,6 @@ public class CupController {
         return ResponseEntity.ok(createCupDetailedDto(cupDetailed));
     }
 
-    @NonNull
     private CupDetailedDto createCupDetailedDto(CupDetailed cupDetailed) {
         List<EventKeyDto> eventKeyDtos = cupDetailed.getEventIds().stream()
                 .map(x -> EventKeyDto.from(eventService.getById(x)))

@@ -2,11 +2,11 @@ package de.jobst.resulter.domain;
 
 import java.time.ZonedDateTime;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
-public record DateTime(ZonedDateTime value) implements Comparable<DateTime> {
-    public static DateTime of(ZonedDateTime value) {
+public record DateTime(@Nullable ZonedDateTime value) implements Comparable<DateTime> {
+    public static DateTime of(@Nullable ZonedDateTime value) {
         return new DateTime(value);
     }
 
@@ -15,7 +15,7 @@ public record DateTime(ZonedDateTime value) implements Comparable<DateTime> {
     }
 
     @Override
-    public int compareTo(@NonNull DateTime o) {
+    public int compareTo(DateTime o) {
         if (this.value == null && o.value == null) {
             return 0; // Both are empty
         } else if (this.value == null) {

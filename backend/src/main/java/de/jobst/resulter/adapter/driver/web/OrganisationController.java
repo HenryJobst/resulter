@@ -7,6 +7,7 @@ import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -44,7 +45,7 @@ public class OrganisationController {
 
     @GetMapping("/organisation")
     public ResponseEntity<Page<OrganisationDto>> searchOrganisations(
-            @RequestParam Optional<String> filter, Pageable pageable) {
+            @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
         Page<Organisation> organisations = organisationService.findAll(
                 filter.orElse(null),
                 pageable != null

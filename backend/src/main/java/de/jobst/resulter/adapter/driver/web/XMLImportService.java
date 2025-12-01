@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.util.Pair;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -197,7 +196,6 @@ public class XMLImportService {
         return new ImportResult(event, countriesByCode, organisationByName, personByDomainKey, resultLists);
     }
 
-    @NonNull
     private List<Race> importRaces(de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList, Event event) {
         List<Byte> raceNumbers = resultList.getClassResults().stream()
                 .flatMap(x -> x.getPersonResults().stream())
@@ -221,7 +219,6 @@ public class XMLImportService {
                 .toList();
     }
 
-    @NonNull
     private ResultList importResultListBody(
             Event event,
             Race race,
@@ -330,7 +327,6 @@ public class XMLImportService {
         return resultListService.findOrCreate(domainResultList);
     }
 
-    @NonNull
     private Event importEvent(
             de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList,
             Map<String, Organisation> organisationByName) {
@@ -362,7 +358,6 @@ public class XMLImportService {
         return event;
     }
 
-    @NonNull
     private Map<Person.DomainKey, Person> importPersons(
             de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList) {
         Collection<Person> persons = resultList.getClassResults().stream()
@@ -385,7 +380,6 @@ public class XMLImportService {
                 .collect(Collectors.toMap(x -> x.source().getDomainKey(), PersonRepository.PersonPerson::target));
     }
 
-    @NonNull
     private Map<Course.DomainKey, Course> importCourses(
             Event event, de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList) {
         Collection<Course> courses = resultList.getClassResults().stream()
@@ -408,7 +402,6 @@ public class XMLImportService {
         return courses.stream().collect(Collectors.toMap(Course::getDomainKey, x -> x));
     }
 
-    @NonNull
     private Map<String, Organisation> importOrganisations(
             de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList, Map<String, Country> countriesByCode) {
         Collection<Organisation> organisations = Stream.concat(
@@ -450,7 +443,6 @@ public class XMLImportService {
         return organisations.stream().collect(Collectors.toMap(x -> x.getName().value(), x -> x));
     }
 
-    @NonNull
     private Map<String, Country> importCountries(de.jobst.resulter.adapter.driver.web.jaxb.ResultList resultList) {
         // countries
         Collection<Country> countries = Stream.concat(
@@ -488,7 +480,6 @@ public class XMLImportService {
         return countries.stream().collect(Collectors.toMap(x -> x.getCode().value(), x -> x));
     }
 
-    @NonNull
     private Person.DomainKey createPersonDomainKey(de.jobst.resulter.adapter.driver.web.jaxb.Person p) {
         return new Person.DomainKey(
                 PersonName.of(
@@ -503,7 +494,6 @@ public class XMLImportService {
                 Gender.of(p.getSex()));
     }
 
-    @NonNull
     private List<Pair<PersonResult, List<SplitTimeList>>> getPersonResults(
             de.jobst.resulter.adapter.driver.web.jaxb.ClassResult classResult,
             EventId eventId,

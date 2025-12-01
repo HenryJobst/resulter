@@ -1,13 +1,12 @@
 package de.jobst.resulter.domain;
 
-import java.util.Objects;
+import java.util.Comparator;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("FieldMayBeFinal")
 @AggregateRoot
@@ -15,22 +14,19 @@ import org.springframework.lang.Nullable;
 public class Race implements Comparable<Race> {
 
     @Identity
-    @NonNull
     @Setter
     private RaceId id;
 
     @Association
-    @NonNull
     private EventId eventId;
 
     @Nullable
     private RaceName raceName;
 
-    @NonNull
     private RaceNumber raceNumber;
 
     public Race(
-            @NonNull RaceId id, @NonNull EventId eventId, @Nullable RaceName raceName, @NonNull RaceNumber raceNumber) {
+        RaceId id, EventId eventId, @Nullable RaceName raceName, RaceNumber raceNumber) {
         this.id = id;
         this.eventId = eventId;
         this.raceName = raceName;
@@ -45,23 +41,22 @@ public class Race implements Comparable<Race> {
         return new Race(RaceId.empty(), eventId, raceName, raceNumber);
     }
 
-    public static Race of(EventId eventId, String raceName, Byte raceNumber) {
+    public static Race of(EventId eventId, @Nullable String raceName, Byte raceNumber) {
         return Race.of(eventId, RaceName.of(raceName), RaceNumber.of(raceNumber));
     }
 
-    public static Race of(RaceId raceId, EventId eventId, String raceName, Byte raceNumber) {
+    public static Race of(RaceId raceId, EventId eventId, @Nullable String raceName, Byte raceNumber) {
         return new Race(raceId, eventId, RaceName.of(raceName), RaceNumber.of(raceNumber));
     }
 
+    private static final Comparator<Race> COMPARATOR =
+        Comparator.comparing(Race::getRaceNumber)
+            .thenComparing(Race::getRaceName, Comparator.nullsLast(Comparator.naturalOrder()))
+            .thenComparing(Race::getEventId);
+
     @Override
-    public int compareTo(@NonNull Race o) {
-        int val = this.raceNumber.compareTo(o.raceNumber);
-        if (val == 0) {
-            val = Objects.compare(this.raceName, o.raceName, RaceName::compareTo);
-        }
-        if (val == 0) {
-            val = this.eventId.compareTo(o.eventId);
-        }
-        return val;
+    public int compareTo(Race o) {
+        return COMPARATOR.compare(this, o);
     }
+
 }

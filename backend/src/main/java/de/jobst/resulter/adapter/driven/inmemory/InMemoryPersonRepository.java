@@ -8,11 +8,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -68,12 +69,12 @@ public class InMemoryPersonRepository implements PersonRepository {
     }
 
     @Override
-    public Page<Person> findAll(String filter, @NonNull Pageable pageable) {
+    public Page<@NonNull Person> findAll(@Nullable String filter, @org.jspecify.annotations.NonNull Pageable pageable) {
         return new PageImpl<>(new ArrayList<>(persons.values()), pageable, persons.size());
     }
 
     @Override
-    public Page<Person> findDuplicates(String filter, @NonNull Pageable pageable) {
+    public Page<@NonNull Person> findDuplicates(String filter, @NonNull Pageable pageable) {
         // simple in-memory implementation for tests/dev
         List<Person> all = new ArrayList<>(persons.values());
         // optional basic filter on familyName/givenName/id substrings when filter string is simple like

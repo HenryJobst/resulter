@@ -7,6 +7,7 @@ import de.jobst.resulter.domain.*;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -43,7 +44,7 @@ public class MediaFileController {
 
     @GetMapping("/media")
     public ResponseEntity<Page<MediaFileDto>> searchMediaFiles(
-            @RequestParam Optional<String> filter, Pageable pageable) {
+            @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
         Page<MediaFile> mediaFiles = mediaFileService.findAll(
                 filter.orElse(null),
                 pageable != null

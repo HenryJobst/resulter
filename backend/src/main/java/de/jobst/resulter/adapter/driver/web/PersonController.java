@@ -7,6 +7,7 @@ import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,7 +41,7 @@ public class PersonController {
     @GetMapping("/person")
     public ResponseEntity<Page<PersonDto>> searchPersons(@RequestParam Optional<String> filter,
                                                          @RequestParam Optional<Boolean> duplicates,
-                                                         Pageable pageable) {
+                                                         @Nullable Pageable pageable) {
         boolean dup = duplicates.orElse(false);
         Pageable mapped = pageable != null
                 ? FilterAndSortConverter.mapOrderProperties(pageable, PersonDto::mapOrdersDtoToDomain)
@@ -56,7 +57,8 @@ public class PersonController {
     }
 
     @GetMapping("/person/duplicates")
-    public ResponseEntity<Page<PersonDto>> searchDuplicatePersons(@RequestParam Optional<String> filter, Pageable pageable) {
+    public ResponseEntity<Page<PersonDto>> searchDuplicatePersons(@RequestParam Optional<String> filter,
+                                                                  @Nullable Pageable pageable) {
         Pageable mapped = pageable != null
                 ? FilterAndSortConverter.mapOrderProperties(pageable, PersonDto::mapOrdersDtoToDomain)
                 : Pageable.unpaged();

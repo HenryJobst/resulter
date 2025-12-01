@@ -4,34 +4,34 @@ import java.util.Objects;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
+@SuppressWarnings("ClassCanBeRecord")
 @AggregateRoot
 @Getter
 public final class Country {
 
     @Identity
-    @NonNull
     private final CountryId id;
 
     private final CountryCode code;
-    private final CountryName name;
+    private final @Nullable CountryName name;
 
-    public Country(@NonNull CountryId id, @NonNull CountryCode code, @NonNull CountryName name) {
+    public Country(CountryId id, CountryCode code, @Nullable CountryName name) {
         this.id = id;
         this.code = code;
         this.name = name;
     }
 
-    public static Country of(String code, String name) {
+    public static Country of(String code, @Nullable String name) {
         return Country.of(CountryId.empty().value(), code, name);
     }
 
-    public static Country of(long id, String code, String name) {
+    public static Country of(long id, String code, @Nullable String name) {
         return new Country(CountryId.of(id), CountryCode.of(code), CountryName.of(name));
     }
 
-    public static Country of(CountryCode code, CountryName name) {
+    public static Country of(CountryCode code, @Nullable CountryName name) {
         return new Country(CountryId.empty(), code, name);
     }
 

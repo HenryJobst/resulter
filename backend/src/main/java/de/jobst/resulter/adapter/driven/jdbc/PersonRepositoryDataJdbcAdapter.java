@@ -7,6 +7,7 @@ import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransf
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.PersonRepository;
+import de.jobst.resulter.domain.BirthDate;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
 import java.sql.ResultSet;
@@ -21,13 +22,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.domain.*;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,7 +80,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         Optional<PersonDbo> personEntity = personJdbcRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(
                 person.getPersonName().familyName().value(),
                 person.getPersonName().givenName().value(),
-                person.getBirthDate().value(),
+                Optional.ofNullable(person.getBirthDate()).map(BirthDate::value).orElse(null),
                 person.getGender());
 
         return personEntity
@@ -95,7 +95,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     }
 
     @Override
-    public Page<Person> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<Person> findAll(@Nullable String filter, Pageable pageable) {
         Page<PersonDbo> page;
         Pageable dboPageable = mapPageableToDbo(pageable);
         if (filter != null) {
@@ -111,17 +111,17 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         return mapDboPageToDomain(page);
     }
 
-    private MappingFilterNodeTransformResult parseFilter(@NonNull String filter) {
+    private MappingFilterNodeTransformResult parseFilter(String filter) {
         FilterNode filterNode = filterStringConverter.convert(filter);
         log.info("FilterNode: {}", filterNode);
         return filterNodeTransformer.transform(filterNode);
     }
 
-    private Pageable mapPageableToDbo(@NonNull Pageable pageable) {
+    private Pageable mapPageableToDbo(Pageable pageable) {
         return FilterAndSortConverter.mapOrderProperties(pageable, PersonDbo::mapOrdersDomainToDbo);
     }
 
-    private Page<Person> mapDboPageToDomain(@NonNull Page<PersonDbo> page) {
+    private Page<Person> mapDboPageToDomain(Page<PersonDbo> page) {
         return new PageImpl<>(
                 page.stream().map(dbo -> dbo.asPerson()).toList(),
                 FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
@@ -129,9 +129,9 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     }
 
     private void applyTransformToExample(
-            @NonNull MappingFilterNodeTransformResult transformResult,
-            @NonNull PersonDbo personDbo,
-            @NonNull AtomicReference<ExampleMatcher> matcher) {
+            MappingFilterNodeTransformResult transformResult,
+            PersonDbo personDbo,
+            AtomicReference<ExampleMatcher> matcher) {
         transformResult.filterMap().forEach((key, value) -> {
             String unquotedValue = value.value().replace("'", "");
             switch (key) {
@@ -151,7 +151,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         });
     }
 
-    private SqlParts buildSqlWhereAndParamsFromTransform(@NonNull MappingFilterNodeTransformResult transform) {
+    private SqlParts buildSqlWhereAndParamsFromTransform(MappingFilterNodeTransformResult transform) {
         List<String> where = new ArrayList<>();
         MapSqlParameterSource params = new MapSqlParameterSource();
         transform.filterMap().forEach((key, val) -> {
@@ -174,7 +174,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     private record SqlParts(String whereSql, MapSqlParameterSource params) {}
 
     @Override
-    public Page<Person> findDuplicates(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<Person> findDuplicates(@Nullable String filter, Pageable pageable) {
         // Base join for duplicates
         String base =
                 "FROM person p JOIN (SELECT family_name, given_name FROM person GROUP BY family_name, given_name HAVING COUNT(*) > 1) d ON p.family_name = d.family_name AND p.given_name = d.given_name";
@@ -236,7 +236,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         params.addValue(paramBase, pattern);
     }
 
-    private static String buildOrderBySql(Sort sort) {
+    private static String buildOrderBySql(@Nullable Sort sort) {
         if (sort == null || !sort.isSorted()) return "";
         List<String> orders = new ArrayList<>();
         for (Sort.Order o : sort) {

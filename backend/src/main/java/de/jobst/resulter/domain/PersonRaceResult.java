@@ -5,37 +5,28 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
 @Getter
 @AllArgsConstructor
 public class PersonRaceResult implements Comparable<PersonRaceResult> {
 
-    @NonNull
     private ClassResultShortName classResultShortName;
 
-    @NonNull
     @Setter
     private PersonId personId;
 
-    @NonNull
     private DateTime startTime;
 
-    @NonNull
     private DateTime finishTime;
 
-    @NonNull
     private PunchTime runtime;
 
-    @NonNull
     private Position position;
 
-    @NonNull
     private ResultStatus state;
 
-    @NonNull
     private RaceNumber raceNumber;
 
     @Nullable
@@ -45,12 +36,12 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     public static PersonRaceResult of(
             String classResultShortName,
             Long personId,
-            ZonedDateTime startTime,
-            ZonedDateTime finishTime,
-            Double punchTime,
-            Long position,
-            @NonNull Byte raceNumber,
-            @NonNull ResultStatus resultState) {
+            @Nullable ZonedDateTime startTime,
+            @Nullable ZonedDateTime finishTime,
+            @Nullable Double punchTime,
+            @Nullable Long position,
+            Byte raceNumber,
+            ResultStatus resultState) {
         return PersonRaceResult.of(
                 classResultShortName,
                 personId,
@@ -66,12 +57,12 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     public static PersonRaceResult of(
             String classResultShortName,
             Long personId,
-            ZonedDateTime startTime,
-            ZonedDateTime finishTime,
-            Double punchTime,
-            Long position,
-            @NonNull ResultStatus resultState,
-            @NonNull Byte raceNumber,
+            @Nullable ZonedDateTime startTime,
+            @Nullable ZonedDateTime finishTime,
+            @Nullable Double punchTime,
+            @Nullable Long position,
+            ResultStatus resultState,
+            Byte raceNumber,
             @Nullable SplitTimeListId splitTimeListId) {
         return new PersonRaceResult(
                 ClassResultShortName.of(classResultShortName),
@@ -86,7 +77,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
     }
 
     @Override
-    public int compareTo(@NonNull PersonRaceResult o) {
+    public int compareTo(PersonRaceResult o) {
         int val = this.raceNumber.compareTo(o.raceNumber);
         if (val == 0) {
             if (this.classResultShortName.equals(o.classResultShortName)) {

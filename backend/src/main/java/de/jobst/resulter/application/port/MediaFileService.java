@@ -20,13 +20,13 @@ public interface MediaFileService {
 
     List<MediaFile> findAll();
 
-    Page<MediaFile> findAll(@Nullable String filter, @NonNull Pageable pageable);
+    Page<@NonNull MediaFile> findAll(@Nullable String filter, @NonNull Pageable pageable);
 
     MediaFile getById(MediaFileId mediaFileId);
 
     Optional<MediaFile> findById(MediaFileId mediaFileId);
 
-    MediaFile update(
+    @Nullable MediaFile update(
             MediaFileId mediaFileId,
             MediaFileName mediaFileName,
             MediaFileContentType mediaFileContentType,

@@ -7,8 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Entity;
 import org.jmolecules.ddd.annotation.Identity;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @Entity
 @Getter
@@ -16,10 +15,8 @@ import org.springframework.lang.Nullable;
 public class EventCertificate {
 
     @Identity
-    @NonNull
     private EventCertificateId id;
 
-    @NonNull
     private EventCertificateName name;
 
     @Association
@@ -36,8 +33,8 @@ public class EventCertificate {
     private boolean primary;
 
     public EventCertificate(
-            @NonNull EventCertificateId id,
-            @NonNull EventCertificateName name,
+            EventCertificateId id,
+            EventCertificateName name,
             @Nullable EventId event,
             @Nullable EventCertificateLayoutDescription layoutDescription,
             @Nullable MediaFileId blankCertificate,
@@ -51,11 +48,11 @@ public class EventCertificate {
     }
 
     public static EventCertificate of(
-            Long id,
+            @Nullable Long id,
             String name,
-            EventId event,
-            String eventCertificateLayoutDescription,
-            MediaFileId blankCertificate,
+            @Nullable EventId event,
+            @Nullable String eventCertificateLayoutDescription,
+            @Nullable MediaFileId blankCertificate,
             boolean primary) {
         return new EventCertificate(
                 EventCertificateId.of(id),

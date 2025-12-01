@@ -11,7 +11,7 @@ import de.jobst.resulter.domain.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
+
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -45,26 +45,6 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
         this.organisationJdbcRepository = organisationJdbcRepository;
         this.filterStringConverter = filterStringConverter;
         this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
-    }
-
-    private Function<Long, Event> getEventResolver() {
-        return id -> eventJdbcRepository.findById(id).orElseThrow().asEvent(getOrganisationResolver());
-    }
-
-    private Function<Long, Country> getCountryResolver() {
-        return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
-    }
-
-    private Function<Long, Organisation> getOrganisationResolver() {
-        return id -> organisationJdbcRepository
-                .findById(id)
-                .orElseThrow()
-                .asOrganisation(getOrganisationResolver(), getCountryResolver());
-    }
-
-    @Transactional
-    public DboResolver<CupId, CupDbo> getIdResolver() {
-        return (CupId id) -> findDboById(id).orElse(null);
     }
 
     @Override

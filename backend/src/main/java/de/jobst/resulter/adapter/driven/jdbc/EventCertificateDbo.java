@@ -2,20 +2,20 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.MediaFile;
 import de.jobst.resulter.domain.MediaFileId;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Optional;
+
 import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -26,34 +26,40 @@ public class EventCertificateDbo {
     @Id
     @With
     @Column("id")
+    @Nullable
     private Long id;
 
     @Column("event_id")
+    @Nullable
     private AggregateReference<EventDbo, Long> event;
 
     @Column("name")
     private String name;
 
     @Column("background_media_file_id")
+    @Nullable
     private AggregateReference<MediaFileDbo, Long> blankCertificate;
 
     @Column("layout_description")
+    @Nullable
     private String layoutDescription;
 
     @Column("primary")
-    private Boolean primary;
+    private @Nullable Boolean primary;
 
-    public EventCertificateDbo(String name, AggregateReference<EventDbo, Long> event) {
+    public EventCertificateDbo(String name, @Nullable AggregateReference<EventDbo, Long> event) {
         this.id = null;
         this.name = name;
         this.event = event;
     }
 
     public static EventCertificateDbo from(
-            @NonNull EventCertificate eventCertificate, @NonNull DboResolvers dboResolvers) {
+            EventCertificate eventCertificate, DboResolvers dboResolvers) {
         EventCertificateDbo eventCertificateDbo;
         if (eventCertificate.getId().isPersistent()) {
-            eventCertificateDbo = dboResolvers.getEventCertificateDboResolver().findDboById(eventCertificate.getId());
+            eventCertificateDbo =
+                Optional.ofNullable(dboResolvers.getEventCertificateDboResolver())
+                    .map(x -> x.findDboById(eventCertificate.getId())).orElseThrow();
             eventCertificateDbo.setName(eventCertificate.getName().value());
             if (null != eventCertificate.getEvent()) {
                 eventCertificateDbo.setEvent(
@@ -87,8 +93,7 @@ public class EventCertificateDbo {
     }
 
     public static List<EventCertificate> asEventCertificates(
-            @NonNull Collection<EventCertificateDbo> eventCertificateDbos,
-            Function<Long, MediaFile> mediaFileResolver) {
+            Collection<EventCertificateDbo> eventCertificateDbos) {
 
         return eventCertificateDbos.stream()
                 .map(it -> EventCertificate.of(
@@ -97,13 +102,13 @@ public class EventCertificateDbo {
                         it.event != null ? EventId.of(it.event.getId()) : null,
                         it.layoutDescription != null ? it.layoutDescription : null,
                         it.blankCertificate != null ? MediaFileId.of(it.blankCertificate.getId()) : null,
-                        it.primary))
+                        it.primary != null ? it.primary : false))
                 .toList();
     }
 
     public static EventCertificate asEventCertificate(
-            @NonNull EventCertificateDbo eventCertificateDbo, Function<Long, MediaFile> mediaFileResolver) {
-        return asEventCertificates(List.of(eventCertificateDbo), mediaFileResolver)
+            EventCertificateDbo eventCertificateDbo) {
+        return asEventCertificates(List.of(eventCertificateDbo))
                 .getFirst();
     }
 

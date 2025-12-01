@@ -5,10 +5,9 @@ import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -52,21 +51,19 @@ public class OrganisationServiceImpl implements OrganisationService {
         return organisationRepository.findById(organisationId);
     }
 
-    @NonNull
     @Override
     public List<Organisation> findByIds(Collection<OrganisationId> childOrganisations) {
         return organisationRepository.findByIds(childOrganisations);
     }
 
-    @NonNull
     @Override
     public Organisation updateOrganisation(
-        @NonNull OrganisationId id,
-        @NonNull OrganisationName name,
-        @NonNull OrganisationShortName shortName,
-        @NonNull OrganisationType type,
-        @Nullable CountryId countryId,
-        @NonNull Collection<OrganisationId> childOrganisationIds) {
+        OrganisationId id,
+        OrganisationName name,
+        OrganisationShortName shortName,
+        OrganisationType type,
+        @org.jspecify.annotations.Nullable CountryId countryId,
+        Collection<OrganisationId> childOrganisationIds) {
 
         Optional<Country> optionalCountry = Optional.ofNullable(countryId).flatMap(countryRepository::findById);
         List<Organisation> childOrganisations = findByIds(childOrganisationIds);
@@ -80,7 +77,7 @@ public class OrganisationServiceImpl implements OrganisationService {
     }
 
     @Override
-    public Organisation createOrganisation(
+    public @org.jspecify.annotations.Nullable Organisation createOrganisation(
         OrganisationName name,
         OrganisationShortName shortName,
         OrganisationType type,
@@ -113,7 +110,7 @@ public class OrganisationServiceImpl implements OrganisationService {
     }
 
     @Override
-    public Page<Organisation> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<Organisation> findAll(@Nullable String filter, Pageable pageable) {
         return organisationRepository.findAll(filter, pageable);
     }
 

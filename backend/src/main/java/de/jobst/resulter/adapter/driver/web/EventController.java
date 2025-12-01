@@ -13,6 +13,7 @@ import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -66,7 +67,7 @@ public class EventController {
     }
 
     @GetMapping("/event")
-    public ResponseEntity<Page<EventDto>> searchEvents(@RequestParam Optional<String> filter, Pageable pageable) {
+    public ResponseEntity<Page<EventDto>> searchEvents(@RequestParam Optional<String> filter, @Nullable Pageable pageable) {
         Page<Event> events = eventService.findAll(
                 filter.orElse(null),
                 pageable != null
@@ -160,7 +161,7 @@ public class EventController {
             eventCertificateDto.name(),
             event.getId(),
             eventCertificateDto.layoutDescription(),
-            blankCertificate != null ? blankCertificate.getId() : null,
+            blankCertificate.getId(),
             eventCertificateDto.primary());
         CertificateServiceImpl.Certificate certificate =
                 resultListService.createCertificate(event, eventCertificate);

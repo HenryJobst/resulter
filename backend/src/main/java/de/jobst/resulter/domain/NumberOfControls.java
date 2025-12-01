@@ -1,17 +1,19 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
 
 @ValueObject
-public record NumberOfControls(Integer value) implements Comparable<NumberOfControls> {
+public record NumberOfControls(@Nullable Integer value) implements Comparable<NumberOfControls> {
 
-    public static NumberOfControls of(Integer numberOfControls) {
+    public static NumberOfControls of(@Nullable Integer numberOfControls) {
         return new NumberOfControls(numberOfControls);
     }
 
     @Override
-    public int compareTo(@NonNull NumberOfControls o) {
-        return value.compareTo(o.value);
+    public int compareTo(NumberOfControls o) {
+        return Objects.compare(this, o, NumberOfControls::compareTo);
     }
 }

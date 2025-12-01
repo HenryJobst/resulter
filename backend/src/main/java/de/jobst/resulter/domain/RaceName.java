@@ -1,35 +1,22 @@
 package de.jobst.resulter.domain;
 
-import java.util.Objects;
+import java.util.Comparator;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
-public record RaceName(String value) implements Comparable<RaceName> {
+public record RaceName(@Nullable String value) implements Comparable<RaceName> {
 
-    public static RaceName of(String name) {
+    public static RaceName of(@Nullable String name) {
         return new RaceName(name);
     }
 
-    public static class NullSafeStringComparator {
-
-        public static int compare(String s1, String s2) {
-            if (s1 == null && s2 == null) {
-                return 0;
-            }
-            if (s1 == null) {
-                return 1;
-            }
-            if (s2 == null) {
-                return -1;
-            }
-            return s1.compareTo(s2);
-        }
-    }
+    private static final Comparator<RaceName> COMPARATOR =
+        Comparator.comparing(RaceName::value, Comparator.nullsLast(Comparator.naturalOrder()));
 
     @Override
-    public int compareTo(@NonNull RaceName o) {
-        return Objects.compare(this.value, o.value, NullSafeStringComparator::compare);
+    public int compareTo(RaceName o) {
+        return COMPARATOR.compare(this, o);
     }
 
     @Override

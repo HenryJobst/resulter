@@ -10,11 +10,10 @@ import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,11 +82,10 @@ public class MediaFileServiceImpl implements MediaFileService {
         return mediaFileRepository.save(mediaFile);
     }
 
-    @NonNull
     private FilePathAndName getFilePathAndName(MultipartFile file, String mediaFilePath)
             throws IOException, MimeTypeException {
         String fileName = StringUtils.cleanPath(getFilename(file));
-        String filePath = Optional.ofNullable(mediaFilePath).orElseThrow() + fileName;
+        String filePath = Optional.of(mediaFilePath).orElseThrow() + fileName;
         return new FilePathAndName(fileName, filePath);
     }
 
@@ -100,7 +98,7 @@ public class MediaFileServiceImpl implements MediaFileService {
             String generatedFilename = UUID.randomUUID().toString();
             // Optional: Hinzufügen einer Dateierweiterung basierend auf dem ContentType
             String extension = getExtensionByMimeType(getContentType(file));
-            generatedFilename += extension != null ? "." + extension : "";
+            generatedFilename += "." + extension;
             return generatedFilename;
         }
         return originalFilename;
@@ -137,7 +135,7 @@ public class MediaFileServiceImpl implements MediaFileService {
     }
 
     @Override
-    public Page<MediaFile> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<MediaFile> findAll(@Nullable String filter, Pageable pageable) {
         return mediaFileRepository.findAll(filter, pageable);
     }
 
@@ -152,7 +150,7 @@ public class MediaFileServiceImpl implements MediaFileService {
     }
 
     @Override
-    public MediaFile update(
+    public @Nullable MediaFile update(
         MediaFileId mediaFileId,
         MediaFileName mediaFileName,
         MediaFileContentType mediaFileContentType,

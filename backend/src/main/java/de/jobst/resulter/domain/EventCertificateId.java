@@ -2,13 +2,13 @@ package de.jobst.resulter.domain;
 
 import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
 public record EventCertificateId(Long value) implements Comparable<EventCertificateId> {
 
-    public static EventCertificateId of(Long value) {
-        if (value != null && value < 0L) {
+    public static EventCertificateId of(@Nullable Long value) {
+        if (value == null || value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new EventCertificateId(value);
@@ -19,7 +19,7 @@ public record EventCertificateId(Long value) implements Comparable<EventCertific
     }
 
     @Override
-    public int compareTo(@NonNull EventCertificateId o) {
+    public int compareTo(EventCertificateId o) {
         return value.compareTo(o.value);
     }
 

@@ -162,7 +162,7 @@ public interface EventRepository extends CrudRepository<EventDbo, Long> {
 
 ### Services
 
-```java
+```
 // Port interface
 public interface EventService {
     EventDto createEvent(CreateEventRequest request);
@@ -199,7 +199,7 @@ public class EventServiceImpl implements EventService {
 
 ### Controllers
 
-```java
+```
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
@@ -227,7 +227,7 @@ public class EventController {
 
 ### DTOs
 
-```java
+```
 public record EventDto(
     Long id,
     String name,
@@ -327,7 +327,7 @@ public class GlobalExceptionHandler {
 
 ### Component Structure
 
-```typescript
+```
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useEventStore } from '@/features/event/stores/eventStore'

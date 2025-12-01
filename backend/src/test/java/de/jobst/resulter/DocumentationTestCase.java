@@ -1,4 +1,4 @@
-package de.jobst.resulter.domain;
+package de.jobst.resulter;
 
 import de.jobst.resulter.ResulterApplication;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package de.jobst.resulter.adapter.driver.web;
+package de.jobst.resulter.application.util;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

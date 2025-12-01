@@ -5,7 +5,7 @@ import com.turkraft.springfilter.parser.node.FilterNode;
 import com.turkraft.springfilter.transformer.FilterNodeTransformer;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
-import de.jobst.resulter.adapter.driver.web.FilterAndSortConverter;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.domain.MediaFile;
 import de.jobst.resulter.domain.MediaFileId;

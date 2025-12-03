@@ -1,6 +1,7 @@
 package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.PersonId;
+import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
 import org.jmolecules.architecture.hexagonal.SecondaryPort;
@@ -25,4 +26,6 @@ public interface SplitTimeListRepository {
     Collection<SplitTimeList> findOrCreate(Collection<SplitTimeList> splitTimeLists);
 
     void replacePersonId(PersonId oldPersonId, PersonId newPersonId);
+
+    List<SplitTimeList> findByResultListId(ResultListId resultListId);
 }

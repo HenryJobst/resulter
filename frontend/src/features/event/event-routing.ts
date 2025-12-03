@@ -31,6 +31,12 @@ export const eventRouting = [
                 props: true,
                 component: () => import('@/features/event/pages/EventResults.vue'),
             },
+            {
+                path: ':id/results/:resultListId/split-time-analysis',
+                name: 'split-time-analysis',
+                props: true,
+                component: () => import('@/features/event/pages/SplitTimeAnalysis.vue'),
+            },
         ],
     },
 ]

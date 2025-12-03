@@ -130,6 +130,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                                 "/race/all",
                                 "/result_list/{id}/certificate",
                                 "/result_list/{id}/cup_score_lists",
+                                "/split_time_analysis/result_list/{id}/ranking",
                                 "/version")
                         .permitAll()
                         .anyRequest()

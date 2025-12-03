@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driven.inmemory;
 
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.PersonId;
+import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
 import org.apache.commons.lang3.ObjectUtils;
@@ -61,6 +62,14 @@ public class InMemorySplitTimeListRepository implements SplitTimeListRepository 
     @Override
     public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public List<SplitTimeList> findByResultListId(ResultListId resultListId) {
+        return splitTimeLists.values()
+            .stream()
+            .filter(stl -> Objects.equals(stl.getResultListId(), resultListId))
+            .toList();
     }
 
     @SuppressWarnings("unused")

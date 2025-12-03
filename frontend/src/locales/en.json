@@ -101,7 +101,15 @@
         "timestamp": "Timestamp",
         "select_language": "Select language",
         "defaultImpressText": "Impress not set!",
-        "possible_duplicates": "possible duplicates"
+        "possible_duplicates": "possible duplicates",
+        "split_time_analysis": "Split Time Analysis",
+        "merge_bidirectional": "Merge Bidirectional",
+        "filter_by_name": "Filter by Name",
+        "add_filter": "Add Filter",
+        "split_time": "Split Time",
+        "time_behind": "Time Behind",
+        "segment": "Segment",
+        "runners": "runners"
     },
     "messages": {
         "new_cup": "New cup",
@@ -134,7 +142,9 @@
         "entity_deleted": "{entity} deleted",
         "detail": "Detail",
         "details": "Details...",
-        "noMessages": "No messages"
+        "noMessages": "No messages",
+        "no_split_times": "No split times available for this result list.",
+        "no_data": "No data available."
     },
     "result_state": {
         "OK": "OK",

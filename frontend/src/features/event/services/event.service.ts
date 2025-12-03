@@ -4,6 +4,7 @@ import type { EventCertificateStats } from '@/features/event/model/event_certifi
 import type { EventResults } from '@/features/event/model/event_results'
 import type { EventStatus } from '@/features/event/model/event_status'
 import type { ResultList } from '@/features/event/model/result_list'
+import type { SplitTimeAnalysis } from '@/features/event/model/split_time_analysis'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { TableSettings } from '@/features/generic/models/table_settings'
@@ -14,6 +15,7 @@ import axiosInstance from '@/features/keycloak/services/api'
 const eventUrl: string = '/event'
 const resultListUrl: string = '/result_list'
 const eventStatusUrl: string = '/event_status'
+const splitTimeAnalysisUrl: string = '/split_time_analysis'
 
 export class EventService extends GenericService<SportEvent> {
     constructor() {
@@ -192,6 +194,26 @@ export class EventService extends GenericService<SportEvent> {
         }
         return axiosInstance
             .get(`${resultListUrl}/${id}/cup_score_lists`)
+            .then(response => response.data)
+    }
+
+    static async getSplitTimeAnalysisRanking(
+        resultListId: number,
+        mergeBidirectional: boolean = false,
+        filterNames: string[] = [],
+        _t: (key: string) => string,
+    ): Promise<SplitTimeAnalysis> {
+        const params = new URLSearchParams()
+        if (mergeBidirectional) {
+            params.append('mergeBidirectional', 'true')
+        }
+        filterNames.forEach(name => params.append('filterNames', name))
+
+        const queryString = params.toString()
+        const url = `${splitTimeAnalysisUrl}/result_list/${resultListId}/ranking${queryString ? `?${queryString}` : ''}`
+
+        return axiosInstance
+            .get<SplitTimeAnalysis>(url)
             .then(response => response.data)
     }
 }

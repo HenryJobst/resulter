@@ -101,7 +101,15 @@
         "timestamp": "Zeitstempel",
         "select_language": "Sprache auswählen",
         "defaultImpressText": "Impressum nicht gesetzt!",
-        "possible_duplicates": "mögliche Dopplungen"
+        "possible_duplicates": "mögliche Dopplungen",
+        "split_time_analysis": "Zwischenzeit-Analyse",
+        "merge_bidirectional": "Bidirektional zusammenführen",
+        "filter_by_name": "Nach Name filtern",
+        "add_filter": "Filter hinzufügen",
+        "split_time": "Zwischenzeit",
+        "time_behind": "Rückstand",
+        "segment": "Teilstrecke",
+        "runners": "Läufer"
     },
     "result_state": {
         "OK": "OK",
@@ -179,7 +187,9 @@
         "entity_deleted": "{entity} gelöscht",
         "detail": "Detail",
         "details": "Details...",
-        "noMessages": "Keine Meldungen"
+        "noMessages": "Keine Meldungen",
+        "no_split_times": "Keine Zwischenzeiten für diese Ergebnisliste verfügbar.",
+        "no_data": "Keine Daten verfügbar."
     },
     "errors": {
         "notFound": "Die angefragte Ressource wurde nicht gefunden. {message}",

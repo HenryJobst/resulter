@@ -309,6 +309,13 @@ function calculate(result_list_id: number) {
 function navigateToList() {
     router.replace({ name: `event-list` })
 }
+
+function navigateToSplitTimeAnalysis(resultListId: number) {
+    router.push({
+        name: 'split-time-analysis',
+        params: { resultListId: resultListId.toString() },
+    })
+}
 </script>
 
 <template>
@@ -347,6 +354,16 @@ function navigateToList() {
                             raised
                             rounded
                             @click="calculate(parseInt(slotProps?.node?.key!))"
+                        />
+                        <Button
+                            v-tooltip="t('labels.split_time_analysis')"
+                            icon="pi pi-chart-bar"
+                            class="ml-2"
+                            :aria-label="t('labels.split_time_analysis')"
+                            outlined
+                            raised
+                            rounded
+                            @click="navigateToSplitTimeAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                     </div>
                 </template>

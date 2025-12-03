@@ -6,7 +6,6 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -16,7 +15,6 @@ import java.util.Optional;
 public interface SplitTimeListJdbcRepository
     extends CrudRepository<SplitTimeListDbo, Long>, PagingAndSortingRepository<SplitTimeListDbo, Long> {
 
-    @NonNull
     Collection<SplitTimeListDbo> findAll();
 
     Optional<SplitTimeListDbo> findByEventIdAndResultListIdAndClassResultShortNameAndPersonIdAndRaceNumber(
@@ -25,6 +23,8 @@ public interface SplitTimeListJdbcRepository
         String classResultShortName,
         AggregateReference<PersonDbo, Long> personId,
         Byte raceNumber);
+
+    Collection<SplitTimeListDbo> findByResultListId(AggregateReference<ResultListDbo, Long> resultListId);
 
     @Query("""
     SELECT COUNT(s) > 0

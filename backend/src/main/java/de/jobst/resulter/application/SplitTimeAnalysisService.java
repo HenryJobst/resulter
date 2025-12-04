@@ -16,11 +16,11 @@ public interface SplitTimeAnalysisService {
      * @param resultListId The result list to analyze
      * @param mergeBidirectional If true, merge forward and reverse directions
      * @param filterNames Optional list of person names to filter (null or empty = all)
-     * @return Split time analysis or empty if no data
+     * @return List of split time analyses (one per class) or empty list if no data
      */
-    Optional<SplitTimeAnalysis> analyzeSplitTimesRanking(
+    List<SplitTimeAnalysis> analyzeSplitTimesRanking(
         ResultListId resultListId,
         boolean mergeBidirectional,
         List<String> filterNames
-                                                        );
+    );
 }

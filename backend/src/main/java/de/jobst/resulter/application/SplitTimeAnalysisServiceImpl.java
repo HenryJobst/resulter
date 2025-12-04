@@ -1,6 +1,7 @@
 package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.PersonRepository;
+import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.analysis.ControlSegment;
@@ -16,18 +17,24 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
+    // Maximum number of runners to include per segment (to limit response size)
+    private static final int MAX_RUNNERS_PER_SEGMENT = 100;
+
     private final SplitTimeListRepository splitTimeListRepository;
     private final PersonRepository personRepository;
+    private final ResultListRepository resultListRepository;
 
     public SplitTimeAnalysisServiceImpl(
             SplitTimeListRepository splitTimeListRepository,
-            PersonRepository personRepository) {
+            PersonRepository personRepository,
+            ResultListRepository resultListRepository) {
         this.splitTimeListRepository = splitTimeListRepository;
         this.personRepository = personRepository;
+        this.resultListRepository = resultListRepository;
     }
 
     @Override
-    public Optional<SplitTimeAnalysis> analyzeSplitTimesRanking(
+    public List<SplitTimeAnalysis> analyzeSplitTimesRanking(
             ResultListId resultListId,
             boolean mergeBidirectional,
             List<String> filterNames) {
@@ -37,7 +44,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
         if (splitTimeLists.isEmpty()) {
             log.debug("No split time data found for result list {}", resultListId);
-            return Optional.empty();
+            return List.of();
         }
 
         // Get person IDs and fetch person names
@@ -47,38 +54,41 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
         Map<PersonId, Person> personMap = personRepository.findAllById(personIds);
 
-        // Group by class result short name
-        // For simplicity, we'll use the first class we find
-        // TODO: In a future enhancement, support multiple classes
-        ClassResultShortName classShortName = splitTimeLists.get(0).getClassResultShortName();
-        EventId eventId = splitTimeLists.get(0).getEventId();
+        // Fetch result list to get finish times (runtime) for each person
+        ResultList resultList = resultListRepository.findById(resultListId)
+                .orElseThrow(() -> new IllegalArgumentException("ResultList not found: " + resultListId));
 
-        // Filter to single class
-        List<SplitTimeList> classSplitTimeLists = splitTimeLists.stream()
-                .filter(stl -> stl.getClassResultShortName().equals(classShortName))
-                .toList();
+        // Build map of (PersonId, ClassResultShortName, RaceNumber) -> runtime
+        Map<String, Double> runtimeMap = buildRuntimeMap(resultList);
 
-        // Calculate control segments
+        // Get eventId (same for all split time lists)
+        EventId eventId = splitTimeLists.getFirst().getEventId();
+
+        // Calculate control segments across all classes
+        // (Different classes may use the same course or share segments)
         List<ControlSegment> controlSegments = calculateControlSegments(
-                classSplitTimeLists,
+                splitTimeLists,
                 personMap,
+                runtimeMap,
                 mergeBidirectional,
                 filterNames
         );
 
+        // Create a single analysis with all classes combined
         SplitTimeAnalysis analysis = new SplitTimeAnalysis(
                 resultListId,
                 eventId,
-                classShortName,
+                ClassResultShortName.of("Alle Klassen"),
                 controlSegments
         );
 
-        return Optional.of(analysis);
+        return List.of(analysis);
     }
 
     private List<ControlSegment> calculateControlSegments(
             List<SplitTimeList> splitTimeLists,
             Map<PersonId, Person> personMap,
+            Map<String, Double> runtimeMap,
             boolean mergeBidirectional,
             List<String> filterNames) {
 
@@ -88,14 +98,32 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
         for (SplitTimeList splitTimeList : splitTimeLists) {
             List<SplitTime> splitTimes = splitTimeList.getSplitTimes();
 
+            // Add virtual Start and Finish controls
+            List<SplitTime> extendedSplitTimes = addStartAndFinishControls(
+                    splitTimes,
+                    splitTimeList.getPersonId(),
+                    splitTimeList.getClassResultShortName(),
+                    splitTimeList.getRaceNumber(),
+                    runtimeMap
+            );
+
             // Sort split times by punch time to ensure chronological order
-            List<SplitTime> sortedSplitTimes = new ArrayList<>(splitTimes);
-            sortedSplitTimes.sort(Comparator.comparing(st -> st.getPunchTime().value()));
+            // Use nullsLast to handle missing punches (DNF/missed controls)
+            List<SplitTime> sortedSplitTimes = new ArrayList<>(extendedSplitTimes);
+            sortedSplitTimes.sort(Comparator.comparing(
+                    st -> st.getPunchTime().value(),
+                    Comparator.nullsLast(Comparator.naturalOrder())
+            ));
 
             // Calculate split times between consecutive controls
             for (int i = 1; i < sortedSplitTimes.size(); i++) {
                 SplitTime previousSplit = sortedSplitTimes.get(i - 1);
                 SplitTime currentSplit = sortedSplitTimes.get(i);
+
+                // Skip if either punch time is null (missed control/DNF)
+                if (previousSplit.getPunchTime().value() == null || currentSplit.getPunchTime().value() == null) {
+                    continue;
+                }
 
                 String fromControl = previousSplit.getControlCode().value();
                 String toControl = currentSplit.getControlCode().value();
@@ -110,7 +138,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                         "Unknown";
 
                 // Apply name filtering if specified
-                if (filterNames != null && !filterNames.isEmpty()) {
+                if (!filterNames.isEmpty()) {
                     boolean matchesFilter = filterNames.stream()
                             .anyMatch(filterName ->
                                     personName.toLowerCase().contains(filterName.toLowerCase()));
@@ -123,6 +151,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 RunnerSplitData runnerSplitData = new RunnerSplitData(
                         splitTimeList.getPersonId(),
                         personName,
+                        splitTimeList.getClassResultShortName().value(),
                         splitTimeSeconds
                 );
 
@@ -147,11 +176,26 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 // Sort by split time
                 runnerData.sort(Comparator.comparingDouble(RunnerSplitData::splitTimeSeconds));
 
+                // Limit to top N runners per segment to keep response size manageable
+                int totalRunners = runnerData.size();
+                int limitedSize = Math.min(totalRunners, MAX_RUNNERS_PER_SEGMENT);
+                if (totalRunners > MAX_RUNNERS_PER_SEGMENT) {
+                    log.debug("Limiting segment {}→{} from {} to {} runners",
+                            fromControl, toControl, totalRunners, MAX_RUNNERS_PER_SEGMENT);
+                }
+
+                // Collect unique classes that use this segment
+                List<String> classes = runnerData.stream()
+                        .map(RunnerSplitData::classResultShortName)
+                        .distinct()
+                        .sorted()
+                        .toList();
+
                 // Calculate positions and time behind leader
                 List<RunnerSplit> runnerSplits = new ArrayList<>();
-                Double leaderTime = runnerData.isEmpty() ? 0.0 : runnerData.get(0).splitTimeSeconds();
+                Double leaderTime = runnerData.isEmpty() ? 0.0 : runnerData.getFirst().splitTimeSeconds();
 
-                for (int i = 0; i < runnerData.size(); i++) {
+                for (int i = 0; i < limitedSize; i++) {
                     RunnerSplitData data = runnerData.get(i);
                     int position = i + 1;
                     Double timeBehind = data.splitTimeSeconds() - leaderTime;
@@ -159,6 +203,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                     runnerSplits.add(new RunnerSplit(
                             data.personId(),
                             data.personName(),
+                            data.classResultShortName(),
                             position,
                             data.splitTimeSeconds(),
                             timeBehind
@@ -168,7 +213,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 ControlSegment segment = new ControlSegment(
                         ControlCode.of(fromControl),
                         ControlCode.of(toControl),
-                        runnerSplits
+                        runnerSplits,
+                        classes
                 );
 
                 controlSegments.add(segment);
@@ -179,6 +225,15 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
         if (mergeBidirectional) {
             controlSegments = mergeBidirectionalSegments(controlSegments);
         }
+
+        // Sort segments by control number (numerically if possible, otherwise lexicographically)
+        controlSegments.sort((s1, s2) -> {
+            int fromCompare = compareControlCodes(s1.getFromControl().value(), s2.getFromControl().value());
+            if (fromCompare != 0) {
+                return fromCompare;
+            }
+            return compareControlCodes(s1.getToControl().value(), s2.getToControl().value());
+        });
 
         return controlSegments;
     }
@@ -192,8 +247,6 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
             String toControl = segment.getToControl().value();
 
             // Create sorted key for this segment pair
-            String forwardKey = fromControl + "->" + toControl;
-            String reverseKey = toControl + "->" + fromControl;
             String sortedKey = fromControl.compareTo(toControl) < 0 ?
                     fromControl + "-" + toControl :
                     toControl + "-" + fromControl;
@@ -213,17 +266,25 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 List<RunnerSplit> mergedSplits = new ArrayList<>(segment.getRunnerSplits());
                 mergedSplits.addAll(reverseSegment.get().getRunnerSplits());
 
+                // Merge classes from both segments
+                List<String> mergedClasses = new ArrayList<>(segment.getClasses());
+                reverseSegment.get().getClasses().stream()
+                        .filter(c -> !mergedClasses.contains(c))
+                        .forEach(mergedClasses::add);
+                mergedClasses.sort(String::compareTo);
+
                 // Re-sort and recalculate positions
                 mergedSplits.sort(Comparator.comparingDouble(RunnerSplit::getSplitTimeSeconds));
 
                 List<RunnerSplit> recalculatedSplits = new ArrayList<>();
-                Double leaderTime = mergedSplits.isEmpty() ? 0.0 : mergedSplits.get(0).getSplitTimeSeconds();
+                Double leaderTime = mergedSplits.isEmpty() ? 0.0 : mergedSplits.getFirst().getSplitTimeSeconds();
 
                 for (int i = 0; i < mergedSplits.size(); i++) {
                     RunnerSplit split = mergedSplits.get(i);
                     recalculatedSplits.add(new RunnerSplit(
                             split.getPersonId(),
                             split.getPersonName(),
+                            split.getClassResultShortName(),
                             i + 1, // New position
                             split.getSplitTimeSeconds(),
                             split.getSplitTimeSeconds() - leaderTime
@@ -233,7 +294,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 ControlSegment mergedSegment = new ControlSegment(
                         segment.getFromControl(),
                         segment.getToControl(),
-                        recalculatedSplits
+                        recalculatedSplits,
+                        mergedClasses
                 );
 
                 mergedSegmentMap.put(sortedKey, mergedSegment);
@@ -248,10 +310,108 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
         return new ArrayList<>(mergedSegmentMap.values());
     }
 
+    /**
+     * Adds virtual Start (punch_time = 0) and Finish (punch_time = runtime) controls
+     * to the split times list.
+     */
+    private List<SplitTime> addStartAndFinishControls(
+            List<SplitTime> splitTimes,
+            PersonId personId,
+            ClassResultShortName classShortName,
+            RaceNumber raceNumber,
+            Map<String, Double> runtimeMap) {
+
+        List<SplitTime> extendedSplitTimes = new ArrayList<>();
+
+        // Add virtual Start control with punch_time = 0
+        extendedSplitTimes.add(SplitTime.of("S", 0.0));
+
+        // Add all existing split times
+        extendedSplitTimes.addAll(splitTimes);
+
+        // Add virtual Finish control with punch_time = runtime (if available)
+        String runtimeKey = makeRuntimeKey(personId, classShortName, raceNumber);
+        Double runtime = runtimeMap.get(runtimeKey);
+        if (runtime != null && runtime > 0) {
+            extendedSplitTimes.add(SplitTime.of("F", runtime));
+        }
+
+        return extendedSplitTimes;
+    }
+
+    /**
+     * Builds a map of runtime values for each person/class/race combination.
+     * Key format: "personId-classShortName-raceNumber"
+     */
+    private Map<String, Double> buildRuntimeMap(ResultList resultList) {
+        Map<String, Double> runtimeMap = new HashMap<>();
+
+        if (resultList.getClassResults() == null) {
+            return runtimeMap;
+        }
+
+        for (ClassResult classResult : resultList.getClassResults()) {
+            for (PersonResult personResult : classResult.personResults().value()) {
+                for (PersonRaceResult raceResult : personResult.personRaceResults().value()) {
+                    if (raceResult.getRuntime().value() != null) {
+                        String key = makeRuntimeKey(
+                                personResult.personId(),
+                                classResult.classResultShortName(),
+                                raceResult.getRaceNumber()
+                        );
+                        runtimeMap.put(key, raceResult.getRuntime().value());
+                    }
+                }
+            }
+        }
+
+        return runtimeMap;
+    }
+
+    /**
+     * Creates a key for the runtime map.
+     */
+    private String makeRuntimeKey(PersonId personId, ClassResultShortName classShortName, RaceNumber raceNumber) {
+        return personId.value() + "-" + classShortName.value() + "-" + raceNumber.value();
+    }
+
+    /**
+     * Compares two control codes with special handling:
+     * - "S" (Start) sorts first
+     * - Numeric codes sort numerically
+     * - Other codes sort lexicographically
+     */
+    private int compareControlCodes(String code1, String code2) {
+        // Special handling for Start control
+        boolean isStart1 = "S".equals(code1);
+        boolean isStart2 = "S".equals(code2);
+
+        if (isStart1 && isStart2) {
+            return 0;
+        }
+        if (isStart1) {
+            return -1; // S comes first
+        }
+        if (isStart2) {
+            return 1; // S comes first
+        }
+
+        // Try numeric comparison for regular controls
+        try {
+            Integer num1 = Integer.parseInt(code1);
+            Integer num2 = Integer.parseInt(code2);
+            return num1.compareTo(num2);
+        } catch (NumberFormatException e) {
+            // If not numeric, compare lexicographically
+            return code1.compareTo(code2);
+        }
+    }
+
     // Helper record for runner split data during calculation
     private record RunnerSplitData(
             PersonId personId,
             String personName,
+            String classResultShortName,
             Double splitTimeSeconds
     ) {}
 }

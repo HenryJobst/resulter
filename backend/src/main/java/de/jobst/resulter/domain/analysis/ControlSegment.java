@@ -20,12 +20,17 @@ public class ControlSegment {
     @NonNull
     private final List<RunnerSplit> runnerSplits;
 
+    @NonNull
+    private final List<String> classes;
+
     public ControlSegment(
             @NonNull ControlCode fromControl,
             @NonNull ControlCode toControl,
-            @NonNull List<RunnerSplit> runnerSplits) {
+            @NonNull List<RunnerSplit> runnerSplits,
+            @NonNull List<String> classes) {
         this.fromControl = fromControl;
         this.toControl = toControl;
         this.runnerSplits = runnerSplits;
+        this.classes = classes;
     }
 }

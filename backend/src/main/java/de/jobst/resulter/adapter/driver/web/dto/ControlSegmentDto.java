@@ -8,7 +8,8 @@ public record ControlSegmentDto(
         String fromControl,
         String toControl,
         String segmentLabel,
-        List<RunnerSplitDto> runnerSplits
+        List<RunnerSplitDto> runnerSplits,
+        List<String> classes
 ) {
 
     public static ControlSegmentDto from(ControlSegment segment) {
@@ -24,7 +25,8 @@ public record ControlSegmentDto(
                 fromControl,
                 toControl,
                 segmentLabel,
-                runnerSplits
+                runnerSplits,
+                segment.getClasses()
         );
     }
 }

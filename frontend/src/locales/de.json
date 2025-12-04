@@ -189,7 +189,8 @@
         "details": "Details...",
         "noMessages": "Keine Meldungen",
         "no_split_times": "Keine Zwischenzeiten für diese Ergebnisliste verfügbar.",
-        "no_data": "Keine Daten verfügbar."
+        "no_data": "Keine Daten verfügbar.",
+        "top_100_shown": "Nur die Top 100 Läufer werden angezeigt (Segment aus Performance-Gründen begrenzt)"
     },
     "errors": {
         "notFound": "Die angefragte Ressource wurde nicht gefunden. {message}",

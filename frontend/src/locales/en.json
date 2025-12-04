@@ -144,7 +144,8 @@
         "details": "Details...",
         "noMessages": "No messages",
         "no_split_times": "No split times available for this result list.",
-        "no_data": "No data available."
+        "no_data": "No data available.",
+        "top_100_shown": "Showing top 100 runners only (segment limited for performance)"
     },
     "result_state": {
         "OK": "OK",

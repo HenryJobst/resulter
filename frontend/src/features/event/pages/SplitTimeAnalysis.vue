@@ -116,26 +116,52 @@ function navigateBack() {
         </div>
 
         <div v-else-if="splitTimeQueryRanking.data.value" class="card">
-            <Accordion v-if="splitTimeQueryRanking.data.value.controlSegments.length > 0" :multiple="true">
-                <AccordionTab
-                    v-for="segment in splitTimeQueryRanking.data.value.controlSegments"
-                    :key="segment.segmentLabel"
-                    :header="`${segment.segmentLabel} (${segment.runnerSplits.length} ${t('labels.runners')})`"
+            <div v-if="splitTimeQueryRanking.data.value.length > 0">
+                <div
+                    v-for="analysis in splitTimeQueryRanking.data.value"
+                    :key="analysis.classResultShortName"
+                    class="class-section mb-4"
                 >
-                    <DataTable
-                        :value="segment.runnerSplits"
-                        striped-rows
-                        :rows="50"
-                        :paginator="segment.runnerSplits.length > 50"
-                        responsive-layout="scroll"
-                    >
-                        <Column field="position" :header="t('labels.position')" style="width: 10%" />
-                        <Column field="personName" :header="t('labels.name')" style="width: 40%" />
-                        <Column field="splitTime" :header="t('labels.split_time')" style="width: 25%" />
-                        <Column field="timeBehind" :header="t('labels.time_behind')" style="width: 25%" />
-                    </DataTable>
-                </AccordionTab>
-            </Accordion>
+                    <h2 class="class-title font-bold mb-3">
+                        {{ analysis.classResultShortName }}
+                    </h2>
+                    <Accordion v-if="analysis.controlSegments.length > 0" :multiple="true">
+                        <AccordionTab
+                            v-for="segment in analysis.controlSegments"
+                            :key="segment.segmentLabel"
+                        >
+                            <template #header>
+                                <span class="font-semibold">{{ segment.segmentLabel }}</span>
+                                <span class="ml-2 text-gray-600">
+                                    ({{ segment.runnerSplits.length }} {{ t('labels.runners') }})
+                                </span>
+                                <span v-if="segment.classes.length > 0" class="ml-2 text-sm text-gray-500 italic">
+                                    {{ segment.classes.join(', ') }}
+                                </span>
+                            </template>
+                            <DataTable
+                                :value="segment.runnerSplits"
+                                striped-rows
+                                :rows="50"
+                                :paginator="segment.runnerSplits.length > 50"
+                                responsive-layout="scroll"
+                            >
+                                <Column field="position" :header="t('labels.position')" style="width: 8%" />
+                                <Column field="personName" :header="t('labels.name')" style="width: 35%" />
+                                <Column field="classResultShortName" :header="t('labels.class')" style="width: 12%" />
+                                <Column field="splitTime" :header="t('labels.split_time')" style="width: 20%" />
+                                <Column field="timeBehind" :header="t('labels.time_behind')" style="width: 25%" />
+                            </DataTable>
+                            <div v-if="segment.runnerSplits.length === 100" class="p-2 text-sm text-gray-600 italic">
+                                {{ t('messages.top_100_shown') }}
+                            </div>
+                        </AccordionTab>
+                    </Accordion>
+                    <div v-else class="p-4">
+                        {{ t('messages.no_split_times') }}
+                    </div>
+                </div>
+            </div>
             <div v-else class="p-4">
                 {{ t('messages.no_split_times') }}
             </div>
@@ -177,5 +203,20 @@ function navigateBack() {
     color: white;
     border-radius: 1rem;
     font-size: 0.875rem;
+}
+
+.class-section {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 1rem;
+}
+
+.class-section:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.class-title {
+    font-size: 1.25rem;
+    color: var(--primary-color);
 }
 </style>

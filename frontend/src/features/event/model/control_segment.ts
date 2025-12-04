@@ -5,4 +5,5 @@ export interface ControlSegment {
     toControl: string
     segmentLabel: string
     runnerSplits: RunnerSplit[]
+    classes: string[]
 }

@@ -22,7 +22,7 @@ public class SplitTimeAnalysisController {
     }
 
     @GetMapping("/split_time_analysis/result_list/{id}/ranking")
-    public ResponseEntity<SplitTimeAnalysisDto> analyzeSplitTimesRanking(
+    public ResponseEntity<List<SplitTimeAnalysisDto>> analyzeSplitTimesRanking(
             @PathVariable Long id,
             @RequestParam(required = false, defaultValue = "false") @Nullable Boolean mergeBidirectional,
             @RequestParam(required = false) @Nullable List<String> filterNames) {
@@ -30,13 +30,29 @@ public class SplitTimeAnalysisController {
         log.debug("Analyzing split times (ranking) for result list {} (merge: {}, filters: {})",
                 id, mergeBidirectional, filterNames);
 
-        return splitTimeAnalysisService.analyzeSplitTimesRanking(
+        List<SplitTimeAnalysisDto> analyses = splitTimeAnalysisService.analyzeSplitTimesRanking(
                         ResultListId.of(id),
                         Optional.ofNullable(mergeBidirectional).orElse(false),
                         Optional.ofNullable(filterNames).orElse(List.of())
-                                                                )
+                )
+                .stream()
                 .map(SplitTimeAnalysisDto::from)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .toList();
+
+        if (!analyses.isEmpty()) {
+            long totalSegments = analyses.stream()
+                    .mapToLong(a -> a.controlSegments().size())
+                    .sum();
+            long totalRunners = analyses.stream()
+                    .flatMap(a -> a.controlSegments().stream())
+                    .mapToLong(s -> s.runnerSplits().size())
+                    .sum();
+            log.info("Returning {} analysis/analyses with {} segments and {} total runner entries",
+                    analyses.size(), totalSegments, totalRunners);
+        }
+
+        return analyses.isEmpty()
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(analyses);
     }
 }

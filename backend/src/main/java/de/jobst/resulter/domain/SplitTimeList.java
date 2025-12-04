@@ -6,46 +6,38 @@ import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
-import org.springframework.lang.NonNull;
 
 @AggregateRoot
 @Getter
 public class SplitTimeList {
 
     @Identity
-    @NonNull
     @Setter
     private SplitTimeListId id;
 
     @Association
-    @NonNull
     private final EventId eventId;
 
     @Association
-    @NonNull
     private final ResultListId resultListId;
 
-    @NonNull
     private final ClassResultShortName classResultShortName;
 
     @Association
-    @NonNull
     private final PersonId personId;
 
-    @NonNull
     private final RaceNumber raceNumber;
 
-    @NonNull
     private final List<SplitTime> splitTimes;
 
     public SplitTimeList(
-            @NonNull SplitTimeListId id,
-            @NonNull EventId eventId,
-            @NonNull ResultListId resultListId,
-            @NonNull ClassResultShortName classResultShortName,
-            @NonNull PersonId personId,
-            @NonNull RaceNumber raceNumber,
-            @NonNull List<SplitTime> splitTimes) {
+            SplitTimeListId id,
+            EventId eventId,
+            ResultListId resultListId,
+            ClassResultShortName classResultShortName,
+            PersonId personId,
+            RaceNumber raceNumber,
+            List<SplitTime> splitTimes) {
         this.id = id;
         this.eventId = eventId;
         this.resultListId = resultListId;
@@ -68,7 +60,7 @@ public class SplitTimeList {
             implements Comparable<DomainKey> {
 
         @Override
-        public int compareTo(@NonNull DomainKey o) {
+        public int compareTo(DomainKey o) {
             int val = personId.compareTo(o.personId);
             if (val == 0) {
                 val = classResultShortName.compareTo(o.classResultShortName);

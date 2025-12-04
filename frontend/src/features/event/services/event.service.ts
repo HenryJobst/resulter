@@ -202,7 +202,7 @@ export class EventService extends GenericService<SportEvent> {
         mergeBidirectional: boolean = false,
         filterNames: string[] = [],
         _t: (key: string) => string,
-    ): Promise<SplitTimeAnalysis> {
+    ): Promise<SplitTimeAnalysis[]> {
         const params = new URLSearchParams()
         if (mergeBidirectional) {
             params.append('mergeBidirectional', 'true')
@@ -213,7 +213,7 @@ export class EventService extends GenericService<SportEvent> {
         const url = `${splitTimeAnalysisUrl}/result_list/${resultListId}/ranking${queryString ? `?${queryString}` : ''}`
 
         return axiosInstance
-            .get<SplitTimeAnalysis>(url)
+            .get<SplitTimeAnalysis[]>(url)
             .then(response => response.data)
     }
 }

@@ -5,6 +5,7 @@ import de.jobst.resulter.domain.analysis.RunnerSplit;
 public record RunnerSplitDto(
         Long personId,
         String personName,
+        String classResultShortName,
         Integer position,
         String splitTime,
         String timeBehind,
@@ -15,6 +16,7 @@ public record RunnerSplitDto(
         return new RunnerSplitDto(
                 split.getPersonId().value(),
                 split.getPersonName(),
+                split.getClassResultShortName(),
                 split.getPosition(),
                 formatTime(split.getSplitTimeSeconds()),
                 formatTimeBehind(split.getTimeBehindLeader()),

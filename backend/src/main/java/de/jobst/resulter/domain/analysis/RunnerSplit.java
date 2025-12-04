@@ -15,6 +15,9 @@ public class RunnerSplit implements Comparable<RunnerSplit> {
     @NonNull
     private final String personName;
 
+    @NonNull
+    private final String classResultShortName;
+
     private final Integer position;
 
     private final Double splitTimeSeconds;
@@ -24,11 +27,13 @@ public class RunnerSplit implements Comparable<RunnerSplit> {
     public RunnerSplit(
             @NonNull PersonId personId,
             @NonNull String personName,
+            @NonNull String classResultShortName,
             Integer position,
             Double splitTimeSeconds,
             Double timeBehindLeader) {
         this.personId = personId;
         this.personName = personName;
+        this.classResultShortName = classResultShortName;
         this.position = position;
         this.splitTimeSeconds = splitTimeSeconds;
         this.timeBehindLeader = timeBehindLeader;

@@ -10,6 +10,7 @@ import Checkbox from 'primevue/checkbox'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import MultiSelect from 'primevue/multiselect'
+import Select from 'primevue/select'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -26,6 +27,7 @@ const router = useRouter()
 const mergeBidirectional = ref(false)
 const filterPersonIds = ref<number[]>([])
 const filterIntersection = ref(false)
+const filterClass = ref<string | null>(null)
 const visibleSegmentCount = ref(50) // Show first 50 segments initially
 const SEGMENT_INCREMENT = 50
 
@@ -130,16 +132,49 @@ function formatSeconds(seconds: number): string {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
+// Extract all unique classes from segments
+const availableClasses = computed(() => {
+    if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
+        return []
+
+    const classSet = new Set<string>()
+    splitTimeQueryRanking.data.value[0].controlSegments.forEach((segment) => {
+        segment.classes.forEach(cls => classSet.add(cls))
+    })
+
+    return Array.from(classSet).sort()
+})
+
 const visibleSegments = computed(() => {
     if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
         return []
-    return splitTimeQueryRanking.data.value[0].controlSegments.slice(0, visibleSegmentCount.value)
+
+    let segments = splitTimeQueryRanking.data.value[0].controlSegments
+
+    // Apply class filter if selected
+    if (filterClass.value) {
+        segments = segments.filter(segment =>
+            segment.classes.includes(filterClass.value!),
+        )
+    }
+
+    return segments.slice(0, visibleSegmentCount.value)
 })
 
 const hasMoreSegments = computed(() => {
     if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
         return false
-    return splitTimeQueryRanking.data.value[0].controlSegments.length > visibleSegmentCount.value
+
+    let segments = splitTimeQueryRanking.data.value[0].controlSegments
+
+    // Apply class filter if selected
+    if (filterClass.value) {
+        segments = segments.filter(segment =>
+            segment.classes.includes(filterClass.value!),
+        )
+    }
+
+    return segments.length > visibleSegmentCount.value
 })
 
 function loadMoreSegments() {
@@ -155,7 +190,7 @@ function navigateBack() {
 }
 
 // Reset visible count when data changes
-watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
+watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], () => {
     visibleSegmentCount.value = SEGMENT_INCREMENT
 })
 </script>
@@ -221,6 +256,18 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
                     :binary="true"
                 />
                 <label for="intersection" class="ml-2">{{ t('labels.filter_intersection') }}</label>
+            </div>
+
+            <div v-if="availableClasses.length > 0" class="filter-section mt-3">
+                <label for="classFilter" class="mb-2 block">{{ t('labels.filter_by_class') }}</label>
+                <Select
+                    id="classFilter"
+                    v-model="filterClass"
+                    :options="availableClasses"
+                    :placeholder="t('messages.select')"
+                    class="w-full"
+                    show-clear
+                />
             </div>
         </div>
 

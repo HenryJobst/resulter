@@ -114,6 +114,7 @@
         "segment": "Teilstrecke",
         "runners": "Läufer",
         "filter_intersection": "Nur Abschnitte mit allen gefilterten Läufern",
+        "filter_by_class": "Nach Altersklasse filtern",
         "overall_ranking": "Gesamtranking",
         "total_time": "Gesamtzeit",
         "segment_details": "Abschnittsdetails"

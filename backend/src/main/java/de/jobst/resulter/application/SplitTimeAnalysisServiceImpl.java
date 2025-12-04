@@ -78,9 +78,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
         // (Different classes may use the same course or share segments)
         long calcStart = System.currentTimeMillis();
         List<ControlSegment> controlSegments = calculateControlSegments(
-                splitTimeLists,
-                personMap,
-                runtimeMap,
+                splitTimeLists, runtimeMap,
                 mergeBidirectional,
                 filterPersonIds,
                 filterIntersection
@@ -100,9 +98,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
     }
 
     private List<ControlSegment> calculateControlSegments(
-            List<SplitTimeList> splitTimeLists,
-            Map<PersonId, Person> personMap,
-            Map<String, Double> runtimeMap,
+            List<SplitTimeList> splitTimeLists, Map<String, Double> runtimeMap,
             boolean mergeBidirectional,
             List<Long> filterPersonIds,
             boolean filterIntersection) {
@@ -147,7 +143,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 Double splitTimeSeconds = currentSplit.getPunchTime().value() - previousSplit.getPunchTime().value();
 
                 // Apply person ID filtering if specified
-                if (filterPersonIds != null && !filterPersonIds.isEmpty()) {
+                if (!filterPersonIds.isEmpty()) {
                     Long personIdValue = splitTimeList.getPersonId().value();
                     if (!filterPersonIds.contains(personIdValue)) {
                         continue; // Skip this runner
@@ -184,20 +180,19 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
                 // Skip segments with only one runner (no meaningful comparison)
                 // BUT: If person filter is active, show all segments for filtered runner(s)
-                if (runnerData.size() <= 1 && (filterPersonIds == null || filterPersonIds.isEmpty())) {
+                if (runnerData.size() <= 1 && filterPersonIds.isEmpty()) {
                     log.debug("Skipping segment {}→{} with only {} runner (no filter active)",
                             fromControl, toControl, runnerData.size());
                     continue;
                 }
 
                 // If intersection filter is active, check if ALL filtered persons appear in this segment
-                if (filterIntersection && filterPersonIds != null && !filterPersonIds.isEmpty()) {
+                if (filterIntersection && !filterPersonIds.isEmpty()) {
                     Set<Long> segmentPersonIds = runnerData.stream()
                             .map(data -> data.personId().value())
                             .collect(Collectors.toSet());
 
-                    boolean allFilteredPersonsPresent = filterPersonIds.stream()
-                            .allMatch(segmentPersonIds::contains);
+                    boolean allFilteredPersonsPresent = segmentPersonIds.containsAll(filterPersonIds);
 
                     if (!allFilteredPersonsPresent) {
                         log.debug("Skipping segment {}→{} because not all filtered persons are present (intersection filter)",

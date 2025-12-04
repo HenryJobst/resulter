@@ -102,7 +102,7 @@
         "select_language": "Sprache auswählen",
         "defaultImpressText": "Impressum nicht gesetzt!",
         "possible_duplicates": "mögliche Dopplungen",
-        "split_time_analysis": "Zwischenzeit-Analyse",
+        "split_time_analysis_ranking": "Zwischenzeiten-Rangliste",
         "merge_bidirectional": "Bidirektional zusammenführen",
         "filter_by_name": "Nach Name filtern",
         "add_filter": "Filter hinzufügen",
@@ -115,7 +115,8 @@
         "runners": "Läufer",
         "filter_intersection": "Nur Abschnitte mit allen gefilterten Läufern",
         "overall_ranking": "Gesamtranking",
-        "total_time": "Gesamtzeit"
+        "total_time": "Gesamtzeit",
+        "segment_details": "Abschnittsdetails"
     },
     "result_state": {
         "OK": "OK",

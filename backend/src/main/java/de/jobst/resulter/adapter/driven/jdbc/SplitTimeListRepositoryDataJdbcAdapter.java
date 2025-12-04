@@ -5,6 +5,7 @@ import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Repository;
@@ -27,7 +28,7 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
     }
 
     @Override
-    public SplitTimeList save(SplitTimeList splitTimeList) {
+    public @Nullable SplitTimeList save(SplitTimeList splitTimeList) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setSplitTimeListDboResolver(id -> splitTimeListJdbcRepository.findById(id.value()).orElseThrow());
         SplitTimeListDbo splitTimeListEntity = SplitTimeListDbo.from(splitTimeList, dboResolvers);
@@ -49,7 +50,7 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
     }
 
     @Override
-    public SplitTimeList findOrCreate(SplitTimeList splitTimeList) {
+    public @Nullable SplitTimeList findOrCreate(SplitTimeList splitTimeList) {
         Optional<SplitTimeListDbo> splitTimeListEntity =
             splitTimeListJdbcRepository.findByEventIdAndResultListIdAndClassResultShortNameAndPersonIdAndRaceNumber(
                 AggregateReference.to(splitTimeList.getEventId().value()),
@@ -66,7 +67,7 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
 
     @Override
     @Transactional
-    public Collection<SplitTimeList> findOrCreate(Collection<SplitTimeList> splitTimeLists) {
+    public Collection<@Nullable SplitTimeList> findOrCreate(Collection<SplitTimeList> splitTimeLists) {
         return splitTimeLists.stream().map(this::findOrCreate).toList();
     }
 

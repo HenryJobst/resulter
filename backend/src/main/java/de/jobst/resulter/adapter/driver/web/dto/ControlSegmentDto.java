@@ -13,11 +13,11 @@ public record ControlSegmentDto(
 ) {
 
     public static ControlSegmentDto from(ControlSegment segment) {
-        String fromControl = segment.getFromControl().value();
-        String toControl = segment.getToControl().value();
+        String fromControl = segment.fromControl().value();
+        String toControl = segment.toControl().value();
         String segmentLabel = fromControl + " → " + toControl;
 
-        List<RunnerSplitDto> runnerSplits = segment.getRunnerSplits().stream()
+        List<RunnerSplitDto> runnerSplits = segment.runnerSplits().stream()
                 .map(RunnerSplitDto::from)
                 .toList();
 
@@ -26,7 +26,7 @@ public record ControlSegmentDto(
                 toControl,
                 segmentLabel,
                 runnerSplits,
-                segment.getClasses()
+                segment.classes()
         );
     }
 }

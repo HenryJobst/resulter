@@ -176,6 +176,13 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 // Sort by split time
                 runnerData.sort(Comparator.comparingDouble(RunnerSplitData::splitTimeSeconds));
 
+                // Skip segments with only one runner (no meaningful comparison)
+                if (runnerData.size() <= 1) {
+                    log.debug("Skipping segment {}→{} with only {} runner",
+                            fromControl, toControl, runnerData.size());
+                    continue;
+                }
+
                 // Limit to top N runners per segment to keep response size manageable
                 int totalRunners = runnerData.size();
                 int limitedSize = Math.min(totalRunners, MAX_RUNNERS_PER_SEGMENT);
@@ -228,11 +235,11 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
         // Sort segments by control number (numerically if possible, otherwise lexicographically)
         controlSegments.sort((s1, s2) -> {
-            int fromCompare = compareControlCodes(s1.getFromControl().value(), s2.getFromControl().value());
+            int fromCompare = compareControlCodes(s1.fromControl().value(), s2.fromControl().value());
             if (fromCompare != 0) {
                 return fromCompare;
             }
-            return compareControlCodes(s1.getToControl().value(), s2.getToControl().value());
+            return compareControlCodes(s1.toControl().value(), s2.toControl().value());
         });
 
         return controlSegments;
@@ -243,8 +250,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
         Set<String> processedPairs = new HashSet<>();
 
         for (ControlSegment segment : segments) {
-            String fromControl = segment.getFromControl().value();
-            String toControl = segment.getToControl().value();
+            String fromControl = segment.fromControl().value();
+            String toControl = segment.toControl().value();
 
             // Create sorted key for this segment pair
             String sortedKey = fromControl.compareTo(toControl) < 0 ?
@@ -257,43 +264,43 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
             // Check if reverse segment exists
             Optional<ControlSegment> reverseSegment = segments.stream()
-                    .filter(s -> s.getFromControl().value().equals(toControl) &&
-                            s.getToControl().value().equals(fromControl))
+                    .filter(s -> s.fromControl().value().equals(toControl) &&
+                                 s.toControl().value().equals(fromControl))
                     .findFirst();
 
             if (reverseSegment.isPresent()) {
                 // Merge forward and reverse segments
-                List<RunnerSplit> mergedSplits = new ArrayList<>(segment.getRunnerSplits());
-                mergedSplits.addAll(reverseSegment.get().getRunnerSplits());
+                List<RunnerSplit> mergedSplits = new ArrayList<>(segment.runnerSplits());
+                mergedSplits.addAll(reverseSegment.get().runnerSplits());
 
                 // Merge classes from both segments
-                List<String> mergedClasses = new ArrayList<>(segment.getClasses());
-                reverseSegment.get().getClasses().stream()
+                List<String> mergedClasses = new ArrayList<>(segment.classes());
+                reverseSegment.get().classes().stream()
                         .filter(c -> !mergedClasses.contains(c))
                         .forEach(mergedClasses::add);
                 mergedClasses.sort(String::compareTo);
 
                 // Re-sort and recalculate positions
-                mergedSplits.sort(Comparator.comparingDouble(RunnerSplit::getSplitTimeSeconds));
+                mergedSplits.sort(Comparator.comparingDouble(RunnerSplit::splitTimeSeconds));
 
                 List<RunnerSplit> recalculatedSplits = new ArrayList<>();
-                Double leaderTime = mergedSplits.isEmpty() ? 0.0 : mergedSplits.getFirst().getSplitTimeSeconds();
+                Double leaderTime = mergedSplits.isEmpty() ? 0.0 : mergedSplits.getFirst().splitTimeSeconds();
 
                 for (int i = 0; i < mergedSplits.size(); i++) {
                     RunnerSplit split = mergedSplits.get(i);
                     recalculatedSplits.add(new RunnerSplit(
-                            split.getPersonId(),
-                            split.getPersonName(),
-                            split.getClassResultShortName(),
+                            split.personId(),
+                            split.personName(),
+                            split.classResultShortName(),
                             i + 1, // New position
-                            split.getSplitTimeSeconds(),
-                            split.getSplitTimeSeconds() - leaderTime
+                            split.splitTimeSeconds(),
+                        split.splitTimeSeconds() - leaderTime
                     ));
                 }
 
                 ControlSegment mergedSegment = new ControlSegment(
-                        segment.getFromControl(),
-                        segment.getToControl(),
+                        segment.fromControl(),
+                        segment.toControl(),
                         recalculatedSplits,
                         mergedClasses
                 );

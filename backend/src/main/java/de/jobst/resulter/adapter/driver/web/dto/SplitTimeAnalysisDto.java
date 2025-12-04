@@ -12,14 +12,14 @@ public record SplitTimeAnalysisDto(
 ) {
 
     public static SplitTimeAnalysisDto from(SplitTimeAnalysis analysis) {
-        List<ControlSegmentDto> controlSegments = analysis.getControlSegments().stream()
+        List<ControlSegmentDto> controlSegments = analysis.controlSegments().stream()
                 .map(ControlSegmentDto::from)
                 .toList();
 
         return new SplitTimeAnalysisDto(
-                analysis.getResultListId().value(),
-                analysis.getEventId().value(),
-                analysis.getClassResultShortName().value(),
+                analysis.resultListId().value(),
+                analysis.eventId().value(),
+                analysis.classResultShortName().value(),
                 controlSegments
         );
     }

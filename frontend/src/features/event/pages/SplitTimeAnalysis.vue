@@ -9,7 +9,7 @@ import Checkbox from 'primevue/checkbox'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import InputText from 'primevue/inputtext'
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { EventService } from '@/features/event/services/event.service'
@@ -25,6 +25,8 @@ const router = useRouter()
 const mergeBidirectional = ref(false)
 const filterNames = ref<string[]>([])
 const filterInput = ref('')
+const visibleSegmentCount = ref(50) // Show first 50 segments initially
+const SEGMENT_INCREMENT = 50
 
 const splitTimeQueryRanking = useQuery({
     queryKey: ['splitTimeAnalysisRanking', props.resultListId, mergeBidirectional, filterNames],
@@ -35,6 +37,22 @@ const splitTimeQueryRanking = useQuery({
         t,
     ),
 })
+
+const visibleSegments = computed(() => {
+    if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
+        return []
+    return splitTimeQueryRanking.data.value[0].controlSegments.slice(0, visibleSegmentCount.value)
+})
+
+const hasMoreSegments = computed(() => {
+    if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
+        return false
+    return splitTimeQueryRanking.data.value[0].controlSegments.length > visibleSegmentCount.value
+})
+
+function loadMoreSegments() {
+    visibleSegmentCount.value += SEGMENT_INCREMENT
+}
 
 function addNameFilter() {
     if (filterInput.value.trim()) {
@@ -50,6 +68,11 @@ function removeNameFilter(name: string) {
 function navigateBack() {
     router.back()
 }
+
+// Reset visible count when data changes
+watch([mergeBidirectional, filterNames], () => {
+    visibleSegmentCount.value = SEGMENT_INCREMENT
+})
 </script>
 
 <template>
@@ -126,10 +149,13 @@ function navigateBack() {
                 >
                     <h2 class="class-title font-bold mb-3">
                         {{ analysis.classResultShortName }}
+                        <span class="text-sm text-gray-500 ml-2">
+                            ({{ visibleSegments.length }} / {{ analysis.controlSegments.length }} {{ t('labels.segments') }})
+                        </span>
                     </h2>
-                    <Accordion v-if="analysis.controlSegments.length > 0" :multiple="true">
+                    <Accordion v-if="visibleSegments.length > 0" :multiple="true" lazy>
                         <AccordionPanel
-                            v-for="segment in analysis.controlSegments"
+                            v-for="segment in visibleSegments"
                             :key="segment.segmentLabel"
                             :value="segment.segmentLabel"
                         >
@@ -150,7 +176,9 @@ function navigateBack() {
                                     striped-rows
                                     :rows="50"
                                     :paginator="segment.runnerSplits.length > 50"
-                                    responsive-layout="scroll"
+                                    :lazy="false"
+                                    :scrollable="false"
+                                    size="small"
                                 >
                                     <Column field="position" :header="t('labels.position')" style="width: 8%" />
                                     <Column header="" style="width: 4%">
@@ -169,7 +197,16 @@ function navigateBack() {
                             </AccordionContent>
                         </AccordionPanel>
                     </Accordion>
-                    <div v-else class="p-4">
+                    <div v-if="hasMoreSegments" class="mt-4 text-center">
+                        <Button
+                            :label="`${t('labels.load_more')} (${analysis.controlSegments.length - visibleSegmentCount} ${t('labels.remaining')})`"
+                            icon="pi pi-angle-down"
+                            severity="secondary"
+                            outlined
+                            @click="loadMoreSegments"
+                        />
+                    </div>
+                    <div v-else-if="visibleSegments.length === 0" class="p-4">
                         {{ t('messages.no_split_times') }}
                     </div>
                 </div>

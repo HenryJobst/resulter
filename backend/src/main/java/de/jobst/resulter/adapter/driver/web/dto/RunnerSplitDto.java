@@ -9,7 +9,8 @@ public record RunnerSplitDto(
         Integer position,
         String splitTime,
         String timeBehind,
-        Double splitTimeSeconds
+        Double splitTimeSeconds,
+        boolean reversed
 ) {
 
     public static RunnerSplitDto from(RunnerSplit split) {
@@ -20,7 +21,8 @@ public record RunnerSplitDto(
                 split.position(),
                 formatTime(split.splitTimeSeconds()),
                 formatTimeBehind(split.timeBehindLeader()),
-                split.splitTimeSeconds()
+                split.splitTimeSeconds(),
+                split.reversed()
         );
     }
 

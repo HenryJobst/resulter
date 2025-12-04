@@ -102,7 +102,7 @@
         "select_language": "Select language",
         "defaultImpressText": "Impress not set!",
         "possible_duplicates": "possible duplicates",
-        "split_time_analysis": "Split Time Analysis",
+        "split_time_analysis_ranking": "Split Times Ranking",
         "merge_bidirectional": "Merge Bidirectional",
         "filter_by_name": "Filter by Name",
         "add_filter": "Add Filter",
@@ -113,7 +113,10 @@
         "time_behind": "Time Behind",
         "segment": "Segment",
         "runners": "runners",
-        "filter_intersection": "Show only segments with all filtered runners"
+        "filter_intersection": "Show only segments with all filtered runners",
+        "overall_ranking": "Overall Ranking",
+        "total_time": "Total Time",
+        "segment_details": "Segment Details"
     },
     "messages": {
         "new_cup": "New cup",
@@ -149,7 +152,8 @@
         "noMessages": "No messages",
         "no_split_times": "No split times available for this result list.",
         "no_data": "No data available.",
-        "top_100_shown": "Showing top 100 runners only (segment limited for performance)"
+        "top_100_shown": "Showing top 100 runners only (segment limited for performance)",
+        "overall_ranking_description": "Summed times across {count} common segments"
     },
     "result_state": {
         "OK": "OK",

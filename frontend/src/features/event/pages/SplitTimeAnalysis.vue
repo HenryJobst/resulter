@@ -155,7 +155,6 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
         <Button
             v-tooltip="t('labels.back')"
             icon="pi pi-arrow-left"
-            :label="t('labels.back')"
             class="mb-3"
             :aria-label="t('labels.back')"
             severity="secondary"
@@ -165,8 +164,8 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
             @click="navigateBack"
         />
 
-        <h1 class="mt-3 font-extrabold">
-            {{ t('labels.split_time_analysis') }}
+        <h1 class="mt-3 font-extrabold text-2xl text-primary">
+            {{ t('labels.split_time_analysis_ranking') }}
         </h1>
 
         <div class="controls mb-3 card">
@@ -193,6 +192,7 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
                     :placeholder="t('messages.select')"
                     class="w-full"
                     display="chip"
+                    show-clear
                 >
                     <template #option="slotProps">
                         <div>{{ slotProps.option.familyName }}, {{ slotProps.option.givenName }}</div>
@@ -223,7 +223,7 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
         <div v-else-if="splitTimeQueryRanking.data.value" class="card">
             <!-- Overall ranking when intersection filter is active -->
             <div v-if="overallRanking.length > 0" class="mb-4">
-                <h2 class="font-bold text-xl mb-3 text-primary">
+                <h2 class="font-bold text-xl mb-3 text-primary-500">
                     {{ t('labels.overall_ranking') }}
                 </h2>
                 <p class="text-sm text-gray-600 mb-3">
@@ -242,15 +242,23 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
                 </DataTable>
             </div>
 
+            <!-- Separator and heading for detailed segments when overall ranking is shown -->
+            <div v-if="overallRanking.length > 0" class="mb-4">
+                <hr class="my-4 border-gray-300">
+                <h2 class="font-bold text-xl text-primary-500 mb-3">
+                    {{ t('labels.segment_details') }}
+                </h2>
+            </div>
+
             <div v-if="splitTimeQueryRanking.data.value.length > 0">
                 <div
                     v-for="analysis in splitTimeQueryRanking.data.value"
                     :key="analysis.classResultShortName"
                     class="class-section mb-4"
                 >
-                    <h2 class="class-title font-bold mb-3">
+                    <h2 class="class-title text-color font-bold mb-3">
                         {{ analysis.classResultShortName }}
-                        <span class="text-sm text-gray-500 ml-2">
+                        <span class="text-sm text-color-secondary ml-2">
                             ({{ visibleSegments.length }} / {{ analysis.controlSegments.length }} {{ t('labels.segments') }})
                         </span>
                     </h2>
@@ -262,11 +270,11 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
                         >
                             <AccordionHeader>
                                 <div class="flex w-full items-center">
-                                    <span class="font-semibold text-left w-48">{{ segment.segmentLabel }}</span>
-                                    <span class="text-gray-600 text-left w-40">
+                                    <span class="text-color font-semibold text-left w-48">{{ segment.segmentLabel }}</span>
+                                    <span class="text-color text-left w-40">
                                         ({{ segment.runnerSplits.length }} {{ t('labels.runners') }})
                                     </span>
-                                    <span class="text-sm text-gray-500 italic text-left flex-1">
+                                    <span class="text-sm text-color italic text-left flex-1">
                                         {{ segment.classes.length > 0 ? segment.classes.join(', ') : '' }}
                                     </span>
                                 </div>
@@ -353,6 +361,5 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
 
 .class-title {
     font-size: 1.25rem;
-    color: var(--p-primary-color);
 }
 </style>

@@ -356,10 +356,10 @@ function navigateToSplitTimeAnalysis(resultListId: number) {
                             @click="calculate(parseInt(slotProps?.node?.key!))"
                         />
                         <Button
-                            v-tooltip="t('labels.split_time_analysis')"
+                            v-tooltip="t('labels.split_time_analysis_ranking')"
                             icon="pi pi-chart-bar"
                             class="ml-2"
-                            :aria-label="t('labels.split_time_analysis')"
+                            :aria-label="t('labels.split_time_analysis_ranking')"
                             outlined
                             raised
                             rounded

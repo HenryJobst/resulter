@@ -14,13 +14,13 @@ public record RunnerSplitDto(
 
     public static RunnerSplitDto from(RunnerSplit split) {
         return new RunnerSplitDto(
-                split.getPersonId().value(),
-                split.getPersonName(),
-                split.getClassResultShortName(),
-                split.getPosition(),
-                formatTime(split.getSplitTimeSeconds()),
-                formatTimeBehind(split.getTimeBehindLeader()),
-                split.getSplitTimeSeconds()
+                split.personId().value(),
+                split.personName(),
+                split.classResultShortName(),
+                split.position(),
+                formatTime(split.splitTimeSeconds()),
+                formatTimeBehind(split.timeBehindLeader()),
+                split.splitTimeSeconds()
         );
     }
 

@@ -5,7 +5,6 @@ import de.jobst.resulter.domain.analysis.SplitTimeAnalysis;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
 
 import java.util.List;
-import java.util.Optional;
 
 @PrimaryPort
 public interface SplitTimeAnalysisService {

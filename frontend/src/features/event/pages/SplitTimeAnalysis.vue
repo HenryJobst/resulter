@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query'
 import Accordion from 'primevue/accordion'
-import AccordionTab from 'primevue/accordiontab'
+import AccordionPanel from 'primevue/accordionpanel'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import Column from 'primevue/column'
@@ -126,19 +126,12 @@ function navigateBack() {
                         {{ analysis.classResultShortName }}
                     </h2>
                     <Accordion v-if="analysis.controlSegments.length > 0" :multiple="true">
-                        <AccordionTab
+                        <AccordionPanel
                             v-for="segment in analysis.controlSegments"
                             :key="segment.segmentLabel"
+                            :value="segment.segmentLabel"
+                            :header="`${segment.segmentLabel} (${segment.runnerSplits.length} ${t('labels.runners')})${segment.classes.length > 0 ? ` - ${segment.classes.join(', ')}` : ''}`"
                         >
-                            <template #header>
-                                <span class="font-semibold">{{ segment.segmentLabel }}</span>
-                                <span class="ml-2 text-gray-600">
-                                    ({{ segment.runnerSplits.length }} {{ t('labels.runners') }})
-                                </span>
-                                <span v-if="segment.classes.length > 0" class="ml-2 text-sm text-gray-500 italic">
-                                    {{ segment.classes.join(', ') }}
-                                </span>
-                            </template>
                             <DataTable
                                 :value="segment.runnerSplits"
                                 striped-rows
@@ -155,7 +148,7 @@ function navigateBack() {
                             <div v-if="segment.runnerSplits.length === 100" class="p-2 text-sm text-gray-600 italic">
                                 {{ t('messages.top_100_shown') }}
                             </div>
-                        </AccordionTab>
+                        </AccordionPanel>
                     </Accordion>
                     <div v-else class="p-4">
                         {{ t('messages.no_split_times') }}
@@ -199,7 +192,7 @@ function navigateBack() {
     align-items: center;
     gap: 0.25rem;
     padding: 0.25rem 0.5rem;
-    background: var(--primary-color);
+    background: var(--p-primary-color);
     color: white;
     border-radius: 1rem;
     font-size: 0.875rem;
@@ -217,6 +210,6 @@ function navigateBack() {
 
 .class-title {
     font-size: 1.25rem;
-    color: var(--primary-color);
+    color: var(--p-primary-color);
 }
 </style>

@@ -114,6 +114,7 @@
         "segment": "Segment",
         "runners": "runners",
         "filter_intersection": "Show only segments with all filtered runners",
+        "filter_by_class": "Filter by Age Class",
         "overall_ranking": "Overall Ranking",
         "total_time": "Total Time",
         "segment_details": "Segment Details"

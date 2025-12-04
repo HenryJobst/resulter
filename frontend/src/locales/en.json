@@ -112,7 +112,8 @@
         "segments": "segments",
         "time_behind": "Time Behind",
         "segment": "Segment",
-        "runners": "runners"
+        "runners": "runners",
+        "filter_intersection": "Show only segments with all filtered runners"
     },
     "messages": {
         "new_cup": "New cup",

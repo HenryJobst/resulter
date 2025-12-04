@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { PersonKey } from '@/features/person/model/person_key'
 import { useQuery } from '@tanstack/vue-query'
 import Accordion from 'primevue/accordion'
 import AccordionContent from 'primevue/accordioncontent'
@@ -8,7 +9,7 @@ import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
-import InputText from 'primevue/inputtext'
+import MultiSelect from 'primevue/multiselect'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -23,20 +24,101 @@ const { t } = useI18n()
 const router = useRouter()
 
 const mergeBidirectional = ref(false)
-const filterNames = ref<string[]>([])
-const filterInput = ref('')
+const filterPersonIds = ref<number[]>([])
+const filterIntersection = ref(false)
 const visibleSegmentCount = ref(50) // Show first 50 segments initially
 const SEGMENT_INCREMENT = 50
 
-const splitTimeQueryRanking = useQuery({
-    queryKey: ['splitTimeAnalysisRanking', props.resultListId, mergeBidirectional, filterNames],
-    queryFn: () => EventService.getSplitTimeAnalysisRanking(
+const personsQuery = useQuery({
+    queryKey: ['personsForResultList', props.resultListId],
+    queryFn: () => EventService.getPersonsForResultList(
         Number.parseInt(props.resultListId),
-        mergeBidirectional.value,
-        filterNames.value,
         t,
     ),
 })
+
+const splitTimeQueryRanking = useQuery({
+    queryKey: ['splitTimeAnalysisRanking', props.resultListId, mergeBidirectional, filterPersonIds, filterIntersection],
+    queryFn: () => EventService.getSplitTimeAnalysisRanking(
+        Number.parseInt(props.resultListId),
+        mergeBidirectional.value,
+        filterPersonIds.value,
+        filterIntersection.value,
+        t,
+    ),
+})
+
+// Create a map for fast person lookup by ID
+const personMap = computed(() => {
+    if (!personsQuery.data.value)
+        return new Map<number, PersonKey>()
+    return new Map(personsQuery.data.value.map(p => [p.id, p]))
+})
+
+// Helper function to get person name by ID
+function getPersonName(personId: number): string {
+    const person = personMap.value.get(personId)
+    return person ? `${person.familyName}, ${person.givenName}` : 'Unknown'
+}
+
+// Calculate overall ranking when intersection filter is active
+const overallRanking = computed(() => {
+    if (!filterIntersection.value || filterPersonIds.value.length < 2 || !splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0) {
+        return []
+    }
+
+    const analysis = splitTimeQueryRanking.data.value[0]
+    if (!analysis || !analysis.controlSegments || analysis.controlSegments.length === 0) {
+        return []
+    }
+
+    // Calculate total time for each filtered person across all segments
+    const personTotals = new Map<number, { totalSeconds: number, segmentCount: number }>()
+
+    // Initialize with filtered persons
+    filterPersonIds.value.forEach((personId) => {
+        personTotals.set(personId, { totalSeconds: 0, segmentCount: 0 })
+    })
+
+    // Sum up split times across all segments
+    analysis.controlSegments.forEach((segment) => {
+        segment.runnerSplits.forEach((split) => {
+            if (personTotals.has(split.personId)) {
+                const current = personTotals.get(split.personId)!
+                personTotals.set(split.personId, {
+                    totalSeconds: current.totalSeconds + split.splitTimeSeconds,
+                    segmentCount: current.segmentCount + 1,
+                })
+            }
+        })
+    })
+
+    // Convert to array and sort by total time
+    const ranking = Array.from(personTotals.entries())
+        .map(([personId, data]) => ({
+            personId,
+            personName: getPersonName(personId),
+            totalSeconds: data.totalSeconds,
+            segmentCount: data.segmentCount,
+            totalTime: formatSeconds(data.totalSeconds),
+        }))
+        .sort((a, b) => a.totalSeconds - b.totalSeconds)
+
+    // Add position and time behind leader
+    const leaderTime = ranking.length > 0 ? ranking[0].totalSeconds : 0
+    return ranking.map((entry, index) => ({
+        ...entry,
+        position: index + 1,
+        timeBehind: entry.totalSeconds === leaderTime ? '' : `+${formatSeconds(entry.totalSeconds - leaderTime)}`,
+    }))
+})
+
+// Helper function to format seconds to MM:SS
+function formatSeconds(seconds: number): string {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = Math.floor(seconds % 60)
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+}
 
 const visibleSegments = computed(() => {
     if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
@@ -54,15 +136,8 @@ function loadMoreSegments() {
     visibleSegmentCount.value += SEGMENT_INCREMENT
 }
 
-function addNameFilter() {
-    if (filterInput.value.trim()) {
-        filterNames.value = [...filterNames.value, filterInput.value.trim()]
-        filterInput.value = ''
-    }
-}
-
-function removeNameFilter(name: string) {
-    filterNames.value = filterNames.value.filter(n => n !== name)
+function removePersonFilter(personId: number) {
+    filterPersonIds.value = filterPersonIds.value.filter(id => id !== personId)
 }
 
 function navigateBack() {
@@ -70,7 +145,7 @@ function navigateBack() {
 }
 
 // Reset visible count when data changes
-watch([mergeBidirectional, filterNames], () => {
+watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
     visibleSegmentCount.value = SEGMENT_INCREMENT
 })
 </script>
@@ -104,35 +179,40 @@ watch([mergeBidirectional, filterNames], () => {
                 <label for="merge" class="ml-2">{{ t('labels.merge_bidirectional') }}</label>
             </div>
 
-            <div class="filter-section">
-                <InputText
-                    v-model="filterInput"
-                    :placeholder="t('labels.filter_by_name')"
-                    class="mr-2"
-                    @keyup.enter="addNameFilter"
-                />
-                <Button
-                    icon="pi pi-plus"
-                    :label="t('labels.add_filter')"
-                    @click="addNameFilter"
-                />
+            <div class="filter-section mt-3">
+                <label for="personFilter" class="mb-2 block">{{ t('labels.filter_by_name') }}</label>
+                <span v-if="personsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+                <MultiSelect
+                    v-else-if="personsQuery.data?.value"
+                    id="personFilter"
+                    v-model="filterPersonIds"
+                    :options="personsQuery.data.value"
+                    data-key="id"
+                    filter
+                    option-value="id"
+                    :placeholder="t('messages.select')"
+                    class="w-full"
+                    display="chip"
+                >
+                    <template #option="slotProps">
+                        <div>{{ slotProps.option.familyName }}, {{ slotProps.option.givenName }}</div>
+                    </template>
+                    <template #chip="slotProps">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary text-primary-contrast rounded-full">
+                            <span>{{ personsQuery.data.value?.find((p: PersonKey) => p.id === slotProps.value)?.familyName }}, {{ personsQuery.data.value?.find((p: PersonKey) => p.id === slotProps.value)?.givenName }}</span>
+                            <span class="pi pi-times cursor-pointer hover:bg-primary-emphasis rounded-full p-1" @click.stop="removePersonFilter(slotProps.value)" />
+                        </div>
+                    </template>
+                </MultiSelect>
             </div>
 
-            <div v-if="filterNames.length > 0" class="active-filters mt-2">
-                <span
-                    v-for="name in filterNames"
-                    :key="name"
-                    class="filter-chip"
-                >
-                    {{ name }}
-                    <Button
-                        icon="pi pi-times"
-                        class="p-button-text p-button-sm ml-1"
-                        text
-                        rounded
-                        @click="removeNameFilter(name)"
-                    />
-                </span>
+            <div v-if="filterPersonIds.length > 1" class="field-checkbox mt-3">
+                <Checkbox
+                    v-model="filterIntersection"
+                    input-id="intersection"
+                    :binary="true"
+                />
+                <label for="intersection" class="ml-2">{{ t('labels.filter_intersection') }}</label>
             </div>
         </div>
 
@@ -141,6 +221,27 @@ watch([mergeBidirectional, filterNames], () => {
         </div>
 
         <div v-else-if="splitTimeQueryRanking.data.value" class="card">
+            <!-- Overall ranking when intersection filter is active -->
+            <div v-if="overallRanking.length > 0" class="mb-4">
+                <h2 class="font-bold text-xl mb-3 text-primary">
+                    {{ t('labels.overall_ranking') }}
+                </h2>
+                <p class="text-sm text-gray-600 mb-3">
+                    {{ t('messages.overall_ranking_description', { count: overallRanking[0]?.segmentCount || 0 }) }}
+                </p>
+                <DataTable
+                    :value="overallRanking"
+                    striped-rows
+                    size="small"
+                    class="mb-4"
+                >
+                    <Column field="position" :header="t('labels.position')" style="width: 10%" />
+                    <Column field="personName" :header="t('labels.name')" style="width: 40%" />
+                    <Column field="totalTime" :header="t('labels.total_time')" style="width: 25%" />
+                    <Column field="timeBehind" :header="t('labels.time_behind')" style="width: 25%" />
+                </DataTable>
+            </div>
+
             <div v-if="splitTimeQueryRanking.data.value.length > 0">
                 <div
                     v-for="analysis in splitTimeQueryRanking.data.value"
@@ -186,7 +287,11 @@ watch([mergeBidirectional, filterNames], () => {
                                             <i v-if="segment.bidirectional" :class="slotProps.data.reversed ? 'pi pi-arrow-left' : 'pi pi-arrow-right'" />
                                         </template>
                                     </Column>
-                                    <Column field="personName" :header="t('labels.name')" style="width: 31%" />
+                                    <Column :header="t('labels.name')" style="width: 31%">
+                                        <template #body="slotProps">
+                                            {{ getPersonName(slotProps.data.personId) }}
+                                        </template>
+                                    </Column>
                                     <Column field="classResultShortName" :header="t('labels.class')" style="width: 12%" />
                                     <Column field="splitTime" :header="t('labels.split_time')" style="width: 20%" />
                                     <Column field="timeBehind" :header="t('labels.time_behind')" style="width: 25%" />
@@ -233,25 +338,7 @@ watch([mergeBidirectional, filterNames], () => {
 
 .filter-section {
     display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.active-filters {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.filter-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    background: var(--p-primary-color);
-    color: white;
-    border-radius: 1rem;
-    font-size: 0.875rem;
+    flex-direction: column;
 }
 
 .class-section {

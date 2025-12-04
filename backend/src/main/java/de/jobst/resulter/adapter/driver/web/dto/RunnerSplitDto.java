@@ -2,9 +2,13 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.analysis.RunnerSplit;
 
+/**
+ * DTO for runner split times.
+ * Note: Person name is not included to reduce data duplication -
+ * frontend should fetch person details separately via getPersonsForResultList endpoint.
+ */
 public record RunnerSplitDto(
         Long personId,
-        String personName,
         String classResultShortName,
         Integer position,
         String splitTime,
@@ -16,7 +20,6 @@ public record RunnerSplitDto(
     public static RunnerSplitDto from(RunnerSplit split) {
         return new RunnerSplitDto(
                 split.personId().value(),
-                split.personName(),
                 split.classResultShortName(),
                 split.position(),
                 formatTime(split.splitTimeSeconds()),

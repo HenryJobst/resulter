@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.PersonKeyDto;
 import de.jobst.resulter.adapter.driver.web.dto.SplitTimeAnalysisDto;
 import de.jobst.resulter.application.SplitTimeAnalysisService;
 import de.jobst.resulter.domain.ResultListId;
@@ -25,15 +26,17 @@ public class SplitTimeAnalysisController {
     public ResponseEntity<List<SplitTimeAnalysisDto>> analyzeSplitTimesRanking(
             @PathVariable Long id,
             @RequestParam(required = false, defaultValue = "false") @Nullable Boolean mergeBidirectional,
-            @RequestParam(required = false) @Nullable List<String> filterNames) {
+            @RequestParam(required = false) @Nullable List<Long> filterPersonIds,
+            @RequestParam(required = false, defaultValue = "false") @Nullable Boolean filterIntersection) {
 
-        log.debug("Analyzing split times (ranking) for result list {} (merge: {}, filters: {})",
-                id, mergeBidirectional, filterNames);
+        log.debug("Analyzing split times (ranking) for result list {} (merge: {}, person filters: {}, intersection: {})",
+                id, mergeBidirectional, filterPersonIds, filterIntersection);
 
         List<SplitTimeAnalysisDto> analyses = splitTimeAnalysisService.analyzeSplitTimesRanking(
                         ResultListId.of(id),
                         Optional.ofNullable(mergeBidirectional).orElse(false),
-                        Optional.ofNullable(filterNames).orElse(List.of())
+                        Optional.ofNullable(filterPersonIds).orElse(List.of()),
+                        Optional.ofNullable(filterIntersection).orElse(false)
                 )
                 .stream()
                 .map(SplitTimeAnalysisDto::from)
@@ -54,5 +57,21 @@ public class SplitTimeAnalysisController {
         return analyses.isEmpty()
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(analyses);
+    }
+
+    @GetMapping("/split_time_analysis/result_list/{id}/persons")
+    public ResponseEntity<List<PersonKeyDto>> getPersonsForResultList(@PathVariable Long id) {
+        log.debug("Getting persons for result list {}", id);
+
+        List<PersonKeyDto> persons = splitTimeAnalysisService.getPersonsForResultList(ResultListId.of(id))
+                .stream()
+                .map(PersonKeyDto::from)
+                .toList();
+
+        log.info("Returning {} persons for result list {}", persons.size(), id);
+
+        return persons.isEmpty()
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(persons);
     }
 }

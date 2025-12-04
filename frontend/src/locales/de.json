@@ -112,7 +112,10 @@
         "segments": "Abschnitte",
         "time_behind": "Rückstand",
         "segment": "Teilstrecke",
-        "runners": "Läufer"
+        "runners": "Läufer",
+        "filter_intersection": "Nur Abschnitte mit allen gefilterten Läufern",
+        "overall_ranking": "Gesamtranking",
+        "total_time": "Gesamtzeit"
     },
     "result_state": {
         "OK": "OK",
@@ -193,7 +196,8 @@
         "noMessages": "Keine Meldungen",
         "no_split_times": "Keine Zwischenzeiten für diese Ergebnisliste verfügbar.",
         "no_data": "Keine Daten verfügbar.",
-        "top_100_shown": "Nur die Top 100 Läufer werden angezeigt (Segment aus Performance-Gründen begrenzt)"
+        "top_100_shown": "Nur die Top 100 Läufer werden angezeigt (Segment aus Performance-Gründen begrenzt)",
+        "overall_ranking_description": "Summierte Zeiten über {count} gemeinsame Abschnitte"
     },
     "errors": {
         "notFound": "Die angefragte Ressource wurde nicht gefunden. {message}",

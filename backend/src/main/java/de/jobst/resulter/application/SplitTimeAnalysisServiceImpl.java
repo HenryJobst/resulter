@@ -39,8 +39,12 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
             boolean mergeBidirectional,
             List<String> filterNames) {
 
+        long startTime = System.currentTimeMillis();
+
         // Fetch all split time lists for the result list
+        long dbStart = System.currentTimeMillis();
         List<SplitTimeList> splitTimeLists = splitTimeListRepository.findByResultListId(resultListId);
+        log.info("⏱ DB: Fetched {} split time lists in {}ms", splitTimeLists.size(), System.currentTimeMillis() - dbStart);
 
         if (splitTimeLists.isEmpty()) {
             log.debug("No split time data found for result list {}", resultListId);
@@ -48,24 +52,30 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
         }
 
         // Get person IDs and fetch person names
+        long personStart = System.currentTimeMillis();
         Set<PersonId> personIds = splitTimeLists.stream()
                 .map(SplitTimeList::getPersonId)
                 .collect(Collectors.toSet());
-
         Map<PersonId, Person> personMap = personRepository.findAllById(personIds);
+        log.info("⏱ DB: Fetched {} persons in {}ms", personMap.size(), System.currentTimeMillis() - personStart);
 
         // Fetch result list to get finish times (runtime) for each person
+        long resultListStart = System.currentTimeMillis();
         ResultList resultList = resultListRepository.findById(resultListId)
                 .orElseThrow(() -> new IllegalArgumentException("ResultList not found: " + resultListId));
+        log.info("⏱ DB: Fetched result list in {}ms", System.currentTimeMillis() - resultListStart);
 
         // Build map of (PersonId, ClassResultShortName, RaceNumber) -> runtime
+        long runtimeMapStart = System.currentTimeMillis();
         Map<String, Double> runtimeMap = buildRuntimeMap(resultList);
+        log.info("⏱ Processing: Built runtime map with {} entries in {}ms", runtimeMap.size(), System.currentTimeMillis() - runtimeMapStart);
 
         // Get eventId (same for all split time lists)
         EventId eventId = splitTimeLists.getFirst().getEventId();
 
         // Calculate control segments across all classes
         // (Different classes may use the same course or share segments)
+        long calcStart = System.currentTimeMillis();
         List<ControlSegment> controlSegments = calculateControlSegments(
                 splitTimeLists,
                 personMap,
@@ -73,6 +83,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 mergeBidirectional,
                 filterNames
         );
+        log.info("⏱ Processing: Calculated {} segments in {}ms", controlSegments.size(), System.currentTimeMillis() - calcStart);
 
         // Create a single analysis with all classes combined
         SplitTimeAnalysis analysis = new SplitTimeAnalysis(
@@ -82,6 +93,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 controlSegments
         );
 
+        log.info("⏱ TOTAL: Split time analysis completed in {}ms", System.currentTimeMillis() - startTime);
         return List.of(analysis);
     }
 
@@ -245,10 +257,13 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
         // Handle bidirectional merging if requested
         if (mergeBidirectional) {
+            long mergeStart = System.currentTimeMillis();
             controlSegments = mergeBidirectionalSegments(controlSegments);
+            log.info("⏱ Processing: Merged bidirectional segments in {}ms", System.currentTimeMillis() - mergeStart);
         }
 
         // Sort segments by control number (numerically if possible, otherwise lexicographically)
+        long sortStart = System.currentTimeMillis();
         controlSegments.sort((s1, s2) -> {
             int fromCompare = compareControlCodes(s1.fromControl().value(), s2.fromControl().value());
             if (fromCompare != 0) {
@@ -256,6 +271,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
             }
             return compareControlCodes(s1.toControl().value(), s2.toControl().value());
         });
+        log.info("⏱ Processing: Sorted {} segments in {}ms", controlSegments.size(), System.currentTimeMillis() - sortStart);
 
         return controlSegments;
     }
@@ -263,6 +279,13 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
     private List<ControlSegment> mergeBidirectionalSegments(List<ControlSegment> segments) {
         Map<String, ControlSegment> mergedSegmentMap = new HashMap<>();
         Set<String> processedPairs = new HashSet<>();
+
+        // Build reverse segment index for O(1) lookup instead of O(n) stream search
+        Map<String, ControlSegment> segmentIndex = new HashMap<>();
+        for (ControlSegment segment : segments) {
+            String key = segment.fromControl().value() + "-" + segment.toControl().value();
+            segmentIndex.put(key, segment);
+        }
 
         for (ControlSegment segment : segments) {
             String fromControl = segment.fromControl().value();
@@ -277,19 +300,17 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 continue; // Already merged
             }
 
-            // Check if reverse segment exists
-            Optional<ControlSegment> reverseSegment = segments.stream()
-                    .filter(s -> s.fromControl().value().equals(toControl) &&
-                                 s.toControl().value().equals(fromControl))
-                    .findFirst();
+            // Check if reverse segment exists using O(1) map lookup
+            String reverseKey = toControl + "-" + fromControl;
+            ControlSegment reverseSegment = segmentIndex.get(reverseKey);
 
-            if (reverseSegment.isPresent()) {
+            if (reverseSegment != null) {
                 // Merge forward and reverse segments
                 // Forward segment runners keep reversed = false
                 List<RunnerSplit> mergedSplits = new ArrayList<>(segment.runnerSplits());
 
                 // Reverse segment runners need reversed = true (they went the opposite direction)
-                for (RunnerSplit reverseSplit : reverseSegment.get().runnerSplits()) {
+                for (RunnerSplit reverseSplit : reverseSegment.runnerSplits()) {
                     mergedSplits.add(new RunnerSplit(
                             reverseSplit.personId(),
                             reverseSplit.personName(),
@@ -303,7 +324,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
                 // Merge classes from both segments
                 List<String> mergedClasses = new ArrayList<>(segment.classes());
-                reverseSegment.get().classes().stream()
+                reverseSegment.classes().stream()
                         .filter(c -> !mergedClasses.contains(c))
                         .forEach(mergedClasses::add);
                 mergedClasses.sort(String::compareTo);

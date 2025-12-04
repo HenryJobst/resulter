@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query'
 import Accordion from 'primevue/accordion'
+import AccordionContent from 'primevue/accordioncontent'
+import AccordionHeader from 'primevue/accordionheader'
 import AccordionPanel from 'primevue/accordionpanel'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
@@ -130,24 +132,36 @@ function navigateBack() {
                             v-for="segment in analysis.controlSegments"
                             :key="segment.segmentLabel"
                             :value="segment.segmentLabel"
-                            :header="`${segment.segmentLabel} (${segment.runnerSplits.length} ${t('labels.runners')})${segment.classes.length > 0 ? ` - ${segment.classes.join(', ')}` : ''}`"
                         >
-                            <DataTable
-                                :value="segment.runnerSplits"
-                                striped-rows
-                                :rows="50"
-                                :paginator="segment.runnerSplits.length > 50"
-                                responsive-layout="scroll"
-                            >
-                                <Column field="position" :header="t('labels.position')" style="width: 8%" />
-                                <Column field="personName" :header="t('labels.name')" style="width: 35%" />
-                                <Column field="classResultShortName" :header="t('labels.class')" style="width: 12%" />
-                                <Column field="splitTime" :header="t('labels.split_time')" style="width: 20%" />
-                                <Column field="timeBehind" :header="t('labels.time_behind')" style="width: 25%" />
-                            </DataTable>
-                            <div v-if="segment.runnerSplits.length === 100" class="p-2 text-sm text-gray-600 italic">
-                                {{ t('messages.top_100_shown') }}
-                            </div>
+                            <AccordionHeader>
+                                <div class="flex w-full items-center">
+                                    <span class="font-semibold text-left w-48">{{ segment.segmentLabel }}</span>
+                                    <span class="text-gray-600 text-left w-40">
+                                        ({{ segment.runnerSplits.length }} {{ t('labels.runners') }})
+                                    </span>
+                                    <span class="text-sm text-gray-500 italic text-left flex-1">
+                                        {{ segment.classes.length > 0 ? segment.classes.join(', ') : '' }}
+                                    </span>
+                                </div>
+                            </AccordionHeader>
+                            <AccordionContent>
+                                <DataTable
+                                    :value="segment.runnerSplits"
+                                    striped-rows
+                                    :rows="50"
+                                    :paginator="segment.runnerSplits.length > 50"
+                                    responsive-layout="scroll"
+                                >
+                                    <Column field="position" :header="t('labels.position')" style="width: 8%" />
+                                    <Column field="personName" :header="t('labels.name')" style="width: 35%" />
+                                    <Column field="classResultShortName" :header="t('labels.class')" style="width: 12%" />
+                                    <Column field="splitTime" :header="t('labels.split_time')" style="width: 20%" />
+                                    <Column field="timeBehind" :header="t('labels.time_behind')" style="width: 25%" />
+                                </DataTable>
+                                <div v-if="segment.runnerSplits.length === 100" class="p-2 text-sm text-gray-600 italic">
+                                    {{ t('messages.top_100_shown') }}
+                                </div>
+                            </AccordionContent>
                         </AccordionPanel>
                     </Accordion>
                     <div v-else class="p-4">

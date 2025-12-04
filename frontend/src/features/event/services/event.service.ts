@@ -8,6 +8,7 @@ import type { SplitTimeAnalysis } from '@/features/event/model/split_time_analys
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { TableSettings } from '@/features/generic/models/table_settings'
+import type { PersonKey } from '@/features/person/model/person_key'
 import { prettyPrint } from '@base2/pretty-print-object'
 import { GenericService } from '@/features/generic/services/GenericService'
 import axiosInstance from '@/features/keycloak/services/api'
@@ -200,20 +201,35 @@ export class EventService extends GenericService<SportEvent> {
     static async getSplitTimeAnalysisRanking(
         resultListId: number,
         mergeBidirectional: boolean = false,
-        filterNames: string[] = [],
+        filterPersonIds: number[] = [],
+        filterIntersection: boolean = false,
         _t: (key: string) => string,
     ): Promise<SplitTimeAnalysis[]> {
         const params = new URLSearchParams()
         if (mergeBidirectional) {
             params.append('mergeBidirectional', 'true')
         }
-        filterNames.forEach(name => params.append('filterNames', name))
+        if (filterIntersection) {
+            params.append('filterIntersection', 'true')
+        }
+        filterPersonIds.forEach(id => params.append('filterPersonIds', id.toString()))
 
         const queryString = params.toString()
         const url = `${splitTimeAnalysisUrl}/result_list/${resultListId}/ranking${queryString ? `?${queryString}` : ''}`
 
         return axiosInstance
             .get<SplitTimeAnalysis[]>(url)
+            .then(response => response.data)
+    }
+
+    static async getPersonsForResultList(
+        resultListId: number,
+        _t: (key: string) => string,
+    ): Promise<PersonKey[]> {
+        const url = `${splitTimeAnalysisUrl}/result_list/${resultListId}/persons`
+
+        return axiosInstance
+            .get<PersonKey[]>(url)
             .then(response => response.data)
     }
 }

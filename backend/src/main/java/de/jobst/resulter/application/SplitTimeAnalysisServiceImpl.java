@@ -37,7 +37,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
     public List<SplitTimeAnalysis> analyzeSplitTimesRanking(
             ResultListId resultListId,
             boolean mergeBidirectional,
-            List<String> filterNames) {
+            List<Long> filterPersonIds,
+            boolean filterIntersection) {
 
         long startTime = System.currentTimeMillis();
 
@@ -81,7 +82,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 personMap,
                 runtimeMap,
                 mergeBidirectional,
-                filterNames
+                filterPersonIds,
+                filterIntersection
         );
         log.info("⏱ Processing: Calculated {} segments in {}ms", controlSegments.size(), System.currentTimeMillis() - calcStart);
 
@@ -102,7 +104,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
             Map<PersonId, Person> personMap,
             Map<String, Double> runtimeMap,
             boolean mergeBidirectional,
-            List<String> filterNames) {
+            List<Long> filterPersonIds,
+            boolean filterIntersection) {
 
         // Build a map of control sequences
         Map<String, Map<String, List<RunnerSplitData>>> segmentMap = new HashMap<>();
@@ -143,18 +146,10 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 // Calculate split time (current - previous)
                 Double splitTimeSeconds = currentSplit.getPunchTime().value() - previousSplit.getPunchTime().value();
 
-                // Get person name
-                Person person = personMap.get(splitTimeList.getPersonId());
-                String personName = person != null ?
-                        person.getPersonName().familyName().value() + " " + person.getPersonName().givenName().value() :
-                        "Unknown";
-
-                // Apply name filtering if specified
-                if (!filterNames.isEmpty()) {
-                    boolean matchesFilter = filterNames.stream()
-                            .anyMatch(filterName ->
-                                    personName.toLowerCase().contains(filterName.toLowerCase()));
-                    if (!matchesFilter) {
+                // Apply person ID filtering if specified
+                if (filterPersonIds != null && !filterPersonIds.isEmpty()) {
+                    Long personIdValue = splitTimeList.getPersonId().value();
+                    if (!filterPersonIds.contains(personIdValue)) {
                         continue; // Skip this runner
                     }
                 }
@@ -162,7 +157,6 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 // Create runner split data
                 RunnerSplitData runnerSplitData = new RunnerSplitData(
                         splitTimeList.getPersonId(),
-                        personName,
                         splitTimeList.getClassResultShortName().value(),
                         splitTimeSeconds
                 );
@@ -189,10 +183,27 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 runnerData.sort(Comparator.comparingDouble(RunnerSplitData::splitTimeSeconds));
 
                 // Skip segments with only one runner (no meaningful comparison)
-                if (runnerData.size() <= 1) {
-                    log.debug("Skipping segment {}→{} with only {} runner",
+                // BUT: If person filter is active, show all segments for filtered runner(s)
+                if (runnerData.size() <= 1 && (filterPersonIds == null || filterPersonIds.isEmpty())) {
+                    log.debug("Skipping segment {}→{} with only {} runner (no filter active)",
                             fromControl, toControl, runnerData.size());
                     continue;
+                }
+
+                // If intersection filter is active, check if ALL filtered persons appear in this segment
+                if (filterIntersection && filterPersonIds != null && !filterPersonIds.isEmpty()) {
+                    Set<Long> segmentPersonIds = runnerData.stream()
+                            .map(data -> data.personId().value())
+                            .collect(Collectors.toSet());
+
+                    boolean allFilteredPersonsPresent = filterPersonIds.stream()
+                            .allMatch(segmentPersonIds::contains);
+
+                    if (!allFilteredPersonsPresent) {
+                        log.debug("Skipping segment {}→{} because not all filtered persons are present (intersection filter)",
+                                fromControl, toControl);
+                        continue;
+                    }
                 }
 
                 // Limit to top N runners per segment to keep response size manageable
@@ -232,7 +243,6 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
                     runnerSplits.add(new RunnerSplit(
                             data.personId(),
-                            data.personName(),
                             data.classResultShortName(),
                             currentPosition,
                             currentTime,
@@ -313,7 +323,6 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 for (RunnerSplit reverseSplit : reverseSegment.runnerSplits()) {
                     mergedSplits.add(new RunnerSplit(
                             reverseSplit.personId(),
-                            reverseSplit.personName(),
                             reverseSplit.classResultShortName(),
                             reverseSplit.position(),
                             reverseSplit.splitTimeSeconds(),
@@ -351,7 +360,6 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
                     recalculatedSplits.add(new RunnerSplit(
                             split.personId(),
-                            split.personName(),
                             split.classResultShortName(),
                             currentPosition,
                             currentTime,
@@ -379,7 +387,6 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                     finalSplits = recalculatedSplits.stream()
                             .map(split -> new RunnerSplit(
                                     split.personId(),
-                                    split.personName(),
                                     split.classResultShortName(),
                                     split.position(),
                                     split.splitTimeSeconds(),
@@ -506,10 +513,31 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
         }
     }
 
+    @Override
+    public List<Person> getPersonsForResultList(ResultListId resultListId) {
+        // Fetch all split time lists for the result list
+        List<SplitTimeList> splitTimeLists = splitTimeListRepository.findByResultListId(resultListId);
+
+        if (splitTimeLists.isEmpty()) {
+            return List.of();
+        }
+
+        // Get all unique person IDs
+        Set<PersonId> personIds = splitTimeLists.stream()
+                .map(SplitTimeList::getPersonId)
+                .collect(Collectors.toSet());
+
+        // Fetch and return persons, sorted by family name, then given name
+        return personRepository.findAllById(personIds).values().stream()
+                .sorted(Comparator
+                        .comparing((Person p) -> p.getPersonName().familyName().value())
+                        .thenComparing(p -> p.getPersonName().givenName().value()))
+                .toList();
+    }
+
     // Helper record for runner split data during calculation
     private record RunnerSplitData(
             PersonId personId,
-            String personName,
             String classResultShortName,
             Double splitTimeSeconds
     ) {}

@@ -341,10 +341,37 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                     previousTime = currentTime;
                 }
 
+                // Ensure the merged segment has the smaller control code first
+                ControlCode finalFromControl;
+                ControlCode finalToControl;
+                List<RunnerSplit> finalSplits;
+
+                if (compareControlCodes(fromControl, toControl) <= 0) {
+                    // fromControl is smaller or equal, keep as is
+                    finalFromControl = segment.fromControl();
+                    finalToControl = segment.toControl();
+                    finalSplits = recalculatedSplits;
+                } else {
+                    // toControl is smaller, swap and flip all reversed flags
+                    finalFromControl = segment.toControl();
+                    finalToControl = segment.fromControl();
+                    finalSplits = recalculatedSplits.stream()
+                            .map(split -> new RunnerSplit(
+                                    split.personId(),
+                                    split.personName(),
+                                    split.classResultShortName(),
+                                    split.position(),
+                                    split.splitTimeSeconds(),
+                                    split.timeBehindLeader(),
+                                    !split.reversed() // flip reversed flag
+                            ))
+                            .toList();
+                }
+
                 ControlSegment mergedSegment = new ControlSegment(
-                        segment.fromControl(),
-                        segment.toControl(),
-                        recalculatedSplits,
+                        finalFromControl,
+                        finalToControl,
+                        finalSplits,
                         mergedClasses,
                         true // bidirectional merge
                 );

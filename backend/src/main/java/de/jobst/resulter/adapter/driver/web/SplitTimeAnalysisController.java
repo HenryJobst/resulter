@@ -54,9 +54,7 @@ public class SplitTimeAnalysisController {
                     analyses.size(), totalSegments, totalRunners);
         }
 
-        return analyses.isEmpty()
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(analyses);
+        return ResponseEntity.ok(analyses);
     }
 
     @GetMapping("/split_time_analysis/result_list/{id}/persons")
@@ -70,8 +68,6 @@ public class SplitTimeAnalysisController {
 
         log.info("Returning {} persons for result list {}", persons.size(), id);
 
-        return persons.isEmpty()
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(persons);
+        return ResponseEntity.ok(persons);
     }
 }

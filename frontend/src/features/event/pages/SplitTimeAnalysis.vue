@@ -37,6 +37,16 @@ const personsQuery = useQuery({
     ),
 })
 
+// Add fullName property for filtering
+const personsWithFullName = computed(() => {
+    if (!personsQuery.data.value)
+        return []
+    return personsQuery.data.value.map(p => ({
+        ...p,
+        fullName: `${p.familyName}, ${p.givenName}`,
+    }))
+})
+
 const splitTimeQueryRanking = useQuery({
     queryKey: ['splitTimeAnalysisRanking', props.resultListId, mergeBidirectional, filterPersonIds, filterIntersection],
     queryFn: () => EventService.getSplitTimeAnalysisRanking(
@@ -182,24 +192,22 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection], () => {
                 <label for="personFilter" class="mb-2 block">{{ t('labels.filter_by_name') }}</label>
                 <span v-if="personsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
                 <MultiSelect
-                    v-else-if="personsQuery.data?.value"
+                    v-else-if="personsWithFullName.length > 0"
                     id="personFilter"
                     v-model="filterPersonIds"
-                    :options="personsQuery.data.value"
+                    :options="personsWithFullName"
                     data-key="id"
                     filter
+                    option-label="fullName"
                     option-value="id"
                     :placeholder="t('messages.select')"
                     class="w-full"
                     display="chip"
                     show-clear
                 >
-                    <template #option="slotProps">
-                        <div>{{ slotProps.option.familyName }}, {{ slotProps.option.givenName }}</div>
-                    </template>
                     <template #chip="slotProps">
                         <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary text-primary-contrast rounded-full">
-                            <span>{{ personsQuery.data.value?.find((p: PersonKey) => p.id === slotProps.value)?.familyName }}, {{ personsQuery.data.value?.find((p: PersonKey) => p.id === slotProps.value)?.givenName }}</span>
+                            <span>{{ personsWithFullName.find(p => p.id === slotProps.value)?.fullName }}</span>
                             <span class="pi pi-times cursor-pointer hover:bg-primary-emphasis rounded-full p-1" @click.stop="removePersonFilter(slotProps.value)" />
                         </div>
                     </template>

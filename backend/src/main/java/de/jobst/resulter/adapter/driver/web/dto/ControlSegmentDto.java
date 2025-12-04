@@ -9,13 +9,15 @@ public record ControlSegmentDto(
         String toControl,
         String segmentLabel,
         List<RunnerSplitDto> runnerSplits,
-        List<String> classes
+        List<String> classes,
+        boolean bidirectional
 ) {
 
     public static ControlSegmentDto from(ControlSegment segment) {
         String fromControl = segment.fromControl().value();
         String toControl = segment.toControl().value();
-        String segmentLabel = fromControl + " → " + toControl;
+        String arrow = segment.bidirectional() ? " ↔ " : " → ";
+        String segmentLabel = fromControl + arrow + toControl;
 
         List<RunnerSplitDto> runnerSplits = segment.runnerSplits().stream()
                 .map(RunnerSplitDto::from)
@@ -26,7 +28,8 @@ public record ControlSegmentDto(
                 toControl,
                 segmentLabel,
                 runnerSplits,
-                segment.classes()
+                segment.classes(),
+                segment.bidirectional()
         );
     }
 }

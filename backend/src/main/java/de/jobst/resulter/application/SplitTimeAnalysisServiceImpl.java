@@ -224,7 +224,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                             data.classResultShortName(),
                             currentPosition,
                             currentTime,
-                            timeBehind
+                            timeBehind,
+                            false // not reversed (forward direction)
                     ));
 
                     previousTime = currentTime;
@@ -234,7 +235,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                         ControlCode.of(fromControl),
                         ControlCode.of(toControl),
                         runnerSplits,
-                        classes
+                        classes,
+                        false // not bidirectional
                 );
 
                 controlSegments.add(segment);
@@ -283,8 +285,21 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
 
             if (reverseSegment.isPresent()) {
                 // Merge forward and reverse segments
+                // Forward segment runners keep reversed = false
                 List<RunnerSplit> mergedSplits = new ArrayList<>(segment.runnerSplits());
-                mergedSplits.addAll(reverseSegment.get().runnerSplits());
+
+                // Reverse segment runners need reversed = true (they went the opposite direction)
+                for (RunnerSplit reverseSplit : reverseSegment.get().runnerSplits()) {
+                    mergedSplits.add(new RunnerSplit(
+                            reverseSplit.personId(),
+                            reverseSplit.personName(),
+                            reverseSplit.classResultShortName(),
+                            reverseSplit.position(),
+                            reverseSplit.splitTimeSeconds(),
+                            reverseSplit.timeBehindLeader(),
+                            true // reversed - went opposite direction
+                    ));
+                }
 
                 // Merge classes from both segments
                 List<String> mergedClasses = new ArrayList<>(segment.classes());
@@ -319,7 +334,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                             split.classResultShortName(),
                             currentPosition,
                             currentTime,
-                            currentTime - leaderTime
+                            currentTime - leaderTime,
+                            split.reversed() // preserve the reversed flag
                     ));
 
                     previousTime = currentTime;
@@ -329,7 +345,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                         segment.fromControl(),
                         segment.toControl(),
                         recalculatedSplits,
-                        mergedClasses
+                        mergedClasses,
+                        true // bidirectional merge
                 );
 
                 mergedSegmentMap.put(sortedKey, mergedSegment);

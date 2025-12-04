@@ -153,7 +153,12 @@ function navigateBack() {
                                     responsive-layout="scroll"
                                 >
                                     <Column field="position" :header="t('labels.position')" style="width: 8%" />
-                                    <Column field="personName" :header="t('labels.name')" style="width: 35%" />
+                                    <Column header="" style="width: 4%">
+                                        <template #body="slotProps">
+                                            <i v-if="segment.bidirectional" :class="slotProps.data.reversed ? 'pi pi-arrow-left' : 'pi pi-arrow-right'" />
+                                        </template>
+                                    </Column>
+                                    <Column field="personName" :header="t('labels.name')" style="width: 31%" />
                                     <Column field="classResultShortName" :header="t('labels.class')" style="width: 12%" />
                                     <Column field="splitTime" :header="t('labels.split_time')" style="width: 20%" />
                                     <Column field="timeBehind" :header="t('labels.time_behind')" style="width: 25%" />

@@ -6,4 +6,5 @@ export interface ControlSegment {
     segmentLabel: string
     runnerSplits: RunnerSplit[]
     classes: string[]
+    bidirectional: boolean
 }

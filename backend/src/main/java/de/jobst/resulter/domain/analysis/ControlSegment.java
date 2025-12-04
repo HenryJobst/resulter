@@ -6,5 +6,11 @@ import org.jmolecules.ddd.annotation.ValueObject;
 import java.util.List;
 
 @ValueObject
-public record ControlSegment(ControlCode fromControl, ControlCode toControl, List<RunnerSplit> runnerSplits, List<String> classes) {
+public record ControlSegment(
+        ControlCode fromControl,
+        ControlCode toControl,
+        List<RunnerSplit> runnerSplits,
+        List<String> classes,
+        boolean bidirectional
+) {
 }

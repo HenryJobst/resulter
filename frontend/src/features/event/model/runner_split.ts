@@ -6,4 +6,5 @@ export interface RunnerSplit {
     splitTime: string
     timeBehind: string
     splitTimeSeconds: number
+    reversed: boolean
 }

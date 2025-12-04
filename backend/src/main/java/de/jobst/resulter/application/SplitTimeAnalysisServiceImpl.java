@@ -202,19 +202,32 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 List<RunnerSplit> runnerSplits = new ArrayList<>();
                 Double leaderTime = runnerData.isEmpty() ? 0.0 : runnerData.getFirst().splitTimeSeconds();
 
+                int currentPosition = 1;
+                Double previousTime = null;
+
                 for (int i = 0; i < limitedSize; i++) {
                     RunnerSplitData data = runnerData.get(i);
-                    int position = i + 1;
-                    Double timeBehind = data.splitTimeSeconds() - leaderTime;
+                    Double currentTime = data.splitTimeSeconds();
+
+                    // If this is a new time (not equal to previous), update position
+                    // Use 0.001 second (1ms) threshold for floating point comparison
+                    if (previousTime == null || Math.abs(currentTime - previousTime) > 0.001) {
+                        currentPosition = i + 1;
+                    }
+                    // Otherwise keep the same position (tie)
+
+                    Double timeBehind = currentTime - leaderTime;
 
                     runnerSplits.add(new RunnerSplit(
                             data.personId(),
                             data.personName(),
                             data.classResultShortName(),
-                            position,
-                            data.splitTimeSeconds(),
+                            currentPosition,
+                            currentTime,
                             timeBehind
                     ));
+
+                    previousTime = currentTime;
                 }
 
                 ControlSegment segment = new ControlSegment(
@@ -286,16 +299,30 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
                 List<RunnerSplit> recalculatedSplits = new ArrayList<>();
                 Double leaderTime = mergedSplits.isEmpty() ? 0.0 : mergedSplits.getFirst().splitTimeSeconds();
 
+                int currentPosition = 1;
+                Double previousTime = null;
+
                 for (int i = 0; i < mergedSplits.size(); i++) {
                     RunnerSplit split = mergedSplits.get(i);
+                    Double currentTime = split.splitTimeSeconds();
+
+                    // If this is a new time (not equal to previous), update position
+                    // Use 0.001 second (1ms) threshold for floating point comparison
+                    if (previousTime == null || Math.abs(currentTime - previousTime) > 0.001) {
+                        currentPosition = i + 1;
+                    }
+                    // Otherwise keep the same position (tie)
+
                     recalculatedSplits.add(new RunnerSplit(
                             split.personId(),
                             split.personName(),
                             split.classResultShortName(),
-                            i + 1, // New position
-                            split.splitTimeSeconds(),
-                        split.splitTimeSeconds() - leaderTime
+                            currentPosition,
+                            currentTime,
+                            currentTime - leaderTime
                     ));
+
+                    previousTime = currentTime;
                 }
 
                 ControlSegment mergedSegment = new ControlSegment(

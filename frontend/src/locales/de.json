@@ -107,6 +107,9 @@
         "filter_by_name": "Nach Name filtern",
         "add_filter": "Filter hinzufügen",
         "split_time": "Zwischenzeit",
+        "load_more": "Mehr laden",
+        "remaining": "verbleibend",
+        "segments": "Abschnitte",
         "time_behind": "Rückstand",
         "segment": "Teilstrecke",
         "runners": "Läufer"

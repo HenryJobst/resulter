@@ -107,6 +107,9 @@
         "filter_by_name": "Filter by Name",
         "add_filter": "Add Filter",
         "split_time": "Split Time",
+        "load_more": "Load More",
+        "remaining": "remaining",
+        "segments": "segments",
         "time_behind": "Time Behind",
         "segment": "Segment",
         "runners": "runners"

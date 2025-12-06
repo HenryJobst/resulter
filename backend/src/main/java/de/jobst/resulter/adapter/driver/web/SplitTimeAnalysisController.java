@@ -1,7 +1,9 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.MentalResilienceAnalysisDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonKeyDto;
 import de.jobst.resulter.adapter.driver.web.dto.SplitTimeAnalysisDto;
+import de.jobst.resulter.application.MentalResilienceService;
 import de.jobst.resulter.application.SplitTimeAnalysisService;
 import de.jobst.resulter.domain.ResultListId;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +19,13 @@ import java.util.Optional;
 public class SplitTimeAnalysisController {
 
     private final SplitTimeAnalysisService splitTimeAnalysisService;
+    private final MentalResilienceService mentalResilienceService;
 
-    public SplitTimeAnalysisController(SplitTimeAnalysisService splitTimeAnalysisService) {
+    public SplitTimeAnalysisController(
+            SplitTimeAnalysisService splitTimeAnalysisService,
+            MentalResilienceService mentalResilienceService) {
         this.splitTimeAnalysisService = splitTimeAnalysisService;
+        this.mentalResilienceService = mentalResilienceService;
     }
 
     @GetMapping("/split_time_analysis/result_list/{id}/ranking")
@@ -69,5 +75,33 @@ public class SplitTimeAnalysisController {
         log.info("Returning {} persons for result list {}", persons.size(), id);
 
         return ResponseEntity.ok(persons);
+    }
+
+    @GetMapping("/split_time_analysis/result_list/{id}/mental_resilience")
+    public ResponseEntity<MentalResilienceAnalysisDto> analyzeMentalResilience(
+            @PathVariable Long id,
+            @RequestParam(required = false) @Nullable List<Long> filterPersonIds) {
+
+        log.debug("Analyzing mental resilience for result list {} (person filters: {})",
+                id, filterPersonIds);
+
+        MentalResilienceAnalysisDto analysis = MentalResilienceAnalysisDto.from(
+                mentalResilienceService.analyzeMentalResilience(
+                        ResultListId.of(id),
+                        Optional.ofNullable(filterPersonIds).orElse(List.of())
+                )
+        );
+
+        if (analysis.statistics().totalMistakes() > 0) {
+            log.info("Returning mental resilience analysis: {} runners, {} with mistakes, {} total mistakes, avg MRI: {}",
+                    analysis.statistics().totalRunners(),
+                    analysis.statistics().runnersWithMistakes(),
+                    analysis.statistics().totalMistakes(),
+                    analysis.statistics().averageMRI());
+        } else {
+            log.info("No mistakes detected in result list {}", id);
+        }
+
+        return ResponseEntity.ok(analysis);
     }
 }

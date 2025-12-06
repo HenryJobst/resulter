@@ -174,10 +174,10 @@ function getRankBadgeClass(rank: number): string {
                                 <span v-else class="text-adaptive-tertiary">-</span>
                             </td>
                             <td
-                                v-for="(r, index) in eventRacesCupScores[0].raceOrganisationGroupedCupScores"
+                                v-for="(r, idx) in eventRacesCupScores[0].raceOrganisationGroupedCupScores"
                                 :key="r.race.id"
                                 class="px-2 py-1.5 text-center text-xs"
-                                :class="[index === 0 ? 'border-l-2 border-adaptive-strong' : '']"
+                                :class="[idx === 0 ? 'border-l-2 border-adaptive-strong' : '']"
                             >
                                 <span v-if="findOrganisationScore(org, r)" class="text-adaptive font-semibold">
                                     {{ findOrganisationScore(org, r) }}

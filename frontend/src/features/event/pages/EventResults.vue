@@ -311,9 +311,49 @@ function navigateToList() {
 }
 
 function navigateToSplitTimeAnalysis(resultListId: number) {
+    // Find the result list to generate label
+    const resultLists = eventResultsQuery.data.value?.resultLists || []
+    const sortedLists = [...resultLists].sort((a, b) => {
+        const dateA = new Date(a.createTime).getTime()
+        const dateB = new Date(b.createTime).getTime()
+        return dateA - dateB
+    })
+    const resultListIndex = sortedLists.findIndex(list => list.id === resultListId)
+    const resultListLabel = sortedLists.length > 1
+        ? `${t('labels.result_list')} #${resultListIndex + 1}`
+        : t('labels.result_list')
+
     router.push({
         name: 'split-time-analysis',
         params: { resultListId: resultListId.toString() },
+        query: {
+            eventName: eventQuery.data.value?.name || '',
+            resultListLabel,
+        },
+    })
+}
+
+function navigateToMentalResilienceAnalysis(resultListId: number) {
+    // Find the result list to generate label
+    const resultLists = eventResultsQuery.data.value?.resultLists || []
+    const sortedLists = [...resultLists].sort((a, b) => {
+        const dateA = new Date(a.createTime).getTime()
+        const dateB = new Date(b.createTime).getTime()
+        return dateA - dateB
+    })
+    const resultListIndex = sortedLists.findIndex(list => list.id === resultListId)
+    const resultListLabel = sortedLists.length > 1
+        ? `${t('labels.result_list')} #${resultListIndex + 1}`
+        : t('labels.result_list')
+
+    router.push({
+        name: 'mental-resilience-analysis',
+        query: {
+            scope: 'event',
+            resultListId: resultListId.toString(),
+            eventName: eventQuery.data.value?.name || '',
+            resultListLabel,
+        },
     })
 }
 </script>
@@ -364,6 +404,16 @@ function navigateToSplitTimeAnalysis(resultListId: number) {
                             raised
                             rounded
                             @click="navigateToSplitTimeAnalysis(parseInt(slotProps?.node?.key!))"
+                        />
+                        <Button
+                            v-tooltip="t('labels.analysis')"
+                            icon="pi pi-chart-line"
+                            class="ml-2"
+                            :aria-label="t('labels.analysis')"
+                            outlined
+                            raised
+                            rounded
+                            @click="navigateToMentalResilienceAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                     </div>
                 </template>

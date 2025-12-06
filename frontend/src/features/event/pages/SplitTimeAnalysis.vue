@@ -19,6 +19,8 @@ import { EventService } from '@/features/event/services/event.service'
 const props = defineProps<{
     id: string
     resultListId: string
+    eventName?: string
+    resultListLabel?: string
 }>()
 
 const { t } = useI18n()
@@ -197,21 +199,29 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], ()
 
 <template>
     <div class="split-time-analysis">
-        <Button
-            v-tooltip="t('labels.back')"
-            icon="pi pi-arrow-left"
-            class="mb-3"
-            :aria-label="t('labels.back')"
-            severity="secondary"
-            outlined
-            raised
-            rounded
-            @click="navigateBack"
-        />
-
-        <h1 class="mt-3 font-extrabold text-2xl text-primary">
-            {{ t('labels.split_time_analysis_ranking') }}
-        </h1>
+        <div class="mb-4">
+            <div class="flex items-center">
+                <Button
+                    v-tooltip="t('labels.back')"
+                    icon="pi pi-arrow-left"
+                    :aria-label="t('labels.back')"
+                    severity="secondary"
+                    text
+                    @click="navigateBack"
+                />
+                <div class="ml-2">
+                    <h1 class="text-3xl font-bold">
+                        {{ t('labels.split_time_analysis_ranking') }}
+                    </h1>
+                    <div v-if="eventName" class="text-lg text-gray-600 mt-1">
+                        {{ eventName }}
+                        <span v-if="resultListLabel" class="ml-2">
+                            • {{ resultListLabel }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="controls mb-3 card">
             <div class="field-checkbox mb-2">
@@ -265,6 +275,7 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], ()
                     v-model="filterClass"
                     :options="availableClasses"
                     :placeholder="t('messages.select')"
+                    filter
                     class="w-full"
                     show-clear
                 />

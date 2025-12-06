@@ -9,19 +9,16 @@ import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @AggregateRoot
 @Getter
 public class ResultList implements Comparable<ResultList> {
 
     @Association
-    @NonNull
     private final EventId eventId;
 
     @Association
-    @NonNull
     private final RaceId raceId;
 
     @Nullable
@@ -34,7 +31,6 @@ public class ResultList implements Comparable<ResultList> {
     private final String status;
 
     @Identity
-    @NonNull
     @Setter
     private ResultListId id;
 
@@ -43,9 +39,9 @@ public class ResultList implements Comparable<ResultList> {
     private Collection<ClassResult> classResults;
 
     public ResultList(
-            @NonNull ResultListId id,
-            @NonNull EventId eventId,
-            @NonNull RaceId raceId,
+            ResultListId id,
+            EventId eventId,
+            RaceId raceId,
             @Nullable String creator,
             @Nullable ZonedDateTime createTime,
             @Nullable String status,
@@ -60,7 +56,7 @@ public class ResultList implements Comparable<ResultList> {
     }
 
     @Override
-    public int compareTo(@NonNull ResultList o) {
+    public int compareTo(ResultList o) {
         int var = 0;
 
         // order by race number
@@ -69,7 +65,8 @@ public class ResultList implements Comparable<ResultList> {
         }
 
         if (var == 0) {
-            var = Objects.compare(this.createTime, o.createTime, ZonedDateTime::compareTo);
+            var = Objects.compare(this.createTime, o.createTime,
+                (zonedDateTime, other) -> zonedDateTime != null ? zonedDateTime.compareTo(other) : 0);
         }
 
         if (var == 0) {
@@ -78,7 +75,6 @@ public class ResultList implements Comparable<ResultList> {
         return var;
     }
 
-    @NonNull
     public RaceNumber getRaceNumber() {
         if (getClassResults() == null) {
             return RaceNumber.empty();
@@ -91,7 +87,7 @@ public class ResultList implements Comparable<ResultList> {
                 .getRaceNumber();
     }
 
-    public CupScoreList calculate(
+    public @Nullable CupScoreList calculate(
             Cup cup, String creator, ZonedDateTime createTime, CupTypeCalculationStrategy cupTypeCalculationStrategy) {
 
         if (invalid(cup)) {
@@ -147,7 +143,6 @@ public class ResultList implements Comparable<ResultList> {
                 .toList();
     }
 
-    @NonNull
     public Set<OrganisationId> getReferencedOrganisationIds() {
         assert getClassResults() != null;
         return getClassResults().stream()

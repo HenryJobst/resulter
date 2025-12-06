@@ -34,7 +34,12 @@ export const eventRouting = [
             {
                 path: ':id/results/:resultListId/split-time-analysis',
                 name: 'split-time-analysis',
-                props: true,
+                props: route => ({
+                    id: route.params.id,
+                    resultListId: route.params.resultListId,
+                    eventName: route.query.eventName ? String(route.query.eventName) : undefined,
+                    resultListLabel: route.query.resultListLabel ? String(route.query.resultListLabel) : undefined,
+                }),
                 component: () => import('@/features/event/pages/SplitTimeAnalysis.vue'),
             },
         ],

@@ -132,6 +132,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                                 "/result_list/{id}/cup_score_lists",
                                 "/split_time_analysis/result_list/{id}/ranking",
                                 "/split_time_analysis/result_list/{id}/persons",
+                                "/split_time_analysis/result_list/{id}/mental_resilience",
                                 "/version")
                         .permitAll()
                         .anyRequest()

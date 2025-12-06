@@ -1,7 +1,6 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.ResultList;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -19,7 +18,7 @@ public record ResultListDto(
         Boolean isCupScoreAvailable,
         Boolean isSplitTimeAvailable) {
 
-    public static ResultListDto from(ResultList resultList, Event event, Race race, int resultListSize) {
+    public static ResultListDto from(ResultList resultList, Event event, int resultListSize) {
         assert resultList.getClassResults() != null;
         byte raceNumber = resultList.getClassResults().stream()
                 .flatMap(x -> x.personResults().value().stream())

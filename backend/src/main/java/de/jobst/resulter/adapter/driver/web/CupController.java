@@ -98,9 +98,6 @@ public class CupController {
     }
 
     private Boolean hasSplitTimes(Event event) {
-        if (event.getId() == null) {
-            return false;
-        }
         return resultListService.findByEventId(event.getId()).stream()
                 .anyMatch(resultList -> !splitTimeListRepository.findByResultListId(resultList.getId()).isEmpty());
     }

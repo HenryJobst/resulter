@@ -230,8 +230,9 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
 
             if (referenceTime > 0) {
                 bestTimes.put(entry.getKey(), referenceTime);
-                log.trace("Segment {}: reference time = {:.1f}s (avg of top {} from {} runners)",
-                        entry.getKey(), referenceTime, topN, times.size());
+                log.trace("Segment {}: reference time = {}s (avg of top {} from {} runners)",
+                        entry.getKey(),
+                        String.format("%.1f", referenceTime), topN, times.size());
             }
         }
 
@@ -678,17 +679,4 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
             PerformanceIndex pi
     ) {}
 
-    /**
-     * Segment with time difference calculation (Winsplits approach).
-     * Instead of Performance Index (ratio), we use percentage difference.
-     */
-    private record SegmentDifference(
-            int legNumber,
-            String fromControl,
-            String toControl,
-            double runnerTime,
-            double referenceTime,
-            double timeLossSeconds,      // Absolute time loss: runnerTime - referenceTime
-            double timeLossPercent       // Relative time loss: (runnerTime - referenceTime) / referenceTime * 100
-    ) {}
 }

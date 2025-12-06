@@ -37,7 +37,6 @@ public class EventController {
 
     private final EventService eventService;
     private final ResultListService resultListService;
-    private final RaceService raceService;
     private final OrganisationService organisationService;
     private final EventCertificateService eventCertificateService;
     private final MediaFileService mediaFileService;
@@ -46,15 +45,12 @@ public class EventController {
     @Autowired
     public EventController(
         EventService eventService,
-        ResultListService resultListService,
-        RaceService raceService,
-        OrganisationService organisationService,
+        ResultListService resultListService, OrganisationService organisationService,
         EventCertificateService eventCertificateService,
         MediaFileService mediaFileService,
         de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository) {
         this.eventService = eventService;
         this.resultListService = resultListService;
-        this.raceService = raceService;
         this.organisationService = organisationService;
         this.eventCertificateService = eventCertificateService;
         this.mediaFileService = mediaFileService;
@@ -71,9 +67,6 @@ public class EventController {
     }
 
     private Boolean hasSplitTimes(Event event) {
-        if (event.getId() == null) {
-            return false;
-        }
         return resultListService.findByEventId(event.getId()).stream()
                 .anyMatch(resultList -> !splitTimeListRepository.findByResultListId(resultList.getId()).isEmpty());
     }
@@ -156,7 +149,7 @@ public class EventController {
     @GetMapping("/event/{id}/results")
     public ResponseEntity<EventResultsDto> getEventResults(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
-        return ResponseEntity.ok(EventResultsDto.from(event, resultListService, raceService));
+        return ResponseEntity.ok(EventResultsDto.from(event, resultListService));
     }
 
     @PutMapping("/event/{id}/certificate")

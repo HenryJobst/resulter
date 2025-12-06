@@ -3,6 +3,7 @@ import type { Router, RouteRecordRaw } from 'vue-router'
 import { ToastEventBus } from 'primevue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { aboutRouting } from '@/features/about/about-routing'
+import { analysisRoutes } from '@/features/analysis/analysis-routing'
 import { certificateRouting } from '@/features/certificate/certificate-routing'
 import { cupRouting } from '@/features/cup/cup-routing'
 import { eventRouting } from '@/features/event/event-routing'
@@ -20,6 +21,7 @@ export function setupRouter(i18n: I18n): Router {
     const routes: RouteRecordRaw[] = [
         ...startRouting,
         ...aboutRouting,
+        ...analysisRoutes,
         ...eventRouting,
         ...organisationRouting,
         ...personRouting,

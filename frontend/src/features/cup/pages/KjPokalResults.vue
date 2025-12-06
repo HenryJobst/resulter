@@ -311,10 +311,10 @@ function getRankBadgeClass(rank: number): string {
                                 </thead>
                                 <tbody class="bg-adaptive">
                                     <tr
-                                        v-for="(person, index) in sortByClassName(race.personWithScores)"
+                                        v-for="(person, idx) in sortByClassName(race.personWithScores)"
                                         :key="person.classShortName"
                                         class="hover:bg-adaptive-tertiary transition-colors border-b border-adaptive"
-                                        :class="{ 'bg-adaptive-secondary': index % 2 === 1 }"
+                                        :class="{ 'bg-adaptive-secondary': idx % 2 === 1 }"
                                     >
                                         <td class="px-3 py-1 w-1">
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-badge text-gray-badge">

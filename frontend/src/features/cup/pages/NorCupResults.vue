@@ -236,12 +236,14 @@ function getRankBadgeClass(rank: number): string {
                                     </span>
                                 </td>
                                 <td
-                                    v-for="(event, index) in allEvents"
+                                    v-for="(event, idx) in allEvents"
                                     :key="event.id"
                                     class="px-2 py-1.5 text-center text-xs"
                                 >
-                                    <span v-if="findScoreForEventAndClassResultAndPerson(pws.classShortName, pws.personId, index)" class="text-adaptive font-semibold">
-                                        {{ findScoreForEventAndClassResultAndPerson(pws.classShortName, pws.personId, index) }}
+                                    <span v-if="findScoreForEventAndClassResultAndPerson(pws.classShortName, pws.personId, idx)" class="text-adaptive font-semibold">
+                                        {{
+                                            findScoreForEventAndClassResultAndPerson(pws.classShortName, pws.personId, idx)
+                                        }}
                                     </span>
                                     <span v-else class="text-adaptive-tertiary">-</span>
                                 </td>

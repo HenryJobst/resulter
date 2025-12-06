@@ -113,6 +113,14 @@ const navItems = ref<Array<MenuItem>>([
         class: 'text-2xl',
     },
     {
+        key: 'analysis',
+        label: () => t('navigations.analysis'),
+        command: () => {
+            router.push({ name: 'analysis-hub', params: { locale: currentLocale.value } })
+        },
+        class: 'text-2xl',
+    },
+    {
         key: 'organisations',
         visible: !!authStore.isAdmin,
         label: () => t('navigations.organisations'),

@@ -1,3 +1,4 @@
+import type { MentalResilienceAnalysis } from '@/features/analysis/model/mental_resilience_analysis'
 import type { Certificate } from '@/features/certificate/model/certificate'
 import type { CupScoreList } from '@/features/event/model/cup_score_list'
 import type { EventCertificateStats } from '@/features/event/model/event_certificate_stats'
@@ -230,6 +231,22 @@ export class EventService extends GenericService<SportEvent> {
 
         return axiosInstance
             .get<PersonKey[]>(url)
+            .then(response => response.data)
+    }
+
+    static async getMentalResilienceAnalysis(
+        resultListId: number,
+        filterPersonIds: number[] = [],
+        _t: (key: string) => string,
+    ): Promise<MentalResilienceAnalysis | null> {
+        const params = new URLSearchParams()
+        filterPersonIds.forEach(id => params.append('filterPersonIds', id.toString()))
+
+        const queryString = params.toString()
+        const url = `${splitTimeAnalysisUrl}/result_list/${resultListId}/mental_resilience${queryString ? `?${queryString}` : ''}`
+
+        return axiosInstance
+            .get<MentalResilienceAnalysis>(url)
             .then(response => response.data)
     }
 }

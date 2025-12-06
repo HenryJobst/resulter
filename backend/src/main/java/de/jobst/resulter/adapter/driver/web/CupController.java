@@ -36,6 +36,8 @@ public class CupController {
     private final OrganisationService organisationService;
     private final CountryService countryService;
     private final EventCertificateService eventCertificateService;
+    private final de.jobst.resulter.application.port.ResultListService resultListService;
+    private final de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository;
 
     @Autowired
     public CupController(
@@ -43,12 +45,16 @@ public class CupController {
             EventService eventService,
             OrganisationService organisationService,
             CountryService countryService,
-            EventCertificateService eventCertificateService) {
+            EventCertificateService eventCertificateService,
+            de.jobst.resulter.application.port.ResultListService resultListService,
+            de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository) {
         this.cupService = cupService;
         this.eventService = eventService;
         this.organisationService = organisationService;
         this.countryService = countryService;
         this.eventCertificateService = eventCertificateService;
+        this.resultListService = resultListService;
+        this.splitTimeListRepository = splitTimeListRepository;
     }
 
     @GetMapping("/cup_types")
@@ -91,6 +97,14 @@ public class CupController {
         return ResponseEntity.ok(createCupDetailedDto(cupDetailed));
     }
 
+    private Boolean hasSplitTimes(Event event) {
+        if (event.getId() == null) {
+            return false;
+        }
+        return resultListService.findByEventId(event.getId()).stream()
+                .anyMatch(resultList -> !splitTimeListRepository.findByResultListId(resultList.getId()).isEmpty());
+    }
+
     private CupDetailedDto createCupDetailedDto(CupDetailed cupDetailed) {
         List<EventKeyDto> eventKeyDtos = cupDetailed.getEventIds().stream()
                 .map(x -> EventKeyDto.from(eventService.getById(x)))
@@ -110,7 +124,7 @@ public class CupController {
                 eventKeyDtos,
                 cupDetailed.getEventRacesCupScore().stream()
                         .map(x -> EventRacesCupScoreDto.from(
-                                x, organisationService, countryService, eventCertificateService))
+                                x, organisationService, countryService, eventCertificateService, hasSplitTimes(x.event())))
                         .toList(),
                 cupDetailed.getType().isGroupedByOrganisation()
                         ? cupDetailed.getOverallOrganisationScores().stream()

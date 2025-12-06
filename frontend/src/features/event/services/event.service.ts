@@ -88,7 +88,9 @@ export class EventService extends GenericService<SportEvent> {
                                 // Entfernen des Zeitzone-Identifikators, da dieser nicht von Date.parse() unterstützt wird
                                 const dateStringWithoutTimezone
                                     = resultList.createTime.split('[')[0]
-                                resultList.createTime = new Date(dateStringWithoutTimezone)
+                                if (dateStringWithoutTimezone) {
+                                    resultList.createTime = new Date(dateStringWithoutTimezone)
+                                }
                             }
                             return resultList
                         },

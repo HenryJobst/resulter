@@ -41,6 +41,7 @@ public class EventController {
     private final OrganisationService organisationService;
     private final EventCertificateService eventCertificateService;
     private final MediaFileService mediaFileService;
+    private final de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository;
 
     @Autowired
     public EventController(
@@ -48,22 +49,33 @@ public class EventController {
         ResultListService resultListService,
         RaceService raceService,
         OrganisationService organisationService,
-        EventCertificateService eventCertificateService, MediaFileService mediaFileService) {
+        EventCertificateService eventCertificateService,
+        MediaFileService mediaFileService,
+        de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository) {
         this.eventService = eventService;
         this.resultListService = resultListService;
         this.raceService = raceService;
         this.organisationService = organisationService;
         this.eventCertificateService = eventCertificateService;
         this.mediaFileService = mediaFileService;
+        this.splitTimeListRepository = splitTimeListRepository;
     }
 
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
         List<Event> events = eventService.findAll();
         return ResponseEntity.ok(events.stream()
-                .map(x -> EventDto.from(x, organisationService, eventCertificateService))
+                .map(x -> EventDto.from(x, organisationService, eventCertificateService, hasSplitTimes(x)))
                 .sorted(Comparator.reverseOrder())
                 .toList());
+    }
+
+    private Boolean hasSplitTimes(Event event) {
+        if (event.getId() == null) {
+            return false;
+        }
+        return resultListService.findByEventId(event.getId()).stream()
+                .anyMatch(resultList -> !splitTimeListRepository.findByResultListId(resultList.getId()).isEmpty());
     }
 
     @GetMapping("/event")
@@ -75,7 +87,7 @@ public class EventController {
                         : Pageable.unpaged());
         return ResponseEntity.ok(new PageImpl<>(
                 events.getContent().stream()
-                        .map(x -> EventDto.from(x, organisationService, eventCertificateService))
+                        .map(x -> EventDto.from(x, organisationService, eventCertificateService, hasSplitTimes(x)))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
                 events.getTotalElements()));
@@ -104,13 +116,13 @@ public class EventController {
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
-        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService));
+        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService, hasSplitTimes(event)));
     }
 
     @GetMapping("/event/{id}")
     public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
-        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService));
+        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService, hasSplitTimes(event)));
     }
 
     @PutMapping("/event/{id}")
@@ -131,7 +143,7 @@ public class EventController {
                 eventDto.certificate() != null
                         ? EventCertificateId.of(eventDto.certificate().id())
                         : null);
-        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService));
+        return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService, hasSplitTimes(event)));
     }
 
     @DeleteMapping("/event/{id}")

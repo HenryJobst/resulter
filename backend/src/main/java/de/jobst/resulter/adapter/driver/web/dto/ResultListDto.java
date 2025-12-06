@@ -16,7 +16,8 @@ public record ResultListDto(
         String status,
         Collection<ClassResultDto> classResults,
         Boolean isCertificateAvailable,
-        Boolean isCupScoreAvailable) {
+        Boolean isCupScoreAvailable,
+        Boolean isSplitTimeAvailable) {
 
     public static ResultListDto from(ResultList resultList, Event event, Race race, int resultListSize) {
         assert resultList.getClassResults() != null;
@@ -27,6 +28,10 @@ public record ResultListDto(
                 .distinct()
                 .findFirst()
                 .orElse((byte) 1);
+        boolean hasSplitTimes = resultList.getClassResults().stream()
+                .flatMap(x -> x.personResults().value().stream())
+                .flatMap(y -> y.personRaceResults().value().stream())
+                .anyMatch(z -> z.getSplitTimeListId() != null);
         return new ResultListDto(
                 resultList.getId().value(),
                 resultList.getEventId().value(),
@@ -41,6 +46,7 @@ public record ResultListDto(
                         .sorted()
                         .toList(),
                 event.getCertificate() != null && (resultListSize == 1 || raceNumber == 0),
-                raceNumber > 0);
+                raceNumber > 0,
+                hasSplitTimes);
     }
 }

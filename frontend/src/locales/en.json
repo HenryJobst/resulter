@@ -132,9 +132,9 @@
         "coming_soon": "Coming Soon",
         "mental_resilience_analysis": "Mental Resilience Analysis",
         "split_time_ranking": "Split Time Ranking",
-        "panic": "Panic Runner",
-        "ice_man": "Ice-Man",
-        "resigner": "Resigner",
+        "panic": "Panic Mode",
+        "ice_man": "Cool Head",
+        "resigner": "Resignation",
         "chain_error": "Chain Error",
         "average_mri": "Avg. MRI",
         "mri": "MRI",
@@ -170,7 +170,8 @@
         "statistics": "Statistics",
         "total_runners": "Total Runners",
         "filters": "Filters",
-        "sort_by": "Sort By"
+        "sort_by": "Sort By",
+        "si_times": "SI Times"
     },
     "messages": {
         "new_cup": "New cup",
@@ -242,7 +243,16 @@
         "severity_explanation": "Mistakes are classified into three severity levels based on the Mistake PI:",
         "moderate_severity_explanation": "PI between 1.30 and 1.50 - Minor mistake, about 30-50% slower than best time",
         "major_severity_explanation": "PI between 1.50 and 2.00 - Moderate mistake, 50-100% slower than best time",
-        "severe_severity_explanation": "PI over 2.00 - Severe mistake, more than twice as slow as best time"
+        "severe_severity_explanation": "PI over 2.00 - Severe mistake, more than twice as slow as best time",
+        "mistake_detection_title": "Mistake Detection (Winsplits Method)",
+        "mistake_detection_intro": "A segment is considered a navigation mistake when BOTH criteria are met:",
+        "mistake_detection_relative": "Relative Threshold",
+        "mistake_detection_relative_detail": "Time loss > Median difference + 25%",
+        "mistake_detection_absolute": "Absolute Threshold",
+        "mistake_detection_absolute_detail": "Time loss > 30 seconds",
+        "mistake_detection_explanation": "The median difference is the runner's 'normalized performance'. The 30-second threshold prevents small pace variations on short segments from being incorrectly identified as mistakes.",
+        "pi_reference_time_note": "Reference time = Average of top 3 times (more robust than single best time)",
+        "pi_value_gt_1": "Slower than reference time"
     },
     "result_state": {
         "OK": "OK",

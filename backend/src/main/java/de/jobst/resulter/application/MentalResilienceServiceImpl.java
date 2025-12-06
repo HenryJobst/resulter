@@ -38,6 +38,20 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
      */
     private static final int MIN_NON_MISTAKE_SEGMENTS = 3;
 
+    /**
+     * Relative mistake threshold in percent (Winsplits default: 25%).
+     * A segment is considered a mistake if the time loss percentage exceeds
+     * the normalized difference + this threshold.
+     */
+    private static final double RELATIVE_MISTAKE_THRESHOLD_PERCENT = 25.0;
+
+    /**
+     * Absolute time loss threshold in seconds (Winsplits default: 30s).
+     * A segment is only considered a mistake if BOTH the relative and absolute
+     * thresholds are exceeded.
+     */
+    private static final double ABSOLUTE_MISTAKE_THRESHOLD_SECONDS = 30.0;
+
     private final SplitTimeListRepository splitTimeListRepository;
     private final ResultListRepository resultListRepository;
 
@@ -163,8 +177,16 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
     }
 
     /**
-     * Calculates best time for each segment per class.
-     * Each class has its own best times to ensure fair comparison within the same age/skill group.
+     * Number of top runners to use for reference time calculation.
+     * Using top 3 instead of best time alone provides robustness against outliers.
+     */
+    private static final int TOP_RUNNERS_FOR_REFERENCE = 3;
+
+    /**
+     * Calculates reference time for each segment per class.
+     * Uses average of top 3 times (instead of single best time) to avoid outliers.
+     * This approach is more robust and matches tools like Winsplits.
+     * Each class has its own reference times to ensure fair comparison within the same age/skill group.
      */
     private Map<String, Double> calculateBestTimesPerSegment(
             List<SplitTimeList> splitTimeLists,
@@ -178,22 +200,38 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
             List<SegmentTime> segmentTimes = calculateSegmentTimes(splitTimeList, runtimeMap);
 
             for (SegmentTime segmentTime : segmentTimes) {
-                // Include className in key to calculate best times per class
+                // Include className in key to calculate reference times per class
                 String segmentKey = className + "-" + segmentTime.fromControl + "-" + segmentTime.toControl;
                 segmentTimesMap.computeIfAbsent(segmentKey, k -> new ArrayList<>())
                         .add(segmentTime.timeSeconds);
             }
         }
 
-        // Find minimum time for each segment per class
+        // Calculate reference time as average of top 3 times for each segment per class
         Map<String, Double> bestTimes = new HashMap<>();
         for (Map.Entry<String, List<Double>> entry : segmentTimesMap.entrySet()) {
-            double minTime = entry.getValue().stream()
+            List<Double> times = entry.getValue();
+
+            if (times.isEmpty()) {
+                continue;
+            }
+
+            // Sort times ascending
+            List<Double> sortedTimes = new ArrayList<>(times);
+            Collections.sort(sortedTimes);
+
+            // Take average of top N times (or all if fewer runners)
+            int topN = Math.min(TOP_RUNNERS_FOR_REFERENCE, sortedTimes.size());
+            double referenceTime = sortedTimes.stream()
+                    .limit(topN)
                     .mapToDouble(Double::doubleValue)
-                    .min()
+                    .average()
                     .orElse(0.0);
-            if (minTime > 0) {
-                bestTimes.put(entry.getKey(), minTime);
+
+            if (referenceTime > 0) {
+                bestTimes.put(entry.getKey(), referenceTime);
+                log.trace("Segment {}: reference time = {:.1f}s (avg of top {} from {} runners)",
+                        entry.getKey(), referenceTime, topN, times.size());
             }
         }
 
@@ -243,10 +281,14 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
             return null;
         }
 
-        // Detect mistakes and calculate reactions
+        // Convert Normal-PI back to median difference % for Winsplits-style threshold calculation
+        double medianDifferencePercent = (normalPI.value() - 1.0) * 100.0;
+
+        // Detect mistakes and calculate reactions using Winsplits criteria
         List<MistakeReactionPair> mistakeReactions = detectMistakesAndReactions(
                 segmentPIs,
-                normalPI);
+                normalPI,
+                medianDifferencePercent);
 
         if (mistakeReactions.isEmpty()) {
             log.debug("No mistakes detected for runner {} in class {}", personId, className);
@@ -365,53 +407,135 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
     }
 
     /**
-     * Calculates Normal PI (average PI excluding mistakes).
-     * Returns null if there are too few non-mistake segments to establish a reliable baseline.
+     * Calculates Normal PI using Winsplits approach.
+     *
+     * <p>Winsplits method:</p>
+     * <ol>
+     *   <li>Calculate time difference percentage for each segment: (runnerTime - refTime) / refTime * 100</li>
+     *   <li>Find median of these differences = "normalized performance"</li>
+     *   <li>Filter mistakes: diff% > median% + 25% AND time loss > 30s</li>
+     *   <li>Recalculate median from non-mistake segments</li>
+     * </ol>
+     *
+     * <p>Note: PI = runnerTime/refTime, so diff% = (PI - 1) * 100</p>
+     *
+     * @param segmentPIs All segment PIs for the runner
+     * @return Normal PI (converted back from median difference %) or null if too few valid segments
      */
     private @Nullable PerformanceIndex calculateNormalPI(List<SegmentPI> segmentPIs) {
-        List<PerformanceIndex> nonMistakeSegments = segmentPIs.stream()
-                .map(SegmentPI::pi)
-                .filter(pi -> !pi.isMistake())
-                .toList();
-
-        // Check if we have enough non-mistake segments
-        if (nonMistakeSegments.size() < MIN_NON_MISTAKE_SEGMENTS) {
-            log.debug("Not enough non-mistake segments ({}) to calculate Normal PI (min: {})",
-                    nonMistakeSegments.size(), MIN_NON_MISTAKE_SEGMENTS);
+        if (segmentPIs.size() < MIN_NON_MISTAKE_SEGMENTS) {
+            log.debug("Not enough segments ({}) to calculate Normal PI (min: {})",
+                    segmentPIs.size(), MIN_NON_MISTAKE_SEGMENTS);
             return null;
         }
 
-        double normalPI = nonMistakeSegments.stream()
-                .mapToDouble(PerformanceIndex::value)
-                .average()
-                .orElse(1.0);  // This should never happen now, but keep as safety
+        // Calculate time difference percentages for all segments
+        // diff% = (PI - 1) * 100
+        List<Double> allDifferencePercents = segmentPIs.stream()
+                .map(seg -> (seg.pi().value() - 1.0) * 100.0)
+                .toList();
+
+        // Calculate preliminary median difference (Winsplits "normalized performance")
+        Double medianDifferencePercent = calculateMedian(allDifferencePercents);
+        if (medianDifferencePercent == null) {
+            log.warn("Failed to calculate median difference percent");
+            return null;
+        }
+
+        log.debug("Preliminary median difference = {}%", String.format("%.1f", medianDifferencePercent));
+
+        // Filter out mistakes using Winsplits criteria:
+        // 1. Time loss % > median% + RELATIVE_MISTAKE_THRESHOLD_PERCENT (default 25%)
+        // 2. Absolute time loss > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS (default 30s)
+        List<Double> nonMistakeDifferences = new ArrayList<>();
+        for (int i = 0; i < segmentPIs.size(); i++) {
+            SegmentPI seg = segmentPIs.get(i);
+            double diffPercent = allDifferencePercents.get(i);
+            double timeLossSeconds = seg.runnerTime() - seg.bestTime();
+
+            boolean isMistake = diffPercent > (medianDifferencePercent + RELATIVE_MISTAKE_THRESHOLD_PERCENT)
+                    && timeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS;
+
+            if (!isMistake) {
+                nonMistakeDifferences.add(diffPercent);
+            } else {
+                log.trace("Leg {}: Mistake detected - diff={}%, time loss={}s",
+                        seg.legNumber(), String.format("%.1f", diffPercent), String.format("%.1f", timeLossSeconds));
+            }
+        }
+
+        // Check if we have enough non-mistake segments
+        if (nonMistakeDifferences.size() < MIN_NON_MISTAKE_SEGMENTS) {
+            log.info("Not enough non-mistake segments ({}) after filtering (min: {})",
+                    nonMistakeDifferences.size(), MIN_NON_MISTAKE_SEGMENTS);
+            return null;
+        }
+
+        // Calculate final median difference from non-mistake segments
+        Double finalMedianDifferencePercent = calculateMedian(nonMistakeDifferences);
+        if (finalMedianDifferencePercent == null) {
+            log.warn("Failed to calculate final median difference despite having {} segments", nonMistakeDifferences.size());
+            return null;
+        }
+
+        // Convert median difference% back to PI: PI = 1 + (diff% / 100)
+        double normalPI = 1.0 + (finalMedianDifferencePercent / 100.0);
+
+        log.debug("Calculated Normal PI = {} (median diff = {}%) from {} non-mistake segments (out of {} total)",
+                String.format("%.3f", normalPI),
+                String.format("%.1f", finalMedianDifferencePercent),
+                nonMistakeDifferences.size(),
+                segmentPIs.size());
 
         return new PerformanceIndex(normalPI);
     }
 
     /**
-     * Detects mistakes and analyzes reactions.
-     * If the reaction segment is also a mistake (PI > 1.30), it's classified as CHAIN_ERROR.
+     * Detects mistakes and analyzes reactions using Winsplits criteria.
+     *
+     * <p>Winsplits mistake criteria (both must be true):</p>
+     * <ul>
+     *   <li>Time loss % > median% + RELATIVE_MISTAKE_THRESHOLD_PERCENT (25%)</li>
+     *   <li>Absolute time loss > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS (30s)</li>
+     * </ul>
+     *
+     * @param segmentPIs All segment PIs
+     * @param normalPI The runner's normal PI
+     * @param medianDifferencePercent Median time difference in percent
+     * @return List of mistake-reaction pairs
      */
     private List<MistakeReactionPair> detectMistakesAndReactions(
             List<SegmentPI> segmentPIs,
-            PerformanceIndex normalPI) {
+            PerformanceIndex normalPI,
+            double medianDifferencePercent) {
 
         List<MistakeReactionPair> mistakeReactions = new ArrayList<>();
 
         for (int i = 0; i < segmentPIs.size() - 1; i++) {
             SegmentPI currentSegment = segmentPIs.get(i);
 
-            // Check if this is a mistake
-            if (currentSegment.pi.isMistake()) {
+            // Calculate time difference % for current segment
+            double diffPercent = (currentSegment.pi().value() - 1.0) * 100.0;
+            double timeLossSeconds = currentSegment.runnerTime() - currentSegment.bestTime();
+
+            // Check if this is a mistake using Winsplits criteria
+            boolean isMistake = diffPercent > (medianDifferencePercent + RELATIVE_MISTAKE_THRESHOLD_PERCENT)
+                    && timeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS;
+
+            if (isMistake) {
                 SegmentPI nextSegment = segmentPIs.get(i + 1);
 
                 // Calculate MRI
                 MentalResilienceIndex mri = MentalResilienceIndex.of(nextSegment.pi, normalPI);
 
                 // Check if reaction segment is also a mistake (chain error)
+                double nextDiffPercent = (nextSegment.pi().value() - 1.0) * 100.0;
+                double nextTimeLossSeconds = nextSegment.runnerTime() - nextSegment.bestTime();
+                boolean nextIsMistake = nextDiffPercent > (medianDifferencePercent + RELATIVE_MISTAKE_THRESHOLD_PERCENT)
+                        && nextTimeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS;
+
                 MentalClassification classification;
-                if (nextSegment.pi.isMistake()) {
+                if (nextIsMistake) {
                     classification = MentalClassification.CHAIN_ERROR;
                     log.debug(
                         "Detected CHAIN ERROR at leg {}: mistake PI={}, reaction PI={} (also a mistake)",
@@ -449,8 +573,15 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
         // Check last segment for mistake (no reaction available)
         if (!segmentPIs.isEmpty()) {
             SegmentPI lastSegment = segmentPIs.getLast();
-            if (lastSegment.pi.isMistake()) {
-                log.debug("Last segment mistake detected but skipped (no reaction segment available)");
+            double lastDiffPercent = (lastSegment.pi().value() - 1.0) * 100.0;
+            double lastTimeLossSeconds = lastSegment.runnerTime() - lastSegment.bestTime();
+            boolean lastIsMistake = lastDiffPercent > (medianDifferencePercent + RELATIVE_MISTAKE_THRESHOLD_PERCENT)
+                    && lastTimeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS;
+
+            if (lastIsMistake) {
+                log.debug("Last segment mistake detected (diff={}%, time loss={}s) but skipped (no reaction segment available)",
+                        String.format("%.1f", lastDiffPercent),
+                        String.format("%.1f", lastTimeLossSeconds));
             }
         }
 
@@ -545,5 +676,19 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
             double runnerTime,
             double bestTime,
             PerformanceIndex pi
+    ) {}
+
+    /**
+     * Segment with time difference calculation (Winsplits approach).
+     * Instead of Performance Index (ratio), we use percentage difference.
+     */
+    private record SegmentDifference(
+            int legNumber,
+            String fromControl,
+            String toControl,
+            double runnerTime,
+            double referenceTime,
+            double timeLossSeconds,      // Absolute time loss: runnerTime - referenceTime
+            double timeLossPercent       // Relative time loss: (runnerTime - referenceTime) / referenceTime * 100
     ) {}
 }

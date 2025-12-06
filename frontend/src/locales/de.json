@@ -132,9 +132,9 @@
         "coming_soon": "Demnächst verfügbar",
         "mental_resilience_analysis": "Mentale Widerstandsfähigkeit",
         "split_time_ranking": "Zwischenzeiten-Rangliste",
-        "panic": "Panik-Läufer",
-        "ice_man": "Ice-Man",
-        "resigner": "Resignierer",
+        "panic": "Panik-Modus",
+        "ice_man": "Cool Head",
+        "resigner": "Resignation",
         "chain_error": "Kettenfehler",
         "average_mri": "Durchschn. MRI",
         "mri": "MRI",
@@ -170,7 +170,8 @@
         "statistics": "Statistik",
         "total_runners": "Gesamtanzahl Läufer",
         "filters": "Filter",
-        "sort_by": "Sortieren nach"
+        "sort_by": "Sortieren nach",
+        "si_times": "SI-Zeiten"
     },
     "result_state": {
         "OK": "OK",
@@ -287,7 +288,16 @@
         "severity_explanation": "Fehler werden basierend auf dem Fehler-PI in drei Schweregrade eingeteilt:",
         "moderate_severity_explanation": "PI zwischen 1.30 und 1.50 - Leichter Fehler, etwa 30-50% langsamer als Bestzeit",
         "major_severity_explanation": "PI zwischen 1.50 und 2.00 - Mittelschwerer Fehler, 50-100% langsamer als Bestzeit",
-        "severe_severity_explanation": "PI über 2.00 - Schwerer Fehler, mehr als doppelt so langsam wie Bestzeit"
+        "severe_severity_explanation": "PI über 2.00 - Schwerer Fehler, mehr als doppelt so langsam wie Bestzeit",
+        "mistake_detection_title": "Fehler-Erkennung (Winsplits-Methode)",
+        "mistake_detection_intro": "Ein Segment gilt als Navigationsfehler, wenn BEIDE Kriterien erfüllt sind:",
+        "mistake_detection_relative": "Relative Schwelle",
+        "mistake_detection_relative_detail": "Zeitverlust > Median-Differenz + 25%",
+        "mistake_detection_absolute": "Absolute Schwelle",
+        "mistake_detection_absolute_detail": "Zeitverlust > 30 Sekunden",
+        "mistake_detection_explanation": "Die Median-Differenz ist die 'normalisierte Leistung' des Läufers. Die 30-Sekunden-Schwelle verhindert, dass kleine Tempovariationen auf kurzen Segmenten fälschlich als Fehler erkannt werden.",
+        "pi_reference_time_note": "Referenzzeit = Durchschnitt der Top 3 Zeiten (robuster als einzelne Bestzeit)",
+        "pi_value_gt_1": "Langsamer als Referenzzeit"
     },
     "errors": {
         "notFound": "Die angefragte Ressource wurde nicht gefunden. {message}",

@@ -10,4 +10,5 @@ export interface ResultList {
     classResults: ClassResult[]
     isCertificateAvailable: boolean
     isCupScoreAvailable: boolean
+    isSplitTimeAvailable: boolean
 }

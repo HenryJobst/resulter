@@ -554,7 +554,10 @@ function removePersonFilter(personId: number) {
                             {{ t('labels.calculation') }}:
                         </p>
                         <p class="font-mono text-sm">
-                            PI = Läuferzeit / Bestzeit
+                            PI = {{ t('messages.pi_reference_time_note').split('=')[0].trim() }}
+                        </p>
+                        <p class="text-sm mt-2">
+                            {{ t('messages.pi_reference_time_note') }}
                         </p>
                     </div>
                     <div class="mt-2">
@@ -563,7 +566,7 @@ function removePersonFilter(personId: number) {
                         </p>
                         <ul class="list-disc ml-5 text-sm">
                             <li><strong>1.0:</strong> {{ t('messages.pi_perfect') }}</li>
-                            <li><strong>&gt; 1.30:</strong> {{ t('messages.pi_mistake') }}</li>
+                            <li><strong>&gt; 1.0:</strong> {{ t('messages.pi_value_gt_1') }}</li>
                         </ul>
                     </div>
                 </div>
@@ -591,6 +594,37 @@ function removePersonFilter(personId: number) {
                             </p>
                         </div>
                     </div>
+                </div>
+
+                <!-- Mistake Detection Criteria -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">
+                        {{ t('messages.mistake_detection_title') }}
+                    </h3>
+                    <p class="mb-2">
+                        {{ t('messages.mistake_detection_intro') }}
+                    </p>
+                    <div class="text-color bg-adaptive p-3 rounded space-y-2">
+                        <div>
+                            <p class="font-semibold">
+                                1. {{ t('messages.mistake_detection_relative') }}:
+                            </p>
+                            <p class="text-sm">
+                                {{ t('messages.mistake_detection_relative_detail') }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="font-semibold">
+                                2. {{ t('messages.mistake_detection_absolute') }}:
+                            </p>
+                            <p class="text-sm">
+                                {{ t('messages.mistake_detection_absolute_detail') }}
+                            </p>
+                        </div>
+                    </div>
+                    <p class="text-sm mt-2">
+                        {{ t('messages.mistake_detection_explanation') }}
+                    </p>
                 </div>
 
                 <!-- Mistake Severity Classifications -->

@@ -23,6 +23,7 @@ const columns: GenericListColumn[] = [
     { label: 'labels.time', field: 'startTime', type: 'time', sortable: true },
     { label: 'labels.state', field: 'state', type: 'enum', sortable: true },
     { label: 'labels.organisation', field: 'organisations', type: 'list', sortable: false },
+    { label: 'labels.si_times', field: 'hasSplitTimes', type: 'custom', sortable: true },
 ]
 
 const organisationQuery = useQuery({
@@ -71,6 +72,10 @@ const initialTableSettings: TableSettings = {
     >
         <template v-if="organisationQuery.data.value" #organisations="{ value }">
             <div>{{ value?.name }}</div>
+        </template>
+        <template #hasSplitTimes="{ value }">
+            <i v-if="value" class="pi pi-check text-green-600" />
+            <i v-else class="pi pi-times text-gray-400" />
         </template>
         <template #extra_list_actions>
             <router-link

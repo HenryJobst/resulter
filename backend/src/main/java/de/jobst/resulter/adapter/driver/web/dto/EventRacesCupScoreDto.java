@@ -16,9 +16,10 @@ public record EventRacesCupScoreDto(
             EventRacesCupScore eventRacesCupScore,
             OrganisationService organisationService,
             CountryService countryService,
-            EventCertificateService eventCertificateService) {
+            EventCertificateService eventCertificateService,
+            Boolean hasSplitTimes) {
         return new EventRacesCupScoreDto(
-                EventDto.from(eventRacesCupScore.event(), organisationService, eventCertificateService),
+                EventDto.from(eventRacesCupScore.event(), organisationService, eventCertificateService, hasSplitTimes),
                 eventRacesCupScore.raceOrganisationGroupedCupScores().stream()
                         .map(r -> RaceOrganisationGroupedCupScoreDto.from(r, countryService, organisationService))
                         .toList(),

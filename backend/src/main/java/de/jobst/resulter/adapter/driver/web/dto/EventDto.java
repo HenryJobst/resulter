@@ -16,10 +16,14 @@ public record EventDto(
         String startTime,
         EventStatusDto state,
         List<OrganisationKeyDto> organisations,
-        EventCertificateKeyDto certificate) implements Comparable<EventDto> {
+        EventCertificateKeyDto certificate,
+        Boolean hasSplitTimes) implements Comparable<EventDto> {
 
     public static EventDto from(
-            Event event, OrganisationService organisationService, EventCertificateService eventCertificateService) {
+            Event event,
+            OrganisationService organisationService,
+            EventCertificateService eventCertificateService,
+            Boolean hasSplitTimes) {
         return new EventDto(
                 ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0,
                 event.getName().value(),
@@ -36,7 +40,8 @@ public record EventDto(
                         .toList(),
                 ObjectUtils.isNotEmpty(event.getCertificate())
                         ? EventCertificateKeyDto.from(eventCertificateService.getById(event.getCertificate()))
-                        : null);
+                        : null,
+                hasSplitTimes);
     }
 
     @NonNull

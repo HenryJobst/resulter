@@ -4,6 +4,7 @@ import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.springapp.config.SpringSecurityAuditorAware;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,18 +104,20 @@ public class ResultListServiceImpl implements ResultListService {
                 organisationRepository.loadOrganisationTree(referencedOrganisationIds);
         String creator = springSecurityAuditorAware.getCurrentAuditor().orElse(SpringSecurityAuditorAware.UNKNOWN);
         ZonedDateTime now = ZonedDateTime.now();
-        List<CupScoreList> cupScoreLists = cups.stream()
+        List<@Nullable CupScoreList> cupScoreLists = cups.stream()
                 .map(cup ->
                         resultList.calculate(cup, creator, now, cup.getCupTypeCalculationStrategy(organisationById)))
                 .collect(Collectors.toList());
         cupScoreListRepository.deleteAllByDomainKey(
-                cupScoreLists.stream().map(CupScoreList::getDomainKey).collect(Collectors.toSet()));
+                cupScoreLists.stream()
+                    .filter(Objects::nonNull)
+                    .map(CupScoreList::getDomainKey).collect(Collectors.toSet()));
         return cupScoreListRepository.saveAll(cupScoreLists);
     }
 
     @Transactional
     @Override
-    public CertificateServiceImpl.Certificate createCertificate(
+    public CertificateServiceImpl.@Nullable Certificate createCertificate(
         ResultListId resultListId, ClassResultShortName classResultShortName, PersonId personId) {
         ResultList resultList = resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(
                 resultListId, classResultShortName, personId);

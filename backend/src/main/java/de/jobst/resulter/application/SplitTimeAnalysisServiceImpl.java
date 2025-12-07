@@ -525,8 +525,8 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
         // Fetch and return persons, sorted by family name, then given name
         return personRepository.findAllById(personIds).values().stream()
                 .sorted(Comparator
-                        .comparing((Person p) -> p.getPersonName().familyName().value())
-                        .thenComparing(p -> p.getPersonName().givenName().value()))
+                        .comparing((Person p) -> p.personName().familyName().value())
+                        .thenComparing(p -> p.personName().givenName().value()))
                 .toList();
     }
 

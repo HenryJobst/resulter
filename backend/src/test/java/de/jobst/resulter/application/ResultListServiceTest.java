@@ -55,7 +55,7 @@ class ResultListServiceTest {
 
         PersonRaceResult prr = PersonRaceResult.of(
                 "H35-",
-                p.getId().value(),
+                p.id().value(),
                 ZonedDateTime.now(),
                 ZonedDateTime.now(),
                 Double.valueOf("1934"),

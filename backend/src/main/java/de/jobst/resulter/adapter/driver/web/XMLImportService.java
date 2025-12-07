@@ -509,7 +509,7 @@ public class XMLImportService {
                         Person.DomainKey personDomainKey = createPersonDomainKey(personResult.getPerson());
                         Person person = personByDomainKey.get(personDomainKey);
                         if (person != null) {
-                            personId = person.getId();
+                            personId = person.id();
                         } else {
                             throw new RuntimeException("Person not found: " + personDomainKey);
                         }

@@ -86,7 +86,7 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender) {
         return findById(personId)
-                .map(person -> personRepository.save(new Person(person.getId(), personName, birthDate, gender)))
+                .map(person -> personRepository.save(new Person(person.id(), personName, birthDate, gender)))
                 .orElseThrow(ResourceNotFoundException::new);
     }
 
@@ -121,7 +121,7 @@ public class PersonServiceImpl implements PersonService {
 
     List<Person> findDoubles(Person person, List<Person> all) {
         return all.stream()
-                .filter(p -> !p.getId().equals(person.getId()))
+                .filter(p -> !p.id().equals(person.id()))
                 .map(p -> new PersonSimilarity(p, calculateSimilarity(p, person)))
                 .filter(ps -> isSimilar(ps.similarity))
                 .sorted((p1, p2) -> Double.compare(p2.similarity, p1.similarity))
@@ -137,23 +137,23 @@ public class PersonServiceImpl implements PersonService {
         // calculate a similarity score for sorting
         double score = 0.0;
         double familyNameSimilarity = getSimilarity(
-                person1.getPersonName().familyName().value(),
-                person2.getPersonName().familyName().value());
+                person1.personName().familyName().value(),
+                person2.personName().familyName().value());
         if (isJaroWinklerSimilar(familyNameSimilarity)) {
             score += 1000.0 - (1000.0 * familyNameSimilarity);
         }
         double givenNameSimilarity = getSimilarity(
-                person1.getPersonName().givenName().value(),
-                person2.getPersonName().givenName().value());
+                person1.personName().givenName().value(),
+                person2.personName().givenName().value());
         if (isJaroWinklerSimilar(givenNameSimilarity)) {
             score += 100.0 - (100.0 * givenNameSimilarity);
         }
         long daysBetween = getDaysBetween(
-                person1.getBirthDate(), person2.getBirthDate());
+                person1.birthDate(), person2.birthDate());
         if (isSimilarDate(daysBetween)) {
             score += 10.0 - (10.0 * Math.abs(daysBetween) / 30.0);
         }
-        if (person1.getGender().equals(person2.getGender())) {
+        if (person1.gender().equals(person2.gender())) {
             score += 1.0;
         }
         return score;
@@ -176,10 +176,10 @@ public class PersonServiceImpl implements PersonService {
     }
 
     private void replacePerson(Person merge, Person person) {
-        resultListRepository.replacePersonId(merge.getId(), person.getId());
-        splitTimeListRepository.replacePersonId(merge.getId(), person.getId());
-        cupScoreListRepository.replacePersonId(merge.getId(), person.getId());
-        eventCertificateStatRepository.replacePersonId(merge.getId(), person.getId());
+        resultListRepository.replacePersonId(merge.id(), person.id());
+        splitTimeListRepository.replacePersonId(merge.id(), person.id());
+        cupScoreListRepository.replacePersonId(merge.id(), person.id());
+        eventCertificateStatRepository.replacePersonId(merge.id(), person.id());
     }
 
     record PersonSimilarity(Person person, double similarity) {}

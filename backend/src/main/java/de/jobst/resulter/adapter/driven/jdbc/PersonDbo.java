@@ -46,17 +46,17 @@ public class PersonDbo {
 
     public static PersonDbo from(Person person, DboResolvers dboResolvers) {
         PersonDbo personDbo;
-        if (person.getId().isPersistent()) {
-            personDbo = Optional.ofNullable(dboResolvers.getPersonDboResolver()).orElseThrow().findDboById(person.getId());
-            personDbo.setFamilyName(person.getPersonName().familyName().value());
-            personDbo.setGivenName(person.getPersonName().givenName().value());
+        if (person.id().isPersistent()) {
+            personDbo = Optional.ofNullable(dboResolvers.getPersonDboResolver()).orElseThrow().findDboById(person.id());
+            personDbo.setFamilyName(person.personName().familyName().value());
+            personDbo.setGivenName(person.personName().givenName().value());
         } else {
             personDbo =
-                new PersonDbo(person.getPersonName().familyName().value(), person.getPersonName().givenName().value());
+                new PersonDbo(person.personName().familyName().value(), person.personName().givenName().value());
         }
-        personDbo.setGender(person.getGender());
-        if (person.getBirthDate() != null) {
-            personDbo.setBirthDate(person.getBirthDate().value());
+        personDbo.setGender(person.gender());
+        if (person.birthDate() != null) {
+            personDbo.setBirthDate(person.birthDate().value());
         } else {
             personDbo.setBirthDate(null);
         }

@@ -171,7 +171,7 @@
         "total_runners": "Total Runners",
         "filters": "Filters",
         "sort_by": "Sort By",
-        "si_times": "SI Times"
+        "split_times": "Split Times"
     },
     "messages": {
         "new_cup": "New cup",

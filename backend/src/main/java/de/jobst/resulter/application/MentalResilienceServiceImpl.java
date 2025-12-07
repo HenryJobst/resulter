@@ -51,6 +51,8 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
      * thresholds are exceeded.
      */
     private static final double ABSOLUTE_MISTAKE_THRESHOLD_SECONDS = 30.0;
+    public static final String FINAL_CODE = "F";
+    public static final String START_CODE = "S";
 
     private final SplitTimeListRepository splitTimeListRepository;
     private final ResultListRepository resultListRepository;
@@ -106,15 +108,15 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
         Map<String, Integer> runnersPerClass = countRunnersPerClass(splitTimeLists);
         log.debug("Runner count per class: {}", runnersPerClass);
 
-        // Step 7: Calculate best times per segment
-        Map<String, Double> bestTimesPerSegment = calculateBestTimesPerSegment(splitTimeLists, runtimeMap);
-        log.debug("Calculated best times for {} segments", bestTimesPerSegment.size());
+        // Step 7: Calculate reference times per segment
+        Map<String, Double> referenceTimesPerSegment = calculateReferenceTimesPerSegment(splitTimeLists, runtimeMap);
+        log.debug("Calculated reference times for {} segments", referenceTimesPerSegment.size());
 
         // Step 8: Analyze each runner
         List<RunnerMentalProfile> runnerProfiles = new ArrayList<>();
         for (SplitTimeList splitTimeList : splitTimeLists) {
             try {
-                RunnerMentalProfile profile = analyzeRunner(splitTimeList, bestTimesPerSegment, runtimeMap, runnersPerClass);
+                RunnerMentalProfile profile = analyzeRunner(splitTimeList, referenceTimesPerSegment, runtimeMap, runnersPerClass);
                 if (profile != null && profile.hasMistakes()) {
                     runnerProfiles.add(profile);
                 }
@@ -188,7 +190,7 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
      * This approach is more robust and matches tools like Winsplits.
      * Each class has its own reference times to ensure fair comparison within the same age/skill group.
      */
-    private Map<String, Double> calculateBestTimesPerSegment(
+    private Map<String, Double> calculateReferenceTimesPerSegment(
             List<SplitTimeList> splitTimeLists,
             Map<String, Double> runtimeMap) {
 
@@ -208,7 +210,7 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
         }
 
         // Calculate reference time as average of top 3 times for each segment per class
-        Map<String, Double> bestTimes = new HashMap<>();
+        Map<String, Double> referenceTimes = new HashMap<>();
         for (Map.Entry<String, List<Double>> entry : segmentTimesMap.entrySet()) {
             List<Double> times = entry.getValue();
 
@@ -229,14 +231,14 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
                     .orElse(0.0);
 
             if (referenceTime > 0) {
-                bestTimes.put(entry.getKey(), referenceTime);
+                referenceTimes.put(entry.getKey(), referenceTime);
                 log.trace("Segment {}: reference time = {}s (avg of top {} from {} runners)",
                         entry.getKey(),
                         String.format("%.1f", referenceTime), topN, times.size());
             }
         }
 
-        return bestTimes;
+        return referenceTimes;
     }
 
     /**
@@ -245,7 +247,7 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
      */
     private @Nullable RunnerMentalProfile analyzeRunner(
             SplitTimeList splitTimeList,
-            Map<String, Double> bestTimesPerSegment,
+            Map<String, Double> referenceTimesPerSegment,
             Map<String, Double> runtimeMap,
             Map<String, Integer> runnersPerClass) {
 
@@ -270,7 +272,7 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
         }
 
         // Calculate Performance Index for each segment
-        List<SegmentPI> segmentPIs = calculateSegmentPIs(segmentTimes, bestTimesPerSegment, className);
+        List<SegmentPI> segmentPIs = calculateSegmentPIs(segmentTimes, referenceTimesPerSegment, className);
 
         // Calculate Normal PI (average excluding mistakes)
         PerformanceIndex normalPI = calculateNormalPI(segmentPIs);
@@ -298,6 +300,8 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
 
         // Calculate average MRI
         double averageMRI = mistakeReactions.stream()
+                // skip chain error on calculating averageMRI
+                .filter(pair -> !pair.classification().equals(MentalClassification.CHAIN_ERROR))
                 .mapToDouble(pair -> pair.mri().value())
                 .average()
                 .orElse(0.0);
@@ -334,7 +338,7 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
 
         // Add virtual start control at 0.0 seconds
         List<SplitTime> allSplits = new ArrayList<>();
-        allSplits.add(new SplitTime(ControlCode.of("S"), PunchTime.of(0.0), null));
+        allSplits.add(new SplitTime(ControlCode.of(START_CODE), PunchTime.of(0.0), null));
         allSplits.addAll(splitTimeList.getSplitTimes());
 
         // Add virtual finish control with runtime
@@ -345,7 +349,7 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
         );
         Double runtime = runtimeMap.get(runtimeKey);
         if (runtime != null && runtime > 0) {
-            allSplits.add(new SplitTime(ControlCode.of("F"), PunchTime.of(runtime), null));
+            allSplits.add(new SplitTime(ControlCode.of(FINAL_CODE), PunchTime.of(runtime), null));
         }
 
         // Sort by punch time
@@ -377,11 +381,11 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
 
     /**
      * Calculates Performance Index for each segment.
-     * Uses class-specific best times for fair comparison within the same age/skill group.
+     * Uses class-specific reference times for fair comparison within the same age/skill group.
      */
     private List<SegmentPI> calculateSegmentPIs(
             List<SegmentTime> segmentTimes,
-            Map<String, Double> bestTimesPerSegment,
+            Map<String, Double> referenceTimesPerSegment,
             String className) {
 
         List<SegmentPI> segmentPIs = new ArrayList<>();
@@ -389,16 +393,16 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
         for (SegmentTime segmentTime : segmentTimes) {
             // Include className to lookup class-specific best time
             String segmentKey = className + "-" + segmentTime.fromControl + "-" + segmentTime.toControl;
-            Double bestTime = bestTimesPerSegment.get(segmentKey);
+            Double referenceTime = referenceTimesPerSegment.get(segmentKey);
 
-            if (bestTime != null && bestTime > 0) {
-                PerformanceIndex pi = PerformanceIndex.of(segmentTime.timeSeconds, bestTime);
+            if (referenceTime != null && referenceTime > 0) {
+                PerformanceIndex pi = PerformanceIndex.of(segmentTime.timeSeconds, referenceTime);
                 segmentPIs.add(new SegmentPI(
                         segmentTime.legNumber,
                         segmentTime.fromControl,
                         segmentTime.toControl,
                         segmentTime.timeSeconds,
-                        bestTime,
+                        referenceTime,
                         pi
                 ));
             }
@@ -445,23 +449,20 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
 
         log.debug("Preliminary median difference = {}%", String.format("%.1f", medianDifferencePercent));
 
-        // Filter out mistakes using Winsplits criteria:
-        // 1. Time loss % > median% + RELATIVE_MISTAKE_THRESHOLD_PERCENT (default 25%)
-        // 2. Absolute time loss > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS (default 30s)
         List<Double> nonMistakeDifferences = new ArrayList<>();
-        for (int i = 0; i < segmentPIs.size(); i++) {
-            SegmentPI seg = segmentPIs.get(i);
-            double diffPercent = allDifferencePercents.get(i);
-            double timeLossSeconds = seg.runnerTime() - seg.bestTime();
-
-            boolean isMistake = diffPercent > (medianDifferencePercent + RELATIVE_MISTAKE_THRESHOLD_PERCENT)
-                    && timeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS;
-
-            if (!isMistake) {
-                nonMistakeDifferences.add(diffPercent);
+        for (SegmentPI seg : segmentPIs) {
+            if (seg.toControl.equals(FINAL_CODE)) {
+                // skip final segment, often much faster than normal segments (short and simple)
+                continue;
+            }
+            MistakeResult mistakeResult = isMistakeBase(seg, medianDifferencePercent);
+            if (!mistakeResult.isMistake()) {
+                nonMistakeDifferences.add(mistakeResult.diffPercent());
             } else {
                 log.trace("Leg {}: Mistake detected - diff={}%, time loss={}s",
-                        seg.legNumber(), String.format("%.1f", diffPercent), String.format("%.1f", timeLossSeconds));
+                    seg.legNumber(),
+                    String.format("%.1f", mistakeResult.diffPercent()),
+                    String.format("%.1f", mistakeResult.timeLossSeconds()));
             }
         }
 
@@ -491,6 +492,28 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
         return new PerformanceIndex(normalPI);
     }
 
+    record MistakeResult(double diffPercent, double timeLossSeconds, boolean isMistake) {
+    }
+
+    MistakeResult isMistakeBase(SegmentPI segmentPI, double medianDifferencePercent) {
+        // Mistake using Winsplits criteria:
+        // 1. Time loss % > median% + RELATIVE_MISTAKE_THRESHOLD_PERCENT (default 25%)
+        // 2. Absolute time loss > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS (default 30s)
+
+        // Calculate time difference % for current segment
+        double diffPercent = (segmentPI.pi().value() - 1.0) * 100.0;
+        double timeLossSeconds = segmentPI.runnerTime() - segmentPI.referenceTime();
+
+        // Check if this is a mistake using Winsplits criteria
+        return new MistakeResult(diffPercent, timeLossSeconds,
+        diffPercent > (medianDifferencePercent + RELATIVE_MISTAKE_THRESHOLD_PERCENT)
+               && timeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS);
+    }
+
+    boolean isMistake(SegmentPI segmentPI, double medianDifferencePercent) {
+        return isMistakeBase(segmentPI, medianDifferencePercent).isMistake();
+    }
+
     /**
      * Detects mistakes and analyzes reactions using Winsplits criteria.
      *
@@ -515,25 +538,22 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
         for (int i = 0; i < segmentPIs.size() - 1; i++) {
             SegmentPI currentSegment = segmentPIs.get(i);
 
-            // Calculate time difference % for current segment
-            double diffPercent = (currentSegment.pi().value() - 1.0) * 100.0;
-            double timeLossSeconds = currentSegment.runnerTime() - currentSegment.bestTime();
-
-            // Check if this is a mistake using Winsplits criteria
-            boolean isMistake = diffPercent > (medianDifferencePercent + RELATIVE_MISTAKE_THRESHOLD_PERCENT)
-                    && timeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS;
+            boolean isMistake = isMistake(currentSegment, medianDifferencePercent);
 
             if (isMistake) {
                 SegmentPI nextSegment = segmentPIs.get(i + 1);
+
+                if (nextSegment.toControl.equals(FINAL_CODE)) {
+                    // skip reactions on last segment
+                    // most of the time it is short and easy so runners tend to give all they have
+                    continue;
+                }
 
                 // Calculate MRI
                 MentalResilienceIndex mri = MentalResilienceIndex.of(nextSegment.pi, normalPI);
 
                 // Check if reaction segment is also a mistake (chain error)
-                double nextDiffPercent = (nextSegment.pi().value() - 1.0) * 100.0;
-                double nextTimeLossSeconds = nextSegment.runnerTime() - nextSegment.bestTime();
-                boolean nextIsMistake = nextDiffPercent > (medianDifferencePercent + RELATIVE_MISTAKE_THRESHOLD_PERCENT)
-                        && nextTimeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS;
+                boolean nextIsMistake = isMistake(nextSegment, medianDifferencePercent);
 
                 MentalClassification classification;
                 if (nextIsMistake) {
@@ -573,16 +593,11 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
 
         // Check last segment for mistake (no reaction available)
         if (!segmentPIs.isEmpty()) {
-            SegmentPI lastSegment = segmentPIs.getLast();
-            double lastDiffPercent = (lastSegment.pi().value() - 1.0) * 100.0;
-            double lastTimeLossSeconds = lastSegment.runnerTime() - lastSegment.bestTime();
-            boolean lastIsMistake = lastDiffPercent > (medianDifferencePercent + RELATIVE_MISTAKE_THRESHOLD_PERCENT)
-                    && lastTimeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS;
-
-            if (lastIsMistake) {
+            MistakeResult lastMistakeResult = isMistakeBase(segmentPIs.getLast(), medianDifferencePercent);
+            if (lastMistakeResult.isMistake()) {
                 log.debug("Last segment mistake detected (diff={}%, time loss={}s) but skipped (no reaction segment available)",
-                        String.format("%.1f", lastDiffPercent),
-                        String.format("%.1f", lastTimeLossSeconds));
+                        String.format("%.1f", lastMistakeResult.diffPercent()),
+                        String.format("%.1f", lastMistakeResult.timeLossSeconds()));
             }
         }
 
@@ -675,7 +690,7 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
             String fromControl,
             String toControl,
             double runnerTime,
-            double bestTime,
+            double referenceTime,
             PerformanceIndex pi
     ) {}
 

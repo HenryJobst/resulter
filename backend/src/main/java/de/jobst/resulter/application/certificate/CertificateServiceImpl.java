@@ -22,10 +22,10 @@ import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.domain.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -68,7 +68,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private static Text createTextBlock(
-            TextBlock textBlock, PdfFont font, PdfFont boldFont, PdfFont italicFont, PdfFont boldItalicFont) {
+        TextBlock textBlock, PdfFont boldFont, PdfFont italicFont, PdfFont boldItalicFont) {
         Text text = new Text(textBlock.text().content());
         setGlobalFonts(textBlock, boldFont, italicFont, boldItalicFont, text);
         setLocalFont(textBlock, text);
@@ -198,7 +198,7 @@ public class CertificateServiceImpl implements CertificateService {
                             fontProgram, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
                 }
             } catch (IOException e) {
-                log.error(MessageFormat.format("Error loading font: {0}", fontNameOrPath), e);
+                log.error("Error loading font: {}", fontNameOrPath, e);
             }
         }
         return font;
@@ -214,22 +214,18 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private Paragraph createParagraph(
-            ParagraphDefinition paragraphDefinition,
-            PdfFont font,
-            PdfFont boldFont,
+            ParagraphDefinition paragraphDefinition, PdfFont boldFont,
             PdfFont italicFont,
             PdfFont boldItalicFont) {
         Paragraph paragraph = getParagraph(paragraphDefinition);
         applyTabStops(paragraphDefinition, paragraph);
-        applyBlocks(paragraphDefinition, paragraph, font, boldFont, italicFont, boldItalicFont);
+        applyBlocks(paragraphDefinition, paragraph, boldFont, italicFont, boldItalicFont);
         return paragraph;
     }
 
     private void applyBlocks(
             ParagraphDefinition paragraphDefinition,
-            Paragraph paragraph,
-            PdfFont font,
-            PdfFont boldFont,
+            Paragraph paragraph, PdfFont boldFont,
             PdfFont italicFont,
             PdfFont boldItalicFont) {
         if (paragraphDefinition.blocks() != null) {
@@ -237,7 +233,7 @@ public class CertificateServiceImpl implements CertificateService {
                     .sorted(Comparator.comparingInt(ParagraphDefinition.ParagraphDefinitionBlock::getTabPosition))
                     .map(block -> {
                         if (block.block() instanceof TextBlock textBlock) {
-                            return createTextBlock(textBlock, font, boldFont, italicFont, boldItalicFont);
+                            return createTextBlock(textBlock, boldFont, italicFont, boldItalicFont);
                         } else if (block.block() instanceof MediaBlock mediaBlock) {
                             try {
                                 return createImageBlock(mediaBlock);
@@ -297,7 +293,7 @@ public class CertificateServiceImpl implements CertificateService {
 
         if (!report.isSuccess()) {
             filename = "LayoutDescriptionErrors.pdf";
-            log.debug("Error validating layout description: " + report);
+            log.debug("Error validating layout description: {}", report);
             document.add(new Paragraph("Error validating layout description: " + report));
         } else {
             PdfCanvas canvas = new PdfCanvas(pdfDocument.addNewPage());
@@ -324,7 +320,7 @@ public class CertificateServiceImpl implements CertificateService {
             DocumentDefinition documentDefinition = documentAndParagraphDefinitionsWithPlaceholders.getLeft();
 
             MarginsDefinition margins = new MarginsDefinition(30.0f, 30.0f, 20.0f, 20.0f);
-            PdfFont font = null;
+            PdfFont font;
             PdfFont boldFont = null;
             PdfFont italicFont = null;
             PdfFont boldItalicFont = null;
@@ -351,13 +347,12 @@ public class CertificateServiceImpl implements CertificateService {
             List<ParagraphDefinition> paragraphDefinitions = TextBlockProcessor.processPlaceholders(
                     paragraphDefinitionsWithPlaceholders, person, organisation, event, personResult);
 
-            PdfFont finalFont = font;
             PdfFont finalBoldFont = boldFont;
             PdfFont finalItalicFont = italicFont;
             PdfFont finalBoldItalicFont = boldItalicFont;
             paragraphDefinitions.stream()
                     .map(paragraphDefinition -> createParagraph(
-                            paragraphDefinition, finalFont, finalBoldFont, finalItalicFont, finalBoldItalicFont))
+                            paragraphDefinition, finalBoldFont, finalItalicFont, finalBoldItalicFont))
                     .forEach(document::add);
         }
 

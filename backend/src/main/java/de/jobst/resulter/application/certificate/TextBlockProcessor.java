@@ -4,8 +4,8 @@ import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonRaceResult;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -20,10 +20,10 @@ public class TextBlockProcessor {
                                                                 @NonNull PersonRaceResult personResult) {
         for (ParagraphDefinition paragraphDefinition : paragraphDefinitions) {
             for (ParagraphDefinition.ParagraphDefinitionBlock block : paragraphDefinition.blocks()) {
-                if (!(block.block() instanceof TextBlock textBlock)) {
+                if (!(block.block() instanceof TextBlock(TextBlock.Text textParam))) {
                     continue;
                 }
-                String text = textBlock.text().content();
+                String text = textParam.content();
 
                 // Ersetzen der Platzhalter
                 text = text.replace("{{GIVEN_NAME}}", person.personName().givenName().value());
@@ -32,7 +32,7 @@ public class TextBlockProcessor {
                 text = text.replace("{{RESULT_POSITION}}", String.valueOf(personResult.getPosition().value()));
                 text = text.replace("{{CATEGORY}}", personResult.getClassResultShortName().value());
 
-                if (text.contains("{{RESULT_TIME}}")) {
+                if (text.contains("{{RESULT_TIME}}") && personResult.getRuntime().value() != null) {
                     LocalTime punchTime = LocalTime.ofSecondOfDay(personResult.getRuntime().value().longValue());
                     String timeFormat = punchTime.isAfter(LocalTime.of(0, 59, 59)) ? "HH:mm:ss" : "mm:ss";
                     text = text.replace("{{RESULT_TIME}}", punchTime.format(DateTimeFormatter.ofPattern(timeFormat)));
@@ -46,11 +46,11 @@ public class TextBlockProcessor {
                 paragraphDefinition.blocks()
                     .set(index,
                         new ParagraphDefinition.ParagraphDefinitionBlock(new TextBlock(new TextBlock.Text(text,
-                            textBlock.text().font(),
-                            textBlock.text().bold(),
-                            textBlock.text().italic(),
-                            textBlock.text().fontSize(),
-                            textBlock.text().color())), block.tabPosition()));
+                            textParam.font(),
+                            textParam.bold(),
+                            textParam.italic(),
+                            textParam.fontSize(),
+                            textParam.color())), block.tabPosition()));
             }
         }
         return paragraphDefinitions;

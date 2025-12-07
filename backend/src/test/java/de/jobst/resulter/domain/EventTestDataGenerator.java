@@ -7,7 +7,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class EventTestDataGenerator {
 
@@ -18,14 +17,7 @@ public class EventTestDataGenerator {
         String className = "H50- (Herren ab 50)";
         String classShortName = "H50-";
         Gender classGender = Gender.M;
-        List<SplitTime> splitTimes = new ArrayList<>();
-        String controlCode1 = "134";
-        double punchTime1 = 120.0;
-        splitTimes.add(SplitTime.of(controlCode1, punchTime1));
-        splitTimes.add(SplitTime.of("128", 104.0));
-        splitTimes.add(SplitTime.of("132", 34.0));
         Collection<PersonRaceResult> personRaceResults = new ArrayList<>();
-        long raceNumber = 1L;
         ZonedDateTime startTime = ZonedDateTime.of(2020, 10, 11, 11, 12, 0, 0, ZoneId.systemDefault());
         ZonedDateTime finishTime = ZonedDateTime.of(2020, 10, 11, 11, 54, 0, 0, ZoneId.systemDefault());
         double punchTime = 1000.0;

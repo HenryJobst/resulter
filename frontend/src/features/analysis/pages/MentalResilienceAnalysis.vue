@@ -565,6 +565,7 @@ function removePersonFilter(personId: number) {
                             {{ t('labels.value_range') }}:
                         </p>
                         <ul class="list-disc ml-5 text-sm">
+                            <li><strong>&lt; 1.0</strong> {{ t('messages.pi_elite') }}</li>
                             <li><strong>1.0:</strong> {{ t('messages.pi_perfect') }}</li>
                             <li><strong>&gt; 1.0:</strong> {{ t('messages.pi_value_gt_1') }}</li>
                         </ul>

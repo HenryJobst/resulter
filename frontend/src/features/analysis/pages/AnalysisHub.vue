@@ -48,7 +48,7 @@ const eventsQuery = useQuery({
 const events = computed(() => {
     if (!eventsQuery.data.value)
         return []
-    const eventList = eventsQuery.data.value.content || []
+    const eventList = (eventsQuery.data.value.content || []).filter(e => e.hasSplitTimes)
     return [...eventList].sort((a, b) => {
         const dateA = new Date(a.startTime).getTime()
         const dateB = new Date(b.startTime).getTime()

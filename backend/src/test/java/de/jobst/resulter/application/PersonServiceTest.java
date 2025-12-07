@@ -43,8 +43,8 @@ class PersonServiceTest {
         List<Person> result = personService.findDoubles(person, allPersons);
 
         assertThat(result).hasSize(2);
-        assertThat(result.getFirst().getPersonName().familyName().value()).isEqualTo("John");
-        assertThat(result.getFirst().getPersonName().givenName().value()).isEqualTo("Doe");
+        assertThat(result.getFirst().personName().familyName().value()).isEqualTo("John");
+        assertThat(result.getFirst().personName().givenName().value()).isEqualTo("Doe");
     }
 
     @Test

@@ -78,10 +78,10 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     @Override
     public PersonPerson findOrCreate(Person person) {
         Optional<PersonDbo> personEntity = personJdbcRepository.findByFamilyNameAndGivenNameAndBirthDateAndGender(
-                person.getPersonName().familyName().value(),
-                person.getPersonName().givenName().value(),
-                Optional.ofNullable(person.getBirthDate()).map(BirthDate::value).orElse(null),
-                person.getGender());
+                person.personName().familyName().value(),
+                person.personName().givenName().value(),
+                Optional.ofNullable(person.birthDate()).map(BirthDate::value).orElse(null),
+                person.gender());
 
         return personEntity
                 .map(personDbo -> new PersonPerson(person, personDbo.asPerson()))
@@ -267,7 +267,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     @Override
     public void delete(Person person) {
-        personJdbcRepository.deleteById(person.getId().value());
+        personJdbcRepository.deleteById(person.id().value());
     }
 
     @Override
@@ -278,6 +278,6 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
                                 .spliterator(),
                         true)
                 .map(p -> PersonDbo.asPerson(p))
-                .collect(Collectors.toMap(Person::getId, person -> person));
+                .collect(Collectors.toMap(Person::id, person -> person));
     }
 }

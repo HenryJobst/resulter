@@ -262,7 +262,7 @@ public class CertificateServiceImpl implements CertificateService {
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
         PersonRaceResult prr = PersonRaceResult.of(
                 "H35-",
-                p.getId().value(),
+                p.id().value(),
                 ZonedDateTime.now(),
                 ZonedDateTime.now(),
                 Double.valueOf("1934"),
@@ -289,8 +289,8 @@ public class CertificateServiceImpl implements CertificateService {
         String filename = MessageFormat.format(
                 "Certificate_{0}_{1}_{2}.pdf",
                 event.getName().value().replace("\n", ""),
-                person.getPersonName().familyName().value(),
-                person.getPersonName().givenName().value());
+                person.personName().familyName().value(),
+                person.personName().givenName().value());
 
         ProcessingReport report = jsonSchemaValidator.validateJsonAgainstSchema(
                 Objects.requireNonNull(eventCertificate.getLayoutDescription()).value(), certificateSchema);

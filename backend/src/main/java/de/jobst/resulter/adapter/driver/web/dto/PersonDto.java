@@ -8,11 +8,11 @@ import org.springframework.lang.NonNull;
 public record PersonDto(Long id, String familyName, String givenName, GenderDto gender, java.time.LocalDate birthDate) {
 
     static public PersonDto from(Person person) {
-        return new PersonDto(ObjectUtils.isNotEmpty(person.getId()) ? person.getId().value() : 0,
-            person.getPersonName().familyName().value(),
-            person.getPersonName().givenName().value(),
-            GenderDto.from(person.getGender()),
-            person.getBirthDate().value());
+        return new PersonDto(ObjectUtils.isNotEmpty(person.id()) ? person.id().value() : 0,
+            person.personName().familyName().value(),
+            person.personName().givenName().value(),
+            GenderDto.from(person.gender()),
+            person.birthDate().value());
     }
 
     @NonNull

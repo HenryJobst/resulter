@@ -47,7 +47,7 @@ public class EventTestDataGenerator {
 
         Person person = Person.of(FamilyName.of(familyName), GivenName.of(givenName), birthDate, personGender);
         personResults.add(PersonResult.of(
-                ClassResultShortName.of(classShortName), person.getId(), organisation.getId(), personRaceResults));
+                ClassResultShortName.of(classShortName), person.id(), organisation.getId(), personRaceResults));
 
         Collection<ClassResult> classResults = new ArrayList<>();
         classResults.add(ClassResult.of(className, classShortName, classGender, personResults, CourseId.empty()));

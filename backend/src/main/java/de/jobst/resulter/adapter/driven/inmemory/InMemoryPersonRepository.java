@@ -27,16 +27,16 @@ public class InMemoryPersonRepository implements PersonRepository {
     @Override
     public Person save(Person person) {
         Person savedPerson;
-        if (ObjectUtils.isEmpty(person.getId()) || person.getId().value() == 0) {
+        if (ObjectUtils.isEmpty(person.id()) || person.id().value() == 0) {
             savedPerson = new Person(
                     PersonId.of(sequence.incrementAndGet()),
-                    person.getPersonName(),
-                    person.getBirthDate(),
-                    person.getGender());
+                    person.personName(),
+                    person.birthDate(),
+                    person.gender());
         } else {
             savedPerson = person;
         }
-        persons.put(person.getId(), savedPerson);
+        persons.put(person.id(), savedPerson);
         savedPersons.add(savedPerson);
         return savedPerson;
     }
@@ -56,9 +56,9 @@ public class InMemoryPersonRepository implements PersonRepository {
         return new PersonPerson(
                 person,
                 persons.values().stream()
-                        .filter(it -> Objects.equals(it.getPersonName(), person.getPersonName())
-                                && Objects.equals(it.getBirthDate(), person.getBirthDate())
-                                && Objects.equals(it.getGender(), person.getGender()))
+                        .filter(it -> Objects.equals(it.personName(), person.personName())
+                                && Objects.equals(it.birthDate(), person.birthDate())
+                                && Objects.equals(it.gender(), person.gender()))
                         .findAny()
                         .orElseGet(() -> save(person)));
     }
@@ -82,14 +82,14 @@ public class InMemoryPersonRepository implements PersonRepository {
         // For simplicity, ignore complex filters here.
         Map<String, Long> counts = new HashMap<>();
         for (Person p : all) {
-            String key = p.getPersonName().familyName().value() + "\u0000"
-                    + p.getPersonName().givenName().value();
+            String key = p.personName().familyName().value() + "\u0000"
+                    + p.personName().givenName().value();
             counts.put(key, counts.getOrDefault(key, 0L) + 1);
         }
         List<Person> duplicates = all.stream()
                 .filter(p -> counts.getOrDefault(
-                                p.getPersonName().familyName().value() + "\u0000"
-                                        + p.getPersonName().givenName().value(),
+                                p.personName().familyName().value() + "\u0000"
+                                        + p.personName().givenName().value(),
                                 0L)
                         > 1)
                 .sorted()
@@ -104,7 +104,7 @@ public class InMemoryPersonRepository implements PersonRepository {
 
     @Override
     public void delete(Person person) {
-        persons.remove(person.getId());
+        persons.remove(person.id());
     }
 
     @SuppressWarnings("unused")
@@ -125,7 +125,7 @@ public class InMemoryPersonRepository implements PersonRepository {
     @Override
     public Map<PersonId, Person> findAllById(Set<PersonId> idSet) {
         return persons.values().stream()
-                .filter(person -> idSet.contains(person.getId()))
-                .collect(Collectors.toMap(Person::getId, person -> person));
+                .filter(person -> idSet.contains(person.id()))
+                .collect(Collectors.toMap(Person::id, person -> person));
     }
 }

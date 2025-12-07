@@ -137,7 +137,7 @@ public class ResultListServiceImpl implements ResultListService {
 
         Optional<PersonResult> personResult = resultList.getClassResults().stream()
                 .flatMap(classResult -> classResult.personResults().value().stream())
-                .filter(x -> x.personId().equals(person.getId()))
+                .filter(x -> x.personId().equals(person.id()))
                 .findFirst();
 
         if (personResult.isEmpty()) {
@@ -162,7 +162,7 @@ public class ResultListServiceImpl implements ResultListService {
                 mediaFileService);
 
         EventCertificateStat eventCertificateStat = EventCertificateStat.of(
-                EventCertificateStatId.empty().value(), event.getId(), person.getId(), Instant.now());
+                EventCertificateStatId.empty().value(), event.getId(), person.id(), Instant.now());
 
         eventCertificateStatRepository.save(eventCertificateStat);
 

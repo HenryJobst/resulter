@@ -26,8 +26,8 @@ public class TextBlockProcessor {
                 String text = textBlock.text().content();
 
                 // Ersetzen der Platzhalter
-                text = text.replace("{{GIVEN_NAME}}", person.getPersonName().givenName().value());
-                text = text.replace("{{FAMILY_NAME}}", person.getPersonName().familyName().value());
+                text = text.replace("{{GIVEN_NAME}}", person.personName().givenName().value());
+                text = text.replace("{{FAMILY_NAME}}", person.personName().familyName().value());
                 text = text.replace("{{EVENT_NAME}}", event.getName().value());
                 text = text.replace("{{RESULT_POSITION}}", String.valueOf(personResult.getPosition().value()));
                 text = text.replace("{{CATEGORY}}", personResult.getClassResultShortName().value());

@@ -1,6 +1,6 @@
 package de.jobst.resulter.domain;
 
-import java.util.Comparator;
+import de.jobst.resulter.domain.comparators.RaceComparator;
 import lombok.Getter;
 import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
@@ -49,14 +49,9 @@ public class Race implements Comparable<Race> {
         return new Race(raceId, eventId, RaceName.of(raceName), RaceNumber.of(raceNumber));
     }
 
-    private static final Comparator<Race> COMPARATOR =
-        Comparator.comparing(Race::getRaceNumber)
-            .thenComparing(Race::getRaceName, Comparator.nullsLast(Comparator.naturalOrder()))
-            .thenComparing(Race::getEventId);
-
     @Override
     public int compareTo(Race o) {
-        return COMPARATOR.compare(this, o);
+        return RaceComparator.COMPARATOR.compare(this, o);
     }
 
 }

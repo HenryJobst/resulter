@@ -23,7 +23,7 @@ const columns: GenericListColumn[] = [
     { label: 'labels.time', field: 'startTime', type: 'time', sortable: true },
     { label: 'labels.state', field: 'state', type: 'enum', sortable: true },
     { label: 'labels.organisation', field: 'organisations', type: 'list', sortable: false },
-    { label: 'labels.si_times', field: 'hasSplitTimes', type: 'custom', sortable: true },
+    { label: 'labels.split_times', field: 'hasSplitTimes', type: 'custom', sortable: true },
 ]
 
 const organisationQuery = useQuery({

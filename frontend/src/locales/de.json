@@ -171,7 +171,7 @@
         "total_runners": "Gesamtanzahl Läufer",
         "filters": "Filter",
         "sort_by": "Sortieren nach",
-        "si_times": "SI-Zeiten"
+        "split_times": "Split-Zeiten"
     },
     "result_state": {
         "OK": "OK",

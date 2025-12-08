@@ -1,4 +1,4 @@
-package de.jobst.resulter.application;
+package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.analysis.MentalResilienceAnalysis;

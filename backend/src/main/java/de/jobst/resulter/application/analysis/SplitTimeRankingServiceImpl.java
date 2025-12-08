@@ -1,8 +1,9 @@
-package de.jobst.resulter.application;
+package de.jobst.resulter.application.analysis;
 
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
+import de.jobst.resulter.application.port.SplitTimeRankingService;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.analysis.ControlSegment;
 import de.jobst.resulter.domain.analysis.RunnerSplit;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
+public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
 
     // Maximum number of runners to include per segment (to limit response size)
     private static final int MAX_RUNNERS_PER_SEGMENT = 100;
@@ -24,7 +25,7 @@ public class SplitTimeAnalysisServiceImpl implements SplitTimeAnalysisService {
     private final PersonRepository personRepository;
     private final ResultListRepository resultListRepository;
 
-    public SplitTimeAnalysisServiceImpl(
+    public SplitTimeRankingServiceImpl(
             SplitTimeListRepository splitTimeListRepository,
             PersonRepository personRepository,
             ResultListRepository resultListRepository) {

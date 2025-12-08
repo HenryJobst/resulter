@@ -1,4 +1,4 @@
-package de.jobst.resulter.application;
+package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.ResultListId;
@@ -8,7 +8,7 @@ import org.jmolecules.architecture.hexagonal.PrimaryPort;
 import java.util.List;
 
 @PrimaryPort
-public interface SplitTimeAnalysisService {
+public interface SplitTimeRankingService {
 
     /**
      * Analyze split times for a result list

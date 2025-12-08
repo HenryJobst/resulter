@@ -1,10 +1,12 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.CheatingAnalysisDto;
 import de.jobst.resulter.adapter.driver.web.dto.MentalResilienceAnalysisDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonKeyDto;
 import de.jobst.resulter.adapter.driver.web.dto.SplitTimeAnalysisDto;
-import de.jobst.resulter.application.MentalResilienceService;
-import de.jobst.resulter.application.SplitTimeAnalysisService;
+import de.jobst.resulter.application.port.CheatingDetectionService;
+import de.jobst.resulter.application.port.MentalResilienceService;
+import de.jobst.resulter.application.port.SplitTimeRankingService;
 import de.jobst.resulter.domain.ResultListId;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -18,14 +20,16 @@ import java.util.Optional;
 @Slf4j
 public class SplitTimeAnalysisController {
 
-    private final SplitTimeAnalysisService splitTimeAnalysisService;
+    private final SplitTimeRankingService splitTimeRankingService;
     private final MentalResilienceService mentalResilienceService;
+    private final CheatingDetectionService cheatingDetectionService;
 
     public SplitTimeAnalysisController(
-            SplitTimeAnalysisService splitTimeAnalysisService,
-            MentalResilienceService mentalResilienceService) {
-        this.splitTimeAnalysisService = splitTimeAnalysisService;
+        SplitTimeRankingService splitTimeRankingService,
+        MentalResilienceService mentalResilienceService, CheatingDetectionService cheatingDetectionService) {
+        this.splitTimeRankingService = splitTimeRankingService;
         this.mentalResilienceService = mentalResilienceService;
+        this.cheatingDetectionService = cheatingDetectionService;
     }
 
     @GetMapping("/split_time_analysis/result_list/{id}/ranking")
@@ -38,12 +42,12 @@ public class SplitTimeAnalysisController {
         log.debug("Analyzing split times (ranking) for result list {} (merge: {}, person filters: {}, intersection: {})",
                 id, mergeBidirectional, filterPersonIds, filterIntersection);
 
-        List<SplitTimeAnalysisDto> analyses = splitTimeAnalysisService.analyzeSplitTimesRanking(
+        List<SplitTimeAnalysisDto> analyses = splitTimeRankingService.analyzeSplitTimesRanking(
                         ResultListId.of(id),
                         Optional.ofNullable(mergeBidirectional).orElse(false),
                         Optional.ofNullable(filterPersonIds).orElse(List.of()),
                         Optional.ofNullable(filterIntersection).orElse(false)
-                )
+                                                                                              )
                 .stream()
                 .map(SplitTimeAnalysisDto::from)
                 .toList();
@@ -67,7 +71,7 @@ public class SplitTimeAnalysisController {
     public ResponseEntity<List<PersonKeyDto>> getPersonsForResultList(@PathVariable Long id) {
         log.debug("Getting persons for result list {}", id);
 
-        List<PersonKeyDto> persons = splitTimeAnalysisService.getPersonsForResultList(ResultListId.of(id))
+        List<PersonKeyDto> persons = splitTimeRankingService.getPersonsForResultList(ResultListId.of(id))
                 .stream()
                 .map(PersonKeyDto::from)
                 .toList();
@@ -101,6 +105,22 @@ public class SplitTimeAnalysisController {
         } else {
             log.info("No mistakes detected in result list {}", id);
         }
+
+        return ResponseEntity.ok(analysis);
+    }
+
+    @GetMapping("/split_time_analysis/result_list/{id}/cheating_detection")
+    public ResponseEntity<CheatingAnalysisDto> cheatingDetection(
+        @PathVariable Long id,
+        @RequestParam(required = false) @Nullable List<Long> filterPersonIds) {
+
+        log.debug("Cheating detection for result list {} (person filters: {})",
+            id, filterPersonIds);
+
+        CheatingAnalysisDto analysis = CheatingAnalysisDto.from(
+            cheatingDetectionService.analyzeCheating(
+                ResultListId.of(id),
+                Optional.ofNullable(filterPersonIds).orElse(List.of())));
 
         return ResponseEntity.ok(analysis);
     }

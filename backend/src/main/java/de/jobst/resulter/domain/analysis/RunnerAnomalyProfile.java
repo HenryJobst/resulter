@@ -7,18 +7,18 @@ import org.jmolecules.ddd.annotation.ValueObject;
 import java.util.List;
 
 /**
- * Cheating profile for a single runner.
+ * Anomaly profile for a single runner.
  *
  * <p>Contains:</p>
  * <ul>
  *   <li>Runner identification (person ID, class, race number)</li>
  *   <li>Class statistics (runner count, reliability indicator)</li>
  *   <li>Normal performance baseline (Normal PI)</li>
- *   <li>Cheating classification</li>
+ *   <li>Anomaly classification</li>
  * </ul>
  */
 @ValueObject
-public record RunnerCheatingProfile(
+public record RunnerAnomalyProfile(
         PersonId personId,
         String classResultShortName,
         RaceNumber raceNumber,
@@ -28,11 +28,11 @@ public record RunnerCheatingProfile(
         Double minimumAnomaliesIndex,
         int minimumLegNumber,
         List<AnomaliesIndexInformation> anomaliesIndexInformations,
-        CheatingClassification classification
-) implements Comparable<RunnerCheatingProfile> {
+        AnomalyClassification classification
+) implements Comparable<RunnerAnomalyProfile> {
 
     /**
-     * Creates a runner cheating profile.
+     * Creates a runner anomaly profile.
      *
      * @param personId              Person identifier
      * @param classResultShortName  Class short name
@@ -43,9 +43,9 @@ public record RunnerCheatingProfile(
      * @param minimumAnomaliesIndex Minimum anomalies index
      * @param minimumLegNumber      Leg number of the minimum anomalies index
      * @param anomaliesIndexInformations Anomalies index informations for all segments
-     * @param classification        Overall cheating classification
+     * @param classification        Overall anomaly classification
      */
-    public RunnerCheatingProfile {
+    public RunnerAnomalyProfile {
     }
 
     /**
@@ -55,8 +55,8 @@ public record RunnerCheatingProfile(
      * @return comparison result
      */
     @Override
-    public int compareTo(RunnerCheatingProfile other) {
-        // Sort by anomalies index: negative (cheating) first, positive last
+    public int compareTo(RunnerAnomalyProfile other) {
+        // Sort by anomalies index: negative (anomaly) first, positive last
         return Double.compare(this.minimumAnomaliesIndex, other.minimumAnomaliesIndex);
     }
 

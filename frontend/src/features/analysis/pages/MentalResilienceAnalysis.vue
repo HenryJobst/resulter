@@ -441,7 +441,11 @@ function removePersonFilter(personId: number) {
                                     :value="slotProps.data.mistakeReactions"
                                     size="small"
                                 >
-                                    <Column field="mistakeLegNumber" :header="t('labels.leg')" style="width: 80px" />
+                                    <Column :header="t('labels.leg')" style="width: 80px">
+                                        <template #body="cellProps">
+                                            {{ cellProps.data.mistakeLegNumber + 1 }}
+                                        </template>
+                                    </Column>
                                     <Column field="mistakeSegmentLabel" :header="t('labels.mistake_segment')" />
                                     <Column field="mistakePI" :header="t('labels.mistake_pi')" style="width: 100px">
                                         <template #body="cellProps">

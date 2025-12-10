@@ -30,24 +30,22 @@ public record MistakeReactionPair(
     /**
      * Creates a mistake-reaction pair.
      *
+     * <p>Note: Mistake detection is done using Winsplits criteria (median + 25% and > 30s absolute),
+     * not the simple PI >= 1.3 threshold. This allows detection of context-sensitive mistakes.</p>
+     *
      * @param mistakeLegNumber     Leg number where mistake occurred (0-based)
      * @param mistakeFromControl   Control code where mistake segment starts
      * @param mistakeToControl     Control code where mistake segment ends
-     * @param mistakePI            Performance Index on the mistake segment (> 1.30)
+     * @param mistakePI            Performance Index on the mistake segment (detected by Winsplits criteria)
      * @param reactionLegNumber    Leg number of reaction segment (mistakeLegNumber + 1)
      * @param reactionFromControl  Control code where reaction segment starts
      * @param reactionToControl    Control code where reaction segment ends
      * @param reactionPI           Performance Index on the reaction segment
      * @param mri                  Mental Resilience Index (reactionPI - normalPI)
      * @param classification       Classification of the reaction
-     * @throws IllegalArgumentException if mistakePI does not indicate a mistake
+     * @throws IllegalArgumentException if reaction leg is not immediately after mistake leg
      */
     public MistakeReactionPair {
-        if (!mistakePI.isMistake()) {
-            throw new IllegalArgumentException(
-                    "Mistake PI must be >= " + PerformanceIndex.MISTAKE_THRESHOLD + ", was: " + mistakePI.value()
-            );
-        }
         if (reactionLegNumber != mistakeLegNumber + 1) {
             throw new IllegalArgumentException(
                     "Reaction leg must be immediately after mistake leg, expected: " + (mistakeLegNumber + 1) + ", was: " + reactionLegNumber

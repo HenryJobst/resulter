@@ -7,25 +7,25 @@ import org.jmolecules.ddd.annotation.ValueObject;
 import java.util.List;
 
 /**
- * Complete cheating analysis for a result list.
+ * Complete anomaly analysis for a result list.
  *
- * <p>Contains all runner cheating profiles.</p>
+ * <p>Contains all runner anomaly profiles.</p>
  *
  */
 @ValueObject
-public record CheatingAnalysis(
+public record AnomalyAnalysis(
         ResultListId resultListId,
         EventId eventId,
-        List<RunnerCheatingProfile> runnerProfiles
+        List<RunnerAnomalyProfile> runnerProfiles
 ) {
     /**
      * Creates a mental resilience analysis.
      *
      * @param resultListId  Result list identifier
      * @param eventId       Event identifier
-     * @param runnerProfiles List of runner cheating profiles (immutable copy will be created)
+     * @param runnerProfiles List of runner anomaly profiles (immutable copy will be created)
      */
-    public CheatingAnalysis {
+    public AnomalyAnalysis {
         // Create immutable copy of list
         runnerProfiles = List.copyOf(runnerProfiles);
     }
@@ -44,9 +44,9 @@ public record CheatingAnalysis(
      *
      * @return list of runners with high suspicion
      */
-    public List<RunnerCheatingProfile> getHighSuspicionRunners() {
+    public List<RunnerAnomalyProfile> getHighSuspicionRunners() {
         return runnerProfiles.stream()
-                .filter(profile -> profile.classification() == CheatingClassification.HIGH_SUSPICION)
+                .filter(profile -> profile.classification() == AnomalyClassification.HIGH_SUSPICION)
                 .toList();
     }
 
@@ -55,9 +55,9 @@ public record CheatingAnalysis(
      *
      * @return list of runners with moderate suspicion
      */
-    public List<RunnerCheatingProfile> getModerateSuspicionRunners() {
+    public List<RunnerAnomalyProfile> getModerateSuspicionRunners() {
         return runnerProfiles.stream()
-            .filter(profile -> profile.classification() == CheatingClassification.MODERATE_SUSPICION)
+            .filter(profile -> profile.classification() == AnomalyClassification.MODERATE_SUSPICION)
             .toList();
     }
 
@@ -66,7 +66,7 @@ public record CheatingAnalysis(
      *
      * @return sorted list of runner profiles
      */
-    public List<RunnerCheatingProfile> getRunnersSortedByAnomaliesIndex() {
+    public List<RunnerAnomalyProfile> getRunnersSortedByAnomaliesIndex() {
         return runnerProfiles.stream()
                 .sorted()
                 .toList();

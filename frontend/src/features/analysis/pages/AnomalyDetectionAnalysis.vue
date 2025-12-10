@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RunnerMentalProfile } from '../model/runner_mental_profile'
+import type { RunnerAnomalyProfile } from '../model/runner_anomaly_profile'
 import type { PersonKey } from '@/features/person/model/person_key'
 import { useQuery } from '@tanstack/vue-query'
 import Button from 'primevue/button'
@@ -33,8 +33,8 @@ const router = useRouter()
 // State
 const filterPersonIds = ref<number[]>([])
 const filterClassification = ref<string | null>(null)
-const sortBy = ref<'mri' | 'mistakes' | 'name' | 'normalPI'>('mri')
-const expandedRows = ref<RunnerMentalProfile[]>([])
+const sortBy = ref<'ai' | 'suspicions' | 'name' | 'normalPI'>('ai')
+const expandedRows = ref<RunnerAnomalyProfile[]>([])
 const showHelpDialog = ref(false)
 
 // Fetch persons for filtering
@@ -48,13 +48,13 @@ const personsQuery = useQuery({
     enabled: computed(() => props.resultListId !== undefined),
 })
 
-// Fetch MRI analysis data
-const mriQuery = useQuery({
-    queryKey: ['mentalResilience', props.resultListId, filterPersonIds],
+// Fetch Cheat Detection analysis data
+const anomalyQuery = useQuery({
+    queryKey: ['anomalyDetection', props.resultListId, filterPersonIds],
     queryFn: () => {
         if (!props.resultListId)
             return Promise.resolve(null)
-        return EventService.getMentalResilienceAnalysis(
+        return EventService.getAnomalyDetectionAnalysis(
             props.resultListId,
             filterPersonIds.value,
             t,
@@ -88,10 +88,12 @@ function getPersonName(personId: number): string {
 
 // Filter and sort runner profiles
 const filteredAndSortedProfiles = computed(() => {
-    if (!mriQuery.data.value)
+    if (!anomalyQuery.data.value)
         return []
 
-    let profiles = mriQuery.data.value.runnerProfiles
+    // Filter out NO_DATA entries - they have no meaningful analysis results
+    let profiles = anomalyQuery.data.value.runnerProfiles
+        .filter(p => p.classification !== 'NO_DATA')
 
     // Apply classification filter
     if (filterClassification.value) {
@@ -100,11 +102,11 @@ const filteredAndSortedProfiles = computed(() => {
 
     // Sort profiles
     const sorted = [...profiles].sort((a, b) => {
-        if (sortBy.value === 'mri') {
-            return a.averageMRI - b.averageMRI
+        if (sortBy.value === 'ai') {
+            return a.minimumAnomaliesIndex - b.minimumAnomaliesIndex
         }
-        else if (sortBy.value === 'mistakes') {
-            return b.mistakeCount - a.mistakeCount
+        else if (sortBy.value === 'suspicions') {
+            return b.anomaliesIndexes.length - a.anomaliesIndexes.length
         }
         else if (sortBy.value === 'normalPI') {
             return a.normalPI - b.normalPI
@@ -123,56 +125,49 @@ const filteredAndSortedProfiles = computed(() => {
     }))
 })
 
-// Statistics
-const statistics = computed(() => mriQuery.data.value?.statistics)
-
 // Check if any classes have unreliable data (< 5 runners)
 const hasUnreliableClasses = computed(() => {
-    if (!mriQuery.data.value)
+    if (!anomalyQuery.data.value)
         return false
-    return mriQuery.data.value.runnerProfiles.some(p => !p.reliableData)
+    return anomalyQuery.data.value.runnerProfiles.some(p => !p.reliableData)
 })
 
 // Classification options
 const classificationOptions = [
-    { label: t('labels.panic'), value: 'panic' },
-    { label: t('labels.ice_man'), value: 'ice_man' },
-    { label: t('labels.resigner'), value: 'resigner' },
-    { label: t('labels.chain_error'), value: 'chain_error' },
+    { label: t('labels.high_suspicion'), value: 'HIGH_SUSPICION' },
+    { label: t('labels.moderate_suspicion'), value: 'MODERATE_SUSPICION' },
+    { label: t('labels.no_suspicion'), value: 'NO_SUSPICION' },
 ]
 
 // Sort options
 const sortOptions = [
-    { label: t('labels.mri'), value: 'mri' },
-    { label: t('labels.mistake_count'), value: 'mistakes' },
+    { label: t('labels.anomalies_index'), value: 'ai' },
+    { label: t('labels.suspicion_count'), value: 'suspicions' },
     { label: t('labels.normal_pi'), value: 'normalPI' },
     { label: t('labels.name'), value: 'name' },
 ]
 
-// Get severity color for Tag component
-function getSeverityColor(severity: string): 'success' | 'warn' | 'danger' {
-    if (severity === 'moderate')
-        return 'success'
-    if (severity === 'major')
-        return 'warn'
-    return 'danger'
-}
-
 // Get classification severity for Tag component
 function getClassificationSeverity(classification: string): 'success' | 'warn' | 'danger' | 'info' {
-    if (classification === 'panic')
+    if (classification === 'HIGH_SUSPICION')
         return 'danger'
-    if (classification === 'ice_man')
+    if (classification === 'MODERATE_SUSPICION')
+        return 'warn'
+    if (classification === 'NO_SUSPICION')
         return 'success'
-    if (classification === 'chain_error')
-        return 'info'
-    return 'warn' // resigner
+    return 'info' // NO_DATA
 }
 
-// Format MRI value with sign
-function formatMRI(value: number): string {
-    const sign = value >= 0 ? '+' : ''
-    return `${sign}${value.toFixed(3)}`
+// Format AI value with precision
+function formatAI(value: number): string {
+    return value.toFixed(3)
+}
+
+// Format time in seconds to MM:SS format
+function formatTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${minutes}:${secs.toString().padStart(2, '0')}`
 }
 
 // Remove person filter
@@ -182,7 +177,7 @@ function removePersonFilter(personId: number) {
 </script>
 
 <template>
-    <div class="mental-resilience-analysis p-4">
+    <div class="anomaly-detection-analysis p-4">
         <!-- Header -->
         <div class="mb-4">
             <div class="flex items-center justify-between">
@@ -194,7 +189,7 @@ function removePersonFilter(personId: number) {
                     />
                     <div class="ml-2">
                         <h1 class="text-3xl font-bold">
-                            {{ t('labels.mental_resilience_analysis') }}
+                            {{ t('labels.anomaly_detection_analysis') }}
                         </h1>
                         <div v-if="eventName" class="text-lg text-gray-600 mt-1">
                             {{ eventName }}
@@ -214,77 +209,41 @@ function removePersonFilter(personId: number) {
         </div>
 
         <!-- Loading State -->
-        <div v-if="mriQuery.isLoading.value" class="text-center p-8">
+        <div v-if="anomalyQuery.isLoading.value" class="text-center p-8">
             <i class="pi pi-spin pi-spinner text-4xl" />
         </div>
 
         <!-- Content -->
-        <div v-else-if="mriQuery.data.value" class="space-y-4">
+        <div v-else-if="anomalyQuery.data.value" class="space-y-4">
             <!-- Statistics Overview -->
             <Card>
                 <template #title>
                     {{ t('labels.statistics') }}
                 </template>
                 <template #content>
-                    <div v-if="statistics" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <div class="text-center">
                             <div class="text-3xl font-bold text-blue-600">
-                                {{ statistics.totalRunners }}
+                                {{ anomalyQuery.data.value.runnerProfiles.filter(p => p.classification !== 'NO_DATA').length }}
                             </div>
                             <div class="text-sm text-gray-600">
                                 {{ t('labels.total_runners') }}
                             </div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-orange-600">
-                                {{ statistics.runnersWithMistakes }}
-                            </div>
-                            <div class="text-sm text-gray-600">
-                                {{ t('labels.runners_with_mistakes') }}
-                            </div>
-                        </div>
-                        <div class="text-center">
                             <div class="text-3xl font-bold text-red-600">
-                                {{ statistics.totalMistakes }}
+                                {{ anomalyQuery.data.value.runnerProfiles.filter(p => p.classification === 'HIGH_SUSPICION').length }}
                             </div>
                             <div class="text-sm text-gray-600">
-                                {{ t('labels.total_mistakes') }}
+                                {{ t('labels.high_suspicion') }}
                             </div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-purple-600">
-                                {{ statistics.averageMRI?.toFixed(3) ?? 'N/A' }}
+                            <div class="text-3xl font-bold text-orange-600">
+                                {{ anomalyQuery.data.value.runnerProfiles.filter(p => p.classification === 'MODERATE_SUSPICION').length }}
                             </div>
                             <div class="text-sm text-gray-600">
-                                {{ t('labels.average_mri') }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Distribution -->
-                    <div class="mt-6 grid grid-cols-3 gap-4">
-                        <div class="text-center p-3 bg-red-50 rounded">
-                            <div class="text-2xl font-bold text-red-600">
-                                {{ statistics?.panicReactions ?? "-" }}
-                            </div>
-                            <div class="text-sm text-red-700">
-                                {{ t('labels.panic') }}
-                            </div>
-                        </div>
-                        <div class="text-center p-3 bg-green-50 rounded">
-                            <div class="text-2xl font-bold text-green-600">
-                                {{ statistics?.iceManReactions ?? "-" }}
-                            </div>
-                            <div class="text-sm text-green-700">
-                                {{ t('labels.ice_man') }}
-                            </div>
-                        </div>
-                        <div class="text-center p-3 bg-yellow-50 rounded">
-                            <div class="text-2xl font-bold text-yellow-600">
-                                {{ statistics?.resignerReactions ?? "-" }}
-                            </div>
-                            <div class="text-sm text-yellow-700">
-                                {{ t('labels.resigner') }}
+                                {{ t('labels.moderate_suspicion') }}
                             </div>
                         </div>
                     </div>
@@ -406,25 +365,25 @@ function removePersonFilter(personId: number) {
                         <Column :header="t('labels.classification')" style="width: 150px">
                             <template #body="slotProps">
                                 <Tag
-                                    :value="t(`labels.${slotProps.data.classification}`)"
+                                    :value="t(`labels.${slotProps.data.classification.toLowerCase()}`)"
                                     :severity="getClassificationSeverity(slotProps.data.classification)"
                                 />
                             </template>
                         </Column>
-                        <Column field="averageMRI" :header="t('labels.average_mri')" style="width: 120px">
+                        <Column field="minimumAnomaliesIndex" :header="t('labels.min_ai')" style="width: 120px">
                             <template #body="slotProps">
                                 <span
                                     :class="{
-                                        'text-red-600 font-semibold': slotProps.data.averageMRI < -0.05,
-                                        'text-green-600 font-semibold': Math.abs(slotProps.data.averageMRI) <= 0.05,
-                                        'text-yellow-600 font-semibold': slotProps.data.averageMRI > 0.05,
+                                        'text-red-600 font-semibold': slotProps.data.minimumAnomaliesIndex < 0.75,
+                                        'text-orange-600 font-semibold': slotProps.data.minimumAnomaliesIndex >= 0.75 && slotProps.data.minimumAnomaliesIndex < 0.85,
+                                        'text-green-600': slotProps.data.minimumAnomaliesIndex >= 0.85,
                                     }"
                                 >
-                                    {{ formatMRI(slotProps.data.averageMRI) }}
+                                    {{ formatAI(slotProps.data.minimumAnomaliesIndex) }}
                                 </span>
                             </template>
                         </Column>
-                        <Column field="mistakeCount" :header="t('labels.mistake_count')" style="width: 120px" />
+                        <Column field="anomaliesIndexes.length" :header="t('labels.suspicion_count')" style="width: 120px" />
                         <Column field="normalPI" :header="t('labels.normal_pi')" style="width: 120px">
                             <template #body="slotProps">
                                 {{ slotProps.data.normalPI.toFixed(3) }}
@@ -435,54 +394,36 @@ function removePersonFilter(personId: number) {
                         <template #expansion="slotProps">
                             <div class="p-4 bg-gray-50">
                                 <h4 class="font-semibold mb-3">
-                                    {{ t('labels.mistake_details') }}
+                                    {{ t('labels.anomaly_details') }}
                                 </h4>
                                 <DataTable
-                                    :value="slotProps.data.mistakeReactions"
+                                    :value="slotProps.data.anomaliesIndexes"
                                     size="small"
                                 >
                                     <Column :header="t('labels.leg')" style="width: 80px">
                                         <template #body="cellProps">
-                                            {{ cellProps.data.mistakeLegNumber + 1 }}
+                                            {{ cellProps.data.legNumber + 1 }}
                                         </template>
                                     </Column>
-                                    <Column field="mistakeSegmentLabel" :header="t('labels.mistake_segment')" />
-                                    <Column field="mistakePI" :header="t('labels.mistake_pi')" style="width: 100px">
+                                    <Column :header="t('labels.segment')" style="width: 150px">
                                         <template #body="cellProps">
-                                            {{ cellProps.data.mistakePI.toFixed(3) }}
+                                            {{ cellProps.data.fromControl }} → {{ cellProps.data.toControl }}
                                         </template>
                                     </Column>
-                                    <Column :header="t('labels.severity')" style="width: 120px">
+                                    <Column :header="t('labels.actual_time')" style="width: 100px">
                                         <template #body="cellProps">
-                                            <Tag
-                                                :value="t(`labels.${cellProps.data.mistakeSeverity}`)"
-                                                :severity="getSeverityColor(cellProps.data.mistakeSeverity)"
-                                            />
+                                            {{ formatTime(cellProps.data.actualTimeSeconds) }}
                                         </template>
                                     </Column>
-                                    <Column field="reactionSegmentLabel" :header="t('labels.reaction_segment')" />
-                                    <Column field="reactionPI" :header="t('labels.reaction_pi')" style="width: 100px">
+                                    <Column :header="t('labels.reference_time')" style="width: 120px">
                                         <template #body="cellProps">
-                                            {{ cellProps.data.reactionPI.toFixed(3) }}
-                                        </template>
-                                    </Column>
-                                    <Column field="mri" :header="t('labels.mri')" style="width: 100px">
-                                        <template #body="cellProps">
-                                            <span
-                                                :class="{
-                                                    'text-red-600 font-semibold': cellProps.data.mri < -0.05,
-                                                    'text-green-600 font-semibold': Math.abs(cellProps.data.mri) <= 0.05,
-                                                    'text-yellow-600 font-semibold': cellProps.data.mri > 0.05,
-                                                }"
-                                            >
-                                                {{ formatMRI(cellProps.data.mri) }}
-                                            </span>
+                                            {{ formatTime(cellProps.data.referenceTimeSeconds) }}
                                         </template>
                                     </Column>
                                     <Column :header="t('labels.classification')" style="width: 140px">
                                         <template #body="cellProps">
                                             <Tag
-                                                :value="t(`labels.${cellProps.data.classification}`)"
+                                                :value="t(`labels.${cellProps.data.classification.toLowerCase()}`)"
                                                 :severity="getClassificationSeverity(cellProps.data.classification)"
                                             />
                                         </template>
@@ -496,11 +437,11 @@ function removePersonFilter(personId: number) {
         </div>
 
         <!-- No Data State -->
-        <Card v-else-if="!mriQuery.isLoading.value && !mriQuery.data.value">
+        <Card v-else-if="!anomalyQuery.isLoading.value && !anomalyQuery.data.value">
             <template #content>
                 <div class="text-center p-8 text-gray-500">
                     <i class="pi pi-info-circle text-4xl mb-4" />
-                    <p>{{ t('messages.no_mental_data') }}</p>
+                    <p>{{ t('messages.no_anomaly_detection_data') }}</p>
                 </div>
             </template>
         </Card>
@@ -514,247 +455,77 @@ function removePersonFilter(personId: number) {
             modal
         >
             <div class="space-y-4">
-                <!-- MRI Explanation -->
+                <!-- AI Explanation -->
                 <div>
                     <h3 class="text-xl font-semibold mb-2">
-                        {{ t('labels.mri') }} (Mental Resilience Index)
+                        {{ t('labels.anomalies_index') }} (AI)
                     </h3>
                     <p class="mb-2">
-                        {{ t('messages.mri_explanation') }}
+                        {{ t('messages.ai_explanation') }}
                     </p>
                     <div class="text-color bg-adaptive p-3 rounded">
                         <p class="font-semibold mb-1">
                             {{ t('labels.calculation') }}:
                         </p>
                         <p class="font-mono text-sm">
-                            MRI = PI(n+1) - Normal PI
+                            AI = PI_Real / PI_Expected
                         </p>
                         <p class="text-sm mt-2">
-                            {{ t('messages.mri_calculation_detail') }}
+                            {{ t('messages.ai_calculation_detail') }}
                         </p>
-                    </div>
-                    <div class="mt-2">
-                        <p class="font-semibold">
-                            {{ t('labels.value_range') }}:
-                        </p>
-                        <ul class="list-disc ml-5 text-sm">
-                            <li><strong>&lt; -0.05:</strong> {{ t('messages.mri_negative') }}</li>
-                            <li><strong>-0.05 bis +0.05:</strong> {{ t('messages.mri_neutral') }}</li>
-                            <li><strong>&gt; +0.05:</strong> {{ t('messages.mri_positive') }}</li>
-                        </ul>
                     </div>
                 </div>
 
-                <!-- PI Explanation -->
+                <!-- Classification Explanation -->
                 <div>
                     <h3 class="text-xl font-semibold mb-2">
-                        {{ t('labels.performance_index') }} (PI)
-                    </h3>
-                    <p class="mb-2">
-                        {{ t('messages.pi_explanation') }}
-                    </p>
-                    <div class="text-color bg-adaptive p-3 rounded">
-                        <p class="font-semibold mb-1">
-                            {{ t('labels.calculation') }}:
-                        </p>
-                        <p class="font-mono text-sm">
-                            PI = {{ t('messages.pi_reference_time_note').split('=')[0].trim() }}
-                        </p>
-                        <p class="text-sm mt-2">
-                            {{ t('messages.pi_reference_time_note') }}
-                        </p>
-                    </div>
-                    <div class="mt-2">
-                        <p class="font-semibold">
-                            {{ t('labels.value_range') }}:
-                        </p>
-                        <ul class="list-disc ml-5 text-sm">
-                            <li><strong>&lt; 1.0</strong> {{ t('messages.pi_elite') }}</li>
-                            <li><strong>1.0:</strong> {{ t('messages.pi_perfect') }}</li>
-                            <li><strong>&gt; 1.0:</strong> {{ t('messages.pi_value_gt_1') }}</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Mistake and Reaction PI Explanation -->
-                <div>
-                    <h3 class="text-xl font-semibold mb-2">
-                        {{ t('labels.mistake_reaction_pi') }}
-                    </h3>
-                    <div class="space-y-3">
-                        <div>
-                            <p class="font-semibold">
-                                {{ t('labels.mistake_pi') }}:
-                            </p>
-                            <p class="text-sm">
-                                {{ t('messages.mistake_pi_explanation') }}
-                            </p>
-                        </div>
-                        <div>
-                            <p class="font-semibold">
-                                {{ t('labels.reaction_pi') }}:
-                            </p>
-                            <p class="text-sm">
-                                {{ t('messages.reaction_pi_explanation') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mistake Detection Criteria -->
-                <div>
-                    <h3 class="text-xl font-semibold mb-2">
-                        {{ t('messages.mistake_detection_title') }}
-                    </h3>
-                    <p class="mb-2">
-                        {{ t('messages.mistake_detection_intro') }}
-                    </p>
-                    <div class="text-color bg-adaptive p-3 rounded space-y-2">
-                        <div>
-                            <p class="font-semibold">
-                                1. {{ t('messages.mistake_detection_relative') }}:
-                            </p>
-                            <p class="text-sm">
-                                {{ t('messages.mistake_detection_relative_detail') }}
-                            </p>
-                        </div>
-                        <div>
-                            <p class="font-semibold">
-                                2. {{ t('messages.mistake_detection_absolute') }}:
-                            </p>
-                            <p class="text-sm">
-                                {{ t('messages.mistake_detection_absolute_detail') }}
-                            </p>
-                        </div>
-                    </div>
-                    <p class="text-sm mt-2">
-                        {{ t('messages.mistake_detection_explanation') }}
-                    </p>
-                </div>
-
-                <!-- Mistake Severity Classifications -->
-                <div>
-                    <h3 class="text-xl font-semibold mb-2">
-                        {{ t('labels.mistake_severity') }}
-                    </h3>
-                    <p class="mb-2">
-                        {{ t('messages.severity_explanation') }}
-                    </p>
-                    <div class="space-y-2">
-                        <div class="flex items-start">
-                            <Tag :value="t('labels.moderate')" severity="success" class="mr-2" />
-                            <div>
-                                <p class="font-semibold">
-                                    {{ t('labels.moderate') }}:
-                                </p>
-                                <p class="text-sm">
-                                    {{ t('messages.moderate_severity_explanation') }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <Tag :value="t('labels.major')" severity="warn" class="mr-2" />
-                            <div>
-                                <p class="font-semibold">
-                                    {{ t('labels.major') }}:
-                                </p>
-                                <p class="text-sm">
-                                    {{ t('messages.major_severity_explanation') }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <Tag :value="t('labels.severe')" severity="danger" class="mr-2" />
-                            <div>
-                                <p class="font-semibold">
-                                    {{ t('labels.severe') }}:
-                                </p>
-                                <p class="text-sm">
-                                    {{ t('messages.severe_severity_explanation') }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mental Classifications Explanation -->
-                <div>
-                    <h3 class="text-xl font-semibold mb-2">
-                        {{ t('labels.mental_classifications') }}
+                        {{ t('labels.classifications') }}
                     </h3>
                     <div class="space-y-2">
                         <div class="flex items-start">
-                            <Tag :value="t('labels.panic')" severity="danger" class="mr-2" />
+                            <Tag :value="t('labels.high_suspicion')" severity="danger" class="mr-2" />
                             <div>
                                 <p class="font-semibold">
-                                    {{ t('labels.panic') }}:
+                                    {{ t('labels.high_suspicion') }}:
                                 </p>
                                 <p class="text-sm">
-                                    {{ t('messages.panic_explanation') }}
+                                    {{ t('messages.high_suspicion_explanation') }}
                                 </p>
                             </div>
                         </div>
                         <div class="flex items-start">
-                            <Tag :value="t('labels.ice_man')" severity="success" class="mr-2" />
+                            <Tag :value="t('labels.moderate_suspicion')" severity="warn" class="mr-2" />
                             <div>
                                 <p class="font-semibold">
-                                    {{ t('labels.ice_man') }}:
+                                    {{ t('labels.moderate_suspicion') }}:
                                 </p>
                                 <p class="text-sm">
-                                    {{ t('messages.ice_man_explanation') }}
+                                    {{ t('messages.moderate_suspicion_explanation') }}
                                 </p>
                             </div>
                         </div>
                         <div class="flex items-start">
-                            <Tag :value="t('labels.resigner')" severity="warn" class="mr-2" />
+                            <Tag :value="t('labels.no_suspicion')" severity="success" class="mr-2" />
                             <div>
                                 <p class="font-semibold">
-                                    {{ t('labels.resigner') }}:
+                                    {{ t('labels.no_suspicion') }}:
                                 </p>
                                 <p class="text-sm">
-                                    {{ t('messages.resigner_explanation') }}
+                                    {{ t('messages.no_suspicion_explanation') }}
                                 </p>
                             </div>
                         </div>
                         <div class="flex items-start">
-                            <Tag :value="t('labels.chain_error')" severity="info" class="mr-2" />
+                            <Tag :value="t('labels.no_data')" severity="info" class="mr-2" />
                             <div>
                                 <p class="font-semibold">
-                                    {{ t('labels.chain_error') }}:
+                                    {{ t('labels.no_data') }}:
                                 </p>
                                 <p class="text-sm">
-                                    {{ t('messages.chain_error_explanation') }}
+                                    {{ t('messages.no_data_explanation') }}
                                 </p>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Average MRI Explanation -->
-                <div>
-                    <h3 class="text-xl font-semibold mb-2">
-                        {{ t('labels.average_mri') }}
-                    </h3>
-                    <p class="mb-2">
-                        {{ t('messages.average_mri_explanation') }}
-                    </p>
-                    <div class="text-color bg-adaptive p-3 rounded">
-                        <p class="font-semibold mb-1">
-                            {{ t('labels.calculation') }}:
-                        </p>
-                        <p class="font-mono text-sm">
-                            {{ t('messages.average_mri_calculation') }}
-                        </p>
-                    </div>
-                    <div class="mt-2">
-                        <p class="font-semibold">
-                            {{ t('messages.average_mri_interpretation') }}:
-                        </p>
-                        <ul class="list-disc ml-5 text-sm">
-                            <li><strong>{{ t('messages.average_mri_negative') }}:</strong> {{ t('messages.average_mri_negative_detail') }}</li>
-                            <li><strong>{{ t('messages.average_mri_neutral') }}:</strong> {{ t('messages.average_mri_neutral_detail') }}</li>
-                            <li><strong>{{ t('messages.average_mri_positive') }}:</strong> {{ t('messages.average_mri_positive_detail') }}</li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -763,7 +534,7 @@ function removePersonFilter(personId: number) {
 </template>
 
 <style scoped>
-.mental-resilience-analysis {
+.anomaly-detection-analysis {
     max-width: 1400px;
     margin: 0 auto;
 }

@@ -133,7 +133,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                                 "/split_time_analysis/result_list/{id}/ranking",
                                 "/split_time_analysis/result_list/{id}/persons",
                                 "/split_time_analysis/result_list/{id}/mental_resilience",
-                                "/split_time_analysis/result_list/{id}/cheating_detection",
+                                "/split_time_analysis/result_list/{id}/anomaly_detection",
                                 "/version")
                         .permitAll()
                         .anyRequest()

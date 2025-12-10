@@ -356,6 +356,30 @@ function navigateToMentalResilienceAnalysis(resultListId: number) {
         },
     })
 }
+
+function navigateToAnomalyDetectionAnalysis(resultListId: number) {
+    // Find the result list to generate label
+    const resultLists = eventResultsQuery.data.value?.resultLists || []
+    const sortedLists = [...resultLists].sort((a, b) => {
+        const dateA = new Date(a.createTime).getTime()
+        const dateB = new Date(b.createTime).getTime()
+        return dateA - dateB
+    })
+    const resultListIndex = sortedLists.findIndex(list => list.id === resultListId)
+    const resultListLabel = sortedLists.length > 1
+        ? `${t('labels.result_list')} #${resultListIndex + 1}`
+        : t('labels.result_list')
+
+    router.push({
+        name: 'cheat-detection-analysis',
+        query: {
+            scope: 'event',
+            resultListId: resultListId.toString(),
+            eventName: eventQuery.data.value?.name || '',
+            resultListLabel,
+        },
+    })
+}
 </script>
 
 <template>
@@ -414,6 +438,16 @@ function navigateToMentalResilienceAnalysis(resultListId: number) {
                             raised
                             rounded
                             @click="navigateToMentalResilienceAnalysis(parseInt(slotProps?.node?.key!))"
+                        />
+                        <Button
+                            v-tooltip="t('labels.anomaly_detection_analysis')"
+                            icon="pi pi-exclamation-triangle"
+                            class="ml-2"
+                            :aria-label="t('labels.anomaly_detection_analysis')"
+                            outlined
+                            raised
+                            rounded
+                            @click="navigateToAnomalyDetectionAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                     </div>
                 </template>

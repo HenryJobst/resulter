@@ -26,7 +26,7 @@ const analysisTypes = computed<AnalysisTypeInfo[]>(() => [
         key: 'mental-resilience',
         titleKey: 'labels.mental_resilience_analysis',
         descriptionKey: 'messages.mri_description',
-        icon: 'pi pi-brain',
+        icon: 'pi pi-chart-line',
         enabled: true,
     },
     {
@@ -34,6 +34,13 @@ const analysisTypes = computed<AnalysisTypeInfo[]>(() => [
         titleKey: 'labels.split_time_ranking',
         descriptionKey: 'messages.split_time_description',
         icon: 'pi pi-chart-bar',
+        enabled: true,
+    },
+    {
+        key: 'cheat-detection',
+        titleKey: 'labels.anomaly_detection_analysis',
+        descriptionKey: 'messages.anomaly_detection_description',
+        icon: 'pi pi-exclamation-triangle',
         enabled: true,
     },
 ])
@@ -143,6 +150,17 @@ function startAnalysis() {
                 resultListId: selectedResultList.value.id.toString(),
             },
             query: {
+                eventName: selectedEvent.value.name,
+                resultListLabel: selectedResultList.value.label,
+            },
+        })
+    }
+    else if (selectedAnalysisType.value === 'cheat-detection') {
+        router.push({
+            name: 'cheat-detection-analysis',
+            query: {
+                scope: selectedScope.value,
+                resultListId: selectedResultList.value.id.toString(),
                 eventName: selectedEvent.value.name,
                 resultListLabel: selectedResultList.value.label,
             },

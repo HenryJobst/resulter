@@ -1,10 +1,10 @@
 package de.jobst.resulter.adapter.driver.web;
 
-import de.jobst.resulter.adapter.driver.web.dto.CheatingAnalysisDto;
+import de.jobst.resulter.adapter.driver.web.dto.AnomalyAnalysisDto;
 import de.jobst.resulter.adapter.driver.web.dto.MentalResilienceAnalysisDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonKeyDto;
 import de.jobst.resulter.adapter.driver.web.dto.SplitTimeAnalysisDto;
-import de.jobst.resulter.application.port.CheatingDetectionService;
+import de.jobst.resulter.application.port.AnomalyDetectionService;
 import de.jobst.resulter.application.port.MentalResilienceService;
 import de.jobst.resulter.application.port.SplitTimeRankingService;
 import de.jobst.resulter.domain.ResultListId;
@@ -22,14 +22,14 @@ public class SplitTimeAnalysisController {
 
     private final SplitTimeRankingService splitTimeRankingService;
     private final MentalResilienceService mentalResilienceService;
-    private final CheatingDetectionService cheatingDetectionService;
+    private final AnomalyDetectionService anomalyDetectionService;
 
     public SplitTimeAnalysisController(
         SplitTimeRankingService splitTimeRankingService,
-        MentalResilienceService mentalResilienceService, CheatingDetectionService cheatingDetectionService) {
+        MentalResilienceService mentalResilienceService, AnomalyDetectionService anomalyDetectionService) {
         this.splitTimeRankingService = splitTimeRankingService;
         this.mentalResilienceService = mentalResilienceService;
-        this.cheatingDetectionService = cheatingDetectionService;
+        this.anomalyDetectionService = anomalyDetectionService;
     }
 
     @GetMapping("/split_time_analysis/result_list/{id}/ranking")
@@ -109,16 +109,16 @@ public class SplitTimeAnalysisController {
         return ResponseEntity.ok(analysis);
     }
 
-    @GetMapping("/split_time_analysis/result_list/{id}/cheating_detection")
-    public ResponseEntity<CheatingAnalysisDto> cheatingDetection(
+    @GetMapping("/split_time_analysis/result_list/{id}/anomaly_detection")
+    public ResponseEntity<AnomalyAnalysisDto> anomalyDetection(
         @PathVariable Long id,
         @RequestParam(required = false) @Nullable List<Long> filterPersonIds) {
 
-        log.debug("Cheating detection for result list {} (person filters: {})",
+        log.debug("Anomaly detection for result list {} (person filters: {})",
             id, filterPersonIds);
 
-        CheatingAnalysisDto analysis = CheatingAnalysisDto.from(
-            cheatingDetectionService.analyzeCheating(
+        AnomalyAnalysisDto analysis = AnomalyAnalysisDto.from(
+            anomalyDetectionService.analyzeAnomaly(
                 ResultListId.of(id),
                 Optional.ofNullable(filterPersonIds).orElse(List.of())));
 

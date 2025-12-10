@@ -1,13 +1,13 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.domain.analysis.RunnerCheatingProfile;
+import de.jobst.resulter.domain.analysis.RunnerAnomalyProfile;
 
 import java.util.List;
 
 /**
- * DTO for a runner's complete cheating resilience profile.
+ * DTO for a runner's complete anomaly resilience profile.
  */
-public record RunnerCheatingProfileDto(
+public record RunnerAnomalyProfileDto(
         Long personId,
         String classResultShortName,
         Integer raceNumber,
@@ -27,8 +27,8 @@ public record RunnerCheatingProfileDto(
      * @param totalSegments total number of segments in the course
      * @return DTO
      */
-    public static RunnerCheatingProfileDto from(RunnerCheatingProfile profile, int totalSegments) {
-        return new RunnerCheatingProfileDto(
+    public static RunnerAnomalyProfileDto from(RunnerAnomalyProfile profile, int totalSegments) {
+        return new RunnerAnomalyProfileDto(
                 profile.personId().value(),
                 profile.classResultShortName(),
                 profile.raceNumber().value().intValue(),
@@ -49,7 +49,7 @@ public record RunnerCheatingProfileDto(
      * @param profile domain runner profile
      * @return DTO with totalSegments set to 0
      */
-    public static RunnerCheatingProfileDto from(RunnerCheatingProfile profile) {
+    public static RunnerAnomalyProfileDto from(RunnerAnomalyProfile profile) {
         return from(profile, 0);
     }
 }

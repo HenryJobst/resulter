@@ -10,7 +10,9 @@ public record AnomaliesIndexInformation(
         ControlCode toControl,
         PerformanceIndex pi,
         AnomaliesIndex anomaliesIndex,
-        CheatingClassification classification
+        AnomalyClassification classification,
+        double actualTimeSeconds,
+        double referenceTimeSeconds
 ) {
     /**
      * @param legNumber            Leg number for the anomalies index (0-based)
@@ -19,6 +21,8 @@ public record AnomaliesIndexInformation(
      * @param pi                   Performance Index on the segment
      * @param anomaliesIndex       Anomalies index
      * @param classification       Classification
+     * @param actualTimeSeconds    Actual time the runner took for this segment in seconds
+     * @param referenceTimeSeconds Reference time for this segment in seconds
      */
     public AnomaliesIndexInformation {
     }
@@ -29,7 +33,7 @@ public record AnomaliesIndexInformation(
      * @return true if classification is HIGH_SUSPICION
      */
     public boolean isHighSuspicion() {
-        return classification == CheatingClassification.HIGH_SUSPICION;
+        return classification == AnomalyClassification.HIGH_SUSPICION;
     }
 
     /**
@@ -38,7 +42,7 @@ public record AnomaliesIndexInformation(
      * @return true if classification is MODERATE_SUSPICION
      */
     public boolean isModerateSuspicion() {
-        return classification == CheatingClassification.MODERATE_SUSPICION;
+        return classification == AnomalyClassification.MODERATE_SUSPICION;
     }
 
 }

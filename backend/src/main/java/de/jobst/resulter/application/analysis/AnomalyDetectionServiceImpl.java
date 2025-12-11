@@ -53,6 +53,12 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
         List<AnomaliesIndex> anomalies = new ArrayList<>();
 
         for (SegmentPI segmentPI : segmentPIs) {
+            // Skip first segment - high variance especially for inexperienced runners
+            if (segmentPI.fromControl().equals(START_CODE)) {
+                log.trace("Skipping first segment for anomaly detection");
+                continue;
+            }
+
             // Skip final segment - it's excluded from normalPI calculation and is often much faster
             if (segmentPI.toControl().equals(FINAL_CODE)) {
                 log.trace("Skipping final segment for anomaly detection (leg {})", segmentPI.legNumber());
@@ -67,8 +73,9 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
                 allSegmentTimesCrossClass
             );
 
-            // Collect only suspicious segments
-            if (ai.classification() != AnomalyClassification.NO_SUSPICION) {
+            // Collect only suspicious segments (exclude NO_SUSPICION and NO_DATA)
+            if (ai.classification() != AnomalyClassification.NO_SUSPICION
+                    && ai.classification() != AnomalyClassification.NO_DATA) {
                 anomalies.add(ai);
             }
         }
@@ -101,7 +108,7 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
 
         if (cleanedReferenceTime <= 0) {
             return AnomaliesIndex.of(segmentPI.legNumber(), classSpecificKey, segmentPI.pi(), normalPI,
-                AnomalyClassification.NO_DATA);
+                AnomalyClassification.NO_DATA, 0.0);
         }
 
         // 2. Calculate PI based on the Cleaned Reference (PI_Real)
@@ -124,7 +131,7 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
             cleanedReferenceTime
         );
 
-        return AnomaliesIndex.of(segmentPI.legNumber(), classSpecificKey, piReal, piExpected, classification);
+        return AnomaliesIndex.of(segmentPI.legNumber(), classSpecificKey, piReal, piExpected, classification, cleanedReferenceTime);
     }
 
     /**
@@ -179,7 +186,8 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
         Collections.sort(filteredTimes);
 
         // Check for possible group shortcut: If top times cluster together and are much faster
-        double cleanedReferenceTime = calculateRobustReferenceTime(filteredTimes);
+        // Pass runnerTime to allow position-aware analysis
+        double cleanedReferenceTime = calculateRobustReferenceTime(filteredTimes, runnerTime);
 
         return cleanedReferenceTime > 0 ? cleanedReferenceTime : 0.0;
     }
@@ -193,8 +201,14 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
      * - Detect if fastest time is significantly faster than others (possible mistake by majority)
      * - Detect if top times cluster together but are separated from rest (possible group shortcut)
      * - Use appropriate reference based on detection results
+     * <p>
+     * IMPORTANT: sortedTimes has already been filtered to exclude runnerTime.
+     * We need to account for position shifts if runnerTime was among the top runners.
+     *
+     * @param sortedTimes List of times (already sorted, excluding runnerTime)
+     * @param runnerTime The time of the runner being analyzed (already removed from sortedTimes)
      */
-    private double calculateRobustReferenceTime(List<Double> sortedTimes) {
+    private double calculateRobustReferenceTime(List<Double> sortedTimes, double runnerTime) {
         if (sortedTimes.isEmpty()) {
             return 0.0;
         }
@@ -204,8 +218,18 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
             return sortedTimes.getFirst();
         }
 
+        // Determine where runnerTime would have been positioned in the original sorted list
+        // This tells us if we need to adjust indices for cluster analysis
+        int runnerPositionInOriginal = 0;
+        for (Double time : sortedTimes) {
+            if (runnerTime < time) {
+                break;
+            }
+            runnerPositionInOriginal++;
+        }
+
         // Take top 3 runners (or all if fewer) for analysis
-        List<Double> topTimes = sortedTimes.subList(0, TOP_RUNNERS_FOR_REFERENCE);
+        List<Double> topTimes = sortedTimes.subList(0, Math.min(TOP_RUNNERS_FOR_REFERENCE, sortedTimes.size()));
 
         // CASE 1: Detect if MAJORITY made a mistake (reverse outlier detection)
         // If the fastest time is much faster than median of all times, and the slower times
@@ -249,29 +273,73 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
         // CASE 2: Detect suspicious clustering in top times (group shortcut)
         // If the gap between fastest and 4th-fastest is small, but gap to 5th+ is large,
         // this suggests a group might be using a shortcut
-        if (sortedTimes.size() >= 7) {
-            double fastest = sortedTimes.get(0);
-            double fourth = sortedTimes.get(3);
-            double seventh = sortedTimes.get(6);
+        //
+        // IMPORTANT: Adjust indices if runnerTime was among the top 4 in the original list
+        // If runnerTime was position 0-3, then what we see as position 4+ in sortedTimes
+        // was actually position 5+ in the original list
 
-            // Check if top 3-4 times cluster together (< 10% spread)
-            // but are separated from the rest (> 25% gap to position 7)
-            double topClusterSpread = (fourth - fastest) / fastest;
-            double gapToRest = (seventh - fourth) / fourth;
+        // Adjust indices based on where the runner's time was in the original list
+        // If runner was in top 4 (positions 0-3), we need to shift our analysis window
+        int indexAdjustment = (runnerPositionInOriginal <= 3) ? 1 : 0;
 
-            if (topClusterSpread < 0.10 && gapToRest > 0.25) {
-                // Suspicious cluster detected - possible group shortcut
-                // Use median of positions 4-7 instead of top times
-                log.debug("Suspicious time cluster detected (top spread: {}, gap: {}), using positions 4-7 for reference",
-                        String.format("%.1f%%", topClusterSpread * 100),
-                        String.format("%.1f%%", gapToRest * 100));
+        // We need at least 8 times AFTER adjustment to perform this analysis
+        // (positions 0-7 after adjustment)
+        if (sortedTimes.size() >= (8 + indexAdjustment)) {
+                int fastestIdx = 0;
+                int fourthIdx = 3 + indexAdjustment;
+                int sixthIdx = 5 + indexAdjustment;
+                int seventhIdx = 7 + indexAdjustment;  // Position 7 = Index 7 (8th element)
 
-                List<Double> saferTimes = sortedTimes.subList(3, 7);
-                return saferTimes.stream()
-                        .mapToDouble(Double::doubleValue)
-                        .average()
-                        .orElse(0.0);
-            }
+                double fastest = sortedTimes.get(fastestIdx);
+                double fourth = sortedTimes.get(fourthIdx);
+                double sixth = sortedTimes.get(sixthIdx);
+                double seventh = sortedTimes.get(seventhIdx);
+
+                // Check if top 3-4 times cluster together (< 10% spread)
+                // but are separated from the rest (> 25% gap to position 7)
+                double topClusterSpread = (fourth - fastest) / fastest;
+                double gapToRest = (seventh - fourth) / fourth;
+
+                // IMPORTANT: Check if position 7 is itself an outlier (e.g., runner made a big mistake)
+                // If the gap between position 6 and 7 is very large (> 40%), then position 7 is likely
+                // an outlier, NOT evidence that top 4 runners used a shortcut
+                double gapSixToSeven = (seventh - sixth) / sixth;
+
+                // Only trigger cluster detection if:
+                // 1. Top times cluster together (< 10% spread)
+                // 2. Gap to rest is significant (> 25%)
+                // 3. Position 8 is NOT an outlier (gap 7→8 is reasonable, < 40%)
+                if (topClusterSpread < 0.10 && gapToRest > 0.25 && gapSixToSeven < 0.40) {
+                    // Suspicious cluster detected - possible group shortcut
+                    // Use positions 5-8 (indices 4-7) instead of top 4 times (with adjustment)
+                    log.debug("Suspicious time cluster detected (top spread: {}, gap: {}, gap7-8: {}, indexAdjustment: {}), using positions 5-8 for reference",
+                            String.format("%.1f%%", topClusterSpread * 100),
+                            String.format("%.1f%%", gapToRest * 100),
+                            String.format("%.1f%%", gapSixToSeven * 100),
+                            indexAdjustment);
+
+                    int saferStartIdx = 4 + indexAdjustment;  // Position 5 (index 4)
+                    int saferEndIdx = Math.min(8 + indexAdjustment, sortedTimes.size());  // Up to position 8 (index 7)
+
+                    List<Double> saferTimes = sortedTimes.subList(saferStartIdx, saferEndIdx);
+                    return saferTimes.stream()
+                            .mapToDouble(Double::doubleValue)
+                            .average()
+                            .orElse(0.0);
+                } else if (topClusterSpread < 0.10 && gapToRest > 0.25 && gapSixToSeven >= 0.40) {
+                    // Position 8 is an outlier - use positions 5-7 (indices 4-6) instead (excluding the outlier)
+                    log.debug("Suspicious cluster detected BUT position 8 is an outlier (gap7-8: {}), using positions 5-7 for reference",
+                            String.format("%.1f%%", gapSixToSeven * 100));
+
+                    int saferStartIdx = 4 + indexAdjustment;  // Position 5 (index 4)
+                    int saferEndIdx = Math.min(7 + indexAdjustment, sortedTimes.size());  // Up to position 7 (index 6)
+
+                    List<Double> saferTimes = sortedTimes.subList(saferStartIdx, saferEndIdx);
+                    return saferTimes.stream()
+                            .mapToDouble(Double::doubleValue)
+                            .average()
+                            .orElse(0.0);
+                }
         }
 
         // CASE 3: No special condition detected - use median of top performers
@@ -351,6 +419,14 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
         if (piReal < HIGH_ABSOLUTE_THRESHOLD * absoluteMultiplier
                 && aiValue < HIGH_INDIVIDUAL_THRESHOLD * absoluteMultiplier
                 && timeDifference >= highTimeThreshold) {
+            log.debug("HIGH_SUSPICION detected - piReal: {}, aiValue: {}, timeDiff: {}s, refTime: {}s, thresholds: PI<{}, AI<{}, time>={}s",
+                    String.format("%.3f", piReal),
+                    String.format("%.3f", aiValue),
+                    String.format("%.1f", timeDifference),
+                    String.format("%.1f", referenceTime),
+                    String.format("%.3f", HIGH_ABSOLUTE_THRESHOLD * absoluteMultiplier),
+                    String.format("%.3f", HIGH_INDIVIDUAL_THRESHOLD * absoluteMultiplier),
+                    String.format("%.1f", highTimeThreshold));
             return AnomalyClassification.HIGH_SUSPICION;
         }
 
@@ -358,6 +434,11 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
         if (piReal < MODERATE_ABSOLUTE_THRESHOLD * absoluteMultiplier
                 && aiValue < MODERATE_INDIVIDUAL_THRESHOLD * absoluteMultiplier
                 && timeDifference >= moderateTimeThreshold) {
+            log.debug("MODERATE_SUSPICION detected - piReal: {}, aiValue: {}, timeDiff: {}s, refTime: {}s",
+                    String.format("%.3f", piReal),
+                    String.format("%.3f", aiValue),
+                    String.format("%.1f", timeDifference),
+                    String.format("%.1f", referenceTime));
             return AnomalyClassification.MODERATE_SUSPICION;
         }
 
@@ -552,7 +633,8 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
             minAnomaliesIndex.get().legNumber(),
             anomaliesIndexList.stream().map(x -> {
                 double actualTime = actualTimesByLeg.getOrDefault(x.legNumber(), 0.0);
-                double referenceTime = referenceTimesPerSegment.getOrDefault(x.segmentKey(), 0.0);
+                // Use the actual cleaned reference time that was used for classification
+                double referenceTime = x.cleanedReferenceTime();
                 return new AnomaliesIndexInformation(
                     x.legNumber(),
                     ControlCode.of(x.segmentKey().fromControl()),

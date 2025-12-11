@@ -11,6 +11,7 @@ import de.jobst.resulter.domain.ResultListId;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -110,6 +111,7 @@ public class SplitTimeAnalysisController {
     }
 
     @GetMapping("/split_time_analysis/result_list/{id}/anomaly_detection")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AnomalyAnalysisDto> anomalyDetection(
         @PathVariable Long id,
         @RequestParam(required = false) @Nullable List<Long> filterPersonIds) {

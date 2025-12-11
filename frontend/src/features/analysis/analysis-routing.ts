@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 export const analysisRoutes: RouteRecordRaw[] = [
     {
@@ -25,6 +26,16 @@ export const analysisRoutes: RouteRecordRaw[] = [
         path: '/:locale/analysis/cheat-detection',
         name: 'cheat-detection-analysis',
         component: () => import('@/features/analysis/pages/AnomalyDetectionAnalysis.vue'),
+        beforeEnter: (to, from, next) => {
+            const authStore = useAuthStore()
+            if (authStore.isAdmin) {
+                next()
+            }
+            else {
+                // Redirect to analysis hub if not admin
+                next({ name: 'analysis-hub' })
+            }
+        },
         props: route => ({
             scope: route.query.scope || 'event',
             resultListId: route.query.resultListId ? Number(route.query.resultListId) : undefined,

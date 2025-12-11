@@ -359,6 +359,124 @@ class AnomalyDetectionServiceImplTest {
             // Should use median of top 3: 90.0
             assertThat(result).isEqualTo(90.0);
         }
+
+        @Test
+        @DisplayName("Should adjust indices when runner was fastest (position 0)")
+        void shouldAdjustIndices_WhenRunnerWasFastest() throws Exception {
+            // Given - Runner had fastest time (80s), now removed from list
+            // Remaining times: what looks like positions 0-6 were originally positions 1-7
+            // Without adjustment: would compare positions 0,3,6 in filtered list
+            // With adjustment: should compare positions 1,4,7 in filtered list (original 2,5,8)
+            List<Double> filteredTimes = Arrays.asList(
+                85.0,   // Original position 1 (now 0 after filtering)
+                87.0,   // Original position 2 (now 1)
+                89.0,   // Original position 3 (now 2)
+                91.0,   // Original position 4 (now 3)
+                120.0,  // Original position 5 (now 4)
+                125.0,  // Original position 6 (now 5)
+                130.0,  // Original position 7 (now 6)
+                300.0   // Original position 8 (now 7) - very slow outlier
+            );
+            double runnerTime = 80.0; // Fastest time (was at position 0)
+
+            // When
+            double result = invokeCalculateRobustReferenceTime(filteredTimes, runnerTime);
+
+            // Then - With index adjustment:
+            // - runnerPositionInOriginal = 0 (runnerTime < all filteredTimes)
+            // - indexAdjustment = 1 (since position 0 <= 3)
+            // - Check cluster: positions 0, 4, 7 → 85.0, 125.0, 300.0
+            // - topClusterSpread = (125-85)/85 = 47% (> 10%, no cluster)
+            // - Should use median of top 3: [85, 87, 89] → 87.0
+            assertThat(result).isEqualTo(87.0);
+        }
+
+        @Test
+        @DisplayName("Should NOT trigger cluster detection when runner was in top 4 and 7th is outlier")
+        void shouldNotTriggerClusterDetection_WhenRunnerWasInTop4AndSeventhIsOutlier() throws Exception {
+            // Given - This is the exact scenario described in the bug report:
+            // Runner was fastest (e.g., 100s), filtered out
+            // Remaining runners: positions 1-6 are normal, position 7 is very slow
+            // Without fix: would see cluster (positions 0-3 tight, gap to position 6)
+            // With fix: adjusts indices, sees normal distribution
+            List<Double> filteredTimes = Arrays.asList(
+                105.0,  // Original position 1 (now 0)
+                110.0,  // Original position 2 (now 1)
+                115.0,  // Original position 3 (now 2)
+                120.0,  // Original position 4 (now 3)
+                125.0,  // Original position 5 (now 4)
+                130.0,  // Original position 6 (now 5)
+                135.0,  // Original position 7 (now 6)
+                500.0   // Original position 8 (now 7) - VERY slow outlier
+            );
+            double runnerTime = 100.0; // Runner's time (was fastest)
+
+            // When
+            double result = invokeCalculateRobustReferenceTime(filteredTimes, runnerTime);
+
+            // Then - With index adjustment:
+            // - Checks positions 1, 4, 7 instead of 0, 3, 6
+            // - topClusterSpread = (125-110)/110 = 13.6% (> 10%)
+            // - OR even if cluster detected, gap calculation uses adjusted positions
+            // - Should NOT use positions 4-7, should use median of top 3
+            // - Median of [105, 110, 115] = 110.0
+            assertThat(result).isEqualTo(110.0);
+        }
+
+        @Test
+        @DisplayName("Should use positions 5-7 when position 8 is outlier (gap > 40%)")
+        void shouldUsePositions5to7_WhenPosition8IsOutlier() throws Exception {
+            // Given - Top 4 cluster together, but position 8 is an outlier with a big mistake
+            // This is the second bug scenario: position 8 has a very large time due to error
+            List<Double> times = Arrays.asList(
+                100.0,  // Position 1 (index 0)
+                102.0,  // Position 2 (index 1)
+                104.0,  // Position 3 (index 2)
+                106.0,  // Position 4 (index 3) - Top cluster spread: (106-100)/100 = 6% < 10% ✓
+                130.0,  // Position 5 (index 4)
+                135.0,  // Position 6 (index 5)
+                140.0,  // Position 7 (index 6)
+                300.0   // Position 8 (index 7) - OUTLIER! Gap 7→8: (300-140)/140 = 114% > 40%
+            );
+
+            // When
+            double result = invokeCalculateRobustReferenceTime(times);
+
+            // Then - Should detect:
+            // - topClusterSpread = 6% < 10% ✓
+            // - gapToRest = (300-106)/106 = 183% > 25% ✓
+            // - gap7to8 = (300-140)/140 = 114% > 40% ✓ (OUTLIER!)
+            // - Should use positions 5-7 (indices 4-6, exclude outlier 8): [130, 135, 140]
+            // - Average = (130 + 135 + 140) / 3 = 135.0
+            assertThat(result).isEqualTo(135.0);
+        }
+
+        @Test
+        @DisplayName("Should use positions 5-8 when position 8 is NOT outlier (gap < 40%)")
+        void shouldUsePositions5to8_WhenPosition8IsNotOutlier() throws Exception {
+            // Given - Top 4 cluster together, and positions 5-8 form a reasonable group
+            List<Double> times = Arrays.asList(
+                100.0,  // Position 1 (index 0)
+                102.0,  // Position 2 (index 1)
+                104.0,  // Position 3 (index 2)
+                106.0,  // Position 4 (index 3) - Top cluster spread: (106-100)/100 = 6% < 10% ✓
+                130.0,  // Position 5 (index 4)
+                135.0,  // Position 6 (index 5)
+                140.0,  // Position 7 (index 6)
+                160.0   // Position 8 (index 7) - Gap 7→8: (160-140)/140 = 14% < 40% (NOT an outlier)
+            );
+
+            // When
+            double result = invokeCalculateRobustReferenceTime(times);
+
+            // Then - Should detect:
+            // - topClusterSpread = 6% < 10% ✓
+            // - gapToRest = (160-106)/106 = 51% > 25% ✓
+            // - gap7to8 = 14% < 40% ✓ (NOT an outlier)
+            // - Should use positions 5-8 (indices 4-7, include all): [130, 135, 140, 160]
+            // - Average = (130 + 135 + 140 + 160) / 4 = 141.25
+            assertThat(result).isEqualTo(141.25);
+        }
     }
 
     @Nested
@@ -702,9 +820,13 @@ class AnomalyDetectionServiceImplTest {
     }
 
     private double invokeCalculateRobustReferenceTime(List<Double> sortedTimes) throws Exception {
+        return invokeCalculateRobustReferenceTime(sortedTimes, Double.MAX_VALUE);
+    }
+
+    private double invokeCalculateRobustReferenceTime(List<Double> sortedTimes, double runnerTime) throws Exception {
         Method method = AnomalyDetectionServiceImpl.class.getDeclaredMethod(
-            "calculateRobustReferenceTime", List.class);
+            "calculateRobustReferenceTime", List.class, double.class);
         method.setAccessible(true);
-        return (double) method.invoke(service, sortedTimes);
+        return (double) method.invoke(service, sortedTimes, runnerTime);
     }
 }

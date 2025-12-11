@@ -440,6 +440,7 @@ function navigateToAnomalyDetectionAnalysis(resultListId: number) {
                             @click="navigateToMentalResilienceAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                         <Button
+                            v-if="authStore.isAdmin"
                             v-tooltip="t('labels.anomaly_detection_analysis')"
                             icon="pi pi-exclamation-triangle"
                             class="ml-2"

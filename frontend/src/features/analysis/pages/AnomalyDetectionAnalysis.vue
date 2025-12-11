@@ -397,7 +397,7 @@ function removePersonFilter(personId: number) {
                                     {{ t('labels.anomaly_details') }}
                                 </h4>
                                 <DataTable
-                                    :value="slotProps.data.anomaliesIndexes"
+                                    :value="slotProps.data.anomaliesIndexes.filter((a: any) => a.classification !== 'NO_DATA')"
                                     size="small"
                                 >
                                     <Column :header="t('labels.leg')" style="width: 80px">

@@ -10,9 +10,11 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { eventService, EventService } from '@/features/event/services/event.service'
+import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const { t } = useI18n()
 const router = useRouter()
+const authStore = useAuthStore()
 
 // State
 const selectedAnalysisType = ref<AnalysisType | null>(null)
@@ -21,29 +23,37 @@ const selectedEvent = ref<SportEvent | null>(null)
 const selectedResultList = ref<ResultList | null>(null)
 
 // Available analysis types
-const analysisTypes = computed<AnalysisTypeInfo[]>(() => [
-    {
-        key: 'mental-resilience',
-        titleKey: 'labels.mental_resilience_analysis',
-        descriptionKey: 'messages.mri_description',
-        icon: 'pi pi-chart-line',
-        enabled: true,
-    },
-    {
-        key: 'split-time-ranking',
-        titleKey: 'labels.split_time_ranking',
-        descriptionKey: 'messages.split_time_description',
-        icon: 'pi pi-chart-bar',
-        enabled: true,
-    },
-    {
-        key: 'cheat-detection',
-        titleKey: 'labels.anomaly_detection_analysis',
-        descriptionKey: 'messages.anomaly_detection_description',
-        icon: 'pi pi-exclamation-triangle',
-        enabled: true,
-    },
-])
+const analysisTypes = computed<AnalysisTypeInfo[]>(() => {
+    const types: AnalysisTypeInfo[] = [
+        {
+            key: 'mental-resilience',
+            titleKey: 'labels.mental_resilience_analysis',
+            descriptionKey: 'messages.mri_description',
+            icon: 'pi pi-chart-line',
+            enabled: true,
+        },
+        {
+            key: 'split-time-ranking',
+            titleKey: 'labels.split_time_ranking',
+            descriptionKey: 'messages.split_time_description',
+            icon: 'pi pi-chart-bar',
+            enabled: true,
+        },
+    ]
+
+    // Anomaly detection is only available for ADMIN users
+    if (authStore.isAdmin) {
+        types.push({
+            key: 'cheat-detection',
+            titleKey: 'labels.anomaly_detection_analysis',
+            descriptionKey: 'messages.anomaly_detection_description',
+            icon: 'pi pi-exclamation-triangle',
+            enabled: true,
+        })
+    }
+
+    return types
+})
 
 // Fetch all events for selection
 const eventsQuery = useQuery({

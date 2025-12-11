@@ -29,7 +29,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.NO_SUSPICION);
+                AnomalyClassification.NO_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isEqualTo(1.0);
@@ -46,7 +46,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.HIGH_SUSPICION);
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isEqualTo(0.25); // AI < 1 indicates faster than expected
@@ -63,7 +63,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.NO_SUSPICION);
+                AnomalyClassification.NO_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isEqualTo(1.5); // AI > 1 indicates slower than expected
@@ -91,7 +91,7 @@ class AnomaliesIndexTest {
             SegmentKey segmentKey = new SegmentKey("M21", "101", "102");
 
             // When
-            AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected, classification);
+            AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected, classification, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isCloseTo(expectedAI, within(0.001));
@@ -107,7 +107,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.MODERATE_SUSPICION);
+                AnomalyClassification.MODERATE_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isCloseTo(0.333, within(0.001));
@@ -123,7 +123,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.HIGH_SUSPICION);
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isCloseTo(0.308, within(0.001));
@@ -144,7 +144,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.NO_SUSPICION);
+                AnomalyClassification.NO_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.classification()).isEqualTo(AnomalyClassification.NO_SUSPICION);
@@ -160,7 +160,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.MODERATE_SUSPICION);
+                AnomalyClassification.MODERATE_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.classification()).isEqualTo(AnomalyClassification.MODERATE_SUSPICION);
@@ -176,7 +176,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.HIGH_SUSPICION);
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.classification()).isEqualTo(AnomalyClassification.HIGH_SUSPICION);
@@ -192,7 +192,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.NO_DATA);
+                AnomalyClassification.NO_DATA, 100.0);
 
             // Then
             assertThat(ai.classification()).isEqualTo(AnomalyClassification.NO_DATA);
@@ -214,7 +214,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(legNumber, segmentKey, piReal, piExpected,
-                AnomalyClassification.NO_SUSPICION);
+                AnomalyClassification.NO_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.legNumber()).isEqualTo(5);
@@ -230,7 +230,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.NO_SUSPICION);
+                AnomalyClassification.NO_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.segmentKey().className()).isEqualTo("M21");
@@ -248,7 +248,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.NO_SUSPICION);
+                AnomalyClassification.NO_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.segmentKey().className()).isNull();
@@ -272,7 +272,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(3, segmentKey, piReal, piExpected,
-                AnomalyClassification.HIGH_SUSPICION);
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isCloseTo(0.27, within(0.01));
@@ -289,7 +289,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(5, segmentKey, piReal, piExpected,
-                AnomalyClassification.NO_SUSPICION);
+                AnomalyClassification.NO_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isCloseTo(0.80, within(0.01));
@@ -307,9 +307,9 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai1 = AnomaliesIndex.of(1, segmentKey1, piReal, piExpected,
-                AnomalyClassification.HIGH_SUSPICION);
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
             AnomaliesIndex ai2 = AnomaliesIndex.of(2, segmentKey2, piReal, piExpected,
-                AnomalyClassification.HIGH_SUSPICION);
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
 
             // Then
             assertThat(ai1.aiValue()).isEqualTo(0.35);
@@ -328,7 +328,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(7, segmentKey, piReal, piExpected,
-                AnomalyClassification.HIGH_SUSPICION);
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isCloseTo(0.215, within(0.001));
@@ -350,7 +350,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.HIGH_SUSPICION);
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isEqualTo(0.30);
@@ -366,7 +366,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.MODERATE_SUSPICION);
+                AnomalyClassification.MODERATE_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isEqualTo(0.45);
@@ -382,7 +382,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.HIGH_SUSPICION);
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isEqualTo(0.05);
@@ -399,7 +399,7 @@ class AnomaliesIndexTest {
 
             // When
             AnomaliesIndex ai = AnomaliesIndex.of(1, segmentKey, piReal, piExpected,
-                AnomalyClassification.NO_SUSPICION);
+                AnomalyClassification.NO_SUSPICION, 100.0);
 
             // Then
             assertThat(ai.aiValue()).isEqualTo(3.0);

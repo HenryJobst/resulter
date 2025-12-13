@@ -47,4 +47,29 @@ export const analysisRoutes: RouteRecordRaw[] = [
             resultListLabel: route.query.resultListLabel ? String(route.query.resultListLabel) : undefined,
         }),
     },
+    {
+        path: '/:locale/analysis/hanging-detection',
+        name: 'hanging-detection-analysis',
+        component: () => import('@/features/analysis/pages/HangingDetectionAnalysis.vue'),
+        beforeEnter: (to, from, next) => {
+            const authStore = useAuthStore()
+            if (authStore.isAdmin) {
+                next()
+            }
+            else {
+                // Redirect to analysis hub if not admin
+                next({ name: 'analysis-hub' })
+            }
+        },
+        props: route => ({
+            scope: route.query.scope || 'event',
+            resultListId: route.query.resultListId ? Number(route.query.resultListId) : undefined,
+            cupId: route.query.cupId ? Number(route.query.cupId) : undefined,
+            years: route.query.years
+                ? String(route.query.years).split(',').map(Number)
+                : undefined,
+            eventName: route.query.eventName ? String(route.query.eventName) : undefined,
+            resultListLabel: route.query.resultListLabel ? String(route.query.resultListLabel) : undefined,
+        }),
+    },
 ]

@@ -134,6 +134,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                                 "/split_time_analysis/result_list/{id}/persons",
                                 "/split_time_analysis/result_list/{id}/mental_resilience",
                                 "/split_time_analysis/result_list/{id}/anomaly_detection",
+                                "/split_time_analysis/result_list/{id}/hanging_detection",
                                 "/version")
                         .permitAll()
                         .anyRequest()

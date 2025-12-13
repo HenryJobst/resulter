@@ -380,6 +380,30 @@ function navigateToAnomalyDetectionAnalysis(resultListId: number) {
         },
     })
 }
+
+function navigateToHangingDetectionAnalysis(resultListId: number) {
+    // Find the result list to generate label
+    const resultLists = eventResultsQuery.data.value?.resultLists || []
+    const sortedLists = [...resultLists].sort((a, b) => {
+        const dateA = new Date(a.createTime).getTime()
+        const dateB = new Date(b.createTime).getTime()
+        return dateA - dateB
+    })
+    const resultListIndex = sortedLists.findIndex(list => list.id === resultListId)
+    const resultListLabel = sortedLists.length > 1
+        ? `${t('labels.result_list')} #${resultListIndex + 1}`
+        : t('labels.result_list')
+
+    router.push({
+        name: 'hanging-detection-analysis',
+        query: {
+            scope: 'event',
+            resultListId: resultListId.toString(),
+            eventName: eventQuery.data.value?.name || '',
+            resultListLabel,
+        },
+    })
+}
 </script>
 
 <template>
@@ -398,7 +422,7 @@ function navigateToAnomalyDetectionAnalysis(resultListId: number) {
     <!-- Button v-if="authStore.isAdmin" :label="t('labels.calculate')" @click="calculate()" / -->
     <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
     <div v-else-if="eventResultsQuery.data && eventId" class="card flex justify-content-start">
-        <div class="flex flex-col flex-grow w-full">
+        <div class="flex flex-col grow w-full">
             <h1 class="mt-3 font-extrabold">
                 {{ event?.name }} - {{ t('labels.results', 2) }}
             </h1>
@@ -449,6 +473,17 @@ function navigateToAnomalyDetectionAnalysis(resultListId: number) {
                             raised
                             rounded
                             @click="navigateToAnomalyDetectionAnalysis(parseInt(slotProps?.node?.key!))"
+                        />
+                        <Button
+                            v-if="authStore.isAdmin"
+                            v-tooltip="t('labels.hanging_detection_analysis')"
+                            icon="pi pi-users"
+                            class="ml-2"
+                            :aria-label="t('labels.hanging_detection_analysis')"
+                            outlined
+                            raised
+                            rounded
+                            @click="navigateToHangingDetectionAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                     </div>
                 </template>

@@ -41,13 +41,20 @@ const analysisTypes = computed<AnalysisTypeInfo[]>(() => {
         },
     ]
 
-    // Anomaly detection is only available for ADMIN users
+    // Anomaly detection and hanging detection are only available for ADMIN users
     if (authStore.isAdmin) {
         types.push({
             key: 'cheat-detection',
             titleKey: 'labels.anomaly_detection_analysis',
             descriptionKey: 'messages.anomaly_detection_description',
             icon: 'pi pi-exclamation-triangle',
+            enabled: true,
+        })
+        types.push({
+            key: 'hanging-detection',
+            titleKey: 'labels.hanging_detection_analysis',
+            descriptionKey: 'messages.hanging_detection_description',
+            icon: 'pi pi-users',
             enabled: true,
         })
     }
@@ -168,6 +175,17 @@ function startAnalysis() {
     else if (selectedAnalysisType.value === 'cheat-detection') {
         router.push({
             name: 'cheat-detection-analysis',
+            query: {
+                scope: selectedScope.value,
+                resultListId: selectedResultList.value.id.toString(),
+                eventName: selectedEvent.value.name,
+                resultListLabel: selectedResultList.value.label,
+            },
+        })
+    }
+    else if (selectedAnalysisType.value === 'hanging-detection') {
+        router.push({
+            name: 'hanging-detection-analysis',
             query: {
                 scope: selectedScope.value,
                 resultListId: selectedResultList.value.id.toString(),

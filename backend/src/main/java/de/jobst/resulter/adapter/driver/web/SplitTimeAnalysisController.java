@@ -1,10 +1,12 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.AnomalyAnalysisDto;
+import de.jobst.resulter.adapter.driver.web.dto.HangingAnalysisDto;
 import de.jobst.resulter.adapter.driver.web.dto.MentalResilienceAnalysisDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonKeyDto;
 import de.jobst.resulter.adapter.driver.web.dto.SplitTimeAnalysisDto;
 import de.jobst.resulter.application.port.AnomalyDetectionService;
+import de.jobst.resulter.application.port.HangingDetectionService;
 import de.jobst.resulter.application.port.MentalResilienceService;
 import de.jobst.resulter.application.port.SplitTimeRankingService;
 import de.jobst.resulter.domain.ResultListId;
@@ -24,13 +26,17 @@ public class SplitTimeAnalysisController {
     private final SplitTimeRankingService splitTimeRankingService;
     private final MentalResilienceService mentalResilienceService;
     private final AnomalyDetectionService anomalyDetectionService;
+    private final HangingDetectionService hangingDetectionService;
 
     public SplitTimeAnalysisController(
         SplitTimeRankingService splitTimeRankingService,
-        MentalResilienceService mentalResilienceService, AnomalyDetectionService anomalyDetectionService) {
+        MentalResilienceService mentalResilienceService,
+        AnomalyDetectionService anomalyDetectionService,
+        HangingDetectionService hangingDetectionService) {
         this.splitTimeRankingService = splitTimeRankingService;
         this.mentalResilienceService = mentalResilienceService;
         this.anomalyDetectionService = anomalyDetectionService;
+        this.hangingDetectionService = hangingDetectionService;
     }
 
     @GetMapping("/split_time_analysis/result_list/{id}/ranking")
@@ -123,6 +129,35 @@ public class SplitTimeAnalysisController {
             anomalyDetectionService.analyzeAnomaly(
                 ResultListId.of(id),
                 Optional.ofNullable(filterPersonIds).orElse(List.of())));
+
+        return ResponseEntity.ok(analysis);
+    }
+
+    @GetMapping("/split_time_analysis/result_list/{id}/hanging_detection")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<HangingAnalysisDto> hangingDetection(
+        @PathVariable Long id,
+        @RequestParam(required = false) @Nullable List<Long> filterPersonIds) {
+
+        log.debug("Hanging detection for result list {} (person filters: {})",
+            id, filterPersonIds);
+
+        HangingAnalysisDto analysis = HangingAnalysisDto.from(
+            hangingDetectionService.analyzeHanging(
+                ResultListId.of(id),
+                Optional.ofNullable(filterPersonIds).orElse(List.of())
+            )
+        );
+
+        if (analysis.statistics().totalHangingSegments() > 0) {
+            log.info("Hanging analysis: {} runners, {} with hanging, {} segments, avg HI: {}",
+                analysis.statistics().totalRunners(),
+                analysis.statistics().runnersWithHanging(),
+                analysis.statistics().totalHangingSegments(),
+                analysis.statistics().averageHangingIndex());
+        } else {
+            log.info("No hanging behavior detected in result list {}", id);
+        }
 
         return ResponseEntity.ok(analysis);
     }

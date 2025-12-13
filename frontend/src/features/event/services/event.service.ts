@@ -1,4 +1,5 @@
 import type { AnomalyAnalysis } from '@/features/analysis/model/anomaly_analysis'
+import type { HangingAnalysis } from '@/features/analysis/model/hanging_analysis'
 import type { MentalResilienceAnalysis } from '@/features/analysis/model/mental_resilience_analysis'
 import type { Certificate } from '@/features/certificate/model/certificate'
 import type { CupScoreList } from '@/features/event/model/cup_score_list'
@@ -266,6 +267,22 @@ export class EventService extends GenericService<SportEvent> {
 
         return axiosInstance
             .get<AnomalyAnalysis>(url)
+            .then(response => response.data)
+    }
+
+    static async getHangingDetectionAnalysis(
+        resultListId: number,
+        filterPersonIds: number[] = [],
+        _t: (key: string) => string,
+    ): Promise<HangingAnalysis | null> {
+        const params = new URLSearchParams()
+        filterPersonIds.forEach(id => params.append('filterPersonIds', id.toString()))
+
+        const queryString = params.toString()
+        const url = `${splitTimeAnalysisUrl}/result_list/${resultListId}/hanging_detection${queryString ? `?${queryString}` : ''}`
+
+        return axiosInstance
+            .get<HangingAnalysis>(url)
             .then(response => response.data)
     }
 }

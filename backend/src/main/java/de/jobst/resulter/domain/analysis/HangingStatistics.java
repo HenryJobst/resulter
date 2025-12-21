@@ -31,15 +31,6 @@ public record HangingStatistics(
         return (double) runnersWithHanging / totalRunners * 100.0;
     }
 
-    /**
-     * Checks if any hanging behavior was detected.
-     *
-     * @return true if at least one hanging segment was found
-     */
-    public boolean hasHanging() {
-        return totalHangingSegments > 0;
-    }
-
     @Override
     public String toString() {
         return String.format("HangingStatistics(totalRunners=%d, withHanging=%d (%.1f%%), " +

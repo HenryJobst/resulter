@@ -6,7 +6,7 @@
 
     <groupId>de.jobst</groupId>
     <artifactId>resulter-parent</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.2</version>
     <packaging>pom</packaging>
 
     <name>resulter</name>

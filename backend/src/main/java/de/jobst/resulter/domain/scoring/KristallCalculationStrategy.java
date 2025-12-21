@@ -11,7 +11,7 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
     @Nullable private final Map<OrganisationId, Organisation> organisationById;
 
     Set<String> classesToSkip = Set.of("BK", "BL", "Beg", "Trim", "Beginner", "OffK", "OffL", "D/H-12 Be");
-    Set<String> organisationsToSkip = Set.of("ohne", "Volkssport");
+    Set<String> organisationsToSkip = Set.of("ohne", "Volkssport", "Volkssport Berlin");
 
     public KristallCalculationStrategy(@Nullable Map<OrganisationId, Organisation> organisationById) {
         this.organisationById = organisationById;

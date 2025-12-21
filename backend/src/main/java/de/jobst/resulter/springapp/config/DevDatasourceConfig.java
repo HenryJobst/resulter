@@ -16,10 +16,10 @@ public class DevDatasourceConfig {
     @Primary
     public DataSource dataSource() {
         return DataSourceBuilder.create()
-            .url("jdbc:postgresql://localhost:5432/resulter")
+            .url("jdbc:p6spy:postgresql://localhost:5432/resulter")
             .username("resulter")
             .password("resulter")
-            .driverClassName("org.postgresql.Driver")
+            .driverClassName("com.p6spy.engine.spy.P6SpyDriver")
             .build();
     }
 }

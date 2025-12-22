@@ -91,8 +91,8 @@ importers:
         specifier: 22.2.0
         version: 22.2.0(@babel/traverse@7.28.5)(@zkochan/js-yaml@0.0.7)(eslint@9.39.1(jiti@2.6.1))(nx@22.1.3)(typescript@5.9.3)(vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.2)(yaml@2.8.2))(vitest@4.0.14)
       '@nx/web':
-        specifier: 22.1.3
-        version: 22.1.3(@babel/traverse@7.28.5)(nx@22.1.3)
+        specifier: 22.3.3
+        version: 22.3.3(@babel/traverse@7.28.5)(nx@22.1.3)
       '@pinia/testing':
         specifier: ^1.0.3
         version: 1.0.3(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))
@@ -1660,11 +1660,11 @@ packages:
   '@nx/vue@22.2.0':
     resolution: {integrity: sha512-Y26aLlIChsBtimt+kFnQm1T0sZi9fSex3OmAHjDhQPYfX3J/iV6SwvWYS3OZnhRD8Pkc7H5I3i/Js8YCzcD7ig==}
 
-  '@nx/web@22.1.3':
-    resolution: {integrity: sha512-ilDioHQwuybZbc9Obvl8R7pJm6TWB3Lj2OXojKMN3Bv57Pbd4QTSgh6dcTgq5g1OE+1KcN1+sXLZQzrR2kXQsA==}
-
   '@nx/web@22.2.0':
     resolution: {integrity: sha512-NWEoDXHfnjEGMuUkLDUsL+PTAW4TrFOFWo6WkB3rq++zD4PDSmR/fZPQ0YUwX5uhlSlQyWuQbkxBoflLY/fExA==}
+
+  '@nx/web@22.3.3':
+    resolution: {integrity: sha512-0iuAxXCljxCAfQ5N4SffMuf0CuUFGJoO5nzOTqnZ60pRy+JIWZ+DXfh7bfHxTEcE3JQ6nT/hbZVLPMVNleoy7Q==}
 
   '@nx/workspace@22.1.3':
     resolution: {integrity: sha512-VthMD2e4JV8w6fysIHCa/6ZauHSJXT7m2lVIglvK14cJcSfUHuQMUB7KhluH7x7UIEwSOXToCh28YLhexIlr9A==}
@@ -3183,15 +3183,6 @@ packages:
       supports-color:
         optional: true
 
-  debug@4.4.1:
-    resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
     engines: {node: '>=6.0'}
@@ -3794,6 +3785,15 @@ packages:
 
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
+
+  follow-redirects@1.15.11:
+    resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
 
   follow-redirects@1.15.9:
     resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
@@ -4679,10 +4679,6 @@ packages:
   mitt@3.0.1:
     resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
 
-  mkdirp@0.5.6:
-    resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
-    hasBin: true
-
   mlly@1.7.4:
     resolution: {integrity: sha512-qmdSIPC4bDJXgZTCR7XosJiNKySV7O215tsPtDN9iEO/7q/76b/ijtgRu/+epFXSJhijtTCCGp3DWS549P3xKw==}
 
@@ -5025,9 +5021,9 @@ packages:
   pnpm-workspace-yaml@1.3.0:
     resolution: {integrity: sha512-Krb5q8Totd5mVuLx7we+EFHq/AfxA75nbfTm25Q1pIf606+RlaKUG+PXH8SDihfe5b5k4H09gE+sL47L1t5lbw==}
 
-  portfinder@1.0.34:
-    resolution: {integrity: sha512-aTyliYB9lpGRx0iUzgbLpCz3xiCEBsPOiukSp1X8fOnHalHCKNxxpv2cSc00Cc49mpWUtlyRVFHRSaRJF8ew3g==}
-    engines: {node: '>= 6.0'}
+  portfinder@1.0.38:
+    resolution: {integrity: sha512-rEwq/ZHlJIKw++XtLAO8PPuOQA/zaPJOZJ37BVuN97nLpMJeuDVLVGRwbFoBgLudgdTMP2hdRJP++H+8QOA3vg==}
+    engines: {node: '>= 10.12'}
 
   postcss-selector-parser@7.1.1:
     resolution: {integrity: sha512-orRsuYpJVw8LdAwqqLykBj9ecS5/cRHlI5+nvTo8LcCKmzDmqVORXtOIYEEQuL9D4BxtA1lm5isAqzQZCoQ6Eg==}
@@ -7881,10 +7877,10 @@ snapshots:
       - vite
       - vitest
 
-  '@nx/web@22.1.3(@babel/traverse@7.28.5)(nx@22.1.3)':
+  '@nx/web@22.2.0(@babel/traverse@7.28.5)(nx@22.1.3)':
     dependencies:
-      '@nx/devkit': 22.1.3(nx@22.1.3)
-      '@nx/js': 22.1.3(@babel/traverse@7.28.5)(nx@22.1.3)
+      '@nx/devkit': 22.2.0(nx@22.1.3)
+      '@nx/js': 22.2.0(@babel/traverse@7.28.5)(nx@22.1.3)
       detect-port: 1.6.1
       http-server: 14.1.1
       picocolors: 1.1.1
@@ -7898,10 +7894,10 @@ snapshots:
       - supports-color
       - verdaccio
 
-  '@nx/web@22.2.0(@babel/traverse@7.28.5)(nx@22.1.3)':
+  '@nx/web@22.3.3(@babel/traverse@7.28.5)(nx@22.1.3)':
     dependencies:
-      '@nx/devkit': 22.2.0(nx@22.1.3)
-      '@nx/js': 22.2.0(@babel/traverse@7.28.5)(nx@22.1.3)
+      '@nx/devkit': 22.3.3(nx@22.1.3)
+      '@nx/js': 22.3.3(@babel/traverse@7.28.5)(nx@22.1.3)
       detect-port: 1.6.1
       http-server: 14.1.1
       picocolors: 1.1.1
@@ -8524,7 +8520,7 @@ snapshots:
       '@typescript-eslint/tsconfig-utils': 8.43.0(typescript@5.9.3)
       '@typescript-eslint/types': 8.43.0
       '@typescript-eslint/visitor-keys': 8.43.0
-      debug: 4.4.1
+      debug: 4.4.3(supports-color@8.1.1)
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -9676,10 +9672,6 @@ snapshots:
     optionalDependencies:
       supports-color: 8.1.1
 
-  debug@4.4.1:
-    dependencies:
-      ms: 2.1.3
-
   debug@4.4.3(supports-color@8.1.1):
     dependencies:
       ms: 2.1.3
@@ -10416,6 +10408,8 @@ snapshots:
 
   flatted@3.3.3: {}
 
+  follow-redirects@1.15.11: {}
+
   follow-redirects@1.15.9(debug@4.4.3):
     optionalDependencies:
       debug: 4.4.3(supports-color@8.1.1)
@@ -10624,7 +10618,7 @@ snapshots:
   http-proxy@1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.9(debug@4.4.3)
+      follow-redirects: 1.15.11
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -10640,7 +10634,7 @@ snapshots:
       mime: 1.6.0
       minimist: 1.2.8
       opener: 1.5.2
-      portfinder: 1.0.34
+      portfinder: 1.0.38
       secure-compare: 3.0.1
       union: 0.5.0
       url-join: 4.0.1
@@ -11459,10 +11453,6 @@ snapshots:
 
   mitt@3.0.1: {}
 
-  mkdirp@0.5.6:
-    dependencies:
-      minimist: 1.2.8
-
   mlly@1.7.4:
     dependencies:
       acorn: 8.15.0
@@ -11896,11 +11886,10 @@ snapshots:
     dependencies:
       yaml: 2.8.1
 
-  portfinder@1.0.34:
+  portfinder@1.0.38:
     dependencies:
       async: 3.2.6
       debug: 4.4.3(supports-color@8.1.1)
-      mkdirp: 0.5.6
     transitivePeerDependencies:
       - supports-color
 

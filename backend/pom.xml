@@ -50,7 +50,7 @@
         <equalsverifier.version>4.1.1</equalsverifier.version>
         <dotenv-java.version>3.2.0</dotenv-java.version>
         <jmolecules-archunit.version>1.6.0</jmolecules-archunit.version>
-        <jmolecules-bom.version>2023.3.4</jmolecules-bom.version>
+        <jmolecules-bom.version>2025.0.2</jmolecules-bom.version>
         <jmolecules-hexagonal-architecture.version>1.10.0
         </jmolecules-hexagonal-architecture.version>
         <jmolecules-layered-architecture.version>1.10.0</jmolecules-layered-architecture.version>

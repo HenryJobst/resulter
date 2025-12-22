@@ -32,7 +32,7 @@
         <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <micrometer-bom.version>1.15.4</micrometer-bom.version>
+        <micrometer-bom.version>1.16.1</micrometer-bom.version>
         <mockito-core.version>5.15.2</mockito-core.version>
         <native-maven-plugin.version>0.10.0</native-maven-plugin.version>
         <p6spy-spring-boot-starter.version>2.0.0</p6spy-spring-boot-starter.version>

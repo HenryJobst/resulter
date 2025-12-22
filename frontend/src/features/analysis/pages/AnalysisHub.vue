@@ -39,6 +39,13 @@ const analysisTypes = computed<AnalysisTypeInfo[]>(() => {
             icon: 'pi pi-chart-bar',
             enabled: true,
         },
+        {
+            key: 'split-time-table',
+            titleKey: 'labels.split_time_table',
+            descriptionKey: 'messages.split_time_table_description',
+            icon: 'pi pi-table',
+            enabled: true,
+        },
     ]
 
     // Anomaly detection and hanging detection are only available for ADMIN users
@@ -167,6 +174,17 @@ function startAnalysis() {
                 resultListId: selectedResultList.value.id.toString(),
             },
             query: {
+                eventName: selectedEvent.value.name,
+                resultListLabel: selectedResultList.value.label,
+            },
+        })
+    }
+    else if (selectedAnalysisType.value === 'split-time-table') {
+        // Navigate to split time table analysis page
+        router.push({
+            name: 'split-time-table-analysis',
+            query: {
+                resultListId: selectedResultList.value.id.toString(),
                 eventName: selectedEvent.value.name,
                 resultListLabel: selectedResultList.value.label,
             },

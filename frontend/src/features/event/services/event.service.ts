@@ -1,6 +1,7 @@
 import type { AnomalyAnalysis } from '@/features/analysis/model/anomaly_analysis'
 import type { HangingAnalysis } from '@/features/analysis/model/hanging_analysis'
 import type { MentalResilienceAnalysis } from '@/features/analysis/model/mental_resilience_analysis'
+import type { SplitTimeTable, SplitTimeTableOptions } from '@/features/analysis/model/split_time_table'
 import type { Certificate } from '@/features/certificate/model/certificate'
 import type { CupScoreList } from '@/features/event/model/cup_score_list'
 import type { EventCertificateStats } from '@/features/event/model/event_certificate_stats'
@@ -283,6 +284,30 @@ export class EventService extends GenericService<SportEvent> {
 
         return axiosInstance
             .get<HangingAnalysis>(url)
+            .then(response => response.data)
+    }
+
+    static async getSplitTimeTable(
+        resultListId: number,
+        groupBy: string,
+        groupId: string,
+        _t: (key: string) => string,
+    ): Promise<SplitTimeTable> {
+        const url = `${splitTimeAnalysisUrl}/result_list/${resultListId}/split_table?groupBy=${groupBy}&groupId=${encodeURIComponent(groupId)}`
+
+        return axiosInstance
+            .get<SplitTimeTable>(url)
+            .then(response => response.data)
+    }
+
+    static async getSplitTableOptions(
+        resultListId: number,
+        _t: (key: string) => string,
+    ): Promise<SplitTimeTableOptions> {
+        const url = `${splitTimeAnalysisUrl}/result_list/${resultListId}/split_table/options`
+
+        return axiosInstance
+            .get<SplitTimeTableOptions>(url)
             .then(response => response.data)
     }
 }

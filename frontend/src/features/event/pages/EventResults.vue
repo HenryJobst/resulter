@@ -333,6 +333,29 @@ function navigateToSplitTimeAnalysis(resultListId: number) {
     })
 }
 
+function navigateToSplitTimeTableAnalysis(resultListId: number) {
+    // Find the result list to generate label
+    const resultLists = eventResultsQuery.data.value?.resultLists || []
+    const sortedLists = [...resultLists].sort((a, b) => {
+        const dateA = new Date(a.createTime).getTime()
+        const dateB = new Date(b.createTime).getTime()
+        return dateA - dateB
+    })
+    const resultListIndex = sortedLists.findIndex(list => list.id === resultListId)
+    const resultListLabel = sortedLists.length > 1
+        ? `${t('labels.result_list')} #${resultListIndex + 1}`
+        : t('labels.result_list')
+
+    router.push({
+        name: 'split-time-table-analysis',
+        query: {
+            resultListId: resultListId.toString(),
+            eventName: eventQuery.data.value?.name || '',
+            resultListLabel,
+        },
+    })
+}
+
 function navigateToMentalResilienceAnalysis(resultListId: number) {
     // Find the result list to generate label
     const resultLists = eventResultsQuery.data.value?.resultLists || []
@@ -444,6 +467,16 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
                             @click="calculate(parseInt(slotProps?.node?.key!))"
                         />
                         <Button
+                            v-tooltip="t('labels.split_time_table')"
+                            icon="pi pi-table"
+                            class="ml-2"
+                            :aria-label="t('labels.split_time_table')"
+                            outlined
+                            raised
+                            rounded
+                            @click="navigateToSplitTimeTableAnalysis(parseInt(slotProps?.node?.key!))"
+                        />
+                        <Button
                             v-tooltip="t('labels.split_time_analysis_ranking')"
                             icon="pi pi-chart-bar"
                             class="ml-2"
@@ -454,10 +487,10 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
                             @click="navigateToSplitTimeAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                         <Button
-                            v-tooltip="t('labels.analysis')"
+                            v-tooltip="t('labels.mental_resilience_analysis')"
                             icon="pi pi-chart-line"
                             class="ml-2"
-                            :aria-label="t('labels.analysis')"
+                            :aria-label="t('labels.mental_resilience_analysis')"
                             outlined
                             raised
                             rounded

@@ -1,14 +1,19 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.AnomalyAnalysisDto;
+import de.jobst.resulter.adapter.driver.web.dto.ClassGroupOptionDto;
+import de.jobst.resulter.adapter.driver.web.dto.CourseGroupOptionDto;
 import de.jobst.resulter.adapter.driver.web.dto.HangingAnalysisDto;
 import de.jobst.resulter.adapter.driver.web.dto.MentalResilienceAnalysisDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonKeyDto;
 import de.jobst.resulter.adapter.driver.web.dto.SplitTimeAnalysisDto;
+import de.jobst.resulter.adapter.driver.web.dto.SplitTimeTableDto;
+import de.jobst.resulter.adapter.driver.web.dto.SplitTimeTableOptionsDto;
 import de.jobst.resulter.application.port.AnomalyDetectionService;
 import de.jobst.resulter.application.port.HangingDetectionService;
 import de.jobst.resulter.application.port.MentalResilienceService;
 import de.jobst.resulter.application.port.SplitTimeRankingService;
+import de.jobst.resulter.application.port.SplitTimeTableService;
 import de.jobst.resulter.domain.ResultListId;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -27,16 +32,19 @@ public class SplitTimeAnalysisController {
     private final MentalResilienceService mentalResilienceService;
     private final AnomalyDetectionService anomalyDetectionService;
     private final HangingDetectionService hangingDetectionService;
+    private final SplitTimeTableService splitTimeTableService;
 
     public SplitTimeAnalysisController(
         SplitTimeRankingService splitTimeRankingService,
         MentalResilienceService mentalResilienceService,
         AnomalyDetectionService anomalyDetectionService,
-        HangingDetectionService hangingDetectionService) {
+        HangingDetectionService hangingDetectionService,
+        SplitTimeTableService splitTimeTableService) {
         this.splitTimeRankingService = splitTimeRankingService;
         this.mentalResilienceService = mentalResilienceService;
         this.anomalyDetectionService = anomalyDetectionService;
         this.hangingDetectionService = hangingDetectionService;
+        this.splitTimeTableService = splitTimeTableService;
     }
 
     @GetMapping("/split_time_analysis/result_list/{id}/ranking")
@@ -160,5 +168,56 @@ public class SplitTimeAnalysisController {
         }
 
         return ResponseEntity.ok(analysis);
+    }
+
+    @GetMapping("/split_time_analysis/result_list/{id}/split_table")
+    public ResponseEntity<SplitTimeTableDto> getSplitTimeTable(
+            @PathVariable Long id,
+            @RequestParam String groupBy,
+            @RequestParam String groupId) {
+
+        log.debug("Generating split-time table for result list {} (groupBy: {}, groupId: {})",
+                id, groupBy, groupId);
+
+        SplitTimeTableDto table;
+        if ("class".equalsIgnoreCase(groupBy)) {
+            table = SplitTimeTableDto.from(
+                    splitTimeTableService.generateByClass(ResultListId.of(id), groupId)
+            );
+        } else if ("course".equalsIgnoreCase(groupBy)) {
+            table = SplitTimeTableDto.from(
+                    splitTimeTableService.generateByCourse(ResultListId.of(id), Long.parseLong(groupId))
+            );
+        } else {
+            throw new IllegalArgumentException("Invalid groupBy parameter: " + groupBy + ". Must be 'class' or 'course'");
+        }
+
+        log.info("Returning split-time table: {} runners, {} controls, {} complete splits",
+                table.metadata().totalRunners(),
+                table.metadata().totalControls(),
+                table.metadata().runnersWithCompleteSplits());
+
+        return ResponseEntity.ok(table);
+    }
+
+    @GetMapping("/split_time_analysis/result_list/{id}/split_table/options")
+    public ResponseEntity<SplitTimeTableOptionsDto> getSplitTableOptions(@PathVariable Long id) {
+        log.debug("Getting split-time table options for result list {}", id);
+
+        List<ClassGroupOptionDto> classes = splitTimeTableService.getAvailableClasses(ResultListId.of(id))
+                .stream()
+                .map(ClassGroupOptionDto::from)
+                .toList();
+
+        List<CourseGroupOptionDto> courses = splitTimeTableService.getAvailableCourses(ResultListId.of(id))
+                .stream()
+                .map(CourseGroupOptionDto::from)
+                .toList();
+
+        SplitTimeTableOptionsDto options = new SplitTimeTableOptionsDto(classes, courses);
+
+        log.info("Returning {} classes and {} courses", classes.size(), courses.size());
+
+        return ResponseEntity.ok(options);
     }
 }

@@ -2,24 +2,21 @@ package de.jobst.resulter.domain;
 
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
 @Getter
 public class SplitTime implements Comparable<SplitTime> {
 
-    @NonNull
     private final ControlCode controlCode;
 
-    @NonNull
     private final PunchTime punchTime;
 
     @Nullable
     private final SplitTimeListId splitTimeListId;
 
     public SplitTime(
-            @NonNull ControlCode controlCode, @NonNull PunchTime punchTime, @Nullable SplitTimeListId splitTimeListId) {
+            ControlCode controlCode, PunchTime punchTime, @Nullable SplitTimeListId splitTimeListId) {
         this.controlCode = controlCode;
         this.punchTime = punchTime;
         this.splitTimeListId = splitTimeListId;
@@ -35,7 +32,7 @@ public class SplitTime implements Comparable<SplitTime> {
     }
 
     @Override
-    public int compareTo(@NonNull SplitTime o) {
+    public int compareTo(SplitTime o) {
         int value = punchTime.compareTo(o.punchTime);
         if (value == 0) {
             value = controlCode.compareTo(o.controlCode);
@@ -44,7 +41,6 @@ public class SplitTime implements Comparable<SplitTime> {
             if (splitTimeListId != null && o.splitTimeListId != null) {
                 value = splitTimeListId.compareTo(o.splitTimeListId);
             } else if (splitTimeListId == null && o.splitTimeListId == null) {
-                value = 0;
             } else if (splitTimeListId == null) {
                 value = -1;
             } else {

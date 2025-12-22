@@ -87,7 +87,7 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
     @Override
     public List<SplitTimeList> findByResultListId(de.jobst.resulter.domain.ResultListId resultListId) {
         Collection<SplitTimeListDbo> splitTimeListDbos =
-            splitTimeListJdbcRepository.findByResultListId(AggregateReference.to(resultListId.value()));
+            splitTimeListJdbcRepository.findByResultListIdOptimized(resultListId.value());
         return SplitTimeListDbo.asSplitTimeLists(splitTimeListDbos).stream().toList();
     }
 

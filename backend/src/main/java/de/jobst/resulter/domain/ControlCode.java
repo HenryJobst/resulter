@@ -1,11 +1,11 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
-public record ControlCode(String value) implements Comparable<ControlCode> {
-    public static ControlCode of(String value) {
+public record ControlCode(@Nullable String value) implements Comparable<ControlCode> {
+    public static ControlCode of(@Nullable String value) {
         return new ControlCode(value);
     }
 
@@ -15,7 +15,7 @@ public record ControlCode(String value) implements Comparable<ControlCode> {
     }
 
     @Override
-    public int compareTo(@NonNull ControlCode o) {
+    public int compareTo(ControlCode o) {
         if (value == null) {
             return (o.value == null) ? 0 : -1;
         }

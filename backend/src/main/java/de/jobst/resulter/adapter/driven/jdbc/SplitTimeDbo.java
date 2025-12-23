@@ -1,7 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.SplitTime;
-import de.jobst.resulter.domain.SplitTimeListId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,8 +8,6 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.util.List;
 
 import static de.jobst.resulter.domain.util.CompareUtils.compareNullable;
 
@@ -30,13 +27,9 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
 
     public static SplitTimeDbo from(SplitTime splitTime) {
         return new SplitTimeDbo(
-            splitTime.getSplitTimeListId().value(),
-            splitTime.getControlCode().value(),
-            splitTime.getPunchTime().value());
-    }
-
-    static public List<SplitTime> asSplitTimes(List<SplitTimeDbo> splitTimeDbos, SplitTimeListId splitTimeListId) {
-        return splitTimeDbos.stream().map(it -> SplitTime.of(it.controlCode, it.punchTime, splitTimeListId)).toList();
+            splitTime.splitTimeListId().value(),
+            splitTime.controlCode().value(),
+            splitTime.punchTime().value());
     }
 
     @Override

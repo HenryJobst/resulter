@@ -193,6 +193,9 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
         // Build runtime map
         Map<RuntimeKey, Double> runtimeMap = splitTimeAnalysisService.buildRuntimeMap(resultList);
 
+        // Build map of PersonId -> ResultStatus
+        Map<PersonId, ResultStatus> notCompetingMap = buildNotCompetingMap(resultList);
+
         // Extract control codes
         List<String> controlCodes = extractControlCodes(filteredSplits, runtimeMap);
 
@@ -210,7 +213,7 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
         Map<RunnerSegmentKey, ErrorInfo> errorMap = detectErrors(filteredSplits, runtimeMap);
 
         // Identify best times (position-indexed)
-        Map<Integer, Double> bestCumulativeTimes = findBestTimes(cumulativeTimes, controlCodes);
+        Map<Integer, Double> bestCumulativeTimes = findBestTimes(cumulativeTimes, controlCodes, notCompetingMap);
         Map<SegmentIndexKey, Double> bestSegmentTimes = findBestSegmentTimes(segmentTimes);
 
         // Assemble rows
@@ -223,8 +226,20 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
                 segmentPositions,
                 errorMap,
                 bestCumulativeTimes,
-                bestSegmentTimes
+                bestSegmentTimes,
+                notCompetingMap
         );
+
+        // Assign positions to competing runners only
+        rows = assignPositions(rows);
+
+        // Calculate winner time (minimum finish time among competing runners)
+        Double winnerTime = rows.stream()
+                .filter(row -> !row.notCompeting())
+                .map(SplitTimeTableRow::finishTime)
+                .filter(Objects::nonNull)
+                .min(Double::compare)
+                .orElse(null);
 
         // Calculate metadata
         int runnersWithCompleteSplits = (int) filteredSplits.stream()
@@ -235,7 +250,8 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
                 filteredSplits.size(),
                 runnersWithCompleteSplits,
                 controlCodes.size(),
-                filteredSplits.size() >= RELIABLE_RUNNERS_THRESHOLD
+                filteredSplits.size() >= RELIABLE_RUNNERS_THRESHOLD,
+                winnerTime
         );
 
         return new SplitTimeTable(groupByType, groupId, groupNames, controlCodes, rows, metadata);
@@ -261,7 +277,7 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
         controlCodes.add(START_CODE); // Virtual start
 
         referenceSplit.getSplitTimes().stream().sorted() // Sort by punch time (natural order)
-            .map(split -> split.getControlCode().value()).filter(Objects::nonNull)
+            .map(split -> split.controlCode().value())
                 .forEach(controlCodes::add);
 
         // Add virtual finish if any runner has runtime
@@ -478,17 +494,26 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
     /**
      * Find the best cumulative times at each control position.
      * Uses position/index instead of control codes (to handle butterfly loops).
+     * Excludes runners marked as NOT_COMPETING (AK).
      */
     private Map<Integer, Double> findBestTimes(
             Map<Long, List<Double>> cumulativeTimes,
-            List<String> controlCodes) {
+            List<String> controlCodes,
+            Map<PersonId, ResultStatus> notCompetingMap) {
 
         Map<Integer, Double> bestTimes = new HashMap<>();
 
         for (int controlIndex = 0; controlIndex < controlCodes.size(); controlIndex++) {
             final int idx = controlIndex; // For lambda capture
 
-            Double best = cumulativeTimes.values().stream()
+            // Filter out AK runners when finding the best cumulative times
+            Double best = cumulativeTimes.entrySet().stream()
+                    .filter(entry -> {
+                        PersonId personId = new PersonId(entry.getKey());
+                        ResultStatus status = notCompetingMap.get(personId);
+                        return status != ResultStatus.NOT_COMPETING;
+                    })
+                    .map(Map.Entry::getValue)
                     .filter(times -> times.size() > idx)
                     .map(times -> times.get(idx))
                     .min(Double::compare)
@@ -537,7 +562,8 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
             Map<SegmentIndexKey, Map<Long, Integer>> segmentPositions,
             Map<RunnerSegmentKey, ErrorInfo> errorMap,
             Map<Integer, Double> bestCumulativeTimes,
-            Map<SegmentIndexKey, Double> bestSegmentTimes) {
+            Map<SegmentIndexKey, Double> bestSegmentTimes,
+            Map<PersonId, ResultStatus> notCompetingMap) {
 
         List<SplitTimeTableRow> rows = new ArrayList<>();
 
@@ -559,17 +585,27 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
 
             String className = stl.getClassResultShortName().value();
 
+            // Check if runner is NOT_COMPETING (AK)
+            boolean notCompeting = notCompetingMap.getOrDefault(personId, ResultStatus.OK) == ResultStatus.NOT_COMPETING;
+
             List<SplitTimeTableCell> cells = new ArrayList<>();
 
             // Get this person's cumulative times
             List<Double> personCumTimes = cumulativeTimes.getOrDefault(personIdValue, List.of());
+
+            // Extract finish time (cumulative time at finish control)
+            int finishIndex = controlCodes.indexOf(FINAL_CODE);
+            Double finishTime = finishIndex >= 0 && finishIndex < personCumTimes.size()
+                    ? personCumTimes.get(finishIndex)
+                    : null;
 
             for (int i = 0; i < controlCodes.size(); i++) {
                 String controlCode = controlCodes.get(i);
 
                 // Get cumulative data using index
                 Double cumTime = i < personCumTimes.size() ? personCumTimes.get(i) : null;
-                Integer cumPos = cumulativePositions.getOrDefault(i, Map.of()).get(personIdValue);
+                // Don't show positions for AK runners
+                Integer cumPos = notCompeting ? null : cumulativePositions.getOrDefault(i, Map.of()).get(personIdValue);
 
                 // Get segment data (skip only for START control itself)
                 Double segTime = null;
@@ -586,6 +622,7 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
                     SegmentIndexPersonKey segmentPersonKey = new SegmentIndexPersonKey(i - 1, i, personIdValue);
                     segTime = segmentTimes.get(segmentPersonKey);
 
+                    // Show segment positions for all runners (including AK)
                     SegmentIndexKey segmentKey = new SegmentIndexKey(i - 1, i);
                     segPos = segmentPositions.getOrDefault(segmentKey, Map.of()).get(personIdValue);
 
@@ -623,7 +660,8 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
 
             boolean hasIncompleteSplits = !hasCompleteSplits(stl, controlCodes);
 
-            rows.add(new SplitTimeTableRow(personIdValue, personName, className, cells, hasIncompleteSplits));
+            // Position will be assigned later after all rows are created
+            rows.add(new SplitTimeTableRow(personIdValue, personName, className, cells, hasIncompleteSplits, notCompeting, finishTime, null));
         }
 
         return rows;
@@ -634,7 +672,7 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
      */
     private boolean hasCompleteSplits(SplitTimeList stl, List<String> controlCodes) {
         Set<@Nullable String> runnerControls = stl.getSplitTimes().stream()
-                .map(split -> split.getControlCode().value())
+                .map(split -> split.controlCode().value())
                 .collect(Collectors.toSet());
 
         // Check if all controls (except virtual start and finish) are present
@@ -644,14 +682,63 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
     }
 
     /**
+     * Build a map of PersonId -> ResultStatus for identifying NOT_COMPETING runners.
+     */
+    private Map<PersonId, ResultStatus> buildNotCompetingMap(ResultList resultList) {
+        Map<PersonId, ResultStatus> statusMap = new HashMap<>();
+
+        if (resultList.getClassResults() != null) {
+            resultList.getClassResults().forEach(classResult -> classResult.personResults().value().forEach(personResult -> personResult.personRaceResults().value().forEach(personRaceResult -> statusMap.put(personResult.personId(), personRaceResult.getState()))));
+        }
+
+        return statusMap;
+    }
+
+    /**
      * Create empty table for error cases.
      */
     private SplitTimeTable createEmptyTable(String groupByType, String groupId, List<String> groupNames) {
-        SplitTimeTableMetadata metadata = new SplitTimeTableMetadata(0, 0, 0, false);
+        SplitTimeTableMetadata metadata = new SplitTimeTableMetadata(0, 0, 0, false, null);
         return new SplitTimeTable(groupByType, groupId, groupNames, List.of(), List.of(), metadata);
     }
 
     // Helper records
+
+    /**
+     * Assign overall positions to competing runners based on finish time.
+     * AK (NOT_COMPETING) runners receive null position.
+     */
+    private List<SplitTimeTableRow> assignPositions(List<SplitTimeTableRow> rows) {
+        // Sort competing runners by finish time
+        List<SplitTimeTableRow> competingRunners = rows.stream()
+                .filter(row -> !row.notCompeting())
+                .filter(row -> row.finishTime() != null)
+                .sorted(Comparator.comparing(SplitTimeTableRow::finishTime))
+                .toList();
+
+        // Assign positions to competing runners
+        Map<Long, Integer> positionMap = new HashMap<>();
+        for (int i = 0; i < competingRunners.size(); i++) {
+            positionMap.put(competingRunners.get(i).personId(), i + 1);
+        }
+
+        // Create new rows with positions assigned
+        return rows.stream()
+                .map(row -> {
+                    Integer position = row.notCompeting() ? null : positionMap.get(row.personId());
+                    return new SplitTimeTableRow(
+                            row.personId(),
+                            row.personName(),
+                            row.className(),
+                            row.cells(),
+                            row.hasIncompleteSplits(),
+                            row.notCompeting(),
+                            row.finishTime(),
+                            position
+                    );
+                })
+                .toList();
+    }
 
     /**
      * Key for segment times using position indices instead of control codes.

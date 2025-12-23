@@ -1,34 +1,13 @@
 package de.jobst.resulter.domain;
 
-import lombok.Getter;
 import org.jmolecules.ddd.annotation.ValueObject;
 import org.jspecify.annotations.Nullable;
 
 @ValueObject
-@Getter
-public class SplitTime implements Comparable<SplitTime> {
+public record SplitTime(ControlCode controlCode, PunchTime punchTime, SplitTimeListId splitTimeListId) implements Comparable<SplitTime> {
 
-    private final ControlCode controlCode;
-
-    private final PunchTime punchTime;
-
-    @Nullable
-    private final SplitTimeListId splitTimeListId;
-
-    public SplitTime(
-            ControlCode controlCode, PunchTime punchTime, @Nullable SplitTimeListId splitTimeListId) {
-        this.controlCode = controlCode;
-        this.punchTime = punchTime;
-        this.splitTimeListId = splitTimeListId;
-    }
-
-    public static SplitTime of(
-            @Nullable String controlCode, @Nullable Double punchTime, @Nullable SplitTimeListId splitTimeListId) {
+    public static SplitTime of(String controlCode, @Nullable Double punchTime, SplitTimeListId splitTimeListId) {
         return new SplitTime(ControlCode.of(controlCode), PunchTime.of(punchTime), splitTimeListId);
-    }
-
-    public static SplitTime of(@Nullable String controlCode, @Nullable Double punchTime) {
-        return new SplitTime(ControlCode.of(controlCode), PunchTime.of(punchTime), null);
     }
 
     @Override
@@ -38,14 +17,7 @@ public class SplitTime implements Comparable<SplitTime> {
             value = controlCode.compareTo(o.controlCode);
         }
         if (value == 0) {
-            if (splitTimeListId != null && o.splitTimeListId != null) {
-                value = splitTimeListId.compareTo(o.splitTimeListId);
-            } else if (splitTimeListId == null && o.splitTimeListId == null) {
-            } else if (splitTimeListId == null) {
-                value = -1;
-            } else {
-                value = 1;
-            }
+            value = splitTimeListId.compareTo(o.splitTimeListId);
         }
         return value;
     }

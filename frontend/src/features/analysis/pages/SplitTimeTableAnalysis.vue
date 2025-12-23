@@ -85,18 +85,22 @@ const sortedRows = computed(() => {
 
     const rows = [...tableQuery.data.value.rows]
 
-    // Sort by finish time (cumulative time at "F" control)
-    rows.sort((a, b) => {
-        const finishCellA = a.cells.find(c => c.controlCode === 'F')
-        const finishCellB = b.cells.find(c => c.controlCode === 'F')
+    // Separate competing and AK (not competing) runners
+    const competingRunners = rows.filter(r => !r.notCompeting)
+    const akRunners = rows.filter(r => r.notCompeting)
 
-        const timeA = finishCellA?.cumulativeTime ?? Number.MAX_VALUE
-        const timeB = finishCellB?.cumulativeTime ?? Number.MAX_VALUE
-
+    // Sort both groups by finish time
+    const sortByFinishTime = (a: any, b: any) => {
+        const timeA = a.finishTime ?? Number.MAX_VALUE
+        const timeB = b.finishTime ?? Number.MAX_VALUE
         return timeA - timeB
-    })
+    }
 
-    return rows
+    competingRunners.sort(sortByFinishTime)
+    akRunners.sort(sortByFinishTime)
+
+    // Competing runners first, then AK runners
+    return [...competingRunners, ...akRunners]
 })
 
 // Control codes without "S" (start)
@@ -146,6 +150,17 @@ function formatTime(seconds: number | null): string {
         return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
 
     return `${minutes}:${secs.toString().padStart(2, '0')}`
+}
+
+function formatTimeDiff(seconds: number | null): string {
+    if (seconds === null || seconds === 0)
+        return '—'
+
+    const totalSeconds = Math.floor(seconds)
+    const minutes = Math.floor(totalSeconds / 60)
+    const secs = totalSeconds % 60
+
+    return `+${minutes}:${secs.toString().padStart(2, '0')}`
 }
 
 function getErrorColor(severity: ErrorSeverity): string {
@@ -297,14 +312,33 @@ function getColumnHeader(controlCode: string, index: number): string {
                 striped-rows
                 class="split-time-table"
             >
+                <!-- Frozen Column: Position -->
+                <Column
+                    :header="t('analysis.splitTimeTable.position')"
+                    frozen
+                    style="min-width: 60px; text-align: center"
+                >
+                    <template #body="slotProps">
+                        <div class="font-semibold">
+                            {{ slotProps.data.position ?? '—' }}
+                        </div>
+                    </template>
+                </Column>
+
                 <!-- Frozen Column: Runner Name -->
                 <Column
-                    field="personName"
                     :header="t('analysis.splitTimeTable.runnerName')"
                     frozen
                     class="runner-name-column"
                     style="min-width: 200px"
-                />
+                >
+                    <template #body="slotProps">
+                        {{ slotProps.data.personName }}
+                        <span v-if="slotProps.data.notCompeting" class="text-gray-500 ml-2">
+                            ({{ t('analysis.splitTimeTable.notCompetingAbbr') }})
+                        </span>
+                    </template>
+                </Column>
 
                 <!-- Frozen Column: Class (if grouped by course) -->
                 <Column
@@ -315,12 +349,41 @@ function getColumnHeader(controlCode: string, index: number): string {
                     style="min-width: 100px"
                 />
 
+                <!-- Frozen Column: Total Time (Gesamtzeit) -->
+                <Column
+                    :header="t('analysis.splitTimeTable.totalTime')"
+                    frozen
+                    style="min-width: 80px"
+                >
+                    <template #body="slotProps">
+                        <div class="font-semibold">
+                            {{ formatTime(slotProps.data.finishTime) }}
+                        </div>
+                    </template>
+                </Column>
+
+                <!-- Frozen Column: Time Behind Winner (Rückstand) -->
+                <Column
+                    :header="t('analysis.splitTimeTable.timeBehind')"
+                    frozen
+                    style="min-width: 80px"
+                >
+                    <template #body="slotProps">
+                        <div v-if="!slotProps.data.notCompeting && slotProps.data.finishTime && tableQuery.data.value?.metadata?.winnerTime">
+                            {{ formatTimeDiff(slotProps.data.finishTime - tableQuery.data.value.metadata.winnerTime) }}
+                        </div>
+                        <div v-else-if="slotProps.data.notCompeting">
+                            —
+                        </div>
+                    </template>
+                </Column>
+
                 <!-- Dynamic Columns for each control -->
                 <Column
                     v-for="(controlCode, colIndex) in displayControlCodes"
                     :key="`col-${colIndex}`"
                     :header="getColumnHeader(controlCode, colIndex)"
-                    style="min-width: 90px; padding: 0.25rem;"
+                    style="min-width: 115px; padding: 0.25rem;"
                 >
                     <template #body="slotProps">
                         <div
@@ -336,6 +399,7 @@ function getColumnHeader(controlCode: string, index: number): string {
                                 <span
                                     v-if="slotProps.data.cells[colIndex + 1].cumulativePosition"
                                     class="position"
+                                    :class="[getTimeClass(slotProps.data.cells[colIndex + 1].isBestCumulative)]"
                                 >
                                     ({{ slotProps.data.cells[colIndex + 1].cumulativePosition }})
                                 </span>
@@ -348,6 +412,7 @@ function getColumnHeader(controlCode: string, index: number): string {
                                 <span
                                     v-if="slotProps.data.cells[colIndex + 1].segmentPosition"
                                     class="position"
+                                    :class="[getTimeClass(slotProps.data.cells[colIndex + 1].isBestSegment)]"
                                 >
                                     ({{ slotProps.data.cells[colIndex + 1].segmentPosition }})
                                 </span>
@@ -402,6 +467,16 @@ function getColumnHeader(controlCode: string, index: number): string {
                     </h3>
                     <p>
                         {{ t('analysis.splitTimeTable.help.bestTimesText') }}
+                    </p>
+                </div>
+
+                <!-- Not Competing Runners -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">
+                        {{ t('analysis.splitTimeTable.help.notCompetingRunners') }}
+                    </h3>
+                    <p>
+                        {{ t('analysis.splitTimeTable.help.notCompetingRunnersText') }}
                     </p>
                 </div>
 
@@ -470,14 +545,18 @@ function getColumnHeader(controlCode: string, index: number): string {
     line-height: 1.3;
 }
 
+.cumulative-line {
+    color: #111827;
+}
+
 .segment-line {
-    color: #424242;
+    color: #1f2937;
     font-size: 1em;
 }
 
 .position {
     margin-left: 0.2rem;
-    color: #424242;
+    color: #374151;
     font-size: 1em;
 }
 
@@ -520,12 +599,22 @@ function getColumnHeader(controlCode: string, index: number): string {
         background-color: #ea580c !important; /* dark orange-600 */
     }
 
+    .cumulative-line {
+        color: #f9fafb !important; /* lighter for dark mode */
+    }
+
     .segment-line {
         color: #d1d5db !important; /* lighter gray for dark mode */
     }
 
     .position {
         color: #9ca3af !important; /* lighter gray for positions */
+    }
+
+    /* Make bold times more visible in dark mode */
+    .font-bold {
+        font-weight: 900 !important; /* extra-bold */
+        color: #fbbf24 !important; /* amber-400 for better visibility */
     }
 }
 </style>

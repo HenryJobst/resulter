@@ -23,6 +23,9 @@ export interface SplitTimeTableRow {
     className: string
     cells: SplitTimeTableCell[]
     hasIncompleteSplits: boolean // true if runner has missing split data
+    notCompeting: boolean // true if runner is NOT_COMPETING (AK/außer Konkurrenz)
+    finishTime: number | null // cumulative time at finish control
+    position: number | null // overall position (null for AK runners)
 }
 
 /**
@@ -57,6 +60,7 @@ export interface SplitTimeTableMetadata {
     runnersWithCompleteSplits: number
     totalControls: number
     reliableData: boolean // true if >= 5 runners (statistical validity threshold)
+    winnerTime: number | null // finish time of winner (minimum among competing runners)
 }
 
 /**

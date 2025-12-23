@@ -194,16 +194,16 @@ public class HangingDetectionServiceImpl implements HangingDetectionService {
             RaceNumber raceNumber = stl.getRaceNumber();
 
             for (SplitTime split : stl.getSplitTimes()) {
-                if (split.getPunchTime().value() == null) continue;
+                if (split.punchTime().value() == null) continue;
 
                 // Index by control code (across all classes for cross-class hanging)
-                ControlKey key = new ControlKey(split.getControlCode().value());
+                ControlKey key = new ControlKey(split.controlCode().value());
 
                 PunchTimeRecord record = new PunchTimeRecord(
                         personId,
                         className,
                         raceNumber,
-                        split.getPunchTime().value()
+                        split.punchTime().value()
                 );
 
                 index.computeIfAbsent(key, k -> new ArrayList<>()).add(record);
@@ -368,8 +368,8 @@ public class HangingDetectionServiceImpl implements HangingDetectionService {
         Map<String, Double> map = new HashMap<>();
 
         for (SplitTime split : splitTimeList.getSplitTimes()) {
-            if (split.getPunchTime().value() != null) {
-                map.put(split.getControlCode().value(), split.getPunchTime().value());
+            if (split.punchTime().value() != null) {
+                map.put(split.controlCode().value(), split.punchTime().value());
             }
         }
 

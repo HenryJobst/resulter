@@ -9,14 +9,16 @@ public record SplitTimeTableMetadataDto(
         int totalRunners,
         int runnersWithCompleteSplits,
         int totalControls,
-        boolean reliableData
+        boolean reliableData,
+        Double winnerTime
 ) {
     public static SplitTimeTableMetadataDto from(SplitTimeTableMetadata metadata) {
         return new SplitTimeTableMetadataDto(
                 metadata.totalRunners(),
                 metadata.runnersWithCompleteSplits(),
                 metadata.totalControls(),
-                metadata.reliableData()
+                metadata.reliableData(),
+                metadata.winnerTime()
         );
     }
 }

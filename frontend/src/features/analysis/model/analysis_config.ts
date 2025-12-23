@@ -1,6 +1,6 @@
 export type AnalysisScope = 'event' | 'cup' | 'year'
 
-export type AnalysisType = 'mental-resilience' | 'split-time-ranking' | 'cheat-detection' | 'hanging-detection'
+export type AnalysisType = 'mental-resilience' | 'split-time-ranking' | 'split-time-table' | 'cheat-detection' | 'hanging-detection'
 
 export interface AnalysisConfig {
     type: AnalysisType

@@ -105,7 +105,7 @@ function mergePrimeVueLocale(base: any, override: any) {
     return result
 }
 
-function renderApp() {
+export function renderApp() {
     const app = createApp(App)
     app.directive('tooltip', Tooltip)
     app.use(PrimeVue, {
@@ -152,6 +152,8 @@ function renderApp() {
             })
         }
     }
+
+    return app
 }
 
 keycloakService.callInit(renderApp).then()

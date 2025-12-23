@@ -1,7 +1,6 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record ControlCode(String value) implements Comparable<ControlCode> {
@@ -15,13 +14,7 @@ public record ControlCode(String value) implements Comparable<ControlCode> {
     }
 
     @Override
-    public int compareTo(@NonNull ControlCode o) {
-        if (value == null) {
-            return (o.value == null) ? 0 : -1;
-        }
-        if (o.value == null) {
-            return 1;
-        }
+    public int compareTo(ControlCode o) {
         return value.compareTo(o.value());
     }
 }

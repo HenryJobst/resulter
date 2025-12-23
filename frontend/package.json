@@ -60,7 +60,7 @@
         "@types/moment-duration-format": "^2.2.7",
         "@types/node": "^25.0.3",
         "@unocss/eslint-plugin": "^66.5.9",
-        "@vitejs/plugin-vue": "^6.0.2",
+        "@vitejs/plugin-vue": "^6.0.3",
         "@vitest/ui": "^4.0.14",
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.6.0",

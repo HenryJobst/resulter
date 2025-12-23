@@ -1,16 +1,13 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.SplitTime;
-import de.jobst.resulter.domain.SplitTimeListId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
-
-import java.util.List;
 
 import static de.jobst.resulter.domain.util.CompareUtils.compareNullable;
 
@@ -19,22 +16,24 @@ import static de.jobst.resulter.domain.util.CompareUtils.compareNullable;
 @Table(name = "split_time")
 public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
 
+    @Column("split_time_list_id")
+    private Long splitTimeListId;
+
     @Column("control_code")
     private String controlCode;
 
     @Column("punch_time")
-    private Double punchTime;
+    @Nullable private Double punchTime;
 
     public static SplitTimeDbo from(SplitTime splitTime) {
-        return new SplitTimeDbo(splitTime.getControlCode().value(), splitTime.getPunchTime().value());
-    }
-
-    static public List<SplitTime> asSplitTimes(List<SplitTimeDbo> splitTimeDbos, SplitTimeListId splitTimeListId) {
-        return splitTimeDbos.stream().map(it -> SplitTime.of(it.controlCode, it.punchTime, splitTimeListId)).toList();
+        return new SplitTimeDbo(
+            splitTime.splitTimeListId().value(),
+            splitTime.controlCode().value(),
+            splitTime.punchTime().value());
     }
 
     @Override
-    public int compareTo(@NonNull SplitTimeDbo o) {
+    public int compareTo(SplitTimeDbo o) {
         // Vergleich von punchTime unter Berücksichtigung von Null-Werten
         int value = compareNullable(punchTime, o.punchTime);
 

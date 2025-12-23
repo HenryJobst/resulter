@@ -170,7 +170,7 @@ public class SplitTimeAnalysisServiceImpl {
 
         // Add virtual start control at 0.0 seconds
         List<SplitTime> allSplits = new ArrayList<>();
-        allSplits.add(new SplitTime(ControlCode.of(START_CODE), PunchTime.of(0.0), null));
+        allSplits.add(new SplitTime(ControlCode.of(START_CODE), PunchTime.of(0.0), splitTimeList.getId()));
         allSplits.addAll(splitTimeList.getSplitTimes());
 
         // Add virtual finish control with runtime
@@ -183,13 +183,13 @@ public class SplitTimeAnalysisServiceImpl {
         if (runtime != null && runtime > 0) {
             allSplits.add(new SplitTime(ControlCode.of(FINAL_CODE),
                     PunchTime.of(runtime),
-                    null));
+                    splitTimeList.getId()));
         }
 
         // Sort by punch time
         allSplits.sort(Comparator.comparing(st ->
-                st.getPunchTime().value() != null
-                        ? st.getPunchTime().value()
+            st.punchTime().value() != null
+                        ? st.punchTime().value()
                         : Double.MAX_VALUE));
 
         // Calculate segment times
@@ -197,13 +197,13 @@ public class SplitTimeAnalysisServiceImpl {
             SplitTime current = allSplits.get(i);
             SplitTime next = allSplits.get(i + 1);
 
-            if (current.getPunchTime().value() != null && next.getPunchTime().value() != null) {
-                double segmentTime = next.getPunchTime().value() - current.getPunchTime().value();
+            if (current.punchTime().value() != null && next.punchTime().value() != null) {
+                double segmentTime = next.punchTime().value() - current.punchTime().value();
                 if (segmentTime > 0) {
                     segmentTimes.add(new SegmentTime(
                             i,
-                            current.getControlCode().value(),
-                            next.getControlCode().value(),
+                            current.controlCode().value(),
+                            next.controlCode().value(),
                             segmentTime
                     ));
                 }
@@ -359,8 +359,7 @@ public class SplitTimeAnalysisServiceImpl {
                && timeLossSeconds > ABSOLUTE_MISTAKE_THRESHOLD_SECONDS);
     }
 
-    boolean isMistake(SegmentPI segmentPI, double medianDifferencePercent,
-                      MentalResilienceServiceImpl mentalResilienceService) {
+    boolean isMistake(SegmentPI segmentPI, double medianDifferencePercent) {
         return isMistakeBase(segmentPI, medianDifferencePercent).isMistake();
     }
 }

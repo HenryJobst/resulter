@@ -113,6 +113,7 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             // Add virtual Start and Finish controls
             List<SplitTime> extendedSplitTimes = addStartAndFinishControls(
                     splitTimes,
+                    splitTimeList.getId(),
                     splitTimeList.getPersonId(),
                     splitTimeList.getClassResultShortName(),
                     splitTimeList.getRaceNumber(),
@@ -123,7 +124,7 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             // Use nullsLast to handle missing punches (DNF/missed controls)
             List<SplitTime> sortedSplitTimes = new ArrayList<>(extendedSplitTimes);
             sortedSplitTimes.sort(Comparator.comparing(
-                    st -> st.getPunchTime().value(),
+                    st -> st.punchTime().value(),
                     Comparator.nullsLast(Comparator.naturalOrder())
             ));
 
@@ -133,15 +134,15 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                 SplitTime currentSplit = sortedSplitTimes.get(i);
 
                 // Skip if either punch time is null (missed control/DNF)
-                if (previousSplit.getPunchTime().value() == null || currentSplit.getPunchTime().value() == null) {
+                if (previousSplit.punchTime().value() == null || currentSplit.punchTime().value() == null) {
                     continue;
                 }
 
-                String fromControl = previousSplit.getControlCode().value();
-                String toControl = currentSplit.getControlCode().value();
+                String fromControl = previousSplit.controlCode().value();
+                String toControl = currentSplit.controlCode().value();
 
                 // Calculate split time (current - previous)
-                Double splitTimeSeconds = currentSplit.getPunchTime().value() - previousSplit.getPunchTime().value();
+                Double splitTimeSeconds = currentSplit.punchTime().value() - previousSplit.punchTime().value();
 
                 // Apply person ID filtering if specified
                 if (!filterPersonIds.isEmpty()) {
@@ -218,36 +219,7 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                         .toList();
 
                 // Calculate positions and time behind leader
-                List<RunnerSplit> runnerSplits = new ArrayList<>();
-                Double leaderTime = runnerData.isEmpty() ? 0.0 : runnerData.getFirst().splitTimeSeconds();
-
-                int currentPosition = 1;
-                Double previousTime = null;
-
-                for (int i = 0; i < limitedSize; i++) {
-                    RunnerSplitData data = runnerData.get(i);
-                    Double currentTime = data.splitTimeSeconds();
-
-                    // If this is a new time (not equal to previous), update position
-                    // Use 0.001 second (1ms) threshold for floating point comparison
-                    if (previousTime == null || Math.abs(currentTime - previousTime) > 0.001) {
-                        currentPosition = i + 1;
-                    }
-                    // Otherwise keep the same position (tie)
-
-                    Double timeBehind = currentTime - leaderTime;
-
-                    runnerSplits.add(new RunnerSplit(
-                            data.personId(),
-                            data.classResultShortName(),
-                            currentPosition,
-                            currentTime,
-                            timeBehind,
-                            false // not reversed (forward direction)
-                    ));
-
-                    previousTime = currentTime;
-                }
+                List<RunnerSplit> runnerSplits = getRunnerSplits(runnerData, limitedSize);
 
                 ControlSegment segment = new ControlSegment(
                         ControlCode.of(fromControl),
@@ -282,6 +254,40 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         return controlSegments;
     }
 
+    private static List<RunnerSplit> getRunnerSplits(List<RunnerSplitData> runnerData, int limitedSize) {
+        List<RunnerSplit> runnerSplits = new ArrayList<>();
+        Double leaderTime = runnerData.isEmpty() ? 0.0 : runnerData.getFirst().splitTimeSeconds();
+
+        int currentPosition = 1;
+        Double previousTime = null;
+
+        for (int i = 0; i < limitedSize; i++) {
+            RunnerSplitData data = runnerData.get(i);
+            Double currentTime = data.splitTimeSeconds();
+
+            // If this is a new time (not equal to previous), update position
+            // Use 0.001 second (1ms) threshold for floating point comparison
+            if (previousTime == null || Math.abs(currentTime - previousTime) > 0.001) {
+                currentPosition = i + 1;
+            }
+            // Otherwise keep the same position (tie)
+
+            Double timeBehind = currentTime - leaderTime;
+
+            runnerSplits.add(new RunnerSplit(
+                    data.personId(),
+                    data.classResultShortName(),
+                    currentPosition,
+                    currentTime,
+                    timeBehind,
+                    false // not reversed (forward direction)
+            ));
+
+            previousTime = currentTime;
+        }
+        return runnerSplits;
+    }
+
     private List<ControlSegment> mergeBidirectionalSegments(List<ControlSegment> segments) {
         Map<String, ControlSegment> mergedSegmentMap = new HashMap<>();
         Set<String> processedPairs = new HashSet<>();
@@ -313,19 +319,7 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             if (reverseSegment != null) {
                 // Merge forward and reverse segments
                 // Forward segment runners keep reversed = false
-                List<RunnerSplit> mergedSplits = new ArrayList<>(segment.runnerSplits());
-
-                // Reverse segment runners need reversed = true (they went the opposite direction)
-                for (RunnerSplit reverseSplit : reverseSegment.runnerSplits()) {
-                    mergedSplits.add(new RunnerSplit(
-                            reverseSplit.personId(),
-                            reverseSplit.classResultShortName(),
-                            reverseSplit.position(),
-                            reverseSplit.splitTimeSeconds(),
-                            reverseSplit.timeBehindLeader(),
-                            true // reversed - went opposite direction
-                    ));
-                }
+                List<RunnerSplit> mergedSplits = getMergedSplits(segment, reverseSegment);
 
                 // Merge classes from both segments
                 List<String> mergedClasses = new ArrayList<>(segment.classes());
@@ -337,34 +331,7 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                 // Re-sort and recalculate positions
                 mergedSplits.sort(Comparator.comparingDouble(RunnerSplit::splitTimeSeconds));
 
-                List<RunnerSplit> recalculatedSplits = new ArrayList<>();
-                Double leaderTime = mergedSplits.isEmpty() ? 0.0 : mergedSplits.getFirst().splitTimeSeconds();
-
-                int currentPosition = 1;
-                Double previousTime = null;
-
-                for (int i = 0; i < mergedSplits.size(); i++) {
-                    RunnerSplit split = mergedSplits.get(i);
-                    Double currentTime = split.splitTimeSeconds();
-
-                    // If this is a new time (not equal to previous), update position
-                    // Use 0.001 second (1ms) threshold for floating point comparison
-                    if (previousTime == null || Math.abs(currentTime - previousTime) > 0.001) {
-                        currentPosition = i + 1;
-                    }
-                    // Otherwise keep the same position (tie)
-
-                    recalculatedSplits.add(new RunnerSplit(
-                            split.personId(),
-                            split.classResultShortName(),
-                            currentPosition,
-                            currentTime,
-                            currentTime - leaderTime,
-                            split.reversed() // preserve the reversed flag
-                    ));
-
-                    previousTime = currentTime;
-                }
+                List<RunnerSplit> recalculatedSplits = getRecalculatedSplits(mergedSplits);
 
                 // Ensure the merged segment has the smaller control code first
                 ControlCode finalFromControl;
@@ -412,21 +379,69 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         return new ArrayList<>(mergedSegmentMap.values());
     }
 
+    private static List<RunnerSplit> getMergedSplits(ControlSegment segment, ControlSegment reverseSegment) {
+        List<RunnerSplit> mergedSplits = new ArrayList<>(segment.runnerSplits());
+
+        // Reverse segment runners need reversed = true (they went the opposite direction)
+        for (RunnerSplit reverseSplit : reverseSegment.runnerSplits()) {
+            mergedSplits.add(new RunnerSplit(
+                    reverseSplit.personId(),
+                    reverseSplit.classResultShortName(),
+                    reverseSplit.position(),
+                    reverseSplit.splitTimeSeconds(),
+                    reverseSplit.timeBehindLeader(),
+                    true // reversed - went opposite direction
+            ));
+        }
+        return mergedSplits;
+    }
+
+    private static List<RunnerSplit> getRecalculatedSplits(List<RunnerSplit> mergedSplits) {
+        List<RunnerSplit> recalculatedSplits = new ArrayList<>();
+        Double leaderTime = mergedSplits.isEmpty() ? 0.0 : mergedSplits.getFirst().splitTimeSeconds();
+
+        int currentPosition = 1;
+        Double previousTime = null;
+
+        for (int i = 0; i < mergedSplits.size(); i++) {
+            RunnerSplit split = mergedSplits.get(i);
+            Double currentTime = split.splitTimeSeconds();
+
+            // If this is a new time (not equal to previous), update position
+            // Use 0.001 second (1ms) threshold for floating point comparison
+            if (previousTime == null || Math.abs(currentTime - previousTime) > 0.001) {
+                currentPosition = i + 1;
+            }
+            // Otherwise keep the same position (tie)
+
+            recalculatedSplits.add(new RunnerSplit(
+                    split.personId(),
+                    split.classResultShortName(),
+                    currentPosition,
+                    currentTime,
+                    currentTime - leaderTime,
+                    split.reversed() // preserve the reversed flag
+            ));
+
+            previousTime = currentTime;
+        }
+        return recalculatedSplits;
+    }
+
     /**
      * Adds virtual Start (punch_time = 0) and Finish (punch_time = runtime) controls
      * to the split times list.
      */
     private List<SplitTime> addStartAndFinishControls(
-            List<SplitTime> splitTimes,
-            PersonId personId,
-            ClassResultShortName classShortName,
-            RaceNumber raceNumber,
-            Map<String, Double> runtimeMap) {
+        List<SplitTime> splitTimes, SplitTimeListId id, PersonId personId,
+        ClassResultShortName classShortName,
+        RaceNumber raceNumber,
+        Map<String, Double> runtimeMap) {
 
         List<SplitTime> extendedSplitTimes = new ArrayList<>();
 
         // Add virtual Start control with punch_time = 0
-        extendedSplitTimes.add(SplitTime.of("S", 0.0));
+        extendedSplitTimes.add(SplitTime.of("S", 0.0, id));
 
         // Add all existing split times
         extendedSplitTimes.addAll(splitTimes);
@@ -435,7 +450,7 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         String runtimeKey = makeRuntimeKey(personId, classShortName, raceNumber);
         Double runtime = runtimeMap.get(runtimeKey);
         if (runtime != null && runtime > 0) {
-            extendedSplitTimes.add(SplitTime.of("F", runtime));
+            extendedSplitTimes.add(SplitTime.of("F", runtime, id));
         }
 
         return extendedSplitTimes;

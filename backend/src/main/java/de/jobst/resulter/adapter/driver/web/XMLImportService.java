@@ -138,7 +138,8 @@ public class XMLImportService {
                                         .byteValue()),
                                 personRaceResult.getSplitTimes().stream()
                                         .map(x -> new SplitTime(
-                                                ControlCode.of(x.getControlCode()), PunchTime.of(x.getTime()), null))
+                                                ControlCode.of(x.getControlCode()), PunchTime.of(x.getTime()),
+                                            SplitTimeListId.empty()))
                                         .toList())))
                 .toList();
     }

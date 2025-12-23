@@ -72,4 +72,14 @@ export const analysisRoutes: RouteRecordRaw[] = [
             resultListLabel: route.query.resultListLabel ? String(route.query.resultListLabel) : undefined,
         }),
     },
+    {
+        path: '/:locale/analysis/split-time-table',
+        name: 'split-time-table-analysis',
+        component: () => import('@/features/analysis/pages/SplitTimeTableAnalysis.vue'),
+        props: route => ({
+            resultListId: route.query.resultListId ? Number(route.query.resultListId) : undefined,
+            eventName: route.query.eventName ? String(route.query.eventName) : undefined,
+            resultListLabel: route.query.resultListLabel ? String(route.query.resultListLabel) : undefined,
+        }),
+    },
 ]

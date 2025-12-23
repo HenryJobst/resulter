@@ -13,7 +13,10 @@ import java.util.Optional;
 
 @Repository
 public interface SplitTimeListJdbcRepository
-    extends CrudRepository<SplitTimeListDbo, Long>, PagingAndSortingRepository<SplitTimeListDbo, Long> {
+    extends CrudRepository<SplitTimeListDbo, Long>,
+            PagingAndSortingRepository<SplitTimeListDbo, Long>,
+            SplitTimeListJdbcRepositoryCustom
+{
 
     Collection<SplitTimeListDbo> findAll();
 

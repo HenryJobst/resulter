@@ -12,7 +12,10 @@ public record SplitTimeTableRowDto(
         String personName,
         String className,
         List<SplitTimeTableCellDto> cells,
-        boolean hasIncompleteSplits
+        boolean hasIncompleteSplits,
+        boolean notCompeting,
+        Double finishTime,
+        Integer position
 ) {
     public static SplitTimeTableRowDto from(SplitTimeTableRow row) {
         return new SplitTimeTableRowDto(
@@ -22,7 +25,10 @@ public record SplitTimeTableRowDto(
                 row.cells().stream()
                         .map(SplitTimeTableCellDto::from)
                         .toList(),
-                row.hasIncompleteSplits()
+                row.hasIncompleteSplits(),
+                row.notCompeting(),
+                row.finishTime(),
+                row.position()
         );
     }
 }

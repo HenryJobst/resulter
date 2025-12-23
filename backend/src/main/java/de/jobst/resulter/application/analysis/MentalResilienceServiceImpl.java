@@ -219,7 +219,7 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
         for (int i = 0; i < segmentPIs.size() - 1; i++) {
             SegmentPI currentSegment = segmentPIs.get(i);
 
-            boolean isMistake = splitTimeAnalysisServiceImpl.isMistake(currentSegment, medianDifferencePercent, this);
+            boolean isMistake = splitTimeAnalysisServiceImpl.isMistake(currentSegment, medianDifferencePercent);
 
             if (isMistake) {
                 SegmentPI nextSegment = segmentPIs.get(i + 1);
@@ -234,8 +234,8 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
                 MentalResilienceIndex mri = MentalResilienceIndex.of(nextSegment.pi(), normalPI);
 
                 // Check if reaction segment is also a mistake (chain error)
-                boolean nextIsMistake = splitTimeAnalysisServiceImpl.isMistake(nextSegment, medianDifferencePercent,
-                    this);
+                boolean nextIsMistake = splitTimeAnalysisServiceImpl.isMistake(nextSegment, medianDifferencePercent
+                );
 
                 MentalClassification classification;
                 String currentSegmentPiFormated = String.format("%.3f", currentSegment.pi().value());

@@ -1,11 +1,10 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.Nullable;
 
 @ValueObject
-public record ControlCode(@Nullable String value) implements Comparable<ControlCode> {
-    public static ControlCode of(@Nullable String value) {
+public record ControlCode(String value) implements Comparable<ControlCode> {
+    public static ControlCode of(String value) {
         return new ControlCode(value);
     }
 
@@ -16,12 +15,6 @@ public record ControlCode(@Nullable String value) implements Comparable<ControlC
 
     @Override
     public int compareTo(ControlCode o) {
-        if (value == null) {
-            return (o.value == null) ? 0 : -1;
-        }
-        if (o.value == null) {
-            return 1;
-        }
         return value.compareTo(o.value());
     }
 }

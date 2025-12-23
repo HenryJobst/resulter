@@ -44,6 +44,12 @@ public class KJCalculationStrategy implements CupTypeCalculationStrategy {
         return validClubs.contains(personResult.organisationId());
     }
 
+    @Override
+    public boolean valid(Organisation organisation) {
+        if (validClubs.isEmpty()) return true; // can't check at this point so allow all
+        return validClubs.contains(organisation.getId());
+    }
+
     private record SortedResults(List<PersonRaceResult> resultsWithStatusOk, List<CupScore> otherResults) {}
 
     @Override

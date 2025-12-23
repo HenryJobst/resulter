@@ -10,10 +10,10 @@ import java.time.Year;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,7 +86,7 @@ public class CupServiceImpl implements CupService {
     }
 
     @Override
-    public Page<Cup> findAll(@Nullable String filterString, @NonNull Pageable pageable) {
+    public Page<Cup> findAll(@Nullable String filterString, Pageable pageable) {
         return cupRepository.findAll(filterString, pageable);
     }
 
@@ -126,16 +126,14 @@ public class CupServiceImpl implements CupService {
                     .forEach(allPersonIds::add);
         }
 
-        // Collect from eventRacesCupScores (for organisation-grouped cups)
+        // Collect from eventRacesCupScores (for organization-grouped cups)
         eventResultLists.stream()
-                .flatMap(erl -> {
-                    return cupScoreLists.stream()
-                            .flatMap(Collection::stream)
-                            .filter(csl -> csl.getResultListId()
-                                    .equals(erl.resultList().getId()))
-                            .flatMap(csl -> csl.getCupScores().stream())
-                            .map(cupScore -> cupScore.personId());
-                })
+                .flatMap(erl -> cupScoreLists.stream()
+                        .flatMap(Collection::stream)
+                        .filter(csl -> csl.getResultListId()
+                                .equals(erl.resultList().getId()))
+                        .flatMap(csl -> csl.getCupScores().stream())
+                        .map(CupScore::personId))
                 .forEach(allPersonIds::add);
 
         // Load all persons in bulk
@@ -144,7 +142,7 @@ public class CupServiceImpl implements CupService {
         return new CupDetailed(
                 cup,
                 cup.getType().isGroupedByOrganisation()
-                        ? calculateOrganisationGroupedSums(events, eventResultLists, races, cupScoreLists)
+                        ? calculateOrganisationGroupedSums(events, eventResultLists, races, cupScoreLists, strategy)
                         : classResultAggregationResult.eventRacesCupScores(),
                 cup.getType().isGroupedByOrganisation()
                         ? List.of()
@@ -306,10 +304,11 @@ public class CupServiceImpl implements CupService {
     }
 
     private List<EventRacesCupScore> calculateOrganisationGroupedSums(
-            List<Event> events,
-            List<EventResultList> eventResultLists,
-            List<Race> races,
-            List<List<CupScoreList>> cupScoreLists) {
+        List<Event> events,
+        List<EventResultList> eventResultLists,
+        List<Race> races,
+        List<List<CupScoreList>> cupScoreLists,
+        CupTypeCalculationStrategy strategy) {
         return events.stream()
                 .map(event -> {
                     var eventRaces = races.stream()
@@ -340,6 +339,7 @@ public class CupServiceImpl implements CupService {
                                     return new RaceOrganisationGroupedCupScore(
                                             race,
                                             organisations.stream()
+                                                    .filter(strategy::valid)
                                                     .map(organisation -> {
                                                         List<CupScore> relevantCupScores =
                                                                 cupScoreList.getCupScores().stream()

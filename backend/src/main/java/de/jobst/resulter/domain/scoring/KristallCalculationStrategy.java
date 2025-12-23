@@ -32,6 +32,11 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
             .orElse(false);
     }
 
+    @Override
+    public boolean valid(Organisation organisation) {
+        return isNotSkippedOrganisation(organisation.getShortName().value());
+    }
+
     private boolean isNotSkippedOrganisation(String organisationShortName) {
         return organisationsToSkip.stream().noneMatch(organisationShortName::contains);
     }

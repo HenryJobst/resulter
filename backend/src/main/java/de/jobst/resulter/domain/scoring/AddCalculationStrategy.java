@@ -18,6 +18,9 @@ public class AddCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     @Override
+    public boolean valid(Organisation organisation) { return false; }
+
+    @Override
     public List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults,
                                     Map<PersonId, OrganisationId> organisationByPerson) {
 

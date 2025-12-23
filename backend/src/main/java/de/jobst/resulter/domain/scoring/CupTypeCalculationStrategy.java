@@ -11,6 +11,8 @@ public interface CupTypeCalculationStrategy {
 
     boolean valid(PersonResult personResult);
 
+    boolean valid(Organisation organisation);
+
     List<CupScore> calculate(Cup cup, List<PersonRaceResult> personRaceResults,
                              Map<PersonId, OrganisationId> organisationByPerson);
 

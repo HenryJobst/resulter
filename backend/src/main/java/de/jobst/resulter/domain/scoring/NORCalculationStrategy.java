@@ -116,6 +116,12 @@ public class NORCalculationStrategy implements CupTypeCalculationStrategy {
     }
 
     @Override
+    public boolean valid(Organisation organisation) {
+        return norOrganisation != null && organisationById != null &&
+               norOrganisation.containsOrganisationWithId(organisation.getId(), organisationById);
+    }
+
+    @Override
     public List<CupScore> calculate(
             Cup cup, List<PersonRaceResult> personRaceResults, Map<PersonId, OrganisationId> organisationByPerson) {
         if (personRaceResults.isEmpty()) {

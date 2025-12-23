@@ -26,10 +26,10 @@ const selectedResultList = ref<ResultList | null>(null)
 const analysisTypes = computed<AnalysisTypeInfo[]>(() => {
     const types: AnalysisTypeInfo[] = [
         {
-            key: 'mental-resilience',
-            titleKey: 'labels.mental_resilience_analysis',
-            descriptionKey: 'messages.mri_description',
-            icon: 'pi pi-chart-line',
+            key: 'split-time-table',
+            titleKey: 'labels.split_time_table',
+            descriptionKey: 'messages.split_time_table_description',
+            icon: 'pi pi-table',
             enabled: true,
         },
         {
@@ -40,10 +40,10 @@ const analysisTypes = computed<AnalysisTypeInfo[]>(() => {
             enabled: true,
         },
         {
-            key: 'split-time-table',
-            titleKey: 'labels.split_time_table',
-            descriptionKey: 'messages.split_time_table_description',
-            icon: 'pi pi-table',
+            key: 'mental-resilience',
+            titleKey: 'labels.mental_resilience_analysis',
+            descriptionKey: 'messages.mri_description',
+            icon: 'pi pi-chart-line',
             enabled: true,
         },
     ]
@@ -284,7 +284,10 @@ function startAnalysis() {
                             >
                             <label for="scope-event">{{ t('labels.scope_event') }}</label>
                         </div>
-                        <div class="flex items-center opacity-50">
+                        <div
+                            v-if="authStore.isAdmin"
+                            class="flex items-center opacity-50"
+                        >
                             <input
                                 id="scope-cup"
                                 type="radio"
@@ -297,7 +300,10 @@ function startAnalysis() {
                                 <span class="text-xs ml-1">({{ t('labels.coming_soon') }})</span>
                             </label>
                         </div>
-                        <div class="flex items-center opacity-50">
+                        <div
+                            v-if="authStore.isAdmin"
+                            class="flex items-center opacity-50"
+                        >
                             <input
                                 id="scope-year"
                                 type="radio"

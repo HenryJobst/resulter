@@ -1,20 +1,20 @@
 import type { RouteLocationRaw, Router } from 'vue-router'
+import messages from '@intlify/unplugin-vue-i18n/messages'
+import { flushPromises } from '@vue/test-utils'
 import { createPinia } from 'pinia'
-import { setupI18n } from '../../src/i18n'
+import { render } from 'vitest-browser-vue'
 // @ts-ignore
 import de from '@/locales/de.json'
-import { render } from 'vitest-browser-vue'
-import { flushPromises } from '@vue/test-utils'
-import messages from '@intlify/unplugin-vue-i18n/messages'
-import { setupRouter } from '../../src/router'
+import { setupI18n } from '../../src/i18n'
 import { renderApp } from '../../src/main'
+import { setupRouter } from '../../src/router'
 
-type CreateTestAppOptions = {
+interface CreateTestAppOptions {
     initialRoute?: string
     locale?: string
 }
 
-type TestApp = {
+interface TestApp {
     router: Router
     container: Element
     navigateTo: (to: RouteLocationRaw) => Promise<void>

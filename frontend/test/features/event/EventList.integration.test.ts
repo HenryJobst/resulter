@@ -1,10 +1,10 @@
+import type { SportEvent } from '../../../src/features/event/model/sportEvent'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import EventList from '../../../src/features/event/pages/EventList.vue'
 import { createEvent } from '../../factories/eventFactory'
-import type { SportEvent } from '../../../src/features/event/model/sportEvent'
-import { createGlobalMountOptions, mockUseQuery, cleanupTest, expectNoA11yViolations } from '../../helpers/testSetup'
+import { cleanupTest, createGlobalMountOptions, expectNoA11yViolations, mockUseQuery } from '../../helpers/testSetup'
 
 // Mock Keycloak
 vi.mock('@/features/keycloak/services/keycloak', () => ({
@@ -38,7 +38,7 @@ vi.mock('@tanstack/vue-query', () => ({
     })),
 }))
 
-describe('EventList Integration Tests', () => {
+describe('eventList Integration Tests', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })

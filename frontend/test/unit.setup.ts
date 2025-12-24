@@ -33,6 +33,17 @@ vi.mock('primevue/usetoast', () => ({
     })),
 }))
 
+// Mock Keycloak to suppress initialization warnings in tests
+vi.mock('@/features/keycloak/services/keycloak', () => ({
+    default: {
+        callInit: vi.fn(),
+        callInitStore: vi.fn(),
+        callLogin: vi.fn(),
+        callLogout: vi.fn(),
+        callTokenRefresh: vi.fn(),
+    },
+}))
+
 // Global test-utils config
 config.global.stubs = {
     teleport: true,

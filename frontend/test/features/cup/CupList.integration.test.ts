@@ -1,10 +1,10 @@
+import type { Cup } from '../../../src/features/cup/model/cup'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import CupList from '../../../src/features/cup/pages/CupList.vue'
 import { createCup } from '../../factories/cupFactory'
-import type { Cup } from '../../../src/features/cup/model/cup'
-import { createGlobalMountOptions, mockUseQuery, cleanupTest, expectNoA11yViolations } from '../../helpers/testSetup'
+import { cleanupTest, createGlobalMountOptions, expectNoA11yViolations, mockUseQuery } from '../../helpers/testSetup'
 
 // Mock Keycloak
 vi.mock('@/features/keycloak/services/keycloak', () => ({
@@ -38,7 +38,7 @@ vi.mock('@tanstack/vue-query', () => ({
     })),
 }))
 
-describe('CupList Integration Tests', () => {
+describe('cupList Integration Tests', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })

@@ -1,7 +1,7 @@
-import { createTestingPinia } from '@pinia/testing'
-import { vi, expect } from 'vitest'
-import { createI18n } from 'vue-i18n'
 import type { VueWrapper } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
+import { vi } from 'vitest'
+import { createI18n } from 'vue-i18n'
 
 /**
  * Creates a properly configured i18n instance for tests
@@ -80,7 +80,11 @@ export function createGlobalMountOptions(options: {
                 initialState: {
                     authStore: {
                         authenticated,
-                        isAdmin,
+                        user: {
+                            roles: isAdmin ? ['user', 'admin'] : ['user'],
+                            username: 'testuser',
+                            token: 'mock-token',
+                        },
                     },
                 },
             }),
@@ -174,7 +178,7 @@ export async function expectNoA11yViolations(wrapper: VueWrapper) {
         const results = await axe.run(element, {
             rules: {
                 // Disable region rule as it's not applicable in component tests
-                region: { enabled: false },
+                'region': { enabled: false },
                 // Disable landmark rules for isolated component tests
                 'landmark-one-main': { enabled: false },
                 'landmark-unique': { enabled: false },

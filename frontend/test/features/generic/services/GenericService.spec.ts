@@ -1,9 +1,9 @@
+import type { GenericEntity } from '@/features/generic/models/GenericEntity'
+import type { RestPageResult } from '@/features/generic/models/rest_page_result'
+import type { TableSettings } from '@/features/generic/models/table_settings'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { GenericService } from '@/features/generic/services/GenericService'
 import axiosInstance from '@/features/keycloak/services/api'
-import type { TableSettings } from '@/features/generic/models/table_settings'
-import type { RestPageResult } from '@/features/generic/models/rest_page_result'
-import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 
 // Mock axios instance
 vi.mock('@/features/keycloak/services/api', () => ({
@@ -21,7 +21,33 @@ interface TestEntity extends GenericEntity {
     description?: string
 }
 
-describe('GenericService', () => {
+// Helper to create default TableSettings with optional overrides
+function createTableSettings(overrides: Partial<TableSettings> = {}): TableSettings {
+    return {
+        first: 0,
+        rows: 10,
+        page: 0,
+        paginator: false,
+        paginatorPosition: undefined,
+        rowsPerPageOptions: [10, 20, 50],
+        sortMode: undefined,
+        multiSortMeta: undefined,
+        sortField: undefined,
+        sortOrder: undefined,
+        nullSortOrder: 1,
+        defaultSortOrder: 1,
+        filters: undefined,
+        removableSort: false,
+        rowHover: false,
+        stateStorage: 'session',
+        stateKey: undefined,
+        scrollable: false,
+        stripedRows: false,
+        ...overrides,
+    }
+}
+
+describe('genericService', () => {
     let genericService: GenericService<TestEntity>
     const mockT = (key: string) => key
 
@@ -54,11 +80,11 @@ describe('GenericService', () => {
         })
 
         it('should fetch all entities with pagination', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 paginator: true,
                 page: 2,
                 rows: 20,
-            }
+            })
 
             const mockData: RestPageResult<TestEntity> = {
                 content: [],
@@ -78,10 +104,10 @@ describe('GenericService', () => {
         })
 
         it('should handle single field sorting', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 sortField: 'name',
                 sortOrder: 1, // ascending
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -92,10 +118,10 @@ describe('GenericService', () => {
         })
 
         it('should handle descending sort order', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 sortField: 'name',
                 sortOrder: -1, // descending
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -106,12 +132,12 @@ describe('GenericService', () => {
         })
 
         it('should handle multi-column sorting', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 multiSortMeta: [
                     { field: 'name', order: 1 },
                     { field: 'description', order: -1 },
                 ],
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -124,13 +150,13 @@ describe('GenericService', () => {
         })
 
         it('should filter out zero-order sorting in multiSortMeta', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 multiSortMeta: [
                     { field: 'name', order: 1 },
                     { field: 'description', order: 0 }, // Should be filtered out
                     { field: 'id', order: -1 },
                 ],
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -145,10 +171,10 @@ describe('GenericService', () => {
 
         it('should handle function-based sortField', async () => {
             const sortFunction = (_item: any) => 'customField'
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 sortField: sortFunction,
                 sortOrder: 1,
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -159,13 +185,13 @@ describe('GenericService', () => {
         })
 
         it('should not add default sortField if already in multiSortMeta', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 sortField: 'name',
                 sortOrder: 1,
                 multiSortMeta: [
                     { field: 'name', order: -1 }, // Already has 'name' field
                 ],
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -179,9 +205,9 @@ describe('GenericService', () => {
         })
 
         it('should handle nullSortOrder parameter', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 nullSortOrder: -1,
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -192,9 +218,9 @@ describe('GenericService', () => {
         })
 
         it('should handle defaultSortOrder parameter', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 defaultSortOrder: -1,
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -205,9 +231,9 @@ describe('GenericService', () => {
         })
 
         it('should not add nullSortOrder if value is 1 (default)', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 nullSortOrder: 1,
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -218,11 +244,11 @@ describe('GenericService', () => {
         })
 
         it('should handle equals filter', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 filters: {
                     name: { value: 'Test', matchMode: 'equals' },
                 },
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -235,11 +261,11 @@ describe('GenericService', () => {
         })
 
         it('should handle contains filter', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 filters: {
                     description: { value: 'search', matchMode: 'contains' },
                 },
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -252,12 +278,12 @@ describe('GenericService', () => {
         })
 
         it('should handle multiple filters', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 filters: {
                     name: { value: 'Test', matchMode: 'equals' },
                     description: { value: 'search', matchMode: 'contains' },
                 },
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -271,12 +297,12 @@ describe('GenericService', () => {
         })
 
         it('should ignore filters without value', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 filters: {
                     name: { value: null, matchMode: 'equals' },
                     description: { value: '', matchMode: 'contains' },
                 },
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 
@@ -287,7 +313,7 @@ describe('GenericService', () => {
         })
 
         it('should handle complex table settings with all options', async () => {
-            const tableSettings: TableSettings = {
+            const tableSettings = createTableSettings({
                 paginator: true,
                 page: 1,
                 rows: 25,
@@ -301,7 +327,7 @@ describe('GenericService', () => {
                 },
                 nullSortOrder: -1,
                 defaultSortOrder: 1,
-            }
+            })
 
             vi.mocked(axiosInstance.get).mockResolvedValue({ data: { content: [] } })
 

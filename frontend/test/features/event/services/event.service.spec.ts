@@ -1,9 +1,9 @@
+import type { EventResults } from '@/features/event/model/event_results'
+import type { EventStatus } from '@/features/event/model/event_status'
+import type { SportEvent } from '@/features/event/model/sportEvent'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { EventService } from '@/features/event/services/event.service'
 import axiosInstance from '@/features/keycloak/services/api'
-import type { SportEvent } from '@/features/event/model/sportEvent'
-import type { EventResults } from '@/features/event/model/event_results'
-import type { EventStatus } from '@/features/event/model/event_status'
 
 // Mock axios instance
 vi.mock('@/features/keycloak/services/api', () => ({
@@ -15,7 +15,7 @@ vi.mock('@/features/keycloak/services/api', () => ({
     },
 }))
 
-describe('EventService', () => {
+describe('eventService', () => {
     let eventService: EventService
     const mockT = (key: string) => key
 

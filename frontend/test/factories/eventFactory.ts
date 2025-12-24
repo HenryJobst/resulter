@@ -1,4 +1,4 @@
-import {SportEvent} from "../../src/features/event/model/sportEvent";
+import type { SportEvent } from '../../src/features/event/model/sportEvent'
 
 const defaultEvent: SportEvent = {
     id: 1,
@@ -7,13 +7,13 @@ const defaultEvent: SportEvent = {
     state: { id: 'Planned' },
     organisations: [],
     certificate: null,
-    hasSplitTimes: false
+    hasSplitTimes: false,
 }
 
 // noinspection JSUnusedGlobalSymbols
 export function createEvent(overrides: Partial<SportEvent> = {}): SportEvent {
     return {
         ...defaultEvent, // start with default values
-        ...overrides // apply specific changes
+        ...overrides, // apply specific changes
     }
 }

@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import EventImport from '../../../src/features/event/pages/EventImport.vue'
-import { createGlobalMountOptions, cleanupTest, expectNoA11yViolations } from '../../helpers/testSetup'
+import { cleanupTest, createGlobalMountOptions, expectNoA11yViolations } from '../../helpers/testSetup'
 
 // Mock Keycloak
 vi.mock('@/features/keycloak/services/keycloak', () => ({

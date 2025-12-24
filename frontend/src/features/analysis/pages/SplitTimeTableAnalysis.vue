@@ -8,7 +8,7 @@ import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
 import Message from 'primevue/message'
 import Select from 'primevue/select'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { EventService } from '@/features/event/services/event.service'
@@ -190,6 +190,21 @@ function getColumnHeader(controlCode: string, index: number): string {
 
     return `${index + 1} (${controlCode})`
 }
+
+const isMobile = ref(false)
+
+function checkScreenSize() {
+    isMobile.value = window.innerWidth < 768
+}
+
+onMounted(() => {
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkScreenSize)
+})
 </script>
 
 <template>
@@ -315,7 +330,7 @@ function getColumnHeader(controlCode: string, index: number): string {
                 <!-- Frozen Column: Position -->
                 <Column
                     :header="t('analysis.splitTimeTable.position')"
-                    frozen
+                    :frozen="!isMobile"
                     style="min-width: 60px; text-align: center"
                 >
                     <template #body="slotProps">
@@ -345,14 +360,14 @@ function getColumnHeader(controlCode: string, index: number): string {
                     v-if="groupBy === 'course'"
                     field="className"
                     :header="t('analysis.splitTimeTable.class')"
-                    frozen
+                    :frozen="!isMobile"
                     style="min-width: 100px"
                 />
 
                 <!-- Frozen Column: Total Time (Gesamtzeit) -->
                 <Column
                     :header="t('analysis.splitTimeTable.totalTime')"
-                    frozen
+                    :frozen="!isMobile"
                     style="min-width: 80px"
                 >
                     <template #body="slotProps">
@@ -365,7 +380,7 @@ function getColumnHeader(controlCode: string, index: number): string {
                 <!-- Frozen Column: Time Behind Winner (Rückstand) -->
                 <Column
                     :header="t('analysis.splitTimeTable.timeBehind')"
-                    frozen
+                    :frozen="!isMobile"
                     style="min-width: 80px"
                 >
                     <template #body="slotProps">

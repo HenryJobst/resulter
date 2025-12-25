@@ -1,0 +1,103 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000040_spring_session
+            author : bff-integration
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   tableExists :
+                                tableName : spring_session
+            comment : Spring Session tables for distributed session management
+            changes :
+                -   createTable :
+                        tableName : spring_session
+                        columns :
+                            -   column :
+                                    name : primary_id
+                                    type : char(36)
+                                    constraints :
+                                        primaryKey : true
+                                        nullable : false
+                                        primaryKeyName : pk_spring_session
+                            -   column :
+                                    name : session_id
+                                    type : char(36)
+                                    constraints :
+                                        nullable : false
+                                        unique : true
+                            -   column :
+                                    name : creation_time
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : last_access_time
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : max_inactive_interval
+                                    type : int
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : expiry_time
+                                    type : bigint
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : principal_name
+                                    type : varchar(100)
+
+                -   createIndex :
+                        tableName : spring_session
+                        columns :
+                            -   column :
+                                    name : session_id
+                        indexName : spring_session_ix1
+
+                -   createIndex :
+                        tableName : spring_session
+                        columns :
+                            -   column :
+                                    name : expiry_time
+                        indexName : spring_session_ix2
+
+                -   createIndex :
+                        tableName : spring_session
+                        columns :
+                            -   column :
+                                    name : principal_name
+                        indexName : spring_session_ix3
+
+                -   createTable :
+                        tableName : spring_session_attributes
+                        columns :
+                            -   column :
+                                    name : session_primary_id
+                                    type : char(36)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : attribute_name
+                                    type : varchar(200)
+                                    constraints :
+                                        nullable : false
+                            -   column :
+                                    name : attribute_bytes
+                                    type : bytea
+                                    constraints :
+                                        nullable : false
+
+                -   addPrimaryKey :
+                        tableName : spring_session_attributes
+                        columnNames : session_primary_id, attribute_name
+                        constraintName : spring_session_attributes_pk
+
+                -   addForeignKeyConstraint :
+                        baseTableName : spring_session_attributes
+                        baseColumnNames : session_primary_id
+                        constraintName : spring_session_attributes_fk
+                        referencedTableName : spring_session
+                        referencedColumnNames : primary_id
+                        onDelete : CASCADE

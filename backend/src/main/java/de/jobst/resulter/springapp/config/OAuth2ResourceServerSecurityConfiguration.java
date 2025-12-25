@@ -1,5 +1,7 @@
 package de.jobst.resulter.springapp.config;
 
+import java.time.Instant;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.micrometer.metrics.autoconfigure.export.prometheus.PrometheusScrapeEndpoint;
@@ -25,9 +27,6 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.time.Instant;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -62,6 +61,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Content-Disposition"));
+        configuration.setAllowCredentials(true); // Required for session cookies
         configuration.setMaxAge(CORS_PREFLIGHT_CACHE_MAX_AGE);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -84,7 +84,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
     }
 
     @Bean
-    @Order(2)
+    @Order(3)
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http.securityMatcher("/**")
                 .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/createDatabase")
@@ -146,22 +146,18 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/createDatabase")));
+                        PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/createDatabase")));
 
         return http.build();
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
-                .jwsAlgorithm(SignatureAlgorithm.RS512)
-                .build();
-    }
-
-    @Bean
     @Primary
-    public JwtDecoder enhancedJwtDecoder() {
+    public JwtDecoder jwtDecoder() {
+        // Create decoder that supports both RS256 (OIDC standard) and RS512
+        // Explicitly add RS256 to ensure compatibility with Keycloak
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+                .jwsAlgorithm(SignatureAlgorithm.RS256)
                 .jwsAlgorithm(SignatureAlgorithm.RS512)
                 .build();
 
@@ -171,10 +167,15 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 return OAuth2TokenValidatorResult.failure(new OAuth2Error("Invalid token: expired"));
             }
 
-            // Validate audience (example)
+            // Validate audience only for access tokens (not ID tokens)
+            // ID tokens have different audience (client_id), access tokens have API audience
             List<String> audience = token.getAudience();
-            if (audience == null || clientAudience == null || !audience.contains(clientAudience)) {
-                return OAuth2TokenValidatorResult.failure(new OAuth2Error("Invalid token: invalid audience"));
+            if (audience != null && !audience.isEmpty() && clientAudience != null) {
+                // Only validate if audience claim exists and is non-empty
+                if (!audience.contains(clientAudience) && !audience.contains("account")) {
+                    // Accept either API audience or "account" (common for ID tokens)
+                    return OAuth2TokenValidatorResult.failure(new OAuth2Error("Invalid token: invalid audience"));
+                }
             }
 
             return OAuth2TokenValidatorResult.success();

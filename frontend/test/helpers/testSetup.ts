@@ -104,6 +104,12 @@ export function createTestI18n(locale = 'de') {
                     delete: 'Delete',
                     edit: 'Edit',
                     success: 'Success',
+                    select: 'Select',
+                },
+                event_state: {
+                    PLANNED: 'Planned',
+                    FINISHED: 'Finished',
+                    CANCELLED: 'Cancelled',
                 },
             },
         },

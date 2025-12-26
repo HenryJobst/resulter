@@ -67,7 +67,8 @@ public class BffController {
 
         if (authentication != null) {
             debug.put("authenticated", authentication.isAuthenticated());
-            debug.put("principal", authentication.getPrincipal().getClass().getName());
+            debug.put("principal", authentication.getPrincipal() != null ?
+                                   authentication.getPrincipal().getClass().getName() : "-");
             debug.put("name", authentication.getName());
             debug.put("authorities", authentication.getAuthorities().stream()
                     .map(org.springframework.security.core.GrantedAuthority::getAuthority)

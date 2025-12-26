@@ -10,30 +10,29 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
-import org.springframework.lang.NonNull;
 
 public record PersonRaceResultJdbcDto(
         Long eventId,
         Long resultListId,
         Long raceId,
-        OffsetDateTime createTime,
-        String createTimeZone,
+        @Nullable OffsetDateTime createTime,
+        @Nullable String createTimeZone,
         String resultListStatus,
         String classListShortName,
         String classListName,
         String classGender,
         @Nullable Long courseId,
         Long personId,
-        Long organisationId,
-        OffsetDateTime startTime,
-        String startTimeZone,
+        @Nullable Long organisationId,
+        @Nullable OffsetDateTime startTime,
+        @Nullable String startTimeZone,
         Double punchTime,
-        Integer position,
-        Byte raceNumber,
-        String state) {
+        @Nullable Integer position,
+        @Nullable Byte raceNumber,
+        @Nullable String state) {
 
-    static @NonNull List<ResultList> asResultLists(Collection<PersonRaceResultJdbcDto> personRaceResultJdbcDtos) {
-        record ResultListRaceNumber(Long resultListId, Byte raceNumber) {}
+    static List<ResultList> asResultLists(Collection<PersonRaceResultJdbcDto> personRaceResultJdbcDtos) {
+        record ResultListRaceNumber(Long resultListId, @Nullable Byte raceNumber) {}
         // Schritt 1: Gruppierung nach resultListId und raceNumber
         Map<ResultListRaceNumber, List<PersonRaceResultJdbcDto>> resultListGroups = personRaceResultJdbcDtos.stream()
                 .collect(Collectors.groupingBy(personRaceResultJdbcDto -> new ResultListRaceNumber(
@@ -71,7 +70,7 @@ public record PersonRaceResultJdbcDto(
                                                                             .map(dto -> PersonRaceResult.of(
                                                                                     dto.classListShortName(),
                                                                                     dto.personId(),
-                                                                                    dto.startTime() == null
+                                                                                    dto.startTime() == null || dto.startTimeZone() == null
                                                                                             ? null
                                                                                             : dto.startTime()
                                                                                                     .atZoneSameInstant(
@@ -121,7 +120,7 @@ public record PersonRaceResultJdbcDto(
                             EventId.of(sampleDto.eventId()),
                             RaceId.of(sampleDto.raceId()),
                             "",
-                            sampleDto.createTime() == null
+                            sampleDto.createTime() == null || sampleDto.createTimeZone() == null
                                     ? null
                                     : sampleDto.createTime().atZoneSameInstant(ZoneId.of(sampleDto.createTimeZone())),
                             sampleDto.resultListStatus(),

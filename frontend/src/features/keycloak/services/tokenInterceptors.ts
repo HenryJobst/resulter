@@ -1,7 +1,7 @@
 import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
 import { ToastEventBus } from 'primevue'
 import { getErrorStore } from '@/features/common/stores/getErrorStore'
-import axiosInstance from '@/features/keycloak/services/api'
+import axiosInstance from '@/features/auth/services/api'
 import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
 import { i18n } from '@/i18n'
 import { errorToastDisplayDuration, sameErrorTimeout } from '@/utils/constants'

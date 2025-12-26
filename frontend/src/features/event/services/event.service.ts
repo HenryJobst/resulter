@@ -15,7 +15,7 @@ import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { PersonKey } from '@/features/person/model/person_key'
 import { prettyPrint } from '@base2/pretty-print-object'
 import { GenericService } from '@/features/generic/services/GenericService'
-import axiosInstance from '@/features/keycloak/services/api'
+import axiosInstance from '@/features/auth/services/api'
 
 const eventUrl: string = '/event'
 const resultListUrl: string = '/result_list'

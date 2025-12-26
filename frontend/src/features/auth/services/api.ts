@@ -30,13 +30,35 @@ const axiosInstance = axios.create({
 })
 
 /**
+ * Get CSRF token from cookie
+ */
+function getCsrfToken(): string | null {
+    const name = 'XSRF-TOKEN'
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) {
+        return parts.pop()?.split(';').shift() || null
+    }
+    return null
+}
+
+/**
  * Request interceptor
  * BFF mode: cookies are sent automatically (withCredentials: true)
- * No Authorization header needed
+ * CSRF token: read from cookie and send as header
  */
 axiosInstance.interceptors.request.use(
     (config) => {
         // BFF mode: no Authorization header needed, cookies sent automatically
+
+        // Add CSRF token to header for state-changing requests
+        if (config.method && ['post', 'put', 'delete', 'patch'].includes(config.method.toLowerCase())) {
+            const csrfToken = getCsrfToken()
+            if (csrfToken) {
+                config.headers['X-XSRF-TOKEN'] = csrfToken
+            }
+        }
+
         return config
     },
     (error) => {

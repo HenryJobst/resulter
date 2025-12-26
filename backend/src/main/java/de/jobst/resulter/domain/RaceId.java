@@ -7,7 +7,7 @@ import org.jmolecules.ddd.annotation.ValueObject;
 public record RaceId(Long value) implements Comparable<RaceId> {
 
     public static RaceId of(Long value) {
-        if (value != null && value < 0L) {
+        if (value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new RaceId(value);

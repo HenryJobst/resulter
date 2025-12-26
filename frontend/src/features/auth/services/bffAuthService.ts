@@ -36,8 +36,7 @@ class BffAuthService {
             })
 
             if (response.ok) {
-                const userInfo: BffUserInfo = await response.json()
-                return userInfo
+                return await response.json()
             }
 
             // Not authenticated (401) or other error

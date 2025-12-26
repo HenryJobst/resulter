@@ -7,6 +7,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -71,20 +73,7 @@ class BffUserInfoServiceImplTest {
         OidcIdToken idToken =
                 new OidcIdToken("token", Instant.now(), Instant.now().plusSeconds(3600), claims);
 
-        OidcUser oidcUser = new DefaultOidcUser(
-                List.of(
-                        new SimpleGrantedAuthority("ROLE_ADMIN"),
-                        new SimpleGrantedAuthority("ROLE_USER"),
-                        new SimpleGrantedAuthority("ROLE_ENDPOINT_ADMIN")),
-                idToken);
-
-        OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
-                oidcUser,
-                List.of(
-                        new SimpleGrantedAuthority("ROLE_ADMIN"),
-                        new SimpleGrantedAuthority("ROLE_USER"),
-                        new SimpleGrantedAuthority("ROLE_ENDPOINT_ADMIN")),
-                "keycloak");
+        OAuth2AuthenticationToken authentication = getOAuth2AuthenticationToken(idToken);
 
         // Act
         Optional<BffUserInfoDto> result = service.extractUserInfo(authentication);
@@ -95,5 +84,21 @@ class BffUserInfoServiceImplTest {
         assertThat(userInfo.roles()).containsExactlyInAnyOrder("ADMIN", "USER", "ENDPOINT_ADMIN");
         assertThat(userInfo.permissions().canAccessAdmin()).isTrue();
         assertThat(userInfo.permissions().canManageEvents()).isTrue();
+    }
+
+    private static @NonNull OAuth2AuthenticationToken getOAuth2AuthenticationToken(OidcIdToken idToken) {
+        OidcUser oidcUser = new DefaultOidcUser(
+                List.of(
+                        new SimpleGrantedAuthority("ROLE_ADMIN"),
+                        new SimpleGrantedAuthority("ROLE_USER"),
+                        new SimpleGrantedAuthority("ROLE_ENDPOINT_ADMIN")), idToken);
+
+        return new OAuth2AuthenticationToken(
+                oidcUser,
+                List.of(
+                        new SimpleGrantedAuthority("ROLE_ADMIN"),
+                        new SimpleGrantedAuthority("ROLE_USER"),
+                        new SimpleGrantedAuthority("ROLE_ENDPOINT_ADMIN")),
+                "keycloak");
     }
 }

@@ -1,8 +1,8 @@
 import type { Cup } from '@/features/cup/model/cup'
 import type { CupDetailed } from '@/features/cup/model/cup_detailed'
 import type { CupType } from '@/features/cup/model/cuptype'
-import { GenericService } from '@/features/generic/services/GenericService'
 import axiosInstance from '@/features/auth/services/api'
+import { GenericService } from '@/features/generic/services/GenericService'
 
 const cupUrl: string = '/cup'
 const cupTypeUrl: string = '/cup_types'

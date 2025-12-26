@@ -1,5 +1,5 @@
-import axios from 'axios'
 import type { AuthStore } from '../store/auth.store'
+import axios from 'axios'
 
 // Define the structure for environment variables
 interface EnvVariables {
@@ -9,6 +9,16 @@ interface EnvVariables {
 
 // Ensure that environment variables are correctly typed
 const env: EnvVariables = import.meta.env as unknown as EnvVariables
+
+// Lazy loader for auth store to avoid circular dependencies
+let authStoreModule: typeof import('../store/auth.store') | null = null
+
+async function getAuthStore(): Promise<AuthStore> {
+    if (!authStoreModule) {
+        authStoreModule = await import('../store/auth.store')
+    }
+    return authStoreModule.useAuthStore()
+}
 
 // Create Axios instance
 const axiosInstance = axios.create({
@@ -26,14 +36,13 @@ const axiosInstance = axios.create({
  * - For Keycloak mode: Bearer token is added to Authorization header
  */
 axiosInstance.interceptors.request.use(
-    (config) => {
+    async (config) => {
         const useBff = env.VITE_USE_BFF_AUTH === 'true'
 
         if (!useBff) {
             // Legacy Keycloak mode: add Bearer token
-            // Import here to avoid circular dependency
-            const { useAuthStore } = require('../store/auth.store')
-            const authStore = useAuthStore() as AuthStore
+            // Dynamic import to avoid circular dependency
+            const authStore = await getAuthStore()
             const token = authStore.user.token
 
             if (token) {
@@ -54,8 +63,8 @@ axiosInstance.interceptors.request.use(
  * Handles common error responses
  */
 axiosInstance.interceptors.response.use(
-    (response) => response,
-    (error) => {
+    response => response,
+    async (error) => {
         if (error.response) {
             const status = error.response.status
 
@@ -69,8 +78,7 @@ axiosInstance.interceptors.response.use(
                     sessionStorage.setItem('bff_post_login_redirect', window.location.pathname)
 
                     // Clear auth store
-                    const { useAuthStore } = require('../store/auth.store')
-                    const authStore = useAuthStore() as AuthStore
+                    const authStore = await getAuthStore()
                     authStore.clearUserData()
 
                     // Redirect to login (backend will handle OAuth2)
@@ -78,8 +86,7 @@ axiosInstance.interceptors.response.use(
                 }
                 else {
                     // Legacy Keycloak mode: try to refresh token
-                    const { useAuthStore } = require('../store/auth.store')
-                    const authStore = useAuthStore() as AuthStore
+                    const authStore = await getAuthStore()
 
                     return authStore.refreshUserToken()
                         .then(() => {

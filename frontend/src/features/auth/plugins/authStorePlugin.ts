@@ -62,8 +62,9 @@ const authStorePlugin = {
 
             // Setup token interceptors for Keycloak mode
             // Note: BFF mode uses cookie-based auth, no token injection needed
-            const setupInterceptors = require('@/features/keycloak/services/tokenInterceptors').default
-            setupInterceptors(store)
+            import('@/features/keycloak/services/tokenInterceptors').then((module) => {
+                module.default(store)
+            })
         }
     },
 }

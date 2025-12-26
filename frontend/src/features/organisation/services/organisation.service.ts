@@ -1,7 +1,7 @@
 import type { Organisation } from '@/features/organisation/model/organisation'
 import type { OrganisationType } from '@/features/organisation/model/organisationtype'
-import { GenericService } from '@/features/generic/services/GenericService'
 import axiosInstance from '@/features/auth/services/api'
+import { GenericService } from '@/features/generic/services/GenericService'
 
 const organisationUrl: string = '/organisation'
 const organisationTypeUrl: string = '/organisation_types'

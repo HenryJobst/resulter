@@ -11,11 +11,11 @@ import Toast from 'primevue/toast'
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import BackendVersion from '@/features/backend_version/BackendVersion.vue'
-import MessageDetailDialog from '@/features/common/components/MessageDetailDialog.vue'
-
-import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 import { useAuthStore } from '@/features/auth/store/auth.store'
+import BackendVersion from '@/features/backend_version/BackendVersion.vue'
+
+import MessageDetailDialog from '@/features/common/components/MessageDetailDialog.vue'
+import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 import { primevueLocaleMessages } from '@/PrimevueMessages'
 import { getFlagClass, SUPPORT_LOCALES } from './i18n'
 

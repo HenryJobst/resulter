@@ -1,9 +1,8 @@
-import type { User } from '../model/bffUser'
-import type { BffUserInfo } from '../model/bffUser'
+import type { BffUserInfo, User } from '../model/bffUser'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { bffAuthService } from '../services/bffAuthService'
 import KeycloakService from '@/features/keycloak/services/keycloak'
+import { bffAuthService } from '../services/bffAuthService'
 
 /**
  * Authentication Store

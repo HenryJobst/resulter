@@ -29,7 +29,7 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
         if (authorizationRequest == null) {
-            deleteCookie(request, response);
+            deleteCookie(response);
             return;
         }
 
@@ -45,7 +45,7 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
         OAuth2AuthorizationRequest authorizationRequest = loadAuthorizationRequest(request);
-        deleteCookie(request, response);
+        deleteCookie(response);
         return authorizationRequest;
     }
 
@@ -63,7 +63,7 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
         return java.util.Optional.empty();
     }
 
-    private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
+    private void deleteCookie(HttpServletResponse response) {
         Cookie cookie = new Cookie(COOKIE_NAME, "");
         cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -78,6 +78,7 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
         );
     }
 
+    @SuppressWarnings("deprecation")
     private OAuth2AuthorizationRequest deserialize(Cookie cookie) {
         try {
             return (OAuth2AuthorizationRequest) SerializationUtils.deserialize(

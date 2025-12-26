@@ -9,8 +9,8 @@ import Select from 'primevue/select'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { eventService, EventService } from '@/features/event/services/event.service'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const { t } = useI18n()
 const router = useRouter()

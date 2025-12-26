@@ -8,8 +8,8 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { EventService } from '@/features/event/services/event.service'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { toastDisplayDuration } from '@/utils/constants'
 
 const props = defineProps<{ data: EventCertificateStats | undefined | null }>()

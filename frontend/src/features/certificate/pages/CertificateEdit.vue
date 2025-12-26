@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { certificateService } from '@/features/certificate/services/certificate.service'
 import CertificateForm from '@/features/certificate/widgets/CertificateForm.vue'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const props = defineProps<{ id: string, locale?: string }>()
 

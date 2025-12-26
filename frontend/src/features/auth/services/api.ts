@@ -4,7 +4,6 @@ import axios from 'axios'
 // Define the structure for environment variables
 interface EnvVariables {
     VITE_API_ENDPOINT: string
-    VITE_USE_BFF_AUTH?: string
 }
 
 // Ensure that environment variables are correctly typed
@@ -26,31 +25,18 @@ const axiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    // Enable credentials (cookies) for BFF mode
-    withCredentials: env.VITE_USE_BFF_AUTH === 'true',
+    // Enable credentials (cookies) for BFF authentication
+    withCredentials: true,
 })
 
 /**
  * Request interceptor
- * - For BFF mode: cookies are sent automatically (withCredentials: true)
- * - For Keycloak mode: Bearer token is added to Authorization header
+ * BFF mode: cookies are sent automatically (withCredentials: true)
+ * No Authorization header needed
  */
 axiosInstance.interceptors.request.use(
-    async (config) => {
-        const useBff = env.VITE_USE_BFF_AUTH === 'true'
-
-        if (!useBff) {
-            // Legacy Keycloak mode: add Bearer token
-            // Dynamic import to avoid circular dependency
-            const authStore = await getAuthStore()
-            const token = authStore.user.token
-
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`
-            }
-        }
+    (config) => {
         // BFF mode: no Authorization header needed, cookies sent automatically
-
         return config
     },
     (error) => {
@@ -70,36 +56,16 @@ axiosInstance.interceptors.response.use(
 
             // 401 Unauthorized
             if (status === 401) {
-                const useBff = env.VITE_USE_BFF_AUTH === 'true'
+                // BFF mode: session expired, redirect to login
+                // Store current path for post-login redirect
+                sessionStorage.setItem('bff_post_login_redirect', window.location.pathname)
 
-                if (useBff) {
-                    // BFF mode: session expired, redirect to login
-                    // Store current path for post-login redirect
-                    sessionStorage.setItem('bff_post_login_redirect', window.location.pathname)
+                // Clear auth store
+                const authStore = await getAuthStore()
+                authStore.clearUserData()
 
-                    // Clear auth store
-                    const authStore = await getAuthStore()
-                    authStore.clearUserData()
-
-                    // Redirect to login (backend will handle OAuth2)
-                    window.location.href = `${env.VITE_API_ENDPOINT}/oauth2/authorization/keycloak`
-                }
-                else {
-                    // Legacy Keycloak mode: try to refresh token
-                    const authStore = await getAuthStore()
-
-                    return authStore.refreshUserToken()
-                        .then(() => {
-                            // Retry original request with new token
-                            return axiosInstance(error.config)
-                        })
-                        .catch(() => {
-                            // Token refresh failed, redirect to login
-                            authStore.clearUserData()
-                            authStore.login(window.location.pathname)
-                            return Promise.reject(error)
-                        })
-                }
+                // Redirect to login (backend will handle OAuth2)
+                window.location.href = `${env.VITE_API_ENDPOINT}/oauth2/authorization/keycloak`
             }
 
             // 403 Forbidden

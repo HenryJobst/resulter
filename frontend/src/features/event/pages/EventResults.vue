@@ -14,11 +14,11 @@ import Tree from 'primevue/tree'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { courseService } from '@/features/course/services/course.service'
 import { EventService, eventService } from '@/features/event/services/event.service'
 import EventCertificateStatsTable from '@/features/event/widgets/EventCertificateStatsTable.vue'
 import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { raceService } from '@/features/race/services/race.service'
 
 const props = defineProps<{ id: string }>()

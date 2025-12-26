@@ -2,10 +2,10 @@
 import type { Cup } from '@/features/cup/model/cup'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { cupService } from '@/features/cup/services/cup.service'
 import CupForm from '@/features/cup/widgets/CupForm.vue'
 import GenericNew from '@/features/generic/pages/GenericNew.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const { t } = useI18n()
 const authStore = useAuthStore()

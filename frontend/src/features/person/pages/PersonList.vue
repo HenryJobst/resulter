@@ -5,8 +5,8 @@ import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import GenericList from '@/features/generic/pages/GenericList.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { duplicatePersonService, personService } from '@/features/person/services/person.service'
 
 const authStore = useAuthStore()

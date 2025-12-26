@@ -8,12 +8,12 @@ import Button from 'primevue/button'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import FogCupResults from '@/features/cup/pages/FogCupResults.vue'
 import KjPokalResults from '@/features/cup/pages/KjPokalResults.vue'
 import KristallCupResults from '@/features/cup/pages/KristallCupResults.vue'
 import NorCupResults from '@/features/cup/pages/NorCupResults.vue'
 import { CupService } from '@/features/cup/services/cup.service'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const props = defineProps<{ id: string }>()
 

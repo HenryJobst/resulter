@@ -2,8 +2,8 @@
 import type { Person } from '@/features/person/model/person'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import GenericNew from '@/features/generic/pages/GenericNew.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { personService } from '@/features/person/services/person.service'
 import PersonForm from '@/features/person/widgets/PersonForm.vue'
 

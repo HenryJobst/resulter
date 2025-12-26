@@ -3,8 +3,8 @@ import type { GenericListColumn } from '@/features/generic/models/GenericListCol
 import type { TableSettings } from '@/features/generic/models/table_settings.ts'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import GenericList from '@/features/generic/pages/GenericList.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { organisationService } from '@/features/organisation/services/organisation.service'
 
 const authStore = useAuthStore()

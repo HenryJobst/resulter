@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import GenericEdit from '@/features/generic/pages/GenericEdit.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { organisationService } from '@/features/organisation/services/organisation.service'
 import OrganisationForm from '@/features/organisation/widgets/OrganisationForm.vue'
 

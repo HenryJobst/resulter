@@ -3,9 +3,9 @@ import type { GenericListColumn } from '@/features/generic/models/GenericListCol
 import type { TableSettings } from '@/features/generic/models/table_settings.ts'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { certificateService } from '@/features/certificate/services/certificate.service'
 import GenericList from '@/features/generic/pages/GenericList.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 
 const authStore = useAuthStore()
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`

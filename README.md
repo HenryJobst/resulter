@@ -20,14 +20,15 @@ Possible future extensions: generalization of cups, evaluation of split times, c
 ## Architecture
 
 The frontend communicates with the backend via a REST API, which is implemented in the pattern of Hexagonal
-Architecture.
+Architecture. Authentication follows the Backend-for-Frontend (BFF) pattern, where the backend handles OAuth2/OIDC
+communication with Keycloak, and the frontend uses secure session cookies.
 
 ## Technologies
 
 - **Backend**: Java, SpringBoot, Spring Data JDBC
 - **Frontend**: Typescript, Vue.js 3, Vite, Pinia, Primevue, Tailwind, Tanstack Query
 - **Communication**: REST API
-- **Authentication/Authorisation**: Keycloak
+- **Authentication/Authorisation**: BFF Pattern with Keycloak (OAuth2/OIDC), Session-based
 - **Database**: PostgreSQL, H2
 
 ## Prerequisites
@@ -104,14 +105,15 @@ Zukünftige mögliche Erweiterungen: Generalisierung von Cups, Auswertung von Sp
 ## Architektur
 
 Das Frontend kommuniziert über eine REST-API mit dem Backend, welches im Muster der Hexagonalen Architektur
-implementiert ist.
+implementiert ist. Die Authentifizierung folgt dem Backend-for-Frontend (BFF) Pattern, wobei das Backend die OAuth2/OIDC
+Kommunikation mit Keycloak übernimmt und das Frontend sichere Session-Cookies verwendet.
 
 ## Technologien
 
 - **Backend**: Java, SpringBoot, Spring Data JDBC
 - **Frontend**: Typescript, Vue.js 3, Vite, Pinia, Primevue, Tailwind, Tanstack Query
 - **Kommunikation**: REST API
-- **Authentifizierung/Berechtigung**: Keycloak
+- **Authentifizierung/Berechtigung**: BFF Pattern mit Keycloak (OAuth2/OIDC), Session-basiert
 - **Datenbank**: PostgreSQL, H2
 
 ## Voraussetzungen

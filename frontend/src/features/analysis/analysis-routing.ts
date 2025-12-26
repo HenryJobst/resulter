@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 
 export const analysisRoutes: RouteRecordRaw[] = [
     {

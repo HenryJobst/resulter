@@ -9,7 +9,7 @@ import ProgressBar from 'primevue/progressbar'
 import { useToast } from 'primevue/usetoast'
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 
 import { fileSizeTypes } from '@/features/media/util/file_size_types'
 import { toastDisplayDuration } from '@/utils/constants'

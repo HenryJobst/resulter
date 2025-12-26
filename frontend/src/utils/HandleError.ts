@@ -1,6 +1,6 @@
-import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
+import type { ApiResponse } from '@/features/common/model/apiResponse'
 import { AxiosError } from 'axios'
-import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
+import { getApiResponse } from '@/features/common/services/apiResponseFunctions'
 
 export class BackendException extends Error {
     public readonly baseError: Error

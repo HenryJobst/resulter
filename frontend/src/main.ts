@@ -13,7 +13,6 @@ import Tooltip from 'primevue/tooltip'
 import { createApp, unref } from 'vue'
 import AuthStorePlugin from '@/features/auth/plugins/authStorePlugin'
 import { getErrorStore } from '@/features/common/stores/getErrorStore'
-import keycloakService from '@/features/keycloak/services/keycloak'
 import { setupI18n } from '@/i18n'
 import { primevueLocaleMessages } from '@/PrimevueMessages'
 
@@ -156,14 +155,5 @@ export function renderApp() {
     return app
 }
 
-// Initialize authentication based on feature flag
-const useBffAuth = import.meta.env.VITE_USE_BFF_AUTH === 'true'
-
-if (useBffAuth) {
-    // BFF mode: render app immediately, auth check happens after mount
-    renderApp()
-}
-else {
-    // Legacy Keycloak mode
-    keycloakService.callInit(renderApp).then()
-}
+// BFF mode: render app immediately, auth check happens after mount via AuthStorePlugin
+renderApp()

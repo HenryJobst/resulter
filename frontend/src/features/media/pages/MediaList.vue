@@ -2,8 +2,8 @@
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import GenericList from '@/features/generic/pages/GenericList.vue'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
 import { mediaService } from '@/features/media/services/media.service'
 
 const authStore = useAuthStore()

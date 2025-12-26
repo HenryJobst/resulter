@@ -1,14 +1,14 @@
 package de.jobst.resulter.domain;
 
+import java.util.Comparator;
 import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record ResultListId(Long value) {
 
     public static ResultListId of(Long value) {
-        if (value != null && value < 0L) {
+        if (value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new ResultListId(value);
@@ -27,7 +27,10 @@ public record ResultListId(Long value) {
         return this.getClass().getSimpleName() + "=" + value;
     }
 
-    public int compareTo(@NonNull ResultListId o) {
-        return Long.compare(value, o.value);
+    private static final Comparator<ResultListId> COMPARATOR =
+        Comparator.comparing(ResultListId::value);
+
+    public int compareTo(ResultListId o) {
+        return COMPARATOR.compare(this, o);
     }
 }

@@ -2,13 +2,12 @@ package de.jobst.resulter.domain;
 
 import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record EventId(Long value) implements Comparable<EventId> {
 
     public static EventId of(Long value) {
-        if (value != null && value < 0L) {
+        if (value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new EventId(value);
@@ -19,7 +18,7 @@ public record EventId(Long value) implements Comparable<EventId> {
     }
 
     @Override
-    public int compareTo(@NonNull EventId o) {
+    public int compareTo(EventId o) {
         return value.compareTo(o.value);
     }
 

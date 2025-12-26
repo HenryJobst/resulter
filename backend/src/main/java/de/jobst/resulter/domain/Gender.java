@@ -1,8 +1,7 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
 public enum Gender {
@@ -12,7 +11,7 @@ public enum Gender {
     U("U");
     final String value;
 
-    Gender(@NonNull String value) {
+    Gender(String value) {
         this.value = value;
     }
 

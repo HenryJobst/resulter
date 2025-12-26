@@ -1,13 +1,12 @@
 package de.jobst.resulter.application.auth;
 
-import de.jobst.resulter.adapter.driver.web.dto.BffUserInfoDto;
+import de.jobst.resulter.adapter.BffUserInfoDto;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -58,16 +57,28 @@ public class BffUserInfoServiceImpl implements BffUserInfoService {
 
     @SuppressWarnings("unchecked")
     private Set<String> extractRealmRoles(OAuth2User oauth2User) {
+        Set<String> roles = Set.of();
+
+        // Try to extract roles from realm_access.roles claim (OIDC)
         if (oauth2User instanceof OidcUser oidcUser) {
-            // Extract roles from realm_access.roles claim
             Object realmAccess = oidcUser.getClaim("realm_access");
             if (realmAccess instanceof java.util.Map<?, ?> realmAccessMap) {
                 Object rolesList = realmAccessMap.get("roles");
                 if (rolesList instanceof List<?>) {
-                    return ((List<String>) rolesList).stream().collect(Collectors.toSet());
+                    roles = ((List<String>) rolesList).stream().collect(Collectors.toSet());
                 }
             }
         }
-        return Set.of();
+
+        // Fallback: Extract roles from granted authorities
+        if (roles.isEmpty()) {
+            roles = oauth2User.getAuthorities().stream()
+                    .map(authority -> authority.getAuthority())
+                    .filter(authority -> authority.startsWith("ROLE_"))
+                    .map(authority -> authority.substring(5)) // Remove "ROLE_" prefix
+                    .collect(Collectors.toSet());
+        }
+
+        return roles;
     }
 }

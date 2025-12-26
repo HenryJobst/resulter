@@ -2,7 +2,6 @@ package de.jobst.resulter.domain;
 
 import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record RaceId(Long value) implements Comparable<RaceId> {
@@ -19,7 +18,7 @@ public record RaceId(Long value) implements Comparable<RaceId> {
     }
 
     @Override
-    public int compareTo(@NonNull RaceId o) {
+    public int compareTo(RaceId o) {
         return value.compareTo(o.value);
     }
 

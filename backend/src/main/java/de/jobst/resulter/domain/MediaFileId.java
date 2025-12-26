@@ -2,13 +2,12 @@ package de.jobst.resulter.domain;
 
 import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record MediaFileId(Long value) implements Comparable<MediaFileId> {
 
     public static MediaFileId of(Long value) {
-        if (value != null && value < 0L) {
+        if (value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new MediaFileId(value);
@@ -19,7 +18,7 @@ public record MediaFileId(Long value) implements Comparable<MediaFileId> {
     }
 
     @Override
-    public int compareTo(@NonNull MediaFileId o) {
+    public int compareTo(MediaFileId o) {
         return value.compareTo(o.value);
     }
 

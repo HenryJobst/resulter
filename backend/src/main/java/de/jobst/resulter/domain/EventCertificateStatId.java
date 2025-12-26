@@ -2,13 +2,12 @@ package de.jobst.resulter.domain;
 
 import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record EventCertificateStatId(Long value) implements Comparable<EventCertificateStatId> {
 
     public static EventCertificateStatId of(Long value) {
-        if (value != null && value < 0L) {
+        if (value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new EventCertificateStatId(value);
@@ -19,7 +18,7 @@ public record EventCertificateStatId(Long value) implements Comparable<EventCert
     }
 
     @Override
-    public int compareTo(@NonNull EventCertificateStatId o) {
+    public int compareTo(EventCertificateStatId o) {
         return value.compareTo(o.value);
     }
 

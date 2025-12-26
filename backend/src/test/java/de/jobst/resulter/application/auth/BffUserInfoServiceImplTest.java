@@ -2,7 +2,7 @@ package de.jobst.resulter.application.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import de.jobst.resulter.adapter.driver.web.dto.BffUserInfoDto;
+import de.jobst.resulter.adapter.BffUserInfoDto;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;

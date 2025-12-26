@@ -1,8 +1,10 @@
 package de.jobst.resulter.adapter.driver.web;
 
-import de.jobst.resulter.adapter.driver.web.dto.BffUserInfoDto;
+import de.jobst.resulter.adapter.BffUserInfoDto;
 import de.jobst.resulter.application.auth.BffUserInfoService;
+import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,14 +23,15 @@ public class BffController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<BffUserInfoDto> getUserInfo(Authentication authentication, jakarta.servlet.http.HttpServletRequest request) {
+    public ResponseEntity<BffUserInfoDto> getUserInfo(@Nullable Authentication authentication,
+                                                      jakarta.servlet.http.HttpServletRequest request) {
         log.info("GET /bff/user called");
         log.info("Authentication: {}", authentication != null ? authentication.getName() : "null");
         log.info("Session ID: {}", request.getSession(false) != null ? request.getSession(false).getId() : "no session");
 
         if (request.getCookies() != null) {
             log.info("Cookies received: {}", java.util.Arrays.stream(request.getCookies())
-                    .map(c -> c.getName())
+                    .map(Cookie::getName)
                     .collect(java.util.stream.Collectors.joining(", ")));
         } else {
             log.warn("No cookies received in /bff/user request");

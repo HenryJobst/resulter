@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +23,8 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.http.HttpMethod;
+
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 @Profile("!nosecurity")
@@ -139,11 +140,9 @@ public class BffSecurityConfiguration {
             try {
                 // Extract ID token from authentication for automatic logout (no confirmation needed)
                 String idTokenValue = null;
-                if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
-                    var oauth2Auth = (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication;
+                if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauth2Auth) {
                     var principal = oauth2Auth.getPrincipal();
-                    if (principal instanceof org.springframework.security.oauth2.core.oidc.user.OidcUser) {
-                        var oidcUser = (org.springframework.security.oauth2.core.oidc.user.OidcUser) principal;
+                    if (principal instanceof org.springframework.security.oauth2.core.oidc.user.OidcUser oidcUser) {
                         idTokenValue = oidcUser.getIdToken().getTokenValue();
                         log.debug("Extracted ID token for logout");
                     }
@@ -152,12 +151,12 @@ public class BffSecurityConfiguration {
                 StringBuilder logoutUrl = new StringBuilder(issuerUri)
                     .append("/protocol/openid-connect/logout")
                     .append("?post_logout_redirect_uri=")
-                    .append(java.net.URLEncoder.encode(frontendUrl, "UTF-8"));
+                    .append(java.net.URLEncoder.encode(frontendUrl, StandardCharsets.UTF_8));
 
                 // Add id_token_hint for automatic logout without confirmation
                 if (idTokenValue != null) {
                     logoutUrl.append("&id_token_hint=")
-                        .append(java.net.URLEncoder.encode(idTokenValue, "UTF-8"));
+                        .append(java.net.URLEncoder.encode(idTokenValue, StandardCharsets.UTF_8));
                     log.info("Redirecting to Keycloak logout with id_token_hint (auto-logout)");
                 } else {
                     log.warn("No ID token found, Keycloak may require manual logout confirmation");

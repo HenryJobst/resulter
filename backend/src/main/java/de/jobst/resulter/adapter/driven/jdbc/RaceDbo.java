@@ -12,7 +12,6 @@ import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
@@ -41,7 +40,7 @@ public class RaceDbo {
         this.number = number;
     }
 
-    public static RaceDbo from(Race race, @NonNull DboResolvers dboResolvers) {
+    public static RaceDbo from(Race race, DboResolvers dboResolvers) {
         if (null == race) {
             return null;
         }

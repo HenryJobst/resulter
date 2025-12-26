@@ -1,13 +1,12 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record CupId(long value) implements Comparable<CupId> {
 
     @Override
-    public int compareTo(@NonNull CupId o) {
+    public int compareTo(CupId o) {
         return Long.compare(value, o.value);
     }
 

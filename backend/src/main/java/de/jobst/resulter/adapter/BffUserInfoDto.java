@@ -1,4 +1,6 @@
-package de.jobst.resulter.adapter.driver.web.dto;
+package de.jobst.resulter.adapter;
+
+import de.jobst.resulter.adapter.driver.web.dto.UserPermissionsDto;
 
 import java.util.List;
 import java.util.Set;

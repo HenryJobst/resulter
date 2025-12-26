@@ -2,13 +2,12 @@ package de.jobst.resulter.domain;
 
 import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record CupScoreListId(Long value) implements Comparable<CupScoreListId> {
 
     public static CupScoreListId of(Long value) {
-        if (value != null && value < 0L) {
+        if (value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new CupScoreListId(value);
@@ -27,7 +26,7 @@ public record CupScoreListId(Long value) implements Comparable<CupScoreListId> {
         return this.getClass().getSimpleName() + "=" + value;
     }
 
-    public int compareTo(@NonNull CupScoreListId o) {
+    public int compareTo(CupScoreListId o) {
         return Long.compare(value, o.value);
     }
 }

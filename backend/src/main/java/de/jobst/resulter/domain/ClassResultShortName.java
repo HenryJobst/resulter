@@ -1,7 +1,6 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record ClassResultShortName(String value) implements Comparable<ClassResultShortName> {
@@ -16,7 +15,7 @@ public record ClassResultShortName(String value) implements Comparable<ClassResu
     }
 
     @Override
-    public int compareTo(@NonNull ClassResultShortName o) {
+    public int compareTo(ClassResultShortName o) {
         return value.compareTo(o.value);
     }
 }

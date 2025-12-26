@@ -1,10 +1,14 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import de.jobst.resulter.adapter.driver.web.dto.BffUserInfoDto;
+import de.jobst.resulter.adapter.BffUserInfoDto;
 import de.jobst.resulter.application.auth.BffUserInfoService;
 import de.jobst.resulter.application.auth.BffUserInfoServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +31,15 @@ class BffControllerIntegrationTest {
         bffController = new BffController(bffUserInfoService);
     }
 
+    private HttpServletRequest createMockRequest() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpSession session = mock(HttpSession.class);
+        when(session.getId()).thenReturn("test-session-id");
+        when(request.getSession(false)).thenReturn(session);
+        when(request.getCookies()).thenReturn(null);
+        return request;
+    }
+
     @Test
     void getUserInfo_withOAuth2Authentication_returnsUserInfo() {
         // Arrange
@@ -38,8 +51,10 @@ class BffControllerIntegrationTest {
         Authentication authentication = new OAuth2AuthenticationToken(
                 oauth2User, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")), "keycloak");
 
+        HttpServletRequest request = createMockRequest();
+
         // Act
-        ResponseEntity<BffUserInfoDto> response = bffController.getUserInfo(authentication);
+        ResponseEntity<BffUserInfoDto> response = bffController.getUserInfo(authentication, request);
 
         // Assert
         assertThat(response.getStatusCode().value()).isEqualTo(200);
@@ -52,8 +67,11 @@ class BffControllerIntegrationTest {
 
     @Test
     void getUserInfo_withoutAuthentication_returnsUnauthorized() {
+        // Arrange
+        HttpServletRequest request = createMockRequest();
+
         // Act
-        ResponseEntity<BffUserInfoDto> response = bffController.getUserInfo(null);
+        ResponseEntity<BffUserInfoDto> response = bffController.getUserInfo(null, request);
 
         // Assert
         assertThat(response.getStatusCode().value()).isEqualTo(401);

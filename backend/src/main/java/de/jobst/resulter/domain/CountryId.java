@@ -2,13 +2,12 @@ package de.jobst.resulter.domain;
 
 import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record CountryId(Long value) implements Comparable<CountryId> {
 
     public static CountryId of(Long value) {
-        if (value != null && value < 0L) {
+        if (value < 0L) {
             throw new IllegalArgumentException("Id must be greater or equal 0 or null.");
         }
         return new CountryId(value);
@@ -28,7 +27,7 @@ public record CountryId(Long value) implements Comparable<CountryId> {
     }
 
     @Override
-    public int compareTo(@NonNull CountryId o) {
+    public int compareTo(CountryId o) {
         return Long.compare(value, o.value);
     }
 }

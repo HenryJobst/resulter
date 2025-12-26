@@ -2,7 +2,6 @@ package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.StringUtils;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
 
 @ValueObject
 public record FamilyName(String value) implements Comparable<FamilyName> {
@@ -12,7 +11,7 @@ public record FamilyName(String value) implements Comparable<FamilyName> {
     }
 
     @Override
-    public int compareTo(@NonNull FamilyName o) {
+    public int compareTo(FamilyName o) {
         return value.compareTo(o.value);
     }
 }

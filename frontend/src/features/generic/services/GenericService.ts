@@ -4,7 +4,7 @@ import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { IGenericService } from '@/features/generic/services/IGenericService'
 import { sfAnd, sfEqual, sfLike } from 'spring-filter-query-builder'
-import axiosInstance from '@/features/keycloak/services/api'
+import axiosInstance from '@/features/auth/services/api'
 
 function getSortParam(field: string | ((item: any) => string), order: number | null | undefined) {
     const direction = order === 1 ? 'asc' : 'desc'

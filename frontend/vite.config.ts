@@ -20,6 +20,24 @@ export default defineConfig({
     build: {
         outDir: 'dist',
     },
+    server: {
+        proxy: {
+            // Proxy API requests to backend (for cookie support)
+            '/api': {
+                target: 'http://localhost:8080',
+                changeOrigin: true,
+                secure: false,
+            },
+            // Proxy BFF user info endpoint to backend (for cookie support)
+            '/bff': {
+                target: 'http://localhost:8080',
+                changeOrigin: true,
+                secure: false,
+            },
+            // NOTE: /oauth2 and /login are NOT proxied
+            // These need direct browser redirects to Keycloak
+        },
+    },
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),

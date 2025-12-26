@@ -12,7 +12,7 @@ import ToastService from 'primevue/toastservice'
 import Tooltip from 'primevue/tooltip'
 import { createApp, unref } from 'vue'
 import { getErrorStore } from '@/features/common/stores/getErrorStore'
-import AuthStorePlugin from '@/features/keycloak/plugins/authStorePlugin'
+import AuthStorePlugin from '@/features/auth/plugins/authStorePlugin'
 import keycloakService from '@/features/keycloak/services/keycloak'
 import { setupI18n } from '@/i18n'
 import { primevueLocaleMessages } from '@/PrimevueMessages'
@@ -125,7 +125,7 @@ export function renderApp() {
     if (primevue?.config) {
         primevue.config.locale = mergePrimeVueLocale(primevue.config.locale, primevueLocaleMessages[unref(i18n.global.locale) as string])
     }
-    app.use(AuthStorePlugin, { pinia })
+    app.use(AuthStorePlugin, { pinia, router })
     app.use(VueQueryPlugin)
     app.use(ToastService)
     app.use(pinia)
@@ -156,4 +156,14 @@ export function renderApp() {
     return app
 }
 
-keycloakService.callInit(renderApp).then()
+// Initialize authentication based on feature flag
+const useBffAuth = import.meta.env.VITE_USE_BFF_AUTH === 'true'
+
+if (useBffAuth) {
+    // BFF mode: render app immediately, auth check happens after mount
+    renderApp()
+}
+else {
+    // Legacy Keycloak mode
+    keycloakService.callInit(renderApp).then()
+}

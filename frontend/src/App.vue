@@ -15,7 +15,7 @@ import BackendVersion from '@/features/backend_version/BackendVersion.vue'
 import MessageDetailDialog from '@/features/common/components/MessageDetailDialog.vue'
 
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
-import { useAuthStore } from '@/features/keycloak/store/auth.store'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { primevueLocaleMessages } from '@/PrimevueMessages'
 import { getFlagClass, SUPPORT_LOCALES } from './i18n'
 
@@ -122,7 +122,7 @@ const navItems = ref<Array<MenuItem>>([
     },
     {
         key: 'organisations',
-        visible: !!authStore.isAdmin,
+        visible: () => !!authStore.isAdmin,
         label: () => t('navigations.organisations'),
         command: () => {
             router.push({ name: 'organisation-list', params: { locale: currentLocale.value } })
@@ -131,7 +131,7 @@ const navItems = ref<Array<MenuItem>>([
     },
     {
         key: 'users',
-        visible: !!authStore.isAdmin,
+        visible: () => !!authStore.isAdmin,
         label: () => t('navigations.users'),
         command: () => {
             router.push({ name: 'user-list', params: { locale: currentLocale.value } })
@@ -140,7 +140,7 @@ const navItems = ref<Array<MenuItem>>([
     },
     {
         key: 'roles',
-        visible: !!authStore.isAdmin,
+        visible: () => !!authStore.isAdmin,
         label: () => t('navigations.roles'),
         command: () => {
             router.push({ name: 'role-list', params: { locale: currentLocale.value } })
@@ -149,7 +149,7 @@ const navItems = ref<Array<MenuItem>>([
     },
     {
         key: 'groups',
-        visible: !!authStore.isAdmin,
+        visible: () => !!authStore.isAdmin,
         label: () => t('navigations.groups'),
         command: () => {
             router.push({ name: 'group-list', params: { locale: currentLocale.value } })
@@ -158,7 +158,7 @@ const navItems = ref<Array<MenuItem>>([
     },
     {
         key: 'persons',
-        visible: !!authStore.isAdmin,
+        visible: () => !!authStore.isAdmin,
         label: () => t('navigations.persons'),
         command: () => {
             router.push({ name: 'person-list', params: { locale: currentLocale.value } })
@@ -167,7 +167,7 @@ const navItems = ref<Array<MenuItem>>([
     },
     {
         key: 'media',
-        visible: !!authStore.isAdmin,
+        visible: () => !!authStore.isAdmin,
         label: () => t('navigations.media-files'),
         command: () => {
             router.push({ name: 'media-list', params: { locale: currentLocale.value } })
@@ -176,7 +176,7 @@ const navItems = ref<Array<MenuItem>>([
     },
     {
         key: 'certificates',
-        visible: !!authStore.isAdmin,
+        visible: () => !!authStore.isAdmin,
         label: () => t('navigations.certificates'),
         command: () => {
             router.push({ name: 'certificate-list', params: { locale: currentLocale.value } })
@@ -233,7 +233,7 @@ function setDetails(details: string) {
                         v-if="!authStore.isAuthenticated"
                         href="#"
                         class="text-2xl mr-4"
-                        @click="authStore.login(fullUrl, currentLocale)"
+                        @click.prevent="authStore.login(fullUrl, currentLocale)"
                     >
                         {{ t('navigations.login') }}
                     </a>
@@ -241,7 +241,7 @@ function setDetails(details: string) {
                         v-if="authStore.isAuthenticated"
                         href="#"
                         class="text-2xl mr-4"
-                        @click="authStore.logout()"
+                        @click.prevent="authStore.logout()"
                     >
                         {{ t('navigations.logout') }}
                     </a>

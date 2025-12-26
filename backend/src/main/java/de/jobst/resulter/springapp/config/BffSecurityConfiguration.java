@@ -21,6 +21,9 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @Profile("!nosecurity")
@@ -29,6 +32,19 @@ public class BffSecurityConfiguration {
 
     @Value("${spring.security.oauth2.client.provider.keycloak.jwk-set-uri}")
     private String jwkSetUri;
+
+    @Value("${bff.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
+    private final BffAuthenticationSuccessHandler bffAuthenticationSuccessHandler;
+    private final CorsConfigurationSource corsConfigurationSource;
+
+    public BffSecurityConfiguration(
+            BffAuthenticationSuccessHandler bffAuthenticationSuccessHandler,
+            CorsConfigurationSource corsConfigurationSource) {
+        this.bffAuthenticationSuccessHandler = bffAuthenticationSuccessHandler;
+        this.corsConfigurationSource = corsConfigurationSource;
+    }
 
     @Bean
     @Order(2) // Between Prometheus (1) and API (3)
@@ -39,27 +55,120 @@ public class BffSecurityConfiguration {
                         .permitAll()
                         .anyRequest()
                         .authenticated())
-                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/bff/user", true)
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization
+                                // Use cookie-based storage instead of session to avoid cleanup issues
+                                .authorizationRequestRepository(new CookieOAuth2AuthorizationRequestRepository()))
+                        .successHandler(bffAuthenticationSuccessHandler)
                         .failureHandler(oauth2AuthenticationFailureHandler()))
-                .logout(logout -> logout.logoutUrl("/bff/logout")
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // For /bff/user requests, return 401 instead of redirecting to login
+                            if (request.getRequestURI().startsWith("/bff/")) {
+                                log.debug("Unauthorized access to {}, returning 401", request.getRequestURI());
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.setContentType("application/json");
+                                response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                            } else {
+                                // For other requests, redirect to OAuth2 login
+                                response.sendRedirect("/oauth2/authorization/keycloak");
+                            }
+                        }))
+                .logout(logout -> logout
+                        .logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/bff/logout"))
                         .logoutSuccessHandler(oidcLogoutSuccessHandler())
                         .invalidateHttpSession(true)
-                        .deleteCookies("RESULTER_SESSION"))
+                        .clearAuthentication(true)
+                        .deleteCookies("RESULTER_SESSION", "XSRF-TOKEN"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
                 .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
-                .cors(AbstractHttpConfigurer::disable); // Use global CORS from main chain
+                .cors(cors -> cors.configurationSource(corsConfigurationSource));
 
         return http.build();
     }
 
     private LogoutSuccessHandler oidcLogoutSuccessHandler() {
         return (request, response, authentication) -> {
-            // Return 200 OK with empty body for SPA logout
-            response.setStatus(200);
-            response.getWriter().flush();
+            String username = authentication != null ? authentication.getName() : "anonymous";
+            log.info("Logout successful for user: {}, initiating OIDC logout", username);
+
+            // Session is already invalidated by logout configuration
+            if (request.getSession(false) != null) {
+                log.warn("Session still exists after logout: {}", request.getSession(false).getId());
+            } else {
+                log.info("Session successfully invalidated");
+            }
+
+            // Explicitly delete cookies - must match ALL attributes of the original cookie
+            var sessionCookie = new jakarta.servlet.http.Cookie("RESULTER_SESSION", "");
+            sessionCookie.setPath("/");
+            sessionCookie.setMaxAge(0);
+            sessionCookie.setHttpOnly(true);
+            sessionCookie.setSecure(false); // Must match dev setting
+            sessionCookie.setDomain("localhost");
+            response.addCookie(sessionCookie);
+
+            var csrfCookie = new jakarta.servlet.http.Cookie("XSRF-TOKEN", "");
+            csrfCookie.setPath("/");
+            csrfCookie.setMaxAge(0);
+            csrfCookie.setHttpOnly(false);
+            csrfCookie.setSecure(false);
+            csrfCookie.setDomain("localhost");
+            response.addCookie(csrfCookie);
+
+            // Also add explicit header to delete cookies (fallback method)
+            response.addHeader("Set-Cookie",
+                "RESULTER_SESSION=; Path=/; Domain=localhost; Max-Age=0; HttpOnly; SameSite=Lax");
+            response.addHeader("Set-Cookie",
+                "XSRF-TOKEN=; Path=/; Domain=localhost; Max-Age=0; SameSite=Lax");
+
+            log.info("Cookies cleared");
+
+            // OIDC RP-Initiated Logout: Redirect to Keycloak logout endpoint
+            // This will clear the Keycloak SSO session and then redirect back to our frontend
+            // Format: {issuer-uri}/protocol/openid-connect/logout?id_token_hint={token}&post_logout_redirect_uri={redirect}
+            String issuerUri = request.getServletContext().getInitParameter("issuer-uri");
+            if (issuerUri == null) {
+                // Fallback: construct from known Keycloak URL
+                issuerUri = "https://keycloak.jobst24.de/realms/resulter";
+            }
+
+            try {
+                // Extract ID token from authentication for automatic logout (no confirmation needed)
+                String idTokenValue = null;
+                if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+                    var oauth2Auth = (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication;
+                    var principal = oauth2Auth.getPrincipal();
+                    if (principal instanceof org.springframework.security.oauth2.core.oidc.user.OidcUser) {
+                        var oidcUser = (org.springframework.security.oauth2.core.oidc.user.OidcUser) principal;
+                        idTokenValue = oidcUser.getIdToken().getTokenValue();
+                        log.debug("Extracted ID token for logout");
+                    }
+                }
+
+                StringBuilder logoutUrl = new StringBuilder(issuerUri)
+                    .append("/protocol/openid-connect/logout")
+                    .append("?post_logout_redirect_uri=")
+                    .append(java.net.URLEncoder.encode(frontendUrl, "UTF-8"));
+
+                // Add id_token_hint for automatic logout without confirmation
+                if (idTokenValue != null) {
+                    logoutUrl.append("&id_token_hint=")
+                        .append(java.net.URLEncoder.encode(idTokenValue, "UTF-8"));
+                    log.info("Redirecting to Keycloak logout with id_token_hint (auto-logout)");
+                } else {
+                    log.warn("No ID token found, Keycloak may require manual logout confirmation");
+                }
+
+                response.sendRedirect(logoutUrl.toString());
+            } catch (java.io.UnsupportedEncodingException e) {
+                log.error("Failed to encode logout URL", e);
+                // Fallback: just redirect to frontend
+                response.sendRedirect(frontendUrl);
+            }
         };
     }
 
@@ -72,7 +181,8 @@ public class BffSecurityConfiguration {
                 log.error("Caused by: {}", exception.getCause().getClass().getName());
                 log.error("Cause message: {}", exception.getCause().getMessage());
             }
-            response.sendRedirect("/login?error");
+            // Redirect to frontend with error parameter
+            response.sendRedirect(frontendUrl + "?auth_error=oauth2_failed");
         };
     }
 

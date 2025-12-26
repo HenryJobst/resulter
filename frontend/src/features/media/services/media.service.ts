@@ -1,6 +1,6 @@
 import type { Media } from '@/features/media/model/media'
 import { GenericService } from '@/features/generic/services/GenericService'
-import axiosInstance from '@/features/keycloak/services/api'
+import axiosInstance from '@/features/auth/services/api'
 
 const mediaUrl: string = '/media'
 

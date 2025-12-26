@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/bff")
 @Slf4j
@@ -54,5 +56,28 @@ public class BffController {
         // CSRF token automatically added to response by Spring Security
         // This endpoint exists to trigger token generation for SPA
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/debug/authorities")
+    public ResponseEntity<Map<String, Object>> getAuthorities(@Nullable Authentication authentication,
+                                                                jakarta.servlet.http.HttpServletRequest request) {
+        log.info("GET /bff/debug/authorities called");
+
+        Map<String, Object> debug = new java.util.HashMap<>();
+
+        if (authentication != null) {
+            debug.put("authenticated", authentication.isAuthenticated());
+            debug.put("principal", authentication.getPrincipal().getClass().getName());
+            debug.put("name", authentication.getName());
+            debug.put("authorities", authentication.getAuthorities().stream()
+                    .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                    .collect(java.util.stream.Collectors.toList()));
+        } else {
+            debug.put("authentication", "null");
+        }
+
+        debug.put("sessionId", request.getSession(false) != null ? request.getSession(false).getId() : "no session");
+
+        return ResponseEntity.ok(debug);
     }
 }

@@ -23,8 +23,17 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Configuration
 @Profile("!nosecurity")
@@ -194,5 +203,56 @@ public class BffSecurityConfiguration {
                     .jwsAlgorithm(SignatureAlgorithm.RS512)
                     .build();
         };
+    }
+
+    /**
+     * Maps OAuth2/OIDC authorities to include Keycloak realm roles.
+     * Extracts roles from realm_access.roles claim and adds them as ROLE_* authorities.
+     */
+    @Bean
+    public GrantedAuthoritiesMapper userAuthoritiesMapper() {
+        return (authorities) -> {
+            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+            authorities.forEach(authority -> {
+                // Keep existing authorities
+                mappedAuthorities.add(authority);
+
+                // Extract realm roles from OIDC user
+                if (authority instanceof OidcUserAuthority oidcUserAuthority) {
+                    var userInfo = oidcUserAuthority.getUserInfo();
+                    if (userInfo != null) {
+                        Object realmAccess = userInfo.getClaim("realm_access");
+                        convertRolesToAuthorities(realmAccess, mappedAuthorities);
+                    }
+                }
+                // Fallback for OAuth2 (non-OIDC) user
+                else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
+                    var attributes = oauth2UserAuthority.getAttributes();
+                    Object realmAccess = attributes.get("realm_access");
+                    convertRolesToAuthorities(realmAccess, mappedAuthorities);
+                }
+            });
+
+            log.debug("Total mapped authorities: {}", mappedAuthorities.size());
+            return mappedAuthorities;
+        };
+    }
+
+    private static void convertRolesToAuthorities(Object realmAccess, Set<GrantedAuthority> mappedAuthorities) {
+        if (!(realmAccess instanceof Map<?, ?> realmAccessMap)) {
+            return;
+        }
+        Object rolesList = realmAccessMap.get("roles");
+        if (!(rolesList instanceof List<?> roles)) {
+            return;
+        }
+        roles.stream()
+            .filter(role -> role instanceof String)
+            .map(role -> (String) role)
+            .forEach(roleStr -> {
+                mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + roleStr.toUpperCase()));
+                log.debug("Mapped Keycloak role to authority: ROLE_{}", roleStr.toUpperCase());
+            });
     }
 }

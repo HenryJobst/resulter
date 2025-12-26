@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.jspecify.annotations.Nullable;
 import org.springframework.lang.NonNull;
 
 public record PersonRaceResultJdbcDto(
@@ -20,7 +22,7 @@ public record PersonRaceResultJdbcDto(
         String classListShortName,
         String classListName,
         String classGender,
-        Long courseId,
+        @Nullable Long courseId,
         Long personId,
         Long organisationId,
         OffsetDateTime startTime,
@@ -109,7 +111,8 @@ public record PersonRaceResultJdbcDto(
                                         sampleClassListDto.classListShortName(),
                                         Gender.of(sampleClassListDto.classGender()),
                                         personResults.values(),
-                                        CourseId.of(sampleClassListDto.courseId()));
+                                        sampleClassListDto.courseId() != null ?
+                                        CourseId.of(sampleClassListDto.courseId()) : null);
                             })
                             .collect(Collectors.toList());
 

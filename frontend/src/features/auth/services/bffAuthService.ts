@@ -31,7 +31,7 @@ class BffAuthService {
                 method: 'GET',
                 credentials: 'include', // Important: Send cookies
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                 },
             })
 
@@ -134,7 +134,7 @@ class BffAuthService {
      * Retrieves stored redirect path and locale from sessionStorage
      * @returns Object with redirect path and locale
      */
-    getPostLoginRedirect(): { path: string; locale: string } {
+    getPostLoginRedirect(): { path: string, locale: string } {
         const path = sessionStorage.getItem('bff_post_login_redirect') || '/'
         const locale = sessionStorage.getItem('bff_post_login_locale') || 'de'
 

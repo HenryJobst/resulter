@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
@@ -21,33 +22,35 @@ public class RaceDbo {
     @Id
     @With
     @Column("id")
+    @Nullable
     private Long id;
 
     @Column("event_id")
     private AggregateReference<EventDbo, Long> eventId;
 
     @Column("name")
+    @Nullable
     private String name;
 
     @Column("number")
     private Byte number;
 
 
-    public RaceDbo(Long eventId, String name, Byte number) {
+    public RaceDbo(Long eventId, @Nullable String name, Byte number) {
         this.id = null;
         this.eventId = AggregateReference.to(eventId);
         this.name = name;
         this.number = number;
     }
 
-    public static RaceDbo from(Race race, DboResolvers dboResolvers) {
+    public static @Nullable RaceDbo from(@Nullable Race race, DboResolvers dboResolvers) {
         if (null == race) {
             return null;
         }
         RaceDbo raceDbo;
-        if (race.getId().isPersistent()) {
+        if (race.getId().isPersistent() && dboResolvers.getRaceDboResolver() != null) {
             raceDbo = dboResolvers.getRaceDboResolver().findDboById(race.getId());
-            if (race.getRaceName() != null) {
+            if (race.getRaceName() != null && race.getRaceName().value() != null) {
                 raceDbo.setName(race.getRaceName().value());
             } else {
                 raceDbo.setName(null);
@@ -62,6 +65,6 @@ public class RaceDbo {
     }
 
     public Race asRace() {
-        return Race.of(RaceId.of(id), EventId.of(eventId.getId()), name, number);
+        return Race.of(id != null ? RaceId.of(id) : RaceId.empty(), EventId.of(eventId.getId()), name, number);
     }
 }

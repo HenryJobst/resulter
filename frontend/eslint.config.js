@@ -14,7 +14,9 @@ export default antfu(
         vue: true,
 
         // `.eslintignore` is no longer supported in Flat config, use `ignores` instead
-        ignores: [],
+        ignores: [
+            '**/*.md/**', // Ignore code blocks in markdown files
+        ],
 
         formatters: false,
         unocss: false,

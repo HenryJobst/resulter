@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CourseService, courseService } from '@/features/course/services/course.service'
 
 // Mock axios instance
-vi.mock('@/features/keycloak/services/api', () => ({
+vi.mock('@/features/auth/services/api', () => ({
     default: {
         get: vi.fn(),
         post: vi.fn(),

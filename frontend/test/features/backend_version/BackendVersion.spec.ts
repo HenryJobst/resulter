@@ -1,10 +1,10 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import axiosInstance from '@/features/auth/services/api'
 import BackendVersion from '@/features/backend_version/BackendVersion.vue'
-import axiosInstance from '@/features/keycloak/services/api'
 import { createGlobalMountOptions } from '../../helpers/testSetup'
 
-vi.mock('@/features/keycloak/services/api', () => ({
+vi.mock('@/features/auth/services/api', () => ({
     default: {
         get: vi.fn(),
     },

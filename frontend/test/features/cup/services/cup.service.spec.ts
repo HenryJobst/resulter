@@ -1,11 +1,11 @@
 import type { CupDetailed } from '@/features/cup/model/cup_detailed'
 import type { CupType } from '@/features/cup/model/cuptype'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import axiosInstance from '@/features/auth/services/api'
 import { CupService, cupService } from '@/features/cup/services/cup.service'
-import axiosInstance from '@/features/keycloak/services/api'
 
 // Mock axios instance
-vi.mock('@/features/keycloak/services/api', () => ({
+vi.mock('@/features/auth/services/api', () => ({
     default: {
         get: vi.fn(),
         put: vi.fn(),

@@ -113,21 +113,20 @@ export default defineConfig({
     ],
 
     /* Run your local dev server before starting the tests */
-    webServer: [
-        {
-            command: `pnpm ./node_modules/vite/bin/vite.js --mode ${vite_mode} --host ${hostname} --port ${port}`,
-            url: `${frontend_protocol}://${hostname}:${port}`,
-            timeout: 120 * 1000,
-            reuseExistingServer: !process.env.CI,
-            ignoreHTTPSErrors: true,
-        },
-        {
-            command: `mvn compile exec:java -D exec.mainClass="de.jobst.resulter.ResulterApplication" -Dspring.profiles.active=${backend_profiles}`,
-            url: `${backend_protocol}://${hostname}:${backend_port}`,
-            timeout: 120 * 1000,
-            reuseExistingServer: !process.env.CI,
-            cwd: '../',
-            ignoreHTTPSErrors: true,
-        },
-    ],
+    /* IMPORTANT: Start servers manually before running E2E tests:
+     * Terminal 1: pnpm dev (frontend)
+     * Terminal 2: cd ../backend && ./mvnw spring-boot:run (backend)
+     * Then run: pnpm test:e2e
+     */
+    webServer: process.env.CI
+        ? [
+                {
+                    command: `pnpm dev`,
+                    url: `${frontend_protocol}://${hostname}:${port}`,
+                    timeout: 120 * 1000,
+                    reuseExistingServer: false,
+                    ignoreHTTPSErrors: true,
+                },
+            ]
+        : undefined,
 })

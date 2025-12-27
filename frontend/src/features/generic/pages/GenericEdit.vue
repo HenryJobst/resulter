@@ -83,7 +83,7 @@ const entityLabel = computed(() => (props.entityLabel ? t(`labels.${props.entity
 
 const entityMutation = useMutation({
     mutationFn: (entity: GenericEntity) => props.entityService?.update(entity, t),
-    onSuccess: () => {
+    onSuccess: async () => {
         queryClient.invalidateQueries({ queryKey: [`${props.queryKey!}s`] })
         queryClient.invalidateQueries({ queryKey: [`${props.queryKey!}`, props.entityId] })
         toast.add({
@@ -92,7 +92,7 @@ const entityMutation = useMutation({
             detail: t('messages.entity_changed', { entity: entityLabel.value }),
             life: toastDisplayDuration,
         })
-        router.push(
+        await router.push(
             props.routeLocation ? props.routeLocation : { name: `${props.routerPrefix}-list` },
         )
     },

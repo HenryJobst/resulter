@@ -43,9 +43,22 @@ function getCsrfToken(): string | null {
 }
 
 /**
+ * Get cookie value by name
+ */
+function getCookieValue(name: string): string | null {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) {
+        return parts.pop()?.split(';').shift() || null
+    }
+    return null
+}
+
+/**
  * Request interceptor
  * BFF mode: cookies are sent automatically (withCredentials: true)
  * CSRF token: read from cookie and send as header
+ * E2E Database Isolation: read X-DB-Identifier cookie and send as header
  */
 axiosInstance.interceptors.request.use(
     (config) => {
@@ -57,6 +70,13 @@ axiosInstance.interceptors.request.use(
             if (csrfToken) {
                 config.headers['X-XSRF-TOKEN'] = csrfToken
             }
+        }
+
+        // E2E Database Isolation: Forward X-DB-Identifier cookie as header
+        // This allows E2E tests to route requests to isolated test databases
+        const dbIdentifier = getCookieValue('X-DB-Identifier')
+        if (dbIdentifier) {
+            config.headers['X-DB-Identifier'] = dbIdentifier
         }
 
         return config

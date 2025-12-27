@@ -2,7 +2,6 @@ package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public record EventCertificateLayoutDescription(String value) implements Comparable<EventCertificateLayoutDescription> {
@@ -13,7 +12,7 @@ public record EventCertificateLayoutDescription(String value) implements Compara
     }
 
     @Override
-    public int compareTo(@NonNull EventCertificateLayoutDescription o) {
+    public int compareTo(EventCertificateLayoutDescription o) {
         return value.compareTo(o.value);
     }
 

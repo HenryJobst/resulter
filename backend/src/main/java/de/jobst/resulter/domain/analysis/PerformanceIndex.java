@@ -17,7 +17,7 @@ import org.jspecify.annotations.Nullable;
  * </ul>
  */
 @ValueObject
-public record PerformanceIndex(Double value) implements Comparable<PerformanceIndex> {
+public record PerformanceIndex(@Nullable Double value) implements Comparable<PerformanceIndex> {
 
     /**
      * Mistake threshold - PI values above this are considered navigation mistakes.
@@ -48,7 +48,7 @@ public record PerformanceIndex(Double value) implements Comparable<PerformanceIn
      * @return true if PI >= MISTAKE_THRESHOLD (30% slower than best)
      */
     public boolean isMistake() {
-        return value >= MISTAKE_THRESHOLD;
+        return value != null && value >= MISTAKE_THRESHOLD;
     }
 
     /**
@@ -58,7 +58,7 @@ public record PerformanceIndex(Double value) implements Comparable<PerformanceIn
      * @return true if PI >= threshold
      */
     public boolean isMistake(double threshold) {
-        return value >= threshold;
+        return value != null && value >= threshold;
     }
 
     @Override

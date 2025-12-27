@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jmolecules.ddd.annotation.Entity;
 import org.jmolecules.ddd.annotation.Identity;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 @Entity
@@ -13,20 +12,15 @@ import org.jspecify.annotations.Nullable;
 public class MediaFile implements Comparable<MediaFile> {
 
     @Identity
-    @NonNull
     @Setter
     private MediaFileId id;
 
-    @NonNull
     private MediaFileName mediaFileName;
 
-    @NonNull
-    private MediaFileName thumbnailFileName;
+    private final MediaFileName thumbnailFileName;
 
-    @NonNull
     private MediaFileContentType contentType;
 
-    @NonNull
     private MediaFileSize mediaFileSize;
 
     @Nullable
@@ -34,11 +28,11 @@ public class MediaFile implements Comparable<MediaFile> {
     private MediaFileDescription description;
 
     public MediaFile(
-            @NonNull MediaFileId id,
-            @NonNull MediaFileName mediaFileName,
-            @NonNull MediaFileName thumbnailFileName,
-            @NonNull MediaFileContentType contentType,
-            @NonNull MediaFileSize mediaFileSize,
+            MediaFileId id,
+            MediaFileName mediaFileName,
+            MediaFileName thumbnailFileName,
+            MediaFileContentType contentType,
+            MediaFileSize mediaFileSize,
             @Nullable MediaFileDescription description) {
         this.id = id;
         this.mediaFileName = mediaFileName;
@@ -49,37 +43,37 @@ public class MediaFile implements Comparable<MediaFile> {
     }
 
     public static MediaFile of(
-            @NonNull String fileName,
-            @NonNull String thumbnailFileName,
-            @NonNull String contentType,
-            @NonNull Long fileSize) {
+            String fileName,
+            String thumbnailFileName,
+            String contentType,
+            Long fileSize) {
         return MediaFile.of(fileName, thumbnailFileName, contentType, fileSize, null);
     }
 
     public static MediaFile of(
-        @NonNull Long id,
-        @NonNull String fileName,
-        @NonNull String thumbnailFileName,
-        @NonNull String contentType,
-        @NonNull Long fileSize) {
+        Long id,
+        String fileName,
+        String thumbnailFileName,
+        String contentType,
+        Long fileSize) {
         return MediaFile.of(id, fileName, thumbnailFileName, contentType, fileSize, null);
     }
 
     public static MediaFile of(
-            @NonNull String fileName,
-            @NonNull String thumbnailFileName,
-            @NonNull String contentType,
-            @NonNull Long fileSize,
+            String fileName,
+            String thumbnailFileName,
+            String contentType,
+            Long fileSize,
             @Nullable String description) {
         return MediaFile.of(null, fileName, thumbnailFileName, contentType, fileSize, description);
     }
 
     public static MediaFile of(
             @Nullable Long id,
-            @NonNull String fileName,
-            @NonNull String thumbnailFileName,
-            @NonNull String contentType,
-            @NonNull Long fileSize,
+            String fileName,
+            String thumbnailFileName,
+            String contentType,
+            Long fileSize,
             @Nullable String description) {
         return new MediaFile(
                 id == null ? MediaFileId.empty() : MediaFileId.of(id),
@@ -102,7 +96,7 @@ public class MediaFile implements Comparable<MediaFile> {
     }
 
     @Override
-    public int compareTo(@NonNull MediaFile o) {
+    public int compareTo(MediaFile o) {
         int val = ObjectUtils.compare(this.mediaFileName.value(), o.mediaFileName.value());
         if (val == 0) {
             val = ObjectUtils.compare(this.contentType.value(), o.contentType.value());
@@ -111,7 +105,9 @@ public class MediaFile implements Comparable<MediaFile> {
             val = ObjectUtils.compare(this.mediaFileSize.value(), o.mediaFileSize.value());
         }
         if (val == 0) {
-            val = ObjectUtils.compare(this.description.value(), o.description.value());
+            val = ObjectUtils.compare(
+                    this.description != null ? this.description.value() : null,
+                    o.description != null ? o.description.value() : null);
         }
         if (val == 0) {
             val = ObjectUtils.compare(this.thumbnailFileName.value(), o.thumbnailFileName.value());

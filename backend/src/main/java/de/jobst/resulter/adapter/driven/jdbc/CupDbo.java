@@ -50,7 +50,7 @@ public class CupDbo {
 
     public static CupDbo from(Cup cup, DboResolvers dboResolvers) {
         CupDbo cupDbo;
-        if (cup.getId().value() != CupId.empty().value()) {
+        if (cup.getId().value() != CupId.empty().value() && dboResolvers.getCupDboDboResolver() != null) {
             cupDbo = dboResolvers.getCupDboDboResolver().findDboById(cup.getId());
             cupDbo.setName(cup.getName().value());
         } else {

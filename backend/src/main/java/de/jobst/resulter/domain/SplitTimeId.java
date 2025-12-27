@@ -1,7 +1,6 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public record SplitTimeId(long value) implements Comparable<SplitTimeId> {
@@ -27,7 +26,7 @@ public record SplitTimeId(long value) implements Comparable<SplitTimeId> {
     }
 
     @Override
-    public int compareTo(@NonNull SplitTimeId o) {
+    public int compareTo(SplitTimeId o) {
         return Long.compare(value, o.value);
     }
 }

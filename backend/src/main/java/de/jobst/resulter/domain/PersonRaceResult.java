@@ -40,8 +40,8 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
             @Nullable ZonedDateTime finishTime,
             @Nullable Double punchTime,
             @Nullable Long position,
-            Byte raceNumber,
-            ResultStatus resultState) {
+            @Nullable Byte raceNumber,
+            @Nullable ResultStatus resultState) {
         return PersonRaceResult.of(
                 classResultShortName,
                 personId,
@@ -61,8 +61,8 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
             @Nullable ZonedDateTime finishTime,
             @Nullable Double punchTime,
             @Nullable Long position,
-            ResultStatus resultState,
-            Byte raceNumber,
+            @Nullable ResultStatus resultState,
+            @Nullable Byte raceNumber,
             @Nullable SplitTimeListId splitTimeListId) {
         return new PersonRaceResult(
                 ClassResultShortName.of(classResultShortName),
@@ -71,7 +71,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
                 DateTime.of(finishTime),
                 PunchTime.of(punchTime),
                 Position.of(position),
-                resultState,
+                resultState != null ? resultState : ResultStatus.DID_NOT_START,
                 RaceNumber.of(raceNumber),
                 splitTimeListId);
     }

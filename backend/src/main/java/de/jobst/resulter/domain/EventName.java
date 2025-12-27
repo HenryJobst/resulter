@@ -2,7 +2,6 @@ package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public record EventName(String value) implements Comparable<EventName> {
@@ -13,7 +12,7 @@ public record EventName(String value) implements Comparable<EventName> {
     }
 
     @Override
-    public int compareTo(@NonNull EventName o) {
+    public int compareTo(EventName o) {
         return value.compareTo(o.value);
     }
 

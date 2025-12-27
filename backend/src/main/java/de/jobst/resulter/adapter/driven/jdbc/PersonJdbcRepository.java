@@ -1,7 +1,6 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.Gender;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -19,7 +18,6 @@ public interface PersonJdbcRepository
     extends CrudRepository<PersonDbo, Long>, PagingAndSortingRepository<PersonDbo, Long>,
             QueryByExampleExecutor<PersonDbo> {
 
-    @NonNull
     Collection<PersonDbo> findAll();
 
     @Query("""

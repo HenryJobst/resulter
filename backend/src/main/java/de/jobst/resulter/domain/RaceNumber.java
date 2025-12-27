@@ -1,16 +1,23 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
-public record RaceNumber(Byte value) implements Comparable<RaceNumber> {
+public record RaceNumber(@Nullable Byte value) implements Comparable<RaceNumber> {
 
-    public static RaceNumber of(Byte value) {
+    public static RaceNumber of(@Nullable Byte value) {
         return new RaceNumber(value);
     }
 
-    public int compareTo(RaceNumber raceNumber) {
-        return value.compareTo(raceNumber.value);
+    public int compareTo(RaceNumber o) {
+        if (value == null) {
+            return (o.value == null) ? 0 : -1;
+        }
+        if (o.value == null) {
+            return 1;
+        }
+        return value.compareTo(o.value);
     }
 
     public static RaceNumber empty() {

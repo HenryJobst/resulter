@@ -4,7 +4,7 @@ import de.jobst.resulter.domain.util.ValueObjectChecks;
 import java.util.Collection;
 import java.util.Map;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
 public class CupScores {
@@ -15,7 +15,7 @@ public class CupScores {
         this.cupScores = cupScores;
     }
 
-    public static CupScores of(@NonNull Map<CupType, CupScore> cupScores) {
+    public static CupScores of(Map<CupType, CupScore> cupScores) {
         ValueObjectChecks.requireNotNull(cupScores);
         return new CupScores(cupScores);
     }
@@ -24,7 +24,7 @@ public class CupScores {
         this.cupScores.put(cupType, score);
     }
 
-    public CupScore get(CupType cupType) {
+    public @Nullable CupScore get(CupType cupType) {
         if (this.cupScores.containsKey(cupType)) {
             return this.cupScores.get(cupType);
         }

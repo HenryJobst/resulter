@@ -3,7 +3,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.stereotype.Repository;
@@ -26,15 +26,15 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
         this.resultListJdbcRepository = resultListJdbcRepository;
     }
 
-    @NonNull
-    private static Throwable getRootCause(@NonNull Throwable t) {
+    @SuppressWarnings("unused")
+    private static Throwable getRootCause(Throwable t) {
         Throwable rootCause = NestedExceptionUtils.getRootCause(t);
         return rootCause != null ? rootCause : t;
     }
 
     @Override
     @Transactional
-    public ResultList save(ResultList resultList) {
+    public @Nullable ResultList save(ResultList resultList) {
         DboResolvers dboResolvers = DboResolvers.empty();
         dboResolvers.setResultListDboResolver(id -> resultListJdbcRepository.findById(id.value()).orElseThrow());
         ResultListDbo resultListDbo = ResultListDbo.from(resultList, dboResolvers);
@@ -50,7 +50,7 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
 
     @Override
     @Transactional
-    public ResultList findOrCreate(ResultList resultList) {
+    public @Nullable ResultList findOrCreate(ResultList resultList) {
         Optional<ResultListId> resultListId =
             resultListJdbcRepository.findResultListIdByDomainKey(resultList.getEventId().value(),
                 resultList.getRaceId().value(),
@@ -95,7 +95,7 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
-    public ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
+    public @Nullable ResultList findByResultListIdAndClassResultShortNameAndPersonId(ResultListId resultListId,
                                                                            ClassResultShortName classResultShortName,
                                                                            PersonId personId) {
         List<PersonRaceResultJdbcDto> personRaceResults =

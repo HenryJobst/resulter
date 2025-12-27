@@ -23,6 +23,7 @@ public class ResponseUtil {
         }
     }
 
+    @SuppressWarnings("unused")
     public static <T> ResponseEntity<ApiResponse<T>> success(T data, LocalizableString message, String path) {
         return success(data, message, path, null);
     }

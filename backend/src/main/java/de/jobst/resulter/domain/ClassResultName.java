@@ -1,10 +1,10 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @ValueObject
-public record ClassResultName(String value) {
+public record ClassResultName(@Nullable String value) {
     public static ClassResultName of(String name) {
         return new ClassResultName(name);
     }
@@ -14,7 +14,7 @@ public record ClassResultName(String value) {
         return this.getClass().getSimpleName() + "=" + value;
     }
 
-    public int compareTo(@NonNull ClassResultName o) {
+    public int compareTo(ClassResultName o) {
         if (value == null) {
             return (o.value == null) ? 0 : -1;
         }

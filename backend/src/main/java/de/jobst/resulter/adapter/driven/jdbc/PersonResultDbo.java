@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
@@ -25,21 +25,20 @@ import java.util.stream.Collectors;
 @Table(name = "person_result")
 public class PersonResultDbo {
 
-    @NonNull
     @Column("class_result_short_name")
     private String classResultShortName;
 
-    @NonNull
     @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
 
     @Column("organisation_id")
+    @Nullable
     private AggregateReference<OrganisationDbo, Long> organisation;
 
     @MappedCollection(idColumn = "result_list_id")
     private Set<PersonRaceResultDbo> personRaceResults = new HashSet<>();
 
-    public static PersonResultDbo from(@NonNull PersonResult personResult) {
+    public static PersonResultDbo from(PersonResult personResult) {
         PersonResultDbo personResultDbo = new PersonResultDbo();
         personResultDbo.setClassResultShortName(Objects.requireNonNull(Objects.requireNonNull(personResult.classResultShortName())
             .value()));
@@ -59,7 +58,7 @@ public class PersonResultDbo {
         return personResultDbo;
     }
 
-    static public Collection<PersonResult> asPersonResults(@NonNull Collection<PersonResultDbo> personResultDbos) {
+    static public Collection<PersonResult> asPersonResults(Collection<PersonResultDbo> personResultDbos) {
         return personResultDbos.stream()
             .map(it -> PersonResult.of(ClassResultShortName.of(it.classResultShortName),
                 PersonId.of(it.person.getId()),
@@ -71,7 +70,7 @@ public class PersonResultDbo {
                         x.getStartTime() != null ?
                         x.getStartTime().toInstant().atZone(ZoneId.of(Objects.requireNonNull(x.getStartTimeZone()))) :
                         null,
-                        x.getFinishTime() != null ?
+                        x.getFinishTime() != null && x.getFinishTimeZone() != null ?
                         x.getFinishTime().toInstant().atZone(ZoneId.of(x.getFinishTimeZone())) :
                         null,
                         x.getPunchTime(),

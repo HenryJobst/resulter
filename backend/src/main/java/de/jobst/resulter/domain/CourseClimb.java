@@ -1,7 +1,6 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public record CourseClimb(Double value) implements Comparable<CourseClimb> {
@@ -10,7 +9,7 @@ public record CourseClimb(Double value) implements Comparable<CourseClimb> {
     }
 
     @Override
-    public int compareTo(@NonNull CourseClimb o) {
+    public int compareTo(CourseClimb o) {
         return value.compareTo(o.value);
     }
 }

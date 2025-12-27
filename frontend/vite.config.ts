@@ -27,12 +27,46 @@ export default defineConfig({
                 target: 'http://localhost:8080',
                 changeOrigin: true,
                 secure: false,
+                // Configure proxy to forward X-DB-Identifier cookie as header (for E2E test isolation)
+                configure: (proxy, _options) => {
+                    proxy.on('proxyReq', (proxyReq, req, _res) => {
+                        // Debug: Log all requests to see what's happening
+                        console.log(`[Vite Proxy] Request to: ${req.url}`)
+                        console.log(`[Vite Proxy] Cookies:`, req.headers.cookie || 'NO COOKIES')
+
+                        // Read X-DB-Identifier cookie from request and add as header
+                        const cookies = req.headers.cookie
+                        if (cookies) {
+                            const match = cookies.match(/X-DB-Identifier=([^;]+)/)
+                            if (match && match[1]) {
+                                proxyReq.setHeader('X-DB-Identifier', match[1])
+                                console.log(`[Vite Proxy] Forwarding X-DB-Identifier: ${match[1]}`)
+                            }
+                            else {
+                                console.log(`[Vite Proxy] X-DB-Identifier cookie not found in: ${cookies}`)
+                            }
+                        }
+                    })
+                },
             },
             // Proxy BFF user info endpoint to backend (for cookie support)
             '/bff': {
                 target: 'http://localhost:8080',
                 changeOrigin: true,
                 secure: false,
+                // Configure proxy to forward X-DB-Identifier cookie as header (for E2E test isolation)
+                configure: (proxy, _options) => {
+                    proxy.on('proxyReq', (proxyReq, req, _res) => {
+                        // Read X-DB-Identifier cookie from request and add as header
+                        const cookies = req.headers.cookie
+                        if (cookies) {
+                            const match = cookies.match(/X-DB-Identifier=([^;]+)/)
+                            if (match && match[1]) {
+                                proxyReq.setHeader('X-DB-Identifier', match[1])
+                            }
+                        }
+                    })
+                },
             },
             // NOTE: /oauth2 and /login are NOT proxied
             // These need direct browser redirects to Keycloak

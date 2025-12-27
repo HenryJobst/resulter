@@ -86,12 +86,27 @@ public class OAuth2ResourceServerSecurityConfiguration {
     }
 
     @Bean
+    @Order(0)
+    @Profile("testcontainers")
+    public SecurityFilterChain createDatabaseSecurityFilterChain(
+            HttpSecurity http, CreateDatabaseApiTokenFilter createDatabaseApiTokenFilter) {
+        http.securityMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/createDatabase"))
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .addFilterBefore(createDatabaseApiTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                // Disable CSRF for this endpoint
+                .csrf(AbstractHttpConfigurer::disable)
+                // Disable JWT auth for this chain
+                .oauth2ResourceServer(AbstractHttpConfigurer::disable)
+                // Disable session creation
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
+
+    @Bean
     @Order(3)
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http.securityMatcher("/**")
-                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/createDatabase")
-                        .hasRole(ADMIN)
-                        .requestMatchers("/public/**")
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/public/**")
                         .permitAll()
                         .requestMatchers("/swagger-ui/**")
                         .permitAll()
@@ -149,9 +164,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                        .ignoringRequestMatchers(
-                                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/createDatabase")));
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));
 
         return http.build();
     }

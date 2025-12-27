@@ -38,11 +38,9 @@ const formData = props.entity
 const entityLabel = computed(() => (props.entityLabel ? t(`labels.${props.entityLabel}`) : ''))
 const entityMutation = useMutation({
     mutationFn: (e: any) => {
-        console.log('Mutation function called with:', e)
         return props.entityService!.create(e, t)
     },
-    onSuccess: async (data) => {
-        console.log('Mutation succeeded with data:', data)
+    onSuccess: async (_data) => {
         toast.add({
             severity: 'info',
             summary: t('messages.success'),
@@ -50,14 +48,13 @@ const entityMutation = useMutation({
             life: toastDisplayDuration,
         })
         // Navigate first, then refetch will happen automatically on the list page
-        navigateToList()
+        await navigateToList()
         // Force refetch after navigation to ensure list is updated
         setTimeout(() => {
             queryClient.refetchQueries({ queryKey: props.queryKey })
         }, 100)
     },
     onError: (error: any) => {
-        console.error('Mutation failed:', error)
         toast.add({
             severity: 'error',
             summary: t('messages.error'),
@@ -71,13 +68,12 @@ function submitHandler() {
     if (formData) {
         // Unwrap ref before sending to mutation
         const data = toRaw(formData)
-        console.log('Submitting event:', data)
         entityMutation.mutate(data)
     }
 }
 
 function navigateToList() {
-    router.replace({ name: `${props.routerPrefix}-list` })
+    return router.replace({ name: `${props.routerPrefix}-list` })
 }
 </script>
 

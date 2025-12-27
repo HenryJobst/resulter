@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 @AggregateRoot
@@ -15,19 +14,15 @@ import org.jspecify.annotations.Nullable;
 public class CupScoreList {
 
     @Identity
-    @NonNull
     @Setter
     private CupScoreListId id;
 
     @Association
-    @NonNull
     private final CupId cupId;
 
     @Association
-    @NonNull
     private final ResultListId resultListId;
 
-    @NonNull
     private final List<CupScore> cupScores;
 
     @Nullable
@@ -36,14 +31,13 @@ public class CupScoreList {
     @Nullable
     private final ZonedDateTime createTime;
 
-    @NonNull
     private final String status = "COMPLETE";
 
     public CupScoreList(
-            @NonNull CupScoreListId id,
-            @NonNull CupId cupId,
-            @NonNull ResultListId resultListId,
-            @NonNull List<CupScore> cupScores,
+            CupScoreListId id,
+            CupId cupId,
+            ResultListId resultListId,
+            List<CupScore> cupScores,
             @Nullable String creator,
             @Nullable ZonedDateTime createTime) {
         this.id = id;

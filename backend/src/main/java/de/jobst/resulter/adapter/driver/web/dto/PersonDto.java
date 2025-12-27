@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.Person;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
@@ -27,12 +26,10 @@ public record PersonDto(Long id, String familyName, String givenName, GenderDto 
         default -> s;
     };
 
-    @NonNull
     public static String mapOrdersDtoToDomain(Sort.Order order) {
         return mapOperator.apply(order.getProperty());
     }
 
-    @NonNull
     public static String mapOrdersDomainToDto(Sort.Order order) {
         return mapOperator.apply(order.getProperty());
     }

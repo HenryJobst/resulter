@@ -1,7 +1,6 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.ClassResult;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Collection;
 
@@ -16,7 +15,7 @@ public record ClassResultDto(String shortName, String name, Long courseId, Colle
     }
 
     @Override
-    public int compareTo(@NonNull ClassResultDto o) {
+    public int compareTo(ClassResultDto o) {
         return name.compareTo(o.name);
     }
 }

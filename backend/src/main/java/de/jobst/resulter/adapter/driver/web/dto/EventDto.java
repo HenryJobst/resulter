@@ -4,7 +4,6 @@ import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.Event;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -44,7 +43,6 @@ public record EventDto(
                 hasSplitTimes);
     }
 
-    @NonNull
     public static String mapOrdersDtoToDomain(Sort.Order order) {
         return switch (order.getProperty()) {
             case "id" -> "id.value";
@@ -56,7 +54,6 @@ public record EventDto(
         };
     }
 
-    @NonNull
     public static String mapOrdersDomainToDto(Sort.Order order) {
         return switch (order.getProperty()) {
             case "id.value" -> "id";
@@ -69,7 +66,7 @@ public record EventDto(
     }
 
     @Override
-    public int compareTo(@NonNull EventDto o) {
+    public int compareTo(EventDto o) {
         int val = (Objects.nonNull(this.startTime) && Objects.nonNull(o.startTime)
                    ? this.startTime.compareTo(o.startTime)
                    : (Objects.equals(this.startTime, o.startTime) ? 0 : (Objects.nonNull(this.startTime) ? -1 : 1)));

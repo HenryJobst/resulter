@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driven.jdbc.transformer;
 
 import com.turkraft.springfilter.parser.node.*;
 import com.turkraft.springfilter.transformer.FilterNodeTransformer;
-import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.ExampleMatcher;
 
@@ -20,19 +19,19 @@ public class MappingFilterNodeTransformer implements FilterNodeTransformer<Mappi
         this.conversionService = conversionService;
     }
 
-    @NonNull
+    
     @Override
     public Class<MappingFilterNodeTransformResult> getTargetType() {
         return MappingFilterNodeTransformResult.class;
     }
 
-    @NonNull
+    
     @Override
     public MappingFilterNodeTransformResult transformField(FieldNode node) {
         return new MappingFilterNodeTransformResult(node.getName());
     }
 
-    @NonNull
+    
     @Override
     public MappingFilterNodeTransformResult transformInput(InputNode node) {
         return new MappingFilterNodeTransformResult("'" +
@@ -42,7 +41,7 @@ public class MappingFilterNodeTransformer implements FilterNodeTransformer<Mappi
                                                         .replace("'", "\\'") + "'");
     }
 
-    @NonNull
+    
     @Override
     public MappingFilterNodeTransformResult transformPriority(PriorityNode node) {
         MappingFilterNodeTransformResult nodeTransform = transform(node.getNode());
@@ -50,13 +49,13 @@ public class MappingFilterNodeTransformer implements FilterNodeTransformer<Mappi
         return new MappingFilterNodeTransformResult("(" + nodeTransform + ")", filterMap);
     }
 
-    @NonNull
+    
     @Override
     public MappingFilterNodeTransformResult transformPlaceholder(PlaceholderNode node) {
         return new MappingFilterNodeTransformResult("`" + node.getPlaceholder().getName() + "`");
     }
 
-    @NonNull
+    
     @Override
     public MappingFilterNodeTransformResult transformFunction(FunctionNode node) {
         return new MappingFilterNodeTransformResult(node.getFunction().getName() + "(" + node.getArguments()
@@ -66,7 +65,7 @@ public class MappingFilterNodeTransformer implements FilterNodeTransformer<Mappi
             .collect(Collectors.joining(", ")) + ")");
     }
 
-    @NonNull
+    
     @Override
     public MappingFilterNodeTransformResult transformCollection(CollectionNode node) {
         return new MappingFilterNodeTransformResult("[" + node.getItems()
@@ -76,7 +75,7 @@ public class MappingFilterNodeTransformer implements FilterNodeTransformer<Mappi
             .collect(Collectors.joining(", ")) + "]");
     }
 
-    @NonNull
+    
     @Override
     public MappingFilterNodeTransformResult transformPrefixOperation(PrefixOperationNode node) {
         MappingFilterNodeTransformResult nodeTransform = transform(node.getRight());
@@ -84,7 +83,7 @@ public class MappingFilterNodeTransformer implements FilterNodeTransformer<Mappi
         return new MappingFilterNodeTransformResult(node.getOperator().getToken() + " " + nodeTransform, filterMap);
     }
 
-    @NonNull
+    
     @Override
     public MappingFilterNodeTransformResult transformInfixOperation(InfixOperationNode node) {
         Map<String, ValueWithMatcher> filterMap = new HashMap<>();
@@ -100,7 +99,7 @@ public class MappingFilterNodeTransformer implements FilterNodeTransformer<Mappi
             leftTransform + " " + node.getOperator().getToken() + " " + rightTransform, filterMap);
     }
 
-    @NonNull
+    
     @Override
     public MappingFilterNodeTransformResult transformPostfixOperation(PostfixOperationNode node) {
         return new MappingFilterNodeTransformResult(transform(node.getLeft()) + " " + node.getOperator().getToken());

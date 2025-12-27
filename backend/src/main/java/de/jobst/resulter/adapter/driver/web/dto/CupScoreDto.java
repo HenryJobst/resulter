@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.CupScore;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jspecify.annotations.NonNull;
 
 public record CupScoreDto(Long personId, String classShortName, Double score) implements Comparable<CupScoreDto> {
 
@@ -11,7 +10,7 @@ public record CupScoreDto(Long personId, String classShortName, Double score) im
     }
 
     @Override
-    public int compareTo(@NonNull CupScoreDto o) {
+    public int compareTo(CupScoreDto o) {
         int value = ObjectUtils.compare(classShortName, o.classShortName, true);
         if (value == 0) {
             value = Double.compare(score, o.score);

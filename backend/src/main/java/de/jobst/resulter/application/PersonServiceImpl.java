@@ -4,9 +4,9 @@ import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,8 +50,8 @@ public class PersonServiceImpl implements PersonService {
         return jaroWinkler.apply(str1, str2);
     }
 
-    private static long getDaysBetween(@org.jspecify.annotations.Nullable BirthDate date1,
-                                       @org.jspecify.annotations.Nullable BirthDate date2) {
+    private static long getDaysBetween(@Nullable BirthDate date1,
+                                       @Nullable BirthDate date2) {
         if (date1 == null || date2 == null || date1.value() == null || date2.value() == null) {
             return 100_000; // a large number
         }
@@ -91,7 +91,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Page<Person> findAllOrPossibleDuplicates(@org.jspecify.annotations.Nullable String filter, Pageable pageable,
+    public Page<Person> findAllOrPossibleDuplicates(@Nullable String filter, Pageable pageable,
                                                     boolean duplicates) {
         return duplicates ? personRepository.findDuplicates(filter, pageable) : personRepository.findAll(filter, pageable);
     }

@@ -1,7 +1,9 @@
 package de.jobst.resulter.application.certificate;
 
-import com.github.fge.jsonschema.core.report.ProcessingReport;
+import com.networknt.schema.Error;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,29 +24,29 @@ class JsonSchemaValidatorTest {
     void validateJsonAgainstSchema_test_layout_1() {
         String json = textFileLoader.loadTextFile("certificate/test_layout_description_1.json");
 
-        ProcessingReport report = jsonSchemaValidator.validateJsonAgainstSchema(json, certificateSchema);
+        List<Error> errors = jsonSchemaValidator.validateJsonAgainstSchema(json, certificateSchema);
 
-        report.forEach(System.out::println);
-        assertTrue(report.isSuccess());
+        errors.forEach(System.out::println);
+        assertTrue(errors.isEmpty(), "Validation should succeed with no errors");
     }
 
     @Test
     void validateJsonAgainstSchema_test_layout_2() {
         String json = textFileLoader.loadTextFile("certificate/test_layout_description_2.json");
 
-        ProcessingReport report = jsonSchemaValidator.validateJsonAgainstSchema(json, certificateSchema);
+        List<Error> errors = jsonSchemaValidator.validateJsonAgainstSchema(json, certificateSchema);
 
-        report.forEach(System.out::println);
-        assertTrue(report.isSuccess());
+        errors.forEach(System.out::println);
+        assertTrue(errors.isEmpty(), "Validation should succeed with no errors");
     }
 
     @Test
     void validateJsonAgainstSchema_test_layout_3() {
         String json = textFileLoader.loadTextFile("certificate/test_layout_description_3.json");
 
-        ProcessingReport report = jsonSchemaValidator.validateJsonAgainstSchema(json, certificateSchema);
+        List<Error> errors = jsonSchemaValidator.validateJsonAgainstSchema(json, certificateSchema);
 
-        report.forEach(System.out::println);
-        assertTrue(report.isSuccess());
+        errors.forEach(System.out::println);
+        assertTrue(errors.isEmpty(), "Validation should succeed with no errors");
     }
 }

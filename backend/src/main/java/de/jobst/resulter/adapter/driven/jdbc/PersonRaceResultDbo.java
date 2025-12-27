@@ -4,12 +4,12 @@ import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.ResultStatus;
 import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Data
-@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ =@PersistenceCreator)
 @NoArgsConstructor
 @Table(name = "person_race_result")
 public class PersonRaceResultDbo {

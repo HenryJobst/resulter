@@ -62,7 +62,7 @@ public record HangingPair(
         }
         if (timeDeltaSeconds < 0 || timeDeltaSeconds > MAX_TIME_DELTA_SECONDS) {
             throw new IllegalArgumentException(
-                    String.format("Time delta must be between 0 and %.1f seconds, was: %.2f",
+                    "Time delta must be between 0 and %.1f seconds, was: %.2f".formatted(
                             MAX_TIME_DELTA_SECONDS, timeDeltaSeconds));
         }
         if (passengerSegmentPI == null) {

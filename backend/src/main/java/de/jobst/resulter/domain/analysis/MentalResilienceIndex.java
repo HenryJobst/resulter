@@ -92,6 +92,6 @@ public record MentalResilienceIndex(Double value) implements Comparable<MentalRe
 
     @Override
     public String toString() {
-        return String.format("MRI(%.3f, %s)", value, classify());
+        return "MRI(%.3f, %s)".formatted(value, classify());
     }
 }

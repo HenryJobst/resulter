@@ -6,7 +6,6 @@ import de.jobst.resulter.domain.Race;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +21,6 @@ public class RaceController {
 
     private final RaceService raceService;
 
-    @Autowired
     public RaceController(RaceService raceService) {
         this.raceService = raceService;
     }

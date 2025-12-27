@@ -25,21 +25,21 @@
         <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
         <java-uuid-generator.version>5.2.0</java-uuid-generator.version>
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
-        <jaxb2-maven-plugin.version>3.3.0</jaxb2-maven-plugin.version>
+        <jaxb2-maven-plugin.version>4.0.0</jaxb2-maven-plugin.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
         <junit-jupiter-api.version>6.0.1</junit-jupiter-api.version>
-        <lombok.version>1.18.38</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
         <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <micrometer-bom.version>1.16.1</micrometer-bom.version>
-        <mockito-core.version>5.15.2</mockito-core.version>
+        <mockito-core.version>5.21.0</mockito-core.version>
         <native-maven-plugin.version>0.10.0</native-maven-plugin.version>
         <p6spy-spring-boot-starter.version>2.0.0</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
-        <spring-oxm.version>6.2.11</spring-oxm.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.8.13</springdoc-openapi-starter-webmvc-ui.version>
-        <testcontainers.version>1.21.3</testcontainers.version>
+        <spring-oxm.version>7.0.2</spring-oxm.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.8.14</springdoc-openapi-starter-webmvc-ui.version>
+        <testcontainers.version>2.0.3</testcontainers.version>
         <thumbnailator.version>0.4.21</thumbnailator.version>
         <tika-core.version>3.2.3</tika-core.version>
         <turkraft-springfilter-core.version>3.2.4</turkraft-springfilter-core.version>
@@ -168,8 +168,12 @@
         <!-- OAuth2 Client for BFF functionality -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+            <artifactId>spring-boot-starter-security-oauth2-client</artifactId>
         </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-restclient</artifactId>
+    </dependency>
         <!-- Session support for distributed sessions -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -225,8 +229,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -237,7 +241,6 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>${jakarta.xml.bind-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
@@ -279,9 +282,8 @@
             <type>pom</type>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson-databind.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
@@ -300,9 +302,9 @@
             <version>${thumbnailator.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.java-json-tools</groupId>
+            <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>${json-schema-validator.version}</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.turkraft.springfilter</groupId>
@@ -318,8 +320,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${testcontainers.version}</version>
+            <artifactId>testcontainers-postgresql</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -507,12 +508,11 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
                     <compilerArgs>
                         <arg>-proc:full</arg> <!-- Ihr spezifischer javac-Parameter -->
                         <!-- Fügen Sie hier weitere Argumente hinzu, falls erforderlich -->
                     </compilerArgs>
+          <release>${java.version}</release>
                 </configuration>
             </plugin>
             <plugin>

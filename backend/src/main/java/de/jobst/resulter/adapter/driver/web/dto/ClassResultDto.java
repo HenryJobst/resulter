@@ -1,7 +1,7 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.ClassResult;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collection;
 

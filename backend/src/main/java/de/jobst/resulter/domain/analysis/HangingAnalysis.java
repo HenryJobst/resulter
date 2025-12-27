@@ -42,7 +42,7 @@ public record HangingAnalysis(
 
     @Override
     public String toString() {
-        return String.format("HangingAnalysis(resultList=%s, runners=%d, withHanging=%d, totalSegments=%d)",
+        return "HangingAnalysis(resultList=%s, runners=%d, withHanging=%d, totalSegments=%d)".formatted(
                 resultListId, getRunnerCount(), statistics.runnersWithHanging(),
                 statistics.totalHangingSegments());
     }

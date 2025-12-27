@@ -7,7 +7,6 @@ import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,6 @@ public class ResultListController {
     private final PersonService personService;
     private final EventService eventService;
 
-    @Autowired
     public ResultListController(ResultListService resultListService, CertificateService certificateService,
                                 PersonService personService,
                                 EventService eventService) {

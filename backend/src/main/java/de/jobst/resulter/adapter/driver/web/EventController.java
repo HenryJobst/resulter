@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -42,7 +41,6 @@ public class EventController {
     private final MediaFileService mediaFileService;
     private final de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository;
 
-    @Autowired
     public EventController(
         EventService eventService,
         ResultListService resultListService, OrganisationService organisationService,

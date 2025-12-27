@@ -83,7 +83,7 @@ public record AnomalyAnalysis(
 
     @Override
     public String toString() {
-        return String.format("MentalResilienceAnalysis(resultList=%s, runners=%d)",
+        return "MentalResilienceAnalysis(resultList=%s, runners=%d)".formatted(
                 resultListId, getRunnerCount());
     }
 }

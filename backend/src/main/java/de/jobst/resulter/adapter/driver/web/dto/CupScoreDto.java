@@ -2,7 +2,7 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.CupScore;
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 public record CupScoreDto(Long personId, String classShortName, Double score) implements Comparable<CupScoreDto> {
 

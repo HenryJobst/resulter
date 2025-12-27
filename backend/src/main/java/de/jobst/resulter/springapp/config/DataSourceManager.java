@@ -4,9 +4,10 @@ import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
+@DependsOnDatabaseInitialization
 @Profile("testcontainers")
 public class DataSourceManager {
 
@@ -30,8 +32,8 @@ public class DataSourceManager {
     public String createNewDatabase(Duration timeout) {
         String identifier = UUID.randomUUID().toString();
 
-        @SuppressWarnings("resource") PostgreSQLContainer<?> postgresqlContainer =
-            new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest")).withDatabaseName("testdb_" + identifier)
+        PostgreSQLContainer postgresqlContainer =
+            new PostgreSQLContainer(DockerImageName.parse("postgres:latest")).withDatabaseName("testdb_" + identifier)
                 .withUsername("test")
                 .withPassword("test");
         postgresqlContainer.start();
@@ -90,12 +92,12 @@ public class DataSourceManager {
     public static class ManagedDataSource {
 
         private final DataSource dataSource;
-        private final PostgreSQLContainer<?> container;
+        private final PostgreSQLContainer container;
         private LocalDateTime lastAccessTime;
         @Setter
         private Duration timeout;
 
-        public ManagedDataSource(DataSource dataSource, PostgreSQLContainer<?> container, Duration timeout) {
+        public ManagedDataSource(DataSource dataSource, PostgreSQLContainer container, Duration timeout) {
             this.dataSource = dataSource;
             this.container = container;
             this.timeout = timeout;

@@ -108,7 +108,7 @@ public record MentalResilienceAnalysis(
 
     @Override
     public String toString() {
-        return String.format("MentalResilienceAnalysis(resultList=%s, runners=%d, mistakes=%d, avgMRI=%.3f)",
+        return "MentalResilienceAnalysis(resultList=%s, runners=%d, mistakes=%d, avgMRI=%.3f)".formatted(
                 resultListId, getRunnerCount(), statistics.totalMistakes(), statistics.averageMRI());
     }
 }

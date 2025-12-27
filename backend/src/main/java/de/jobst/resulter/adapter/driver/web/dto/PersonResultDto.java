@@ -3,7 +3,7 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.PersonResult;
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.time.Duration;
 

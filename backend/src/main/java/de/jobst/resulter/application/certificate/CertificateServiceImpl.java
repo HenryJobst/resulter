@@ -1,6 +1,6 @@
 package de.jobst.resulter.application.certificate;
 
-import com.github.fge.jsonschema.core.report.ProcessingReport;
+import com.networknt.schema.Error;
 import com.itextpdf.io.font.FontProgram;
 import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.font.PdfEncodings;
@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
@@ -205,7 +204,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private Image createImageBlock(MediaBlock mediaParagraph) throws MalformedURLException {
-        Path basePath = Paths.get(mediaFilePath);
+        Path basePath = Path.of(mediaFilePath);
         ImageData imageData =
                 ImageDataFactory.create(basePath.resolve(mediaParagraph.media()).toString());
         Image image = new Image(imageData);
@@ -288,16 +287,16 @@ public class CertificateServiceImpl implements CertificateService {
                 person.personName().familyName().value(),
                 person.personName().givenName().value());
 
-        ProcessingReport report = jsonSchemaValidator.validateJsonAgainstSchema(
+        java.util.List<Error> validationErrors = jsonSchemaValidator.validateJsonAgainstSchema(
                 Objects.requireNonNull(eventCertificate.getLayoutDescription()).value(), certificateSchema);
 
-        if (!report.isSuccess()) {
+        if (!validationErrors.isEmpty()) {
             filename = "LayoutDescriptionErrors.pdf";
-            log.debug("Error validating layout description: {}", report);
-            document.add(new Paragraph("Error validating layout description: " + report));
+            log.debug("Error validating layout description: {}", validationErrors);
+            document.add(new Paragraph("Error validating layout description: " + validationErrors));
         } else {
             PdfCanvas canvas = new PdfCanvas(pdfDocument.addNewPage());
-            Path basePath = Paths.get(mediaFilePath);
+            Path basePath = Path.of(mediaFilePath);
             try {
                 if (eventCertificate.getBlankCertificate() != null) {
                     MediaFileId blankCertificateId =

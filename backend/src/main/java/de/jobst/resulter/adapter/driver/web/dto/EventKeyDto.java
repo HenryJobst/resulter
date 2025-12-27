@@ -3,7 +3,8 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.adapter.driver.web.constraints.ValidId;
 import de.jobst.resulter.domain.Event;
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
+
 import java.time.ZonedDateTime;
 import java.util.Objects;
 

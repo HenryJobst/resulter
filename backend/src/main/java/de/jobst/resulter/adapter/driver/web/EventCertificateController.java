@@ -11,7 +11,6 @@ import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,7 +35,6 @@ public class EventCertificateController {
     @Value("#{'${resulter.media-file-path-thumbnails}'}")
     private String mediaFileThumbnailsPath;
 
-    @Autowired
     public EventCertificateController(
             EventCertificateService eventCertificateService,
             EventService eventService,

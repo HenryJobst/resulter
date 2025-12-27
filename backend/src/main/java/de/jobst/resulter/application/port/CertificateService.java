@@ -2,9 +2,9 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.*;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 @PrimaryPort
 public interface CertificateService {

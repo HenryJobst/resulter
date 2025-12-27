@@ -12,7 +12,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import static de.jobst.resulter.domain.util.CompareUtils.compareNullable;
 
 @Data
-@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ =@PersistenceCreator)
 @Table(name = "split_time")
 public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
 

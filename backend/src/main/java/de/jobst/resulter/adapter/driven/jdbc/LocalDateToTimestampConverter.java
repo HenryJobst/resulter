@@ -1,7 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;

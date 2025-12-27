@@ -14,7 +14,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.util.Objects;
 
 @Data
-@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ =@PersistenceCreator)
 @Table(name = "country")
 public class CountryDbo {
 

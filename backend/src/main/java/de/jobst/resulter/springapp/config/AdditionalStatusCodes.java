@@ -1,6 +1,6 @@
 package de.jobst.resulter.springapp.config;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.text.MessageFormat;
 

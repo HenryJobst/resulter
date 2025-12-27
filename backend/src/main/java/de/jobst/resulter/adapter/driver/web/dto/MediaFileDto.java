@@ -2,8 +2,8 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.MediaFile;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Sort;
-import org.springframework.lang.NonNull;
 
 import java.nio.file.Path;
 

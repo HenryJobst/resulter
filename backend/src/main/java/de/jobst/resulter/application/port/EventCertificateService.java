@@ -2,10 +2,10 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.*;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

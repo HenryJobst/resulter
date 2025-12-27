@@ -1,9 +1,9 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.relational.core.mapping.NamingStrategy;
 import org.springframework.data.relational.core.mapping.RelationalPersistentEntity;
 import org.springframework.data.relational.core.mapping.RelationalPersistentProperty;
-import org.springframework.lang.NonNull;
 
 public class LowerCaseNamingStrategy implements NamingStrategy {
 

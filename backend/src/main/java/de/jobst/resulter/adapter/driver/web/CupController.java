@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +38,6 @@ public class CupController {
     private final de.jobst.resulter.application.port.ResultListService resultListService;
     private final de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository;
 
-    @Autowired
     public CupController(
             CupService cupService,
             EventService eventService,

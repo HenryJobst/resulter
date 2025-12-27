@@ -238,19 +238,19 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
                 );
 
                 MentalClassification classification;
-                String currentSegmentPiFormated = String.format("%.3f", currentSegment.pi().value());
+                String currentSegmentPiFormated = "%.3f".formatted(currentSegment.pi().value());
                 if (nextIsMistake) {
                     classification = MentalClassification.CHAIN_ERROR;
                     log.debug(
                         "Detected CHAIN ERROR at leg {}: mistake PI={}, reaction PI={} (also a mistake)",
                         currentSegment.legNumber(), currentSegmentPiFormated,
-                        String.format("%.3f", nextSegment.pi().value()));
+                            "%.3f".formatted(nextSegment.pi().value()));
 
                 } else {
                     classification = mri.classify();
                     log.debug("Detected mistake at leg {}: PI={}, reaction MRI={} ({})", currentSegment.legNumber(),
                         currentSegmentPiFormated,
-                            String.format("%.3f", mri.value()),
+                            "%.3f".formatted(mri.value()),
                             classification);
                 }
 
@@ -273,8 +273,8 @@ public class MentalResilienceServiceImpl implements MentalResilienceService {
             MistakeResult lastMistakeResult = splitTimeAnalysisServiceImpl.isMistakeBase(segmentPIs.getLast(), medianDifferencePercent);
             if (lastMistakeResult.isMistake()) {
                 log.debug("Last segment mistake detected (diff={}%, time loss={}s) but skipped (no reaction segment available)",
-                        String.format("%.1f", lastMistakeResult.diffPercent()),
-                        String.format("%.1f", lastMistakeResult.timeLossSeconds()));
+                        "%.1f".formatted(lastMistakeResult.diffPercent()),
+                        "%.1f".formatted(lastMistakeResult.timeLossSeconds()));
             }
         }
 

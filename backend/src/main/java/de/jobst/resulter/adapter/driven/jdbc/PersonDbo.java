@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @__(@PersistenceCreator))
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ =@PersistenceCreator)
 @Table(name = "person")
 public class PersonDbo {
 

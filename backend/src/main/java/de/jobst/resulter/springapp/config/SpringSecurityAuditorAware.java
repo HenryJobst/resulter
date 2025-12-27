@@ -1,7 +1,7 @@
 package de.jobst.resulter.springapp.config;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.AuditorAware;
-import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,10 +29,10 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
             .filter(Authentication::isAuthenticated)
             .map(Authentication::getPrincipal)
             .map(principal -> {
-                if (principal instanceof User) {
-                    return ((User) principal).getUsername();
-                } else if (principal instanceof UserDetails) {
-                    return ((UserDetails) principal).getUsername();
+                if (principal instanceof User user) {
+                    return user.getUsername();
+                } else if (principal instanceof UserDetails details) {
+                    return details.getUsername();
                 }
                 return null; // Oder eine angemessene Handhabung für unbekannte Principal-Typen
             });

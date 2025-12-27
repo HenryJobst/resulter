@@ -68,6 +68,6 @@ public record PerformanceIndex(Double value) implements Comparable<PerformanceIn
 
     @Override
     public String toString() {
-        return String.format("PI(%.3f)", value);
+        return "PI(%.3f)".formatted(value);
     }
 }

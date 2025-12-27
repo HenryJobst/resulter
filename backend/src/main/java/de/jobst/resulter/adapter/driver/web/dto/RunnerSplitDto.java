@@ -36,7 +36,7 @@ public record RunnerSplitDto(
         long sec = seconds.longValue();
         long minutes = sec / 60;
         long remainingSeconds = sec % 60;
-        return String.format("%d:%02d", minutes, remainingSeconds);
+        return "%d:%02d".formatted(minutes, remainingSeconds);
     }
 
     private static String formatTimeBehind(Double seconds) {
@@ -46,6 +46,6 @@ public record RunnerSplitDto(
         long sec = seconds.longValue();
         long minutes = sec / 60;
         long remainingSeconds = sec % 60;
-        return String.format("+%d:%02d", minutes, remainingSeconds);
+        return "+%d:%02d".formatted(minutes, remainingSeconds);
     }
 }

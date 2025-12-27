@@ -2,7 +2,7 @@ package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public record MediaFileContentType(String value) implements Comparable<MediaFileContentType> {

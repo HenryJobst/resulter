@@ -4,7 +4,7 @@ import de.jobst.resulter.domain.util.ValueObjectChecks;
 import java.util.Collection;
 import java.util.Map;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public class CupScores {

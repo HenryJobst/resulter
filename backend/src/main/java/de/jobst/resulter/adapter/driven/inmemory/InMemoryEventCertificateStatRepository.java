@@ -6,12 +6,12 @@ import de.jobst.resulter.domain.EventCertificateStatId;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.PersonId;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

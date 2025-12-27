@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
@@ -38,7 +38,7 @@ class ResultListServiceTest {
         Organisation organisation = Organisation.of("Kaulsdorfer OLV Berlin", "KOLV");
         Event e = Event.of("BBM Mittel-OL 2024");
         String layoutDescription =
-                Files.readString(Paths.get("src/test/resources/certificate" + "/test_layout_description_3" + ".json"));
+                Files.readString(Path.of("src/test/resources/certificate" + "/test_layout_description_3" + ".json"));
 
         MediaFile mediaFile = MediaFile.of(1L,
                 "Urkunde_BTFB_2023.jpg", "thumbnails/Urkunde_BTFB_2023.thumbnail.jpg", "image/jpeg", 100000L);

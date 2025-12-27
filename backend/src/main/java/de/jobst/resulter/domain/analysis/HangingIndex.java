@@ -96,6 +96,6 @@ public record HangingIndex(Double value) implements Comparable<HangingIndex> {
 
     @Override
     public String toString() {
-        return String.format("HI(%.3f)", value);
+        return "HI(%.3f)".formatted(value);
     }
 }

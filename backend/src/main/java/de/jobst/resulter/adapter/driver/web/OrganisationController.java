@@ -8,7 +8,6 @@ import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +28,6 @@ public class OrganisationController {
     private final OrganisationService organisationService;
     private final CountryService countryService;
 
-    @Autowired
     public OrganisationController(OrganisationService organisationService, CountryService countryService) {
         this.organisationService = organisationService;
         this.countryService = countryService;

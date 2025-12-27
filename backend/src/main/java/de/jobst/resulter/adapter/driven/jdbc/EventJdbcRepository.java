@@ -1,9 +1,9 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;

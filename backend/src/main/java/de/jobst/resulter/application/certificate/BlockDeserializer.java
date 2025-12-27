@@ -1,21 +1,20 @@
 package de.jobst.resulter.application.certificate;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
 
-import java.io.IOException;
-
-public class BlockDeserializer extends JsonDeserializer<Block> {
+public class BlockDeserializer extends ValueDeserializer<Block> {
 
     @Override
-    public Block deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
-        JsonNode node = jp.getCodec().readTree(jp);
+    public Block deserialize(JsonParser jp, DeserializationContext deserializationContext) throws JacksonException {
+        JsonNode node = jp.objectReadContext().readTree(jp);
         if (node.has("text")) {
-            return jp.getCodec().treeToValue(node, TextBlock.class);
+            return deserializationContext.readTreeAsValue(node, TextBlock.class);
         } else if (node.has("media")) {
-            return jp.getCodec().treeToValue(node, MediaBlock.class);
+            return deserializationContext.readTreeAsValue(node, MediaBlock.class);
         }
         throw new RuntimeException("Unknown block type");
     }

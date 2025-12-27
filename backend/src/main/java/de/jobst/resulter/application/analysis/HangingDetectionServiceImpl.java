@@ -302,8 +302,8 @@ public class HangingDetectionServiceImpl implements HangingDetectionService {
             // Check for convergence
             double diff = Math.abs(newNormalPI.value() - normalPI.value());
             log.debug("Iteration {}: Normal PI = {}, diff = {}, hanging pairs = {}",
-                    iteration, String.format("%.3f", newNormalPI.value()),
-                    String.format("%.3f", diff), hangingPairs.size());
+                    iteration, "%.3f".formatted(newNormalPI.value()),
+                    "%.3f".formatted(diff), hangingPairs.size());
 
             if (diff < CONVERGENCE_THRESHOLD) {
                 log.debug("Converged after {} iterations", iteration + 1);
@@ -449,10 +449,10 @@ public class HangingDetectionServiceImpl implements HangingDetectionService {
                         segmentPI.legNumber(),
                         passengerId,
                         driver.personId(),
-                        String.format("%.1f", pair.timeDeltaSeconds()),
-                        String.format("%.3f", hi.value()),
-                        String.format("%.3f", segmentPI.pi().value()),
-                        String.format("%.3f", driver.busDriverPI().value())
+                        "%.1f".formatted(pair.timeDeltaSeconds()),
+                        "%.3f".formatted(hi.value()),
+                        "%.3f".formatted(segmentPI.pi().value()),
+                        "%.3f".formatted(driver.busDriverPI().value())
                 );
             }
         }
@@ -722,7 +722,7 @@ public class HangingDetectionServiceImpl implements HangingDetectionService {
 
                     if (startTimeSeconds != null) {
                         log.trace("Start time for runner {} ({}): {} seconds",
-                                personId, className, String.format("%.0f", startTimeSeconds));
+                                personId, className, "%.0f".formatted(startTimeSeconds));
                     }
                 }
             }

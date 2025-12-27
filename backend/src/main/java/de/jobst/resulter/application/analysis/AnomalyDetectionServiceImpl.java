@@ -260,8 +260,8 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
                     // If slower times have high variance (CV > 0.15), likely mistakes
                     if (coefficientOfVariation > 0.15) {
                         log.debug("Majority mistake detected (fastest vs median: {}, CV: {}), using top-2 average",
-                            String.format("%.1f%%", fastestVsMedianGap * 100),
-                            String.format("%.2f", coefficientOfVariation));
+                                "%.1f%%".formatted(fastestVsMedianGap * 100),
+                                "%.2f".formatted(coefficientOfVariation));
 
                         // Use average of top 2 times as reference (they ran correctly)
                         return (fastest + second) / 2.0;
@@ -313,9 +313,9 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
                     // Suspicious cluster detected - possible group shortcut
                     // Use positions 5-8 (indices 4-7) instead of top 4 times (with adjustment)
                     log.debug("Suspicious time cluster detected (top spread: {}, gap: {}, gap7-8: {}, indexAdjustment: {}), using positions 5-8 for reference",
-                            String.format("%.1f%%", topClusterSpread * 100),
-                            String.format("%.1f%%", gapToRest * 100),
-                            String.format("%.1f%%", gapSixToSeven * 100),
+                            "%.1f%%".formatted(topClusterSpread * 100),
+                            "%.1f%%".formatted(gapToRest * 100),
+                            "%.1f%%".formatted(gapSixToSeven * 100),
                             indexAdjustment);
 
                     int saferStartIdx = 4 + indexAdjustment;  // Position 5 (index 4)
@@ -329,7 +329,7 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
                 } else if (topClusterSpread < 0.10 && gapToRest > 0.25 && gapSixToSeven >= 0.40) {
                     // Position 8 is an outlier - use positions 5-7 (indices 4-6) instead (excluding the outlier)
                     log.debug("Suspicious cluster detected BUT position 8 is an outlier (gap7-8: {}), using positions 5-7 for reference",
-                            String.format("%.1f%%", gapSixToSeven * 100));
+                            "%.1f%%".formatted(gapSixToSeven * 100));
 
                     int saferStartIdx = 4 + indexAdjustment;  // Position 5 (index 4)
                     int saferEndIdx = Math.min(7 + indexAdjustment, sortedTimes.size());  // Up to position 7 (index 6)
@@ -396,10 +396,10 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
         double absoluteMultiplier = isShortSegment ? 0.70 : 1.0; // 30% stricter for short segments (was 25%)
 
         log.trace("Segment length: {}s, Time thresholds: MODERATE={}s, HIGH={}s, AI={}",
-                String.format("%.0f", referenceTime),
-                String.format("%.0f", moderateTimeThreshold),
-                String.format("%.0f", highTimeThreshold),
-                String.format("%.2f", aiValue));
+                "%.0f".formatted(referenceTime),
+                "%.0f".formatted(moderateTimeThreshold),
+                "%.0f".formatted(highTimeThreshold),
+                "%.2f".formatted(aiValue));
 
         // SAFETY CHECK: If AI ≈ 1.0 (runner is performing as expected based on their baseline),
         // they're likely running correctly even if the reference time is contaminated by mistakes.
@@ -407,8 +407,8 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
         final double AI_CONSISTENCY_THRESHOLD = 0.85; // AI between 0.85 and 1.15 = consistent
         if (aiValue >= AI_CONSISTENCY_THRESHOLD && aiValue <= (1.0 / AI_CONSISTENCY_THRESHOLD)) {
             log.debug("Runner is consistent with baseline (AI={}), not flagging despite fast PI ({})",
-                    String.format("%.2f", aiValue),
-                    String.format("%.2f", piReal));
+                    "%.2f".formatted(aiValue),
+                    "%.2f".formatted(piReal));
             return AnomalyClassification.NO_SUSPICION;
         }
 
@@ -420,13 +420,13 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
                 && aiValue < HIGH_INDIVIDUAL_THRESHOLD * absoluteMultiplier
                 && timeDifference >= highTimeThreshold) {
             log.debug("HIGH_SUSPICION detected - piReal: {}, aiValue: {}, timeDiff: {}s, refTime: {}s, thresholds: PI<{}, AI<{}, time>={}s",
-                    String.format("%.3f", piReal),
-                    String.format("%.3f", aiValue),
-                    String.format("%.1f", timeDifference),
-                    String.format("%.1f", referenceTime),
-                    String.format("%.3f", HIGH_ABSOLUTE_THRESHOLD * absoluteMultiplier),
-                    String.format("%.3f", HIGH_INDIVIDUAL_THRESHOLD * absoluteMultiplier),
-                    String.format("%.1f", highTimeThreshold));
+                    "%.3f".formatted(piReal),
+                    "%.3f".formatted(aiValue),
+                    "%.1f".formatted(timeDifference),
+                    "%.1f".formatted(referenceTime),
+                    "%.3f".formatted(HIGH_ABSOLUTE_THRESHOLD * absoluteMultiplier),
+                    "%.3f".formatted(HIGH_INDIVIDUAL_THRESHOLD * absoluteMultiplier),
+                    "%.1f".formatted(highTimeThreshold));
             return AnomalyClassification.HIGH_SUSPICION;
         }
 
@@ -435,10 +435,10 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
                 && aiValue < MODERATE_INDIVIDUAL_THRESHOLD * absoluteMultiplier
                 && timeDifference >= moderateTimeThreshold) {
             log.debug("MODERATE_SUSPICION detected - piReal: {}, aiValue: {}, timeDiff: {}s, refTime: {}s",
-                    String.format("%.3f", piReal),
-                    String.format("%.3f", aiValue),
-                    String.format("%.1f", timeDifference),
-                    String.format("%.1f", referenceTime));
+                    "%.3f".formatted(piReal),
+                    "%.3f".formatted(aiValue),
+                    "%.1f".formatted(timeDifference),
+                    "%.1f".formatted(referenceTime));
             return AnomalyClassification.MODERATE_SUSPICION;
         }
 

@@ -115,7 +115,7 @@ public record RunnerMentalProfile(
 
     @Override
     public String toString() {
-        return String.format("RunnerProfile(personId=%s, class=%s, normalPI=%.3f, mistakes=%d, avgMRI=%.3f, %s)",
+        return "RunnerProfile(personId=%s, class=%s, normalPI=%.3f, mistakes=%d, avgMRI=%.3f, %s)".formatted(
                 personId, classResultShortName, normalPI.value(), getMistakeCount(), averageMRI, classification);
     }
 }

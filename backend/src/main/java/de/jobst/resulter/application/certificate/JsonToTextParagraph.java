@@ -1,24 +1,27 @@
 package de.jobst.resulter.application.certificate;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.type.TypeFactory;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public class JsonToTextParagraph {
 
     public static Pair<DocumentDefinition, List<ParagraphDefinition>> loadDefinitions(String jsonSource,
                                                                                       boolean isFilePath) {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Block.class, new BlockDeserializer());
         module.addDeserializer(TextBlock.class, new TextBlockDeserializer());
-        mapper.registerModule(module);
+
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(module)
+                .build();
         JsonNode root;
 
         try {
@@ -27,7 +30,7 @@ public class JsonToTextParagraph {
             } else {
                 root = mapper.readTree(jsonSource);
             }
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Certificate layout description couldn't be loaded.", e);
         }
 

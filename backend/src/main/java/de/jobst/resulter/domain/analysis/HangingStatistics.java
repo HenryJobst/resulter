@@ -37,7 +37,7 @@ public record HangingStatistics(
                              "totalSegments=%d, high=%d, moderate=%d, avgHI=%s, medianHI=%s)",
                 totalRunners, runnersWithHanging, getHangingRunnerPercentage(),
                 totalHangingSegments, highHangingRunners, moderateHangingRunners,
-                averageHangingIndex != null ? String.format("%.3f", averageHangingIndex) : "N/A",
-                medianHangingIndex != null ? String.format("%.3f", medianHangingIndex) : "N/A");
+                averageHangingIndex != null ? "%.3f".formatted(averageHangingIndex) : "N/A",
+                medianHangingIndex != null ? "%.3f".formatted(medianHangingIndex) : "N/A");
     }
 }

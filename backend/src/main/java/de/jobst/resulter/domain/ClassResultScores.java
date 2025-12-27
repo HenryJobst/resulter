@@ -2,7 +2,7 @@ package de.jobst.resulter.domain;
 
 import java.util.List;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public record ClassResultScores(ClassResultShortName classResultShortName, List<PersonWithScore> personWithScores)

@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.domain.Event;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -22,7 +21,6 @@ public class XmlController {
 
     private final XMLImportService importService;
 
-    @Autowired
     public XmlController(XMLImportService importService) {
         this.importService = importService;
     }

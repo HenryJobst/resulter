@@ -128,7 +128,7 @@ public class SplitTimeAnalysisServiceImpl {
                 referenceTimes.put(entry.getKey(), referenceTime);
                 log.trace("Segment {}: reference time = {}s (avg of top {} from {} runners)",
                         entry.getKey(),
-                        String.format("%.1f", referenceTime), topN, times.size());
+                        "%.1f".formatted(referenceTime), topN, times.size());
             }
         }
 
@@ -278,7 +278,7 @@ public class SplitTimeAnalysisServiceImpl {
             return null;
         }
 
-        log.debug("Preliminary median difference = {}%", String.format("%.1f", medianDifferencePercent));
+        log.debug("Preliminary median difference = {}%", "%.1f".formatted(medianDifferencePercent));
 
         List<Double> nonMistakeDifferences = new ArrayList<>();
         for (SegmentPI seg : segmentPIs) {
@@ -292,8 +292,8 @@ public class SplitTimeAnalysisServiceImpl {
             } else {
                 log.trace("Leg {}: Mistake detected - diff={}%, time loss={}s",
                     seg.legNumber(),
-                    String.format("%.1f", mistakeResult.diffPercent()),
-                    String.format("%.1f", mistakeResult.timeLossSeconds()));
+                        "%.1f".formatted(mistakeResult.diffPercent()),
+                        "%.1f".formatted(mistakeResult.timeLossSeconds()));
             }
         }
 
@@ -315,8 +315,8 @@ public class SplitTimeAnalysisServiceImpl {
         double normalPI = 1.0 + (finalMedianDifferencePercent / 100.0);
 
         log.debug("Calculated Normal PI = {} (median diff = {}%) from {} non-mistake segments (out of {} total)",
-                String.format("%.3f", normalPI),
-                String.format("%.1f", finalMedianDifferencePercent),
+                "%.3f".formatted(normalPI),
+                "%.1f".formatted(finalMedianDifferencePercent),
                 nonMistakeDifferences.size(),
                 segmentPIs.size());
 

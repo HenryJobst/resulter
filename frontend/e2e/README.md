@@ -6,11 +6,26 @@ This directory contains end-to-end tests for the Resulter frontend application u
 
 ### Test Files
 
-- **`auth-setup.ts`** - Authentication setup (runs before other tests)
+- **`auth-setup.ts`** - BFF authentication setup (runs before other tests, establishes session cookies)
 - **`main.spec.ts`** - Main application flow tests
 - **`create_db.spec.ts`** - Database creation tests
 - **`event.spec.ts`** - Basic event CRUD operations
 - **`event-form.spec.ts`** ⭐ **NEW** - Comprehensive EventForm.vue tests
+
+## Authentication (BFF Pattern)
+
+The E2E tests use the Backend-for-Frontend (BFF) authentication pattern:
+
+1. **`auth-setup.ts`** initiates OAuth2 flow by navigating to `/oauth2/authorization/keycloak`
+2. Backend redirects to Keycloak login page
+3. Test fills in credentials and submits
+4. Keycloak redirects back to backend with authorization code
+5. Backend exchanges code for tokens and establishes a session (HTTP-only cookie)
+6. Backend redirects to frontend
+7. Playwright saves the storage state including session cookies
+8. All subsequent tests use the saved session cookies for authentication
+
+**Important:** Session cookies are saved in `e2e/.auth/storageState.json` and are valid for 10 minutes. After that, `auth-setup.ts` will re-authenticate automatically.
 
 ## EventForm E2E Tests
 
@@ -57,11 +72,31 @@ The `event-form.spec.ts` file contains comprehensive tests for the EventForm com
      BACKEND_PORT=8080
      BACKEND_PROFILES=dev
      VITE_MODE=development
+     USERNAME=<your-test-username>
+     PASSWORD=<your-test-password>
      ```
 
-2. **Backend Running**
-   - Ensure backend is running on configured port
-   - Or let Playwright start it automatically (configured in `playwright.config.ts`)
+2. **Servers Running** ⚠️ **IMPORTANT**
+
+   **You must start both servers manually before running E2E tests:**
+
+   ```bash
+   # Terminal 1: Start frontend dev server
+   pnpm dev
+
+   # Terminal 2: Start backend server
+   cd ../backend
+   ./mvnw spring-boot:run
+
+   # Terminal 3: Run E2E tests (after both servers are ready)
+   pnpm test:e2e
+   ```
+
+   **Why manual start?**
+   - More reliable than automatic startup
+   - Easier to debug server issues
+   - Faster test execution (servers stay running)
+   - Better control over server state
 
 3. **Test Data**
    - Some tests require existing organisations and certificates in the database
@@ -216,14 +251,16 @@ When adding new EventForm features:
 
 ### Authentication fails
 - Check `e2e/.auth/storageState.json` exists
-- Re-run `auth-setup.ts` manually
+- Re-run `auth-setup.ts` manually: `pnpm playwright test auth-setup.ts`
+- Verify backend BFF endpoint is accessible: `http://localhost:8080/oauth2/authorization/keycloak`
 - Verify Keycloak configuration
+- Check that backend is running and session cookies are being set
+- Ensure `BACKEND_PROTOCOL`, `BACKEND_PORT`, and `HOSTNAME` are correctly configured in `e2e/.env.local`
 
 ## Related Documentation
 
 - [Playwright Documentation](https://playwright.dev)
 - [PrimeVue Documentation](https://primevue.org)
-- [Project COVERAGE_PLAN.md](../COVERAGE_PLAN.md)
 
 ## Questions?
 

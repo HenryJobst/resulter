@@ -1,11 +1,11 @@
 import type { Gender } from '@/features/person/model/gender'
 import type { Person } from '@/features/person/model/person'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import axiosInstance from '@/features/keycloak/services/api'
+import axiosInstance from '@/features/auth/services/api'
 import { duplicatePersonService, PersonService, personService } from '@/features/person/services/person.service'
 
 // Mock axios instance
-vi.mock('@/features/keycloak/services/api', () => ({
+vi.mock('@/features/auth/services/api', () => ({
     default: {
         get: vi.fn(),
         post: vi.fn(),

@@ -2,11 +2,11 @@ import type { EventResults } from '@/features/event/model/event_results'
 import type { EventStatus } from '@/features/event/model/event_status'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import axiosInstance from '@/features/auth/services/api'
 import { EventService } from '@/features/event/services/event.service'
-import axiosInstance from '@/features/keycloak/services/api'
 
 // Mock axios instance
-vi.mock('@/features/keycloak/services/api', () => ({
+vi.mock('@/features/auth/services/api', () => ({
     default: {
         get: vi.fn(),
         post: vi.fn(),

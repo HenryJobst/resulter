@@ -2,11 +2,11 @@ import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import axiosInstance from '@/features/auth/services/api'
 import { GenericService } from '@/features/generic/services/GenericService'
-import axiosInstance from '@/features/keycloak/services/api'
 
 // Mock axios instance
-vi.mock('@/features/keycloak/services/api', () => ({
+vi.mock('@/features/auth/services/api', () => ({
     default: {
         get: vi.fn(),
         post: vi.fn(),

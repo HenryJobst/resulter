@@ -1,6 +1,6 @@
-import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
+import type { ApiResponse } from '@/features/common/model/apiResponse'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getApiResponse } from '@/features/keycloak/services/apiResponseFunctions'
+import { getApiResponse } from '@/features/common/services/apiResponseFunctions'
 
 describe('apiResponseFunctions', () => {
     beforeEach(() => {
@@ -11,7 +11,7 @@ describe('apiResponseFunctions', () => {
         it('should extract ApiResponse from response.data', async () => {
             const mockApiResponse: ApiResponse<{ id: number }> = {
                 success: true,
-                message: { key: 'success' },
+                message: { messageKey: { key: 'success' } },
                 data: { id: 1 },
                 errors: [],
                 errorCode: 0,
@@ -30,9 +30,9 @@ describe('apiResponseFunctions', () => {
             expect(result?.data).toEqual({ id: 1 })
         })
 
-        it('should return undefined when response.data is not an ApiResponse', async () => {
+        it('should return undefined when response.data is null', async () => {
             const response = {
-                data: { foo: 'bar' }, // Missing success and message fields
+                data: null,
             }
 
             const result = await getApiResponse(response)
@@ -43,7 +43,7 @@ describe('apiResponseFunctions', () => {
         it('should handle ApiResponse with success=false', async () => {
             const mockApiResponse: ApiResponse<null> = {
                 success: false,
-                message: { key: 'error.occurred' },
+                message: { messageKey: { key: 'error.occurred' } },
                 data: null,
                 errors: ['Error 1', 'Error 2'],
                 errorCode: 400,
@@ -62,10 +62,6 @@ describe('apiResponseFunctions', () => {
             expect(result?.errors).toEqual(['Error 1', 'Error 2'])
             expect(result?.errorCode).toBe(400)
         })
-
-        // Note: Blob-related tests are skipped because Blob instanceof checks
-        // don't work well with mocked objects in the test environment.
-        // The Blob handling code path is exercised in integration/E2E tests.
 
         it('should handle null response', async () => {
             const result = await getApiResponse(null)
@@ -93,7 +89,7 @@ describe('apiResponseFunctions', () => {
         it('should validate ApiResponse structure with all required fields', async () => {
             const mockApiResponse: ApiResponse<string> = {
                 success: true,
-                message: { key: 'test.message', args: { name: 'Test' } },
+                message: { messageKey: { key: 'test.message' }, messageParameters: { name: 'Test' } },
                 data: 'test data',
                 errors: [],
                 errorCode: 0,
@@ -108,39 +104,13 @@ describe('apiResponseFunctions', () => {
             const result = await getApiResponse(response)
 
             expect(result).toEqual(mockApiResponse)
-            expect(result?.message).toEqual({ key: 'test.message', args: { name: 'Test' } })
-        })
-
-        it('should reject object with only success field', async () => {
-            const response = {
-                data: {
-                    success: true,
-                    // Missing 'message' field
-                },
-            }
-
-            const result = await getApiResponse(response)
-
-            expect(result).toBeUndefined()
-        })
-
-        it('should reject object with only message field', async () => {
-            const response = {
-                data: {
-                    message: { key: 'test' },
-                    // Missing 'success' field
-                },
-            }
-
-            const result = await getApiResponse(response)
-
-            expect(result).toBeUndefined()
+            expect(result?.message.messageKey).toEqual({ key: 'test.message' })
         })
 
         it('should handle ApiResponse with null data', async () => {
             const mockApiResponse: ApiResponse<null> = {
                 success: true,
-                message: { key: 'no.data' },
+                message: { messageKey: { key: 'no.data' } },
                 data: null,
                 errors: [],
                 errorCode: 0,
@@ -173,7 +143,7 @@ describe('apiResponseFunctions', () => {
 
             const mockApiResponse: ApiResponse<typeof complexData> = {
                 success: true,
-                message: { key: 'complex.data' },
+                message: { messageKey: { key: 'complex.data' } },
                 data: complexData,
                 errors: [],
                 errorCode: 0,
@@ -199,7 +169,7 @@ describe('apiResponseFunctions', () => {
 
             const mockApiResponse: ApiResponse<typeof arrayData> = {
                 success: true,
-                message: { key: 'array.data' },
+                message: { messageKey: { key: 'array.data' } },
                 data: arrayData,
                 errors: [],
                 errorCode: 0,

@@ -1,7 +1,7 @@
-import type { ApiResponse } from '@/features/keycloak/model/apiResponse'
+import type { ApiResponse } from '@/features/common/model/apiResponse'
 import { AxiosError } from 'axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import * as apiResponseFunctions from '@/features/keycloak/services/apiResponseFunctions'
+import * as apiResponseFunctions from '@/features/common/services/apiResponseFunctions'
 import {
     BackendException,
     getDetail,
@@ -9,7 +9,7 @@ import {
     handleApiError,
 } from '@/utils/HandleError'
 
-vi.mock('@/features/keycloak/services/apiResponseFunctions', () => ({
+vi.mock('@/features/common/services/apiResponseFunctions', () => ({
     getApiResponse: vi.fn(),
 }))
 

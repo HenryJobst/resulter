@@ -1,10 +1,10 @@
 import type { OrganisationType } from '@/features/organisation/model/organisationtype'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import axiosInstance from '@/features/keycloak/services/api'
+import axiosInstance from '@/features/auth/services/api'
 import { OrganisationService, organisationService } from '@/features/organisation/services/organisation.service'
 
 // Mock axios instance
-vi.mock('@/features/keycloak/services/api', () => ({
+vi.mock('@/features/auth/services/api', () => ({
     default: {
         get: vi.fn(),
         post: vi.fn(),

@@ -11,7 +11,6 @@ import lombok.Setter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
-import org.jspecify.annotations.NonNull;
 
 @AggregateRoot
 @Setter
@@ -19,28 +18,23 @@ import org.jspecify.annotations.NonNull;
 public class Cup implements Comparable<Cup> {
 
     @Identity
-    @NonNull
     private CupId id;
 
-    @NonNull
     private CupName name;
 
-    @NonNull
     private CupType type;
 
-    @NonNull
     private Year year;
 
     @Association
-    @NonNull
     private Collection<EventId> eventIds;
 
     public Cup(
-            @NonNull CupId id,
-            @NonNull CupName name,
-            @NonNull CupType type,
-            @NonNull Year year,
-            @NonNull Collection<EventId> eventIds) {
+            CupId id,
+            CupName name,
+            CupType type,
+            Year year,
+            Collection<EventId> eventIds) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -50,15 +44,15 @@ public class Cup implements Comparable<Cup> {
 
     public static Cup of(
             long id,
-            @NonNull String cupName,
-            @NonNull CupType type,
-            @NonNull Year year,
-            @NonNull Collection<EventId> events) {
+            String cupName,
+            CupType type,
+            Year year,
+            Collection<EventId> events) {
         return new Cup(CupId.of(id), CupName.of(cupName), type, year, events);
     }
 
     @Override
-    public int compareTo(@NonNull Cup o) {
+    public int compareTo(Cup o) {
         return name.compareTo(o.name);
     }
 

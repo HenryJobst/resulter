@@ -60,7 +60,7 @@ public class SplitTimeListDbo {
         this.splitTimes = splitTimes;
     }
 
-    public static SplitTimeListDbo from(SplitTimeList splitTimeList, @NonNull DboResolvers dboResolvers) {
+    public static SplitTimeListDbo from(SplitTimeList splitTimeList, DboResolvers dboResolvers) {
         SplitTimeListDbo splitTimeListDbo;
         if (splitTimeList.getId().isPersistent()) {
             splitTimeListDbo = dboResolvers.getSplitTimeListDboResolver().findDboById(splitTimeList.getId());

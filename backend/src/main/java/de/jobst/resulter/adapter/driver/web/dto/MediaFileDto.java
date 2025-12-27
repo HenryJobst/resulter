@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.MediaFile;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Sort;
 
 import java.nio.file.Path;
@@ -21,12 +20,10 @@ public record MediaFileDto(Long id, String fileName, String contentType, Long fi
             encodeFileToBase64Binary(Path.of(thumbnailPath + mediaFile.getThumbnailFileName().value())));
     }
 
-    @NonNull
     public static String mapOrdersDtoToDomain(Sort.Order order) {
         return order.getProperty();
     }
 
-    @NonNull
     public static String mapOrdersDomainToDto(Sort.Order order) {
         return order.getProperty();
     }

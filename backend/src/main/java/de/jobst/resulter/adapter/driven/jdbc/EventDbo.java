@@ -17,7 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
@@ -65,7 +64,7 @@ public class EventDbo {
         this.name = name;
     }
 
-    public static EventDbo from(@NonNull Event event, @NonNull DboResolvers dboResolvers) {
+    public static EventDbo from(Event event, DboResolvers dboResolvers) {
         EventDbo eventDbo;
         if (event.getId().isPersistent()) {
             eventDbo = dboResolvers.getEventDboResolver().findDboById(event.getId());
@@ -104,7 +103,7 @@ public class EventDbo {
     }
 
     public static List<Event> asEvents(
-            @NonNull Collection<EventDbo> eventDbos, Function<Long, Organisation> organisationResolver) {
+            Collection<EventDbo> eventDbos, Function<Long, Organisation> organisationResolver) {
 
         return eventDbos.stream()
                 .map(it -> Event.of(
@@ -119,7 +118,7 @@ public class EventDbo {
                 .toList();
     }
 
-    public static Event asEvent(@NonNull EventDbo eventDbo, Function<Long, Organisation> organisationResolver) {
+    public static Event asEvent(EventDbo eventDbo, Function<Long, Organisation> organisationResolver) {
         return asEvents(List.of(eventDbo), organisationResolver).getFirst();
     }
 

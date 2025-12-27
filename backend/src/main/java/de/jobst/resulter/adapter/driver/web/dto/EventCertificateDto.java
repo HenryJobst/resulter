@@ -8,7 +8,6 @@ import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.domain.EventCertificate;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 
@@ -43,7 +42,6 @@ public record EventCertificateDto(
                 eventCertificate.isPrimary());
     }
 
-    @NonNull
     public static String mapOrdersDtoToDomain(Sort.Order order) {
         return switch (order.getProperty()) {
             case "id" -> "id.value";
@@ -52,7 +50,6 @@ public record EventCertificateDto(
         };
     }
 
-    @NonNull
     public static String mapOrdersDomainToDto(Sort.Order order) {
         return switch (order.getProperty()) {
             case "id.value" -> "id";

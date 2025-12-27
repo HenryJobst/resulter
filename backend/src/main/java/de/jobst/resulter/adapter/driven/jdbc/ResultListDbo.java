@@ -67,7 +67,7 @@ public class ResultListDbo {
         this.createTimeZone = createTimeZone;
     }
 
-    public static ResultListDbo from(ResultList resultList, @NonNull DboResolvers dboResolvers) {
+    public static ResultListDbo from(ResultList resultList, DboResolvers dboResolvers) {
         ResultListDbo resultListDbo;
         if (resultList.getId().isPersistent()) {
             resultListDbo = dboResolvers.getResultListDboResolver().findDboById(resultList.getId());

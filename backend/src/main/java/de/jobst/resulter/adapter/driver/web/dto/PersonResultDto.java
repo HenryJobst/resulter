@@ -3,7 +3,6 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.PersonResult;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jspecify.annotations.NonNull;
 
 import java.time.Duration;
 
@@ -22,7 +21,7 @@ public record PersonResultDto(Long position, Long personId, Duration runTime, St
     }
 
     @Override
-    public int compareTo(@NonNull PersonResultDto o) {
+    public int compareTo(PersonResultDto o) {
         int value = ObjectUtils.compare(position, o.position, true);
         if (value == 0) {
             value = ObjectUtils.compare(runTime, o.runTime, true);

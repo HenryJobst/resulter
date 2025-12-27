@@ -52,9 +52,11 @@ public class BffController {
     }
 
     @GetMapping("/csrf")
-    public ResponseEntity<Void> getCsrfToken() {
+    public ResponseEntity<Void> getCsrfToken(org.springframework.security.web.csrf.CsrfToken csrfToken) {
         // CSRF token automatically added to response by Spring Security
         // This endpoint exists to trigger token generation for SPA
+        // By accepting CsrfToken as parameter, we force Spring to generate and set the cookie
+        log.info("CSRF token requested, token: {}", csrfToken != null ? csrfToken.getToken() : "null");
         return ResponseEntity.ok().build();
     }
 

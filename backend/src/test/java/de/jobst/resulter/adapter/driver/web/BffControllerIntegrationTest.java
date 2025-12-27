@@ -79,8 +79,12 @@ class BffControllerIntegrationTest {
 
     @Test
     void getCsrfToken_returnsOk() {
+        // Arrange
+        org.springframework.security.web.csrf.CsrfToken mockCsrfToken =
+            new org.springframework.security.web.csrf.DefaultCsrfToken("X-XSRF-TOKEN", "_csrf", "test-token");
+
         // Act
-        ResponseEntity<Void> response = bffController.getCsrfToken();
+        ResponseEntity<Void> response = bffController.getCsrfToken(mockCsrfToken);
 
         // Assert
         assertThat(response.getStatusCode().value()).isEqualTo(200);

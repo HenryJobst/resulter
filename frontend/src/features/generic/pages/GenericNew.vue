@@ -4,7 +4,7 @@ import type { IGenericService } from '@/features/generic/services/IGenericServic
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
-import { computed } from 'vue'
+import { computed, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import Spinner from '@/components/SpinnerComponent.vue'
@@ -38,24 +38,42 @@ const formData = props.entity
 const entityLabel = computed(() => (props.entityLabel ? t(`labels.${props.entityLabel}`) : ''))
 const entityMutation = useMutation({
     mutationFn: (e: any) => {
-        console.log(e)
+        console.log('Mutation function called with:', e)
         return props.entityService!.create(e, t)
     },
-    onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: props.queryKey })
+    onSuccess: async (data) => {
+        console.log('Mutation succeeded with data:', data)
         toast.add({
             severity: 'info',
             summary: t('messages.success'),
             detail: t('messages.entity_created', { entity: entityLabel.value }),
             life: toastDisplayDuration,
         })
+        // Navigate first, then refetch will happen automatically on the list page
         navigateToList()
+        // Force refetch after navigation to ensure list is updated
+        setTimeout(() => {
+            queryClient.refetchQueries({ queryKey: props.queryKey })
+        }, 100)
+    },
+    onError: (error: any) => {
+        console.error('Mutation failed:', error)
+        toast.add({
+            severity: 'error',
+            summary: t('messages.error'),
+            detail: error?.response?.data?.message || error?.message || t('messages.unknown_error'),
+            life: toastDisplayDuration * 2,
+        })
     },
 })
 
 function submitHandler() {
-    if (formData)
-        entityMutation.mutate(formData)
+    if (formData) {
+        // Unwrap ref before sending to mutation
+        const data = toRaw(formData)
+        console.log('Submitting event:', data)
+        entityMutation.mutate(data)
+    }
 }
 
 function navigateToList() {
@@ -76,7 +94,7 @@ function navigateToList() {
                 <Button
                     v-if="changeable"
                     v-tooltip="t('labels.save')"
-                    aria-label="t('labels.save')"
+                    :aria-label="t('labels.save')"
                     icon="pi pi-save"
                     class="mt-2"
                     type="submit"

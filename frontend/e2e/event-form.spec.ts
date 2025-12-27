@@ -1,5 +1,19 @@
 import { expect, test } from '@playwright/test'
 
+/**
+ * Generate a future date string in DD.MM.YYYY format
+ * @param daysInFuture Number of days to add to current date (default: 30)
+ * @returns Formatted date string
+ */
+function getFutureDate(daysInFuture: number = 30): string {
+    const futureDate = new Date()
+    futureDate.setDate(futureDate.getDate() + daysInFuture)
+    const day = String(futureDate.getDate()).padStart(2, '0')
+    const month = String(futureDate.getMonth() + 1).padStart(2, '0')
+    const year = futureDate.getFullYear()
+    return `${day}.${month}.${year}`
+}
+
 test.describe('EventForm - Create Event', () => {
     test.beforeEach(async ({ page }) => {
         // Navigate to event creation page
@@ -29,11 +43,13 @@ test.describe('EventForm - Create Event', () => {
         // Fill event name
         await page.getByLabel('Name').fill(eventTitle)
 
-        // Fill date
-        await page.locator('#startDate').getByRole('combobox').fill('15.12.2024')
+        // Fill date (use future date to ensure event appears at top of list)
+        await page.locator('#startDate').getByRole('combobox').fill(getFutureDate(30))
+        await page.keyboard.press('Escape') // Close date picker overlay
 
         // Fill time
         await page.locator('#startTime').getByRole('combobox').fill('14:30')
+        await page.keyboard.press('Escape') // Close time picker overlay
 
         // Select state/status
         await page.locator('#state').click()
@@ -57,11 +73,15 @@ test.describe('EventForm - Create Event', () => {
         // Verify redirect to event list
         await expect(page).toHaveURL(/\/event$/)
 
-        // Verify event appears in list
-        await expect(page.getByText(eventTitle)).toBeVisible()
+        // Wait for table to be fully loaded and network requests to complete
+        await page.waitForSelector('table', { state: 'visible' })
+        await page.waitForLoadState('networkidle')
+
+        // Verify event appears in list (with increased timeout for query refetch)
+        const row = page.getByRole('row').filter({ hasText: eventTitle })
+        await expect(row).toBeVisible({ timeout: 15000 })
 
         // Cleanup: Delete the created event
-        const row = page.getByRole('row').filter({ hasText: eventTitle })
         await row.getByRole('button').nth(2).click() // Delete button
     })
 
@@ -70,8 +90,10 @@ test.describe('EventForm - Create Event', () => {
 
         // Fill only required fields
         await page.getByLabel('Name').fill(eventTitle)
-        await page.locator('#startDate').getByRole('combobox').fill('20.12.2024')
+        await page.locator('#startDate').getByRole('combobox').fill(getFutureDate(35))
+        await page.keyboard.press('Escape') // Close date picker overlay
         await page.locator('#startTime').getByRole('combobox').fill('10:00')
+        await page.keyboard.press('Escape') // Close time picker overlay
 
         // Save event
         await page.getByLabel('Save').click()
@@ -79,11 +101,15 @@ test.describe('EventForm - Create Event', () => {
         // Verify redirect to event list
         await expect(page).toHaveURL(/\/event$/)
 
-        // Verify event appears in list
-        await expect(page.getByText(eventTitle)).toBeVisible()
+        // Wait for table to be fully loaded and network requests to complete
+        await page.waitForSelector('table', { state: 'visible' })
+        await page.waitForLoadState('networkidle')
+
+        // Verify event appears in list (with increased timeout for query refetch)
+        const row = page.getByRole('row').filter({ hasText: eventTitle })
+        await expect(row).toBeVisible({ timeout: 15000 })
 
         // Cleanup
-        const row = page.getByRole('row').filter({ hasText: eventTitle })
         await row.getByRole('button').nth(2).click()
     })
 
@@ -107,26 +133,33 @@ test.describe('EventForm - Create Event', () => {
         await page.getByLabel('Name').fill(eventTitle)
 
         // Click on date picker icon to open calendar
-        await page.locator('#startDate').locator('.p-datepicker-trigger').click()
+        await page.locator('#startDate').locator('.p-datepicker-dropdown').click()
 
         // Wait for calendar to open
-        await expect(page.locator('.p-datepicker')).toBeVisible()
+        await expect(page.locator('.p-datepicker-panel')).toBeVisible()
 
         // Select a date from calendar (e.g., 15th of current month)
         await page.locator('.p-datepicker-calendar td').filter({ hasText: /^15$/ }).first().click()
 
         // Fill time
         await page.locator('#startTime').getByRole('combobox').fill('16:00')
+        await page.keyboard.press('Escape') // Close time picker overlay
 
         // Save event
         await page.getByLabel('Save').click()
 
         // Verify creation
         await expect(page).toHaveURL(/\/event$/)
-        await expect(page.getByText(eventTitle)).toBeVisible()
+
+        // Wait for table to be fully loaded and network requests to complete
+        await page.waitForSelector('table', { state: 'visible' })
+        await page.waitForLoadState('networkidle')
+
+        // Verify event appears in list (with increased timeout for query refetch)
+        const row = page.getByRole('row').filter({ hasText: eventTitle })
+        await expect(row).toBeVisible({ timeout: 15000 })
 
         // Cleanup
-        const row = page.getByRole('row').filter({ hasText: eventTitle })
         await row.getByRole('button').nth(2).click()
     })
 
@@ -134,21 +167,30 @@ test.describe('EventForm - Create Event', () => {
         const eventTitle = `Time Picker Event ${browserName} ${Date.now()}`
 
         await page.getByLabel('Name').fill(eventTitle)
-        await page.locator('#startDate').getByRole('combobox').fill('25.12.2024')
+        await page.locator('#startDate').getByRole('combobox').fill(getFutureDate(40))
+        await page.keyboard.press('Escape') // Close date picker overlay
 
         // Click on time picker icon to open time selector
         await page.locator('#startTime').locator('.pi-clock').click()
 
-        // Wait for time picker to open
-        await expect(page.locator('.p-timepicker')).toBeVisible()
+        // Wait for time picker panel to open
+        await expect(page.locator('.p-datepicker-panel.p-datepicker-timeonly')).toBeVisible()
 
-        // Select hour (e.g., click increment to get to desired hour)
-        // This is a simplified approach - actual implementation may vary
-        await page.locator('.p-timepicker').getByRole('combobox').first().fill('18')
-        await page.locator('.p-timepicker').getByRole('combobox').nth(1).fill('45')
+        // Use increment buttons to set time to 18:45
+        // Find hour increment button and click it multiple times
+        const hourInc = page.locator('[aria-label*="Next Hour"]').or(page.locator('[data-pc-section="incrementbutton"]').first())
+        for (let i = 0; i < 18; i++) {
+            await hourInc.click({ timeout: 1000 }).catch(() => {}) // Set hour to 18
+        }
 
-        // Click outside to close picker
-        await page.getByLabel('Name').click()
+        // Find minute increment button
+        const minInc = page.locator('[aria-label*="Next Minute"]').or(page.locator('[data-pc-section="incrementbutton"]').nth(1))
+        for (let i = 0; i < 45; i++) {
+            await minInc.click({ timeout: 1000 }).catch(() => {}) // Set minute to 45
+        }
+
+        // Close picker
+        await page.keyboard.press('Escape')
 
         // Save event
         await page.getByLabel('Save').click()
@@ -165,8 +207,10 @@ test.describe('EventForm - Create Event', () => {
         const eventTitle = `Multi Org Event ${browserName} ${Date.now()}`
 
         await page.getByLabel('Name').fill(eventTitle)
-        await page.locator('#startDate').getByRole('combobox').fill('28.12.2024')
+        await page.locator('#startDate').getByRole('combobox').fill(getFutureDate(45))
+        await page.keyboard.press('Escape') // Close date picker overlay
         await page.locator('#startTime').getByRole('combobox').fill('12:00')
+        await page.keyboard.press('Escape') // Close time picker overlay
 
         // Open organisations dropdown
         await page.locator('#organisations').click()
@@ -193,10 +237,16 @@ test.describe('EventForm - Create Event', () => {
 
         // Verify creation
         await expect(page).toHaveURL(/\/event$/)
-        await expect(page.getByText(eventTitle)).toBeVisible()
+
+        // Wait for table to be fully loaded and network requests to complete
+        await page.waitForSelector('table', { state: 'visible' })
+        await page.waitForLoadState('networkidle')
+
+        // Verify event appears in list (with increased timeout for query refetch)
+        const row = page.getByRole('row').filter({ hasText: eventTitle })
+        await expect(row).toBeVisible({ timeout: 15000 })
 
         // Cleanup
-        const row = page.getByRole('row').filter({ hasText: eventTitle })
         await row.getByRole('button').nth(2).click()
     })
 
@@ -204,11 +254,15 @@ test.describe('EventForm - Create Event', () => {
         const eventTitle = `State Change Event ${browserName} ${Date.now()}`
 
         await page.getByLabel('Name').fill(eventTitle)
-        await page.locator('#startDate').getByRole('combobox').fill('30.12.2024')
+        await page.locator('#startDate').getByRole('combobox').fill(getFutureDate(50))
+        await page.keyboard.press('Escape') // Close date picker overlay
         await page.locator('#startTime').getByRole('combobox').fill('09:00')
+        await page.keyboard.press('Escape') // Close time picker overlay
 
         // Select state - Finished
         await page.locator('#state').click()
+        // Wait for dropdown to be visible
+        await page.waitForSelector('[role="option"]', { state: 'visible' })
         await page.getByRole('option', { name: /Finished|Abgeschlossen/ }).click()
 
         // Save event
@@ -216,10 +270,16 @@ test.describe('EventForm - Create Event', () => {
 
         // Verify creation
         await expect(page).toHaveURL(/\/event$/)
-        await expect(page.getByText(eventTitle)).toBeVisible()
+
+        // Wait for table to be fully loaded and network requests to complete
+        await page.waitForSelector('table', { state: 'visible' })
+        await page.waitForLoadState('networkidle')
+
+        // Verify event appears in list (with increased timeout for query refetch)
+        const row = page.getByRole('row').filter({ hasText: eventTitle })
+        await expect(row).toBeVisible({ timeout: 15000 })
 
         // Cleanup
-        const row = page.getByRole('row').filter({ hasText: eventTitle })
         await row.getByRole('button').nth(2).click()
     })
 })
@@ -233,13 +293,22 @@ test.describe('EventForm - Edit Event', () => {
 
         await page.goto('/en/event/new')
         await page.getByLabel('Name').fill(createdEventName)
-        await page.locator('#startDate').getByRole('combobox').fill('01.01.2025')
+        await page.locator('#startDate').getByRole('combobox').fill(getFutureDate(55))
+        await page.keyboard.press('Escape') // Close date picker overlay
         await page.locator('#startTime').getByRole('combobox').fill('10:00')
+        await page.keyboard.press('Escape') // Close time picker overlay
         await page.getByLabel('Save').click()
 
         // Wait for redirect to list
         await expect(page).toHaveURL(/\/event$/)
-        await expect(page.getByText(createdEventName)).toBeVisible()
+
+        // Wait for table to be fully loaded and network requests to complete
+        await page.waitForSelector('table', { state: 'visible' })
+        await page.waitForLoadState('networkidle')
+
+        // Verify event appears in list (with increased timeout for query refetch)
+        const row = page.getByRole('row').filter({ hasText: createdEventName })
+        await expect(row).toBeVisible({ timeout: 15000 })
     })
 
     test.afterEach(async ({ page }) => {
@@ -292,10 +361,12 @@ test.describe('EventForm - Edit Event', () => {
         await expect(page.getByLabel('Name')).toBeVisible()
 
         // Change date
-        await page.locator('#startDate').getByRole('combobox').fill('15.02.2025')
+        await page.locator('#startDate').getByRole('combobox').fill(getFutureDate(60))
+        await page.keyboard.press('Escape') // Close date picker overlay
 
         // Change time
         await page.locator('#startTime').getByRole('combobox').fill('15:30')
+        await page.keyboard.press('Escape') // Close time picker overlay
 
         // Save
         await page.getByLabel('Save').click()
@@ -326,7 +397,14 @@ test.describe('EventForm - Edit Event', () => {
 
         // Verify update
         await expect(page).toHaveURL(/\/event$/)
-        await expect(page.getByText(createdEventName)).toBeVisible()
+
+        // Wait for table to be fully loaded and network requests to complete
+        await page.waitForSelector('table', { state: 'visible' })
+        await page.waitForLoadState('networkidle')
+
+        // Verify event appears in list (with increased timeout for query refetch)
+        const updatedRow = page.getByRole('row').filter({ hasText: createdEventName })
+        await expect(updatedRow).toBeVisible({ timeout: 15000 })
     })
 
     test('should add certificate to existing event', async ({ page }) => {
@@ -353,7 +431,14 @@ test.describe('EventForm - Edit Event', () => {
 
         // Verify update
         await expect(page).toHaveURL(/\/event$/)
-        await expect(page.getByText(createdEventName)).toBeVisible()
+
+        // Wait for table to be fully loaded and network requests to complete
+        await page.waitForSelector('table', { state: 'visible' })
+        await page.waitForLoadState('networkidle')
+
+        // Verify event appears in list (with increased timeout for query refetch)
+        const updatedRow = page.getByRole('row').filter({ hasText: createdEventName })
+        await expect(updatedRow).toBeVisible({ timeout: 15000 })
     })
 })
 
@@ -391,7 +476,7 @@ test.describe('EventForm - Form Validation', () => {
     test('should clear form when navigating away and back', async ({ page }) => {
         // Fill some data
         await page.getByLabel('Name').fill('Temporary Event')
-        await page.locator('#startDate').getByRole('combobox').fill('15.03.2025')
+        await page.locator('#startDate').getByRole('combobox').fill(getFutureDate(65))
 
         // Navigate away
         await page.getByLabel('Back').click()

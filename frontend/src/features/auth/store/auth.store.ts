@@ -61,7 +61,7 @@ export const useAuthStore = defineStore(
 
         /**
          * Initialize authentication by checking current session
-         * Calls /bff/user to retrieve user information
+         * Calls /bff/user to retrieve user information and /bff/csrf to get CSRF token
          */
         async function initAuth(): Promise<boolean> {
             console.log('[Auth Store] initAuth called')
@@ -69,6 +69,10 @@ export const useAuthStore = defineStore(
             console.log('[Auth Store] User info received from BFF:', userInfo)
             if (userInfo) {
                 setBffUser(userInfo)
+                // Get CSRF token for authenticated users
+                console.log('[Auth Store] Fetching CSRF token...')
+                await bffAuthService.getCsrfToken()
+                console.log('[Auth Store] CSRF token fetched')
                 return true
             }
             else {

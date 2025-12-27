@@ -96,7 +96,12 @@ test('authenticate user with BFF', async ({ page }) => {
     console.log(`\x1B[2m\tSuccessfully redirected to frontend\x1B[0m`)
     console.log(`\x1B[2m\tSession cookie established\x1B[0m`)
 
-    // Save the storage state including session cookies
+    // Fetch CSRF token to ensure it's set in cookies
+    console.log(`\x1B[2m\tFetching CSRF token...\x1B[0m`)
+    await page.request.get(`${backendUrl}/bff/csrf`)
+    console.log(`\x1B[2m\tCSRF token fetched\x1B[0m`)
+
+    // Save the storage state including session cookies and CSRF token
     await page.context().storageState({ path: storageState })
 
     console.log(`\x1B[2m\tAuthentication completed and state saved\x1B[0m`)

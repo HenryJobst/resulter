@@ -20,6 +20,7 @@ const localFormData = ref<SportEvent>({
     state: { id: 'Planned' },
     organisations: [],
     certificate: null,
+    hasSplitTimes: false,
 })
 </script>
 

@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import java.util.Collection;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
@@ -14,6 +13,5 @@ public interface MediaFileJdbcRepository
                 PagingAndSortingRepository<MediaFileDbo, Long>,
                 QueryByExampleExecutor<MediaFileDbo> {
 
-    @NonNull
     Collection<MediaFileDbo> findAll();
 }

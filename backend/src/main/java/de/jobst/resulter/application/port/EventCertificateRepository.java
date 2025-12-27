@@ -32,5 +32,6 @@ public interface EventCertificateRepository {
 
     void saveAll(List<EventCertificate> eventCertificates);
 
+    @SuppressWarnings("unused")
     void deleteAllByEventId(EventId eventId);
 }

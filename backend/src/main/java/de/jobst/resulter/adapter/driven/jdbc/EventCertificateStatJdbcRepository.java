@@ -1,6 +1,5 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
@@ -15,7 +14,6 @@ import java.util.Collection;
 public interface EventCertificateStatJdbcRepository
     extends CrudRepository<EventCertificateStatDbo, Long>, PagingAndSortingRepository<EventCertificateStatDbo, Long> {
 
-    @NonNull
     Collection<EventCertificateStatDbo> findAll();
 
     Collection<EventCertificateStatDbo> findAllByEvent(AggregateReference<EventDbo, Long> event);

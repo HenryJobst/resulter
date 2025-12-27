@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.*;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
@@ -48,7 +47,7 @@ public class OrganisationDbo {
         this.name = name;
     }
 
-    public static OrganisationDbo from(Organisation organisation, @NonNull DboResolvers dboResolvers) {
+    public static OrganisationDbo from(Organisation organisation, DboResolvers dboResolvers) {
         if (null == organisation) {
             return null;
         }
@@ -79,7 +78,7 @@ public class OrganisationDbo {
     }
 
     public static Organisation asOrganisation(
-            @NonNull OrganisationDbo organisationDbo,
+            OrganisationDbo organisationDbo,
             Function<Long, Organisation> organisationResolver,
             Function<Long, Country> countryResolver) {
         return organisationDbo.asOrganisation(organisationResolver, countryResolver);

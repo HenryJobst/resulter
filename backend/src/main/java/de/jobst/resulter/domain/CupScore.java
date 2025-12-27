@@ -1,7 +1,6 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public record CupScore(
@@ -14,7 +13,7 @@ public record CupScore(
     }
 
     @Override
-    public int compareTo(@NonNull CupScore o) {
+    public int compareTo(CupScore o) {
         int val = Double.compare(score, o.score);
         if (val == 0) {
             val = personId.compareTo(o.personId);

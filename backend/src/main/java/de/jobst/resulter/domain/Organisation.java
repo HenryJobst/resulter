@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -14,15 +13,12 @@ import java.util.*;
 public final class Organisation implements Comparable<Organisation> {
 
     @Identity
-    @NonNull
     private final OrganisationId id;
 
-    @NonNull
     private final OrganisationName name;
 
     private final OrganisationShortName shortName;
 
-    @NonNull
     private final OrganisationType type;
 
     @Association
@@ -30,16 +26,15 @@ public final class Organisation implements Comparable<Organisation> {
     private final CountryId country;
 
     @Association
-    @NonNull
     private final Collection<OrganisationId> childOrganisations;
 
     public Organisation(
-            @NonNull OrganisationId id,
-            @NonNull OrganisationName name,
-            @NonNull OrganisationShortName shortName,
-            @NonNull OrganisationType type,
+            OrganisationId id,
+            OrganisationName name,
+            OrganisationShortName shortName,
+            OrganisationType type,
             @Nullable CountryId country,
-            @NonNull Collection<OrganisationId> childOrganisations) {
+            Collection<OrganisationId> childOrganisations) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;
@@ -68,11 +63,11 @@ public final class Organisation implements Comparable<Organisation> {
 
     public static Organisation of(
             long id,
-            @NonNull String name,
-            @NonNull String shortName,
-            @NonNull String type,
+            String name,
+            String shortName,
+            String type,
             @Nullable CountryId country,
-            @NonNull Collection<OrganisationId> childOrganisations) {
+            Collection<OrganisationId> childOrganisations) {
         return new Organisation(
                 OrganisationId.of(id),
                 OrganisationName.of(name),
@@ -83,16 +78,16 @@ public final class Organisation implements Comparable<Organisation> {
     }
 
     public static Organisation of(
-            @NonNull OrganisationName name,
-            @NonNull OrganisationShortName shortName,
-            @NonNull OrganisationType type,
+            OrganisationName name,
+            OrganisationShortName shortName,
+            OrganisationType type,
             @Nullable CountryId country,
-            @NonNull Collection<OrganisationId> childOrganisations) {
+            Collection<OrganisationId> childOrganisations) {
         return new Organisation(OrganisationId.empty(), name, shortName, type, country, childOrganisations);
     }
 
     @Override
-    public int compareTo(@NonNull Organisation o) {
+    public int compareTo(Organisation o) {
         int val = type.compareTo(o.type);
         if (val == 0) {
             val = name.compareTo(o.name);

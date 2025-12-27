@@ -2,7 +2,6 @@ package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public record MediaFileDescription(String value) implements Comparable<MediaFileDescription> {
@@ -13,7 +12,7 @@ public record MediaFileDescription(String value) implements Comparable<MediaFile
     }
 
     @Override
-    public int compareTo(@NonNull MediaFileDescription o) {
+    public int compareTo(MediaFileDescription o) {
         return value.compareTo(o.value);
     }
 

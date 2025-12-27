@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Association;
 import org.jmolecules.ddd.annotation.Identity;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 @AggregateRoot
@@ -13,11 +12,9 @@ import org.jspecify.annotations.Nullable;
 public final class Course implements Comparable<Course> {
 
     @Identity
-    @NonNull
     private final CourseId id;
 
     @Association
-    @NonNull
     private final EventId eventId;
 
     private final CourseName courseName;
@@ -46,7 +43,7 @@ public final class Course implements Comparable<Course> {
     public record DomainKey(EventId eventId, CourseName courseName) implements Comparable<DomainKey> {
 
         @Override
-        public int compareTo(@NonNull DomainKey o) {
+        public int compareTo(DomainKey o) {
             int val = courseName.compareTo(o.courseName);
             if (val == 0) {
                 val = eventId.compareTo(o.eventId);
@@ -56,9 +53,9 @@ public final class Course implements Comparable<Course> {
     }
 
     public Course(
-            @NonNull CourseId id,
-            @NonNull EventId eventId,
-            @NonNull CourseName courseName,
+            CourseId id,
+            EventId eventId,
+            CourseName courseName,
             @Nullable CourseLength courseLength,
             @Nullable CourseClimb courseClimb,
             @Nullable NumberOfControls numberOfControls) {
@@ -91,7 +88,7 @@ public final class Course implements Comparable<Course> {
     }
 
     @Override
-    public int compareTo(@NonNull Course o) {
+    public int compareTo(Course o) {
         int val = this.courseName.compareTo(o.courseName);
         if (val == 0) {
             val = this.id.compareTo(o.id);

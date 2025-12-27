@@ -3,20 +3,19 @@ package de.jobst.resulter.domain;
 import de.jobst.resulter.domain.aggregations.PersonRaceResults;
 import java.util.Collection;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 @ValueObject
 public record PersonResult(
-        @NonNull ClassResultShortName classResultShortName,
-        @NonNull PersonId personId,
+        ClassResultShortName classResultShortName,
+        PersonId personId,
         @Nullable OrganisationId organisationId,
-        @NonNull PersonRaceResults personRaceResults)
+        PersonRaceResults personRaceResults)
         implements Comparable<PersonResult> {
 
     public static PersonResult of(
-            @NonNull ClassResultShortName classResultShortName,
-            @NonNull PersonId personId,
+            ClassResultShortName classResultShortName,
+            PersonId personId,
             @Nullable OrganisationId organisationId,
             @Nullable Collection<PersonRaceResult> personRaceResults) {
         return new PersonResult(
@@ -24,7 +23,7 @@ public record PersonResult(
     }
 
     @Override
-    public int compareTo(@NonNull PersonResult o) {
+    public int compareTo(PersonResult o) {
         int val = personId.compareTo(o.personId);
         if (val == 0) {
             val = classResultShortName.compareTo(o.classResultShortName);

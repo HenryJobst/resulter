@@ -2,7 +2,6 @@ package de.jobst.resulter.domain;
 
 import de.jobst.resulter.domain.util.ValueObjectChecks;
 import org.jmolecules.ddd.annotation.ValueObject;
-import org.jspecify.annotations.NonNull;
 
 @ValueObject
 public record CupName(String value) implements Comparable<CupName> {
@@ -18,7 +17,7 @@ public record CupName(String value) implements Comparable<CupName> {
     }
 
     @Override
-    public int compareTo(@NonNull CupName o) {
+    public int compareTo(CupName o) {
         return value.compareTo(o.value);
     }
 }

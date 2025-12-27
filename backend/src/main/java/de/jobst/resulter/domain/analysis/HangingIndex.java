@@ -1,6 +1,7 @@
 package de.jobst.resulter.domain.analysis;
 
 import org.jmolecules.ddd.annotation.ValueObject;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Hanging Index (HI) - Measures performance improvement when a runner follows another runner.
@@ -35,7 +36,7 @@ public record HangingIndex(Double value) implements Comparable<HangingIndex> {
      * @return HangingIndex
      * @throws IllegalArgumentException if expectedPI is null or <= 0
      */
-    public static HangingIndex of(PerformanceIndex segmentPI, PerformanceIndex expectedPI) {
+    public static HangingIndex of(PerformanceIndex segmentPI, @Nullable PerformanceIndex expectedPI) {
         if (expectedPI == null || expectedPI.value() == null || expectedPI.value() <= 0) {
             throw new IllegalArgumentException("Expected PI must be positive, was: " + expectedPI);
         }

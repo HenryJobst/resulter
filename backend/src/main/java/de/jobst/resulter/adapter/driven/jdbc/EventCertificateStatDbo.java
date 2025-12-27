@@ -9,7 +9,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
@@ -25,6 +25,7 @@ public class EventCertificateStatDbo {
     @Id
     @With
     @Column("id")
+    @Nullable
     private final Long id;
 
     @Column("event_id")
@@ -45,9 +46,9 @@ public class EventCertificateStatDbo {
     }
 
     public static EventCertificateStatDbo from(
-            @NonNull EventCertificateStat eventCertificateStat, @NonNull DboResolvers dboResolvers) {
+            EventCertificateStat eventCertificateStat, DboResolvers dboResolvers) {
         EventCertificateStatDbo eventCertificateStatDbo;
-        if (eventCertificateStat.getId().isPersistent()) {
+        if (eventCertificateStat.getId().isPersistent() && dboResolvers.getEventCertificateStatDboResolver() != null) {
             eventCertificateStatDbo =
                     dboResolvers.getEventCertificateStatDboResolver().findDboById(eventCertificateStat.getId());
             eventCertificateStatDbo.setEvent(
@@ -66,7 +67,7 @@ public class EventCertificateStatDbo {
     }
 
     public static List<EventCertificateStat> asEventCertificateStats(
-            @NonNull Collection<EventCertificateStatDbo> eventCertificateStatDbos,
+            Collection<EventCertificateStatDbo> eventCertificateStatDbos,
             Function<Long, Event> eventResolver,
             Function<Long, Person> personResolver) {
 
@@ -77,7 +78,7 @@ public class EventCertificateStatDbo {
     }
 
     public static EventCertificateStat asEventCertificateStat(
-            @NonNull EventCertificateStatDbo eventCertificateStatDbo,
+            EventCertificateStatDbo eventCertificateStatDbo,
             Function<Long, Event> eventResolver,
             Function<Long, Person> personResolver) {
         return asEventCertificateStats(List.of(eventCertificateStatDbo), eventResolver, personResolver)

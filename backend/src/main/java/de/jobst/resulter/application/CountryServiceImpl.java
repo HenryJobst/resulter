@@ -7,7 +7,6 @@ import de.jobst.resulter.domain.CountryCode;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.CountryName;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -48,7 +47,6 @@ public class CountryServiceImpl implements CountryService {
         return countryRepository.findById(id);
     }
 
-    @NonNull
     @Override
     public Country updateCountry(CountryId id, CountryCode code, CountryName name) {
         return countryRepository.save(new Country(

@@ -14,6 +14,7 @@ public enum AdditionalStatusCodes {
         this.value = value;
     }
 
+    @SuppressWarnings("unused")
     public static AdditionalStatusCodes valueOf(int statusCode) {
         AdditionalStatusCodes status = resolve(statusCode);
         if (status == null) {

@@ -1,6 +1,5 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.converter.Converter;
 
 import java.sql.Timestamp;
@@ -10,7 +9,7 @@ import java.time.ZoneOffset;
 public class TimestampToOffsetDateTimeConverter implements Converter<Timestamp, OffsetDateTime> {
 
     @Override
-    public OffsetDateTime convert(@NonNull Timestamp source) {
+    public OffsetDateTime convert(Timestamp source) {
         return source.toInstant().atOffset(ZoneOffset.UTC);
     }
 }

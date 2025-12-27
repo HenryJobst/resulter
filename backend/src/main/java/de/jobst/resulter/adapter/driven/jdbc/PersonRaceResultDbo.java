@@ -4,7 +4,6 @@ import de.jobst.resulter.domain.PersonRaceResult;
 import de.jobst.resulter.domain.ResultStatus;
 import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
@@ -23,10 +22,8 @@ import java.util.Objects;
 @Table(name = "person_race_result")
 public class PersonRaceResultDbo {
 
-    @NonNull
     @Column("class_result_short_name")
     private String classResultShortName;
-    @NonNull
     @Column("person_id")
     private AggregateReference<PersonDbo, Long> person;
     @Nullable
@@ -35,16 +32,22 @@ public class PersonRaceResultDbo {
     @Nullable
     @Column("start_time_zone")
     private String startTimeZone;
+    @Nullable
     @Column("finish_time")
     private Timestamp finishTime;
+    @Nullable
     @Column("finish_time_zone")
     private String finishTimeZone;
+    @Nullable
     @Column("punch_time")
     private Double punchTime;
+    @Nullable
     @Column("position")
     private Long position;
+    @Nullable
     @Column("race_number")
     private Byte raceNumber;
+    @Nullable
     @Column("state")
     private ResultStatus state;
 
@@ -53,7 +56,7 @@ public class PersonRaceResultDbo {
     @Setter
     private AggregateReference<SplitTimeListDbo, Long> splitTimeList;
 
-    public static PersonRaceResultDbo from(@NonNull PersonRaceResult personRaceResult) {
+    public static PersonRaceResultDbo from(PersonRaceResult personRaceResult) {
         PersonRaceResultDbo personRaceResultDbo = new PersonRaceResultDbo();
         personRaceResultDbo.setClassResultShortName(Objects.requireNonNull(Objects.requireNonNull(personRaceResult.getClassResultShortName())
             .value()));
@@ -97,15 +100,17 @@ public class PersonRaceResultDbo {
         return personRaceResultDbo;
     }
 
+    @SuppressWarnings("unused")
     public static Collection<PersonRaceResult> asPersonRaceResults(
-        @NonNull List<PersonRaceResultDbo> personRaceResultDbos) {
+        List<PersonRaceResultDbo> personRaceResultDbos) {
         return personRaceResultDbos.stream()
             .map(it -> PersonRaceResult.of(it.classResultShortName,
                 it.person.getId(),
                 it.startTime != null ?
                 it.startTime.toInstant().atZone(ZoneId.of(Objects.requireNonNull(it.startTimeZone))) :
                 null,
-                it.finishTime != null ? it.finishTime.toInstant().atZone(ZoneId.of(it.finishTimeZone)) :
+                it.finishTime != null && it.finishTimeZone != null ?
+                it.finishTime.toInstant().atZone(ZoneId.of(it.finishTimeZone)) :
                 null,
                 it.getPunchTime(),
                 it.getPosition(),

@@ -1,45 +1,38 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.relational.core.mapping.NamingStrategy;
 import org.springframework.data.relational.core.mapping.RelationalPersistentEntity;
 import org.springframework.data.relational.core.mapping.RelationalPersistentProperty;
 
 public class LowerCaseNamingStrategy implements NamingStrategy {
 
-    @NonNull
     @Override
     public String getSchema() {
         return NamingStrategy.super.getSchema().toLowerCase();
     }
 
-    @NonNull
     @Override
     public String getTableName(Class<?> type) {
         return type.getSimpleName().toLowerCase();
     }
 
-    @NonNull
     @Override
-    public String getColumnName(@NonNull RelationalPersistentProperty property) {
+    public String getColumnName(RelationalPersistentProperty property) {
         return NamingStrategy.super.getColumnName(property).toLowerCase();
     }
 
-    @NonNull
     @Override
-    public String getReverseColumnName(@NonNull RelationalPersistentProperty property) {
+    public String getReverseColumnName(RelationalPersistentProperty property) {
         return NamingStrategy.super.getReverseColumnName(property).toLowerCase();
     }
 
-    @NonNull
     @Override
-    public String getReverseColumnName(@NonNull RelationalPersistentEntity<?> owner) {
+    public String getReverseColumnName(RelationalPersistentEntity<?> owner) {
         return NamingStrategy.super.getReverseColumnName(owner).toLowerCase();
     }
 
-    @NonNull
     @Override
-    public String getKeyColumn(@NonNull RelationalPersistentProperty property) {
+    public String getKeyColumn(RelationalPersistentProperty property) {
         return NamingStrategy.super.getKeyColumn(property).toLowerCase();
     }
 }

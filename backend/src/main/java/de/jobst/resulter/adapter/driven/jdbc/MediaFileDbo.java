@@ -2,7 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.MediaFile;
 import lombok.*;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
@@ -42,12 +42,12 @@ public class MediaFileDbo {
         this.fileSize = fileSize;
     }
 
-    public static MediaFileDbo from(MediaFile mediaFile, @NonNull DboResolvers dboResolvers) {
+    public static @Nullable MediaFileDbo from(@Nullable MediaFile mediaFile, DboResolvers dboResolvers) {
         if (null == mediaFile) {
             return null;
         }
         MediaFileDbo mediaFileDbo;
-        if (mediaFile.getId().isPersistent()) {
+        if (mediaFile.getId().isPersistent() && dboResolvers.getMediaFileDboResolver() != null) {
             mediaFileDbo = dboResolvers.getMediaFileDboResolver().findDboById(mediaFile.getId());
             mediaFileDbo.setFileName(mediaFile.getMediaFileName().value());
             mediaFileDbo.setThumbnailFileName(mediaFile.getThumbnailFileName().value());

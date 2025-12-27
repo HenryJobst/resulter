@@ -199,7 +199,8 @@
         "total_runners": "Total Runners",
         "filters": "Filters",
         "sort_by": "Sort By",
-        "split_times": "Split Times"
+        "split_times": "Split Times",
+        "start": "Start"
     },
     "messages": {
         "new_cup": "New cup",

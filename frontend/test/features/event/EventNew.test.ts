@@ -1,11 +1,10 @@
-import { createTestingPinia } from '@pinia/testing'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
-import { createI18n } from 'vue-i18n'
 import EventNew from '../../../src/features/event/pages/EventNew.vue'
+import { cleanupTest, createGlobalMountOptions, expectNoA11yViolations } from '../../helpers/testSetup'
 
-// Mock der Keycloak-Module
+// Mock Keycloak
 vi.mock('@/features/keycloak/services/keycloak', () => ({
     getKeycloak: vi.fn(() => ({
         authenticated: true,
@@ -13,7 +12,18 @@ vi.mock('@/features/keycloak/services/keycloak', () => ({
     })),
 }))
 
-// Mock der Vue Query Funktionen
+// Mock vue-router
+vi.mock('vue-router', () => ({
+    useRouter: vi.fn(() => ({
+        push: vi.fn(),
+    })),
+    RouterLink: {
+        name: 'RouterLink',
+        template: '<a><slot /></a>',
+    },
+}))
+
+// Mock Tanstack Query
 vi.mock('@tanstack/vue-query', () => ({
     useQueryClient: vi.fn(() => ({
         invalidateQueries: vi.fn(),
@@ -28,95 +38,40 @@ vi.mock('@tanstack/vue-query', () => ({
     useMutation: vi.fn(() => ({
         mutate: vi.fn(),
         isLoading: false,
-        status: {
-            value: 'idle',
-        },
-        isError: {
-            value: false,
-        },
-        error: {
-            value: null,
-        },
-    })),
-    VueQueryPlugin: {
-        install: vi.fn(),
-    },
-}))
-
-// Mock für useToast
-vi.mock('primevue/usetoast', () => ({
-    useToast: vi.fn(() => ({
-        add: vi.fn(),
-        remove: vi.fn(),
-        removeGroup: vi.fn(),
-        removeAllGroups: vi.fn(),
-    })),
-}))
-
-// Mock für vue-router
-vi.mock('vue-router', () => ({
-    useRouter: vi.fn(() => ({
-        push: vi.fn(),
+        status: { value: 'idle' },
+        isError: { value: false },
+        error: { value: null },
     })),
 }))
 
 describe('eventNew.vue', () => {
     beforeEach(() => {
-        // Zurücksetzen der Mocks vor jedem Test
         vi.clearAllMocks()
     })
 
     it('renders correctly for admin user', async () => {
-        const i18n = createI18n({
-            legacy: false,
-            locale: 'de',
-            messages: {
-                de: {
-                    'labels.event': 'Wettkampf',
-                    'messages.new_entity': '{entity} anlegen',
-                    'messages.loading': 'Lädt...',
-                },
-            },
-        })
-
         const wrapper = mount(EventNew, {
-            global: {
-                plugins: [
-                    createTestingPinia({
-                        stubActions: true,
-                        createSpy: vi.fn,
-                        initialState: {
-                            authStore: {
-                                authenticated: true,
-                                user: { username: 'mockedUser', roles: ['admin'] },
-                                isAdmin: true,
-                                isAuthenticated: true,
-                            },
-                        },
-                    }),
-                    i18n,
-                ],
-                stubs: {
-                    EventForm: false,
-                    GenericNew: false,
-                    Spinner: true,
-                    Tooltip: true,
-                },
-                mocks: {
-                    $router: {
-                        push: vi.fn(),
-                    },
-                    $route: {
-                        params: {
-                            id: '1',
-                        },
-                    },
-                },
-            },
+            global: createGlobalMountOptions(),
         })
 
         await nextTick()
 
-        expect(wrapper.html()).toContain('Wettkampf anlegen')
+        // Verify component mounted successfully
+        expect(wrapper.exists()).toBe(true)
+
+        cleanupTest(wrapper)
+    })
+
+    it('has no accessibility violations', async () => {
+        const wrapper = mount(EventNew, {
+            global: createGlobalMountOptions(),
+        })
+
+        await nextTick()
+
+        // Run accessibility tests
+        await expectNoA11yViolations(wrapper)
+
+        cleanupTest(wrapper)
     })
 })

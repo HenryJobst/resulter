@@ -1,15 +1,15 @@
 package de.jobst.resulter.springapp.config;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
-import org.springframework.lang.Nullable;
 
 import javax.sql.DataSource;
 
 /**
  * Dynamic routing DataSource that routes to different databases based on ThreadLocal context.
- *
+ * <p>
  * This is used for E2E test database isolation - each test can specify a unique database
  * identifier via the X-DB-Identifier header/cookie, and this router will direct all
  * database operations to that isolated test database.

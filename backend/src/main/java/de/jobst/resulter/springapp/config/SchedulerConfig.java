@@ -6,6 +6,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableScheduling
-@Profile("testcontainers")
+@Profile("e2e-frontend-tests")
 public class SchedulerConfig {}
 

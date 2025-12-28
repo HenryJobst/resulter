@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Component
-@Profile("testcontainers")
+@Profile("e2e-frontend-tests")
 public class CreateDatabaseApiTokenFilter extends OncePerRequestFilter {
 
     public static final String X_CREATE_DATABASE_TOKEN = "X-CREATE-DATABASE-TOKEN";

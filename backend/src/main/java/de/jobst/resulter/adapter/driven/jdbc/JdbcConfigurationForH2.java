@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@Profile("inmem && !testcontainers")
+@Profile("inmem && !e2e-frontend-tests")
 public class JdbcConfigurationForH2 {
 
     @Bean

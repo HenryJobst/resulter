@@ -301,7 +301,6 @@ function courseControlsColumn(slotProps: any): string {
 }
 
 function calculate(result_list_id: number) {
-    console.log(result_list_id)
     EventService.calculate(result_list_id, t)
     invalidateCupPointsQuery(result_list_id)
 }

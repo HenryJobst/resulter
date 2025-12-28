@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("testcontainers")
+@Profile("e2e-frontend-tests")
 public class DataSourceCleanupScheduler {
 
     private final DataSourceManager dataSourceManager;

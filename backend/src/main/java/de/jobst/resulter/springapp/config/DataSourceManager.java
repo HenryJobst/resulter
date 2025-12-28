@@ -1,9 +1,12 @@
 package de.jobst.resulter.springapp.config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.jdbc.DataSourceBuilder;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -13,7 +16,6 @@ import org.testcontainers.utility.DockerImageName;
 import javax.sql.DataSource;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -21,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @DependsOnDatabaseInitialization
-@Profile("testcontainers")
+@Profile("e2e-frontend-tests")
 public class DataSourceManager {
 
     private final Map<String, ManagedDataSource> dataSources = new ConcurrentHashMap<>();
@@ -34,27 +36,56 @@ public class DataSourceManager {
         String identifier = UUID.randomUUID().toString();
 
         PostgreSQLContainer postgresqlContainer =
-            new PostgreSQLContainer(DockerImageName.parse("postgres:latest")).withDatabaseName("testdb_" + identifier)
+            new PostgreSQLContainer(DockerImageName.parse("postgres:latest"))
+                .withDatabaseName("testdb_" + identifier)
                 .withUsername("test")
                 .withPassword("test");
+
         postgresqlContainer.start();
 
-        String url = postgresqlContainer.getJdbcUrl();
+        DataSource dataSource = getDataSource(postgresqlContainer, identifier);
 
-        DataSource dataSource = DataSourceBuilder.create()
-            .url(url)
-            .username(postgresqlContainer.getUsername())
-            .password(postgresqlContainer.getPassword())
-            .driverClassName(postgresqlContainer.getDriverClassName())
-            .build();
+        DataSource loggingDataSource =
+            ProxyDataSourceBuilder
+                .create(dataSource)
+                .name(getDataSourceName(identifier))
+                .logQueryBySlf4j()
+                .build();
 
-        dataSources.put(identifier,
-            new ManagedDataSource(dataSource, postgresqlContainer, timeout != null ? timeout : defaultTimeout));
+        dataSources.put(
+            identifier,
+            new ManagedDataSource(
+                loggingDataSource,
+                postgresqlContainer,
+                timeout != null ? timeout : defaultTimeout
+            ));
 
-        // Run Liquibase
-        liquibaseConfig.runLiquibaseForDataSource(dataSource);
+        // Liquibase explizit auf dieser DataSource
+        liquibaseConfig.runLiquibaseForDataSource(loggingDataSource);
 
         return identifier;
+    }
+
+    private static @NonNull DataSource getDataSource(PostgreSQLContainer postgresqlContainer, String identifier) {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(postgresqlContainer.getJdbcUrl());
+        hikariConfig.setUsername(postgresqlContainer.getUsername());
+        hikariConfig.setPassword(postgresqlContainer.getPassword());
+        hikariConfig.setDriverClassName(postgresqlContainer.getDriverClassName());
+
+        hikariConfig.setKeepaliveTime(0);
+        hikariConfig.setMaximumPoolSize(1);
+        hikariConfig.setMinimumIdle(0);
+        hikariConfig.setIdleTimeout(10_000);
+        hikariConfig.setMaxLifetime(30_000);
+
+        hikariConfig.setPoolName(getDataSourceName(identifier));
+
+        return new HikariDataSource(hikariConfig);
+    }
+
+    private static @NonNull String getDataSourceName(String identifier) {
+        return "test-db-" + identifier;
     }
 
     public DataSource getDataSource(String identifier) {

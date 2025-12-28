@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@Profile("testcontainers")
+@Profile("e2e-frontend-tests")
 public class WebConfig implements WebMvcConfigurer {
 
     private final DataSourceInterceptor dataSourceInterceptor;

@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 import javax.sql.DataSource;
 
 @Configuration
-@Profile("inmem && !testcontainers")
+@Profile("inmem && !e2e-frontend-tests")
 public class InmemDatasourceConfig {
 
     @Bean

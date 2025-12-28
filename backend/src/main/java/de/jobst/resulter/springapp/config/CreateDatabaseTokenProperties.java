@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 @Setter
 @Getter
 @Configuration
-@Profile("testcontainers")
+@Profile("e2e-frontend-tests")
 @ConfigurationProperties(prefix = "security.createdatabase")
 public class CreateDatabaseTokenProperties {
     private String apiToken;

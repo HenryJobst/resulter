@@ -17,14 +17,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @DependsOnDatabaseInitialization
 @Profile("testcontainers")
 public class DataSourceManager {
 
-    private final Map<String, ManagedDataSource> dataSources = new HashMap<>();
-    private final Duration defaultTimeout = Duration.ofSeconds(30);
+    private final Map<String, ManagedDataSource> dataSources = new ConcurrentHashMap<>();
+    private final Duration defaultTimeout = Duration.ofSeconds(90);
     private final LiquibaseConfig liquibaseConfig;
 
     public DataSourceManager(LiquibaseConfig liquibaseConfig) {this.liquibaseConfig = liquibaseConfig;}

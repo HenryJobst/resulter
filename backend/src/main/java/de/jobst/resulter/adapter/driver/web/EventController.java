@@ -97,10 +97,6 @@ public class EventController {
         if (eventDto.name().isEmpty()) {
             throw new IllegalArgumentException("name is not set");
         }
-        List<Event> events = eventService.findAll();
-        log.warn("Events: {}", events.size());
-        assert events.isEmpty();
-
         Event event = eventService.createEvent(
                 eventDto.name(),
                 ObjectUtils.isNotEmpty(eventDto.startTime())

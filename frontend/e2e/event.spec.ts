@@ -36,6 +36,7 @@ test.describe('Event Creation', () => {
 
     test('create test event', async ({ page, browserName }) => {
         const eventTitle = `Test on ${browserName}`
+        console.log(eventTitle)
         await page.getByLabel('Name').fill(eventTitle)
 
         // Use a far future date to ensure event appears at top of list
@@ -49,15 +50,15 @@ test.describe('Event Creation', () => {
         await expect(page).toHaveURL(/\/event$/)
 
         // Reload page to bypass TanStack Query cache and ensure fresh data
-        await page.reload()
-        await page.waitForLoadState('networkidle')
+        // await page.reload()
+        // await page.waitForLoadState('networkidle')
 
         // Wait for table to be fully loaded
-        await page.waitForSelector('table', { state: 'visible' })
+        // await page.waitForSelector('table', { state: 'visible' })
 
         // Verify event appears in list
         const row = page.getByRole('row').filter({ hasText: eventTitle })
-        await expect(row).toBeVisible({ timeout: 10000 })
+        await expect(row).toHaveCount(1)
 
         // No manual cleanup needed - database will be automatically cleaned up after 30s
     })

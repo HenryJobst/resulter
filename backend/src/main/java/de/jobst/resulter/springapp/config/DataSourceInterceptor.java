@@ -29,11 +29,11 @@ public class DataSourceInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
-        log.info("[DataSourceInterceptor] Request: {} {}", request.getMethod(), request.getRequestURI());
+        log.debug("Request: {} {}", request.getMethod(), request.getRequestURI());
 
         // First, try to get database identifier from HTTP header (preferred for API calls)
         String dbIdentifier = request.getHeader("X-DB-Identifier");
-        log.info("[DataSourceInterceptor] X-DB-Identifier header: {}", dbIdentifier);
+        log.trace("X-DB-Identifier header: {}", dbIdentifier);
 
         // If not found in header, try to get it from cookie (used by E2E tests to avoid OAuth2 interference)
         if (dbIdentifier == null) {
@@ -44,22 +44,22 @@ public class DataSourceInterceptor implements HandlerInterceptor {
                     .map(Cookie::getValue)
                     .findFirst()
                     .orElse(null);
-                log.info("[DataSourceInterceptor] X-DB-Identifier from cookie: {}", dbIdentifier);
+                log.trace("X-DB-Identifier from cookie: {}", dbIdentifier);
             }
         }
 
         // If database identifier is found (via header or cookie), route to that database
         if (dbIdentifier != null) {
-            log.info("[DataSourceInterceptor] Routing to database: {}", dbIdentifier);
+            log.trace("Routing to database: {}", dbIdentifier);
             DataSource dataSource = dataSourceManager.getDataSource(dbIdentifier);
             if (dataSource != null) {
-                log.info("[DataSourceInterceptor] DataSource found and set for: {}", dbIdentifier);
+                log.debug("DataSource found and set for: {}", dbIdentifier);
                 DataSourceContextHolder.setDataSource(dataSource);
             } else {
-                log.warn("[DataSourceInterceptor] DataSource NOT FOUND for: {}", dbIdentifier);
+                log.warn("DataSource NOT FOUND for: {}", dbIdentifier);
             }
         } else {
-            log.info("[DataSourceInterceptor] No database identifier found, using default database");
+            log.debug("No database identifier found, using default database");
         }
         return true;
     }

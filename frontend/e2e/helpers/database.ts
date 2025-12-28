@@ -1,5 +1,5 @@
 /**
- * Database isolation helpers for E2E tests using testcontainers.
+ * Database isolation helpers for E2E tests using the backend's e2e-frontend-tests infrastructure.
  *
  * This module provides utilities to create isolated test databases per test
  * to prevent test interference through shared test data.
@@ -17,7 +17,7 @@ export interface DatabaseConfig {
 }
 
 /**
- * Creates a new isolated test database using the backend's testcontainers infrastructure.
+ * Creates a new isolated test database using the backend's e2e-frontend-tests infrastructure.
  *
  * The backend will:
  * 1. Spin up a new PostgreSQL testcontainer instance

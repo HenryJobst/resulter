@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 import java.util.Arrays;
 
 @Component
-@Profile("testcontainers")
+@Profile("e2e-frontend-tests")
 public class DataSourceInterceptor implements HandlerInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(DataSourceInterceptor.class);

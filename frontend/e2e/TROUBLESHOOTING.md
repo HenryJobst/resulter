@@ -1,292 +1,732 @@
 # E2E Tests Troubleshooting Guide
 
-Detaillierte Lösungen für häufige Probleme bei E2E-Tests.
+Detailed solutions for common E2E test problems with database isolation.
 
-## 🔍 Schnelldiagnose
+## 🔍 Quick Diagnostics
 
 ```bash
-# 1. Prüfe ob Server laufen
+# 1. Check if servers are running
 curl http://localhost:5173           # Frontend
 curl http://localhost:8080/actuator/health  # Backend
 
-# 2. Prüfe Keycloak OAuth2 Endpoint
+# 2. Check Keycloak OAuth2 endpoint
 curl -L http://localhost:8080/oauth2/authorization/keycloak
 
-# 3. Teste Auth-Setup mit Debugging
-pnpm test:e2e:auth:headed
+# 3. Test auth setup with debugging
+pnpm playwright test auth-setup.ts --headed
 
-# 4. Sehe komplette Logs
-pnpm test:e2e:auth --debug
+# 4. See complete logs
+pnpm playwright test auth-setup.ts --debug
+
+# 5. Check backend profile
+curl http://localhost:8080/actuator/env | grep -i activeProfiles
+# Should show: "e2e-frontend-tests"
 ```
 
-## ❌ "Timeout 10000ms exceeded" bei Auth-Setup
+## 📋 Common Issues Index
 
-### Problem
+### Authentication Issues
+- ["Timeout 10000ms exceeded" during auth setup](#-timeout-10000ms-exceeded-during-auth-setup)
+- [Wrong credentials / Invalid username or password](#-wrong-credentials--authentication-fails)
+- [Session expired during tests](#-session-expired-during-tests)
+
+### Database Isolation Issues
+- [Database creation fails](#-database-creation-fails)
+- [Wrong database used (data from other tests visible)](#-wrong-database-used)
+- [Database not cleaned up (memory issues)](#-database-not-cleaned-up)
+- [Liquibase migration fails](#-liquibase-migration-fails)
+
+### Server & Configuration Issues
+- [Backend/Frontend not reachable](#-backendfrontend-not-reachable)
+- [e2e/.env.local not found](#-e2eenvlocal-not-found)
+- [API token issues (403/401)](#-api-token-issues)
+
+### Test Execution Issues
+- [Tests run but fail](#-tests-run-but-fail)
+- [Tests work locally but fail in CI](#-tests-work-locally-but-fail-in-ci)
+- [Performance issues / Tests slow](#-performance-issues--tests-slow)
+- [Element not found errors](#-element-not-found-errors)
+
+---
+
+## 🔒 Authentication Issues
+
+### ❌ "Timeout 10000ms exceeded" during auth setup
+
+**Error:**
 ```
 TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
 waiting for navigation to "**/auth/**" until "load"
 ```
 
-### Mögliche Ursachen & Lösungen
+**Possible Causes & Solutions:**
 
-#### 1. Keycloak ist nicht erreichbar
+#### 1. Keycloak is not reachable
 
-**Prüfen:**
+**Check:**
 ```bash
-# Manuell OAuth2 Flow testen
+# Manually test OAuth2 flow
 curl -L http://localhost:8080/oauth2/authorization/keycloak
 ```
 
-**Erwartete Antwort:** Redirect zu Keycloak Login-Seite
+**Expected Response:** Redirect to Keycloak login page
 
-**Wenn nicht:** Backend läuft nicht oder OAuth2 ist nicht konfiguriert
+**If not:** Backend not running or OAuth2 not configured
 
-**Lösung:**
+**Solution:**
 ```bash
-# Backend logs prüfen
+# Check backend logs
 cd ../backend
 ./mvnw spring-boot:run
 
-# In Logs nach Fehlern suchen:
+# Look for errors in logs:
 # - "OAuth2ClientRegistrationRepository"
 # - "Keycloak"
 # - "redirect-uri"
 ```
 
-#### 2. Keycloak URL stimmt nicht
+#### 2. Keycloak URL doesn't match
 
-**Das Script versucht jetzt automatisch mehrere URL-Muster:**
+**The script automatically tries multiple URL patterns:**
 - `**/realms/**/protocol/openid-connect/auth**`
 - `**/auth/realms/**/protocol/openid-connect/auth**`
 - `**/openid-connect/auth**`
 
-**Wenn alle fehlschlagen:** Sehe in den Logs welche URL tatsächlich verwendet wird:
+**If all fail:** Check logs to see actual URL used:
 
 ```bash
-pnpm test:e2e:auth:headed
-# Sehe "Current URL after OAuth2 redirect: ..."
+pnpm playwright test auth-setup.ts --headed
+# See "Current URL after OAuth2 redirect: ..."
 ```
 
-**Lösung:** URL-Pattern in `auth-setup.ts` anpassen
+**Solution:** Adjust URL pattern in `auth-setup.ts`
 
-#### 3. Backend Profile falsch
+#### 3. Wrong backend profile
 
-**Prüfen in `e2e/.env.local`:**
+**Check in `e2e/.env.local`:**
 ```env
-BACKEND_PROFILES=dev  # NICHT "testcontainers" für lokale Tests!
+BACKEND_PROFILES=dev  # NOT "e2e-frontend-tests" for local auth tests!
 ```
 
-**Warum?** `testcontainers` startet isolierte Container, nicht das lokale Keycloak
+**Why?** `e2e-frontend-tests` starts isolated containers, not local Keycloak
 
-**Lösung:**
+**Solution:**
 ```bash
-# e2e/.env.local anpassen
+# Adjust e2e/.env.local
 BACKEND_PROFILES=dev
 
-# Backend neu starten
+# Restart backend
 cd ../backend
 ./mvnw spring-boot:run -Dspring.profiles.active=dev
 ```
 
-#### 4. Session bereits vorhanden
+#### 4. Session already exists
 
-**Das Script überspringt Auth wenn Session < 10 Min alt**
+**The script skips auth if session is <10 minutes old**
 
-**Lösung:**
+**Solution:**
 ```bash
-# Session löschen und neu authentifizieren
+# Delete session and re-authenticate
 rm e2e/.auth/storageState.json
-pnpm test:e2e:auth
+pnpm playwright test auth-setup.ts
 ```
 
-## ❌ "Element not found" Fehler
+---
 
-### Problem
+### ❌ Wrong credentials / Authentication fails
+
+**Error:**
 ```
-Error: locator.fill: Target page, context or browser has been closed
+Error: locator.fill: Target closed
 ```
+or Keycloak shows "Invalid username or password"
 
-### Lösung
+**Solution:**
 
-**1. Selektoren prüfen:**
+**1. Check credentials in Keycloak:**
+
 ```bash
-# Test im headed mode laufen lassen
-pnpm test:e2e:headed
+# Open Keycloak Admin Console
+open https://keycloak.jobst24.de/admin
 
-# Playwright Inspector nutzen
-pnpm test:e2e:debug
-
-# In Inspector: Hover über Elemente und sehe Selektoren
+# Navigate to:
+# Realm: resulter
+# Users → Search for your USERNAME
+# Verify:
+# - User exists
+# - User is "Enabled"
+# - Email is verified (if required)
 ```
 
-**2. Warte auf Element:**
+**2. Check credentials in .env.local:**
+
+```bash
+# Show current credentials (WARNING: password visible!)
+cat e2e/.env.local | grep USERNAME
+cat e2e/.env.local | grep PASSWORD
+
+# Test login manually in browser:
+# 1. Open http://localhost:8080/oauth2/authorization/keycloak
+# 2. Enter USERNAME and PASSWORD
+# 3. Should redirect to http://localhost:5173
+```
+
+**3. Check user roles:**
+
+Some tests require ADMIN role:
+
+```bash
+# In Keycloak Admin Console:
+# Realm: resulter
+# Users → Your User → Role Mappings
+# Add: "ADMIN" or "admin"
+```
+
+---
+
+### ❌ Session expired during tests
+
+**Error:** 401 Unauthorized or redirect to login during test
+
+**Cause:** Session cookie expired (default: 30 minutes)
+
+**Solutions:**
+
+**1. Increase session timeout (Backend):**
+
+```yaml
+# application.yml
+server:
+  servlet:
+    session:
+      timeout: 60m  # Increase from 30m to 60m
+```
+
+**2. Re-authenticate before each test run:**
+
+```bash
+# Delete old session
+rm e2e/.auth/storageState.json
+
+# Run tests (auth-setup runs automatically)
+pnpm test:e2e
+```
+
+**3. Write faster tests:**
+- Reduce `page.waitForTimeout()`
+- Use `expect().toBeVisible()` instead of fixed waits
+
+---
+
+## 💾 Database Isolation Issues
+
+### ❌ Database creation fails
+
+**Error:**
+```
+Failed to create test database: Connection refused
+```
+or
+```
+Failed to create test database: 500 Internal Server Error
+```
+
+**Causes & Solutions:**
+
+#### 1. Backend not running
+
+**Check:**
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+**Solution:**
+```bash
+cd backend
+./start-e2e-frontend-tests.sh
+```
+
+#### 2. Wrong backend profile
+
+**Check active profile:**
+```bash
+curl http://localhost:8080/actuator/env | grep -i activeProfiles
+# Should show: "e2e-frontend-tests"
+```
+
+**Solution:**
+```bash
+# Restart with correct profile
+cd backend
+export SPRING_PROFILES_ACTIVE=e2e-frontend-tests
+./mvnw spring-boot:run
+```
+
+#### 3. Docker not running
+
+**Error:** `Could not start PostgreSQL container`
+
+**Check:**
+```bash
+docker ps
+# Should show running containers
+```
+
+**Solution:**
+```bash
+# Start Docker Desktop
+open -a Docker
+
+# Wait for Docker to start
+docker ps
+```
+
+#### 4. Missing API token
+
+**Error:** `403 Forbidden` or `401 Unauthorized`
+
+**Check:**
+```bash
+# .env file (project root)
+grep CREATEDATABASE_API_TOKEN .env
+
+# e2e/.env.local
+grep CREATEDATABASE_API_TOKEN e2e/.env.local
+```
+
+**Solution:**
+```bash
+# Generate token
+openssl rand -base64 32
+
+# Add to .env and e2e/.env.local
+CREATEDATABASE_API_TOKEN=<generated-token>
+
+# Restart backend
+cd backend
+./start-e2e-frontend-tests.sh
+```
+
+---
+
+### ❌ Wrong database used
+
+**Error:** Test sees data from other tests or default database
+
+**Cause:** Cookie not set or set incorrectly
+
+**Solution:**
+
+**1. Verify cookie is set BEFORE navigation:**
+
 ```typescript
-// FALSCH
-await page.getByLabel('Name').fill('Test')
+// ✅ CORRECT: Set cookie first
+await page.context().addCookies([{
+    name: 'X-DB-Identifier',
+    value: dbId,
+    domain: 'localhost', // Must be 'localhost', not '127.0.0.1'
+    path: '/',
+    httpOnly: false,
+    secure: false,
+    sameSite: 'Lax',
+}])
 
-// RICHTIG
-await page.getByLabel('Name').waitFor()
-await page.getByLabel('Name').fill('Test')
+await page.goto('/event') // Cookie sent automatically
+
+// ❌ WRONG: Navigate first
+await page.goto('/event') // Uses default database!
+await page.context().addCookies([...]) // Too late
 ```
 
-## ❌ Backend/Frontend nicht erreichbar
+**2. Add debug logging:**
 
-### Problem
+```typescript
+test('debug cookie', async ({ page }) => {
+    const dbId = await createTestDatabase()
+
+    await page.context().addCookies([{
+        name: 'X-DB-Identifier',
+        value: dbId,
+        domain: 'localhost',
+        path: '/',
+        httpOnly: false,
+        secure: false,
+        sameSite: 'Lax',
+    }])
+
+    // Verify cookie was set
+    const cookies = await page.context().cookies()
+    console.log('Cookies:', cookies.filter(c => c.name === 'X-DB-Identifier'))
+
+    await page.goto('/event')
+})
+```
+
+**3. Check backend logs:**
+
+```bash
+# Backend logs should show:
+# DataSourceInterceptor - X-DB-Identifier header: <uuid>
+# DataSourceInterceptor - Routing to database: <uuid>
+# DataSourceManager - DataSource found and set for: <uuid>
+
+# If not, cookie is not being sent or read correctly
+```
+
+---
+
+### ❌ Database not cleaned up
+
+**Error:** Too many databases, memory issues, performance degradation
+
+**Cause:** Cleanup scheduler not running or databases still active
+
+**Solutions:**
+
+**1. Check cleanup scheduler is running:**
+
+```bash
+# Backend logs should show every 10 seconds:
+# DataSourceCleanupScheduler - Checking for inactive databases...
+# DataSourceCleanupScheduler - Cleaning up inactive database: <uuid>
+# DataSourceManager - Database dropped: test-db-<uuid>
+```
+
+**2. Verify profile is active:**
+
+```bash
+curl http://localhost:8080/actuator/env | grep "e2e-frontend-tests"
+# Should return: "e2e-frontend-tests"
+```
+
+**3. Check scheduler is enabled:**
+
+```bash
+curl http://localhost:8080/actuator/scheduledtasks
+# Should show: DataSourceCleanupScheduler.cleanupInactiveDatabases
+```
+
+**4. Wait for automatic cleanup:**
+
+Cleanup happens automatically:
+- Last database access recorded
+- Wait 30 seconds
+- Scheduler runs every 10 seconds
+- Detects inactivity >30 seconds
+- Closes connections and drops database
+
+**5. Manual cleanup (if needed):**
+
+```bash
+# Restart backend to clean all test databases
+cd backend
+./start-e2e-frontend-tests.sh
+```
+
+---
+
+### ❌ Liquibase migration fails
+
+**Error:**
+```
+Failed to run Liquibase migrations
+```
+or
+```
+Database migration failed for test-db-<uuid>
+```
+
+**Causes & Solutions:**
+
+**1. Check Liquibase changelog:**
+
+```bash
+# View master changelog
+cat backend/src/main/resources/db/changelog/db.changelog-master.yaml
+
+# Test migrations on default database
+cd backend
+./mvnw liquibase:update -Dspring.profiles.active=e2e-frontend-tests
+```
+
+**2. Check for migration conflicts:**
+
+```bash
+cd backend
+./mvnw liquibase:status -Dspring.profiles.active=e2e-frontend-tests
+```
+
+**3. Clear Liquibase locks:**
+
+```sql
+-- If migrations are stuck with locked status
+-- Connect to database and run:
+UPDATE DATABASECHANGELOGLOCK SET LOCKED = FALSE;
+```
+
+**4. Check migration logs:**
+
+```bash
+# Backend logs should show:
+# DataSourceManager - Running Liquibase migrations for: test-db-<uuid>
+# Liquibase - Successfully acquired change log lock
+# Liquibase - Reading from PUBLIC.DATABASECHANGELOG
+# Liquibase - Successfully released change log lock
+```
+
+---
+
+### ❌ API token issues
+
+**Error:**
+```
+403 Forbidden
+```
+or
+```
+401 Unauthorized
+```
+when calling `/createDatabase`
+
+**Causes & Solutions:**
+
+**1. Token not configured:**
+
+**Check:**
+```bash
+# Backend .env
+grep CREATEDATABASE_API_TOKEN .env
+
+# Frontend e2e/.env.local
+grep CREATEDATABASE_API_TOKEN e2e/.env.local
+```
+
+**Solution:**
+```bash
+# Generate new token
+openssl rand -base64 32
+
+# Set in .env (project root)
+CREATEDATABASE_API_TOKEN=<generated-token>
+
+# Set in e2e/.env.local (same token)
+CREATEDATABASE_API_TOKEN=<generated-token>
+
+# Restart backend
+cd backend
+./start-e2e-frontend-tests.sh
+```
+
+**2. Token mismatch:**
+
+**Verify tokens match:**
+```bash
+# Backend token
+grep CREATEDATABASE_API_TOKEN .env
+
+# Frontend token
+grep CREATEDATABASE_API_TOKEN frontend/e2e/.env.local
+
+# They must be identical!
+```
+
+**3. Test token manually:**
+
+```bash
+# Get token from .env
+TOKEN=$(grep CREATEDATABASE_API_TOKEN .env | cut -d '=' -f2)
+
+# Test endpoint
+curl -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8080/createDatabase
+
+# Should return:
+# {"success":true,"data":{"identifier":"<uuid>"}}
+```
+
+---
+
+## 🖥️ Server & Configuration Issues
+
+### ❌ Backend/Frontend not reachable
+
+**Error:**
 ```
 ✅ Frontend server is running on http://localhost:5173
 ❌ Backend server is not running on http://localhost:8080
 ```
 
-### Lösungen
+**Solutions:**
 
-#### Backend läuft nicht
+#### Backend not running
 
 ```bash
-# Prüfen ob Port belegt ist
+# Check if port is occupied
 lsof -i :8080
 
-# Backend starten
-cd ../backend
-./mvnw spring-boot:run
+# Start backend
+cd backend
+./start-e2e-frontend-tests.sh
 
-# Warten bis:
+# Wait for:
 # "Started ResulterApplication in X.XXX seconds"
 ```
 
-#### Frontend läuft nicht
+#### Frontend not running
 
 ```bash
-# Prüfen ob Port belegt ist
+# Check if port is occupied
 lsof -i :5173
 
-# Frontend starten
+# Start frontend
 pnpm dev
 
-# Warten bis:
+# Wait for:
 # "VITE vX.X.X ready in XXms"
 ```
 
-#### Port bereits belegt
+#### Port already occupied
 
 ```bash
-# Port-Besitzer finden
+# Find process using port
 lsof -i :5173
 lsof -i :8080
 
-# Prozess killen
+# Kill process
 kill -9 <PID>
 
-# Neu starten
+# Restart servers
 pnpm dev  # Frontend
-cd ../backend && ./mvnw spring-boot:run  # Backend
+cd backend && ./start-e2e-frontend-tests.sh  # Backend
 ```
 
-## ❌ "e2e/.env.local not found"
+---
 
-### Problem
+### ❌ e2e/.env.local not found
+
+**Error:**
 ```
 ❌ e2e/.env.local not found
 ```
 
-### Lösung
+**Solution:**
 
-**Erstelle `e2e/.env.local`:**
+Create `e2e/.env.local`:
 
 ```bash
 cat > e2e/.env.local << 'EOF'
+# Backend Configuration
 HOSTNAME=localhost
-FRONTEND_PROTOCOL=http
-PORT=5173
 BACKEND_PROTOCOL=http
 BACKEND_PORT=8080
-BACKEND_PROFILES=dev
+BACKEND_PROFILES=e2e-frontend-tests
+
+# Frontend Configuration
+FRONTEND_PROTOCOL=http
+PORT=5173
 VITE_MODE=development
-USERNAME=dein-username
-PASSWORD=dein-password
+
+# Test Credentials
+USERNAME=your-username
+PASSWORD=your-password
+
+# API Tokens
+CREATEDATABASE_API_TOKEN=your-token-here
 EOF
 ```
 
-**Wichtig:**
-- `USERNAME` und `PASSWORD` müssen in Keycloak existieren
+**Important:**
+- `USERNAME` and `PASSWORD` must exist in Keycloak
 - Realm: `resulter`
-- Client: `resulter-backend` (für BFF)
+- Client: `resulter-backend` (for BFF)
+- Token must match backend `.env` file
 
-## ❌ Authentication fails - Wrong Credentials
+---
 
-### Problem
+## 🐛 Test Execution Issues
+
+### ❌ Element not found errors
+
+**Error:**
 ```
-Error: locator.fill: Target closed
+Error: locator.fill: Target page, context or browser has been closed
 ```
-oder Keycloak zeigt "Invalid username or password"
+or
+```
+Error: locator.click: Element not found
+```
 
-### Lösung
+**Solutions:**
 
-**1. Credentials in Keycloak prüfen:**
+**1. Check selectors:**
 
 ```bash
-# Keycloak Admin Console öffnen
-open https://keycloak.jobst24.de/admin
+# Run test in headed mode
+pnpm playwright test event-form.spec.ts --headed
 
-# Navigiere zu:
-# Realm: resulter
-# Users → Suche nach deinem USERNAME
-# Prüfe:
-# - User existiert
-# - User ist "Enabled"
-# - Email ist verifiziert (falls required)
+# Use Playwright Inspector
+pnpm playwright test event-form.spec.ts --debug
+
+# In Inspector: Hover over elements to see selectors
 ```
 
-**2. Credentials in .env.local prüfen:**
+**2. Wait for elements:**
 
-```bash
-# Zeige aktuelle Credentials (VORSICHT: Passwort sichtbar!)
-cat e2e/.env.local | grep USERNAME
-cat e2e/.env.local | grep PASSWORD
+```typescript
+// ❌ BAD: Element might not be ready
+await page.getByLabel('Name').fill('Test')
 
-# Teste Login manuell im Browser:
-# 1. Öffne http://localhost:8080/oauth2/authorization/keycloak
-# 2. Gebe USERNAME und PASSWORD ein
-# 3. Sollte zu http://localhost:5173 redirecten
+// ✅ GOOD: Wait for element
+await page.getByLabel('Name').waitFor()
+await page.getByLabel('Name').fill('Test')
+
+// ✅ BETTER: Use expect
+await expect(page.getByLabel('Name')).toBeVisible()
+await page.getByLabel('Name').fill('Test')
 ```
 
-**3. User Rollen prüfen:**
+**3. Check element timing:**
 
-Einige Tests benötigen ADMIN-Rolle:
+```typescript
+// Add debug logging
+page.on('load', () => console.log('Page loaded'))
+page.on('domcontentloaded', () => console.log('DOM ready'))
 
-```bash
-# In Keycloak Admin Console:
-# Realm: resulter
-# Users → Dein User → Role Mappings
-# Füge hinzu: "ADMIN" oder "admin"
+await page.goto('/event')
+console.log('Navigation complete')
+
+await page.screenshot({ path: 'debug.png' })
 ```
 
-## ❌ Tests laufen aber schlagen fehl
+---
 
-### Problem
-Tests starten, aber funktionale Assertions schlagen fehl
+### ❌ Tests run but fail
 
-### Debug-Strategien
+**Error:** Tests start but functional assertions fail
+
+**Debug Strategies:**
 
 #### 1. Headed Mode
 
 ```bash
-# Sehe was im Browser passiert
-pnpm test:e2e:headed
+# See what happens in browser
+pnpm playwright test event-form.spec.ts --headed
 
-# Oder spezifischer Test
+# Or specific test
 pnpm playwright test event-form.spec.ts --headed -g "should create event"
 ```
 
 #### 2. Debug Mode (Step-through)
 
 ```bash
-# Playwright Inspector öffnet sich
-pnpm test:e2e:debug
+# Playwright Inspector opens
+pnpm playwright test event-form.spec.ts --debug
 
-# Oder spezifischer Test
+# Or specific test
 pnpm playwright test event-form.spec.ts --debug -g "should create event"
 
-# Im Inspector:
+# In Inspector:
 # - Step through: F10
 # - Resume: F8
 # - Screenshot: Camera Icon
@@ -302,20 +742,20 @@ use: {
 }
 ```
 
-**Dann:**
+**Then:**
 ```bash
 pnpm test:e2e
 
-# Fehler-Screenshots in:
+# Error screenshots in:
 ls test-results/*/screenshots/
 
-# Fehler-Videos in:
+# Error videos in:
 ls test-results/*/videos/
 ```
 
 #### 4. Network Logs
 
-**In Test einfügen:**
+**In test:**
 ```typescript
 page.on('request', request =>
     console.log('>>', request.method(), request.url())
@@ -327,156 +767,204 @@ page.on('response', response =>
 
 #### 5. Console Logs
 
-**In Test einfügen:**
+**In test:**
 ```typescript
 page.on('console', msg => console.log('PAGE LOG:', msg.text()))
 ```
 
-## ❌ "Session expired" während Tests
+---
 
-### Problem
-Mitten im Test: 401 Unauthorized oder Redirect zu Login
+### ❌ Tests work locally but fail in CI
 
-### Ursache
-Session-Cookie abgelaufen (Standard: 30 Min)
+**Error:** Tests pass on local machine ✅, fail in GitHub Actions ❌
 
-### Lösung
-
-**1. Session-Timeout erhöhen (Backend):**
-
-```yaml
-# application.yml
-server:
-  servlet:
-    session:
-      timeout: 60m  # Erhöhe von 30m auf 60m
-```
-
-**2. Vor jedem Test-Run neu authentifizieren:**
-
-```bash
-# Alte Session löschen
-rm e2e/.auth/storageState.json
-
-# Tests laufen lassen (Auth-Setup läuft automatisch)
-pnpm test:e2e
-```
-
-**3. Schnellere Tests schreiben:**
-- Weniger `page.waitForTimeout()`
-- Mehr `expect().toBeVisible()` statt fixer Waits
-
-## ❌ Tests funktionieren lokal, aber nicht in CI
-
-### Problem
-Tests auf lokalem Rechner ✅, in GitHub Actions ❌
-
-### Lösungen
+**Solutions:**
 
 #### 1. Environment Variables
 
-**Prüfe `.github/workflows/*.yml`:**
+**Check `.github/workflows/*.yml`:**
 ```yaml
 env:
   USERNAME: ${{ secrets.TEST_USERNAME }}
   PASSWORD: ${{ secrets.TEST_PASSWORD }}
+  CREATEDATABASE_API_TOKEN: ${{ secrets.CREATEDATABASE_API_TOKEN }}
 ```
 
-**Stelle sicher:**
-- Secrets sind in GitHub Repository Settings definiert
-- Namen stimmen exakt überein (case-sensitive!)
+**Ensure:**
+- Secrets are defined in GitHub Repository Settings
+- Names match exactly (case-sensitive!)
+- All required variables are set
 
-#### 2. Server-Startup in CI
+#### 2. Server Startup in CI
 
-**playwright.config.ts hat `webServer` für CI:**
+**playwright.config.ts has `webServer` for CI:**
 ```typescript
 webServer: process.env.CI ? [...] : undefined
 ```
 
-**Das sollte funktionieren, aber:**
-- Erhöhe Timeout falls Server langsam startet
-- Prüfe CI Logs für Server-Startup-Fehler
+**Should work, but:**
+- Increase timeout if server starts slowly
+- Check CI logs for server startup errors
+- Verify Docker is available in CI
 
 #### 3. Headless vs Headed
 
-CI läuft immer headless. Teste lokal auch headless:
+CI always runs headless. Test locally also headless:
 
 ```bash
-pnpm test:e2e  # Headless wie in CI
+pnpm test:e2e  # Headless like in CI
 ```
 
-## 🛠️ Erweiterte Debugging-Tools
+#### 4. Timing Issues
+
+CI may be slower than local machine:
+
+```typescript
+// Increase timeouts for CI
+test.setTimeout(process.env.CI ? 60000 : 30000)
+```
+
+---
+
+### ❌ Performance issues / Tests slow
+
+**Error:** Tests take >10 minutes, database creation slow
+
+**Causes & Solutions:**
+
+#### 1. Optimize Docker
+
+```bash
+# Increase Docker resources
+# Docker Desktop → Settings → Resources
+# - CPUs: 4+
+# - Memory: 8GB+
+# - Swap: 2GB+
+```
+
+#### 2. Use Suite-Level Sharing
+
+```typescript
+// ❌ BAD: 7 database creations (35 seconds overhead)
+test.beforeEach(async ({ page }) => {
+    const dbId = await createTestDatabase()
+})
+
+// ✅ GOOD: 1 database creation (5 seconds overhead)
+test.beforeAll(async ({ browser }) => {
+    sharedDbId = await createTestDatabase()
+})
+```
+
+#### 3. Reduce Migration Complexity
+
+```xml
+<!-- Skip heavy seed data in test databases -->
+<changeSet id="seed-data" context="!test">
+    <sqlFile path="seed-data.sql"/>
+</changeSet>
+```
+
+#### 4. Enable Parallel Execution
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+    workers: 4, // Safe with database isolation
+    fullyParallel: true,
+})
+```
+
+---
+
+## 🛠️ Advanced Debugging Tools
 
 ### Playwright Trace Viewer
 
-**Nach Test-Failure:**
+**After test failure:**
 ```bash
-# HTML Report öffnen
-pnpm test:e2e:report
+# Open HTML report
+pnpm playwright show-report
 
-# Dann auf failed test klicken
-# Trace wird automatisch angezeigt
+# Click on failed test
+# Trace is shown automatically
 
-# Oder manuell:
+# Or manually:
 pnpm playwright show-trace test-results/*/trace.zip
 ```
 
-**Im Trace Viewer:**
-- Sehe jeden Action Schritt
-- Sehe Screenshots für jeden Step
-- Sehe Network Requests
-- Sehe Console Logs
-- Sehe Source Code
+**In Trace Viewer:**
+- See every action step
+- See screenshots for each step
+- See network requests
+- See console logs
+- See source code
 
 ### Browser Developer Tools
 
 **In headed mode:**
-1. Test mit `--headed` starten
-2. Rechtsklick → Inspect
-3. Developer Tools öffnen sich
-4. Nutze wie normale Web-Development
+1. Start test with `--headed`
+2. Right-click → Inspect
+3. Developer Tools open
+4. Use like normal web development
 
-### Pause im Test
+### Pause in Test
 
-**In Test einfügen:**
+**In test:**
 ```typescript
-await page.pause()  // Playwright Inspector öffnet sich
+await page.pause()  // Playwright Inspector opens
 ```
 
-**Dann:**
-- Inspiziere Seite
-- Führe Commands manuell aus
-- Resume wenn bereit
+**Then:**
+- Inspect page
+- Execute commands manually
+- Resume when ready
 
-## 📞 Hilfe holen
+---
 
-Wenn nichts funktioniert:
+## 📞 Getting Help
 
-1. **Logs sammeln:**
-   ```bash
-   # Backend logs
-   cd ../backend && ./mvnw spring-boot:run > backend.log 2>&1
+If nothing works:
 
-   # Frontend logs
-   pnpm dev > frontend.log 2>&1
+**1. Collect Logs:**
+```bash
+# Backend logs
+cd backend && ./mvnw spring-boot:run > backend.log 2>&1
 
-   # E2E logs
-   pnpm test:e2e:debug > e2e.log 2>&1
-   ```
+# Frontend logs
+pnpm dev > frontend.log 2>&1
 
-2. **Report erstellen:**
-   ```bash
-   pnpm test:e2e:report
-   # Report wird automatisch geöffnet
-   ```
+# E2E logs
+pnpm test:e2e > e2e.log 2>&1
+```
 
-3. **Kontext dokumentieren:**
-   - Welcher Test schlägt fehl?
-   - Error Message
-   - Screenshots/Videos
-   - Logs
-   - Environment (OS, Node version, etc.)
+**2. Create Report:**
+```bash
+pnpm playwright show-report
+# Report opens automatically
+```
 
-4. **Issue erstellen:**
-   - GitHub Issue mit allen Infos
-   - Oder Team-Chat mit Logs
+**3. Document Context:**
+- Which test fails?
+- Error message
+- Screenshots/Videos
+- Logs
+- Environment (OS, Node version, Docker version)
+
+**4. Create Issue:**
+- GitHub Issue with all info
+- Or team chat with logs
+
+---
+
+## 📚 Additional Resources
+
+- [E2E Database Isolation Documentation](./E2E_DATABASE_ISOLATION.md) - Complete technical guide
+- [README.md](./README.md) - E2E test overview and quick start
+- [Playwright Documentation](https://playwright.dev/docs/debug)
+- [Docker Documentation](https://docs.docker.com/)
+
+---
+
+*Last Updated: 2025-12-28*
+*Version: 2.0.0*

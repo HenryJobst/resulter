@@ -13,7 +13,6 @@ import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import type { PersonKey } from '@/features/person/model/person_key'
-import { prettyPrint } from '@base2/pretty-print-object'
 import axiosInstance from '@/features/auth/services/api'
 import { GenericService } from '@/features/generic/services/GenericService'
 
@@ -126,7 +125,6 @@ export class EventService extends GenericService<SportEvent> {
                 { responseType: 'blob' },
             )
             .then((response) => {
-                console.log(prettyPrint(response))
                 // Extrahieren des Dateinamens aus dem Content-Disposition-Header
                 const contentDisposition = response.headers['content-disposition']
                 let filename = 'download.pdf' // Standard-Dateiname, falls nichts im Header gefunden wird

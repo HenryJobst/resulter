@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ################################################################################
-# Start Backend with Testcontainers Profile
+# Start Backend with E2E Frontend Tests Profile
 #
-# This script starts the Spring Boot backend with the 'testcontainers' profile,
+# This script starts the Spring Boot backend with the 'e2e-frontend-tests' profile,
 # which is required for E2E tests with database isolation.
 #
 # Prerequisites:
@@ -12,12 +12,12 @@
 # 3. Ensure Docker is running (required for testcontainers)
 #
 # Usage:
-#   ./start-testcontainers.sh
+#   ./start-e2e-frontend-tests.sh
 #
 # The script will:
 # - Load environment variables from ../.env
 # - Validate that all required sensitive variables are set
-# - Start the Spring Boot application with testcontainers profile
+# - Start the Spring Boot application with e2e-frontend-tests profile
 ################################################################################
 
 # Load environment variables from .env file
@@ -29,13 +29,11 @@ else
     exit 1
 fi
 
-# Set testcontainers specific variables
-export SPRING_PROFILES_ACTIVE=testcontainers
+# Set e2e-frontend-tests specific variables
+export SPRING_PROFILES_ACTIVE=e2e-frontend-tests
 
 # Non-sensitive defaults for development/testing
-export CREATEDATABASE_API_TOKEN=${CREATEDATABASE_API_TOKEN:-test-database-token}
 export RESULTER_SETTINGS_API_TOKEN_CLIENT_AUDIENCE=${RESULTER_SETTINGS_API_TOKEN_CLIENT_AUDIENCE:-resulter-api}
-export PROMETHEUS_API_TOKEN=${PROMETHEUS_API_TOKEN:-test-prometheus-token}
 export OPENAPI_CONFIG_CONTACT_NAME=${OPENAPI_CONFIG_CONTACT_NAME:-"Test User"}
 export OPENAPI_CONFIG_CONTACT_EMAIL=${OPENAPI_CONFIG_CONTACT_EMAIL:-test@example.com}
 
@@ -51,6 +49,8 @@ REQUIRED_VARS=(
     "KEYCLOAK_JWK_SET_URI"
     "RESULTER_MEDIA_FILE_PATH"
     "RESULTER_MEDIA_FILE_PATH_THUMBNAILS"
+    "CREATEDATABASE_API_TOKEN"
+    "PROMETHEUS_API_TOKEN"
 )
 
 MISSING_VARS=()

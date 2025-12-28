@@ -11,7 +11,7 @@ import java.time.Duration;
 import java.util.Map;
 
 @RestController
-@Profile("testcontainers")
+@Profile("e2e-frontend-tests")
 public class DatabaseController {
 
     public static final String TIMEOUT = "timeout";

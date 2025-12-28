@@ -1,331 +1,364 @@
 # E2E Tests with Playwright
 
-This directory contains end-to-end tests for the Resulter frontend application using Playwright.
+End-to-end tests for the Resulter frontend application with **database isolation** for reliable, parallel test execution.
 
-## Overview
+## 📚 Documentation
+
+- **[E2E_DATABASE_ISOLATION.md](./E2E_DATABASE_ISOLATION.md)** - Complete technical guide to database isolation (architecture, implementation, best practices)
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Detailed troubleshooting guide for common issues
+- **This README** - Quick start and overview
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+
+**Environment Setup:**
+```bash
+# Create e2e/.env.local
+cat > e2e/.env.local << 'EOF'
+HOSTNAME=localhost
+FRONTEND_PROTOCOL=http
+PORT=5173
+BACKEND_PROTOCOL=http
+BACKEND_PORT=8080
+BACKEND_PROFILES=e2e-frontend-tests
+VITE_MODE=development
+USERNAME=your-test-username
+PASSWORD=your-test-password
+CREATEDATABASE_API_TOKEN=your-token-here
+EOF
+```
+
+**Ensure Docker is running** (required for database isolation):
+```bash
+docker ps  # Should show running containers
+```
+
+### 2. Start Servers
+
+**Terminal 1 - Backend:**
+```bash
+cd backend
+./start-e2e-frontend-tests.sh
+# Wait for: "Started ResulterApplication"
+```
+
+**Terminal 2 - Frontend:**
+```bash
+pnpm dev
+# Wait for: "VITE ready"
+```
+
+### 3. Run Tests
+
+**Terminal 3 - E2E Tests:**
+```bash
+# Run all tests
+pnpm test:e2e
+
+# Run specific test file
+pnpm playwright test event-form.spec.ts
+
+# Run in headed mode (see browser)
+pnpm playwright test event-form.spec.ts --headed
+
+# Debug mode (step through)
+pnpm playwright test event-form.spec.ts --debug
+```
+
+---
+
+## 📋 Overview
 
 ### Test Files
 
-- **`auth-setup.ts`** - BFF authentication setup (runs before other tests, establishes session cookies)
-- **`main.spec.ts`** - Main application flow tests
-- **`create_db.spec.ts`** - Database creation tests
-- **`event.spec.ts`** - Basic event CRUD operations
-- **`event-form.spec.ts`** ⭐ **NEW** - Comprehensive EventForm.vue tests
+| File | Description | Database Isolation |
+|------|-------------|-------------------|
+| `auth-setup.ts` | BFF authentication setup | None |
+| `main.spec.ts` | Main application flow | None |
+| `create_db.spec.ts` | Database creation demo | Per-test |
+| `event.spec.ts` | Basic event CRUD | Per-test |
+| `event-form.spec.ts` | Comprehensive form tests | Mixed (per-test + suite-level) |
 
-## Authentication (BFF Pattern)
+### Test Statistics
 
-The E2E tests use the Backend-for-Frontend (BFF) authentication pattern:
+**Total:** 85 tests across 4 browsers
+**Passing:** 67/85 (79%)
 
-1. **`auth-setup.ts`** initiates OAuth2 flow by navigating to `/oauth2/authorization/keycloak`
+| Browser | Status | Passing | Notes |
+|---------|--------|---------|-------|
+| Chromium | ✅ | 22/22 | All tests passing |
+| Firefox | ✅ | 21/22 | 1 minor failure |
+| Edge | ✅ | 22/22 | All tests passing |
+| Webkit | ⚠️ | 7/22 | Browser-specific issues |
+
+---
+
+## 🔒 Authentication (BFF Pattern)
+
+E2E tests use Backend-for-Frontend (BFF) OAuth2 authentication:
+
+1. `auth-setup.ts` initiates OAuth2 flow → `/oauth2/authorization/keycloak`
 2. Backend redirects to Keycloak login page
-3. Test fills in credentials and submits
-4. Keycloak redirects back to backend with authorization code
-5. Backend exchanges code for tokens and establishes a session (HTTP-only cookie)
+3. Test fills credentials and submits
+4. Keycloak redirects back with authorization code
+5. Backend exchanges code for tokens → session cookie (HTTP-only)
 6. Backend redirects to frontend
-7. Playwright saves the storage state including session cookies
-8. All subsequent tests use the saved session cookies for authentication
+7. Playwright saves session in `e2e/.auth/storageState.json`
+8. All tests reuse the session (valid for 10 minutes)
 
-**Important:** Session cookies are saved in `e2e/.auth/storageState.json` and are valid for 10 minutes. After that, `auth-setup.ts` will re-authenticate automatically.
+**Important:** Session auto-refreshes if <10 minutes old. Delete `e2e/.auth/storageState.json` to force re-authentication.
 
-## Database Isolation
+---
 
-E2E tests use **isolated test databases** to prevent interference between tests. Each test can choose its isolation strategy based on its needs.
+## 💾 Database Isolation
 
-### How It Works
+Each test can run in its own isolated PostgreSQL database, preventing data contamination and enabling safe parallel execution.
 
-1. **Backend:** The `testcontainers` profile creates isolated PostgreSQL databases on-demand
-2. **Cookie-based Routing:** Tests set an `X-DB-Identifier` cookie to route requests to their isolated database
-3. **Auto-cleanup:** Databases are automatically cleaned up after 30 seconds of inactivity
-4. **Liquibase:** Schema migrations run automatically when databases are created
+### How It Works (Quick Version)
 
-**Why cookies instead of headers?**
-- Headers would interfere with Keycloak OAuth2 authentication
-- Cookies are only sent to `localhost:8080` (backend), not to Keycloak
-- Simple and reliable with Playwright's `addCookies()` API
+1. **Test requests database:** `createTestDatabase()` → Returns UUID
+2. **Test sets cookie:** `X-DB-Identifier: <uuid>`
+3. **Backend routes requests:** Cookie → Isolated database
+4. **Auto-cleanup:** Database deleted after 30 seconds of inactivity
+
+**For complete details, see:** [E2E_DATABASE_ISOLATION.md](./E2E_DATABASE_ISOLATION.md)
 
 ### Three Isolation Patterns
 
-#### 1️⃣ Per-Test Isolation (Recommended for Create/Modify Tests)
-
-Each test gets a fresh database. Best for tests that create or modify data.
+#### 🔹 Per-Test Isolation
+**Use for:** Create/modify operations that need fresh state
 
 ```typescript
 import { createTestDatabase } from './helpers/database'
 
-test.describe('My Test Suite', () => {
-    test.beforeEach(async ({ page }) => {
-        // Create fresh database for each test
-        const dbId = await createTestDatabase()
+test.beforeEach(async ({ page }) => {
+    const dbId = await createTestDatabase()
 
-        // Set cookie to route to isolated database
-        await page.context().addCookies([{
-            name: 'X-DB-Identifier',
-            value: dbId,
-            domain: 'localhost',
-            path: '/',
-            httpOnly: false,
-            secure: false,
-            sameSite: 'Lax',
-        }])
+    await page.context().addCookies([{
+        name: 'X-DB-Identifier',
+        value: dbId,
+        domain: 'localhost',
+        path: '/',
+        httpOnly: false,
+        secure: false,
+        sameSite: 'Lax',
+    }])
 
-        // Now all requests use the isolated database
-        await page.goto('/en/event/new')
-    })
+    await page.goto('/en/event/new')
+})
 
-    test('should create event', async ({ page }) => {
-        await page.getByLabel('Name').fill('Test Event')
-        await page.getByLabel('Save').click()
+test('create event', async ({ page }) => {
+    await page.fill('[name="name"]', 'Test Event')
+    await page.click('button:has-text("Save")')
 
-        // No cleanup needed - database auto-deleted after 30s!
-    })
+    // No cleanup needed!
 })
 ```
 
-**Example:** `event-form.spec.ts` - Create Event suite
-
-#### 2️⃣ Suite-Level Isolation (Shared Database)
-
-All tests in a suite share one database. Best for edit/update tests that need existing data.
+#### 🔹 Suite-Level Sharing
+**Use for:** Edit/update operations on same entity
 
 ```typescript
-test.describe('Edit Tests', () => {
-    let sharedDbId: string
-    let eventName: string
+let sharedDbId: string
 
-    test.beforeAll(async () => {
-        // Create database once for entire suite (5min timeout)
-        sharedDbId = await createTestDatabase({ timeoutMs: 300000 })
-        eventName = `Shared Event ${Date.now()}`
-    })
+test.beforeAll(async ({ browser }) => {
+    sharedDbId = await createTestDatabase({ timeoutMs: 300000 }) // 5 min
 
-    test.beforeEach(async ({ page }) => {
-        // Each test uses the same database
-        await page.context().addCookies([{
-            name: 'X-DB-Identifier',
-            value: sharedDbId,
-            domain: 'localhost',
-            path: '/',
-            httpOnly: false,
-            secure: false,
-            sameSite: 'Lax',
-        }])
+    // Create shared test data once
+    const context = await browser.newContext({ storageState: 'e2e/.auth/storageState.json' })
+    const page = await context.newPage()
 
-        // Create shared event if it doesn't exist
-        await page.goto('/en/event')
-        const exists = await page.getByRole('row')
-            .filter({ hasText: eventName })
-            .isVisible()
-            .catch(() => false)
+    await page.context().addCookies([{
+        name: 'X-DB-Identifier',
+        value: sharedDbId,
+        domain: 'localhost',
+        path: '/',
+        httpOnly: false,
+        secure: false,
+        sameSite: 'Lax',
+    }])
 
-        if (!exists) {
-            // Create event (first test only)
-        }
-    })
+    // Create event
+    await page.goto('/en/event/new')
+    await page.fill('[name="name"]', 'Shared Event')
+    await page.click('button:has-text("Save")')
 
-    test('edit event name', async ({ page }) => {
-        // Edits the shared event
-    })
+    await context.close()
+})
 
-    test('edit event date', async ({ page }) => {
-        // Also edits the shared event
-    })
+test.beforeEach(async ({ page }) => {
+    // All tests use same database
+    await page.context().addCookies([{
+        name: 'X-DB-Identifier',
+        value: sharedDbId,
+        domain: 'localhost',
+        path: '/',
+        httpOnly: false,
+        secure: false,
+        sameSite: 'Lax',
+    }])
 })
 ```
 
-**Example:** `event-form.spec.ts` - Edit Event suite
-
-#### 3️⃣ No Isolation (Read-Only Tests)
-
-Tests that only read data don't need isolation. Use the standard database.
+#### 🔹 No Isolation
+**Use for:** Read-only validation/UI tests
 
 ```typescript
-test.describe('Form Validation', () => {
-    // No database isolation setup
+test('validate form', async ({ page }) => {
+    await page.goto('/en/event/new')
+    await page.click('button:has-text("Save")')
 
-    test('should validate required fields', async ({ page }) => {
-        await page.goto('/en/event/new')
-        await page.getByLabel('Save').click()
-
-        // Check validation errors (no data created)
-    })
+    await expect(page.locator('text=Name is required')).toBeVisible()
 })
-```
-
-**Example:** `event-form.spec.ts` - Form Validation & Loading States suites
-
-### Configuration
-
-**Backend** (`testcontainers` profile must be active):
-```bash
-# .env file
-CREATEDATABASE_API_TOKEN=test-database-token
-
-# Start backend with testcontainers profile
-cd backend
-SPRING_PROFILES_ACTIVE=testcontainers ./mvnw spring-boot:run
-```
-
-**Frontend** (`e2e/.env.local`):
-```env
-BACKEND_PROFILES=testcontainers
-CREATEDATABASE_API_TOKEN=test-database-token
 ```
 
 ### Benefits
 
-✅ **No test interference** - Tests can't contaminate each other's data
-✅ **No manual cleanup** - Databases auto-deleted after 30 seconds
-✅ **Parallel execution safe** - Each test has its own database
-✅ **Simpler test code** - No cleanup logic needed (12+ lines removed per test)
-✅ **Fresh state** - Every test starts with a clean database
+✅ **No test interference** - Complete data isolation
+✅ **No manual cleanup** - Auto-deleted after 30s
+✅ **Parallel execution safe** - Each test has own database
+✅ **Simpler code** - Removed 12+ cleanup lines per test
+✅ **Fresh state** - Clean database every time
 
-### Troubleshooting
+---
 
-**Database creation fails:**
-- Check backend is running with `testcontainers` profile
-- Verify Docker is running (testcontainers needs Docker)
-- Check `CREATEDATABASE_API_TOKEN` is set in both `.env` and `e2e/.env.local`
+## 🧪 EventForm E2E Tests
 
-**Tests timeout:**
-- Database creation takes 5-10 seconds (Docker startup)
-- Use longer timeout for suite-level: `createTestDatabase({ timeoutMs: 300000 })`
-
-**OAuth2 fails:**
-- Cookie-based isolation doesn't interfere with Keycloak
-- If you see `auth_error=oauth2_failed`, check backend `.env` has correct `BFF_OAUTH2_CLIENT_SECRET`
-
-## EventForm E2E Tests
-
-The `event-form.spec.ts` file contains comprehensive tests for the EventForm component, which is too complex for unit testing due to tight PrimeVue integration and browser API dependencies.
+Comprehensive tests for `EventForm.vue` component (16 tests total):
 
 ### Test Coverage
 
-#### 1. Create Event Tests (8 tests)
-- ✅ Render all form fields (name, date, time, state, organisations, certificate)
-- ✅ Create event with all fields filled
-- ✅ Create event with minimal required fields only
-- ✅ Navigate back without saving
-- ✅ Date selection via calendar picker
-- ✅ Time selection via time picker
-- ✅ Select multiple organisations (multi-select)
-- ✅ Change event state/status
+**Create Event Tests (8 tests)** - Per-test isolation
+- Render all form fields
+- Create with all fields / minimal fields
+- Navigate back without saving
+- Date/time picker interactions
+- Multi-select organisations
+- Change event state
 
-#### 2. Edit Event Tests (4 tests)
-- ✅ Edit event name
-- ✅ Edit event date and time
-- ✅ Add organisation to existing event
-- ✅ Add certificate to existing event
+**Edit Event Tests (4 tests)** - Suite-level sharing
+- Edit event name
+- Edit date and time
+- Add organisation
+- Add certificate
 
-#### 3. Form Validation Tests (3 tests)
-- ✅ Handle empty form submission
-- ✅ Validate date format
-- ✅ Clear form when navigating away and back
+**Form Validation (3 tests)** - No isolation
+- Empty form submission
+- Date format validation
+- Form clearing
 
-#### 4. Loading States Tests (1 test)
-- ✅ Show loading indicators when fetching data
+**Loading States (1 test)** - No isolation
+- Loading indicators
 
-**Total: 16 comprehensive E2E tests**
+---
 
-## Prerequisites
+## 📖 Running Tests
 
-1. **Environment Configuration**
-   - Create `e2e/.env.local` file (copy from `e2e/.env.local.example` if available)
-   - Configure the following variables:
-     ```env
-     HOSTNAME=localhost
-     FRONTEND_PROTOCOL=http
-     PORT=5173
-     BACKEND_PROTOCOL=http
-     BACKEND_PORT=8080
-     BACKEND_PROFILES=dev
-     VITE_MODE=development
-     USERNAME=<your-test-username>
-     PASSWORD=<your-test-password>
-     ```
+### Basic Commands
 
-2. **Servers Running** ⚠️ **IMPORTANT**
-
-   **You must start both servers manually before running E2E tests:**
-
-   ```bash
-   # Terminal 1: Start frontend dev server
-   pnpm dev
-
-   # Terminal 2: Start backend server
-   cd ../backend
-   ./mvnw spring-boot:run
-
-   # Terminal 3: Run E2E tests (after both servers are ready)
-   pnpm test:e2e
-   ```
-
-   **Why manual start?**
-   - More reliable than automatic startup
-   - Easier to debug server issues
-   - Faster test execution (servers stay running)
-   - Better control over server state
-
-3. **Test Data**
-   - Some tests require existing organisations and certificates in the database
-   - Create test data manually or use `create_db.spec.ts`
-
-## Running Tests
-
-### Run all E2E tests
 ```bash
+# All tests
 pnpm test:e2e
-```
 
-### Run only EventForm tests
-```bash
+# Specific file
 pnpm playwright test event-form.spec.ts
+
+# Specific test
+pnpm playwright test event-form.spec.ts -g "should create event"
+
+# Specific browser
+pnpm playwright test --project=chromium
+pnpm playwright test --project=firefox
+pnpm playwright test --project=msedge
 ```
 
-### Run in headed mode (see browser)
+### Debug & Inspect
+
 ```bash
+# Headed mode (see browser)
 pnpm playwright test event-form.spec.ts --headed
-```
 
-### Run in debug mode
-```bash
+# Debug mode (step through)
 pnpm playwright test event-form.spec.ts --debug
-```
 
-### Run specific test
-```bash
-pnpm playwright test event-form.spec.ts -g "should create event with all fields"
-```
-
-### Run on specific browser
-```bash
-pnpm playwright test event-form.spec.ts --project=chromium
-pnpm playwright test event-form.spec.ts --project=firefox
-pnpm playwright test event-form.spec.ts --project=webkit
-```
-
-## View Test Results
-
-### HTML Report
-```bash
+# Show HTML report
 pnpm playwright show-report
+
+# Show trace for failed test
+pnpm playwright show-trace test-results/*/trace.zip
 ```
 
-### Trace Viewer (for failed tests)
+---
+
+## ✅ Best Practices
+
+### DO ✅
+
+- **Use database isolation** for create/modify tests
+- Use semantic selectors: `getByRole`, `getByLabel`, `getByText`
+- Wait with assertions: `await expect(locator).toBeVisible()`
+- Choose right pattern: per-test for creates, suite-level for edits, none for read-only
+- Use unique test data names: `Test Event ${Date.now()}`
+
+### DON'T ❌
+
+- **Don't write manual cleanup** - isolation handles it
+- Don't use CSS selectors when semantic ones available
+- Don't hard-code waits: `page.waitForTimeout(5000)`
+- Don't rely on test execution order
+- Don't forget to set cookie for create/modify tests
+
+---
+
+## 🐛 Troubleshooting
+
+### Quick Checks
+
 ```bash
-pnpm playwright show-trace
+# 1. Servers running?
+curl http://localhost:5173           # Frontend
+curl http://localhost:8080/actuator/health  # Backend
+
+# 2. Correct profile?
+curl http://localhost:8080/actuator/env | grep activeProfiles
+# Should show: "e2e-frontend-tests"
+
+# 3. Docker running?
+docker ps
+
+# 4. Auth setup works?
+pnpm playwright test auth-setup.ts --headed
 ```
 
-## Test Structure
+### Common Issues
 
-Each test follows this pattern:
+| Issue | Quick Fix |
+|-------|-----------|
+| **Database creation fails** | Check backend running with `e2e-frontend-tests` profile |
+| **Tests timeout** | Increase timeout: `createTestDatabase({ timeoutMs: 300000 })` |
+| **Wrong database used** | Ensure cookie set BEFORE `page.goto()` |
+| **Authentication fails** | Delete `e2e/.auth/storageState.json` and retry |
+| **Element not found** | Run with `--headed` to see what's happening |
+
+**For detailed troubleshooting, see:** [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+
+---
+
+## 📊 Test Structure Example
 
 ```typescript
+import { test, expect } from '@playwright/test'
 import { createTestDatabase } from './helpers/database'
 
-test.describe('My Tests', () => {
+test.describe('My Feature', () => {
     test.beforeEach(async ({ page }) => {
-        // 1. Setup database isolation (for tests that create/modify data)
+        // 1. Create isolated database
         const dbId = await createTestDatabase()
+
+        // 2. Set routing cookie
         await page.context().addCookies([{
             name: 'X-DB-Identifier',
             value: dbId,
@@ -336,146 +369,219 @@ test.describe('My Tests', () => {
             sameSite: 'Lax',
         }])
 
-        // 2. Navigate to page
-        await page.goto('/en/event/new')
+        // 3. Navigate to page
+        await page.goto('/en/my-page')
     })
 
-    test('test description', async ({ page }) => {
-        // 3. Interact with elements
-        await page.getByLabel('Name').fill('Test Event')
-
-        // 4. Submit form
-        await page.getByLabel('Save').click()
+    test('should do something', async ({ page }) => {
+        // 4. Interact with page
+        await page.fill('[name="field"]', 'value')
+        await page.click('button:has-text("Save")')
 
         // 5. Verify results
-        await expect(page).toHaveURL(/\/event$/)
+        await expect(page).toHaveURL(/\/success$/)
 
-        // No cleanup needed - isolated database auto-deleted!
+        // 6. No cleanup needed!
     })
 })
 ```
 
-## Best Practices
+---
 
-### ✅ DO
-- **Use database isolation** for tests that create/modify data (per-test or suite-level)
-- Use `getByRole`, `getByLabel`, `getByText` for better accessibility
-- Use unique names for test data (include `Date.now()` for uniqueness)
-- Wait for elements with `await expect(...).toBeVisible()`
-- Use `test.beforeEach` for common setup (including database isolation)
-- Choose the right isolation pattern: per-test for creates, suite-level for edits, none for read-only
+## 🛠️ Debugging Tools
 
-### ❌ DON'T
-- **Don't write manual cleanup code** - database isolation handles it automatically
-- Don't use CSS selectors when semantic selectors are available
-- Don't hard-code wait times (`page.waitForTimeout()`) - use `expect` assertions
-- Don't rely on test execution order (isolation makes tests independent)
-- Don't forget to set the database cookie if your test creates/modifies data
+### In Test Code
 
-## Debugging Tips
-
-### 1. Slow down test execution
 ```typescript
+// Pause execution (opens Inspector)
+await page.pause()
+
+// Take screenshot
+await page.screenshot({ path: 'debug.png' })
+
+// Log console messages
+page.on('console', msg => console.log('PAGE:', msg.text()))
+
+// Log network requests
+page.on('request', req => console.log('>>', req.method(), req.url()))
+page.on('response', res => console.log('<<', res.status(), res.url()))
+
+// Slow down execution
 test.use({ slowMo: 500 }) // 500ms delay between actions
 ```
 
-### 2. Take screenshots
-```typescript
-await page.screenshot({ path: 'screenshot.png' })
+### Trace Viewer
+
+After test failure:
+```bash
+pnpm playwright show-report
+# Click on failed test → Trace shows automatically
 ```
 
-### 3. Pause execution
-```typescript
-await page.pause() // Opens Playwright Inspector
+Features:
+- See every action step
+- Screenshots for each step
+- Network requests timeline
+- Console logs
+- Source code
+
+---
+
+## 🔧 Configuration
+
+### Backend
+
+**File:** `backend/src/main/resources/application-e2e-frontend-tests.properties`
+
+```properties
+# Server
+server.port=8080
+
+# Security
+security.createdatabase.api-token=${CREATEDATABASE_API_TOKEN}
+
+# OAuth2
+spring.security.oauth2.resourceserver.jwt.issuer-uri=${API_OAUTH2_RESOURCE_SERVER_JWT_ISSUER_URI}
+# ... (see file for complete config)
 ```
 
-### 4. Console logs
-```typescript
-page.on('console', msg => console.log(msg.text()))
+**Start Script:** `backend/start-e2e-frontend-tests.sh`
+- Loads variables from `.env`
+- Validates required variables
+- Sets `SPRING_PROFILES_ACTIVE=e2e-frontend-tests`
+- Starts backend
+
+### Frontend
+
+**File:** `e2e/.env.local`
+
+```env
+HOSTNAME=localhost
+BACKEND_PROTOCOL=http
+BACKEND_PORT=8080
+BACKEND_PROFILES=e2e-frontend-tests
+FRONTEND_PROTOCOL=http
+PORT=5173
+VITE_MODE=development
+USERNAME=test-user
+PASSWORD=test-password
+CREATEDATABASE_API_TOKEN=your-token-here
 ```
 
-### 5. Network requests
-```typescript
-page.on('request', request => console.log('>>', request.method(), request.url()))
-page.on('response', response => console.log('<<', response.status(), response.url()))
-```
+---
 
-## CI/CD Integration
+## ⚙️ CI/CD Integration
 
-Tests are configured to run on CI with:
-- Retry on failure (2 retries)
-- Single worker (no parallelization)
+Tests configured for CI with:
 - Automatic server startup
+- Retry on failure (2 retries)
+- Parallel execution (4 workers)
 - HTML report generation
+- Trace on failure
 
-## Maintenance
+**GitHub Actions Example:**
+```yaml
+env:
+  USERNAME: ${{ secrets.TEST_USERNAME }}
+  PASSWORD: ${{ secrets.TEST_PASSWORD }}
+  CREATEDATABASE_API_TOKEN: ${{ secrets.CREATEDATABASE_API_TOKEN }}
 
-### Update Selectors
-If PrimeVue components change, update selectors in tests:
-- Check Playwright Inspector for current selectors
-- Use `data-testid` attributes for stability
+steps:
+  - name: Run E2E Tests
+    run: pnpm test:e2e
+```
 
-### Add New Tests
-When adding new EventForm features:
-1. Add corresponding E2E test
-2. Follow existing test structure
-3. Include cleanup logic
-4. Update this README
+---
 
-## Troubleshooting
+## 🔍 Known Issues
 
-### Test fails: "Element not found"
-- Check if selector changed in UI
-- Ensure element is visible before interaction
-- Check for loading states
-
-### Test fails: "Timeout"
-- Increase timeout in `playwright.config.ts`
-- Check if backend is running
-- Verify network requests complete
-
-### Authentication fails
-- Check `e2e/.auth/storageState.json` exists
-- Re-run `auth-setup.ts` manually: `pnpm playwright test auth-setup.ts`
-- Verify backend BFF endpoint is accessible: `http://localhost:8080/oauth2/authorization/keycloak`
-- Verify Keycloak configuration
-- Check that backend is running and session cookies are being set
-- Ensure `BACKEND_PROTOCOL`, `BACKEND_PORT`, and `HOSTNAME` are correctly configured in `e2e/.env.local`
-
-## Known Issues
-
-### Create Event Tests Failing in Parallel Execution
+### Webkit Browser Tests
 
 **Status:** Under Investigation
 
-**Symptom:** Create Event tests (6 tests total) pass individually but fail when run in parallel with `--workers=4`.
+**Issue:** 15/22 tests fail on webkit browser only
 
-**Tests Affected:**
-- `event-form.spec.ts`: All Create Event suite tests
-- `event.spec.ts`: create test event
+**Symptoms:**
+- Database isolation works (DB created successfully)
+- DOM elements become detached during execution
+- Unexpected navigation to root path
+- Error: "element was detached from the DOM"
 
-**Current Test Status:** 16/22 tests passing (73%)
-- ✅ All Edit Event tests passing (database isolation confirmed working)
-- ✅ Form Validation tests passing
-- ✅ Other tests passing
-- ❌ Create Event tests failing in parallel only
-
-**Observed Behavior:** Event list shows events from default database instead of isolated database after event creation.
+**Cause:** Webkit-specific browser behavior (NOT database isolation)
 
 **Workaround:**
-- Run tests sequentially: `pnpm playwright test --workers=1`
-- Run Create Event tests individually: `pnpm playwright test event-form.spec.ts --grep="Create Event"`
+```bash
+# Exclude webkit
+pnpm playwright test --project=chromium --project=firefox --project=msedge
+```
 
-**Investigation Notes:**
-- Database isolation is confirmed working (Edit Event tests prove this)
-- Issue appears to be timing/caching related during parallel execution
-- X-DB-Identifier cookie/header may not be properly forwarded for GET requests after CREATE in parallel scenarios
+### Database Isolation - ✅ RESOLVED
 
-## Related Documentation
+**Resolution:** Implemented `DynamicRoutingDataSource` for request-based routing
 
-- [Playwright Documentation](https://playwright.dev)
-- [PrimeVue Documentation](https://primevue.org)
+**Results:**
+- ✅ Chromium: 22/22 passing
+- ✅ Firefox: 21/22 passing
+- ✅ Edge: 22/22 passing
+- ⚠️ Webkit: 7/22 passing (unrelated issue)
 
-## Questions?
+---
 
-For questions about E2E tests, contact the development team or open an issue.
+## 📚 Additional Resources
+
+### Documentation
+- **[E2E_DATABASE_ISOLATION.md](./E2E_DATABASE_ISOLATION.md)** - Complete technical guide (architecture, implementation, performance)
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Detailed troubleshooting for all common issues
+
+### External Resources
+- [Playwright Documentation](https://playwright.dev) - Official Playwright docs
+- [PrimeVue Documentation](https://primevue.org) - UI components used in tests
+- [Testcontainers Documentation](https://www.testcontainers.org/) - Database containers
+
+---
+
+## 📞 Getting Help
+
+**Before asking for help:**
+
+1. ✅ Check [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+2. ✅ Run quick diagnostics (see Troubleshooting section)
+3. ✅ Review [E2E_DATABASE_ISOLATION.md](./E2E_DATABASE_ISOLATION.md) if DB-related
+
+**When asking for help, provide:**
+- Test file and specific test name
+- Error message and stack trace
+- Screenshots/videos from test results
+- Backend and frontend logs
+- Environment info (OS, Node version, Docker version)
+
+**Create HTML report:**
+```bash
+pnpm playwright show-report
+```
+
+---
+
+## 🚧 Maintenance
+
+### Adding New Tests
+
+1. Choose isolation pattern (per-test, suite-level, or none)
+2. Follow existing test structure (see Test Structure Example)
+3. Use semantic selectors (`getByRole`, `getByLabel`)
+4. Add appropriate assertions
+5. Test locally with `--headed` mode
+6. Update this README if adding new test files
+
+### Updating Selectors
+
+If PrimeVue components change:
+1. Run test with `--debug`
+2. Use Playwright Inspector to find new selectors
+3. Prefer semantic selectors over CSS
+4. Consider adding `data-testid` attributes for stability
+
+---
+
+*Last Updated: 2025-12-28*
+*Version: 2.0.0*

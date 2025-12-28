@@ -87,7 +87,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
 
     @Bean
     @Order(0)
-    @Profile("testcontainers")
+    @Profile("e2e-frontend-tests")
     public SecurityFilterChain createDatabaseSecurityFilterChain(
             HttpSecurity http, CreateDatabaseApiTokenFilter createDatabaseApiTokenFilter) {
         http.securityMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/createDatabase"))

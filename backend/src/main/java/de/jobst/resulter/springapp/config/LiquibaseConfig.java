@@ -9,7 +9,7 @@ import org.springframework.core.io.ResourceLoader;
 import javax.sql.DataSource;
 
 @Configuration
-@Profile("testcontainers")
+@Profile("e2e-frontend-tests")
 @Slf4j
 public class LiquibaseConfig {
 

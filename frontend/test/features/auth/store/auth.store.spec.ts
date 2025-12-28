@@ -10,6 +10,7 @@ vi.mock('@/features/auth/services/bffAuthService', () => ({
         login: vi.fn(),
         logout: vi.fn(),
         initAuth: vi.fn(),
+        getCsrfToken: vi.fn(),
     },
 }))
 

@@ -9,6 +9,7 @@ import { createGlobalMountOptions } from '../../../helpers/testSetup'
 const mockUseMutation = vi.fn()
 const mockQueryClient = {
     invalidateQueries: vi.fn(),
+    refetchQueries: vi.fn(),
 }
 
 vi.mock('@tanstack/vue-query', () => ({
@@ -426,7 +427,8 @@ describe('genericNew', () => {
             expect(mockMutate).toHaveBeenCalledWith(testEntity)
         })
 
-        it('should invalidate queries on mutation success', () => {
+        it('should invalidate queries on mutation success', async () => {
+            vi.useFakeTimers()
             const _wrapper = mount(GenericNew, {
                 props: {
                     entity: mockEntity,
@@ -440,9 +442,13 @@ describe('genericNew', () => {
             })
 
             const onSuccess = mockUseMutation.mock.calls[0][0].onSuccess
-            onSuccess()
+            await onSuccess()
 
-            expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['entities'] })
+            // Fast-forward timers to trigger setTimeout
+            vi.advanceTimersByTime(100)
+
+            expect(mockQueryClient.refetchQueries).toHaveBeenCalledWith({ queryKey: ['entities'] })
+            vi.useRealTimers()
         })
 
         it('should navigate to list page on mutation success', () => {
@@ -502,28 +508,6 @@ describe('genericNew', () => {
             expect(mockReplace).toHaveBeenCalledWith({ name: 'test-prefix-list' })
         })
 
-        it('should log entity data when mutation function is called', () => {
-            const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-
-            const _wrapper = mount(GenericNew, {
-                props: {
-                    entity: mockEntity,
-                    entityService: mockEntityService,
-                    queryKey: ['entities'],
-                    entityLabel: 'entity',
-                    newLabel: 'New Entity',
-                    routerPrefix: 'entity',
-                },
-                global: createGlobalMountOptions(),
-            })
-
-            const mutationFn = mockUseMutation.mock.calls[0][0].mutationFn
-            const testData = { id: 1, name: 'Test' }
-            mutationFn(testData)
-
-            expect(consoleSpy).toHaveBeenCalledWith(testData)
-
-            consoleSpy.mockRestore()
-        })
+        // Test removed: console.log is not part of the mutationFn implementation
     })
 })

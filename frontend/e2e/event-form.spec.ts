@@ -36,6 +36,9 @@ test.describe('EventForm - Create Event', () => {
         // Navigate to event creation page
         await page.goto('/en/event/new')
 
+        // Wait for page to be fully loaded (especially important for Webkit)
+        await page.waitForLoadState('networkidle')
+
         // Wait for form to be loaded
         await expect(page.getByLabel('Name')).toBeVisible()
     })
@@ -319,6 +322,7 @@ test.describe('EventForm - Edit Event', () => {
 
         // Create the event
         await page.goto('/en/event/new')
+        await page.waitForLoadState('networkidle')
         await page.getByLabel('Name').fill(originalEventName)
         await page.locator('#startDate').getByRole('combobox').fill(getFutureDate(560))
         await page.keyboard.press('Escape')
@@ -352,6 +356,7 @@ test.describe('EventForm - Edit Event', () => {
     test('should edit event name', async ({ page }) => {
         // Navigate to event list
         await page.goto('/en/event')
+        await page.waitForLoadState('networkidle')
 
         // Click edit button
         const row = page.getByRole('row').filter({ hasText: createdEventName })
@@ -381,6 +386,7 @@ test.describe('EventForm - Edit Event', () => {
 
     test('should edit event date and time', async ({ page }) => {
         await page.goto('/en/event')
+        await page.waitForLoadState('networkidle')
 
         const row = page.getByRole('row').filter({ hasText: createdEventName })
         await row.getByLabel('Edit').click()
@@ -408,6 +414,7 @@ test.describe('EventForm - Edit Event', () => {
 
     test('should add organisation to existing event', async ({ page }) => {
         await page.goto('/en/event')
+        await page.waitForLoadState('networkidle')
 
         const row = page.getByRole('row').filter({ hasText: createdEventName })
         await row.getByLabel('Edit').click()
@@ -433,6 +440,7 @@ test.describe('EventForm - Edit Event', () => {
 
     test('should add certificate to existing event', async ({ page }) => {
         await page.goto('/en/event')
+        await page.waitForLoadState('networkidle')
 
         const row = page.getByRole('row').filter({ hasText: createdEventName })
         await row.getByLabel('Edit').click()
@@ -465,6 +473,7 @@ test.describe('EventForm - Edit Event', () => {
 test.describe('EventForm - Form Validation', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/en/event/new')
+        await page.waitForLoadState('networkidle')
         await expect(page.getByLabel('Name')).toBeVisible()
     })
 
@@ -504,6 +513,7 @@ test.describe('EventForm - Form Validation', () => {
 
         // Navigate back to new event form
         await page.goto('/en/event/new')
+        await page.waitForLoadState('networkidle')
 
         // Form should be empty/reset
         await expect(page.getByLabel('Name')).toHaveValue('')
@@ -513,6 +523,7 @@ test.describe('EventForm - Form Validation', () => {
 test.describe('EventForm - Loading States', () => {
     test('should show loading indicators when appropriate', async ({ page }) => {
         await page.goto('/en/event/new')
+        await page.waitForLoadState('networkidle')
 
         // Check if dropdowns show loading state when data is being fetched
         // This is dependent on backend data availability

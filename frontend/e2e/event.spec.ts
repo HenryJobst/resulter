@@ -32,6 +32,10 @@ test.describe('Event Creation', () => {
         }])
 
         await page.goto('/en/event/new')
+
+        // Wait for page to be fully loaded (especially important for Webkit)
+        await page.waitForLoadState('networkidle')
+        await expect(page.getByLabel('Name')).toBeVisible()
     })
 
     test('create test event', async ({ page, browserName }) => {

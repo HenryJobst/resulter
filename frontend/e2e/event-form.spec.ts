@@ -99,16 +99,9 @@ test.describe('EventForm - Create Event', () => {
         // Verify redirect to event list
         await expect(page).toHaveURL(/\/event$/)
 
-        // Reload page to bypass TanStack Query cache and ensure fresh data
-        await page.reload()
-        await page.waitForLoadState('networkidle')
-
-        // Wait for table to be fully loaded
-        await page.waitForSelector('table', { state: 'visible' })
-
         // Verify event appears in list
         const row = page.getByRole('row').filter({ hasText: eventTitle })
-        await expect(row).toBeVisible({ timeout: 10000 })
+        await expect(row).toHaveCount(1)
 
         // No cleanup needed - isolated database will be auto-cleaned
     })
@@ -129,16 +122,9 @@ test.describe('EventForm - Create Event', () => {
         // Verify redirect to event list
         await expect(page).toHaveURL(/\/event$/)
 
-        // Reload page to bypass TanStack Query cache and ensure fresh data
-        await page.reload()
-        await page.waitForLoadState('networkidle')
-
-        // Wait for table to be fully loaded
-        await page.waitForSelector('table', { state: 'visible' })
-
         // Verify event appears in list
         const row = page.getByRole('row').filter({ hasText: eventTitle })
-        await expect(row).toBeVisible({ timeout: 10000 })
+        await expect(row).toHaveCount(1)
 
         // No cleanup needed - isolated database
     })
@@ -183,16 +169,9 @@ test.describe('EventForm - Create Event', () => {
         // Verify creation
         await expect(page).toHaveURL(/\/event$/)
 
-        // Reload page to bypass TanStack Query cache and ensure fresh data
-        await page.reload()
-        await page.waitForLoadState('networkidle')
-
-        // Wait for table to be fully loaded
-        await page.waitForSelector('table', { state: 'visible' })
-
         // Verify event appears in list
         const row = page.getByRole('row').filter({ hasText: eventTitle })
-        await expect(row).toBeVisible({ timeout: 10000 })
+        await expect(row).toHaveCount(1)
 
         // No cleanup needed - isolated database
     })
@@ -271,16 +250,9 @@ test.describe('EventForm - Create Event', () => {
         // Verify creation
         await expect(page).toHaveURL(/\/event$/)
 
-        // Reload page to bypass TanStack Query cache and ensure fresh data
-        await page.reload()
-        await page.waitForLoadState('networkidle')
-
-        // Wait for table to be fully loaded
-        await page.waitForSelector('table', { state: 'visible' })
-
         // Verify event appears in list
         const row = page.getByRole('row').filter({ hasText: eventTitle })
-        await expect(row).toBeVisible({ timeout: 10000 })
+        await expect(row).toHaveCount(1)
 
         // No cleanup needed - isolated database
     })
@@ -306,16 +278,9 @@ test.describe('EventForm - Create Event', () => {
         // Verify creation
         await expect(page).toHaveURL(/\/event$/)
 
-        // Reload page to bypass TanStack Query cache and ensure fresh data
-        await page.reload()
-        await page.waitForLoadState('networkidle')
-
-        // Wait for table to be fully loaded
-        await page.waitForSelector('table', { state: 'visible' })
-
         // Verify event appears in list
         const row = page.getByRole('row').filter({ hasText: eventTitle })
-        await expect(row).toBeVisible({ timeout: 10000 })
+        await expect(row).toHaveCount(1)
 
         // No cleanup needed - isolated database
     })
@@ -363,10 +328,8 @@ test.describe('EventForm - Edit Event', () => {
         await expect(page).toHaveURL(/\/event$/, { timeout: 15000 })
 
         // Wait for event to appear in list
-        await page.waitForSelector('table', { state: 'visible' })
-        await page.waitForTimeout(2000)
         const row = page.getByRole('row').filter({ hasText: originalEventName })
-        await expect(row).toBeVisible({ timeout: 15000 })
+        await expect(row).toHaveCount(1)
 
         await context.close()
     })
@@ -463,16 +426,9 @@ test.describe('EventForm - Edit Event', () => {
         // Verify update
         await expect(page).toHaveURL(/\/event$/)
 
-        // Reload page to bypass TanStack Query cache and ensure fresh data
-        await page.reload()
-        await page.waitForLoadState('networkidle')
-
-        // Wait for table to be fully loaded
-        await page.waitForSelector('table', { state: 'visible' })
-
         // Verify event appears in list
         const updatedRow = page.getByRole('row').filter({ hasText: createdEventName })
-        await expect(updatedRow).toBeVisible({ timeout: 10000 })
+        await expect(updatedRow).toHaveCount(1)
     })
 
     test('should add certificate to existing event', async ({ page }) => {
@@ -500,16 +456,9 @@ test.describe('EventForm - Edit Event', () => {
         // Verify update
         await expect(page).toHaveURL(/\/event$/)
 
-        // Reload page to bypass TanStack Query cache and ensure fresh data
-        await page.reload()
-        await page.waitForLoadState('networkidle')
-
-        // Wait for table to be fully loaded
-        await page.waitForSelector('table', { state: 'visible' })
-
         // Verify event appears in list
         const updatedRow = page.getByRole('row').filter({ hasText: createdEventName })
-        await expect(updatedRow).toBeVisible({ timeout: 10000 })
+        await expect(updatedRow).toHaveCount(1)
     })
 })
 

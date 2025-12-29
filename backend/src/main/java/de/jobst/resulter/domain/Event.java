@@ -31,6 +31,7 @@ public class Event implements Comparable<Event> {
     @Nullable
     private DateTime endTime;
 
+    @Nullable
     private EventStatus eventState;
 
     @Association
@@ -47,7 +48,7 @@ public class Event implements Comparable<Event> {
             @Nullable DateTime startTime,
             @Nullable DateTime endTime,
             Collection<OrganisationId> organisationIds,
-            EventStatus eventState,
+            @Nullable EventStatus eventState,
             @Nullable EventCertificateId certificate) {
         this.id = id;
         this.name = eventName;
@@ -62,7 +63,7 @@ public class Event implements Comparable<Event> {
         return Event.of(EventId.empty().value(), name);
     }
 
-    public static Event of(Long id, String name) {
+    public static Event of(@Nullable Long id, String name) {
         return Event.of(id, name, null, null, new HashSet<>(), EventStatus.getDefault());
     }
 
@@ -78,25 +79,25 @@ public class Event implements Comparable<Event> {
     }
 
     public static Event of(
-            Long id,
+            @Nullable Long id,
             String eventName,
             @Nullable ZonedDateTime startTime,
             @Nullable ZonedDateTime endTime,
             Collection<OrganisationId> organisations,
-            EventStatus eventState) {
+            @Nullable EventStatus eventState) {
         return Event.of(id, eventName, startTime, endTime, organisations, eventState, null);
     }
 
     public static Event of(
-            Long id,
+            @Nullable Long id,
             String eventName,
             @Nullable ZonedDateTime startTime,
             @Nullable ZonedDateTime endTime,
             Collection<OrganisationId> organisations,
-            EventStatus eventState,
+            @Nullable EventStatus eventState,
             @Nullable EventCertificateId certificate) {
         return new Event(
-                EventId.of(id),
+                id == null ? EventId.empty() : EventId.of(id),
                 EventName.of(eventName),
                 DateTime.of(startTime),
                 DateTime.of(endTime),
@@ -108,7 +109,7 @@ public class Event implements Comparable<Event> {
     public void update(
             EventName eventName,
             @Nullable DateTime startTime,
-            EventStatus status,
+            @Nullable EventStatus status,
             Collection<OrganisationId> organisations,
             @Nullable EventCertificateId certificate) {
         ValueObjectChecks.requireNotNull(eventName);

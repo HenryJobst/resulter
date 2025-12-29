@@ -5,6 +5,7 @@ import de.jobst.resulter.domain.EventStatus;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import java.sql.Timestamp;
+import org.jspecify.annotations.Nullable;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table(name = "event")
 public class EventDbo {
 
+    @Nullable
     @Id
     @With
     @Column("id")
@@ -37,18 +39,23 @@ public class EventDbo {
     @Column("name")
     private String name;
 
+    @Nullable
     @Column("start_time")
     private Timestamp startTime;
 
+    @Nullable
     @Column("start_time_zone")
     private String startTimeZone;
 
+    @Nullable
     @Column("end_time")
     private Timestamp endTime;
 
+    @Nullable
     @Column("end_time_zone")
     private String endTimeZone;
 
+    @Nullable
     @Column("state")
     private EventStatus state;
 
@@ -109,8 +116,11 @@ public class EventDbo {
                 .map(it -> Event.of(
                         it.id,
                         it.name,
-                        it.startTime != null ? it.startTime.toInstant().atZone(ZoneId.of(it.startTimeZone)) : null,
-                        it.endTime != null ? it.endTime.toInstant().atZone(ZoneId.of(it.endTimeZone)) : null,
+                        it.startTime != null && it.startTimeZone != null?
+                        it.startTime.toInstant().atZone(ZoneId.of(it.startTimeZone)) :
+                        null,
+                        it.endTime != null && it.endTimeZone != null ?
+                        it.endTime.toInstant().atZone(ZoneId.of(it.endTimeZone)) : null,
                         it.organisations.stream()
                                 .map(x -> OrganisationId.of(x.id.getId()))
                                 .toList(),
@@ -122,6 +132,7 @@ public class EventDbo {
         return asEvents(List.of(eventDbo), organisationResolver).getFirst();
     }
 
+    @SuppressWarnings("unused")
     public Event asEvent(Function<Long, Organisation> organisationResolver) {
         return asEvents(List.of(this), organisationResolver).getFirst();
     }

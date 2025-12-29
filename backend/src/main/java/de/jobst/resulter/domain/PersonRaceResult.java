@@ -35,7 +35,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
 
     public static PersonRaceResult of(
             String classResultShortName,
-            Long personId,
+            @Nullable Long personId,
             @Nullable ZonedDateTime startTime,
             @Nullable ZonedDateTime finishTime,
             @Nullable Double punchTime,
@@ -56,7 +56,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
 
     public static PersonRaceResult of(
             String classResultShortName,
-            Long personId,
+            @Nullable Long personId,
             @Nullable ZonedDateTime startTime,
             @Nullable ZonedDateTime finishTime,
             @Nullable Double punchTime,
@@ -66,7 +66,7 @@ public class PersonRaceResult implements Comparable<PersonRaceResult> {
             @Nullable SplitTimeListId splitTimeListId) {
         return new PersonRaceResult(
                 ClassResultShortName.of(classResultShortName),
-                PersonId.of(personId),
+                personId == null ? PersonId.empty() : PersonId.of(personId),
                 DateTime.of(startTime),
                 DateTime.of(finishTime),
                 PunchTime.of(punchTime),

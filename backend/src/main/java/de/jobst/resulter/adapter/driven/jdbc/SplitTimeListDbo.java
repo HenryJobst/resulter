@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @Table(name = "split_time_list")
 public class SplitTimeListDbo {
 
+    @Nullable
     @Id
     @With
     @Column("id")

@@ -77,7 +77,7 @@ public final class Course implements Comparable<Course> {
     }
 
     public static Course of(
-            EventId eventId, String courseName, Double courseLength, Double courseClimb, Integer numberOfControls) {
+            EventId eventId, String courseName, @Nullable Double courseLength, @Nullable Double courseClimb, @Nullable Integer numberOfControls) {
         return new Course(
                 CourseId.empty(),
                 eventId,

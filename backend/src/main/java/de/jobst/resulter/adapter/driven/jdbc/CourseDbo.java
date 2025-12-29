@@ -31,20 +31,23 @@ public class CourseDbo {
     @Column("name")
     private String name;
 
+    @Nullable
     @Column("length")
     private Double length;
 
+    @Nullable
     @Column("climb")
     private Double climb;
 
+    @Nullable
     @Column("controls")
     private Integer controls;
 
     public CourseDbo(AggregateReference<EventDbo, Long> eventId,
                      String name,
-                     Double length,
-                     Double climb,
-                     Integer controls) {
+                     @Nullable Double length,
+                     @Nullable Double climb,
+                     @Nullable Integer controls) {
         this.id = null;
         this.eventId = eventId;
         this.name = name;
@@ -58,19 +61,19 @@ public class CourseDbo {
             return null;
         }
         CourseDbo courseDbo;
-        int numberOfControls = course.getNumberOfControls().value() != null ? course.getNumberOfControls().value() : 0;
         if (course.getId().isPersistent()) {
             courseDbo = Objects.requireNonNull(dboResolvers.getCourseDboResolver()).findDboById(course.getId());
             courseDbo.setEventId(AggregateReference.to(course.getEventId().value()));
             courseDbo.setName(course.getCourseName().value());
             courseDbo.setLength(course.getCourseLength().value());
             courseDbo.setClimb(course.getCourseClimb().value());
-            courseDbo.setControls(numberOfControls);
+            courseDbo.setControls(course.getNumberOfControls().value());
         } else {
             courseDbo = new CourseDbo(AggregateReference.to(course.getEventId().value()),
                 course.getCourseName().value(),
                 course.getCourseLength().value(),
-                course.getCourseClimb().value(), numberOfControls);
+                course.getCourseClimb().value(),
+                course.getNumberOfControls().value());
         }
         return courseDbo;
     }

@@ -418,5 +418,84 @@
         "successfully_retrieved": "Successfully retrieved",
         "bad_request": "Invalid data on request",
         "entity_lock_conflict": "Entity already changed, please reload"
+    },
+    "cupStatistics": {
+        "header": {
+            "overall": "Overall Standings"
+        },
+        "eventsList": {
+            "title": "Events",
+            "event": "Event",
+            "name": "Name"
+        },
+        "resultsTable": {
+            "position": "Position",
+            "name": "Name",
+            "total": "Total",
+            "noPoints": "No points available yet."
+        },
+        "overallStatistics": {
+            "title": "Overall Statistics",
+            "totalRunners": "Number of Runners",
+            "totalOrganisations": "Number of Clubs",
+            "totalStarts": "Total Starts",
+            "nonScoringStarts": "(of which {count} / {percentage} non-scoring)",
+            "runnersPerOrganisation": "Runners per Club",
+            "startsPerOrganisation": "Starts per Club",
+            "nonScoringAverage": "(of which {average} non-scoring)",
+            "startsPerRunner": "Starts per Runner"
+        },
+        "organisationTable": {
+            "title": "Statistics by Club",
+            "organisation": "Club",
+            "runners": "Runners",
+            "starts": "Starts",
+            "nonScoring": "N/S",
+            "startsPerRunner": "Starts/Runner",
+            "nonScoringPerRunner": "N/S/Runner",
+            "nonScoringRatio": "N/S/Starts"
+        },
+        "help": {
+            "title": "Help: Statistics Explanation",
+            "overview": {
+                "heading": "Overview",
+                "text": "The statistics show a summary of all participations in the North-East Ranking (NOR). It includes both scoring and non-scoring starts."
+            },
+            "overallStats": {
+                "heading": "Overall Statistics",
+                "totalRunners": "Total number of different persons who participated in at least one competition.",
+                "totalOrganisations": "Number of different clubs whose members participated.",
+                "totalStarts": "Total number of all starts (including non-scoring starts). In brackets: number and percentage of non-scoring starts.",
+                "runnersPerOrganisation": "Average number of runners per club (total runners ÷ number of clubs).",
+                "startsPerOrganisation": "Average number of starts per club (total starts ÷ number of clubs). In brackets: average non-scoring starts per club.",
+                "startsPerRunner": "Average number of starts per runner (total starts ÷ number of runners). In brackets: average non-scoring starts per runner."
+            },
+            "organisationStats": {
+                "heading": "Statistics by Club",
+                "intro": "The table shows detailed statistics for each participating club, sorted by number of runners (descending).",
+                "organisation": "Name of the club.",
+                "runners": "Number of orienteers from this club (number of different persons).",
+                "starts": "Total number of all starts from this club (scoring and non-scoring).",
+                "nonScoring": "Number of non-scoring starts. This includes races with status such as DNF (did not finish), disqualification, missing punch, etc.",
+                "startsPerRunner": "Average number of starts per runner of the club (Starts ÷ Runners).",
+                "nonScoringPerRunner": "Average number of non-scoring starts per runner (N/S ÷ Runners).",
+                "nonScoringRatio": "Percentage of non-scoring starts out of all starts (N/S ÷ Starts × 100%)."
+            },
+            "nonScoringExplanation": {
+                "heading": "What does \"non-scoring\" (N/S) mean?",
+                "intro": "Non-scoring starts are participations that do not count towards the points scoring. These include:",
+                "dnf": "Runner did not finish",
+                "disqualified": "Rule violation",
+                "missingPunch": "Control not punched or incorrectly punched",
+                "overTime": "Maximum running time exceeded",
+                "dns": "Did not start",
+                "notCompeting": "Running not competing",
+                "note": "These starts are counted to capture actual participation activity, but do not count towards the NOR point scoring."
+            },
+            "calculationNote": {
+                "title": "📊 Calculation Note",
+                "text": "The statistics only consider runners and starts that meet the NOR criteria (e.g., club membership in the NOR organisation). All average values are rounded to two decimal places."
+            }
+        }
     }
 }

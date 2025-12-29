@@ -110,6 +110,12 @@ public class CupController {
         Map<Long, PersonDto> personsDto = cupDetailed.getPersonsById().entrySet().stream()
                 .collect(Collectors.toMap(entry -> entry.getKey().value(), entry -> PersonDto.from(entry.getValue())));
 
+        // Convert cup statistics
+        CupStatisticsDto cupStatisticsDto = CupStatisticsDto.from(
+                cupDetailed.getCupStatistics(),
+                countryService,
+                organisationService);
+
         return CupDetailedDto.from(
                 ObjectUtils.isNotEmpty(cupDetailed.getId())
                         ? cupDetailed.getId().value()
@@ -140,7 +146,8 @@ public class CupController {
                                                 .map(PersonWithScoreDto::from)
                                                 .toList()))
                                 .toList(),
-                personsDto);
+                personsDto,
+                cupStatisticsDto);
     }
 
     @PutMapping("/cup/{id}")

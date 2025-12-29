@@ -19,15 +19,19 @@ public class CupDetailed extends Cup {
 
     private final Map<PersonId, Person> personsById;
 
+    private final CupStatistics cupStatistics;
+
     public CupDetailed(
             Cup cup,
             List<EventRacesCupScore> eventRacesCupScore,
             List<AggregatedPersonScores> aggregatedPersonScoresList,
-            Map<PersonId, Person> personsById) {
+            Map<PersonId, Person> personsById,
+            CupStatistics cupStatistics) {
         super(cup.getId(), cup.getName(), cup.getType(), cup.getYear(), cup.getEventIds());
 
         this.eventRacesCupScore = eventRacesCupScore;
         this.personsById = personsById;
+        this.cupStatistics = cupStatistics;
         if (cup.getType().isGroupedByOrganisation()) {
             initializeGroupedByOrganisationData();
         } else {

@@ -111,6 +111,7 @@ const aggregatedPersonScores: Ref<AggregatedPersonScores[]> = computed(
             :event-races-cup-scores="eventRacesCupScores"
             :aggregated-person-scores="aggregatedPersonScores"
             :persons="cupData.persons"
+            :cup-statistics="cupData.cupStatistics"
         />
     </div>
 </template>

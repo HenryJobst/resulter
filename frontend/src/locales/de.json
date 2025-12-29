@@ -418,5 +418,84 @@
         "successfully_retrieved": "Erfolgreich abgerufen",
         "bad_request": "Fehlerhafte Anfrage",
         "entity_lock_conflict": "Daten bereits geändert, bitte neu laden"
+    },
+    "cupStatistics": {
+        "header": {
+            "overall": "Gesamtwertung"
+        },
+        "eventsList": {
+            "title": "Läufe",
+            "event": "Lauf",
+            "name": "Name"
+        },
+        "resultsTable": {
+            "position": "Platz",
+            "name": "Name",
+            "total": "Gesamt",
+            "noPoints": "Noch keine Punkte vorhanden."
+        },
+        "overallStatistics": {
+            "title": "Gesamtstatistik",
+            "totalRunners": "Anzahl der Läufer",
+            "totalOrganisations": "Anzahl der Vereine",
+            "totalStarts": "Gesamtstarts",
+            "nonScoringStarts": "(davon {count} / {percentage} ohne Wertung)",
+            "runnersPerOrganisation": "Läufer pro Verein",
+            "startsPerOrganisation": "Starts pro Verein",
+            "nonScoringAverage": "(davon {average} ohne Wertung)",
+            "startsPerRunner": "Starts pro Läufer"
+        },
+        "organisationTable": {
+            "title": "Statistik nach Verein",
+            "organisation": "Verein",
+            "runners": "OLer",
+            "starts": "Starts",
+            "nonScoring": "o.W.",
+            "startsPerRunner": "Starts/OLer",
+            "nonScoringPerRunner": "o.W./OLer",
+            "nonScoringRatio": "o.W./Starts"
+        },
+        "help": {
+            "title": "Hilfe: Statistik-Erklärung",
+            "overview": {
+                "heading": "Übersicht",
+                "text": "Die Statistik zeigt eine Zusammenfassung aller Teilnahmen an der Nord-Ost-Rangliste (NOR). Sie umfasst sowohl gewertete als auch nicht gewertete Starts."
+            },
+            "overallStats": {
+                "heading": "Gesamtstatistik",
+                "totalRunners": "Gesamtzahl der unterschiedlichen Personen, die an mindestens einem Wettkampf teilgenommen haben.",
+                "totalOrganisations": "Anzahl der verschiedenen Vereine, deren Mitglieder teilgenommen haben.",
+                "totalStarts": "Gesamtanzahl aller Starts (einschließlich Starts ohne Wertung). In Klammern: Anzahl und Prozentsatz der Starts ohne Wertung.",
+                "runnersPerOrganisation": "Durchschnittliche Anzahl von Läufern pro Verein (Gesamtläufer ÷ Anzahl Vereine).",
+                "startsPerOrganisation": "Durchschnittliche Anzahl von Starts pro Verein (Gesamtstarts ÷ Anzahl Vereine). In Klammern: durchschnittliche Starts ohne Wertung pro Verein.",
+                "startsPerRunner": "Durchschnittliche Anzahl von Starts pro Läufer (Gesamtstarts ÷ Anzahl Läufer). In Klammern: durchschnittliche Starts ohne Wertung pro Läufer."
+            },
+            "organisationStats": {
+                "heading": "Statistik nach Verein",
+                "intro": "Die Tabelle zeigt detaillierte Statistiken für jeden teilnehmenden Verein, sortiert nach Anzahl der Läufer (absteigend).",
+                "organisation": "Name des Vereins.",
+                "runners": "Anzahl der Orientierungsläufer aus diesem Verein (Anzahl unterschiedlicher Personen).",
+                "starts": "Gesamtanzahl aller Starts dieses Vereins (gewertete und nicht gewertete).",
+                "nonScoring": "Anzahl der Starts ohne Wertung. Dies umfasst Läufe mit Status wie DNF (aufgegeben), Disqualifikation, Fehlstempel usw.",
+                "startsPerRunner": "Durchschnittliche Anzahl von Starts pro Läufer des Vereins (Starts ÷ OLer).",
+                "nonScoringPerRunner": "Durchschnittliche Anzahl von Starts ohne Wertung pro Läufer (o.W. ÷ OLer).",
+                "nonScoringRatio": "Prozentualer Anteil der Starts ohne Wertung an allen Starts (o.W. ÷ Starts × 100%)."
+            },
+            "nonScoringExplanation": {
+                "heading": "Was bedeutet \"ohne Wertung\" (o.W.)?",
+                "intro": "Starts \"ohne Wertung\" sind Teilnahmen, die nicht in die Punktewertung einfließen. Dazu gehören:",
+                "dnf": "Läufer hat aufgegeben",
+                "disqualified": "Regelverstoß",
+                "missingPunch": "Posten nicht oder falsch angelaufen",
+                "overTime": "Maximale Laufzeit überschritten",
+                "dns": "Nicht gestartet",
+                "notCompeting": "Außer Konkurrenz gelaufen",
+                "note": "Diese Starts werden gezählt, um die tatsächliche Teilnahmeaktivität zu erfassen, fließen aber nicht in die Punktevergabe der NOR ein."
+            },
+            "calculationNote": {
+                "title": "📊 Hinweis zur Berechnung",
+                "text": "Die Statistik berücksichtigt nur Läufer und Starts, die den NOR-Kriterien entsprechen (z.B. Vereinszugehörigkeit zur NOR-Organisation). Alle Durchschnittswerte werden auf zwei Dezimalstellen gerundet."
+            }
+        }
     }
 }

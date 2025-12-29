@@ -459,10 +459,13 @@ public class CupServiceImpl implements CupService {
                 .collect(Collectors.toSet());
 
         // Count unique organizations
-        Set<OrganisationId> uniqueOrganisations =
-            allPersonRaceResults.stream()
-                .map(PersonRaceResultWithOrg::organisationId)
-                .filter(Objects::nonNull)
+        Set<OrganisationId> uniqueOrganisations = allPersonRaceResults.stream()
+                .<OrganisationId>mapMulti((prr, consumer) -> {
+                    OrganisationId orgId = prr.organisationId();
+                    if (orgId != null) {
+                        consumer.accept(orgId);
+                    }
+                })
                 .collect(Collectors.toSet());
 
         // Count total starts and non-scoring starts
@@ -481,10 +484,10 @@ public class CupServiceImpl implements CupService {
 
         // Calculate per-organization statistics
         List<OrganisationStatistics> orgStats = uniqueOrganisations.stream()
-                .map(orgId -> {
+                .<OrganisationStatistics>mapMulti((orgId, consumer) -> {
                     Organisation org = organisationById.get(orgId);
                     if (org == null) {
-                        return null;
+                        return;
                     }
 
                     List<PersonRaceResultWithOrg> orgResults = allPersonRaceResults.stream()
@@ -500,14 +503,13 @@ public class CupServiceImpl implements CupService {
                             .filter(prr -> !prr.personRaceResult().getState().equals(ResultStatus.OK))
                             .count();
 
-                    return OrganisationStatistics.of(
+                    consumer.accept(OrganisationStatistics.of(
                             org,
                             orgPersons.size(),
                             orgTotalStarts,
                             orgNonScoringStarts
-                    );
+                    ));
                 })
-                .filter(Objects::nonNull)
                 .sorted()  // Sort by runner count descending
                 .toList();
 

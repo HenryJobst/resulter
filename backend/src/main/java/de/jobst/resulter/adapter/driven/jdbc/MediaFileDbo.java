@@ -15,6 +15,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table(name = "media_file")
 public class MediaFileDbo {
 
+    @Nullable
     @Id
     @With
     @Column("id")
@@ -32,6 +33,7 @@ public class MediaFileDbo {
     @Column("file_size")
     private Long fileSize;
 
+    @Nullable
     @Column("description")
     private String description;
 

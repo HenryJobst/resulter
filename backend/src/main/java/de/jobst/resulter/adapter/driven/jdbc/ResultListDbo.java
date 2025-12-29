@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Table(name = "result_list")
 public class ResultListDbo {
 
+    @Nullable
     @Id
     @With
     @Column("id")
@@ -39,12 +41,15 @@ public class ResultListDbo {
     @Column("race_id")
     private AggregateReference<RaceDbo, Long> raceId;
 
+    @Nullable
     @Column("creator")
     private String creator;
 
+    @Nullable
     @Column("create_time")
     private Timestamp createTime;
 
+    @Nullable
     @Column("create_time_zone")
     private String createTimeZone;
 
@@ -56,9 +61,9 @@ public class ResultListDbo {
 
     public ResultListDbo(AggregateReference<EventDbo, Long> eventId,
                          AggregateReference<RaceDbo, Long> raceId,
-                         String creator,
-                         Timestamp createTime,
-                         String createTimeZone) {
+                         @Nullable String creator,
+                         @Nullable Timestamp createTime,
+                         @Nullable String createTimeZone) {
         this.id = null;
         this.eventId = eventId;
         this.raceId = raceId;

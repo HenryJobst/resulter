@@ -19,11 +19,13 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
     @Column("split_time_list_id")
     private Long splitTimeListId;
 
+    @Nullable
     @Column("control_code")
     private String controlCode;
 
+    @Nullable
     @Column("punch_time")
-    @Nullable private Double punchTime;
+    private Double punchTime;
 
     public static SplitTimeDbo from(SplitTime splitTime) {
         return new SplitTimeDbo(

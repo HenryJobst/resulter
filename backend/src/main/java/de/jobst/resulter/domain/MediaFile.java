@@ -88,7 +88,7 @@ public class MediaFile implements Comparable<MediaFile> {
             MediaFileName mediaFileName,
             MediaFileContentType mediaFileContentType,
             MediaFileSize mediaFileSize,
-            MediaFileDescription mediaFileDescription) {
+            @Nullable MediaFileDescription mediaFileDescription) {
         this.mediaFileName = mediaFileName;
         this.contentType = mediaFileContentType;
         this.mediaFileSize = mediaFileSize;

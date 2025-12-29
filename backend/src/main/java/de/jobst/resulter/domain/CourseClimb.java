@@ -1,15 +1,18 @@
 package de.jobst.resulter.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
 
 @ValueObject
-public record CourseClimb(Double value) implements Comparable<CourseClimb> {
-    public static CourseClimb of(Double courseClimb) {
+public record CourseClimb(@Nullable Double value) implements Comparable<CourseClimb> {
+    public static CourseClimb of(@Nullable Double courseClimb) {
         return new CourseClimb(courseClimb);
     }
 
     @Override
     public int compareTo(CourseClimb o) {
-        return value.compareTo(o.value);
+        return Objects.compare(value, o.value, Double::compareTo);
     }
 }

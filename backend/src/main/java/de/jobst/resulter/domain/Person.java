@@ -39,8 +39,8 @@ public record Person(@Identity PersonId id, PersonName personName, @Nullable Bir
             gender);
     }
 
-    public static Person of(long id, String familyName, String givenName, @Nullable LocalDate birthDate, Gender gender) {
-        return new Person(PersonId.of(id),
+    public static Person of(@Nullable Long id, String familyName, String givenName, @Nullable LocalDate birthDate, Gender gender) {
+        return new Person(id == null ? PersonId.empty() : PersonId.of(id),
             PersonName.of(FamilyName.of(familyName), GivenName.of(givenName)),
             BirthDate.of(birthDate),
             gender);

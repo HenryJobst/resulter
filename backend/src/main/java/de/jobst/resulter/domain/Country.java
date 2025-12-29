@@ -27,8 +27,8 @@ public final class Country {
         return Country.of(CountryId.empty().value(), code, name);
     }
 
-    public static Country of(long id, String code, @Nullable String name) {
-        return new Country(CountryId.of(id), CountryCode.of(code), CountryName.of(name));
+    public static Country of(@Nullable Long id, String code, @Nullable String name) {
+        return new Country(id == null ? CountryId.empty() : CountryId.of(id), CountryCode.of(code), CountryName.of(name));
     }
 
     public static Country of(CountryCode code, @Nullable CountryName name) {

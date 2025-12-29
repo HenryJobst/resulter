@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.*;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table(name = "organisation")
 public class OrganisationDbo {
 
+    @Nullable
     @Id
     @With
     @Column("id")
@@ -39,6 +41,7 @@ public class OrganisationDbo {
     @MappedCollection(idColumn = "parent_organisation_id")
     private Set<OrganisationOrganisationDbo> childOrganisations = new HashSet<>();
 
+    @Nullable
     @Column(value = "country_id")
     private AggregateReference<CountryDbo, Long> country;
 

@@ -43,12 +43,12 @@ public class Cup implements Comparable<Cup> {
     }
 
     public static Cup of(
-            long id,
+            @Nullable Long id,
             String cupName,
             CupType type,
             Year year,
             Collection<EventId> events) {
-        return new Cup(CupId.of(id), CupName.of(cupName), type, year, events);
+        return new Cup(id == null ? CupId.empty() : CupId.of(id), CupName.of(cupName), type, year, events);
     }
 
     @Override

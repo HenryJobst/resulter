@@ -57,19 +57,19 @@ public final class Organisation implements Comparable<Organisation> {
                 new ArrayList<>());
     }
 
-    public static Organisation of(long id, String name, String shortName) {
+    public static Organisation of(@Nullable Long id, String name, String shortName) {
         return Organisation.of(id, name, shortName, OrganisationType.OTHER.value(), null, new ArrayList<>());
     }
 
     public static Organisation of(
-            long id,
+            @Nullable Long id,
             String name,
             String shortName,
             String type,
             @Nullable CountryId country,
             Collection<OrganisationId> childOrganisations) {
         return new Organisation(
-                OrganisationId.of(id),
+                id == null ? OrganisationId.empty() : OrganisationId.of(id),
                 OrganisationName.of(name),
                 OrganisationShortName.of(shortName),
                 OrganisationType.fromValue(type),

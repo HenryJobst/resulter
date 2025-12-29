@@ -12,8 +12,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@primeuix/themes':
-        specifier: ^2.0.1
-        version: 2.0.1
+        specifier: ^2.0.2
+        version: 2.0.2
       '@tanstack/vue-query':
         specifier: ^5.92.1
         version: 5.92.1(vue@3.5.25(typescript@5.9.3))
@@ -1807,8 +1807,8 @@ packages:
   '@primeuix/styles@2.0.2':
     resolution: {integrity: sha512-LNtkJsTonNHF5ag+9s3+zQzm00+LRmffw68QRIHy6S/dam1JpdrrAnUzNYlWbaY7aE2EkZvQmx7Np7+PyHn+ow==}
 
-  '@primeuix/themes@2.0.1':
-    resolution: {integrity: sha512-kw+EPdklf3g2E9saGiKVIwhYelLs0wMu3CHMOlU2XkoIA07ncmRx3k1/5qrmRMRY5wiX29MEySkj64yyJTeVbQ==}
+  '@primeuix/themes@2.0.2':
+    resolution: {integrity: sha512-prwQvA3tDGBz8yWSUenaJUttEMCEvPvxwOfFhDPmSe1vwsfVKL2Nmh5eZvtPFQnxmIOPsHZS7zc0/L3CzJ83Eg==}
 
   '@primeuix/utils@0.6.3':
     resolution: {integrity: sha512-/SLNQSKQ73WbBIsflKVqbpVjCfFYvQO3Sf1LMheXyxh8JqxO4M63dzP56wwm9OPGuCQ6MYOd2AHgZXz+g7PZcg==}
@@ -6034,10 +6034,12 @@ packages:
   whatwg-encoding@2.0.0:
     resolution: {integrity: sha512-p41ogyeMUrw3jWclHWTQg1k05DSVXPLcVxRTYsXUk+ZooOCZLcoYgPZ/HL/D/N+uQPOtcp1me1WhBEaX02mhWg==}
     engines: {node: '>=12'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
@@ -8102,7 +8104,7 @@ snapshots:
     dependencies:
       '@primeuix/styled': 0.7.4
 
-  '@primeuix/themes@2.0.1':
+  '@primeuix/themes@2.0.2':
     dependencies:
       '@primeuix/styled': 0.7.4
 

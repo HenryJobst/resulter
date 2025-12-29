@@ -56,7 +56,7 @@ cd frontend && pnpm test:unit src/features/event/services/EventService.spec.ts
 
 ## Technology Stack
 
-**Backend:** Java 21, Spring Boot 4.0.0, Spring Data JDBC (not JPA), PostgreSQL/H2, Liquibase, Maven, iText PDF, Testcontainers
+**Backend:** Java 21, Spring Boot 4.0.1, Spring Data JDBC (not JPA), PostgreSQL/H2, Liquibase, Maven, iText PDF, Testcontainers
 
 **Frontend:** TypeScript, Vue 3 (Composition API), Vite, Pinia, Tanstack Query, PrimeVue 4, Tailwind CSS, Vitest, Playwright/Cypress, pnpm, Nx
 
@@ -485,6 +485,6 @@ XML result files (IOF format) parsed in `backend/src/main/java/de/jobst/resulter
 
 ## Version & License
 
-- Current version: 4.0.0
+- Current version: 4.1.0
 - License: CC BY-NC-ND 4.0 (non-commercial use only)
 - Main branch: `main` for stable releases

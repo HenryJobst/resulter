@@ -149,13 +149,14 @@ public class CupServiceImpl implements CupService {
         Map<PersonId, Person> personsById = personRepository.findAllById(allPersonIds);
 
         // Calculate statistics including ALL starts (OK and non-OK results)
-        CupStatistics cupStatistics = calculateCupStatistics(cup, eventResultLists, strategy, organisationById);
+        CupStatistics cupStatistics = calculateCupStatistics(eventResultLists, strategy, organisationById);
 
         return new CupDetailed(
                 cup,
                 cup.getType().isGroupedByOrganisation()
                         ? calculateOrganisationGroupedSums(events, eventResultLists, races, cupScoreLists, strategy)
-                        : classResultAggregationResult.eventRacesCupScores(),
+                        : classResultAggregationResult != null ? classResultAggregationResult.eventRacesCupScores() :
+                          List.of(),
                 cup.getType().isGroupedByOrganisation()
                         ? List.of()
                         : Objects.requireNonNull(classResultAggregationResult).aggregatedPersonScoresList(),
@@ -211,6 +212,7 @@ public class CupServiceImpl implements CupService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
 
+    @SuppressWarnings("unused")
     private List<CupScore> getCupScoresForRace(
             Race race, List<EventResultList> eventResultLists, List<List<CupScoreList>> cupScoreLists) {
         var resultListsForRace = eventResultLists.stream()
@@ -396,7 +398,7 @@ public class CupServiceImpl implements CupService {
                     Collection<ResultList> resultListsByEvent = resultListService.findByEventId(event.getId());
                     return resultListsByEvent.stream();
                 })
-                .filter(x -> x.getRaceNumber().value() > 0)
+                .filter(x -> x.getRaceNumber().value() != null && x.getRaceNumber().value() > 0)
                 .toList();
 
         Set<OrganisationId> referencedOrganisationIds = resultLists.stream()
@@ -410,11 +412,14 @@ public class CupServiceImpl implements CupService {
 
         CupTypeCalculationStrategy cupTypeCalculationStrategy = cup.getCupTypeCalculationStrategy(organisationById);
 
-        List<CupScoreList> cupScoreLists = resultLists.stream()
+        List<@Nullable CupScoreList> cupScoreLists = resultLists.stream()
                 .map(resultList -> resultList.calculate(cup, creator, now, cupTypeCalculationStrategy))
                 .collect(Collectors.toList());
         cupScoreListRepository.deleteAllByDomainKey(
-                cupScoreLists.stream().map(CupScoreList::getDomainKey).collect(Collectors.toSet()));
+                cupScoreLists.stream()
+                    .filter(Objects::nonNull)
+                    .map(CupScoreList::getDomainKey)
+                    .collect(Collectors.toSet()));
         return cupScoreListRepository.saveAll(cupScoreLists);
     }
 
@@ -423,7 +428,6 @@ public class CupServiceImpl implements CupService {
      * This differs from scoring calculations which only use OK results
      */
     private CupStatistics calculateCupStatistics(
-            Cup cup,
             List<EventResultList> eventResultLists,
             CupTypeCalculationStrategy strategy,
             Map<OrganisationId, Organisation> organisationById) {
@@ -455,7 +459,8 @@ public class CupServiceImpl implements CupService {
                 .collect(Collectors.toSet());
 
         // Count unique organizations
-        Set<OrganisationId> uniqueOrganisations = allPersonRaceResults.stream()
+        Set<OrganisationId> uniqueOrganisations =
+            allPersonRaceResults.stream()
                 .map(PersonRaceResultWithOrg::organisationId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
@@ -513,7 +518,7 @@ public class CupServiceImpl implements CupService {
     private record PersonRaceResultWithOrg(
             PersonRaceResult personRaceResult,
             PersonId personId,
-            OrganisationId organisationId
+            @Nullable OrganisationId organisationId
     ) {}
 
     private record ClassPersonKey(ClassResultShortName classResultShortName, PersonId personId) {}

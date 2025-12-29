@@ -42,7 +42,7 @@
     },
     "dependencies": {
         "@base2/pretty-print-object": "^1.0.2",
-        "@primeuix/themes": "^2.0.1",
+        "@primeuix/themes": "^2.0.2",
         "@tanstack/vue-query": "^5.92.1",
         "@tanstack/vue-query-devtools": "^6.1.2",
         "@vueuse/core": "^14.1.0",

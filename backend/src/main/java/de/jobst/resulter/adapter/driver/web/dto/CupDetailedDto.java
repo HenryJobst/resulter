@@ -13,7 +13,8 @@ public record CupDetailedDto(
         List<EventRacesCupScoreDto> eventRacesCupScores,
         List<OrganisationScoreDto> overallOrganisationScores,
         List<AggregatedPersonScoresDto> aggregatedPersonScores,
-        Map<Long, PersonDto> persons) {
+        Map<Long, PersonDto> persons,
+        CupStatisticsDto cupStatistics) {
 
     public static CupDetailedDto from(
             long cupId,
@@ -23,7 +24,8 @@ public record CupDetailedDto(
             List<EventRacesCupScoreDto> eventRacesCupScoreDtos,
             List<OrganisationScoreDto> overallOrganisationScoreDtos,
             List<AggregatedPersonScoresDto> aggregatedPersonScoreDtos,
-            Map<Long, PersonDto> persons) {
+            Map<Long, PersonDto> persons,
+            CupStatisticsDto cupStatistics) {
         return new CupDetailedDto(
                 cupId,
                 name,
@@ -32,6 +34,7 @@ public record CupDetailedDto(
                 eventRacesCupScoreDtos,
                 overallOrganisationScoreDtos,
                 aggregatedPersonScoreDtos,
-                persons);
+                persons,
+                cupStatistics);
     }
 }

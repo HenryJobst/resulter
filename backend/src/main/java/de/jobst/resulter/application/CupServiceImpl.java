@@ -106,7 +106,16 @@ public class CupServiceImpl implements CupService {
                         .toList())
                 .toList();
 
-        var strategy = cup.getCupTypeCalculationStrategy(null);
+        // Load organization tree for NOR strategy validation
+        Set<OrganisationId> referencedOrganisationIds = eventResultLists.stream()
+                .map(EventResultList::resultList)
+                .flatMap(resultList -> resultList.getReferencedOrganisationIds().stream())
+                .collect(Collectors.toUnmodifiableSet());
+
+        Map<OrganisationId, Organisation> organisationById =
+                organisationRepository.loadOrganisationTree(referencedOrganisationIds);
+
+        var strategy = cup.getCupTypeCalculationStrategy(organisationById);
 
         List<Event> events =
                 eventService.getByIds(cup.getEventIds()).stream().sorted().toList();
@@ -139,6 +148,9 @@ public class CupServiceImpl implements CupService {
         // Load all persons in bulk
         Map<PersonId, Person> personsById = personRepository.findAllById(allPersonIds);
 
+        // Calculate statistics including ALL starts (OK and non-OK results)
+        CupStatistics cupStatistics = calculateCupStatistics(cup, eventResultLists, strategy, organisationById);
+
         return new CupDetailed(
                 cup,
                 cup.getType().isGroupedByOrganisation()
@@ -147,7 +159,8 @@ public class CupServiceImpl implements CupService {
                 cup.getType().isGroupedByOrganisation()
                         ? List.of()
                         : Objects.requireNonNull(classResultAggregationResult).aggregatedPersonScoresList(),
-                personsById);
+                personsById,
+                cupStatistics);
     }
 
     private Map<ClassResultShortName, List<PersonWithScore>> aggregatePersonScoresGroupedByClass(
@@ -404,6 +417,104 @@ public class CupServiceImpl implements CupService {
                 cupScoreLists.stream().map(CupScoreList::getDomainKey).collect(Collectors.toSet()));
         return cupScoreListRepository.saveAll(cupScoreLists);
     }
+
+    /**
+     * Calculate cup statistics including ALL starts (OK and non-OK results)
+     * This differs from scoring calculations which only use OK results
+     */
+    private CupStatistics calculateCupStatistics(
+            Cup cup,
+            List<EventResultList> eventResultLists,
+            CupTypeCalculationStrategy strategy,
+            Map<OrganisationId, Organisation> organisationById) {
+
+        // Collect ALL PersonRaceResults (not just OK status)
+        List<PersonRaceResultWithOrg> allPersonRaceResults = eventResultLists.stream()
+                .flatMap(erl -> {
+                    if (erl.resultList().getClassResults() == null) {
+                        return java.util.stream.Stream.empty();
+                    }
+                    return erl.resultList().getClassResults().stream()
+                            .filter(strategy::valid)  // Only valid classes
+                            .flatMap(classResult -> classResult.personResults().value().stream()
+                                    .filter(strategy::valid)  // Only valid persons (org membership)
+                                    .flatMap(personResult -> personResult.personRaceResults().value().stream()
+                                            .map(prr -> new PersonRaceResultWithOrg(
+                                                    prr,
+                                                    personResult.personId(),
+                                                    personResult.organisationId()
+                                            ))
+                                    )
+                            );
+                })
+                .toList();
+
+        // Count unique persons
+        Set<PersonId> uniquePersons = allPersonRaceResults.stream()
+                .map(PersonRaceResultWithOrg::personId)
+                .collect(Collectors.toSet());
+
+        // Count unique organizations
+        Set<OrganisationId> uniqueOrganisations = allPersonRaceResults.stream()
+                .map(PersonRaceResultWithOrg::organisationId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // Count total starts and non-scoring starts
+        int totalStarts = allPersonRaceResults.size();
+        int nonScoringStarts = (int) allPersonRaceResults.stream()
+                .filter(prr -> !prr.personRaceResult().getState().equals(ResultStatus.OK))
+                .count();
+
+        // Calculate overall statistics
+        CupOverallStatistics overallStats = CupOverallStatistics.of(
+                uniquePersons.size(),
+                uniqueOrganisations.size(),
+                totalStarts,
+                nonScoringStarts
+        );
+
+        // Calculate per-organization statistics
+        List<OrganisationStatistics> orgStats = uniqueOrganisations.stream()
+                .map(orgId -> {
+                    Organisation org = organisationById.get(orgId);
+                    if (org == null) {
+                        return null;
+                    }
+
+                    List<PersonRaceResultWithOrg> orgResults = allPersonRaceResults.stream()
+                            .filter(prr -> orgId.equals(prr.organisationId()))
+                            .toList();
+
+                    Set<PersonId> orgPersons = orgResults.stream()
+                            .map(PersonRaceResultWithOrg::personId)
+                            .collect(Collectors.toSet());
+
+                    int orgTotalStarts = orgResults.size();
+                    int orgNonScoringStarts = (int) orgResults.stream()
+                            .filter(prr -> !prr.personRaceResult().getState().equals(ResultStatus.OK))
+                            .count();
+
+                    return OrganisationStatistics.of(
+                            org,
+                            orgPersons.size(),
+                            orgTotalStarts,
+                            orgNonScoringStarts
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted()  // Sort by runner count descending
+                .toList();
+
+        return new CupStatistics(overallStats, orgStats);
+    }
+
+    // Helper record for internal use in calculateCupStatistics
+    private record PersonRaceResultWithOrg(
+            PersonRaceResult personRaceResult,
+            PersonId personId,
+            OrganisationId organisationId
+    ) {}
 
     private record ClassPersonKey(ClassResultShortName classResultShortName, PersonId personId) {}
 }

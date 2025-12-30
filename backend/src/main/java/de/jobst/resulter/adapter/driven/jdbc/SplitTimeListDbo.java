@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
@@ -15,6 +14,7 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,25 +62,29 @@ public class SplitTimeListDbo {
         this.splitTimes = splitTimes;
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static SplitTimeListDbo from(SplitTimeList splitTimeList, DboResolvers dboResolvers) {
         SplitTimeListDbo splitTimeListDbo;
         if (splitTimeList.getId().isPersistent()) {
-            splitTimeListDbo = dboResolvers.getSplitTimeListDboResolver().findDboById(splitTimeList.getId());
+            splitTimeListDbo = Objects.requireNonNull(
+                dboResolvers.getSplitTimeListDboResolver().findDboById(splitTimeList.getId()));
             splitTimeListDbo.setEventId(AggregateReference.to(splitTimeList.getEventId().value()));
             splitTimeListDbo.setResultListId(AggregateReference.to(splitTimeList.getResultListId().value()));
             splitTimeListDbo.setClassResultShortName(splitTimeList.getClassResultShortName().value());
             splitTimeListDbo.setPersonId(AggregateReference.to(splitTimeList.getPersonId().value()));
-            splitTimeListDbo.setRaceNumber(splitTimeList.getRaceNumber().value());
+            Byte raceNumber = splitTimeList.getRaceNumber().value();
+            splitTimeListDbo.setRaceNumber(raceNumber != null ? raceNumber : (byte) 1);
             splitTimeListDbo.setSplitTimes(splitTimeList.getSplitTimes()
                 .stream()
                 .map(SplitTimeDbo::from)
                 .collect(Collectors.toSet()));
         } else {
+            Byte raceNumber = splitTimeList.getRaceNumber().value();
             splitTimeListDbo = new SplitTimeListDbo(AggregateReference.to(splitTimeList.getEventId().value()),
                 AggregateReference.to(splitTimeList.getResultListId().value()),
                 splitTimeList.getClassResultShortName().value(),
                 AggregateReference.to(splitTimeList.getPersonId().value()),
-                splitTimeList.getRaceNumber().value(),
+                raceNumber != null ? raceNumber : (byte) 1,
                 splitTimeList.getSplitTimes().stream().map(SplitTimeDbo::from).collect(Collectors.toSet()));
         }
         return splitTimeListDbo;
@@ -88,7 +92,8 @@ public class SplitTimeListDbo {
 
     static public Collection<SplitTimeList> asSplitTimeLists(Collection<SplitTimeListDbo> splitTimeListDbos) {
         return splitTimeListDbos.stream()
-            .map(it -> new SplitTimeList(SplitTimeListId.of(it.id),
+            .map(it -> new SplitTimeList(
+                it.id != null ? SplitTimeListId.of(it.id) : SplitTimeListId.empty(),
                 EventId.of(it.eventId.getId()),
                 ResultListId.of(it.resultListId.getId()),
                 ClassResultShortName.of(it.classResultShortName),
@@ -96,7 +101,8 @@ public class SplitTimeListDbo {
                 RaceNumber.of(it.raceNumber),
                 it.getSplitTimes()
                     .stream()
-                    .map(x -> SplitTime.of(x.getControlCode(), x.getPunchTime(), SplitTimeListId.of(it.getId())))
+                    .map(x -> SplitTime.of(x.getControlCode(), x.getPunchTime(),
+                        it.getId() != null ? SplitTimeListId.of(it.getId()) : SplitTimeListId.empty()))
                     .toList()))
             .toList();
     }

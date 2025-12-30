@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -71,10 +72,12 @@ public class EventDbo {
         this.name = name;
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static EventDbo from(Event event, DboResolvers dboResolvers) {
         EventDbo eventDbo;
         if (event.getId().isPersistent()) {
-            eventDbo = dboResolvers.getEventDboResolver().findDboById(event.getId());
+            eventDbo = Objects.requireNonNull(
+                dboResolvers.getEventDboResolver().findDboById(event.getId()));
             eventDbo.setName(event.getName().value());
         } else {
             eventDbo = new EventDbo(event.getName().value());
@@ -109,6 +112,7 @@ public class EventDbo {
         return eventDbo;
     }
 
+    @SuppressWarnings("unused")
     public static List<Event> asEvents(
             Collection<EventDbo> eventDbos, Function<Long, Organisation> organisationResolver) {
 
@@ -128,6 +132,7 @@ public class EventDbo {
                 .toList();
     }
 
+    @SuppressWarnings("unused")
     public static Event asEvent(EventDbo eventDbo, Function<Long, Organisation> organisationResolver) {
         return asEvents(List.of(eventDbo), organisationResolver).getFirst();
     }

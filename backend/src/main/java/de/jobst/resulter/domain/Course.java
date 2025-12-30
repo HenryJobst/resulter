@@ -18,8 +18,11 @@ public final class Course implements Comparable<Course> {
     private final EventId eventId;
 
     private final CourseName courseName;
+    @Nullable
     private final CourseLength courseLength;
+    @Nullable
     private final CourseClimb courseClimb;
+    @Nullable
     private final NumberOfControls numberOfControls;
 
     @Override

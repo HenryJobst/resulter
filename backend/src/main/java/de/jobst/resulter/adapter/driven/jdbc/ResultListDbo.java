@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
@@ -21,6 +20,7 @@ import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -72,10 +72,12 @@ public class ResultListDbo {
         this.createTimeZone = createTimeZone;
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static ResultListDbo from(ResultList resultList, DboResolvers dboResolvers) {
         ResultListDbo resultListDbo;
         if (resultList.getId().isPersistent()) {
-            resultListDbo = dboResolvers.getResultListDboResolver().findDboById(resultList.getId());
+            resultListDbo = Objects.requireNonNull(
+                dboResolvers.getResultListDboResolver().findDboById(resultList.getId()));
             resultListDbo.setEventId(AggregateReference.to(resultList.getEventId().value()));
             resultListDbo.setRaceId(AggregateReference.to(resultList.getRaceId().value()));
             resultListDbo.setCreator(resultList.getCreator());
@@ -105,11 +107,14 @@ public class ResultListDbo {
 
     static public Collection<ResultList> asResultLists(Collection<ResultListDbo> resultListDbos) {
         return resultListDbos.stream()
-            .map(it -> new ResultList(ResultListId.of(it.id),
+            .map(it -> new ResultList(
+                it.id != null ? ResultListId.of(it.id) : ResultListId.empty(),
                 EventId.of(it.eventId.getId()),
                 RaceId.of(it.raceId.getId()),
                 it.creator,
-                it.createTime != null ? it.createTime.toInstant().atZone(ZoneId.of(it.createTimeZone)) : null,
+                it.createTime != null && it.createTimeZone != null
+                    ? it.createTime.toInstant().atZone(ZoneId.of(it.createTimeZone))
+                    : null,
                 it.status,
                 ClassResultDbo.asClassResults(it.getClassResults())))
             .toList();

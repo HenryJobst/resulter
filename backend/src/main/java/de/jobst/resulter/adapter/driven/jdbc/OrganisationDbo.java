@@ -1,8 +1,8 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.*;
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -50,13 +50,12 @@ public class OrganisationDbo {
         this.name = name;
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static OrganisationDbo from(Organisation organisation, DboResolvers dboResolvers) {
-        if (null == organisation) {
-            return null;
-        }
         OrganisationDbo organisationDbo;
         if (organisation.getId().isPersistent()) {
-            organisationDbo = dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId());
+            organisationDbo = Objects.requireNonNull(
+                dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId()));
             organisationDbo.setName(organisation.getName().value());
         } else {
             organisationDbo = new OrganisationDbo(organisation.getName().value());
@@ -87,6 +86,7 @@ public class OrganisationDbo {
         return organisationDbo.asOrganisation(organisationResolver, countryResolver);
     }
 
+    @SuppressWarnings("unused")
     public Organisation asOrganisation(
             Function<Long, Organisation> organisationResolver, Function<Long, Country> countryResolver) {
         return Organisation.of(
@@ -94,12 +94,10 @@ public class OrganisationDbo {
                 name,
                 shortName,
                 type.value(),
-                Optional.ofNullable(country).map(x -> CountryId.of(x.getId())).orElse(null),
-                childOrganisations == null
-                        ? new ArrayList<>()
-                        : childOrganisations.stream()
-                                .map(x -> OrganisationId.of(x.id.getId()))
-                                .toList());
+                Optional.ofNullable(country).map(x -> CountryId.of(x.getId())).orElse(CountryId.empty()),
+                childOrganisations.stream()
+                        .map(x -> OrganisationId.of(x.id.getId()))
+                        .toList());
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

@@ -65,15 +65,15 @@ public class CourseDbo {
             courseDbo = Objects.requireNonNull(dboResolvers.getCourseDboResolver()).findDboById(course.getId());
             courseDbo.setEventId(AggregateReference.to(course.getEventId().value()));
             courseDbo.setName(course.getCourseName().value());
-            courseDbo.setLength(course.getCourseLength().value());
-            courseDbo.setClimb(course.getCourseClimb().value());
-            courseDbo.setControls(course.getNumberOfControls().value());
+            courseDbo.setLength(course.getCourseLength() != null ? course.getCourseLength().value() : null);
+            courseDbo.setClimb(course.getCourseClimb() != null ? course.getCourseClimb().value() : null);
+            courseDbo.setControls(course.getNumberOfControls() != null ? course.getNumberOfControls().value() : null);
         } else {
             courseDbo = new CourseDbo(AggregateReference.to(course.getEventId().value()),
                 course.getCourseName().value(),
-                course.getCourseLength().value(),
-                course.getCourseClimb().value(),
-                course.getNumberOfControls().value());
+                course.getCourseLength() != null ? course.getCourseLength().value() : null,
+                course.getCourseClimb() != null ? course.getCourseClimb().value() : null,
+                course.getNumberOfControls() != null ? course.getNumberOfControls().value() : null);
         }
         return courseDbo;
     }

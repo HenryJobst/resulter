@@ -30,7 +30,7 @@ public class SplitTimeDbo implements Comparable<SplitTimeDbo> {
     public static SplitTimeDbo from(SplitTime splitTime) {
         return new SplitTimeDbo(
             splitTime.splitTimeListId().value(),
-            splitTime.controlCode().value(),
+            splitTime.controlCode() != null ? splitTime.controlCode().value() : null,
             splitTime.punchTime().value());
     }
 

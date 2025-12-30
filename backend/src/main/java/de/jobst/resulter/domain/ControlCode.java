@@ -3,6 +3,7 @@ package de.jobst.resulter.domain;
 import org.jmolecules.ddd.annotation.ValueObject;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 @ValueObject
@@ -18,6 +19,6 @@ public record ControlCode(@Nullable String value) implements Comparable<ControlC
 
     @Override
     public int compareTo(ControlCode o) {
-        return Objects.compare(value, o.value, String::compareTo);
+        return Objects.compare(value, o.value, Comparator.nullsLast(Comparator.naturalOrder()));
     }
 }

@@ -28,7 +28,7 @@ const columns: GenericListColumn[] = [
 
 const organisationQuery = useQuery({
     queryKey: ['organisations'],
-    queryFn: () => organisationService.getAll(t),
+    queryFn: () => organisationService.getAllUnpaged(t),
     select: data => data ?? [],
 })
 
@@ -70,7 +70,7 @@ const initialTableSettings: TableSettings = {
         :visible="true"
         :initial-table-settings="initialTableSettings"
     >
-        <template v-if="organisationQuery.data.value" #organisations="{ value }">
+        <template v-if="organisationQuery.data" #organisations="{ value }">
             <div>{{ value?.name }}</div>
         </template>
         <template #hasSplitTimes="{ value }">

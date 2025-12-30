@@ -497,5 +497,18 @@
                 "text": "Die Statistik berücksichtigt nur Läufer und Starts, die den NOR-Kriterien entsprechen (z.B. Vereinszugehörigkeit zur NOR-Organisation). Alle Durchschnittswerte werden auf zwei Dezimalstellen gerundet."
             }
         }
+    },
+    "dashboard": {
+        "title": "Systemstatistiken",
+        "error_loading": "Fehler beim Laden der Statistiken. Bitte versuchen Sie es erneut.",
+        "stats": {
+            "events": "Wettkämpfe",
+            "cups": "Cups",
+            "persons": "Läufer",
+            "organisations": "Vereine",
+            "split_times": "SI-Zeiten",
+            "races": "Läufe",
+            "certificates": "Generierte Urkunden"
+        }
     }
 }

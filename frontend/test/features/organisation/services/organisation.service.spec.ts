@@ -1,7 +1,10 @@
-import type { OrganisationType } from '@/features/organisation/model/organisationtype'
+import type { OrganisationType } from '../../../../src/features/organisation/model/organisation_type'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import axiosInstance from '@/features/auth/services/api'
-import { OrganisationService, organisationService } from '@/features/organisation/services/organisation.service'
+import axiosInstance from '../../../../src/features/auth/services/api'
+import {
+    organisationService,
+    OrganisationService,
+} from '../../../../src/features/organisation/services/organisation.service'
 
 // Mock axios instance
 vi.mock('@/features/auth/services/api', () => ({
@@ -59,7 +62,7 @@ describe('organisationService', () => {
 
             const result = await OrganisationService.getOrganisationTypes(mockT)
 
-            expect(axiosInstance.get).toHaveBeenCalledWith('/organisation_types')
+            expect(axiosInstance.get).toHaveBeenCalledWith('/organisation/types')
             expect(result).toEqual(mockOrganisationTypes)
         })
 

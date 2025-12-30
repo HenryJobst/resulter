@@ -130,6 +130,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                                 "/cup/{id}/results",
                                 "/cup_status",
                                 "/cup_types",
+                                "/dashboard/statistics",
                                 "/event",
                                 "/event/all",
                                 "/event/{id}",
@@ -188,7 +189,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
             // Validate audience only for access tokens (not ID tokens)
             // ID tokens have different audience (client_id), access tokens have API audience
             List<String> audience = token.getAudience();
-            if (audience != null && !audience.isEmpty() && clientAudience != null) {
+            if (audience != null && !audience.isEmpty()) {
                 // Only validate if audience claim exists and is non-empty
                 if (!audience.contains(clientAudience) && !audience.contains("account")) {
                     // Accept either API audience or "account" (common for ID tokens)

@@ -29,6 +29,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,9 @@ public class BffSecurityConfiguration {
 
     @Value("${spring.security.oauth2.client.provider.keycloak.jwk-set-uri}")
     private String jwkSetUri;
+
+    @Value("${API_OAUTH2_RESOURCE_SERVER_JWT_ISSUER_URI}")
+    private String jwtIssuerUri;
 
     @Value("${bff.frontend.url:http://localhost:5173}")
     private String frontendUrl;
@@ -143,7 +147,7 @@ public class BffSecurityConfiguration {
             String issuerUri = request.getServletContext().getInitParameter("issuer-uri");
             if (issuerUri == null) {
                 // Fallback: construct from known Keycloak URL
-                issuerUri = "https://keycloak.jobst24.de/realms/resulter";
+                issuerUri = jwtIssuerUri;
             }
 
             try {
@@ -172,7 +176,7 @@ public class BffSecurityConfiguration {
                 }
 
                 response.sendRedirect(logoutUrl.toString());
-            } catch (java.io.UnsupportedEncodingException e) {
+            } catch (UnsupportedEncodingException e) {
                 log.error("Failed to encode logout URL", e);
                 // Fallback: just redirect to frontend
                 response.sendRedirect(frontendUrl);

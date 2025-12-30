@@ -27,7 +27,7 @@
     - OrganisationId (VO)
     - OrganisationName (VO)
     - OrganisationShortName (VO)
-    - OrganisationType (VO)
+    - Organisation_type (VO)
     - CountryId
     - List of OrganisationId (VO) *
 

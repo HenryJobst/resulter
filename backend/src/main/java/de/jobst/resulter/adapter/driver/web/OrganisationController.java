@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@PreAuthorize("hasRole('ADMIN')")
+@RequestMapping("/organisation")
 @Slf4j
 public class OrganisationController {
 
@@ -33,7 +33,7 @@ public class OrganisationController {
         this.countryService = countryService;
     }
 
-    @GetMapping("/organisation/all")
+    @GetMapping("/all")
     public ResponseEntity<List<OrganisationDto>> getAllOrganisations() {
         List<Organisation> organisations = organisationService.findAll();
         return ResponseEntity.ok(organisations.stream()
@@ -41,7 +41,7 @@ public class OrganisationController {
                 .toList());
     }
 
-    @GetMapping("/organisation")
+    @GetMapping("")
     public ResponseEntity<Page<OrganisationDto>> searchOrganisations(
             @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
         Page<Organisation> organisations = organisationService.findAll(
@@ -58,7 +58,7 @@ public class OrganisationController {
                 organisations.getTotalElements()));
     }
 
-    @GetMapping("/organisation/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<OrganisationDto> getOrganisation(@PathVariable Long id) {
         Optional<Organisation> organisation = organisationService.findById(OrganisationId.of(id));
         return organisation
@@ -66,7 +66,7 @@ public class OrganisationController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/organisation_types")
+    @GetMapping("/types")
     public ResponseEntity<List<OrganisationTypeDto>> handleOrganisationTypes() {
         List<OrganisationTypeDto> organisationTypes = Arrays.stream(OrganisationType.values())
                 .map(OrganisationTypeDto::from)
@@ -74,7 +74,8 @@ public class OrganisationController {
         return ResponseEntity.ok(organisationTypes);
     }
 
-    @PutMapping("/organisation/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
     public ResponseEntity<OrganisationDto> updateOrganisation(
             @PathVariable Long id, @RequestBody OrganisationDto organisationDto) {
         Organisation organisation = organisationService.updateOrganisation(
@@ -93,7 +94,8 @@ public class OrganisationController {
         return ResponseEntity.ok(OrganisationDto.from(organisation, countryService, organisationService));
     }
 
-    @PostMapping("/organisation")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/")
     public ResponseEntity<OrganisationDto> createOrganisation(@RequestBody OrganisationDto organisationDto) {
         Organisation organisation = organisationService.createOrganisation(
                 OrganisationName.of(organisationDto.name()),
@@ -114,7 +116,8 @@ public class OrganisationController {
         }
     }
 
-    @DeleteMapping("/organisation/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteOrganisation(@PathVariable Long id) {
         boolean success = organisationService.deleteOrganisation(OrganisationId.of(id));
         if (success) {

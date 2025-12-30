@@ -21,7 +21,7 @@ public record OrganisationDto(
     public static OrganisationDto from(
         Organisation organisation, CountryService countryService, OrganisationService organisationService) {
         Optional<Country> country =
-                Optional.ofNullable(organisation.getCountry()).map(countryService::getById);
+                Optional.ofNullable(organisation.getCountry()).flatMap(countryService::findById);
         return new OrganisationDto(
                 ObjectUtils.isNotEmpty(organisation.getId())
                         ? organisation.getId().value()

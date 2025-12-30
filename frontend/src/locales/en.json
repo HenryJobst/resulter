@@ -497,5 +497,18 @@
                 "text": "The statistics only consider runners and starts that meet the NOR criteria (e.g., club membership in the NOR organisation). All average values are rounded to two decimal places."
             }
         }
+    },
+    "dashboard": {
+        "title": "System Statistics",
+        "error_loading": "Error loading statistics. Please try again.",
+        "stats": {
+            "events": "Events",
+            "cups": "Cups",
+            "persons": "Runners",
+            "organisations": "Organisations",
+            "split_times": "Split Times",
+            "races": "Races",
+            "certificates": "Generated Certificates"
+        }
     }
 }

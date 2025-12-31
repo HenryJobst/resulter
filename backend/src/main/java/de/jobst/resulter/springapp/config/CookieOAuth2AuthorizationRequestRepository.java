@@ -3,6 +3,7 @@ package de.jobst.resulter.springapp.config;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.util.SerializationUtils;
@@ -20,32 +21,37 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
     private static final int COOKIE_EXPIRE_SECONDS = 180; // 3 minutes
 
     @Override
-    public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
+    public @Nullable OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
         return getCookie(request)
             .map(this::deserialize)
             .orElse(null);
     }
 
     @Override
-    public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
+    public void saveAuthorizationRequest(@Nullable OAuth2AuthorizationRequest authorizationRequest,
+                                         HttpServletRequest request, HttpServletResponse response) {
         if (authorizationRequest == null) {
-            deleteCookie(response);
+            deleteCookie(request, response);
             return;
         }
 
         String value = serialize(authorizationRequest);
         Cookie cookie = new Cookie(COOKIE_NAME, value);
+        if (!"localhost".equalsIgnoreCase(request.getServerName())) {
+            cookie.setDomain(request.getServerName());
+            cookie.setSecure(request.isSecure());
+        }
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(COOKIE_EXPIRE_SECONDS);
-        cookie.setDomain("localhost"); // Match session cookie domain
+        //cookie.setAttribute("SameSite", "Lax");
         response.addCookie(cookie);
     }
 
     @Override
-    public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
+    public @Nullable OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
         OAuth2AuthorizationRequest authorizationRequest = loadAuthorizationRequest(request);
-        deleteCookie(response);
+        deleteCookie(request, response);
         return authorizationRequest;
     }
 
@@ -63,12 +69,16 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
         return java.util.Optional.empty();
     }
 
-    private void deleteCookie(HttpServletResponse response) {
+    private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie(COOKIE_NAME, "");
+        if (!"localhost".equalsIgnoreCase(request.getServerName())) {
+            cookie.setDomain(request.getServerName());
+            cookie.setSecure(request.isSecure());
+        }
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
-        cookie.setDomain("localhost");
+        //cookie.setAttribute("SameSite", "Lax");
         response.addCookie(cookie);
     }
 
@@ -78,12 +88,11 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
         );
     }
 
-    @SuppressWarnings("deprecation")
-    private OAuth2AuthorizationRequest deserialize(Cookie cookie) {
+    private @Nullable OAuth2AuthorizationRequest deserialize(Cookie cookie) {
         try {
             return (OAuth2AuthorizationRequest) SerializationUtils.deserialize(
                 Base64.getUrlDecoder().decode(cookie.getValue())
-            );
+                                                                              );
         } catch (Exception e) {
             return null;
         }

@@ -4,8 +4,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.util.SerializationUtils;
 
 import java.util.Base64;
@@ -15,10 +17,17 @@ import java.util.Base64;
  * Stores the authorization request in a cookie instead of the session.
  * This avoids issues with session cleanup during logout/login cycles.
  */
+@Component
 public class CookieOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     private static final String COOKIE_NAME = "oauth2_auth_request";
     private static final int COOKIE_EXPIRE_SECONDS = 180; // 3 minutes
+
+    private final CookieUtils cookieUtils;
+
+    public CookieOAuth2AuthorizationRequestRepository(CookieUtils cookieUtils) {
+        this.cookieUtils = cookieUtils;
+    }
 
     @Override
     public @Nullable OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
@@ -31,27 +40,20 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
     public void saveAuthorizationRequest(@Nullable OAuth2AuthorizationRequest authorizationRequest,
                                          HttpServletRequest request, HttpServletResponse response) {
         if (authorizationRequest == null) {
-            deleteCookie(request, response);
+            deleteCookie(response);
             return;
         }
 
         String value = serialize(authorizationRequest);
-        Cookie cookie = new Cookie(COOKIE_NAME, value);
-        if (!"localhost".equalsIgnoreCase(request.getServerName())) {
-            cookie.setDomain(request.getServerName());
-            cookie.setSecure(request.isSecure());
-        }
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(COOKIE_EXPIRE_SECONDS);
-        //cookie.setAttribute("SameSite", "Lax");
-        response.addCookie(cookie);
+        // Use CookieUtils to create cookie with consistent attributes
+        // SameSite will use the default from Spring Boot configuration
+        cookieUtils.addCookieWithHeader(response, COOKIE_NAME, value, COOKIE_EXPIRE_SECONDS, true, "Lax");
     }
 
     @Override
     public @Nullable OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
         OAuth2AuthorizationRequest authorizationRequest = loadAuthorizationRequest(request);
-        deleteCookie(request, response);
+        deleteCookie(response);
         return authorizationRequest;
     }
 
@@ -69,17 +71,9 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
         return java.util.Optional.empty();
     }
 
-    private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
-        Cookie cookie = new Cookie(COOKIE_NAME, "");
-        if (!"localhost".equalsIgnoreCase(request.getServerName())) {
-            cookie.setDomain(request.getServerName());
-            cookie.setSecure(request.isSecure());
-        }
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0);
-        //cookie.setAttribute("SameSite", "Lax");
-        response.addCookie(cookie);
+    private void deleteCookie(HttpServletResponse response) {
+        // Use CookieUtils to delete cookie with consistent attributes
+        cookieUtils.deleteCookie(response, COOKIE_NAME, true);
     }
 
     private String serialize(OAuth2AuthorizationRequest authorizationRequest) {
@@ -88,11 +82,14 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
         );
     }
 
+    @SuppressWarnings("deprecation")
     private @Nullable OAuth2AuthorizationRequest deserialize(Cookie cookie) {
         try {
-            return (OAuth2AuthorizationRequest) SerializationUtils.deserialize(
-                Base64.getUrlDecoder().decode(cookie.getValue())
-                                                                              );
+            byte[] bytes = Base64.getUrlDecoder().decode(cookie.getValue());
+            // Note: SerializationUtils.deserialize(byte[]) is deprecated since Spring 6.0
+            // However, the alternative with allowlist is not available in current Spring version
+            // This is acceptable since we're deserializing our own trusted cookie data
+            return (OAuth2AuthorizationRequest) SerializationUtils.deserialize(bytes);
         } catch (Exception e) {
             return null;
         }

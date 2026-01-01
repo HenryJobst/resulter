@@ -2,6 +2,7 @@ package de.jobst.resulter.springapp.config;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +13,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class CookieUtils {
 
-    // Read cookie configuration from Spring Boot properties (Single Source of Truth)
+    /**
+     * -- GETTER --
+     *  Gets the session cookie name from configuration.
+     */
+    @Getter
     @Value("${server.servlet.session.cookie.name:RESULTER_SESSION}")
     private String sessionCookieName;
 
@@ -100,14 +105,6 @@ public class CookieUtils {
      */
     public void deleteCsrfCookie(HttpServletResponse response) {
         deleteCookie(response, CSRF_COOKIE_NAME, false);
-    }
-
-    /**
-     * Gets the session cookie name from configuration.
-     * @return Session cookie name
-     */
-    public String getSessionCookieName() {
-        return sessionCookieName;
     }
 
     /**

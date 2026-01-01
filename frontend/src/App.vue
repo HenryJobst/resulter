@@ -250,7 +250,7 @@ function setDetails(details: string) {
                             v-model="currentLocale"
                             :options="SUPPORT_LOCALES"
                             class="w-full"
-                            style="border: none; background: none; outline: none; outline-color: currentColor; box-shadow: none"
+                            style="border: none; background: none; outline: currentColor none;box-shadow: none"
                             :aria-label="t('labels.select_language')"
                         >
                             <template #value="{ value }">

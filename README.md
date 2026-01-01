@@ -13,9 +13,11 @@
 This application allows for the input of competition results files and subsequently displays detailed result lists.
 As the first major feature there is the possibility to design certificate templates and activate certificate download
 for an event for every single participant.
-Other functions include the calculation and display of cup and ranking points for the German Nebel-Cup, Kristall-Cup and the North-East-Ranking.
+Other functions include:
+- Calculation and display of cup and ranking points for the German Nebel-Cup, Kristall-Cup and the North-East-Ranking
+- Split time analysis with various evaluations (ranking, mental resilience, anomaly detection, hanging detection)
 
-Possible future extensions: generalization of cups, evaluation of split times, calculation of recommended course lengths, etc.
+Possible future extensions: generalization of cups, calculation of recommended course lengths, etc.
 
 ## Architecture
 
@@ -98,9 +100,11 @@ Mit dieser Anwendung können Ergebnisdateien von Wettkämpfen eingelesen und ans
 angezeigt werden.
 Als erste große Funktion besteht die Möglichkeit, Urkundenvorlagen zu gestalten und für eine Veranstaltung den
 Urkunden-Download für jeden einzelnen Teilnehmer zu aktivieren.
-Weitere Funktionen sind die Berechnung und Anzeige von Cup- und Ranglistenpunkten für den deutschen Nebel-Cup, Kristall-Cup und die Nord-Ost-Rangliste.
+Weitere Funktionen umfassen:
+- Berechnung und Anzeige von Cup- und Ranglistenpunkten für den deutschen Nebel-Cup, Kristall-Cup und die Nord-Ost-Rangliste
+- Splittzeiten-Analyse mit verschiedenen Auswertungen (Ranking, mentale Belastbarkeit, Anomalieerkennung, Hängererkennung)
 
-Zukünftige mögliche Erweiterungen: Generalisierung von Cups, Auswertung von Splittzeiten, Berechnung von empfohlenen Bahnlängen etc.
+Zukünftige mögliche Erweiterungen: Generalisierung von Cups, Berechnung von empfohlenen Bahnlängen etc.
 
 ## Architektur
 

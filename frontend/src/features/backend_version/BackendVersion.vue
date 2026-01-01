@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import axiosInstance from '@/features/auth/services/api'
+import { useBackendVersion } from './services/version.service'
 
 const { t } = useI18n()
 
-const backendVersion = ref(t('labels.loading'))
-const backendVersionText = computed(() => t('labels.backend_version', { version: backendVersion.value }))
+// Use Tanstack Query to fetch backend version
+const { data: backendVersion, isLoading, isError } = useBackendVersion()
 
-onMounted(async () => {
-    await axiosInstance.get('/version')
-        .then(response => backendVersion.value = response.data)
-        .catch((error) => {
-            console.error('Failed to load backend version:', error)
-            backendVersion.value = t('labels.error_loading')
-        })
+// Compute display text based on query state
+const backendVersionText = computed(() => {
+    if (isLoading.value) {
+        return t('labels.backend_version', { version: t('labels.loading') })
+    }
+    if (isError.value) {
+        return t('labels.backend_version', { version: t('labels.error_loading') })
+    }
+    return t('labels.backend_version', { version: backendVersion.value || '' })
 })
 </script>
 

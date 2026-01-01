@@ -33,7 +33,7 @@ ENV POSTGRES_USER=$POSTGRES_USER
 ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 ENV RESULTER_LOG_LEVEL=$RESULTER_LOG_LEVEL
 ENV PROMETHEUS_API_TOKEN=$PROMETHEUS_API_TOKEN
-ENV SPRING_PROFILES_ACTIVE=prod,debug
+ENV SPRING_PROFILES_ACTIVE=prod
 
 LABEL org.opencontainers.image.title=resulter-backend
 LABEL org.opencontainers.image.description="Backend for the resulter app"
@@ -56,4 +56,4 @@ ARG DEPENDENCY=/workspace/app/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java","-Dspring.profiles.active=prod,debug","-cp","app:app/lib/*","de.jobst.resulter.ResulterApplication"]
+ENTRYPOINT ["java","-Dspring.profiles.active=prod","-cp","app:app/lib/*","de.jobst.resulter.ResulterApplication"]

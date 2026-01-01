@@ -405,8 +405,7 @@
     "about": {
         "title": "Über Resulter",
         "description": "Resulter ist eine innovative Web-Anwendung für Orientierungslauf-Enthusiasten und Organisatoren von Orientierungslauf-Wettkämpfen.",
-        "features": "Inhalt: Wettkampfverwaltung, Ergebnislisten, persönlicher Urkundendownload für Teilnehmer, Berechnung von Cup- und Ranglistenpunkten.",
-        "futurePlans": "Zukünftige Erweiterungen sollen diverse Auswertungen von Splittzeiten ermöglichen.",
+        "features": "Inhalt: Wettkampfverwaltung, Ergebnislisten, persönlicher Urkundendownload für Teilnehmer, Berechnung von Cup- und Ranglistenpunkten sowie Auswertung von Zwischenzeiten.",
         "contact": "Für Anfragen, schreiben Sie uns bitte eine E-Mail an",
         "emailAddress": "resulter{'@'}olberlin.de"
     },

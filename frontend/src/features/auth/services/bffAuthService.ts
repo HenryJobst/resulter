@@ -13,8 +13,12 @@ class BffAuthService {
     private backendUrl: string
 
     constructor() {
-        // API calls use empty string for Vite proxy (same-origin requests with cookies)
-        this.apiBaseUrl = ''
+        // In development: use empty string for Vite proxy (localhost:5173 → proxied to localhost:8080)
+        // In production: use VITE_API_ENDPOINT directly (resulter.olberlin.de → resulter-api.olberlin.de)
+        this.apiBaseUrl = import.meta.env.PROD
+            ? (import.meta.env.VITE_API_ENDPOINT || 'http://localhost:8080')
+            : ''
+
         // OAuth2 redirects use direct backend URL (browser must be redirected to backend → Keycloak)
         this.backendUrl = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:8080'
     }

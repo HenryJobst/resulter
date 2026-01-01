@@ -44,14 +44,30 @@ public class BffAuthenticationSuccessHandler implements AuthenticationSuccessHan
             authentication.getPrincipal() != null ?
             authentication.getPrincipal().getClass().getName() : "?");
 
-        // Log cookies
+        // Log cookies in request
         if (request.getCookies() != null) {
+            log.info("Cookies in request: {}", request.getCookies().length);
             for (var cookie : request.getCookies()) {
-                log.debug("Request cookie: {}={}", cookie.getName(), cookie.getValue().substring(0, Math.min(20, cookie.getValue().length())));
+                log.info("Request cookie: name={}, domain={}, path={}, secure={}, httpOnly={}, maxAge={}, value={}",
+                    cookie.getName(),
+                    cookie.getDomain(),
+                    cookie.getPath(),
+                    cookie.getSecure(),
+                    cookie.isHttpOnly(),
+                    cookie.getMaxAge(),
+                    cookie.getValue().substring(0, Math.min(20, cookie.getValue().length())) + "...");
             }
+        } else {
+            log.warn("No cookies in request!");
         }
 
-        log.info("Redirecting to frontend: {}", frontendUrl);
+        // Log session cookie that will be sent
+        var sessionCookie = request.getSession(false);
+        if (sessionCookie != null) {
+            log.info("Session will be sent with cookie. Session ID: {}", sessionCookie.getId());
+        }
+
+        log.info("Redirecting to frontend: {} (this redirect should carry the session cookie)", frontendUrl);
 
         // Redirect to frontend base URL
         // Frontend will:

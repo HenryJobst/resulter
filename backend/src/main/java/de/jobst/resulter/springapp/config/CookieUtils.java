@@ -57,26 +57,43 @@ public class CookieUtils {
         if (cookieDomain != null && !cookieDomain.isEmpty()) {
             if (request != null) {
                 String requestHost = request.getServerName();
+                log.info("Creating cookie '{}' with configured domain '{}' for request host '{}'",
+                        name, cookieDomain, requestHost);
+
                 // Check if domain is valid for this request
                 // For domain cookies (starting with .), the request host must end with the domain
                 if (cookieDomain.startsWith(".")) {
-                    if (requestHost.endsWith(cookieDomain.substring(1)) || requestHost.equals(cookieDomain.substring(1))) {
+                    String domainWithoutDot = cookieDomain.substring(1);
+                    boolean matches = requestHost.endsWith(domainWithoutDot) || requestHost.equals(domainWithoutDot);
+                    log.info("Domain '{}' starts with dot. Checking if '{}' ends with '{}': {}",
+                            cookieDomain, requestHost, domainWithoutDot, matches);
+
+                    if (matches) {
                         cookie.setDomain(cookieDomain);
+                        log.info("Domain validation passed. Cookie will use domain: {}", cookieDomain);
                     } else {
                         logCookieWarning(requestHost);
                     }
                 } else {
                     // Exact domain match required
-                    if (requestHost.equals(cookieDomain)) {
+                    boolean matches = requestHost.equals(cookieDomain);
+                    log.info("Exact domain match required. '{}' equals '{}': {}", requestHost, cookieDomain, matches);
+
+                    if (matches) {
                         cookie.setDomain(cookieDomain);
+                        log.info("Domain validation passed. Cookie will use domain: {}", cookieDomain);
                     } else {
                         logCookieWarning(requestHost);
                     }
                 }
             } else {
                 // No request available, set domain anyway and let Tomcat validate
+                log.warn("Creating cookie '{}' with domain '{}' but no request available for validation. " +
+                        "Letting Tomcat validate the domain.", name, cookieDomain);
                 cookie.setDomain(cookieDomain);
             }
+        } else {
+            log.info("Creating cookie '{}' without domain attribute (cookieDomain is null or empty)", name);
         }
 
         cookie.setSecure(cookieSecure);

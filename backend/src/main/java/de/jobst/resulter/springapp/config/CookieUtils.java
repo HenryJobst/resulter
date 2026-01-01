@@ -1,8 +1,11 @@
 package de.jobst.resulter.springapp.config;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Component;
  * Utility class for creating cookies with consistent attributes.
  * Ensures all cookies use the same domain, secure, and path settings.
  */
+@Slf4j
 @Component
 public class CookieUtils {
 
@@ -24,8 +28,8 @@ public class CookieUtils {
     @Value("${server.servlet.session.cookie.same-site:Lax}")
     private String sameSiteDefault;
 
-    @Value("${server.servlet.session.cookie.domain:localhost}")
-    private String cookieDomain;
+    @Value("${server.servlet.session.cookie.domain:}")
+    private @Nullable String cookieDomain;
 
     @Value("${server.servlet.session.cookie.secure:false}")
     private boolean cookieSecure;
@@ -41,11 +45,40 @@ public class CookieUtils {
      * @param maxAge    Max age in seconds (0 to delete)
      * @param httpOnly  Whether cookie should be HTTP-only
      * @param sameSite  SameSite attribute (Lax, Strict, None)
+     * @param request   Optional HTTP request for domain validation (can be null)
      * @return Configured cookie
      */
-    public Cookie createCookie(String name, String value, int maxAge, boolean httpOnly, String sameSite) {
+    public Cookie createCookie(String name, String value, int maxAge, boolean httpOnly, String sameSite,
+                               @Nullable HttpServletRequest request) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setDomain(cookieDomain);
+
+        // Only set domain if configured and not empty
+        // Domain validation: If domain is set, validate it against request host to avoid Tomcat RFC 6265 validation errors
+        if (cookieDomain != null && !cookieDomain.isEmpty()) {
+            if (request != null) {
+                String requestHost = request.getServerName();
+                // Check if domain is valid for this request
+                // For domain cookies (starting with .), the request host must end with the domain
+                if (cookieDomain.startsWith(".")) {
+                    if (requestHost.endsWith(cookieDomain.substring(1)) || requestHost.equals(cookieDomain.substring(1))) {
+                        cookie.setDomain(cookieDomain);
+                    } else {
+                        logCookieWarning(requestHost);
+                    }
+                } else {
+                    // Exact domain match required
+                    if (requestHost.equals(cookieDomain)) {
+                        cookie.setDomain(cookieDomain);
+                    } else {
+                        logCookieWarning(requestHost);
+                    }
+                }
+            } else {
+                // No request available, set domain anyway and let Tomcat validate
+                cookie.setDomain(cookieDomain);
+            }
+        }
+
         cookie.setSecure(cookieSecure);
         cookie.setPath("/");
         cookie.setHttpOnly(httpOnly);
@@ -59,8 +92,32 @@ public class CookieUtils {
         return cookie;
     }
 
+    private void logCookieWarning(String requestHost) {
+        log.warn("Cookie domain {} does not match request host {}. Cookie will be set without domain attribute.",
+                cookieDomain, requestHost);
+    }
+
     /**
      * Adds a cookie to the response using the Cookie API.
+     * Uses setAttribute for SameSite (available in Servlet 6.0+).
+     *
+     * @param response  HTTP response
+     * @param name      Cookie name
+     * @param value     Cookie value
+     * @param maxAge    Max age in seconds (0 to delete)
+     * @param httpOnly  Whether cookie should be HTTP-only
+     * @param sameSite  SameSite attribute (Lax, Strict, None)
+     * @param request   HTTP request for domain validation (optional)
+     */
+    public void addCookieWithHeader(HttpServletResponse response, String name, String value,
+                                     int maxAge, boolean httpOnly, String sameSite,
+                                    @Nullable HttpServletRequest request) {
+        Cookie cookie = createCookie(name, value, maxAge, httpOnly, sameSite, request);
+        response.addCookie(cookie);
+    }
+
+    /**
+     * Adds a cookie to the response using the Cookie API (without request validation).
      * Uses setAttribute for SameSite (available in Servlet 6.0+).
      *
      * @param response  HTTP response
@@ -72,8 +129,7 @@ public class CookieUtils {
      */
     public void addCookieWithHeader(HttpServletResponse response, String name, String value,
                                      int maxAge, boolean httpOnly, String sameSite) {
-        Cookie cookie = createCookie(name, value, maxAge, httpOnly, sameSite);
-        response.addCookie(cookie);
+        addCookieWithHeader(response, name, value, maxAge, httpOnly, sameSite, null);
     }
 
     /**

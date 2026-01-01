@@ -52,12 +52,18 @@ public class BffSecurityConfiguration {
 
     private final BffAuthenticationSuccessHandler bffAuthenticationSuccessHandler;
     private final CorsConfigurationSource corsConfigurationSource;
+    private final CookieOAuth2AuthorizationRequestRepository cookieOAuth2AuthorizationRequestRepository;
+    private final CookieUtils cookieUtils;
 
     public BffSecurityConfiguration(
             BffAuthenticationSuccessHandler bffAuthenticationSuccessHandler,
-            CorsConfigurationSource corsConfigurationSource) {
+            CorsConfigurationSource corsConfigurationSource,
+            CookieOAuth2AuthorizationRequestRepository cookieOAuth2AuthorizationRequestRepository,
+            CookieUtils cookieUtils) {
         this.bffAuthenticationSuccessHandler = bffAuthenticationSuccessHandler;
         this.corsConfigurationSource = corsConfigurationSource;
+        this.cookieOAuth2AuthorizationRequestRepository = cookieOAuth2AuthorizationRequestRepository;
+        this.cookieUtils = cookieUtils;
     }
 
     @Bean
@@ -72,7 +78,7 @@ public class BffSecurityConfiguration {
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorization -> authorization
                                 // Use cookie-based storage instead of session to avoid cleanup issues
-                                .authorizationRequestRepository(new CookieOAuth2AuthorizationRequestRepository()))
+                                .authorizationRequestRepository(cookieOAuth2AuthorizationRequestRepository))
                         .successHandler(bffAuthenticationSuccessHandler)
                         .failureHandler(oauth2AuthenticationFailureHandler()))
                 .exceptionHandling(exceptions -> exceptions
@@ -93,7 +99,7 @@ public class BffSecurityConfiguration {
                         .logoutSuccessHandler(oidcLogoutSuccessHandler())
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("RESULTER_SESSION", "XSRF-TOKEN"))
+                        .deleteCookies(cookieUtils.getSessionCookieName(), cookieUtils.getCsrfCookieName()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
@@ -116,28 +122,9 @@ public class BffSecurityConfiguration {
                 log.info("Session successfully invalidated");
             }
 
-            // Explicitly delete cookies - must match ALL attributes of the original cookie
-            var sessionCookie = new jakarta.servlet.http.Cookie("RESULTER_SESSION", "");
-            sessionCookie.setPath("/");
-            sessionCookie.setMaxAge(0);
-            sessionCookie.setHttpOnly(true);
-            sessionCookie.setSecure(false); // Must match dev setting
-            sessionCookie.setDomain("localhost");
-            response.addCookie(sessionCookie);
-
-            var csrfCookie = new jakarta.servlet.http.Cookie("XSRF-TOKEN", "");
-            csrfCookie.setPath("/");
-            csrfCookie.setMaxAge(0);
-            csrfCookie.setHttpOnly(false);
-            csrfCookie.setSecure(false);
-            csrfCookie.setDomain("localhost");
-            response.addCookie(csrfCookie);
-
-            // Also add explicit header to delete cookies (fallback method)
-            response.addHeader("Set-Cookie",
-                "RESULTER_SESSION=; Path=/; Domain=localhost; Max-Age=0; HttpOnly; SameSite=Lax");
-            response.addHeader("Set-Cookie",
-                "XSRF-TOKEN=; Path=/; Domain=localhost; Max-Age=0; SameSite=Lax");
+            // Delete session and CSRF cookies using CookieUtils for consistency
+            cookieUtils.deleteSessionCookie(response);
+            cookieUtils.deleteCsrfCookie(response);
 
             log.info("Cookies cleared");
 

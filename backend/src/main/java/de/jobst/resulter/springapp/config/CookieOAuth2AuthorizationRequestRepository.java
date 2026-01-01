@@ -46,7 +46,8 @@ public class CookieOAuth2AuthorizationRequestRepository implements Authorization
         String value = serialize(authorizationRequest);
         // Use CookieUtils to create cookie with consistent attributes
         // SameSite will use the default from Spring Boot configuration
-        cookieUtils.addCookieWithHeader(response, COOKIE_NAME, value, COOKIE_EXPIRE_SECONDS, true, "Lax");
+        // Pass request for domain validation to avoid RFC 6265 validation errors
+        cookieUtils.addCookieWithHeader(response, COOKIE_NAME, value, COOKIE_EXPIRE_SECONDS, true, "Lax", request);
     }
 
     @Override

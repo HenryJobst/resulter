@@ -16,9 +16,6 @@ const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
             <p class="mt-2 text-lg text-gray-600">
                 {{ t('about.features') }}
             </p>
-            <p class="mt-2 text-lg text-gray-600">
-                {{ t('about.futurePlans') }}
-            </p>
             <p class="mt-8 text-lg text-gray-900">
                 {{ t('about.contact') }}
                 <a :href="`mailto:${t('about.emailAddress')}`" class="text-indigo-600 hover:text-indigo-900">

@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import type { CupStatistics } from '@/features/cup/model/cup_statistics'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 import type { Person } from '@/features/person/model/person'
+import CupStatisticsWidget from '@/features/cup/widgets/CupStatistics.vue'
 
 const props = defineProps<{
     cupName: string
     eventRacesCupScores: EventRacesCupScore[]
     overallScores: OrganisationScore[]
     persons: Record<number, Person>
+    cupStatistics: CupStatistics
 }>()
 
 function getPersonName(personId: number): string {
@@ -142,6 +145,9 @@ function getRankBadgeClass(rank: number): string {
                 </h1>
             </div>
         </div>
+
+        <!-- Cup Statistics -->
+        <CupStatisticsWidget :cup-statistics="cupStatistics" />
 
         <!-- Race List Section -->
         <div class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">

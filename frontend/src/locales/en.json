@@ -458,7 +458,7 @@
             "title": "Help: Statistics Explanation",
             "overview": {
                 "heading": "Overview",
-                "text": "The statistics show a summary of all participations in the North-East Ranking (NOR). It includes both scoring and non-scoring starts."
+                "text": "The statistics show a summary of all participations in the Cup. It includes both scoring and non-scoring starts."
             },
             "overallStats": {
                 "heading": "Overall Statistics",
@@ -489,11 +489,11 @@
                 "overTime": "Maximum running time exceeded",
                 "dns": "Did not start",
                 "notCompeting": "Running not competing",
-                "note": "These starts are counted to capture actual participation activity, but do not count towards the NOR point scoring."
+                "note": "These starts are counted to capture actual participation activity, but do not count towards point scoring."
             },
             "calculationNote": {
                 "title": "📊 Calculation Note",
-                "text": "The statistics only consider runners and starts that meet the NOR criteria (e.g., club membership in the NOR organisation). All average values are rounded to two decimal places."
+                "text": "The statistics only consider runners and starts that meet the Cup criteria (e.g., club membership in an eligible organisation). All average values are rounded to two decimal places."
             }
         }
     },

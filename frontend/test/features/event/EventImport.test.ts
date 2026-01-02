@@ -24,25 +24,29 @@ vi.mock('vue-router', () => ({
 }))
 
 // Mock Tanstack Query
-vi.mock('@tanstack/vue-query', () => ({
-    useQueryClient: vi.fn(() => ({
-        invalidateQueries: vi.fn(),
-        setQueryData: vi.fn(),
-    })),
-    useQuery: vi.fn(() => ({
-        data: { value: [] },
-        isLoading: { value: false },
-        error: { value: null },
-        status: { value: 'success' },
-    })),
-    useMutation: vi.fn(() => ({
-        mutate: vi.fn(),
-        isLoading: false,
-        status: { value: 'idle' },
-        isError: { value: false },
-        error: { value: null },
-    })),
-}))
+vi.mock('@tanstack/vue-query', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@tanstack/vue-query')>()
+    return {
+        ...actual,
+        useQueryClient: vi.fn(() => ({
+            invalidateQueries: vi.fn(),
+            setQueryData: vi.fn(),
+        })),
+        useQuery: vi.fn(() => ({
+            data: { value: [] },
+            isLoading: { value: false },
+            error: { value: null },
+            status: { value: 'success' },
+        })),
+        useMutation: vi.fn(() => ({
+            mutate: vi.fn(),
+            isLoading: false,
+            status: { value: 'idle' },
+            isError: { value: false },
+            error: { value: null },
+        })),
+    }
+})
 
 describe('eventImport.vue', () => {
     beforeEach(() => {

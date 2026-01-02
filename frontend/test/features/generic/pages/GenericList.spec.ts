@@ -12,11 +12,15 @@ const mockQueryClient = {
     invalidateQueries: vi.fn(),
 }
 
-vi.mock('@tanstack/vue-query', () => ({
-    useQuery: () => mockUseQuery(),
-    useMutation: (options: any) => mockUseMutation(options),
-    useQueryClient: () => mockQueryClient,
-}))
+vi.mock('@tanstack/vue-query', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@tanstack/vue-query')>()
+    return {
+        ...actual,
+        useQuery: () => mockUseQuery(),
+        useMutation: (options: any) => mockUseMutation(options),
+        useQueryClient: () => mockQueryClient,
+    }
+})
 
 // Mock VueUse
 vi.mock('@vueuse/core', () => ({

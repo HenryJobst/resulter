@@ -458,7 +458,7 @@
             "title": "Hilfe: Statistik-Erklärung",
             "overview": {
                 "heading": "Übersicht",
-                "text": "Die Statistik zeigt eine Zusammenfassung aller Teilnahmen an der Nord-Ost-Rangliste (NOR). Sie umfasst sowohl gewertete als auch nicht gewertete Starts."
+                "text": "Die Statistik zeigt eine Zusammenfassung aller Teilnahmen am Cup. Sie umfasst sowohl gewertete als auch nicht gewertete Starts."
             },
             "overallStats": {
                 "heading": "Gesamtstatistik",
@@ -489,11 +489,11 @@
                 "overTime": "Maximale Laufzeit überschritten",
                 "dns": "Nicht gestartet",
                 "notCompeting": "Außer Konkurrenz gelaufen",
-                "note": "Diese Starts werden gezählt, um die tatsächliche Teilnahmeaktivität zu erfassen, fließen aber nicht in die Punktevergabe der NOR ein."
+                "note": "Diese Starts werden gezählt, um die tatsächliche Teilnahmeaktivität zu erfassen, fließen aber nicht in die Punktevergabe ein."
             },
             "calculationNote": {
                 "title": "📊 Hinweis zur Berechnung",
-                "text": "Die Statistik berücksichtigt nur Läufer und Starts, die den NOR-Kriterien entsprechen (z.B. Vereinszugehörigkeit zur NOR-Organisation). Alle Durchschnittswerte werden auf zwei Dezimalstellen gerundet."
+                "text": "Die Statistik berücksichtigt nur Läufer und Starts, die den Cup-Kriterien entsprechen (z.B. Vereinszugehörigkeit zur berechtigten Organisation). Alle Durchschnittswerte werden auf zwei Dezimalstellen gerundet."
             }
         }
     },

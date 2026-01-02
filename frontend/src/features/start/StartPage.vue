@@ -4,6 +4,7 @@ import Card from 'primevue/card'
 import Panel from 'primevue/panel'
 import Skeleton from 'primevue/skeleton'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { useErrorStore } from '@/features/common/stores/useErrorStore'
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore'
 import { useNavigation } from '@/features/generic/composables/useNavigation.ts'
@@ -13,6 +14,7 @@ import { BackendException, getDetail } from '@/utils/HandleError'
 
 const { t, locale } = useI18n() // same as `useI18n({ useScope: 'global' })`
 
+const authStore = useAuthStore()
 const errorStore = useErrorStore()
 const messageDetailStore = useMessageDetailStore()
 const { navigateTo } = useNavigation()
@@ -71,7 +73,7 @@ async function showErrorDetail(id: number) {
             <!-- Statistics Cards -->
             <div v-else-if="statistics" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <!-- Event Count Card -->
-                <Card class="dashboard-card" :onclick="() => navigateTo('event-list')">
+                <Card class="dashboard-card clickable" :onclick="() => navigateTo('event-list')">
                     <template #content>
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2 mb-2">
@@ -88,7 +90,7 @@ async function showErrorDetail(id: number) {
                 </Card>
 
                 <!-- Cup Count Card -->
-                <Card class="dashboard-card" :onclick="() => navigateTo('cup-list')">
+                <Card class="dashboard-card clickable" :onclick="() => navigateTo('cup-list')">
                     <template #content>
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2 mb-2">
@@ -105,7 +107,10 @@ async function showErrorDetail(id: number) {
                 </Card>
 
                 <!-- Person Count Card -->
-                <Card class="dashboard-card">
+                <Card
+                    class="dashboard-card" :class="[{ clickable: authStore.isAuthenticated }]"
+                    :onclick="authStore.isAuthenticated ? () => navigateTo('person-list') : undefined"
+                >
                     <template #content>
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2 mb-2">
@@ -122,7 +127,10 @@ async function showErrorDetail(id: number) {
                 </Card>
 
                 <!-- Organisation Count Card -->
-                <Card class="dashboard-card">
+                <Card
+                    class="dashboard-card" :class="[{ clickable: authStore.isAuthenticated }]"
+                    :onclick="authStore.isAuthenticated ? () => navigateTo('organisation-list') : undefined"
+                >
                     <template #content>
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2 mb-2">
@@ -277,5 +285,9 @@ async function showErrorDetail(id: number) {
 .dashboard-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card.clickable {
+    cursor: pointer;
 }
 </style>

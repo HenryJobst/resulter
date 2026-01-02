@@ -485,6 +485,6 @@ XML result files (IOF format) parsed in `backend/src/main/java/de/jobst/resulter
 
 ## Version & License
 
-- Current version: 4.3.2
+- Current version: 4.3.3
 - License: CC BY-NC-ND 4.0 (non-commercial use only)
 - Main branch: `main` for stable releases

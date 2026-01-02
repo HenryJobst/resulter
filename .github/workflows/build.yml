@@ -18,7 +18,7 @@ jobs:
           distribution: temurin
           architecture: x64
           cache: maven
-      - name: Create Maven settings with Google Maven Central mirror
+      - name: Create Maven settings with fallback repositories
         run: |
           mkdir -p ~/.m2
           cat > ~/.m2/settings.xml << 'EOF'
@@ -26,14 +26,38 @@ jobs:
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                     https://maven.apache.org/xsd/settings-1.0.0.xsd">
-            <mirrors>
-              <mirror>
-                <id>google-maven-central</id>
-                <name>Google Maven Central Mirror</name>
-                <url>https://maven-central.storage-download.googleapis.com/maven2/</url>
-                <mirrorOf>central</mirrorOf>
-              </mirror>
-            </mirrors>
+            <profiles>
+              <profile>
+                <id>fallback-repos</id>
+                <repositories>
+                  <repository>
+                    <id>central</id>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <releases><enabled>true</enabled></releases>
+                  </repository>
+                  <repository>
+                    <id>google-maven-central</id>
+                    <url>https://maven-central.storage-download.googleapis.com/maven2/</url>
+                    <releases><enabled>true</enabled></releases>
+                  </repository>
+                </repositories>
+                <pluginRepositories>
+                  <pluginRepository>
+                    <id>central</id>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <releases><enabled>true</enabled></releases>
+                  </pluginRepository>
+                  <pluginRepository>
+                    <id>google-maven-central</id>
+                    <url>https://maven-central.storage-download.googleapis.com/maven2/</url>
+                    <releases><enabled>true</enabled></releases>
+                  </pluginRepository>
+                </pluginRepositories>
+              </profile>
+            </profiles>
+            <activeProfiles>
+              <activeProfile>fallback-repos</activeProfile>
+            </activeProfiles>
           </settings>
           EOF
       - name: Build with Maven (with retry)

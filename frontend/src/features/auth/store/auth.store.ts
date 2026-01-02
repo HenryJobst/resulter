@@ -15,7 +15,12 @@ export const useAuthStore = defineStore(
 
         // Computed properties
         const isAuthenticated = computed(() => authenticated.value)
-        const isAdmin = computed(() => user.value.roles?.includes('ADMIN') || user.value.roles?.includes('admin'))
+        const isAdmin = computed(() =>
+            user.value.roles?.includes('ADMIN')
+            || user.value.roles?.includes('admin')
+            || user.value.groups?.includes('ADMIN')
+            || user.value.groups?.includes('admin'),
+        )
         const canManageEvents = computed(() => user.value.permissions?.canManageEvents ?? isAdmin.value)
         const canUploadResults = computed(() => user.value.permissions?.canUploadResults ?? isAdmin.value)
         const canManageCups = computed(() => user.value.permissions?.canManageCups ?? isAdmin.value)

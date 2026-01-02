@@ -22,8 +22,7 @@ public record BffUserInfoDto(
                 username,
                 email,
                 name,
-                cleanRoles,
-                groups != null ? groups : List.of(),
-                UserPermissionsDto.from(cleanRoles));
+                cleanRoles, groups,
+                UserPermissionsDto.from(cleanRoles, groups));
     }
 }

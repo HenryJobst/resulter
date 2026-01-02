@@ -9,10 +9,12 @@ public record UserPermissionsDto(
         boolean canViewReports,
         boolean canManageUsers,
         boolean canAccessAdmin) {
-    public static UserPermissionsDto from(List<String> roles) {
-        // Case-insensitive role check (Keycloak sends lowercase roles)
-        boolean isAdmin = roles.stream().anyMatch(r -> r.equalsIgnoreCase("ADMIN"));
-        boolean isEndpointAdmin = roles.stream().anyMatch(r -> r.equalsIgnoreCase("ENDPOINT_ADMIN"));
+    public static UserPermissionsDto from(List<String> roles, List<String> groups) {
+        // Case-insensitive role/group check (Keycloak sends lowercase roles and groups)
+        boolean isAdmin = roles.stream().anyMatch(r -> r.equalsIgnoreCase("ADMIN"))
+                || groups.stream().anyMatch(g -> g.equalsIgnoreCase("ADMIN"));
+        boolean isEndpointAdmin = roles.stream().anyMatch(r -> r.equalsIgnoreCase("ENDPOINT_ADMIN"))
+                || groups.stream().anyMatch(g -> g.equalsIgnoreCase("ENDPOINT_ADMIN"));
 
         return new UserPermissionsDto(
                 isAdmin,

@@ -2,7 +2,7 @@
 
 # **Resulter**
 
-[![version](https://img.shields.io/badge/version-4.3.2-blue)]()
+[![version](https://img.shields.io/badge/version-4.3.3-blue)]()
 [![license](https://img.shields.io/badge/license-CC%20BY--NC--ND%204.0-blue)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
 

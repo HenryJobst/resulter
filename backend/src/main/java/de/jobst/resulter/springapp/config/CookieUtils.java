@@ -26,7 +26,7 @@ public class CookieUtils {
     private String sessionCookieName;
 
     @Value("${server.servlet.session.cookie.same-site:Lax}")
-    private String sameSiteDefault;
+    private @Nullable String sameSiteDefault;
 
     @Value("${server.servlet.session.cookie.domain:}")
     private @Nullable String cookieDomain;
@@ -47,10 +47,11 @@ public class CookieUtils {
      * @param httpOnly  Whether cookie should be HTTP-only
      * @param sameSite  SameSite attribute (Lax, Strict, None)
      * @param request   Optional HTTP request for domain validation (can be null)
-     * @return Configured cookie (may be null if using header-based approach)
+     * @return Configured cookie (maybe null if using header-based approach)
      */
-    private @Nullable Cookie createCookie(String name, String value, int maxAge, boolean httpOnly, String sameSite,
-                               @Nullable HttpServletRequest request) {
+    private @Nullable Cookie createCookie(String name, String value, int maxAge, boolean httpOnly,
+                                          @Nullable String sameSite,
+                                          @Nullable HttpServletRequest request) {
         // For domain cookies starting with ".", we cannot use Cookie API due to Servlet 6.0 validation
         // Instead, we return null and the caller must use header-based approach
         if (cookieDomain != null && !cookieDomain.isEmpty() && cookieDomain.startsWith(".")) {
@@ -93,7 +94,7 @@ public class CookieUtils {
         cookie.setMaxAge(maxAge);
 
         // Servlet API 6.0+ supports setAttribute for SameSite
-        if (!sameSite.isEmpty()) {
+        if (sameSite != null && !sameSite.isEmpty()) {
             cookie.setAttribute("SameSite", sameSite);
         }
 
@@ -104,7 +105,8 @@ public class CookieUtils {
      * Creates a Set-Cookie header value for cookies with domain starting with ".".
      * Bypasses Servlet API validation by constructing header manually.
      */
-    private String buildSetCookieHeader(String name, String value, int maxAge, boolean httpOnly, String sameSite) {
+    private String buildSetCookieHeader(String name, String value, int maxAge, boolean httpOnly,
+                                        @Nullable String sameSite) {
         StringBuilder header = new StringBuilder();
 
         // Name=Value
@@ -160,7 +162,8 @@ public class CookieUtils {
      * @param request   HTTP request for domain validation (optional)
      */
     public void addCookieWithHeader(HttpServletResponse response, String name, String value,
-                                     int maxAge, boolean httpOnly, String sameSite,
+                                     int maxAge, boolean httpOnly,
+                                    @Nullable String sameSite,
                                     @Nullable HttpServletRequest request) {
         Cookie cookie = createCookie(name, value, maxAge, httpOnly, sameSite, request);
 
@@ -188,7 +191,7 @@ public class CookieUtils {
      * @param sameSite  SameSite attribute (Lax, Strict, None)
      */
     public void addCookieWithHeader(HttpServletResponse response, String name, String value,
-                                     int maxAge, boolean httpOnly, String sameSite) {
+                                     int maxAge, boolean httpOnly, @Nullable String sameSite) {
         addCookieWithHeader(response, name, value, maxAge, httpOnly, sameSite, null);
     }
 

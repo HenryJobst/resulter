@@ -1,7 +1,25 @@
 import type { VueWrapper } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { vi } from 'vitest'
 import { createI18n } from 'vue-i18n'
+
+/**
+ * Creates a QueryClient configured for tests
+ */
+export function createTestQueryClient() {
+    return new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false,
+                gcTime: 0,
+            },
+            mutations: {
+                retry: false,
+            },
+        },
+    })
+}
 
 /**
  * Creates a properly configured i18n instance for tests
@@ -123,27 +141,36 @@ export function createGlobalMountOptions(options: {
     locale?: string
     authenticated?: boolean
     isAdmin?: boolean
+    includeVueQuery?: boolean
 } = {}) {
-    const { locale = 'de', authenticated = true, isAdmin = true } = options
+    const { locale = 'de', authenticated = true, isAdmin = true, includeVueQuery = true } = options
 
-    return {
-        plugins: [
-            createTestingPinia({
-                stubActions: false,
-                createSpy: vi.fn,
-                initialState: {
-                    authStore: {
-                        authenticated,
-                        user: {
-                            roles: isAdmin ? ['user', 'admin'] : ['user'],
-                            username: 'testuser',
-                            token: 'mock-token',
-                        },
+    const plugins: any[] = [
+        createTestingPinia({
+            stubActions: false,
+            createSpy: vi.fn,
+            initialState: {
+                authStore: {
+                    authenticated,
+                    user: {
+                        roles: isAdmin ? ['user', 'admin'] : ['user'],
+                        username: 'testuser',
+                        token: 'mock-token',
                     },
                 },
-            }),
-            createTestI18n(locale),
-        ],
+            },
+        }),
+        createTestI18n(locale),
+    ]
+
+    // Only add VueQueryPlugin if requested
+    // Check if VueQueryPlugin is available (it might be undefined if mocked incorrectly)
+    if (includeVueQuery && typeof VueQueryPlugin !== 'undefined') {
+        plugins.push([VueQueryPlugin, { queryClient: createTestQueryClient() }])
+    }
+
+    return {
+        plugins,
         stubs: {
             // Stub all complex components that depend on PrimeVue or other external deps
             GenericList: true,

@@ -12,10 +12,14 @@ const mockQueryClient = {
     refetchQueries: vi.fn(),
 }
 
-vi.mock('@tanstack/vue-query', () => ({
-    useMutation: (options: any) => mockUseMutation(options),
-    useQueryClient: () => mockQueryClient,
-}))
+vi.mock('@tanstack/vue-query', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@tanstack/vue-query')>()
+    return {
+        ...actual,
+        useMutation: (options: any) => mockUseMutation(options),
+        useQueryClient: () => mockQueryClient,
+    }
+})
 
 // Mock router
 const mockReplace = vi.fn()

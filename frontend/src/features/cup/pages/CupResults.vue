@@ -103,6 +103,7 @@ const aggregatedPersonScores: Ref<AggregatedPersonScores[]> = computed(
             :overall-scores="overallOrganisationScores"
             :event-races-cup-scores="eventRacesCupScores"
             :persons="cupData.persons"
+            :cup-statistics="cupData.cupStatistics"
         />
         <NorCupResults
             v-if="cupData.type?.id === 'NOR'"

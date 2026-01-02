@@ -3,21 +3,8 @@ FROM node:lts-alpine AS build-stage
 
 WORKDIR /resulter
 
-# inject all environment vars we'll need
-ARG VITE_API_ENDPOINT
-ARG VITE_KEYCLOAK_URL
-ARG VITE_KEYCLOAK_CLIENT_ID
-ARG VITE_KEYCLOAK_REALM
-ARG VITE_IMPRESS_TEXT_DE
-ARG VITE_IMPRESS_TEXT_EN
-
-# expose the variable to the finished container
-ENV VITE_API_ENDPOINT=$VITE_API_ENDPOINT
-ENV VITE_KEYCLOAK_URL=$VITE_KEYCLOAK_URL
-ENV VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID
-ENV VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM
-ENV VITE_IMPRESS_TEXT_DE=${VITE_IMPRESS_TEXT_DE}
-ENV VITE_IMPRESS_TEXT_EN=${VITE_IMPRESS_TEXT_EN}
+# Install bash for environment variable parsing
+RUN apk add --no-cache bash
 
 LABEL org.opencontainers.image.title=resulter-frontend
 LABEL org.opencontainers.image.description="Frontend for the resulter app"
@@ -32,7 +19,19 @@ RUN pnpm install --no-frozen-lockfile
 
 COPY . .
 
-RUN pnpm run build
+# Build with secrets mounted as files (not persisted in image layers)
+RUN --mount=type=secret,id=dotenv \
+    if [ -f /run/secrets/dotenv ]; then \
+      while IFS='=' read -r key value || [ -n "$key" ]; do \
+        if [ -n "$key" ] && [ "${key#\#}" = "$key" ]; then \
+          export "$key=$value"; \
+        fi; \
+      done < /run/secrets/dotenv && \
+      pnpm run build; \
+    else \
+      echo "WARNING: No secrets file found, building without environment variables"; \
+      pnpm run build; \
+    fi
 
 # production stage
 FROM nginx AS production-stage

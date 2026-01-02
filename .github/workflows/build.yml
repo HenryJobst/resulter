@@ -18,10 +18,40 @@ jobs:
           distribution: temurin
           architecture: x64
           cache: maven
-      - name: Install Maven
-        run: sudo apt-get update && sudo apt-get install -y maven
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots compile
+      - name: Create Maven settings with Google Maven Central mirror
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'EOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                    https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <mirrors>
+              <mirror>
+                <id>google-maven-central</id>
+                <name>Google Maven Central Mirror</name>
+                <url>https://maven-central.storage-download.googleapis.com/maven2/</url>
+                <mirrorOf>central</mirrorOf>
+              </mirror>
+            </mirrors>
+          </settings>
+          EOF
+      - name: Build with Maven (with retry)
+        run: |
+          # Retry logic for transient Maven Central issues
+          for i in {1..3}; do
+            echo "Build attempt $i of 3..."
+            if mvn --batch-mode compile; then
+              echo "Build successful!"
+              exit 0
+            fi
+            if [ $i -lt 3 ]; then
+              echo "Build failed, waiting 10 seconds before retry..."
+              sleep 10
+            fi
+          done
+          echo "Build failed after 3 attempts"
+          exit 1
         working-directory: ./backend
 
   frontend-build:

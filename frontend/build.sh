@@ -1,8 +1,33 @@
 #!/bin/bash
-# export environment variables of the .env.production file
-set -o allexport
-source .env.production
-set +o allexport
 
-# build
-docker build --no-cache --build-arg="VITE_API_ENDPOINT=${VITE_API_ENDPOINT}" --build-arg="VITE_KEYCLOAK_URL=${VITE_KEYCLOAK_URL}" --build-arg="VITE_KEYCLOAK_CLIENT_ID=${VITE_KEYCLOAK_CLIENT_ID}" --build-arg="VITE_KEYCLOAK_REALM=${VITE_KEYCLOAK_REALM}" --build-arg="VITE_IMPRESS_TEXT_DE=${VITE_IMPRESS_TEXT_DE}" --build-arg="VITE_IMPRESS_TEXT_EN=${VITE_IMPRESS_TEXT_EN}" -t resulter-frontend:latest .
+# Secure Docker build using BuildKit secrets
+# This script prevents secrets from being baked into Docker image layers
+#
+# Prerequisites:
+# 1. Docker BuildKit must be enabled (DOCKER_BUILDKIT=1)
+# 2. A .env.production file must exist with all required environment variables
+#
+# The .env.production file is mounted as a secret during build but not persisted in the image
+
+set -e
+
+# Check if .env.production file exists
+if [ ! -f .env.production ]; then
+    echo "ERROR: .env.production file not found!"
+    echo "Please create a .env.production file with required VITE_* variables"
+    exit 1
+fi
+
+# Enable Docker BuildKit
+export DOCKER_BUILDKIT=1
+
+echo "Building resulter-frontend with secure BuildKit secrets..."
+echo "Secrets will NOT be persisted in image layers."
+
+# Build with secret mounted from .env.production file
+docker build \
+    --secret id=dotenv,src=.env.production \
+    -t resulter-frontend:latest \
+    .
+
+echo "Build complete! Image tagged as resulter-frontend:latest"

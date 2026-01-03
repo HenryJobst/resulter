@@ -67,7 +67,7 @@ public class BffSecurityConfiguration {
     }
 
     @Bean
-    @Order(2) // Between Prometheus (1) and API (3)
+    @Order(3) // After Prometheus (1) and JWT API (2), before Session API (4)
     public SecurityFilterChain bffSecurityFilterChain(HttpSecurity http) {
         http.securityMatcher("/bff/**", "/oauth2/**", "/login/**", "/error")
                 .authorizeHttpRequests(auth -> auth.requestMatchers(

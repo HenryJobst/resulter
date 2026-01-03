@@ -111,9 +111,47 @@ public class OAuth2ResourceServerSecurityConfiguration {
         return http.build();
     }
 
+    /**
+     * JWT-only API Security Chain
+     * Order 2: Between Prometheus (1) and BFF (3)
+     * Handles requests with Authorization: Bearer header
+     * For future API-only access (when BFF is separated)
+     */
     @Bean
-    @Order(3)
-    protected SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    @Order(2)
+    public SecurityFilterChain jwtApiSecurityFilterChain(HttpSecurity http) {
+        http.securityMatcher(request -> {
+                    // Match requests with Authorization: Bearer header
+                    String authHeader = request.getHeader("Authorization");
+                    return authHeader != null && authHeader.startsWith("Bearer ");
+                })
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+                        .requestMatchers(EndpointRequest.toAnyEndpoint()).hasAnyRole(ADMIN, ENDPOINT_ADMIN)
+                        .requestMatchers("/admin/**").hasRole(ADMIN)
+                        .requestMatchers(HttpMethod.POST, "/upload", "/media/upload").hasRole(ADMIN)
+                        .anyRequest().authenticated())
+                .oauth2ResourceServer(oauth2 ->
+                        oauth2.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthConverter)))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // No CSRF needed for JWT (stateless)
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+        return http.build();
+    }
+
+    /**
+     * Session-based API Security Chain
+     * Order 4: Handles all other requests (without Authorization: Bearer header)
+     * Uses session cookies from BFF authentication
+     */
+    @Bean
+    @Order(4)
+    protected SecurityFilterChain sessionApiSecurityFilterChain(HttpSecurity http) {
         http.securityMatcher("/**")
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/public/**")
                         .permitAll()
@@ -168,8 +206,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                         .permitAll()
                         .anyRequest()
                         .hasRole(ADMIN))
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthConverter)))
+                // Session-based authentication from BFF login (no JWT)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf

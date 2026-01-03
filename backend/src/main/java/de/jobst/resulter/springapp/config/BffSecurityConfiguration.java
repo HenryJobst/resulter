@@ -79,6 +79,9 @@ public class BffSecurityConfiguration {
                         .authorizationEndpoint(authorization -> authorization
                                 // Use cookie-based storage instead of session to avoid cleanup issues
                                 .authorizationRequestRepository(cookieOAuth2AuthorizationRequestRepository))
+                        // Apply custom authorities mapper to extract Keycloak roles/groups
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userAuthoritiesMapper(userAuthoritiesMapper()))
                         .successHandler(bffAuthenticationSuccessHandler)
                         .failureHandler(oauth2AuthenticationFailureHandler()))
                 .exceptionHandling(exceptions -> exceptions

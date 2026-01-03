@@ -116,14 +116,19 @@ public class OAuth2ResourceServerSecurityConfiguration {
      * Order 2: Between Prometheus (1) and BFF (3)
      * Handles requests with Authorization: Bearer header
      * For future API-only access (when BFF is separated)
+     * Excludes /actuator/** endpoints (they have dedicated security chains)
      */
     @Bean
     @Order(2)
     public SecurityFilterChain jwtApiSecurityFilterChain(HttpSecurity http) {
         http.securityMatcher(request -> {
                     // Match requests with Authorization: Bearer header
+                    // BUT exclude actuator endpoints (they use PrometheusApiTokenFilter, not JWT)
                     String authHeader = request.getHeader("Authorization");
-                    return authHeader != null && authHeader.startsWith("Bearer ");
+                    String path = request.getRequestURI();
+                    return authHeader != null
+                            && authHeader.startsWith("Bearer ")
+                            && !path.startsWith("/actuator/");
                 })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll()

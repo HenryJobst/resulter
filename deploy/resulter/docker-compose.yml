@@ -44,14 +44,19 @@ services :
             start_period : 30s
         labels :
             - "traefik.enable=true"
-            - "traefik.http.routers.resulter-api.rule=Host(`${API_HOSTNAME}`)"
+            # Path-based routing: Backend responds to /api/* under frontend domain
+            - "traefik.http.routers.resulter-api.rule=Host(`${RESULTER_HOSTNAME}`) && PathPrefix(`/api`)"
             - "traefik.http.routers.resulter-api.service=resulter-api"
             - "traefik.http.routers.resulter-api.entrypoints=https"
             - "traefik.http.services.resulter-api.loadbalancer.server.port=80"
             - "traefik.http.routers.resulter-api.tls=true"
             - "traefik.http.routers.resulter-api.tls.certresolver=http"
             - "traefik.http.services.resulter-api.loadbalancer.passhostheader=true"
-            - "traefik.http.routers.resulter-api.middlewares=compresstraefik"
+            # Higher priority than frontend (default is 0) to ensure /api routes are matched first
+            - "traefik.http.routers.resulter-api.priority=100"
+            # Strip /api prefix before forwarding to backend
+            - "traefik.http.middlewares.resulter-api-stripprefix.stripprefix.prefixes=/api"
+            - "traefik.http.routers.resulter-api.middlewares=resulter-api-stripprefix,compresstraefik"
             - "traefik.http.middlewares.compresstraefik.compress=true"
             - "traefik.docker.network=proxy"
             - "com.centurylinklabs.watchtower.enable=true"

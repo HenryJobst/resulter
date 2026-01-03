@@ -60,7 +60,14 @@ cd frontend && pnpm test:unit src/features/event/services/EventService.spec.ts
 
 **Frontend:** TypeScript, Vue 3 (Composition API), Vite, Pinia, Tanstack Query, PrimeVue 4, Tailwind CSS, Vitest, Playwright/Cypress, pnpm, Nx
 
-**Infrastructure:** Keycloak OAuth2, Docker, Prometheus, Grafana
+**Infrastructure:** Keycloak OAuth2, Docker, Traefik (reverse proxy), Prometheus, Grafana
+
+**Deployment Architecture:**
+- Frontend and backend deployed on same domain with path-based routing
+- Frontend: `resulter.olberlin.de/`
+- Backend: `resulter.olberlin.de/api`
+- Traefik routes `/api` requests to backend and strips `/api` prefix
+- Same-origin architecture eliminates need for CORS and cross-domain cookies
 
 ## Architecture
 
@@ -409,7 +416,8 @@ Also: DRY (Don't Repeat Yourself), KISS (Keep It Simple), YAGNI (You Aren't Gonn
 
 - OAuth2 Resource Server with Keycloak
 - JWT token validation
-- CORS configured for frontend origin
+- Same-origin architecture (no CORS needed)
+- Session cookies with `SameSite=Lax` (CSRF protection)
 - OWASP best practices enforced
 - Input validation in DTOs
 - SQL injection prevention via parameterized queries
@@ -465,10 +473,47 @@ XML result files (IOF format) parsed in `backend/src/main/java/de/jobst/resulter
 
 ## Deployment
 
-- Environment configuration: Copy `.env.example` to `.env` and configure
-- Backend Docker: `./backend/build.sh` builds Docker image
-- Frontend Docker: Separate `build.sh` in frontend directory
-- Full deployment: Docker Compose file available in `deploy/resulter/`
+### Architecture Overview
+
+**Same-Domain Path-Based Routing:**
+- Frontend: `https://resulter.olberlin.de/` → Frontend container (nginx)
+- Backend: `https://resulter.olberlin.de/api` → Backend container (Spring Boot)
+- Traefik reverse proxy handles routing and SSL termination
+- Backend router has higher priority (100) to match `/api` before frontend fallback
+- `stripprefix` middleware removes `/api` before forwarding to backend
+
+### Environment Configuration
+
+1. **Copy environment template:** `cp deploy/resulter/.env.example deploy/resulter/.env`
+2. **Configure variables:**
+   - `RESULTER_HOSTNAME`: Your domain (e.g., `resulter.olberlin.de`)
+   - `VITE_API_ENDPOINT`: Must be `https://resulter.olberlin.de/api` (path-based routing)
+   - `COOKIE_DOMAIN`: Leave empty (not needed for same-domain)
+   - `API_CORS_ALLOWED_ORIGINS`: Leave empty (same-origin, no CORS needed)
+   - Database, Keycloak, and other settings as needed
+
+### Docker Images
+
+- Backend: `./backend/build.sh` builds Docker image
+- Frontend: `./frontend/build.sh` builds Docker image
+- Full deployment: Docker Compose file in `deploy/resulter/docker-compose.yml`
+
+### Traefik Configuration
+
+Backend service labels in docker-compose.yml:
+```yaml
+- "traefik.http.routers.resulter-api.rule=Host(`${RESULTER_HOSTNAME}`) && PathPrefix(`/api`)"
+- "traefik.http.routers.resulter-api.priority=100"  # Higher than frontend
+- "traefik.http.middlewares.resulter-api-stripprefix.stripprefix.prefixes=/api"
+- "traefik.http.routers.resulter-api.middlewares=resulter-api-stripprefix,compresstraefik"
+```
+
+### Local Development
+
+- Frontend: `cd frontend && pnpm dev` (runs on localhost:5173)
+- Backend: `cd backend && ./mvnw spring-boot:run` (runs on localhost:8080)
+- Vite proxy configured to forward `/api` requests to backend
+- `.env.development`: `VITE_API_ENDPOINT=/api` (uses Vite proxy)
 
 ## Profiles
 

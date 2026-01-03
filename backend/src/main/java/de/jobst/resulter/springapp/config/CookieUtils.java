@@ -39,7 +39,6 @@ public class CookieUtils {
 
     /**
      * Creates a cookie with standard attributes (domain, secure, path, SameSite).
-     * For domain cookies starting with ".", uses Set-Cookie header to bypass Servlet API validation.
      *
      * @param name      Cookie name
      * @param value     Cookie value
@@ -47,31 +46,14 @@ public class CookieUtils {
      * @param httpOnly  Whether cookie should be HTTP-only
      * @param sameSite  SameSite attribute (Lax, Strict, None)
      * @param request   Optional HTTP request for domain validation (can be null)
-     * @return Configured cookie (maybe null if using header-based approach)
+     * @return Configured cookie
      */
-    private @Nullable Cookie createCookie(String name, String value, int maxAge, boolean httpOnly,
-                                          @Nullable String sameSite,
-                                          @Nullable HttpServletRequest request) {
-        // For domain cookies starting with ".", we cannot use Cookie API due to Servlet 6.0 validation
-        // Instead, we return null and the caller must use header-based approach
-        if (cookieDomain != null && !cookieDomain.isEmpty() && cookieDomain.startsWith(".")) {
-            if (request != null) {
-                String requestHost = request.getServerName();
-                String domainWithoutDot = cookieDomain.substring(1);
-                boolean matches = requestHost.endsWith(domainWithoutDot) || requestHost.equals(domainWithoutDot);
-
-                if (!matches) {
-                    logCookieWarning(requestHost);
-                }
-            }
-            // Return null to signal caller to use header-based approach
-            return null;
-        }
-
-        // Standard cookie (no domain or exact domain match)
+    private Cookie createCookie(String name, String value, int maxAge, boolean httpOnly,
+                                @Nullable String sameSite,
+                                @Nullable HttpServletRequest request) {
         Cookie cookie = new Cookie(name, value);
 
-        // Only set domain if configured, not empty, and not starting with "."
+        // Only set domain if configured and not empty
         if (cookieDomain != null && !cookieDomain.isEmpty()) {
             if (request != null) {
                 String requestHost = request.getServerName();
@@ -81,10 +63,13 @@ public class CookieUtils {
                     cookie.setDomain(cookieDomain);
                     log.debug("Cookie '{}' created with domain: {}", name, cookieDomain);
                 } else {
-                    logCookieWarning(requestHost);
+                    log.warn("Cookie domain {} does not match request host {}. Cookie will be set without domain attribute.",
+                            cookieDomain, requestHost);
                 }
             } else {
+                // No request available, set domain anyway
                 cookie.setDomain(cookieDomain);
+                log.debug("Creating cookie '{}' with domain '{}'", name, cookieDomain);
             }
         }
 
@@ -102,56 +87,8 @@ public class CookieUtils {
     }
 
     /**
-     * Creates a Set-Cookie header value for cookies with domain starting with ".".
-     * Bypasses Servlet API validation by constructing header manually.
-     */
-    private String buildSetCookieHeader(String name, String value, int maxAge, boolean httpOnly,
-                                        @Nullable String sameSite) {
-        StringBuilder header = new StringBuilder();
-
-        // Name=Value
-        header.append(name).append("=").append(value);
-
-        // Domain (with leading dot)
-        if (cookieDomain != null && !cookieDomain.isEmpty()) {
-            header.append("; Domain=").append(cookieDomain);
-        }
-
-        // Path
-        header.append("; Path=/");
-
-        // Max-Age
-        if (maxAge >= 0) {
-            header.append("; Max-Age=").append(maxAge);
-        }
-
-        // Secure
-        if (cookieSecure) {
-            header.append("; Secure");
-        }
-
-        // HttpOnly
-        if (httpOnly) {
-            header.append("; HttpOnly");
-        }
-
-        // SameSite
-        if (sameSite != null && !sameSite.isEmpty()) {
-            header.append("; SameSite=").append(sameSite);
-        }
-
-        return header.toString();
-    }
-
-    private void logCookieWarning(String requestHost) {
-        log.warn("Cookie domain {} does not match request host {}. Cookie will be set without domain attribute.",
-                cookieDomain, requestHost);
-    }
-
-    /**
-     * Adds a cookie to the response.
-     * For domain cookies starting with ".", uses Set-Cookie header to bypass Servlet API validation.
-     * Otherwise uses Cookie API.
+     * Adds a cookie to the response using the Cookie API.
+     * Uses setAttribute for SameSite (available in Servlet 6.0+).
      *
      * @param response  HTTP response
      * @param name      Cookie name
@@ -166,17 +103,7 @@ public class CookieUtils {
                                     @Nullable String sameSite,
                                     @Nullable HttpServletRequest request) {
         Cookie cookie = createCookie(name, value, maxAge, httpOnly, sameSite, request);
-
-        if (cookie != null) {
-            // Standard Cookie API approach
-            response.addCookie(cookie);
-            log.debug("Cookie '{}' added via Cookie API", name);
-        } else {
-            // Header-based approach for domain cookies starting with "."
-            String setCookieHeader = buildSetCookieHeader(name, value, maxAge, httpOnly, sameSite);
-            response.addHeader("Set-Cookie", setCookieHeader);
-            log.debug("Cookie '{}' added via Set-Cookie header: {}", name, setCookieHeader);
-        }
+        response.addCookie(cookie);
     }
 
     /**

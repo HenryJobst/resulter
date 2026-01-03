@@ -72,6 +72,15 @@ public class OAuth2ResourceServerSecurityConfiguration {
     }
 
     @Bean
+    CookieCsrfTokenRepository csrfTokenRepository() {
+        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        // IMPORTANT: Set cookie path to root (/) so frontend JavaScript can read it
+        // Default would be the request path (/api), which prevents frontend from accessing the cookie
+        repository.setCookiePath("/");
+        return repository;
+    }
+
+    @Bean
     @Order(1)
     public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) {
         http.securityMatcher(EndpointRequest.to(PrometheusScrapeEndpoint.class)) // Define specific matcher
@@ -164,7 +173,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRepository(csrfTokenRepository())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));
 
         return http.build();

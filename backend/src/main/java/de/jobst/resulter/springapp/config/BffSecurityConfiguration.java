@@ -103,8 +103,12 @@ public class BffSecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
-                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+                .csrf(csrf -> {
+                    CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+                    repository.setCookiePath("/"); // Set path to root for frontend JavaScript access
+                    csrf.csrfTokenRepository(repository)
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler());
+                })
                 .cors(cors -> cors.configurationSource(corsConfigurationSource));
 
         return http.build();

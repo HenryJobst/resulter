@@ -204,8 +204,10 @@ public class BffSecurityConfiguration {
     }
 
     /**
-     * Maps OAuth2/OIDC authorities to include Keycloak realm roles.
-     * Extracts roles from realm_access.roles claim and adds them as ROLE_* authorities.
+     * Maps OAuth2/OIDC authorities to include Keycloak realm roles and groups.
+     * Extracts roles from:
+     * 1. realm_access.roles claim (standard Keycloak format)
+     * 2. groups claim (direct groups list)
      */
     @Bean
     public GrantedAuthoritiesMapper userAuthoritiesMapper() {
@@ -216,19 +218,30 @@ public class BffSecurityConfiguration {
                 // Keep existing authorities
                 mappedAuthorities.add(authority);
 
-                // Extract realm roles from OIDC user
+                // Extract realm roles and groups from OIDC user
                 if (authority instanceof OidcUserAuthority oidcUserAuthority) {
                     var userInfo = oidcUserAuthority.getUserInfo();
                     if (userInfo != null) {
+                        // Try realm_access.roles (standard Keycloak format)
                         Object realmAccess = userInfo.getClaim("realm_access");
                         convertRolesToAuthorities(realmAccess, mappedAuthorities);
+
+                        // Try direct groups claim (alternative Keycloak format)
+                        Object groups = userInfo.getClaim("groups");
+                        convertGroupsToAuthorities(groups, mappedAuthorities);
                     }
                 }
                 // Fallback for OAuth2 (non-OIDC) user
                 else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
                     var attributes = oauth2UserAuthority.getAttributes();
+
+                    // Try realm_access.roles
                     Object realmAccess = attributes.get("realm_access");
                     convertRolesToAuthorities(realmAccess, mappedAuthorities);
+
+                    // Try direct groups claim
+                    Object groups = attributes.get("groups");
+                    convertGroupsToAuthorities(groups, mappedAuthorities);
                 }
             });
 
@@ -251,6 +264,23 @@ public class BffSecurityConfiguration {
             .forEach(roleStr -> {
                 mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + roleStr.toUpperCase()));
                 log.debug("Mapped Keycloak role to authority: ROLE_{}", roleStr.toUpperCase());
+            });
+    }
+
+    /**
+     * Converts Keycloak groups claim to Spring Security authorities.
+     * Handles direct groups list (not nested in realm_access).
+     */
+    private static void convertGroupsToAuthorities(Object groupsClaim, Set<GrantedAuthority> mappedAuthorities) {
+        if (!(groupsClaim instanceof List<?> groups)) {
+            return;
+        }
+        groups.stream()
+            .filter(group -> group instanceof String)
+            .map(group -> (String) group)
+            .forEach(groupStr -> {
+                mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + groupStr.toUpperCase()));
+                log.debug("Mapped Keycloak group to authority: ROLE_{}", groupStr.toUpperCase());
             });
     }
 }

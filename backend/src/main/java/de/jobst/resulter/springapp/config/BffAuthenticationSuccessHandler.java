@@ -2,7 +2,6 @@ package de.jobst.resulter.springapp.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +27,7 @@ public class BffAuthenticationSuccessHandler implements AuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(
         HttpServletRequest request,
-        @NonNull HttpServletResponse response,
+        HttpServletResponse response,
         Authentication authentication) throws IOException {
 
         log.info("OAuth2 authentication successful for user: {}", authentication.getName());

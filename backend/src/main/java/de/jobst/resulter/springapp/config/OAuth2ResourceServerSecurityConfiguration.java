@@ -129,7 +129,8 @@ public class OAuth2ResourceServerSecurityConfiguration {
                     String authHeader = request.getHeader("Authorization");
                     String path = request.getRequestURI();
                     boolean hasBearer = authHeader != null && authHeader.startsWith("Bearer ");
-                    boolean isActuator = path.startsWith("/actuator/");
+                    // Check both /actuator/ and /api/actuator/ because path might be seen before or after Traefik stripprefix
+                    boolean isActuator = path.startsWith("/actuator/") || path.startsWith("/api/actuator/");
                     boolean shouldMatch = hasBearer && !isActuator;
 
                     log.debug("JWT Chain Matcher: path={}, hasBearer={}, isActuator={}, shouldMatch={}",

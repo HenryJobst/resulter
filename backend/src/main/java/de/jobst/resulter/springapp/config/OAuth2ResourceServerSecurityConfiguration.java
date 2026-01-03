@@ -29,7 +29,9 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @Profile("!nosecurity")
@@ -120,15 +122,20 @@ public class OAuth2ResourceServerSecurityConfiguration {
      */
     @Bean
     @Order(2)
-    public SecurityFilterChain jwtApiSecurityFilterChain(HttpSecurity http) {
+    public SecurityFilterChain jwtApiSecurityFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher(request -> {
                     // Match requests with Authorization: Bearer header
                     // BUT exclude actuator endpoints (they use PrometheusApiTokenFilter, not JWT)
                     String authHeader = request.getHeader("Authorization");
                     String path = request.getRequestURI();
-                    return authHeader != null
-                            && authHeader.startsWith("Bearer ")
-                            && !path.startsWith("/actuator/");
+                    boolean hasBearer = authHeader != null && authHeader.startsWith("Bearer ");
+                    boolean isActuator = path.startsWith("/actuator/");
+                    boolean shouldMatch = hasBearer && !isActuator;
+
+                    log.debug("JWT Chain Matcher: path={}, hasBearer={}, isActuator={}, shouldMatch={}",
+                              path, hasBearer, isActuator, shouldMatch);
+
+                    return shouldMatch;
                 })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll()

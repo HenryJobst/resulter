@@ -5,9 +5,13 @@ import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 import type { RaceOrganisationGroupedCupScore } from '@/features/cup/model/race_organisation_grouped_cup_score.ts'
 import type { Person } from '@/features/person/model/person'
+import { useQueries } from '@tanstack/vue-query'
 import Panel from 'primevue/panel'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import CupStatisticsWidget from '@/features/cup/widgets/CupStatistics.vue'
+import { EventService } from '@/features/event/services/event.service'
 
 const props = defineProps<{
     cupName: string
@@ -18,6 +22,35 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const router = useRouter()
+
+// Lade ResultLists für jedes Event um Race-ID → ResultList-ID Mapping zu erstellen
+const eventResultsQueries = useQueries({
+    queries: computed(() => {
+        return props.eventRacesCupScores.map(eventRace => ({
+            queryKey: ['eventResults', eventRace.event.id],
+            queryFn: () => EventService.getResultsById(eventRace.event.id.toString(), t),
+            staleTime: 5 * 60 * 1000, // 5 Minuten
+        }))
+    }),
+})
+
+// Mapping: Race-ID → ResultList-ID
+const raceIdToResultListId = computed(() => {
+    const mapping = new Map<number, number>()
+
+    eventResultsQueries.value.forEach((query) => {
+        if (query.data?.value?.resultLists) {
+            query.data.value.resultLists.forEach((rl) => {
+                if (rl.raceId) {
+                    mapping.set(rl.raceId, rl.id)
+                }
+            })
+        }
+    })
+
+    return mapping
+})
 
 function getPersonName(personId: number): string {
     const person = props.persons?.[personId]
@@ -148,6 +181,62 @@ function getRankBadgeClass(rank: number): string {
     if (rank === 3)
         return 'bg-gradient-to-br from-orange-400 to-orange-600 text-white dark:from-orange-500 dark:to-orange-700'
     return 'bg-adaptive-tertiary text-adaptive'
+}
+
+/**
+ * Holt die ResultList-ID für einen bestimmten Race-Index
+ */
+function getResultListIdForRace(raceIndex: number): number | undefined {
+    const eventRace = props.eventRacesCupScores[raceIndex]
+    if (!eventRace)
+        return undefined
+
+    // Race-ID aus raceClassResultGroupedCupScores extrahieren
+    const raceGroup = eventRace.raceClassResultGroupedCupScores?.[0]
+    if (raceGroup?.race?.id) {
+        return raceIdToResultListId.value.get(raceGroup.race.id)
+    }
+
+    // Fallback: raceOrganisationGroupedCupScores
+    const orgGroup = eventRace.raceOrganisationGroupedCupScores?.[0]
+    if (orgGroup?.race?.id) {
+        return raceIdToResultListId.value.get(orgGroup.race.id)
+    }
+
+    return undefined
+}
+
+/**
+ * Navigiert zu Wettkampfergebnissen mit Deep-Link
+ */
+function navigateToPersonResult(
+    eventId: number,
+    resultListId: number | undefined,
+    classShortName: string,
+    personId: number,
+) {
+    console.log('[KjPokal] Navigate to person result:', { eventId, resultListId, classShortName, personId })
+
+    const query: Record<string, string> = {}
+
+    // Nur Deep-Link-Parameter hinzufügen wenn ResultList-ID verfügbar
+    if (resultListId) {
+        query.resultListId = resultListId.toString()
+        query.classShortName = classShortName
+        query.personId = personId.toString()
+    }
+    else {
+        console.warn('[KjPokal] No resultListId found - opening without deep link')
+    }
+
+    const route = router.resolve({
+        name: 'event-results',
+        params: { id: eventId.toString() },
+        query,
+    })
+
+    console.log('[KjPokal] Opening URL:', route.href)
+    window.open(route.href, '_blank')
 }
 </script>
 
@@ -357,8 +446,21 @@ function getRankBadgeClass(rank: number): string {
                                         <td class="px-3 py-1 text-left text-adaptive-secondary text-xs font-semibold">
                                             {{ getPersonName(person.personId) }}
                                         </td>
-                                        <td class="px-3 py-1 text-right text-adaptive-secondary text-xs font-semibold">
-                                            {{ person.score }}
+                                        <td class="px-3 py-1 text-right text-xs">
+                                            <button
+                                                v-if="person.score > 0"
+                                                type="button"
+                                                class="text-primary hover:text-primary-600 hover:underline cursor-pointer font-semibold"
+                                                @click="navigateToPersonResult(
+                                                    props.eventRacesCupScores[index].event.id,
+                                                    getResultListIdForRace(index),
+                                                    person.classShortName,
+                                                    person.personId,
+                                                )"
+                                            >
+                                                {{ person.score }}
+                                            </button>
+                                            <span v-else class="text-adaptive-secondary font-semibold">{{ person.score }}</span>
                                         </td>
                                     </tr>
                                 </tbody>

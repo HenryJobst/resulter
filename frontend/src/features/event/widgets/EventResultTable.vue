@@ -125,10 +125,23 @@ function certificate(resultListId: number, classResultShortName: string, data: P
         })
     })
 }
+
+/**
+ * Fügt jedem Personen-Row eine eindeutige ID hinzu
+ */
+function rowProps(data: PersonResult) {
+    return {
+        'id': `person-result-${data.personId}`,
+        'data-person-id': data.personId,
+    }
+}
 </script>
 
 <template>
-    <DataTable :value="props.data.personResults">
+    <DataTable
+        :value="props.data.personResults"
+        :row-props="rowProps"
+    >
         <Column field="position" :header="t('labels.position')" />
         <Column :header="t('labels.name')">
             <template #body="slotProps">

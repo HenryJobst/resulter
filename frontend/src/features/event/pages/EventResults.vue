@@ -11,9 +11,9 @@ import moment from 'moment/min/moment-with-locales'
 import Button from 'primevue/button'
 import Panel from 'primevue/panel'
 import Tree from 'primevue/tree'
-import { computed } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import { courseService } from '@/features/course/services/course.service'
 import { EventService, eventService } from '@/features/event/services/event.service'
@@ -27,6 +27,17 @@ const { t, locale } = useI18n()
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
+
+// State für Tree-Expansion
+const expandedKeys = ref<Record<string, boolean>>({})
+
+// Query-Parameter für Deep-Linking
+const deepLinkParams = computed(() => ({
+    resultListId: route.query.resultListId ? Number(route.query.resultListId) : undefined,
+    classShortName: route.query.classShortName as string | undefined,
+    personId: route.query.personId ? Number(route.query.personId) : undefined,
+}))
 
 const eventResultsQuery = useQuery({
     queryKey: ['eventResults', props.id],
@@ -35,7 +46,7 @@ const eventResultsQuery = useQuery({
 
 const eventId = computed(() => {
     const resultLists = eventResultsQuery.data.value?.resultLists
-    return Array.isArray(resultLists) && resultLists.length > 0 ? resultLists[0].eventId : undefined
+    return Array.isArray(resultLists) && resultLists.length > 0 ? resultLists[0]!.eventId : undefined
 })
 
 const enabled = computed(() => {
@@ -144,6 +155,8 @@ function createResultListTreeNodes(
     const treeNodes: TreeNode[] = []
     for (let i = 0; i < resultLists.length; i++) {
         const resultList = resultLists[i]
+        if (!resultList)
+            continue
         const certificateEnabled = resultList.isCertificateAvailable
         const cupScoreEnabled = resultList.isCupScoreAvailable
         const resultListCupScoreLists = cupScoreLists ? cupScoreLists[i] : undefined
@@ -244,7 +257,7 @@ function createClassResultTreeNodes(
 
     return classResults.map(
         (classResult): TreeNode => ({
-            key: classResult.shortName.toString(),
+            key: `${classResult.shortName}-key`,
             label: getClassResultLabel(classResult),
             children: [
                 {
@@ -274,6 +287,148 @@ const treeNodes = computed(() => {
 
     return undefined
 })
+
+/**
+ * Reaktive Map für ausstehende Nodes
+ * key: Node-Key, value: Array von resolve-Funktionen
+ */
+const pendingNodes = ref<Record<string, (() => void)[]>>({})
+
+/**
+ * Scroll zur Person und Highlight
+ */
+async function scrollToPerson(personId: number) {
+    console.log('[DeepLink] Starting scroll to person:', personId)
+
+    await nextTick()
+    await new Promise(r => setTimeout(r, 200)) // kurze Zeit, DOM vollständig
+
+    const elementId = `person-result-${personId}`
+    const element = document.getElementById(elementId)
+
+    if (!element) {
+        console.warn('[DeepLink] Element not found:', elementId)
+        const allPersonElements = document.querySelectorAll('[id^="person-result-"]')
+        console.log('[DeepLink] Available person elements:', Array.from(allPersonElements).map(el => el.id))
+        return
+    }
+
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    element.classList.add('highlight-person-result')
+    setTimeout(() => element.classList.remove('highlight-person-result'), 2000)
+}
+
+/**
+ * Rekursiv Node anhand Key finden
+ */
+function findNodeByKey(nodes: any[] | undefined, key: string): any | null {
+    if (!nodes || nodes.length === 0) {
+        return null
+    }
+    for (const node of nodes) {
+        if (node.key === key)
+            return node
+        if (node.children) {
+            const found = findNodeByKey(node.children, key)
+            if (found)
+                return found
+        }
+    }
+    return null
+}
+
+/**
+ * Node-Expansion Callback für PrimeVue Tree
+ * @param event Node-Event von PrimeVue Tree
+ */
+function onNodeExpand(event: any) {
+    const key = event.node.key
+    console.log('[onNodeExpand] Node expanded:', key)
+
+    if (pendingNodes.value[key]) {
+        pendingNodes.value[key].forEach(resolve => resolve())
+        delete pendingNodes.value[key]
+    }
+}
+
+/**
+ * Wartet auf Node (event-basiert)
+ */
+function waitForNode(key: string): Promise<void> {
+    return new Promise((resolve) => {
+        if (treeNodes.value && findNodeByKey(treeNodes.value, key)) {
+            console.log('[waitForNode] Node already exists:', key)
+            resolve()
+            return
+        }
+
+        if (!pendingNodes.value[key])
+            pendingNodes.value[key] = []
+        pendingNodes.value[key].push(resolve)
+    })
+}
+
+/**
+ * Prüft, ob Root Node existiert
+ */
+function hasRootNode(resultListId: number): boolean {
+    return !!findNodeByKey(treeNodes.value, resultListId.toString())
+}
+
+/**
+ * Sequenzielles Expandieren aller Tree-Ebenen
+ */
+async function expandTreeToClass(resultListId: number, classShortName: string) {
+    const path = [
+        resultListId.toString(),
+        `${resultListId}-table`,
+        `${classShortName}-key`,
+        `${classShortName}-table`,
+    ]
+
+    for (const key of path) {
+        console.log('[expandTreeToClass] Waiting for node:', key)
+        await waitForNode(key)
+
+        expandedKeys.value = { ...expandedKeys.value, [key]: true }
+        await nextTick()
+        console.log('[expandTreeToClass] Expanded:', key)
+    }
+}
+
+/**
+ * Deep-Link Handler
+ */
+async function handleDeepLink() {
+    const { resultListId, classShortName, personId } = deepLinkParams.value
+    if (!resultListId || !classShortName)
+        return
+
+    console.log('[DeepLink] Handling deep link:', { resultListId, classShortName, personId })
+
+    await expandTreeToClass(resultListId, classShortName)
+
+    if (personId) {
+        await scrollToPerson(personId)
+    }
+}
+
+/**
+ * Watcher für Tree Nodes
+ */
+const stopDeepLinkWatch: (() => void) | undefined = watch(
+    () => treeNodes.value,
+    () => {
+        const resultListId = deepLinkParams.value.resultListId
+        if (!resultListId || !hasRootNode(resultListId))
+            return
+
+        console.log('[DeepLink] Root node ready, handling deep link')
+        handleDeepLink()
+        stopDeepLinkWatch?.()
+    },
+    { deep: true, immediate: true, flush: 'post' },
+)
 
 function findCourse(slotProps: any) {
     if (slotProps.courseId && courseQuery.data?.value && Array.isArray(courseQuery.data.value)) {
@@ -456,7 +611,12 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
             <h1 class="mt-3 font-extrabold">
                 {{ event?.name }} - {{ t('labels.results', 2) }}
             </h1>
-            <Tree :value="treeNodes" class="flex flex-col w-full">
+            <Tree
+                v-model:expanded-keys="expandedKeys"
+                :value="treeNodes"
+                class="flex flex-col w-full"
+                @node-expand="onNodeExpand"
+            >
                 <template #default="slotProps">
                     <div class="flex flex-row justify-content-between w-full">
                         <div class="flex align-items-center font-bold">
@@ -580,5 +740,10 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
 <style scoped>
 h1 {
     margin-bottom: 1rem;
+}
+
+:deep(.highlight-person-result) {
+    background-color: rgba(var(--primary-500), 0.2) !important;
+    transition: background-color 0.3s ease-out;
 }
 </style>

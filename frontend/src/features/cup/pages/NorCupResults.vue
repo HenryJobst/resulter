@@ -145,8 +145,14 @@ function getRankBadgeClass(rank: number): string {
                                     {{ index + 1 }}
                                 </span>
                             </td>
-                            <td class="px-3 py-1.5 text-sm text-adaptive-secondary">
-                                {{ event.name }}
+                            <td class="px-3 py-1.5">
+                                <router-link
+                                    :to="{ name: 'event-results', params: { id: event.id } }"
+                                    target="_blank"
+                                    class="text-sm text-adaptive-secondary hover:text-primary hover:underline"
+                                >
+                                    {{ event.name }}
+                                </router-link>
                             </td>
                         </tr>
                     </tbody>

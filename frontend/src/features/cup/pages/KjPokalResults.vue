@@ -187,7 +187,13 @@ function getRankBadgeClass(rank: number): string {
                         <span class="inline-flex items-center justify-center w-2rem h-6 shrink-0 rounded-full bg-purple-badge text-purple-badge font-semibold text-xs">
                             {{ index + 1 }}
                         </span>
-                        <span class="text-sm text-adaptive-secondary">{{ race.event.name }}</span>
+                        <router-link
+                            :to="{ name: 'event-results', params: { id: race.event.id } }"
+                            target="_blank"
+                            class="text-sm text-adaptive-secondary hover:text-primary hover:underline"
+                        >
+                            {{ race.event.name }}
+                        </router-link>
                     </li>
                 </ol>
             </div>

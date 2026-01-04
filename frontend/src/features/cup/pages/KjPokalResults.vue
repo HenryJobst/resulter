@@ -3,6 +3,7 @@ import type { CupStatistics } from '@/features/cup/model/cup_statistics'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
+import type { RaceOrganisationGroupedCupScore } from '@/features/cup/model/race_organisation_grouped_cup_score.ts'
 import type { Person } from '@/features/person/model/person'
 import CupStatisticsWidget from '@/features/cup/widgets/CupStatistics.vue'
 
@@ -63,9 +64,18 @@ function createBaseCombinedScore(organisationScores: OrganisationScore[]): Map<n
     return combinedScoreMap
 }
 
+function getExistingOrganisationScores(raceOrganisationGroupedCupScores: RaceOrganisationGroupedCupScore[]): OrganisationScore[] {
+    for (let i = 0; i < raceOrganisationGroupedCupScores.length; i++) {
+        if (raceOrganisationGroupedCupScores[i] && raceOrganisationGroupedCupScores[i].organisationScores.length > 0) {
+            return raceOrganisationGroupedCupScores[i].organisationScores
+        }
+    }
+    return []
+}
+
 function fillCombinedScore(combinedScoreMap: Map<number, CombinedScore>, eventRacesCupScores: EventRacesCupScore[]): Map<number, CombinedScore> {
     for (let i = 0; i < totalRaces; i++) {
-        const organisationScores: OrganisationScore[] = eventRacesCupScores[i].raceOrganisationGroupedCupScores[0].organisationScores
+        const organisationScores: OrganisationScore[] = getExistingOrganisationScores(eventRacesCupScores[i].raceOrganisationGroupedCupScores)
         for (const organisationScore of organisationScores) {
             if (organisationScore.score !== 0) {
                 const race: Race = {

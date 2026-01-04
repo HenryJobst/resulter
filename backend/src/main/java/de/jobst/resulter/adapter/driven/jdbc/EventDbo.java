@@ -1,9 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
-import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.EventStatus;
-import de.jobst.resulter.domain.Organisation;
-import de.jobst.resulter.domain.OrganisationId;
+import de.jobst.resulter.domain.*;
+
 import java.sql.Timestamp;
 import org.jspecify.annotations.Nullable;
 import java.time.ZoneId;
@@ -60,6 +58,12 @@ public class EventDbo {
     @Column("state")
     private EventStatus state;
 
+    @Column("discipline")
+    private Discipline discipline;
+
+    @Column("aggregate_score")
+    private boolean aggregateScore;
+
     @MappedCollection(idColumn = "event_id")
     private Set<EventOrganisationDbo> organisations = new HashSet<>();
 
@@ -109,6 +113,10 @@ public class EventDbo {
                 .map(x -> new EventOrganisationDbo(x.value()))
                 .collect(Collectors.toSet()));
 
+        eventDbo.setDiscipline(event.getDiscipline());
+
+        eventDbo.setAggregateScore(event.isAggregatedScore());
+
         return eventDbo;
     }
 
@@ -128,7 +136,9 @@ public class EventDbo {
                         it.organisations.stream()
                                 .map(x -> OrganisationId.of(x.id.getId()))
                                 .toList(),
-                        it.state))
+                        it.state,
+                        it.discipline,
+                        it.aggregateScore))
                 .toList();
     }
 

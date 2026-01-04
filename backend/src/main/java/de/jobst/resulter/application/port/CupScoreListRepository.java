@@ -2,6 +2,7 @@ package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupScoreList;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.ResultListId;
 import org.jmolecules.architecture.hexagonal.SecondaryPort;
@@ -15,6 +16,8 @@ import java.util.Set;
 public interface CupScoreListRepository {
 
     void deleteAllByDomainKey(Set<CupScoreList.DomainKey> cupScoreList);
+
+    void deleteAllByEventId(EventId eventId);
 
     List<CupScoreList> saveAll(List<CupScoreList> cupScoreList);
 

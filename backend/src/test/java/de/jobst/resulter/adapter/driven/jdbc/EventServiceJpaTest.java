@@ -2,10 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.TestConfig;
 import de.jobst.resulter.application.port.EventService;
-import de.jobst.resulter.domain.Event;
-import de.jobst.resulter.domain.EventName;
-import de.jobst.resulter.domain.EventTestDataGenerator;
-import de.jobst.resulter.domain.TestEventResult;
+import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
@@ -52,9 +49,12 @@ class EventServiceJpaTest {
                 savedEvent.getId(),
                 EventName.of("ChangedEvent"),
                 savedEvent.getStartTime(),
-                savedEvent.getEventState(),
+                savedEvent.getEventState() != null ? savedEvent.getEventState() : EventStatus.getDefault(),
                 savedEvent.getOrganisationIds(),
-                savedEvent.getCertificate() != null ? savedEvent.getCertificate() : null);
+                savedEvent.getCertificate() != null ? savedEvent.getCertificate() : null,
+                savedEvent.getDiscipline(),
+                savedEvent.isAggregatedScore()
+            );
 
         assertThat(changedEvent).isNotNull();
         /* TODO transform test to new domain entity and dbo structure

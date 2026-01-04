@@ -3,20 +3,24 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventStatus;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Objects;
 
 public record EventDto(
-        Long id,
-        String name,
-        String startTime,
-        EventStatusDto state,
-        List<OrganisationKeyDto> organisations,
-        EventCertificateKeyDto certificate,
-        Boolean hasSplitTimes) implements Comparable<EventDto> {
+    Long id,
+    String name,
+    String startTime,
+    EventStatusDto state,
+    List<OrganisationKeyDto> organisations,
+    EventCertificateKeyDto certificate,
+    Boolean hasSplitTimes,
+    DisciplineDto discipline,
+    Boolean aggregateScore) implements Comparable<EventDto> {
 
     public static EventDto from(
             Event event,
@@ -30,7 +34,7 @@ public record EventDto(
                                 && ObjectUtils.isNotEmpty(event.getStartTime().value())
                         ? event.getStartTime().value().toString()
                         : null,
-                EventStatusDto.from(event.getEventState()),
+                EventStatusDto.from(event.getEventState() != null ? event.getEventState() : EventStatus.getDefault()),
                 event.getOrganisationIds().stream()
                         .map(x -> {
                             var organisation = organisationService.getById(x);
@@ -40,7 +44,10 @@ public record EventDto(
                 ObjectUtils.isNotEmpty(event.getCertificate())
                         ? EventCertificateKeyDto.from(eventCertificateService.getById(event.getCertificate()))
                         : null,
-                hasSplitTimes);
+                hasSplitTimes,
+                DisciplineDto.from(event.getDiscipline()),
+                event.isAggregatedScore()
+            );
     }
 
     public static String mapOrdersDtoToDomain(Sort.Order order) {
@@ -50,6 +57,7 @@ public record EventDto(
             case "startTime" -> "startTime.value";
             case "state" -> "state.id";
             case "organisations" -> "organisations";
+            case "discipline" -> "discipline.id";
             default -> order.getProperty();
         };
     }
@@ -61,12 +69,13 @@ public record EventDto(
             case "startTime.value" -> "startTime";
             case "state.id" -> "state";
             case "organisations" -> "organisations";
+            case "discipline.id" -> "discipline";
             default -> order.getProperty();
         };
     }
 
     @Override
-    public int compareTo(EventDto o) {
+    public int compareTo(@NonNull EventDto o) {
         int val = (Objects.nonNull(this.startTime) && Objects.nonNull(o.startTime)
                    ? this.startTime.compareTo(o.startTime)
                    : (Objects.equals(this.startTime, o.startTime) ? 0 : (Objects.nonNull(this.startTime) ? -1 : 1)));

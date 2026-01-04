@@ -1,0 +1,28 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000041_event_additions
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   columnExists :
+                                tableName : event
+                                columnName : discipline
+            comment : Add new column discipline to table event,
+            changes :
+                -   addColumn :
+                        tableName : event
+                        columns :
+                            -   column :
+                                    name : discipline
+                                    type : varchar(20)
+                                    constraints :
+                                        nullable : false
+                                    defaultValue: "LONG"
+                            -    column:
+                                     name : aggregate_score
+                                     type : boolean
+                                     constraints:
+                                         nullable : false
+                                     defaultValueBoolean : false
+

@@ -200,7 +200,9 @@
         "filters": "Filter",
         "sort_by": "Sortieren nach",
         "split_times": "Split-Zeiten",
-        "start": "Start"
+        "start": "Start",
+        "aggregateScore": "Cup-Wertung auf Gesamtwertung",
+        "discipline": "Disziplin"
     },
     "result_state": {
         "OK": "OK",
@@ -509,5 +511,12 @@
             "races": "Läufe",
             "certificates": "Generierte Urkunden"
         }
+    },
+    "discipline": {
+        "SPRINT": "Sprint",
+        "MIDDLE": "Mittel",
+        "LONG": "Lang",
+        "ULTRALONG": "Ultralang",
+        "OTHER": "Andere"
     }
 }

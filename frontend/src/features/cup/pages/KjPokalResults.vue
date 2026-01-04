@@ -3,6 +3,7 @@ import type { CupStatistics } from '@/features/cup/model/cup_statistics'
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
+import type { RaceOrganisationGroupedCupScore } from '@/features/cup/model/race_organisation_grouped_cup_score.ts'
 import type { Person } from '@/features/person/model/person'
 import CupStatisticsWidget from '@/features/cup/widgets/CupStatistics.vue'
 
@@ -63,9 +64,18 @@ function createBaseCombinedScore(organisationScores: OrganisationScore[]): Map<n
     return combinedScoreMap
 }
 
+function getExistingOrganisationScores(raceOrganisationGroupedCupScores: RaceOrganisationGroupedCupScore[]): OrganisationScore[] {
+    for (let i = 0; i < raceOrganisationGroupedCupScores.length; i++) {
+        if (raceOrganisationGroupedCupScores[i] && raceOrganisationGroupedCupScores[i].organisationScores.length > 0) {
+            return raceOrganisationGroupedCupScores[i].organisationScores
+        }
+    }
+    return []
+}
+
 function fillCombinedScore(combinedScoreMap: Map<number, CombinedScore>, eventRacesCupScores: EventRacesCupScore[]): Map<number, CombinedScore> {
     for (let i = 0; i < totalRaces; i++) {
-        const organisationScores: OrganisationScore[] = eventRacesCupScores[i].raceOrganisationGroupedCupScores[0].organisationScores
+        const organisationScores: OrganisationScore[] = getExistingOrganisationScores(eventRacesCupScores[i].raceOrganisationGroupedCupScores)
         for (const organisationScore of organisationScores) {
             if (organisationScore.score !== 0) {
                 const race: Race = {
@@ -139,7 +149,7 @@ function getRankBadgeClass(rank: number): string {
     <div class="max-w-7xl mx-auto px-3 py-3 sm:px-4 lg:px-6">
         <!-- Header Section -->
         <div class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">
-            <div class="bg-gradient-to-r from-orange-600 to-orange-700 dark:from-purple-700 dark:to-purple-800 px-4 py-3">
+            <div class="bg-linear-to-r from-orange-600 to-orange-700 dark:from-purple-700 dark:to-purple-800 px-4 py-3">
                 <h1 class="text-xl font-bold text-white">
                     {{ cupName }}
                 </h1>
@@ -163,7 +173,7 @@ function getRankBadgeClass(rank: number): string {
                         :key="index"
                         class="flex items-center space-x-2 py-1"
                     >
-                        <span class="inline-flex items-center justify-center w-2rem h-6 flex-shrink-0 rounded-full bg-purple-badge text-purple-badge font-semibold text-xs">
+                        <span class="inline-flex items-center justify-center w-2rem h-6 shrink-0 rounded-full bg-purple-badge text-purple-badge font-semibold text-xs">
                             {{ index + 1 }}
                         </span>
                         <span class="text-sm text-adaptive-secondary">{{ race.event.name }}</span>
@@ -225,7 +235,7 @@ function getRankBadgeClass(rank: number): string {
                         >
                             <td class="px-3 py-1.5">
                                 <div class="flex items-center space-x-2">
-                                    <div v-if="place <= 3" class="flex items-center justify-center w-2 flex-shrink-0">
+                                    <div v-if="place <= 3" class="flex items-center justify-center w-2 shrink-0">
                                         <img
                                             v-if="place === 1"
                                             src="@/assets/medal-gold.svg"
@@ -245,7 +255,7 @@ function getRankBadgeClass(rank: number): string {
                                             class="w-14 h-14 object-contain"
                                         >
                                     </div>
-                                    <span v-else class="inline-flex items-center justify-center w-2 h-6 flex-shrink-0 rounded-full text-xs font-bold" :class="getRankBadgeClass(place)">
+                                    <span v-else class="inline-flex items-center justify-center w-2 h-6 shrink-0 rounded-full text-xs font-bold" :class="getRankBadgeClass(place)">
                                         {{ place }}
                                     </span>
                                     <span class="text-sm font-semibold text-adaptive whitespace-nowrap">{{ combinedScore.club }}</span>

@@ -7,11 +7,11 @@ import java.util.Collection;
 
 public record EventResultsDto(Collection<ResultListDto> resultLists) {
 
-    public static EventResultsDto from(Event event, ResultListService resultListService) {
+    public static EventResultsDto from(Event event, ResultListService resultListService, boolean eventHasCup) {
         Collection<ResultList> resultLists = resultListService.findByEventId(event.getId());
         return new EventResultsDto(resultLists.stream()
                 .sorted()
-                .map(x -> ResultListDto.from(x, event, resultLists.size()))
+                .map(x -> ResultListDto.from(x, event, resultLists.size(), resultLists, eventHasCup))
                 .toList());
     }
 }

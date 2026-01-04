@@ -36,12 +36,16 @@ public interface EventService {
             @Nullable DateTime startDate,
             @NonNull EventStatus status,
             @NonNull Collection<OrganisationId> organisationIds,
-            @Nullable EventCertificateId certificateId);
+            @Nullable EventCertificateId certificateId,
+            Discipline discipline,
+            boolean aggregatedScore);
 
     @Transactional
     void deleteEvent(EventId eventId);
 
-    Event createEvent(String eventName, ZonedDateTime dateTime, Set<OrganisationId> organisationIds);
+    Event createEvent(String eventName, ZonedDateTime dateTime, Set<OrganisationId> organisationIds,
+                      String discipline,
+                      Boolean aggregatedScore);
 
     Page<Event> findAll(@Nullable String filter, @NonNull Pageable pageable);
 }

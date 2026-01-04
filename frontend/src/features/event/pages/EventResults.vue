@@ -150,11 +150,19 @@ function createResultListTreeNodes(
         const resultListCompleteCupScoreLists = resultListCupScoreLists
             ? resultListCupScoreLists.filter(x => x.status === 'COMPLETE')
             : undefined
+
+        // Extract race number for analysis button visibility
+        const raceNumber = resultList.classResults
+            .flatMap(c => c.personResults)
+            .flatMap(pr => pr.raceNumber)
+            .reduce(a => a)
+
         treeNodes.push({
             key: resultList.id.toString(),
             label: getResultListLabel(resultList),
             data: {
                 cupScoreEnabled,
+                raceNumber,
             },
             children: [
                 {
@@ -466,6 +474,7 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
                             @click="calculate(parseInt(slotProps?.node?.key!))"
                         />
                         <Button
+                            v-if="slotProps?.node?.data?.raceNumber !== 0"
                             v-tooltip="t('labels.split_time_table')"
                             icon="pi pi-table"
                             class="ml-2"
@@ -476,6 +485,7 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
                             @click="navigateToSplitTimeTableAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                         <Button
+                            v-if="slotProps?.node?.data?.raceNumber !== 0"
                             v-tooltip="t('labels.split_time_analysis_ranking')"
                             icon="pi pi-chart-bar"
                             class="ml-2"
@@ -486,6 +496,7 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
                             @click="navigateToSplitTimeAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                         <Button
+                            v-if="slotProps?.node?.data?.raceNumber !== 0"
                             v-tooltip="t('labels.mental_resilience_analysis')"
                             icon="pi pi-chart-line"
                             class="ml-2"
@@ -496,7 +507,7 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
                             @click="navigateToMentalResilienceAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                         <Button
-                            v-if="authStore.isAdmin"
+                            v-if="authStore.isAdmin && slotProps?.node?.data?.raceNumber !== 0"
                             v-tooltip="t('labels.anomaly_detection_analysis')"
                             icon="pi pi-exclamation-triangle"
                             class="ml-2"
@@ -507,7 +518,7 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
                             @click="navigateToAnomalyDetectionAnalysis(parseInt(slotProps?.node?.key!))"
                         />
                         <Button
-                            v-if="authStore.isAdmin"
+                            v-if="authStore.isAdmin && slotProps?.node?.data?.raceNumber !== 0"
                             v-tooltip="t('labels.hanging_detection_analysis')"
                             icon="pi pi-users"
                             class="ml-2"

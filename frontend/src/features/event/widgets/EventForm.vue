@@ -7,6 +7,7 @@ import type { CertificateKey } from '@/features/certificate/model/certificate_ke
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
 import { useQuery } from '@tanstack/vue-query'
+import Checkbox from 'primevue/checkbox'
 import DatePicker from 'primevue/datepicker'
 import InputText from 'primevue/inputtext'
 import MultiSelect from 'primevue/multiselect'
@@ -61,6 +62,21 @@ const localizedEventStatusOptions = computed(() => {
         return eventStatusQuery.data.value.map(option => ({
             ...option,
             label: t(`event_state.${option.id.toLocaleUpperCase()}`),
+        }))
+    }
+    return []
+})
+
+const disciplineQuery = useQuery({
+    queryKey: ['disciplines'],
+    queryFn: () => EventService.getDisciplines(t),
+})
+
+const localizedDisciplineOptions = computed(() => {
+    if (disciplineQuery.data.value) {
+        return disciplineQuery.data.value.map(option => ({
+            ...option,
+            label: t(`discipline.${option.id.toUpperCase()}`),
         }))
     }
     return []
@@ -251,6 +267,30 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
                         @change="handleSelectionChange"
                     />
                 </div>
+            </div>
+        </div>
+        <div class="flex flex-row">
+            <label for="discipline" class="col-fixed w-40">{{ t('labels.discipline') }}</label>
+            <div class="col">
+                <span v-if="disciplineQuery.status.value === 'pending'">{{
+                    t('messages.loading')
+                }}</span>
+                <Select
+                    v-else-if="disciplineQuery.data.value"
+                    id="discipline"
+                    v-model="event.discipline"
+                    :options="localizedDisciplineOptions"
+                    option-label="label"
+                    data-key="id"
+                    :placeholder="t('messages.select')"
+                    class="w-full md:w-14rem"
+                />
+            </div>
+        </div>
+        <div class="flex flex-row">
+            <label for="aggregateScore" class="col-fixed w-40">{{ t('labels.aggregateScore') }}</label>
+            <div class="col">
+                <Checkbox id="aggregateScore" v-model="event.aggregateScore" :binary="true" />
             </div>
         </div>
         <div class="flex flex-row">

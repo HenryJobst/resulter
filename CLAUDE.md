@@ -530,6 +530,6 @@ Backend service labels in docker-compose.yml:
 
 ## Version & License
 
-- Current version: 4.4.7
+- Current version: 4.5.0
 - License: CC BY-NC-ND 4.0 (non-commercial use only)
 - Main branch: `main` for stable releases

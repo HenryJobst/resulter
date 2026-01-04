@@ -8,15 +8,18 @@ import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.springapp.config.SpringSecurityAuditorAware;
 import java.time.Year;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class CupServiceImpl implements CupService {
 
@@ -95,15 +98,35 @@ public class CupServiceImpl implements CupService {
         Cup cup = getById(cupId);
         List<EventId> eventIds = cup.getEventIds().stream().toList();
         List<Race> races = raceService.findAllByEventIds(eventIds);
+        log.debug("Cup {}: Found {} races with race numbers: {}",
+            cupId.value(),
+            races.size(),
+            races.stream().map(r -> r.getRaceNumber().value()).toList());
+
         List<EventResultList> eventResultLists = eventIds.stream()
                 .map(eventId ->
                         new EventResultLists(eventService.getById(eventId), resultListService.findByEventId(eventId)))
                 .flatMap(rl2 -> rl2.resultLists().stream().map(rl -> new EventResultList(rl2.event(), rl)))
                 .sorted()
                 .toList();
+        log.debug("Cup {}: Found {} ResultLists with race numbers: {}",
+            cupId.value(),
+            eventResultLists.size(),
+            eventResultLists.stream().map(erl -> erl.resultList().getRaceNumber().value()).toList());
+
         List<List<CupScoreList>> cupScoreLists = eventResultLists.stream()
-                .map(r -> resultListService.getCupScoreLists(r.resultList().getId(), cupId).stream()
-                        .toList())
+                .map(r -> {
+                    List<CupScoreList> scores = resultListService.getCupScoreLists(r.resultList().getId(), cupId).stream()
+                        .toList();
+                    if (!scores.isEmpty()) {
+                        log.debug("ResultList {} (Race {}): Found {} CupScoreLists with {} total scores",
+                            r.resultList().getId().value(),
+                            r.resultList().getRaceNumber().value(),
+                            scores.size(),
+                            scores.stream().mapToInt(csl -> csl.getCupScores().size()).sum());
+                    }
+                    return scores;
+                })
                 .toList();
 
         // Load organization tree for NOR strategy validation
@@ -393,13 +416,50 @@ public class CupServiceImpl implements CupService {
     public List<CupScoreList> calculateScore(CupId id) {
         Cup cup = getById(id);
         Collection<Event> events = eventService.getByIds(cup.getEventIds());
-        Collection<ResultList> resultLists = events.stream()
-                .flatMap(event -> {
-                    Collection<ResultList> resultListsByEvent = resultListService.findByEventId(event.getId());
-                    return resultListsByEvent.stream();
-                })
-                .filter(x -> x.getRaceNumber().value() != null && x.getRaceNumber().value() > 0)
-                .toList();
+
+        // Group by event to avoid N+1 queries and apply aggregatedScore filtering
+        Map<EventId, List<ResultList>> resultListsByEvent = new HashMap<>();
+        Map<EventId, Event> eventById = new HashMap<>();
+        events.forEach(event -> {
+            List<ResultList> eventResultLists = new ArrayList<>(
+                resultListService.findByEventId(event.getId())
+            );
+            resultListsByEvent.put(event.getId(), eventResultLists);
+            eventById.put(event.getId(), event);
+            log.debug("Event {} (aggregatedScore={}): Found {} ResultLists with race numbers: {}",
+                event.getId().value(),
+                event.isAggregatedScore(),
+                eventResultLists.size(),
+                eventResultLists.stream()
+                    .map(rl -> rl.getRaceNumber().value())
+                    .toList());
+        });
+
+        // Apply event-based scoring logic to filter scorable result lists
+        Collection<ResultList> resultLists = resultListsByEvent.entrySet().stream()
+            .flatMap(entry -> {
+                EventId eventId = entry.getKey();
+                List<ResultList> eventResultLists = entry.getValue();
+                Event event = eventById.get(eventId);
+
+                return eventResultLists.stream()
+                    .filter(resultList -> {
+                        boolean scorable = ResultListScoringService.isScorableForCupCalculation(
+                            resultList, eventResultLists, event
+                        );
+                        log.debug("ResultList {} (Race {}): scorable = {}",
+                            resultList.getId().value(),
+                            resultList.getRaceNumber().value(),
+                            scorable);
+                        return scorable;
+                    });
+            })
+            .toList();
+
+        log.info("Cup {}: Scoring {} ResultLists out of {} total",
+            cup.getId().value(),
+            resultLists.size(),
+            resultListsByEvent.values().stream().mapToInt(List::size).sum());
 
         Set<OrganisationId> referencedOrganisationIds = resultLists.stream()
                 .flatMap(resultList -> resultList.getReferencedOrganisationIds().stream())

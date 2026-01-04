@@ -28,6 +28,10 @@
     <logger name="org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator"
             level="ERROR"/>
 
+    <logger name="de.jobst.resulter.application.CupServiceImpl" level="debug" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
     <root level="warn">
         <appender-ref ref="STDOUT"/>
     </root>

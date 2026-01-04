@@ -35,4 +35,20 @@ public class CupScoreListJdbcCustomRepositoryImpl implements CupScoreListJdbcCus
 
         namedJdbcTemplate.batchUpdate(sql, batchParams.toArray(new MapSqlParameterSource[0]));
     }
+
+    @Override
+    @Transactional
+    public void deleteAllByEventId(Long eventId) {
+        String sql = """
+            DELETE FROM cup_score_list
+            WHERE result_list_id IN (
+                SELECT id FROM result_list WHERE event_id = :eventId
+            )
+            """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("eventId", eventId);
+
+        namedJdbcTemplate.update(sql, params);
+    }
 }

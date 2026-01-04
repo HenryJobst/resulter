@@ -108,10 +108,24 @@ public class ResultListServiceImpl implements ResultListService {
                 .map(cup ->
                         resultList.calculate(cup, creator, now, cup.getCupTypeCalculationStrategy(organisationById)))
                 .collect(Collectors.toList());
-        cupScoreListRepository.deleteAllByDomainKey(
+
+        // Determine deletion scope based on date-based rules (event-wide vs ResultList-specific)
+        Collection<ResultList> allEventResultLists = findByEventId(resultList.getEventId());
+        boolean deleteEventWide = ResultListScoringService.shouldDeleteEventWide(
+                allEventResultLists);
+
+        if (deleteEventWide) {
+            // Same-day scenario: delete all cup scores for the event
+            cupScoreListRepository.deleteAllByEventId(resultList.getEventId());
+        } else {
+            // Multi-day scenario: delete only cup scores for this specific ResultList
+            cupScoreListRepository.deleteAllByDomainKey(
                 cupScoreLists.stream()
                     .filter(Objects::nonNull)
-                    .map(CupScoreList::getDomainKey).collect(Collectors.toSet()));
+                    .map(CupScoreList::getDomainKey)
+                    .collect(Collectors.toSet()));
+        }
+
         return cupScoreListRepository.saveAll(cupScoreLists);
     }
 

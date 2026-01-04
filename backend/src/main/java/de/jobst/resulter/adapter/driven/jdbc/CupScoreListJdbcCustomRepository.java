@@ -7,4 +7,6 @@ import java.util.Set;
 public interface CupScoreListJdbcCustomRepository {
 
     void deleteAllByDomainKeys(Set<CupScoreList.DomainKey> domainKeys);
+
+    void deleteAllByEventId(Long eventId);
 }

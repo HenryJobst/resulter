@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web;
 
+import de.jobst.resulter.adapter.driver.web.dto.DisciplineDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
@@ -40,19 +41,22 @@ public class EventController {
     private final EventCertificateService eventCertificateService;
     private final MediaFileService mediaFileService;
     private final de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository;
+    private final CupRepository cupRepository;
 
     public EventController(
         EventService eventService,
         ResultListService resultListService, OrganisationService organisationService,
         EventCertificateService eventCertificateService,
         MediaFileService mediaFileService,
-        de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository) {
+        de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository,
+        CupRepository cupRepository) {
         this.eventService = eventService;
         this.resultListService = resultListService;
         this.organisationService = organisationService;
         this.eventCertificateService = eventCertificateService;
         this.mediaFileService = mediaFileService;
         this.splitTimeListRepository = splitTimeListRepository;
+        this.cupRepository = cupRepository;
     }
 
     @GetMapping("/event/all")
@@ -91,6 +95,13 @@ public class EventController {
         return ResponseEntity.ok(eventStatus);
     }
 
+    @GetMapping("/discipline")
+    public ResponseEntity<List<DisciplineDto>> handleDisciplines() {
+        List<DisciplineDto> disciplines =
+                Arrays.stream(Discipline.values()).map(DisciplineDto::from).toList();
+        return ResponseEntity.ok(disciplines);
+    }
+
     @PostMapping("/event")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> createEvent(@RequestBody EventDto eventDto) {
@@ -106,7 +117,10 @@ public class EventController {
                         ? new HashSet<>()
                         : eventDto.organisations().stream()
                                 .map(x -> OrganisationId.of(x.id()))
-                                .collect(Collectors.toSet()));
+                                .collect(Collectors.toSet()),
+                eventDto.discipline().id(),
+                eventDto.aggregateScore()
+            );
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
@@ -136,7 +150,10 @@ public class EventController {
                                 .collect(Collectors.toSet()),
                 eventDto.certificate() != null
                         ? EventCertificateId.of(eventDto.certificate().id())
-                        : null);
+                        : null,
+                Discipline.fromValue(eventDto.discipline().id()),
+                eventDto.aggregateScore()
+            );
         return ResponseEntity.ok(EventDto.from(event, organisationService, eventCertificateService, hasSplitTimes(event)));
     }
 
@@ -150,7 +167,8 @@ public class EventController {
     @GetMapping("/event/{id}/results")
     public ResponseEntity<EventResultsDto> getEventResults(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
-        return ResponseEntity.ok(EventResultsDto.from(event, resultListService));
+        boolean eventHasCup = !cupRepository.findByEvent(event.getId()).isEmpty();
+        return ResponseEntity.ok(EventResultsDto.from(event, resultListService, eventHasCup));
     }
 
     @PutMapping("/event/{id}/certificate")

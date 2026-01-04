@@ -42,6 +42,12 @@ public class Event implements Comparable<Event> {
     @Setter
     private EventCertificateId certificate;
 
+    @Setter
+    private Discipline discipline;
+
+    @Setter
+    private boolean aggregatedScore;
+
     public Event(
             EventId id,
             EventName eventName,
@@ -49,7 +55,9 @@ public class Event implements Comparable<Event> {
             @Nullable DateTime endTime,
             Collection<OrganisationId> organisationIds,
             @Nullable EventStatus eventState,
-            @Nullable EventCertificateId certificate) {
+            @Nullable EventCertificateId certificate,
+            Discipline discipline,
+            boolean aggregatedScore) {
         this.id = id;
         this.name = eventName;
         this.startTime = startTime;
@@ -57,6 +65,8 @@ public class Event implements Comparable<Event> {
         this.organisationIds = organisationIds;
         this.eventState = eventState;
         this.certificate = certificate;
+        this.discipline = discipline;
+        this.aggregatedScore = aggregatedScore;
     }
 
     public static Event of(String name) {
@@ -64,28 +74,20 @@ public class Event implements Comparable<Event> {
     }
 
     public static Event of(@Nullable Long id, String name) {
-        return Event.of(id, name, null, null, new HashSet<>(), EventStatus.getDefault());
+        return Event.of(id, name, null, null, new HashSet<>(), EventStatus.getDefault(), Discipline.getDefault(),
+            false);
     }
 
     public static Event of(String name, Collection<OrganisationId> organisations) {
-        return Event.of(EventId.empty().value(), name, null, null, organisations, EventStatus.getDefault());
+        return Event.of(EventId.empty().value(), name, null, null, organisations, EventStatus.getDefault(), Discipline.getDefault(), false);
     }
 
     public static Event of(
             String name,
             @Nullable ZonedDateTime startTime,
             Collection<OrganisationId> organisations) {
-        return Event.of(EventId.empty().value(), name, startTime, null, organisations, EventStatus.getDefault());
-    }
-
-    public static Event of(
-            @Nullable Long id,
-            String eventName,
-            @Nullable ZonedDateTime startTime,
-            @Nullable ZonedDateTime endTime,
-            Collection<OrganisationId> organisations,
-            @Nullable EventStatus eventState) {
-        return Event.of(id, eventName, startTime, endTime, organisations, eventState, null);
+        return Event.of(EventId.empty().value(), name, startTime, null, organisations, EventStatus.getDefault(),
+            Discipline.getDefault(), false);
     }
 
     public static Event of(
@@ -95,7 +97,21 @@ public class Event implements Comparable<Event> {
             @Nullable ZonedDateTime endTime,
             Collection<OrganisationId> organisations,
             @Nullable EventStatus eventState,
-            @Nullable EventCertificateId certificate) {
+            Discipline discipline,
+            boolean aggregatedScore) {
+        return Event.of(id, eventName, startTime, endTime, organisations, eventState, null, discipline, aggregatedScore);
+    }
+
+    public static Event of(
+            @Nullable Long id,
+            String eventName,
+            @Nullable ZonedDateTime startTime,
+            @Nullable ZonedDateTime endTime,
+            Collection<OrganisationId> organisations,
+            @Nullable EventStatus eventState,
+            @Nullable EventCertificateId certificate,
+            Discipline discipline,
+            boolean aggregatedScore) {
         return new Event(
                 id == null ? EventId.empty() : EventId.of(id),
                 EventName.of(eventName),
@@ -103,21 +119,25 @@ public class Event implements Comparable<Event> {
                 DateTime.of(endTime),
                 organisations,
                 eventState,
-                certificate);
+                certificate,
+                discipline,
+                aggregatedScore);
     }
 
     public void update(
-            EventName eventName,
-            @Nullable DateTime startTime,
-            @Nullable EventStatus status,
-            Collection<OrganisationId> organisations,
-            @Nullable EventCertificateId certificate) {
+        EventName eventName,
+        @Nullable DateTime startTime,
+        @Nullable EventStatus status,
+        Collection<OrganisationId> organisations,
+        @Nullable EventCertificateId certificate, Discipline discipline, boolean aggregatedScore) {
         ValueObjectChecks.requireNotNull(eventName);
         this.name = eventName;
         this.startTime = startTime;
         this.eventState = status;
         this.organisationIds = organisations;
         this.certificate = certificate;
+        this.discipline = discipline;
+        this.aggregatedScore = aggregatedScore;
     }
 
     @Override

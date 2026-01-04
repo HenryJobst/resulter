@@ -4,6 +4,7 @@ import type { MentalResilienceAnalysis } from '@/features/analysis/model/mental_
 import type { SplitTimeTable, SplitTimeTableOptions } from '@/features/analysis/model/split_time_table'
 import type { Certificate } from '@/features/certificate/model/certificate'
 import type { CupScoreList } from '@/features/event/model/cup_score_list'
+import type { Discipline } from '@/features/event/model/discipline'
 import type { EventCertificateStats } from '@/features/event/model/event_certificate_stats'
 import type { EventResults } from '@/features/event/model/event_results'
 import type { EventStatus } from '@/features/event/model/event_status'
@@ -19,6 +20,7 @@ import { GenericService } from '@/features/generic/services/GenericService'
 const eventUrl: string = '/event'
 const resultListUrl: string = '/result_list'
 const eventStatusUrl: string = '/event_status'
+const disciplineUrl: string = '/discipline'
 const splitTimeAnalysisUrl: string = '/split_time_analysis'
 
 export class EventService extends GenericService<SportEvent> {
@@ -70,6 +72,12 @@ export class EventService extends GenericService<SportEvent> {
     static async getEventStatus(_t: (key: string) => string): Promise<EventStatus[] | null> {
         return await axiosInstance
             .get<EventStatus[]>(eventStatusUrl)
+            .then(response => response.data)
+    }
+
+    static async getDisciplines(_t: (key: string) => string): Promise<Discipline[] | null> {
+        return await axiosInstance
+            .get<Discipline[]>(disciplineUrl)
             .then(response => response.data)
     }
 

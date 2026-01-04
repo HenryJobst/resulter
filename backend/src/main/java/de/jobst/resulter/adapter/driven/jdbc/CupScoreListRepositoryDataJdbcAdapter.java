@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import de.jobst.resulter.application.port.CupScoreListRepository;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupScoreList;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.ResultListId;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,11 @@ public class CupScoreListRepositoryDataJdbcAdapter implements CupScoreListReposi
     @Override
     public void deleteAllByDomainKey(Set<CupScoreList.DomainKey> cupScoreList) {
         cupScoreListJdbcCustomRepository.deleteAllByDomainKeys(cupScoreList);
+    }
+
+    @Override
+    public void deleteAllByEventId(EventId eventId) {
+        cupScoreListJdbcCustomRepository.deleteAllByEventId(eventId.value());
     }
 
     @Override

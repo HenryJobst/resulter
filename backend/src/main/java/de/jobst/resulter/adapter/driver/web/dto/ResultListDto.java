@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.ResultList;
+import de.jobst.resulter.domain.ResultListScoringService;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Collection;
@@ -18,7 +19,13 @@ public record ResultListDto(
         Boolean isCupScoreAvailable,
         Boolean isSplitTimeAvailable) {
 
-    public static ResultListDto from(ResultList resultList, Event event, int resultListSize) {
+    public static ResultListDto from(
+        ResultList resultList,
+        Event event,
+        int resultListSize,
+        Collection<ResultList> allEventResultLists,
+        boolean eventHasCup
+    ) {
         assert resultList.getClassResults() != null;
         byte raceNumber = resultList.getClassResults().stream()
                 .flatMap(x -> x.personResults().value().stream())
@@ -45,7 +52,7 @@ public record ResultListDto(
                         .sorted()
                         .toList(),
                 event.getCertificate() != null && (resultListSize == 1 || raceNumber == 0),
-                raceNumber > 0,
+                eventHasCup && ResultListScoringService.isScorableForCupCalculation(resultList, allEventResultLists, event),
                 hasSplitTimes);
     }
 }

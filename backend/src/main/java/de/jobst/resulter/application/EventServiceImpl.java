@@ -3,7 +3,6 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -73,15 +72,16 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findAllById(eventIds);
     }
 
-    @NonNull
     @Override
     public Event updateEvent(
             EventId id,
-            @NonNull EventName name,
+            EventName name,
             @Nullable DateTime startDate,
-            @NonNull EventStatus status,
-            @NonNull Collection<OrganisationId> organisationIds,
-            @Nullable EventCertificateId certificateId) {
+            EventStatus status,
+            Collection<OrganisationId> organisationIds,
+            @Nullable EventCertificateId certificateId,
+            Discipline discipline,
+            boolean aggregatedScore) {
         Event event = findById(id).orElseThrow(ResourceNotFoundException::new);
         List<Organisation> organisations = organisationRepository.findByIds(organisationIds);
         EventCertificate certificate = certificateId != null
@@ -92,7 +92,9 @@ public class EventServiceImpl implements EventService {
                 startDate,
                 status,
                 organisations.stream().map(Organisation::getId).toList(),
-                certificate != null ? certificate.getId() : null);
+                certificate != null ? certificate.getId() : null,
+                discipline, aggregatedScore
+            );
         if (certificate != null) {
             List<EventCertificate> eventCertificates = eventCertificateRepository.findAllByEvent(event.getId());
             eventCertificates.forEach(eventCertificate ->
@@ -112,7 +114,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event createEvent(String eventName, ZonedDateTime dateTime, Set<OrganisationId> organisationIds) {
+    public Event createEvent(String eventName, ZonedDateTime dateTime, Set<OrganisationId> organisationIds,
+                             String discipline,
+                             Boolean aggregatedScore) {
         List<Organisation> organisations = organisationRepository.findByIds(organisationIds);
         Event event = Event.of(
                 EventId.empty().value(),
@@ -120,12 +124,15 @@ public class EventServiceImpl implements EventService {
                 dateTime,
                 dateTime,
                 organisations.stream().map(Organisation::getId).toList(),
-                EventStatus.PLANNED);
+                EventStatus.PLANNED,
+                Discipline.fromValue(discipline),
+                aggregatedScore
+            );
         return eventRepository.save(event);
     }
 
     @Override
-    public Page<Event> findAll(@Nullable String filter, @NonNull Pageable pageable) {
+    public Page<Event> findAll(@Nullable String filter, Pageable pageable) {
         return eventRepository.findAll(filter, pageable);
     }
 }

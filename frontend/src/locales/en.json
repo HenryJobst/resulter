@@ -200,7 +200,9 @@
         "filters": "Filters",
         "sort_by": "Sort By",
         "split_times": "Split Times",
-        "start": "Start"
+        "start": "Start",
+        "aggregateScore": "Cup Score on Overall Result",
+        "discipline": "Discipline"
     },
     "messages": {
         "new_cup": "New cup",
@@ -509,5 +511,12 @@
             "races": "Races",
             "certificates": "Generated Certificates"
         }
+    },
+    "discipline": {
+        "SPRINT": "Sprint",
+        "MIDDLE": "Middle",
+        "LONG": "Long",
+        "ULTRALONG": "Ultralong",
+        "OTHER": "Other"
     }
 }

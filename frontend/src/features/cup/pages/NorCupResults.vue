@@ -5,6 +5,7 @@ import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_sc
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 import type { Person } from '@/features/person/model/person'
+import Panel from 'primevue/panel'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CupStatisticsWidget from '@/features/cup/widgets/CupStatistics.vue'
@@ -17,6 +18,7 @@ const props = defineProps<{
     persons: Record<number, Person>
     cupStatistics: CupStatistics
 }>()
+
 const { t } = useI18n()
 
 function person(personId: number): string {
@@ -77,7 +79,7 @@ function findScoreForEventAndClassResultAndPerson(
     index: number,
 ) {
     const eventScore = props.eventRacesCupScores.find(
-        e => e.event.id === allEvents.value[index].id,
+        e => e.event.id === allEvents.value[index]?.id,
     )
     return eventScore?.raceClassResultGroupedCupScores
         ?.flatMap(x => x.classResultScores || [])
@@ -102,7 +104,7 @@ function getRankBadgeClass(rank: number): string {
     <div class="max-w-7xl mx-auto px-3 py-3 sm:px-4 lg:px-6">
         <!-- Header Section -->
         <div class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">
-            <div class="bg-gradient-to-r from-zinc-600 to-zinc-700 px-4 py-3">
+            <div class="bg-linear-to-r from-zinc-600 to-zinc-700 px-4 py-3">
                 <h1 class="text-xl font-bold text-white">
                     {{ cupName }} - {{ t('cupStatistics.header.overall') }}
                 </h1>
@@ -110,7 +112,12 @@ function getRankBadgeClass(rank: number): string {
         </div>
 
         <!-- Cup Statistics -->
-        <CupStatisticsWidget :cup-statistics="cupStatistics" />
+        <Panel :collapsed="true" toggleable class="mb-3">
+            <template #header>
+                <span class="font-semibold">{{ t('labels.statistics') }}</span>
+            </template>
+            <CupStatisticsWidget :cup-statistics="cupStatistics" />
+        </Panel>
 
         <!-- Events List Section -->
         <div v-if="allEvents.length" class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">
@@ -134,7 +141,7 @@ function getRankBadgeClass(rank: number): string {
                     <tbody class="bg-adaptive">
                         <tr v-for="(event, index) in allEvents" :key="event.id" class="hover:bg-adaptive-tertiary transition-colors duration-150 border-b border-adaptive" :class="{ 'bg-adaptive-secondary': index % 2 === 1 }">
                             <td class="px-3 py-1.5 whitespace-nowrap">
-                                <span class="inline-flex items-center justify-center w-8 h-8 flex-shrink-0 rounded-full bg-zinc-badge text-zinc-badge font-semibold text-xs">
+                                <span class="inline-flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-zinc-badge text-zinc-badge font-semibold text-xs">
                                     {{ index + 1 }}
                                 </span>
                             </td>
@@ -228,7 +235,7 @@ function getRankBadgeClass(rank: number): string {
                                         >
                                     </div>
                                     <div v-else class="flex items-center justify-center">
-                                        <span class="inline-flex items-center justify-center w-8 h-8 flex-shrink-0 rounded-full text-xs font-semibold" :class="getRankBadgeClass(rank)">
+                                        <span class="inline-flex items-center justify-center w-8 h-8 shrink-0 rounded-full text-xs font-semibold" :class="getRankBadgeClass(rank)">
                                             {{ rank }}
                                         </span>
                                     </div>

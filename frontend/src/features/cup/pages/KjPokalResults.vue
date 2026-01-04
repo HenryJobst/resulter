@@ -5,6 +5,8 @@ import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 import type { RaceOrganisationGroupedCupScore } from '@/features/cup/model/race_organisation_grouped_cup_score.ts'
 import type { Person } from '@/features/person/model/person'
+import Panel from 'primevue/panel'
+import { useI18n } from 'vue-i18n'
 import CupStatisticsWidget from '@/features/cup/widgets/CupStatistics.vue'
 
 const props = defineProps<{
@@ -14,6 +16,8 @@ const props = defineProps<{
     persons: Record<number, Person>
     cupStatistics: CupStatistics
 }>()
+
+const { t } = useI18n()
 
 function getPersonName(personId: number): string {
     const person = props.persons?.[personId]
@@ -66,8 +70,8 @@ function createBaseCombinedScore(organisationScores: OrganisationScore[]): Map<n
 
 function getExistingOrganisationScores(raceOrganisationGroupedCupScores: RaceOrganisationGroupedCupScore[]): OrganisationScore[] {
     for (let i = 0; i < raceOrganisationGroupedCupScores.length; i++) {
-        if (raceOrganisationGroupedCupScores[i] && raceOrganisationGroupedCupScores[i].organisationScores.length > 0) {
-            return raceOrganisationGroupedCupScores[i].organisationScores
+        if (raceOrganisationGroupedCupScores[i] && raceOrganisationGroupedCupScores[i]!.organisationScores.length > 0) {
+            return raceOrganisationGroupedCupScores[i]?.organisationScores ?? []
         }
     }
     return []
@@ -75,7 +79,9 @@ function getExistingOrganisationScores(raceOrganisationGroupedCupScores: RaceOrg
 
 function fillCombinedScore(combinedScoreMap: Map<number, CombinedScore>, eventRacesCupScores: EventRacesCupScore[]): Map<number, CombinedScore> {
     for (let i = 0; i < totalRaces; i++) {
-        const organisationScores: OrganisationScore[] = getExistingOrganisationScores(eventRacesCupScores[i].raceOrganisationGroupedCupScores)
+        const organisationScores: OrganisationScore[] = eventRacesCupScores[i]
+            ? getExistingOrganisationScores(eventRacesCupScores[i]!.raceOrganisationGroupedCupScores)
+            : []
         for (const organisationScore of organisationScores) {
             if (organisationScore.score !== 0) {
                 const race: Race = {
@@ -157,7 +163,12 @@ function getRankBadgeClass(rank: number): string {
         </div>
 
         <!-- Cup Statistics -->
-        <CupStatisticsWidget :cup-statistics="cupStatistics" />
+        <Panel :collapsed="true" toggleable class="mb-3">
+            <template #header>
+                <span class="font-semibold">{{ t('labels.statistics') }}</span>
+            </template>
+            <CupStatisticsWidget :cup-statistics="cupStatistics" />
+        </Panel>
 
         <!-- Race List Section -->
         <div class="bg-adaptive rounded shadow-sm border border-adaptive mb-3 overflow-hidden">
@@ -206,7 +217,7 @@ function getRankBadgeClass(rank: number): string {
                     <colgroup>
                         <col style="width: 350px;">
                         <col style="width: 80px;">
-                        <col v-for="(index) in props.eventRacesCupScores" :key="index" style="width: 50px;">
+                        <col v-for="(_cs, index) in props.eventRacesCupScores" :key="index" style="width: 50px;">
                     </colgroup>
                     <thead class="bg-adaptive-secondary">
                         <tr>

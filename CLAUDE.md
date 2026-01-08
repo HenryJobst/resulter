@@ -390,6 +390,10 @@ export function useCreateEvent() {
 
 ## Important Patterns and Rules
 
+### Code Comment Guidelines
+**Comments:** Use English only.
+**Comment Style:** Be sparse. Focus on the "why", not the "what".
+
 ### Spring Data JDBC (Not JPA)
 
 This project uses Spring Data JDBC, **not** JPA/Hibernate:

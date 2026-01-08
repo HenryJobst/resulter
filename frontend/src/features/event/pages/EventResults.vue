@@ -294,28 +294,43 @@ const treeNodes = computed(() => {
  */
 const pendingNodes = ref<Record<string, (() => void)[]>>({})
 
+const TIMEOUT_HIGHLIGHT_PERSON = 5000
+
 /**
- * Scroll zur Person und Highlight
+ * Scroll zur Person und Highlight (mit Retry)
  */
 async function scrollToPerson(personId: number) {
-    console.log('[DeepLink] Starting scroll to person:', personId)
-
     await nextTick()
-    await new Promise(r => setTimeout(r, 200)) // kurze Zeit, DOM vollständig
 
     const elementId = `person-result-${personId}`
-    const element = document.getElementById(elementId)
+    const maxRetries = 10
+    const retryDelay = 200
 
-    if (!element) {
-        console.warn('[DeepLink] Element not found:', elementId)
-        const allPersonElements = document.querySelectorAll('[id^="person-result-"]')
-        console.log('[DeepLink] Available person elements:', Array.from(allPersonElements).map(el => el.id))
-        return
+    // Versuche mehrfach, das Element zu finden (warten auf PrimeVue DataTable Rendering)
+    for (let i = 0; i < maxRetries; i++) {
+        const element = document.getElementById(elementId)
+
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+            // Finde die parent table row und highlighte sie
+            const tableRow = element.closest('tr')
+            if (tableRow) {
+                tableRow.classList.add('highlight-person-result')
+                setTimeout(() => {
+                    tableRow.classList.remove('highlight-person-result')
+                }, TIMEOUT_HIGHLIGHT_PERSON)
+            }
+            else {
+                // Fallback: highlighte das Element selbst
+                element.classList.add('highlight-person-result')
+                setTimeout(() => element.classList.remove('highlight-person-result'), TIMEOUT_HIGHLIGHT_PERSON)
+            }
+            return
+        }
+
+        await new Promise(r => setTimeout(r, retryDelay))
     }
-
-    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    element.classList.add('highlight-person-result')
-    setTimeout(() => element.classList.remove('highlight-person-result'), 2000)
 }
 
 /**
@@ -328,8 +343,17 @@ function findNodeByKey(nodes: any[] | undefined, key: string): any | null {
     for (const node of nodes) {
         if (node.key === key)
             return node
+
+        // Suche in children
         if (node.children) {
             const found = findNodeByKey(node.children, key)
+            if (found)
+                return found
+        }
+
+        // Suche auch in data (für nested Tree-Struktur)
+        if (node.data && Array.isArray(node.data)) {
+            const found = findNodeByKey(node.data, key)
             if (found)
                 return found
         }
@@ -342,8 +366,12 @@ function findNodeByKey(nodes: any[] | undefined, key: string): any | null {
  * @param event Node-Event von PrimeVue Tree
  */
 function onNodeExpand(event: any) {
+    // Guard: Manchmal ist event.node undefined (z.B. bei bestimmten Node-Typen)
+    if (!event?.node?.key) {
+        return
+    }
+
     const key = event.node.key
-    console.log('[onNodeExpand] Node expanded:', key)
 
     if (pendingNodes.value[key]) {
         pendingNodes.value[key].forEach(resolve => resolve())
@@ -357,7 +385,6 @@ function onNodeExpand(event: any) {
 function waitForNode(key: string): Promise<void> {
     return new Promise((resolve) => {
         if (treeNodes.value && findNodeByKey(treeNodes.value, key)) {
-            console.log('[waitForNode] Node already exists:', key)
             resolve()
             return
         }
@@ -387,12 +414,10 @@ async function expandTreeToClass(resultListId: number, classShortName: string) {
     ]
 
     for (const key of path) {
-        console.log('[expandTreeToClass] Waiting for node:', key)
         await waitForNode(key)
 
         expandedKeys.value = { ...expandedKeys.value, [key]: true }
         await nextTick()
-        console.log('[expandTreeToClass] Expanded:', key)
     }
 }
 
@@ -403,8 +428,6 @@ async function handleDeepLink() {
     const { resultListId, classShortName, personId } = deepLinkParams.value
     if (!resultListId || !classShortName)
         return
-
-    console.log('[DeepLink] Handling deep link:', { resultListId, classShortName, personId })
 
     await expandTreeToClass(resultListId, classShortName)
 
@@ -423,7 +446,6 @@ const stopDeepLinkWatch: (() => void) | undefined = watch(
         if (!resultListId || !hasRootNode(resultListId))
             return
 
-        console.log('[DeepLink] Root node ready, handling deep link')
         handleDeepLink()
         stopDeepLinkWatch?.()
     },
@@ -692,7 +714,11 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
                 </template>
                 <!-- suppress VueUnrecognizedSlot -->
                 <template #tree="slotProps">
-                    <Tree :value="slotProps?.node?.data">
+                    <Tree
+                        v-model:expanded-keys="expandedKeys"
+                        :value="slotProps?.node?.data"
+                        @node-expand="onNodeExpand"
+                    >
                         <template #default="mySlotProps">
                             <b>{{ mySlotProps?.node?.label }}</b>
                         </template>
@@ -743,7 +769,21 @@ h1 {
 }
 
 :deep(.highlight-person-result) {
-    background-color: rgba(var(--primary-500), 0.2) !important;
+    background-color: rgb(var(--slate-highlight-bg)) !important;
+    animation: highlight-fade 2s ease-out;
     transition: background-color 0.3s ease-out;
+}
+
+:deep(.highlight-person-result td) {
+    background-color: rgb(var(--slate-highlight-bg)) !important;
+}
+
+@keyframes highlight-fade {
+    0% {
+        background-color: rgb(var(--slate-badge-bg));
+    }
+    100% {
+        background-color: rgb(var(--slate-highlight-bg));
+    }
 }
 </style>

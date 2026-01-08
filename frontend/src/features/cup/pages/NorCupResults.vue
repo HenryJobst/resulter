@@ -80,11 +80,9 @@ const allEvents = computed(() => {
 // Lade ResultLists für alle Events
 const eventResultsQueries = useQueries({
     queries: computed(() => {
-        console.log('[NorCup] Creating queries for allEvents:', allEvents.value.map(e => ({ id: e.id, name: e.name })))
         return allEvents.value.map(event => ({
             queryKey: ['eventResults', event.id],
             queryFn: () => {
-                console.log('[NorCup] Executing query for event:', event.id)
                 return EventService.getResultsById(event.id.toString(), t)
             },
             staleTime: 5 * 60 * 1000,
@@ -95,8 +93,6 @@ const eventResultsQueries = useQueries({
 // Mapping: Race-ID → ResultList-ID
 const raceIdToResultListId = computed(() => {
     const mapping = new Map<number, number>()
-
-    console.log('[NorCup] Building raceId mapping, queries count:', eventResultsQueries.value.length)
 
     eventResultsQueries.value.forEach((query) => {
         // Bei useQueries ist query.data direkt das Objekt, NICHT query.data.value
@@ -109,7 +105,6 @@ const raceIdToResultListId = computed(() => {
         }
     })
 
-    console.log('[NorCup] Final mapping:', Object.fromEntries(mapping))
     return mapping
 })
 
@@ -143,12 +138,8 @@ function getRankBadgeClass(rank: number): string {
  * Holt die ResultList-ID für ein bestimmtes Event und Klasse
  */
 function getResultListIdForEvent(eventIndex: number, classShortName: string): number | undefined {
-    console.log('[NorCup] getResultListIdForEvent:', { eventIndex, classShortName })
-
     const event = allEvents.value[eventIndex]
-    console.log('[NorCup] Event found:', event?.id, event?.name)
     if (!event) {
-        console.warn('[NorCup] No event found at index:', eventIndex)
         return undefined
     }
 
@@ -156,34 +147,24 @@ function getResultListIdForEvent(eventIndex: number, classShortName: string): nu
     const eventScore = props.eventRacesCupScores.find(
         e => e.event.id === event.id,
     )
-    console.log('[NorCup] EventScore found:', !!eventScore)
 
     if (!eventScore) {
-        console.warn('[NorCup] No eventScore found for event:', event.id)
         return undefined
     }
 
-    console.log('[NorCup] raceClassResultGroupedCupScores count:', eventScore.raceClassResultGroupedCupScores?.length)
-    console.log('[NorCup] Current raceIdToResultListId mapping:', Object.fromEntries(raceIdToResultListId.value))
-
     // Suche in raceClassResultGroupedCupScores nach passender Klasse
     for (const raceClassGroup of eventScore.raceClassResultGroupedCupScores) {
-        console.log('[NorCup] Checking raceClassGroup, race ID:', raceClassGroup.race?.id)
-
         const classResult = raceClassGroup.classResultScores.find(
             cs => cs.classResultShortName === classShortName,
         )
-        console.log('[NorCup] Class result found for', classShortName, ':', !!classResult)
 
         if (classResult && raceClassGroup.race?.id) {
             const raceId = raceClassGroup.race.id
             const resultListId = raceIdToResultListId.value.get(raceId)
-            console.log('[NorCup] Race ID:', raceId, '→ ResultList ID:', resultListId)
             return resultListId
         }
     }
 
-    console.warn('[NorCup] No matching race class group found for class:', classShortName)
     return undefined
 }
 
@@ -196,17 +177,12 @@ function navigateToPersonResult(
     classShortName: string,
     personId: number,
 ) {
-    console.log('[NorCup] Navigate to person result:', { eventId, resultListId, classShortName, personId })
-
     const query: Record<string, string> = {}
 
     if (resultListId) {
         query.resultListId = resultListId.toString()
         query.classShortName = classShortName
         query.personId = personId.toString()
-    }
-    else {
-        console.warn('[NorCup] No resultListId found - opening without deep link')
     }
 
     const route = router.resolve({
@@ -215,7 +191,6 @@ function navigateToPersonResult(
         query,
     })
 
-    console.log('[NorCup] Opening URL:', route.href)
     window.open(route.href, '_blank')
 }
 </script>

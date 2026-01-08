@@ -215,8 +215,6 @@ function navigateToPersonResult(
     classShortName: string,
     personId: number,
 ) {
-    console.log('[KjPokal] Navigate to person result:', { eventId, resultListId, classShortName, personId })
-
     const query: Record<string, string> = {}
 
     // Nur Deep-Link-Parameter hinzufügen wenn ResultList-ID verfügbar
@@ -225,9 +223,6 @@ function navigateToPersonResult(
         query.classShortName = classShortName
         query.personId = personId.toString()
     }
-    else {
-        console.warn('[KjPokal] No resultListId found - opening without deep link')
-    }
 
     const route = router.resolve({
         name: 'event-results',
@@ -235,7 +230,6 @@ function navigateToPersonResult(
         query,
     })
 
-    console.log('[KjPokal] Opening URL:', route.href)
     window.open(route.href, '_blank')
 }
 </script>

@@ -5,10 +5,13 @@ import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_sc
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import type { PersonWithScore } from '@/features/cup/model/person_with_score'
 import type { Person } from '@/features/person/model/person'
+import { useQueries } from '@tanstack/vue-query'
 import Panel from 'primevue/panel'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import CupStatisticsWidget from '@/features/cup/widgets/CupStatistics.vue'
+import { EventService } from '@/features/event/services/event.service'
 
 const props = defineProps<{
     cupName: string
@@ -20,6 +23,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const router = useRouter()
 
 function person(personId: number): string {
     const person = props.persons?.[personId]
@@ -73,6 +77,37 @@ const allEvents = computed(() => {
         })
 })
 
+// Lade ResultLists für alle Events
+const eventResultsQueries = useQueries({
+    queries: computed(() => {
+        return allEvents.value.map(event => ({
+            queryKey: ['eventResults', event.id],
+            queryFn: () => {
+                return EventService.getResultsById(event.id.toString(), t)
+            },
+            staleTime: 5 * 60 * 1000,
+        }))
+    }),
+})
+
+// Mapping: Race-ID → ResultList-ID
+const raceIdToResultListId = computed(() => {
+    const mapping = new Map<number, number>()
+
+    eventResultsQueries.value.forEach((query) => {
+        // Bei useQueries ist query.data direkt das Objekt, NICHT query.data.value
+        if (query.data?.resultLists) {
+            query.data.resultLists.forEach((rl) => {
+                if (rl.raceId) {
+                    mapping.set(rl.raceId, rl.id)
+                }
+            })
+        }
+    })
+
+    return mapping
+})
+
 function findScoreForEventAndClassResultAndPerson(
     classShortName: string,
     personId: number,
@@ -97,6 +132,66 @@ function getRankBadgeClass(rank: number): string {
     if (rank === 3)
         return 'bg-gradient-to-br from-orange-400 to-orange-600 text-white dark:from-orange-500 dark:to-orange-700'
     return 'bg-adaptive-tertiary text-adaptive'
+}
+
+/**
+ * Holt die ResultList-ID für ein bestimmtes Event und Klasse
+ */
+function getResultListIdForEvent(eventIndex: number, classShortName: string): number | undefined {
+    const event = allEvents.value[eventIndex]
+    if (!event) {
+        return undefined
+    }
+
+    // Finde passendes EventRacesCupScore
+    const eventScore = props.eventRacesCupScores.find(
+        e => e.event.id === event.id,
+    )
+
+    if (!eventScore) {
+        return undefined
+    }
+
+    // Suche in raceClassResultGroupedCupScores nach passender Klasse
+    for (const raceClassGroup of eventScore.raceClassResultGroupedCupScores) {
+        const classResult = raceClassGroup.classResultScores.find(
+            cs => cs.classResultShortName === classShortName,
+        )
+
+        if (classResult && raceClassGroup.race?.id) {
+            const raceId = raceClassGroup.race.id
+            const resultListId = raceIdToResultListId.value.get(raceId)
+            return resultListId
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Navigiert zu Wettkampfergebnissen mit Deep-Link
+ */
+function navigateToPersonResult(
+    eventId: number,
+    resultListId: number | undefined,
+    classShortName: string,
+    personId: number,
+) {
+    const query: Record<string, string> = {}
+
+    if (resultListId) {
+        query.resultListId = resultListId.toString()
+        query.classShortName = classShortName
+        query.personId = personId.toString()
+    }
+
+    const route = router.resolve({
+        name: 'event-results',
+        params: { id: eventId.toString() },
+        query,
+    })
+
+    window.open(route.href, '_blank')
 }
 </script>
 
@@ -261,11 +356,19 @@ function getRankBadgeClass(rank: number): string {
                                     :key="event.id"
                                     class="px-2 py-1.5 text-center text-xs"
                                 >
-                                    <span v-if="findScoreForEventAndClassResultAndPerson(pws.classShortName, pws.personId, idx)" class="text-adaptive font-semibold">
-                                        {{
-                                            findScoreForEventAndClassResultAndPerson(pws.classShortName, pws.personId, idx)
-                                        }}
-                                    </span>
+                                    <button
+                                        v-if="findScoreForEventAndClassResultAndPerson(pws.classShortName, pws.personId, idx)"
+                                        type="button"
+                                        class="text-primary hover:text-primary-600 hover:underline cursor-pointer font-semibold"
+                                        @click="navigateToPersonResult(
+                                            event.id,
+                                            getResultListIdForEvent(idx, pws.classShortName),
+                                            pws.classShortName,
+                                            pws.personId,
+                                        )"
+                                    >
+                                        {{ findScoreForEventAndClassResultAndPerson(pws.classShortName, pws.personId, idx) }}
+                                    </button>
                                     <span v-else class="text-adaptive-tertiary">-</span>
                                 </td>
                             </tr>

@@ -129,7 +129,13 @@ function certificate(resultListId: number, classResultShortName: string, data: P
 
 <template>
     <DataTable :value="props.data.personResults">
-        <Column field="position" :header="t('labels.position')" />
+        <Column field="position" :header="t('labels.position')">
+            <template #body="slotProps">
+                <div :id="`person-result-${slotProps.data.personId}`">
+                    {{ slotProps.data.position }}
+                </div>
+            </template>
+        </Column>
         <Column :header="t('labels.name')">
             <template #body="slotProps">
                 {{ personNameColumn(slotProps.data) }}

@@ -128,10 +128,15 @@ function certificate(resultListId: number, classResultShortName: string, data: P
 </script>
 
 <template>
-    <DataTable :value="props.data.personResults">
-        <Column field="position" :header="t('labels.position')">
+    <DataTable
+        :value="props.data.personResults"
+        striped-rows
+        class="mt-3"
+        responsive-layout="scroll"
+    >
+        <Column field="position" :header="t('labels.position')" class="font-semibold">
             <template #body="slotProps">
-                <div :id="`person-result-${slotProps.data.personId}`">
+                <div :id="`person-result-${slotProps.data.personId}`" class="font-medium">
                     {{ slotProps.data.position }}
                 </div>
             </template>

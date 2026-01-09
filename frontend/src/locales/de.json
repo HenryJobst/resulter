@@ -202,7 +202,8 @@
         "split_times": "Split-Zeiten",
         "start": "Start",
         "aggregateScore": "Cup-Wertung auf Gesamtwertung",
-        "discipline": "Disziplin"
+        "discipline": "Disziplin",
+        "administration": "Einstellungen"
     },
     "result_state": {
         "OK": "OK",
@@ -409,7 +410,12 @@
         "description": "Resulter ist eine innovative Web-Anwendung für Orientierungslauf-Enthusiasten und Organisatoren von Orientierungslauf-Wettkämpfen.",
         "features": "Inhalt: Wettkampfverwaltung, Ergebnislisten, persönlicher Urkundendownload für Teilnehmer, Berechnung von Cup- und Ranglistenpunkten sowie Auswertung von Zwischenzeiten.",
         "contact": "Für Anfragen, schreiben Sie uns bitte eine E-Mail an",
-        "emailAddress": "resulter{'@'}olberlin.de"
+        "emailAddress": "resulter{'@'}olberlin.de",
+        "features_heading": "Funktionen",
+        "feature_event_results": "Wettkampf-Ergebnisse",
+        "feature_cup_results": "Cup-Ergebnisse",
+        "feature_certificates": "Download-Urkunden",
+        "feature_split_analysis": "Analyse-Tools für Splitzeiten"
     },
     "backend": {
         "unexpected_error": "Unerwarteter Fehler",

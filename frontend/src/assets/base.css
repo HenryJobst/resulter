@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Google Fonts - Manrope for modern, geometric look */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
 /* Dark Mode CSS Variables */
 :root {
     --bg-primary: 255 255 255; /* white */
@@ -160,8 +163,87 @@
  */
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /*color: var(--default-font-color)*/
+}
+
+/* Typography enhancements */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* PrimeVue Component Overrides for modern look */
+
+/* Buttons */
+.p-button {
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.p-button:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+/* Cards */
+.p-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.p-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Panels */
+.p-panel {
+  border-radius: 8px;
+}
+
+.p-panel .p-panel-header {
+  border-radius: 8px 8px 0 0;
+}
+
+/* DataTable improvements */
+.p-datatable .p-datatable-thead > tr > th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  transition: background-color 0.2s ease;
+}
+
+/* noinspection CssUnresolvedCustomProperty */
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: color-mix(in srgb, var(--p-primary-color) 5%, transparent) !important;
+}
+
+/* Tree component styling */
+.p-tree {
+  border: none;
+}
+
+.p-tree .p-tree-node-content {
+  transition: all 0.2s ease;
+}
+
+/* Smooth transitions utility */
+.transition-smooth {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }

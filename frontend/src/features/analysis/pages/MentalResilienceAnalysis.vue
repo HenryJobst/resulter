@@ -767,4 +767,15 @@ function removePersonFilter(personId: number) {
     max-width: 1400px;
     margin: 0 auto;
 }
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    h2, h3 {
+        color: rgb(229, 231, 235);
+    }
+
+    .text-gray-600 {
+        color: rgb(156, 163, 175) !important;
+    }
+}
 </style>

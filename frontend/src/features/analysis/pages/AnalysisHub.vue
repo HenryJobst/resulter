@@ -456,11 +456,6 @@ function startAnalysis() {
     border-radius: 12px;
 }
 
-.configuration-card :deep(.p-card-title) {
-    font-size: 1.25rem;
-    margin-bottom: 1.5rem;
-}
-
 /* Start Button */
 .start-button {
     padding: 0.75rem 2rem;

@@ -428,4 +428,19 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], ()
 .class-title {
     font-size: 1.25rem;
 }
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    h2 {
+        color: rgb(229, 231, 235);
+    }
+
+    .text-gray-600 {
+        color: rgb(156, 163, 175) !important;
+    }
+
+    .class-section {
+        border-top-color: rgb(55, 65, 81);
+    }
+}
 </style>

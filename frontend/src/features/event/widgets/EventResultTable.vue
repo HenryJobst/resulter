@@ -14,6 +14,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import { cupService } from '@/features/cup/services/cup.service'
+import { usePersonHighlight } from '@/features/event/composables/usePersonHighlight'
 import { EventService } from '@/features/event/services/event.service'
 import { organisationService } from '@/features/organisation/services/organisation.service'
 import { personService } from '@/features/person/services/person.service'
@@ -39,6 +40,18 @@ const cups = computed((): Cup[] => {
 
 const queryClient = useQueryClient()
 const authStore = useAuthStore()
+const { isHighlighted } = usePersonHighlight()
+
+function rowClass(data: PersonResult): string {
+    const highlightMode = isHighlighted(data.personId)
+    if (highlightMode === 'bright') {
+        return 'highlight-bright'
+    }
+    if (highlightMode === 'light') {
+        return 'highlight-light'
+    }
+    return ''
+}
 
 function parseDurationMoment(durationString: string): moment.Duration {
     return moment.duration(durationString)
@@ -130,6 +143,7 @@ function certificate(resultListId: number, classResultShortName: string, data: P
 <template>
     <DataTable
         :value="props.data.personResults"
+        :row-class="rowClass"
         striped-rows
         class="mt-3"
         responsive-layout="scroll"

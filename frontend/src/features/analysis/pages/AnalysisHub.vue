@@ -218,42 +218,45 @@ function startAnalysis() {
 <template>
     <div class="analysis-hub p-4">
         <!-- Page Title -->
-        <div class="mb-4">
-            <h1 class="text-3xl font-bold">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold mb-2">
                 {{ t('labels.analysis_hub') }}
             </h1>
-            <p class="text-gray-600 mt-2">
+            <p class="subtitle-text">
                 {{ t('messages.select_analysis_type_and_configure') }}
             </p>
         </div>
 
         <!-- Analysis Type Selection -->
         <div class="mb-6">
-            <h2 class="text-xl font-semibold mb-3">
+            <h2 class="text-xl font-semibold mb-4">
                 {{ t('labels.select_analysis') }}
             </h2>
-            <div class="flex flex-column gap-4">
+            <div class="analysis-grid">
                 <Card
                     v-for="analysisType in analysisTypes"
                     :key="analysisType.key"
-                    class="cursor-pointer transition-all hover:shadow-lg" :class="[
-                        selectedAnalysisType === analysisType.key ? 'ring-2 ring-blue-500' : '',
-                        !analysisType.enabled ? 'opacity-50 cursor-not-allowed' : '',
+                    class="analysis-card"
+                    :class="[
+                        selectedAnalysisType === analysisType.key ? 'selected' : '',
+                        !analysisType.enabled ? 'disabled' : '',
                     ]"
                     @click="analysisType.enabled && selectAnalysisType(analysisType.key)"
                 >
                     <template #title>
-                        <div class="flex items-center gap-2">
-                            <i :class="analysisType.icon" class="text-2xl" />
-                            <span>{{ t(analysisType.titleKey) }}</span>
+                        <div class="flex items-center gap-3">
+                            <div class="icon-wrapper">
+                                <i :class="analysisType.icon" class="text-xl" />
+                            </div>
+                            <span class="font-semibold">{{ t(analysisType.titleKey) }}</span>
                         </div>
                     </template>
                     <template #content>
-                        <p class="text-sm text-gray-600">
+                        <p class="description-text text-sm mt-2">
                             {{ t(analysisType.descriptionKey) }}
                         </p>
-                        <div v-if="!analysisType.enabled" class="mt-2">
-                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                        <div v-if="!analysisType.enabled" class="mt-3">
+                            <span class="coming-soon-badge">
                                 {{ t('labels.coming_soon') }}
                             </span>
                         </div>
@@ -263,67 +266,68 @@ function startAnalysis() {
         </div>
 
         <!-- Configuration Panel -->
-        <Card v-if="selectedAnalysisType" class="mb-6">
+        <Card v-if="selectedAnalysisType" class="configuration-card mb-6">
             <template #title>
-                {{ t('labels.configure_analysis') }}
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-cog text-xl" />
+                    <span class="font-semibold">{{ t('labels.configure_analysis') }}</span>
+                </div>
             </template>
             <template #content>
                 <!-- Scope Selection -->
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2">
+                <div class="mb-5">
+                    <label class="block text-sm font-medium mb-3">
                         {{ t('labels.analysis_scope') }}
                     </label>
-                    <div class="flex gap-4">
-                        <div class="flex items-center">
+                    <div class="flex gap-6">
+                        <div class="flex items-center gap-2">
                             <input
                                 id="scope-event"
                                 v-model="selectedScope"
                                 type="radio"
                                 value="event"
-                                class="mr-2"
                             >
-                            <label for="scope-event">{{ t('labels.scope_event') }}</label>
+                            <label for="scope-event" class="cursor-pointer">{{ t('labels.scope_event') }}</label>
                         </div>
                         <div
                             v-if="authStore.isAdmin"
-                            class="flex items-center opacity-50"
+                            class="flex items-center gap-2"
                         >
                             <input
                                 id="scope-cup"
                                 type="radio"
                                 value="cup"
                                 disabled
-                                class="mr-2"
                             >
-                            <label for="scope-cup">
+                            <label for="scope-cup" class="cursor-not-allowed disabled-label">
                                 {{ t('labels.scope_cup') }}
-                                <span class="text-xs ml-1">({{ t('labels.coming_soon') }})</span>
+                                <span class="text-xs ml-1 coming-soon-text">({{ t('labels.coming_soon') }})</span>
                             </label>
                         </div>
                         <div
                             v-if="authStore.isAdmin"
-                            class="flex items-center opacity-50"
+                            class="flex items-center gap-2"
                         >
                             <input
                                 id="scope-year"
                                 type="radio"
                                 value="year"
                                 disabled
-                                class="mr-2"
                             >
-                            <label for="scope-year">
+                            <label for="scope-year" class="cursor-not-allowed disabled-label">
                                 {{ t('labels.scope_year') }}
-                                <span class="text-xs ml-1">({{ t('labels.coming_soon') }})</span>
+                                <span class="text-xs ml-1 coming-soon-text">({{ t('labels.coming_soon') }})</span>
                             </label>
                         </div>
                     </div>
                 </div>
 
                 <!-- Event Scope Configuration -->
-                <div v-if="selectedScope === 'event'" class="space-y-4">
+                <div v-if="selectedScope === 'event'" class="event-configuration">
                     <!-- Event Selection -->
                     <div>
                         <label class="block text-sm font-medium mb-2">
+                            <i class="pi pi-calendar mr-1" />
                             {{ t('labels.event') }}
                         </label>
                         <Select
@@ -340,6 +344,7 @@ function startAnalysis() {
                     <!-- Result List Selection -->
                     <div v-if="selectedEvent">
                         <label class="block text-sm font-medium mb-2">
+                            <i class="pi pi-list mr-1" />
                             {{ t('labels.result_list') }}
                         </label>
                         <Select
@@ -355,7 +360,7 @@ function startAnalysis() {
                                     <div class="font-semibold">
                                         {{ slotProps.option.label }}
                                     </div>
-                                    <div class="text-sm text-gray-600">
+                                    <div class="text-sm secondary-text">
                                         {{ new Date(slotProps.option.createTime).toLocaleString() }}
                                     </div>
                                 </div>
@@ -364,10 +369,11 @@ function startAnalysis() {
                     </div>
 
                     <!-- Start Analysis Button -->
-                    <div class="mt-4">
+                    <div class="mt-6 pt-4 border-t border-gray-200">
                         <Button
                             :label="t('labels.start_analysis')"
                             icon="pi pi-play"
+                            class="start-button"
                             :disabled="!canStartAnalysis"
                             @click="startAnalysis"
                         />
@@ -380,7 +386,191 @@ function startAnalysis() {
 
 <style scoped>
 .analysis-hub {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
+}
+
+/* Analysis Type Grid */
+.analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Analysis Cards */
+.analysis-card {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border-radius: 12px;
+    border: 2px solid transparent;
+}
+
+.analysis-card:not(.disabled):hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.analysis-card.selected {
+    border-color: rgb(59, 130, 246);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.01) 100%);
+}
+
+.analysis-card.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Icon Wrapper */
+.icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    color: rgb(59, 130, 246);
+}
+
+.analysis-card.selected .icon-wrapper {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Coming Soon Badge */
+.coming-soon-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(251, 191, 36, 0.05) 100%);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: rgb(161, 98, 7);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Configuration Card */
+.configuration-card {
+    border-radius: 12px;
+}
+
+.configuration-card :deep(.p-card-title) {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Start Button */
+.start-button {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Text Colors */
+.subtitle-text {
+    color: rgb(75, 85, 99);
+}
+
+.description-text {
+    color: rgb(75, 85, 99);
+}
+
+.secondary-text {
+    color: rgb(107, 114, 128);
+}
+
+/* Labels */
+label {
+    font-weight: 500;
+    color: rgb(55, 65, 81);
+}
+
+label.disabled-label {
+    opacity: 0.6;
+}
+
+.coming-soon-text {
+    color: rgb(107, 114, 128);
+}
+
+/* Event Configuration */
+.event-configuration > div {
+    margin-bottom: 1.25rem;
+}
+
+.event-configuration > div:last-child {
+    margin-bottom: 0;
+}
+
+/* Radio Buttons */
+input[type="radio"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    cursor: pointer;
+}
+
+input[type="radio"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .analysis-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analysis-hub {
+        padding: 1rem;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .analysis-card.selected {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.02) 100%);
+    }
+
+    .icon-wrapper {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%);
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .coming-soon-badge {
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.08) 100%);
+        border-color: rgba(251, 191, 36, 0.35);
+        color: rgb(252, 211, 77);
+    }
+
+    /* Text Colors in Dark Mode */
+    .subtitle-text {
+        color: rgb(156, 163, 175);
+    }
+
+    .description-text {
+        color: rgb(156, 163, 175);
+    }
+
+    .secondary-text {
+        color: rgb(156, 163, 175);
+    }
+
+    label {
+        color: rgb(209, 213, 219);
+    }
+
+    label.disabled-label {
+        opacity: 0.7;
+    }
+
+    .coming-soon-text {
+        color: rgb(156, 163, 175);
+    }
+
+    .border-gray-200 {
+        border-color: rgb(55, 65, 81) !important;
+    }
 }
 </style>

@@ -16,6 +16,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import { courseService } from '@/features/course/services/course.service'
+import { usePersonHighlight } from '@/features/event/composables/usePersonHighlight'
 import { EventService, eventService } from '@/features/event/services/event.service'
 import EventCertificateStatsTable from '@/features/event/widgets/EventCertificateStatsTable.vue'
 import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
@@ -28,6 +29,7 @@ const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const { highlightPerson } = usePersonHighlight()
 
 // State für Tree-Expansion (ClassResults)
 const expandedKeys = ref<Record<string, boolean>>({})
@@ -356,18 +358,12 @@ async function scrollToPerson(personId: number) {
         if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' })
 
-            // Finde die parent table row und highlighte sie
-            const tableRow = element.closest('tr')
-            if (tableRow) {
-                tableRow.classList.add('highlight-person-result')
-                setTimeout(() => {
-                    tableRow.classList.remove('highlight-person-result')
-                }, TIMEOUT_HIGHLIGHT_PERSON)
-            }
-            else {
-                // Fallback: highlighte das Element selbst
-                element.classList.add('highlight-person-result')
-                setTimeout(() => element.classList.remove('highlight-person-result'), TIMEOUT_HIGHLIGHT_PERSON)
+            // Extrahiere personId aus elementId (format: "person-result-{personId}")
+            const personId = Number.parseInt(elementId.replace('person-result-', ''))
+
+            if (personId) {
+                // Nutze Composable für reaktives Highlighting
+                highlightPerson(personId, TIMEOUT_HIGHLIGHT_PERSON)
             }
             return
         }
@@ -827,25 +823,5 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
 <style scoped>
 h1 {
     margin-bottom: 1rem;
-}
-
-/* noinspection CssUnusedSymbol */
-:deep(.highlight-person-result) {
-    background-color: rgb(var(--slate-highlight-bg)) !important;
-    animation: highlight-fade 2s ease-out;
-    transition: background-color 0.3s ease-out;
-}
-
-:deep(.highlight-person-result td) {
-    background-color: rgb(var(--slate-highlight-bg)) !important;
-}
-
-@keyframes highlight-fade {
-    0% {
-        background-color: rgb(var(--slate-badge-bg));
-    }
-    100% {
-        background-color: rgb(var(--slate-highlight-bg));
-    }
 }
 </style>

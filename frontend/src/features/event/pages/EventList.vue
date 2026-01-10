@@ -98,7 +98,7 @@ const initialTableSettings: TableSettings = {
                 <Button
                     v-tooltip="t('labels.results')"
                     icon="pi pi-list"
-                    class="mr-2 my-1"
+                    class="mr-2"
                     :aria-label="t('labels.results')"
                     outlined
                     raised

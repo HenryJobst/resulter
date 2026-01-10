@@ -364,7 +364,16 @@ h1 {
 }
 
 :deep(.p-column-filter) {
-    width: 100%;
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+:deep(.p-column-filter-element) {
+    width: 100% !important;
+}
+
+:deep(.p-inputtext) {
+    width: 100% !important;
     box-sizing: border-box;
 }
 </style>

@@ -3,6 +3,7 @@ import type { GenericListColumn } from '@/features/generic/models/GenericListCol
 import type { TableSettings } from '@/features/generic/models/table_settings'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
+import Chip from 'primevue/chip'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/auth/store/auth.store'
@@ -16,11 +17,11 @@ const entityLabel: string = 'person'
 const settingStoreSuffix: string = 'person'
 const listLabel = computed(() => t('labels.person', 2))
 const columns: GenericListColumn[] = [
-    { label: 'labels.no', field: 'id', sortable: true, filterable: true, filterType: 'input' },
-    { label: 'labels.family_name', field: 'familyName', sortable: true, filterable: true, filterType: 'input' },
-    { label: 'labels.given_name', field: 'givenName', sortable: true, filterable: true, filterType: 'input' },
-    { label: 'labels.gender', field: 'gender', type: 'enum', sortable: true },
-    { label: 'labels.birth_year', field: 'birthDate', type: 'year', sortable: true },
+    { label: 'labels.no', field: 'id', sortable: true, filterable: true, filterType: 'input', style: 'width: 8rem; max-width: 8rem;' },
+    { label: 'labels.family_name', field: 'familyName', sortable: true, filterable: true, filterType: 'input', style: 'min-width: 12rem;' },
+    { label: 'labels.given_name', field: 'givenName', sortable: true, filterable: true, filterType: 'input', style: 'min-width: 12rem;' },
+    { label: 'labels.gender', field: 'gender', type: 'custom', sortable: true, style: 'width: 10rem; max-width: 10rem;' },
+    { label: 'labels.birth_year', field: 'birthDate', type: 'year', sortable: true, style: 'width: 10rem; max-width: 10rem;' },
 ]
 
 const initialTableSettings: TableSettings = {
@@ -65,11 +66,15 @@ const queryKey = computed(() => (duplicatesOnly.value ? 'persons-duplicates' : '
             :settings-store-suffix="settingStoreSuffix"
             :columns="columns"
             :changeable="authStore.isAdmin"
-            :enum-type-label-prefixes="new Map([['gender', 'gender.']])"
             filter-display="row"
             :visible="authStore.isAdmin"
             :initial-table-settings="initialTableSettings"
         >
+            <template #gender="{ value }">
+                <Chip v-if="value?.id" class="gender-chip">
+                    <span class="gender-name">{{ t(`gender.${value?.id}`) }}</span>
+                </Chip>
+            </template>
             <template #extra_row_actions="{ value }">
                 <router-link
                     v-if="authStore.isAdmin"
@@ -97,5 +102,40 @@ const queryKey = computed(() => (duplicatesOnly.value ? 'persons-duplicates' : '
 <style scoped>
 h1 {
   margin-bottom: 1rem;
+}
+
+/* Gender Chip Styling (Pink) */
+.gender-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-right: 0.375rem;
+    margin-bottom: 0.125rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(236, 72, 153, 0.02) 100%);
+    border: 1px solid rgba(236, 72, 153, 0.2);
+    font-size: 0.8125rem;
+}
+
+.gender-name {
+    font-weight: 500;
+    color: rgb(var(--text-primary));
+}
+
+/* Force column widths */
+:deep(.p-datatable-tbody > tr > td),
+:deep(.p-datatable-thead > tr > th) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+    .gender-chip {
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.12) 0%, rgba(236, 72, 153, 0.04) 100%);
+        border-color: rgba(236, 72, 153, 0.25);
+    }
 }
 </style>

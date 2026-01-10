@@ -10,7 +10,7 @@ const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
             <!-- Main Card -->
             <div class="bg-adaptive-secondary rounded-xl shadow-lg border border-adaptive p-6">
                 <!-- Header with Logo and Title -->
-                <div class="flex flex-col md:flex-row items-center gap-6 mb-6 pb-6 border-b border-adaptive">
+                <div class="flex flex-col md:flex-row items-center gap-6 mb-4 pb-3 border-b border-adaptive">
                     <img
                         src="@/assets/Logo_Resulter_400px.webp"
                         alt="Resulter Logo"
@@ -27,7 +27,7 @@ const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
                 </div>
 
                 <!-- Features Section -->
-                <div class="mb-6 pb-6 border-b border-adaptive">
+                <div class="mb-3 pb-5 border-b border-adaptive">
                     <h2 class="text-base font-semibold text-adaptive mb-3">
                         {{ t('about.features_heading') }}
                     </h2>

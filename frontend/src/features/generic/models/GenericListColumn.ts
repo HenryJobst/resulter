@@ -5,6 +5,7 @@ export interface GenericListColumn {
     label_count?: number
     field: string
     class?: string
+    style?: string
     truncate?: number
     type?: string
     queryKey?: string

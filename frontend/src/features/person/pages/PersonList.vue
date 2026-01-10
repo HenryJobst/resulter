@@ -82,7 +82,7 @@ const queryKey = computed(() => (duplicatesOnly.value ? 'persons-duplicates' : '
                         v-if="authStore.isAdmin"
                         v-tooltip="t('labels.merge')"
                         icon="pi pi-link"
-                        class="mr-2 my-1"
+                        class="mr-2"
                         :aria-label="t('labels.merge')"
                         outlined
                         raised

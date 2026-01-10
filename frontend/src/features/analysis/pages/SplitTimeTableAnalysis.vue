@@ -576,6 +576,14 @@ onUnmounted(() => {
 
 /* Dark Mode - Exact colors to match non-frozen columns */
 @media (prefers-color-scheme: dark) {
+    h2, h3 {
+        color: rgb(229, 231, 235);
+    }
+
+    .text-gray-600 {
+        color: rgb(156, 163, 175) !important;
+    }
+
     /* noinspection CssUnusedSymbol */
     .split-time-table :deep(.p-datatable-tbody > tr:not(:hover) .p-datatable-frozen-column) {
         background: #020617 !important;

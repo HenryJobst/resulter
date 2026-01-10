@@ -87,7 +87,7 @@ async function showErrorDetail(id: number) {
             <!-- Statistics Cards -->
             <div v-else-if="statistics" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                 <!-- Event Count Card -->
-                <Card class="dashboard-card dashboard-card-primary clickable" :onclick="() => navigateTo('event-list')">
+                <Card class="dashboard-card clickable" :onclick="() => navigateTo('event-list')">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col gap-2 mr-3">
@@ -98,7 +98,7 @@ async function showErrorDetail(id: number) {
                                     {{ statistics.eventCount }}
                                 </div>
                             </div>
-                            <div class="stat-icon stat-icon-primary">
+                            <div class="stat-icon">
                                 <i class="pi pi-calendar text-2xl" />
                             </div>
                         </div>
@@ -106,7 +106,7 @@ async function showErrorDetail(id: number) {
                 </Card>
 
                 <!-- Cup Count Card -->
-                <Card class="dashboard-card dashboard-card-warning clickable" :onclick="() => navigateTo('cup-list')">
+                <Card class="dashboard-card clickable" :onclick="() => navigateTo('cup-list')">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col gap-2 mr-3">
@@ -117,7 +117,7 @@ async function showErrorDetail(id: number) {
                                     {{ statistics.cupCount }}
                                 </div>
                             </div>
-                            <div class="stat-icon stat-icon-warning">
+                            <div class="stat-icon">
                                 <i class="pi pi-trophy text-2xl" />
                             </div>
                         </div>
@@ -127,7 +127,7 @@ async function showErrorDetail(id: number) {
                 <!-- Person Count Card -->
                 <Card
                     class="dashboard-card"
-                    :class="[{ 'dashboard-card-primary': authStore.isAuthenticated, 'clickable': authStore.isAuthenticated }]"
+                    :class="[{ clickable: authStore.isAuthenticated }]"
                     :onclick="authStore.isAuthenticated ? () => navigateTo('person-list') : undefined"
                 >
                     <template #content>
@@ -140,7 +140,7 @@ async function showErrorDetail(id: number) {
                                     {{ statistics.personCount }}
                                 </div>
                             </div>
-                            <div class="stat-icon" :class="authStore.isAuthenticated ? 'stat-icon-primary' : ''">
+                            <div class="stat-icon">
                                 <i class="pi pi-users text-2xl" />
                             </div>
                         </div>
@@ -150,7 +150,7 @@ async function showErrorDetail(id: number) {
                 <!-- Organisation Count Card -->
                 <Card
                     class="dashboard-card"
-                    :class="[{ 'dashboard-card-primary': authStore.isAuthenticated, 'clickable': authStore.isAuthenticated }]"
+                    :class="[{ clickable: authStore.isAuthenticated }]"
                     :onclick="authStore.isAuthenticated ? () => navigateTo('organisation-list') : undefined"
                 >
                     <template #content>
@@ -163,7 +163,7 @@ async function showErrorDetail(id: number) {
                                     {{ statistics.organisationCount }}
                                 </div>
                             </div>
-                            <div class="stat-icon" :class="authStore.isAuthenticated ? 'stat-icon-primary' : ''">
+                            <div class="stat-icon">
                                 <i class="pi pi-building text-2xl" />
                             </div>
                         </div>
@@ -171,7 +171,7 @@ async function showErrorDetail(id: number) {
                 </Card>
 
                 <!-- Split Time Count Card -->
-                <Card class="dashboard-card dashboard-card-info">
+                <Card class="dashboard-card">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col gap-2 mr-3">
@@ -182,7 +182,7 @@ async function showErrorDetail(id: number) {
                                     {{ statistics.splitTimeCount.toLocaleString() }}
                                 </div>
                             </div>
-                            <div class="stat-icon stat-icon-info">
+                            <div class="stat-icon">
                                 <i class="pi pi-clock text-2xl" />
                             </div>
                         </div>
@@ -248,9 +248,9 @@ async function showErrorDetail(id: number) {
         </div>
 
         <!-- No Messages State -->
-        <Card v-if="errorStore.errorCount === 0" class="text-center py-8">
+        <Card v-if="errorStore.errorCount === 0" class="no-messages-card text-center py-8">
             <template #content>
-                <i class="pi pi-check-circle text-6xl text-green-500 mb-4" />
+                <i class="pi pi-check-circle text-6xl no-messages-icon mb-4" />
                 <p class="text-lg text-adaptive-secondary">
                     {{ t("messages.noMessages") }}
                 </p>
@@ -325,47 +325,19 @@ async function showErrorDetail(id: number) {
 .dashboard-card {
     transition: all 0.3s ease;
     border-radius: 12px;
-    border: 1px solid transparent;
+    border: 1px solid rgba(251, 146, 60, 0.2);
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, transparent 100%);
 }
 
 .dashboard-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-}
-
-.dashboard-card.clickable {
-    cursor: pointer;
-}
-
-/* Card Variants */
-.dashboard-card-primary {
-    border-color: rgba(34, 197, 94, 0.2);
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, transparent 100%);
-}
-
-.dashboard-card-primary:hover {
-    border-color: rgba(34, 197, 94, 0.4);
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%);
-}
-
-.dashboard-card-warning {
-    border-color: rgba(251, 146, 60, 0.2);
-    background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, transparent 100%);
-}
-
-.dashboard-card-warning:hover {
     border-color: rgba(251, 146, 60, 0.4);
     background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, transparent 100%);
 }
 
-.dashboard-card-info {
-    border-color: rgba(59, 130, 246, 0.2);
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
-}
-
-.dashboard-card-info:hover {
-    border-color: rgba(59, 130, 246, 0.4);
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+.dashboard-card.clickable {
+    cursor: pointer;
 }
 
 /* Stat Icons */
@@ -376,38 +348,24 @@ async function showErrorDetail(id: number) {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgb(var(--bg-secondary));
+    background: rgba(251, 146, 60, 0.1);
+    color: rgb(251, 146, 60);
     transition: all 0.3s ease;
 }
 
-.stat-icon-primary {
-    background: rgba(34, 197, 94, 0.1);
-    color: rgb(34, 197, 94);
-}
-
-.dashboard-card-primary:hover .stat-icon-primary {
-    background: rgba(34, 197, 94, 0.2);
-    transform: scale(1.1);
-}
-
-.stat-icon-warning {
-    background: rgba(251, 146, 60, 0.1);
-    color: rgb(251, 146, 60);
-}
-
-.dashboard-card-warning:hover .stat-icon-warning {
+.dashboard-card:hover .stat-icon {
     background: rgba(251, 146, 60, 0.2);
     transform: scale(1.1);
 }
 
-.stat-icon-info {
-    background: rgba(59, 130, 246, 0.1);
-    color: rgb(59, 130, 246);
+/* No Messages Card */
+.no-messages-card {
+    border: 1px solid rgba(251, 146, 60, 0.2);
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.02) 0%, transparent 100%);
 }
 
-.dashboard-card-info:hover .stat-icon-info {
-    background: rgba(59, 130, 246, 0.2);
-    transform: scale(1.1);
+.no-messages-icon {
+    color: rgb(251, 146, 60);
 }
 
 /* Error Cards */
@@ -438,16 +396,32 @@ async function showErrorDetail(id: number) {
         border-bottom-color: rgb(var(--border-color));
     }
 
-    .stat-icon-primary {
-        background: rgba(34, 197, 94, 0.15);
+    .dashboard-card {
+        border-color: rgba(59, 130, 246, 0.2);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
     }
 
-    .stat-icon-warning {
-        background: rgba(251, 146, 60, 0.15);
+    .dashboard-card:hover {
+        border-color: rgba(59, 130, 246, 0.4);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
     }
 
-    .stat-icon-info {
+    .stat-icon {
         background: rgba(59, 130, 246, 0.15);
+        color: rgb(96, 165, 250);
+    }
+
+    .dashboard-card:hover .stat-icon {
+        background: rgba(59, 130, 246, 0.25);
+    }
+
+    .no-messages-card {
+        border-color: rgba(59, 130, 246, 0.2);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, transparent 100%);
+    }
+
+    .no-messages-icon {
+        color: rgb(96, 165, 250);
     }
 }
 </style>

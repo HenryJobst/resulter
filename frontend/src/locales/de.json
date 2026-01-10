@@ -507,6 +507,8 @@
     },
     "dashboard": {
         "title": "Systemstatistiken",
+        "welcome_message": "Willkommen bei Resulter - Ihrer Plattform für Orientierungslauf-Wettkampf-Auswertung",
+        "statistics_title": "Systemstatistiken",
         "error_loading": "Fehler beim Laden der Statistiken. Bitte versuchen Sie es erneut.",
         "stats": {
             "events": "Wettkämpfe",

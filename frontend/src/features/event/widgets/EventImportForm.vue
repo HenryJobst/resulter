@@ -14,7 +14,11 @@ import { useAuthStore } from '@/features/auth/store/auth.store'
 import { fileSizeTypes } from '@/features/media/util/file_size_types'
 import { toastDisplayDuration } from '@/utils/constants'
 
-const props = defineProps<{ event?: SportEvent, uploader: any }>()
+const props = defineProps<{
+    event?: SportEvent
+    uploader: any
+    isUploading?: boolean
+}>()
 
 const emit = defineEmits(['eventSubmit'])
 
@@ -141,7 +145,7 @@ function formatSize(bytes: number): string {
                                     raised
                                     rounded
                                     severity="success"
-                                    :disabled="!files || files.length === 0"
+                                    :disabled="!files || files.length === 0 || props.isUploading"
                                     @click="uploadEvent(uploadCallback)"
                                 />
                                 <Button
@@ -157,7 +161,18 @@ function formatSize(bytes: number): string {
                                     @click="clearCallback()"
                                 />
                             </div>
+                            <!-- Indeterminate progress during upload -->
                             <ProgressBar
+                                v-if="props.isUploading"
+                                mode="indeterminate"
+                                class="md:w-20rem h-1rem w-full md:ml-auto"
+                            >
+                                <span>{{ t('messages.importing') }}...</span>
+                            </ProgressBar>
+
+                            <!-- File size validation progress when not uploading -->
+                            <ProgressBar
+                                v-else
                                 :value="totalSizePercent"
                                 :show-value="false"
                                 class="md:w-20rem h-1rem w-full md:ml-auto"

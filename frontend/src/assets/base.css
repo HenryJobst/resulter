@@ -1,7 +1,12 @@
 @import "tailwindcss";
 
-/* Google Fonts - Manrope for modern, geometric look */
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+/* Manrope Font - Local imports for modern, geometric look */
+@import '@fontsource/manrope/300.css';
+@import '@fontsource/manrope/400.css';
+@import '@fontsource/manrope/500.css';
+@import '@fontsource/manrope/600.css';
+@import '@fontsource/manrope/700.css';
+@import '@fontsource/manrope/800.css';
 
 /* Dark Mode CSS Variables */
 :root {

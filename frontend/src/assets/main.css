@@ -1,1 +1,47 @@
 @import './base.css';
+
+/* Deep-Link Highlight - mit Vue rowClass */
+.p-datatable .p-datatable-tbody > tr.highlight-bright,
+.p-datatable .p-datatable-tbody > tr.highlight-bright:hover {
+  background-color: #fbbf24 !important;
+  transition: background-color 3s ease-out !important;
+}
+
+.p-datatable .p-datatable-tbody > tr.highlight-bright > td,
+.p-datatable .p-datatable-tbody > tr.highlight-bright:hover > td {
+  background-color: #fbbf24 !important;
+  transition: background-color 3s ease-out !important;
+}
+
+.p-datatable .p-datatable-tbody > tr.highlight-light,
+.p-datatable .p-datatable-tbody > tr.highlight-light:hover {
+  background-color: #fef3c7 !important;
+}
+
+.p-datatable .p-datatable-tbody > tr.highlight-light > td,
+.p-datatable .p-datatable-tbody > tr.highlight-light:hover > td {
+  background-color: #fef3c7 !important;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .p-datatable .p-datatable-tbody > tr.highlight-bright,
+  .p-datatable .p-datatable-tbody > tr.highlight-bright:hover {
+    background-color: #f59e0b !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr.highlight-bright > td,
+  .p-datatable .p-datatable-tbody > tr.highlight-bright:hover > td {
+    background-color: #f59e0b !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr.highlight-light,
+  .p-datatable .p-datatable-tbody > tr.highlight-light:hover {
+    background-color: #854d0e !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr.highlight-light > td,
+  .p-datatable .p-datatable-tbody > tr.highlight-light:hover > td {
+    background-color: #854d0e !important;
+  }
+}

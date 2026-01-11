@@ -248,7 +248,7 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
                 <!-- ... Action columns ... -->
                 <Column class="text-left" :header="t('labels.action', 2)">
                     <template #body="{ data }">
-                        <div class="w-auto">
+                        <div class="flex items-center">
                             <slot name="extra_row_actions" :value="data" />
                             <router-link
                                 v-if="props.editEnabled && changeable"
@@ -261,7 +261,7 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
                                     v-if="props.editEnabled && changeable"
                                     v-tooltip="t('labels.edit')"
                                     icon="pi pi-pencil"
-                                    class="mr-2 my-1"
+                                    class="mr-2"
                                     :aria-label="t('labels.edit')"
                                     outlined
                                     raised
@@ -272,7 +272,7 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
                                 v-if="props.deleteEnabled && changeable"
                                 v-tooltip="t('labels.delete')"
                                 icon="pi pi-trash"
-                                class="mr-2 my-1"
+                                class="mr-2"
                                 severity="danger"
                                 outlined
                                 raised
@@ -291,6 +291,7 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
                     :header="col.label_count ? t(col.label, col.label_count) : t(col.label)"
                     :sortable="getSortable(col)"
                     :class="col.class || ''"
+                    :style="col.style || ''"
                 >
                     <template v-if="col.type === 'list'" #body="slotProps">
                         <div
@@ -342,11 +343,11 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
                         {{ truncateString(slotProps.data, col.field, col.truncate || 1000) }}
                     </template>
                     <template v-if="col.filterable" #filter="{ filterModel, filterCallback }">
-                        <div v-if="filterModel">
+                        <div v-if="filterModel" class="w-full">
                             <InputText
                                 v-model="filterModel.value"
                                 type="text"
-                                class="p-column-filter"
+                                class="p-column-filter w-full"
                                 @input="debouncedFilterInput(filterModel, filterCallback)"
                             />
                         </div>
@@ -360,5 +361,10 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
 <style scoped>
 h1 {
     margin-bottom: 1rem;
+}
+
+:deep(.p-column-filter) {
+    width: 100% !important;
+    box-sizing: border-box;
 }
 </style>

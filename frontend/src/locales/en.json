@@ -202,7 +202,8 @@
         "split_times": "Split Times",
         "start": "Start",
         "aggregateScore": "Cup Score on Overall Result",
-        "discipline": "Discipline"
+        "discipline": "Discipline",
+        "administration": "Settings"
     },
     "messages": {
         "new_cup": "New cup",
@@ -409,7 +410,12 @@
         "description": "Resulter is an innovative web application for orienteering enthusiasts and organizers of orienteering competitions.",
         "features": "Content: Event list with optional result lists, download of individual certificates for competitors, calculations of cup and ranking list points and split time analysation.",
         "contact": "For inquiries, please email us at",
-        "emailAddress": "resulter{'@'}olberlin.de"
+        "emailAddress": "resulter{'@'}olberlin.de",
+        "features_heading": "Features",
+        "feature_event_results": "Event Results",
+        "feature_cup_results": "Cup Results",
+        "feature_certificates": "Certificate Downloads",
+        "feature_split_analysis": "Split Time Analysis Tools"
     },
     "backend": {
         "unexpected_error": "Unexpected error",
@@ -501,6 +507,8 @@
     },
     "dashboard": {
         "title": "System Statistics",
+        "welcome_message": "Welcome to Resulter - Your platform for orienteering event results analysis",
+        "statistics_title": "System Statistics",
         "error_loading": "Error loading statistics. Please try again.",
         "stats": {
             "events": "Events",

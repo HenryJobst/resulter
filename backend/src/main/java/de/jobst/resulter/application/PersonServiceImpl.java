@@ -3,6 +3,7 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
@@ -41,8 +43,12 @@ public class PersonServiceImpl implements PersonService {
         return similarity < 0.5; // Adjust the threshold as needed
     }
 
-    private static boolean isSimilar(double similarity) {
-        return similarity > 750; // Adjust the threshold as needed
+    private static boolean isSimilar(double score) {
+        return score > 750; // Score threshold for duplicates
+    }
+
+    private static boolean isStrictDuplicate(double score) {
+        return score > 1050; // Stricter threshold - requires both family AND given name to be similar
     }
 
     private static double getSimilarity(String str1, String str2) {
@@ -129,12 +135,46 @@ public class PersonServiceImpl implements PersonService {
                 .toList();
     }
 
+    // Find strict duplicates for grouping (higher threshold)
+    List<Person> findStrictDuplicates(Person person, List<Person> all) {
+        return all.stream()
+                .filter(p -> !p.id().equals(person.id()))
+                .map(p -> {
+                    double similarity = calculateSimilarity(p, person);
+                    // Debug logging
+                    log.debug("Strict duplicate check: {} {} (ID {}) vs {} {} (ID {}): similarity = {}",
+                            person.personName().familyName().value(),
+                            person.personName().givenName().value(),
+                            person.id().value(),
+                            p.personName().familyName().value(),
+                            p.personName().givenName().value(),
+                            p.id().value(),
+                            similarity);
+                    return new PersonSimilarity(p, similarity);
+                })
+                .filter(ps -> {
+                    boolean isStrict = isStrictDuplicate(ps.similarity);
+                    if (isStrict) {
+                        log.info("STRICT DUPLICATE FOUND: {} (ID {}) and {} (ID {}) with similarity {}",
+                                person.personName().familyName().value() + " " + person.personName().givenName().value(),
+                                person.id().value(),
+                                ps.person.personName().familyName().value() + " " + ps.person.personName().givenName().value(),
+                                ps.person.id().value(),
+                                ps.similarity);
+                    }
+                    return isStrict;
+                })
+                .sorted((p1, p2) -> Double.compare(p2.similarity, p1.similarity))
+                .map(PersonSimilarity::person)
+                .toList();
+    }
+
     private boolean isSimilarDate(long daysBetween) {
         return Math.abs(daysBetween) <= 30; // Adjust the range as needed
     }
 
     private double calculateSimilarity(Person person1, Person person2) {
-        // calculate a similarity score for sorting
+        // Calculate a similarity score for sorting (higher score = more similar)
         double score = 0.0;
         double familyNameSimilarity = getSimilarity(
                 person1.personName().familyName().value(),
@@ -173,6 +213,73 @@ public class PersonServiceImpl implements PersonService {
     public void deletePerson(PersonId personId) {
         Person person = findById(personId).orElseThrow(ResourceNotFoundException::new);
         personRepository.delete(person);
+    }
+
+    @Override
+    public java.util.Set<Long> determineGroupLeaders(List<Person> persons) {
+        // Two-tier approach:
+        // 1. Use strict similarity (>900) to group persons - only these share a merge button
+        // 2. Use regular similarity (>750) to find duplicates - these are suggested for merging
+
+        // Use Union-Find to group persons with strict similarity
+        java.util.Map<Long, Long> parent = new java.util.HashMap<>();
+
+        // Initialize: each person is its own parent
+        for (Person person : persons) {
+            parent.put(person.id().value(), person.id().value());
+        }
+
+        // Find operation with path compression
+        java.util.function.Function<Long, Long> find = new java.util.function.Function<Long, Long>() {
+            public Long apply(Long id) {
+                if (!parent.get(id).equals(id)) {
+                    parent.put(id, apply(parent.get(id))); // Path compression
+                }
+                return parent.get(id);
+            }
+        };
+
+        // Union operation: connect only STRICT duplicates
+        for (Person person : persons) {
+            Long personId = person.id().value();
+            List<Person> strictDuplicates = findStrictDuplicates(person, persons);
+
+            for (Person duplicate : strictDuplicates) {
+                Long duplicateId = duplicate.id().value();
+                // Union: connect the two trees
+                Long root1 = find.apply(personId);
+                Long root2 = find.apply(duplicateId);
+
+                if (!root1.equals(root2)) {
+                    // Always attach the larger root to the smaller one
+                    // This ensures the smallest ID becomes the root
+                    if (root1 < root2) {
+                        parent.put(root2, root1);
+                    } else {
+                        parent.put(root1, root2);
+                    }
+                }
+            }
+        }
+
+        // Collect group leaders: persons that have duplicates (regular threshold) and are the root of their strict group
+        java.util.Set<Long> groupLeaders = new java.util.HashSet<>();
+
+        for (Person person : persons) {
+            Long personId = person.id().value();
+            List<Person> duplicates = findDoubles(person, persons);
+
+            // Only show merge button if this person has at least one duplicate (regular threshold)
+            if (!duplicates.isEmpty()) {
+                // But group by strict threshold - only the root of each strict group gets the button
+                Long root = find.apply(personId);
+                if (root.equals(personId)) {
+                    groupLeaders.add(personId);
+                }
+            }
+        }
+
+        return groupLeaders;
     }
 
     private void replacePerson(Person merge, Person person) {

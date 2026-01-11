@@ -32,6 +32,7 @@
         "reload": "Reload",
         "edit": "Edit",
         "merge": "Merge",
+        "transfer_value": "Transfer value",
         "delete": "Delete",
         "save": "Save",
         "back": "Back",

@@ -6,4 +6,5 @@ export interface Person {
     givenName: string
     gender: Gender
     birthDate: string | Date | null
+    showMergeButton?: boolean
 }

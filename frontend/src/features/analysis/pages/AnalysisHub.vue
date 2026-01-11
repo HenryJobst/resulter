@@ -425,19 +425,6 @@ function startAnalysis() {
     border-color: rgba(59, 130, 246, 0.3);
 }
 
-/* Coming Soon Badge */
-.coming-soon-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 6px;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(251, 191, 36, 0.05) 100%);
-    border: 1px solid rgba(251, 191, 36, 0.3);
-    color: rgb(161, 98, 7);
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
 /* Configuration Card */
 .configuration-card {
     border-radius: 12px;
@@ -520,12 +507,6 @@ input[type="radio"]:disabled {
         border-color: rgba(59, 130, 246, 0.3);
     }
 
-    .coming-soon-badge {
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.08) 100%);
-        border-color: rgba(251, 191, 36, 0.35);
-        color: rgb(252, 211, 77);
-    }
-
     /* Text Colors in Dark Mode */
     .subtitle-text {
         color: rgb(156, 163, 175);
@@ -540,7 +521,7 @@ input[type="radio"]:disabled {
     }
 
     label {
-        color: rgb(209, 213, 219);
+        color: rgb(229, 231, 235);
     }
 
     label.disabled-label {

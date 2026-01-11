@@ -661,167 +661,171 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
 </script>
 
 <template>
-    <Button
-        v-tooltip="t('labels.back')"
-        icon="pi pi-arrow-left"
-        class="ml-2"
-        :aria-label="t('labels.back')"
-        severity="secondary"
-        type="reset"
-        outlined
-        raised
-        rounded
-        @click="navigateToList"
-    />
-    <!-- Button v-if="authStore.isAdmin" :label="t('labels.calculate')" @click="calculate()" / -->
-    <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-    <div v-else-if="eventResultsQuery.data && eventId" class="card flex justify-content-start">
-        <div class="flex flex-col grow w-full">
-            <h1 class="mt-3 font-extrabold">
-                {{ event?.name }} - {{ t('labels.results', 2) }}
-            </h1>
-
-            <!-- ResultLists als Panels -->
-            <div class="flex flex-col gap-4 mt-4">
-                <Panel
-                    v-for="item in resultListsWithData"
-                    :key="item.resultList.id"
-                    v-model:collapsed="expandedPanels[item.resultList.id]"
-                    toggleable
-                    class="card-hover"
-                >
-                    <template #header>
-                        <div class="flex flex-row justify-content-between w-full align-items-center pr-4">
-                            <div class="text-base font-semibold text-adaptive">
-                                {{ item.label }}
-                            </div>
-                            <div class="flex gap-1 ml-4">
-                                <!-- Admin Action: Calculate -->
-                                <Button
-                                    v-if="authStore.isAdmin && item.resultList.isCupScoreAvailable"
-                                    v-tooltip.bottom="t('labels.calculate')"
-                                    icon="pi pi-calculator"
-                                    :aria-label="t('labels.calculate')"
-                                    severity="success"
-                                    outlined
-                                    raised
-                                    rounded
-                                    @click="calculate(item.resultList.id)"
-                                />
-
-                                <!-- Analysis Actions -->
-                                <Button
-                                    v-if="item.raceNumber !== 0"
-                                    v-tooltip.bottom="t('labels.split_time_table')"
-                                    icon="pi pi-table"
-                                    :aria-label="t('labels.split_time_table')"
-                                    severity="warning"
-                                    outlined
-                                    raised
-                                    rounded
-                                    @click="navigateToSplitTimeTableAnalysis(item.resultList.id)"
-                                />
-                                <Button
-                                    v-if="item.raceNumber !== 0"
-                                    v-tooltip.bottom="t('labels.split_time_analysis_ranking')"
-                                    icon="pi pi-chart-bar"
-                                    :aria-label="t('labels.split_time_analysis_ranking')"
-                                    severity="warning"
-                                    outlined
-                                    raised
-                                    rounded
-                                    @click="navigateToSplitTimeAnalysis(item.resultList.id)"
-                                />
-                                <Button
-                                    v-if="item.raceNumber !== 0"
-                                    v-tooltip.bottom="t('labels.mental_resilience_analysis')"
-                                    icon="pi pi-chart-line"
-                                    :aria-label="t('labels.mental_resilience_analysis')"
-                                    severity="warning"
-                                    outlined
-                                    raised
-                                    rounded
-                                    @click="navigateToMentalResilienceAnalysis(item.resultList.id)"
-                                />
-
-                                <!-- Admin Analysis Actions -->
-                                <Button
-                                    v-if="authStore.isAdmin && item.raceNumber !== 0"
-                                    v-tooltip.bottom="t('labels.anomaly_detection_analysis')"
-                                    icon="pi pi-exclamation-triangle"
-                                    :aria-label="t('labels.anomaly_detection_analysis')"
-                                    severity="danger"
-                                    outlined
-                                    raised
-                                    rounded
-                                    @click="navigateToAnomalyDetectionAnalysis(item.resultList.id)"
-                                />
-                                <Button
-                                    v-if="authStore.isAdmin && item.raceNumber !== 0"
-                                    v-tooltip.bottom="t('labels.hanging_detection_analysis')"
-                                    icon="pi pi-users"
-                                    :aria-label="t('labels.hanging_detection_analysis')"
-                                    severity="danger"
-                                    outlined
-                                    raised
-                                    rounded
-                                    @click="navigateToHangingDetectionAnalysis(item.resultList.id)"
-                                />
-                            </div>
-                        </div>
-                    </template>
-
-                    <!-- ClassResults Tree innerhalb des Panels -->
-                    <Tree
-                        v-model:expanded-keys="expandedKeys"
-                        :value="createClassResultTreeNodes(
-                            item.resultList.id,
-                            item.resultList.classResults,
-                            item.resultList.isCertificateAvailable,
-                            item.resultList.isCupScoreAvailable,
-                            item.cupScoreList,
-                        )"
-                        class="flex flex-col w-full"
-                        @node-expand="onNodeExpand"
-                    >
-                        <template #default="slotProps">
-                            <b>{{ slotProps?.node?.label }}</b>
-                        </template>
-                        <!-- suppress VueUnrecognizedSlot -->
-                        <template #dataTable="slotProps">
-                            <EventResultTable
-                                v-if="eventId"
-                                :data="slotProps?.node?.data"
-                                :event-id="eventId"
-                            />
-                        </template>
-                    </Tree>
-                </Panel>
+    <div class="event-results p-4">
+        <div class="mb-4">
+            <div class="flex items-center">
+                <Button
+                    v-tooltip="t('labels.back')"
+                    icon="pi pi-arrow-left"
+                    :aria-label="t('labels.back')"
+                    severity="secondary"
+                    text
+                    @click="navigateToList"
+                />
+                <h1 class="text-3xl font-bold ml-2">
+                    {{ event?.name }} - {{ t('labels.results', 2) }}
+                </h1>
             </div>
-            <div
-                v-if="authStore.isAdmin && eventCertificateStatsQuery.data"
-                class="mt-2 font-italic"
-            >
-                <Panel
-                    v-if="eventCertificateStatsQuery.data.value?.stats.length ?? 0 > 0"
-                    :header="
-                        t('labels.certificate_stats', {
-                            count: eventCertificateStatsQuery.data.value?.stats.length ?? 0,
-                        })
-                    "
-                    header-class="mt-2 text-lg font-bold"
-                    toggleable
-                    collapsed
+        </div>
+
+        <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+        <div v-else-if="eventResultsQuery.data && eventId" class="card flex justify-content-start">
+            <div class="flex flex-col grow w-full">
+                <!-- ResultLists als Panels -->
+                <div class="flex flex-col gap-4 mt-4">
+                    <Panel
+                        v-for="item in resultListsWithData"
+                        :key="item.resultList.id"
+                        v-model:collapsed="expandedPanels[item.resultList.id]"
+                        toggleable
+                        class="card-hover"
+                    >
+                        <template #header>
+                            <div class="flex flex-row justify-content-between w-full align-items-center pr-4">
+                                <div class="text-base font-semibold text-adaptive">
+                                    {{ item.label }}
+                                </div>
+                                <div class="flex gap-1 ml-4">
+                                    <!-- Admin Action: Calculate -->
+                                    <Button
+                                        v-if="authStore.isAdmin && item.resultList.isCupScoreAvailable"
+                                        v-tooltip.bottom="t('labels.calculate')"
+                                        icon="pi pi-calculator"
+                                        :aria-label="t('labels.calculate')"
+                                        severity="success"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="calculate(item.resultList.id)"
+                                    />
+
+                                    <!-- Analysis Actions -->
+                                    <Button
+                                        v-if="item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.split_time_table')"
+                                        icon="pi pi-table"
+                                        :aria-label="t('labels.split_time_table')"
+                                        severity="warning"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToSplitTimeTableAnalysis(item.resultList.id)"
+                                    />
+                                    <Button
+                                        v-if="item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.split_time_analysis_ranking')"
+                                        icon="pi pi-chart-bar"
+                                        :aria-label="t('labels.split_time_analysis_ranking')"
+                                        severity="warning"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToSplitTimeAnalysis(item.resultList.id)"
+                                    />
+                                    <Button
+                                        v-if="item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.mental_resilience_analysis')"
+                                        icon="pi pi-chart-line"
+                                        :aria-label="t('labels.mental_resilience_analysis')"
+                                        severity="warning"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToMentalResilienceAnalysis(item.resultList.id)"
+                                    />
+
+                                    <!-- Admin Analysis Actions -->
+                                    <Button
+                                        v-if="authStore.isAdmin && item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.anomaly_detection_analysis')"
+                                        icon="pi pi-exclamation-triangle"
+                                        :aria-label="t('labels.anomaly_detection_analysis')"
+                                        severity="danger"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToAnomalyDetectionAnalysis(item.resultList.id)"
+                                    />
+                                    <Button
+                                        v-if="authStore.isAdmin && item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.hanging_detection_analysis')"
+                                        icon="pi pi-users"
+                                        :aria-label="t('labels.hanging_detection_analysis')"
+                                        severity="danger"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToHangingDetectionAnalysis(item.resultList.id)"
+                                    />
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- ClassResults Tree innerhalb des Panels -->
+                        <Tree
+                            v-model:expanded-keys="expandedKeys"
+                            :value="createClassResultTreeNodes(
+                                item.resultList.id,
+                                item.resultList.classResults,
+                                item.resultList.isCertificateAvailable,
+                                item.resultList.isCupScoreAvailable,
+                                item.cupScoreList,
+                            )"
+                            class="flex flex-col w-full"
+                            @node-expand="onNodeExpand"
+                        >
+                            <template #default="slotProps">
+                                <b>{{ slotProps?.node?.label }}</b>
+                            </template>
+                            <!-- suppress VueUnrecognizedSlot -->
+                            <template #dataTable="slotProps">
+                                <EventResultTable
+                                    v-if="eventId"
+                                    :data="slotProps?.node?.data"
+                                    :event-id="eventId"
+                                />
+                            </template>
+                        </Tree>
+                    </Panel>
+                </div>
+                <div
+                    v-if="authStore.isAdmin && eventCertificateStatsQuery.data"
+                    class="mt-2 font-italic"
                 >
-                    <EventCertificateStatsTable :data="eventCertificateStatsQuery.data.value" />
-                </Panel>
+                    <Panel
+                        v-if="eventCertificateStatsQuery.data.value?.stats.length ?? 0 > 0"
+                        :header="
+                            t('labels.certificate_stats', {
+                                count: eventCertificateStatsQuery.data.value?.stats.length ?? 0,
+                            })
+                        "
+                        header-class="mt-2 text-lg font-bold"
+                        toggleable
+                        collapsed
+                    >
+                        <EventCertificateStatsTable :data="eventCertificateStatsQuery.data.value" />
+                    </Panel>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-h1 {
-    margin-bottom: 1rem;
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    h2, h3 {
+        color: rgb(229, 231, 235);
+    }
 }
 </style>

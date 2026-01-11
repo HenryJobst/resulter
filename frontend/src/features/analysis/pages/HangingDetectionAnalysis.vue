@@ -470,7 +470,7 @@ function removePersonFilter(personId: number) {
 
                         <!-- Expanded Row Template -->
                         <template #expansion="slotProps">
-                            <div class="p-4 bg-gray-50">
+                            <div class="p-4 expanded-row-bg">
                                 <h4 class="font-semibold mb-3">
                                     {{ t('labels.hanging_details') }}
                                 </h4>
@@ -657,6 +657,11 @@ function removePersonFilter(personId: number) {
     margin: 0 auto;
 }
 
+/* Expanded Row Background */
+.expanded-row-bg {
+    background-color: rgb(249, 250, 251);
+}
+
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
     h2, h3 {
@@ -665,6 +670,10 @@ function removePersonFilter(personId: number) {
 
     .text-gray-600 {
         color: rgb(156, 163, 175) !important;
+    }
+
+    .expanded-row-bg {
+        background-color: rgb(31, 41, 55);
     }
 }
 </style>

@@ -219,9 +219,9 @@ onUnmounted(() => {
                         @click="router.back()"
                     />
                     <div class="ml-2">
-                        <h2 class="text-2xl font-bold">
+                        <h1 class="text-3xl font-bold">
                             {{ t('analysis.splitTimeTable.title') }}
-                        </h2>
+                        </h1>
                         <p
                             v-if="props.eventName || props.resultListLabel"
                             class="text-gray-600"

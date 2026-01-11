@@ -4,14 +4,17 @@ import type { TableSettings } from '@/features/generic/models/table_settings'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import Chip from 'primevue/chip'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import GenericList from '@/features/generic/pages/GenericList.vue'
 import { duplicatePersonService, personService } from '@/features/person/services/person.service'
 
 const authStore = useAuthStore()
 const { t } = useI18n()
+const router = useRouter()
+const route = useRoute()
 
 const entityLabel: string = 'person'
 const settingStoreSuffix: string = 'person'
@@ -46,9 +49,19 @@ const initialTableSettings: TableSettings = {
     stripedRows: true,
 }
 
-const duplicatesOnly = ref(false)
+const duplicatesOnly = ref(route.query.duplicates === 'true')
 const currentService = computed(() => (duplicatesOnly.value ? duplicatePersonService : personService))
 const queryKey = computed(() => (duplicatesOnly.value ? 'persons-duplicates' : 'persons'))
+
+// Watcher für bidirektionale Synchronisation zwischen Filter und URL
+watch(duplicatesOnly, (newValue) => {
+    const query = newValue ? { duplicates: 'true' } : {}
+    router.replace({ query })
+})
+
+watch(() => route.query.duplicates, (newValue) => {
+    duplicatesOnly.value = newValue === 'true'
+})
 </script>
 
 <template>
@@ -81,6 +94,7 @@ const queryKey = computed(() => (duplicatesOnly.value ? 'persons-duplicates' : '
                     :to="{
                         name: `person-merge`,
                         params: { id: value.id },
+                        query: route.query,
                     }"
                 >
                     <Button

@@ -7,7 +7,7 @@ import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Spinner from '@/components/SpinnerComponent.vue'
 import { toastDisplayDuration } from '@/utils/constants'
 
@@ -41,6 +41,7 @@ const { t } = useI18n()
 const saveButtonLabel = computed(() => props.saveButtonLabel ?? t('labels.save'))
 
 const router = useRouter()
+const route = useRoute()
 const queryClient = useQueryClient()
 const toast = useToast()
 
@@ -108,7 +109,10 @@ function submitHandler() {
 }
 
 function navigateToList() {
-    router.replace({ name: `${props.routerPrefix}-list` })
+    router.replace({
+        name: `${props.routerPrefix}-list`,
+        query: route.query,
+    })
 }
 </script>
 

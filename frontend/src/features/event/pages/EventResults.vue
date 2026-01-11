@@ -16,6 +16,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import { courseService } from '@/features/course/services/course.service'
+import { usePersonHighlight } from '@/features/event/composables/usePersonHighlight'
 import { EventService, eventService } from '@/features/event/services/event.service'
 import EventCertificateStatsTable from '@/features/event/widgets/EventCertificateStatsTable.vue'
 import EventResultTable from '@/features/event/widgets/EventResultTable.vue'
@@ -28,9 +29,13 @@ const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const { highlightPerson } = usePersonHighlight()
 
-// State für Tree-Expansion
+// State für Tree-Expansion (ClassResults)
 const expandedKeys = ref<Record<string, boolean>>({})
+
+// State für Panel-Expansion (ResultLists)
+const expandedPanels = ref<Record<number, boolean>>({})
 
 // Query-Parameter für Deep-Linking
 const deepLinkParams = computed(() => ({
@@ -288,6 +293,46 @@ const treeNodes = computed(() => {
     return undefined
 })
 
+// Computed property für ResultLists mit CupScores
+const resultListsWithData = computed(() => {
+    if (!eventResultsQuery.isFetched || cupPointsLoading.value) {
+        return []
+    }
+
+    const resultLists = eventResultsQuery.data.value?.resultLists || []
+    return resultLists.map((resultList, index) => {
+        const cupScoreList = cupPointsData.value[index]
+        const completeCupScoreLists = cupScoreList
+            ? cupScoreList.filter(x => x.status === 'COMPLETE')
+            : undefined
+
+        // Extract race number
+        const raceNumber = resultList.classResults
+            .flatMap(c => c.personResults)
+            .flatMap(pr => pr.raceNumber)
+            .reduce(a => a)
+
+        return {
+            resultList,
+            cupScoreList: completeCupScoreLists,
+            raceNumber,
+            label: getResultListLabel(resultList),
+        }
+    })
+})
+
+// Auto-expand wenn nur eine ResultList
+// Note: PrimeVue Panel collapsed property: true = collapsed, false = expanded
+watch(
+    resultListsWithData,
+    (lists) => {
+        if (lists.length === 1) {
+            expandedPanels.value = { [lists[0].resultList.id]: false }
+        }
+    },
+    { immediate: true },
+)
+
 /**
  * Reaktive Map für ausstehende Nodes
  * key: Node-Key, value: Array von resolve-Funktionen
@@ -313,18 +358,12 @@ async function scrollToPerson(personId: number) {
         if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' })
 
-            // Finde die parent table row und highlighte sie
-            const tableRow = element.closest('tr')
-            if (tableRow) {
-                tableRow.classList.add('highlight-person-result')
-                setTimeout(() => {
-                    tableRow.classList.remove('highlight-person-result')
-                }, TIMEOUT_HIGHLIGHT_PERSON)
-            }
-            else {
-                // Fallback: highlighte das Element selbst
-                element.classList.add('highlight-person-result')
-                setTimeout(() => element.classList.remove('highlight-person-result'), TIMEOUT_HIGHLIGHT_PERSON)
+            // Extrahiere personId aus elementId (format: "person-result-{personId}")
+            const personId = Number.parseInt(elementId.replace('person-result-', ''))
+
+            if (personId) {
+                // Nutze Composable für reaktives Highlighting
+                highlightPerson(personId, TIMEOUT_HIGHLIGHT_PERSON)
             }
             return
         }
@@ -398,7 +437,7 @@ function waitForNode(key: string): Promise<void> {
 /**
  * Prüft, ob Root Node existiert
  */
-function hasRootNode(resultListId: number): boolean {
+function _hasRootNode(resultListId: number): boolean {
     return !!findNodeByKey(treeNodes.value, resultListId.toString())
 }
 
@@ -406,9 +445,12 @@ function hasRootNode(resultListId: number): boolean {
  * Sequenzielles Expandieren aller Tree-Ebenen
  */
 async function expandTreeToClass(resultListId: number, classShortName: string) {
+    // Öffne Panel für ResultList (collapsed: false = expanded)
+    expandedPanels.value = { ...expandedPanels.value, [resultListId]: false }
+    await nextTick()
+
+    // Expandiere Tree für ClassResults
     const path = [
-        resultListId.toString(),
-        `${resultListId}-table`,
         `${classShortName}-key`,
         `${classShortName}-table`,
     ]
@@ -437,13 +479,18 @@ async function handleDeepLink() {
 }
 
 /**
- * Watcher für Tree Nodes
+ * Watcher für ResultLists (Deep-Linking)
  */
 const stopDeepLinkWatch: (() => void) | undefined = watch(
-    () => treeNodes.value,
-    () => {
+    resultListsWithData,
+    (lists) => {
         const resultListId = deepLinkParams.value.resultListId
-        if (!resultListId || !hasRootNode(resultListId))
+        if (!resultListId)
+            return
+
+        // Prüfe, ob die ResultList existiert
+        const exists = lists.some(item => item.resultList.id === resultListId)
+        if (!exists)
             return
 
         handleDeepLink()
@@ -614,176 +661,171 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
 </script>
 
 <template>
-    <Button
-        v-tooltip="t('labels.back')"
-        icon="pi pi-arrow-left"
-        class="ml-2"
-        :aria-label="t('labels.back')"
-        severity="secondary"
-        type="reset"
-        outlined
-        raised
-        rounded
-        @click="navigateToList"
-    />
-    <!-- Button v-if="authStore.isAdmin" :label="t('labels.calculate')" @click="calculate()" / -->
-    <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
-    <div v-else-if="eventResultsQuery.data && eventId" class="card flex justify-content-start">
-        <div class="flex flex-col grow w-full">
-            <h1 class="mt-3 font-extrabold">
-                {{ event?.name }} - {{ t('labels.results', 2) }}
-            </h1>
-            <Tree
-                v-model:expanded-keys="expandedKeys"
-                :value="treeNodes"
-                class="flex flex-col w-full"
-                @node-expand="onNodeExpand"
-            >
-                <template #default="slotProps">
-                    <div class="flex flex-row justify-content-between w-full">
-                        <div class="flex align-items-center font-bold">
-                            {{ slotProps?.node?.label }}
-                        </div>
-                        <Button
-                            v-if="authStore.isAdmin && slotProps?.node?.data?.cupScoreEnabled"
-                            v-tooltip="t('labels.calculate')"
-                            icon="pi pi-calculator"
-                            class="ml-5"
-                            :aria-label="t('labels.calculate')"
-                            outlined
-                            raised
-                            rounded
-                            @click="calculate(parseInt(slotProps?.node?.key!))"
-                        />
-                        <Button
-                            v-if="slotProps?.node?.data?.raceNumber !== 0"
-                            v-tooltip="t('labels.split_time_table')"
-                            icon="pi pi-table"
-                            class="ml-2"
-                            :aria-label="t('labels.split_time_table')"
-                            outlined
-                            raised
-                            rounded
-                            @click="navigateToSplitTimeTableAnalysis(parseInt(slotProps?.node?.key!))"
-                        />
-                        <Button
-                            v-if="slotProps?.node?.data?.raceNumber !== 0"
-                            v-tooltip="t('labels.split_time_analysis_ranking')"
-                            icon="pi pi-chart-bar"
-                            class="ml-2"
-                            :aria-label="t('labels.split_time_analysis_ranking')"
-                            outlined
-                            raised
-                            rounded
-                            @click="navigateToSplitTimeAnalysis(parseInt(slotProps?.node?.key!))"
-                        />
-                        <Button
-                            v-if="slotProps?.node?.data?.raceNumber !== 0"
-                            v-tooltip="t('labels.mental_resilience_analysis')"
-                            icon="pi pi-chart-line"
-                            class="ml-2"
-                            :aria-label="t('labels.mental_resilience_analysis')"
-                            outlined
-                            raised
-                            rounded
-                            @click="navigateToMentalResilienceAnalysis(parseInt(slotProps?.node?.key!))"
-                        />
-                        <Button
-                            v-if="authStore.isAdmin && slotProps?.node?.data?.raceNumber !== 0"
-                            v-tooltip="t('labels.anomaly_detection_analysis')"
-                            icon="pi pi-exclamation-triangle"
-                            class="ml-2"
-                            :aria-label="t('labels.anomaly_detection_analysis')"
-                            outlined
-                            raised
-                            rounded
-                            @click="navigateToAnomalyDetectionAnalysis(parseInt(slotProps?.node?.key!))"
-                        />
-                        <Button
-                            v-if="authStore.isAdmin && slotProps?.node?.data?.raceNumber !== 0"
-                            v-tooltip="t('labels.hanging_detection_analysis')"
-                            icon="pi pi-users"
-                            class="ml-2"
-                            :aria-label="t('labels.hanging_detection_analysis')"
-                            outlined
-                            raised
-                            rounded
-                            @click="navigateToHangingDetectionAnalysis(parseInt(slotProps?.node?.key!))"
-                        />
-                    </div>
-                </template>
-                <!-- suppress VueUnrecognizedSlot -->
-                <template #tree="slotProps">
-                    <Tree
-                        v-model:expanded-keys="expandedKeys"
-                        :value="slotProps?.node?.data"
-                        @node-expand="onNodeExpand"
+    <div class="event-results p-4">
+        <div class="mb-4">
+            <div class="flex items-center">
+                <Button
+                    v-tooltip="t('labels.back')"
+                    icon="pi pi-arrow-left"
+                    :aria-label="t('labels.back')"
+                    severity="secondary"
+                    text
+                    @click="navigateToList"
+                />
+                <h1 class="text-3xl font-bold ml-2">
+                    {{ event?.name }} - {{ t('labels.results', 2) }}
+                </h1>
+            </div>
+        </div>
+
+        <span v-if="eventResultsQuery.status.value === 'pending'">{{ t('messages.loading') }}</span>
+        <div v-else-if="eventResultsQuery.data && eventId" class="card flex justify-content-start">
+            <div class="flex flex-col grow w-full">
+                <!-- ResultLists als Panels -->
+                <div class="flex flex-col gap-4 mt-4">
+                    <Panel
+                        v-for="item in resultListsWithData"
+                        :key="item.resultList.id"
+                        v-model:collapsed="expandedPanels[item.resultList.id]"
+                        toggleable
+                        class="card-hover"
                     >
-                        <template #default="mySlotProps">
-                            <b>{{ mySlotProps?.node?.label }}</b>
+                        <template #header>
+                            <div class="flex flex-row justify-content-between w-full align-items-center pr-4">
+                                <div class="text-base font-semibold text-adaptive">
+                                    {{ item.label }}
+                                </div>
+                                <div class="flex gap-1 ml-4">
+                                    <!-- Admin Action: Calculate -->
+                                    <Button
+                                        v-if="authStore.isAdmin && item.resultList.isCupScoreAvailable"
+                                        v-tooltip.bottom="t('labels.calculate')"
+                                        icon="pi pi-calculator"
+                                        :aria-label="t('labels.calculate')"
+                                        severity="success"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="calculate(item.resultList.id)"
+                                    />
+
+                                    <!-- Analysis Actions -->
+                                    <Button
+                                        v-if="item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.split_time_table')"
+                                        icon="pi pi-table"
+                                        :aria-label="t('labels.split_time_table')"
+                                        severity="warning"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToSplitTimeTableAnalysis(item.resultList.id)"
+                                    />
+                                    <Button
+                                        v-if="item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.split_time_analysis_ranking')"
+                                        icon="pi pi-chart-bar"
+                                        :aria-label="t('labels.split_time_analysis_ranking')"
+                                        severity="warning"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToSplitTimeAnalysis(item.resultList.id)"
+                                    />
+                                    <Button
+                                        v-if="item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.mental_resilience_analysis')"
+                                        icon="pi pi-chart-line"
+                                        :aria-label="t('labels.mental_resilience_analysis')"
+                                        severity="warning"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToMentalResilienceAnalysis(item.resultList.id)"
+                                    />
+
+                                    <!-- Admin Analysis Actions -->
+                                    <Button
+                                        v-if="authStore.isAdmin && item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.anomaly_detection_analysis')"
+                                        icon="pi pi-exclamation-triangle"
+                                        :aria-label="t('labels.anomaly_detection_analysis')"
+                                        severity="danger"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToAnomalyDetectionAnalysis(item.resultList.id)"
+                                    />
+                                    <Button
+                                        v-if="authStore.isAdmin && item.raceNumber !== 0"
+                                        v-tooltip.bottom="t('labels.hanging_detection_analysis')"
+                                        icon="pi pi-users"
+                                        :aria-label="t('labels.hanging_detection_analysis')"
+                                        severity="danger"
+                                        outlined
+                                        raised
+                                        rounded
+                                        @click="navigateToHangingDetectionAnalysis(item.resultList.id)"
+                                    />
+                                </div>
+                            </div>
                         </template>
-                        <!-- suppress VueUnrecognizedSlot -->
-                        <template #dataTable="mySlotProps">
-                            <EventResultTable
-                                v-if="eventId"
-                                :data="mySlotProps?.node?.data"
-                                :event-id="eventId"
-                            />
-                        </template>
-                    </Tree>
-                </template>
-                <!-- suppress VueUnrecognizedSlot -->
-                <template #dataTable="slotProps">
-                    <EventResultTable
-                        v-if="eventId"
-                        :data="slotProps?.node?.data"
-                        :event-id="eventId"
-                    />
-                </template>
-            </Tree>
-            <div
-                v-if="authStore.isAdmin && eventCertificateStatsQuery.data"
-                class="mt-2 font-italic"
-            >
-                <Panel
-                    v-if="eventCertificateStatsQuery.data.value?.stats.length ?? 0 > 0"
-                    :header="
-                        t('labels.certificate_stats', {
-                            count: eventCertificateStatsQuery.data.value?.stats.length ?? 0,
-                        })
-                    "
-                    header-class="mt-2 text-lg font-bold"
-                    toggleable
-                    collapsed
+
+                        <!-- ClassResults Tree innerhalb des Panels -->
+                        <Tree
+                            v-model:expanded-keys="expandedKeys"
+                            :value="createClassResultTreeNodes(
+                                item.resultList.id,
+                                item.resultList.classResults,
+                                item.resultList.isCertificateAvailable,
+                                item.resultList.isCupScoreAvailable,
+                                item.cupScoreList,
+                            )"
+                            class="flex flex-col w-full"
+                            @node-expand="onNodeExpand"
+                        >
+                            <template #default="slotProps">
+                                <b>{{ slotProps?.node?.label }}</b>
+                            </template>
+                            <!-- suppress VueUnrecognizedSlot -->
+                            <template #dataTable="slotProps">
+                                <EventResultTable
+                                    v-if="eventId"
+                                    :data="slotProps?.node?.data"
+                                    :event-id="eventId"
+                                />
+                            </template>
+                        </Tree>
+                    </Panel>
+                </div>
+                <div
+                    v-if="authStore.isAdmin && eventCertificateStatsQuery.data"
+                    class="mt-2 font-italic"
                 >
-                    <EventCertificateStatsTable :data="eventCertificateStatsQuery.data.value" />
-                </Panel>
+                    <Panel
+                        v-if="eventCertificateStatsQuery.data.value?.stats.length ?? 0 > 0"
+                        :header="
+                            t('labels.certificate_stats', {
+                                count: eventCertificateStatsQuery.data.value?.stats.length ?? 0,
+                            })
+                        "
+                        header-class="mt-2 text-lg font-bold"
+                        toggleable
+                        collapsed
+                    >
+                        <EventCertificateStatsTable :data="eventCertificateStatsQuery.data.value" />
+                    </Panel>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-h1 {
-    margin-bottom: 1rem;
-}
-
-:deep(.highlight-person-result) {
-    background-color: rgb(var(--slate-highlight-bg)) !important;
-    animation: highlight-fade 2s ease-out;
-    transition: background-color 0.3s ease-out;
-}
-
-:deep(.highlight-person-result td) {
-    background-color: rgb(var(--slate-highlight-bg)) !important;
-}
-
-@keyframes highlight-fade {
-    0% {
-        background-color: rgb(var(--slate-badge-bg));
-    }
-    100% {
-        background-color: rgb(var(--slate-highlight-bg));
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    h2, h3 {
+        color: rgb(229, 231, 235);
     }
 }
 </style>

@@ -219,9 +219,9 @@ onUnmounted(() => {
                         @click="router.back()"
                     />
                     <div class="ml-2">
-                        <h2 class="text-2xl font-bold">
+                        <h1 class="text-3xl font-bold">
                             {{ t('analysis.splitTimeTable.title') }}
-                        </h2>
+                        </h1>
                         <p
                             v-if="props.eventName || props.resultListLabel"
                             class="text-gray-600"
@@ -542,10 +542,69 @@ onUnmounted(() => {
     font-size: 0.75rem;
 }
 
+/* Fix frozen columns z-index and background */
+/* noinspection CssUnusedSymbol, CssUnresolvedCustomProperty */
+.split-time-table :deep(.p-datatable-frozen-column) {
+    z-index: 2 !important;
+    position: sticky !important;
+    border-right: 1px solid var(--p-datatable-border-color, #e5e7eb) !important;
+}
+
+/* Remove border from the last frozen column to avoid double border */
+/* noinspection CssUnusedSymbol */
+.split-time-table :deep(.p-datatable-frozen-column:last-of-type) {
+    border-right: none !important;
+}
+
+/* Light Mode - Exact colors to match non-frozen columns */
+/* Even rows (default) */
+/* noinspection CssUnusedSymbol */
+.split-time-table :deep(.p-datatable-tbody > tr:not(:hover) .p-datatable-frozen-column) {
+    background: #fff7ed !important;
+}
+
+/* Odd rows (striped) - overrides even rows */
+/* noinspection CssUnusedSymbol */
+.split-time-table :deep(.p-datatable-tbody > tr:nth-child(odd):not(:hover) .p-datatable-frozen-column) {
+    background: #ffffff !important;
+}
+
+/* Hover - visible light gray that differs from both row colors - applies to ALL cells */
+.split-time-table :deep(.p-datatable-tbody > tr:hover td) {
+    background: #f3f4f6 !important;
+}
+
+/* Dark Mode - Exact colors to match non-frozen columns */
+@media (prefers-color-scheme: dark) {
+    h2, h3 {
+        color: rgb(229, 231, 235);
+    }
+
+    .text-gray-600 {
+        color: rgb(156, 163, 175) !important;
+    }
+
+    /* noinspection CssUnusedSymbol */
+    .split-time-table :deep(.p-datatable-tbody > tr:not(:hover) .p-datatable-frozen-column) {
+        background: #020617 !important;
+    }
+
+    /* noinspection CssUnusedSymbol */
+    .split-time-table :deep(.p-datatable-tbody > tr:nth-child(odd):not(:hover) .p-datatable-frozen-column) {
+        background: #0f172a !important;
+    }
+
+    /* Hover - applies to ALL cells in dark mode */
+    .split-time-table :deep(.p-datatable-tbody > tr:hover td) {
+        background: #1f2937 !important;
+    }
+}
+
 .runner-name-column {
-    background-color: #f8f9fa;
     font-weight: 500;
 }
+
+/* Runner name column - no special hover needed, uses global hover rule */
 
 .split-cell {
     padding: 0.15rem 0.3rem;

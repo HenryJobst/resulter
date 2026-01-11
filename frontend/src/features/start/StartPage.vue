@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import Card from 'primevue/card'
-import Panel from 'primevue/panel'
 import Skeleton from 'primevue/skeleton'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/auth/store/auth.store'
@@ -37,14 +36,29 @@ async function showErrorDetail(id: number) {
 </script>
 
 <template>
-    <h2>{{ t('pages.start') }}</h2>
+    <!-- Hero Section -->
+    <div class="hero-section mb-6">
+        <div class="flex items-center gap-6">
+            <img
+                alt="Resulter Logo"
+                class="hero-logo"
+                src="@/assets/Logo_Resulter_400px.webp"
+                width="120"
+                height="119"
+            >
+            <div>
+                <h1 class="text-3xl font-bold text-adaptive mb-2">
+                    {{ t('pages.start') }}
+                </h1>
+                <p class="text-sm text-adaptive-secondary">
+                    {{ t('dashboard.welcome_message') }}
+                </p>
+            </div>
+        </div>
+    </div>
 
-    <!-- Logo and Statistics Section -->
-    <div class="flex flex-col lg:flex-row gap-8 my-6 items-start">
-        <!-- Logo -->
-        <img alt="Logo" class="shrink-0" src="@/assets/Logo_Resulter_400px.webp" width="400" height="396">
-
-        <!-- Dashboard Statistics Section -->
+    <!-- Dashboard Statistics Section -->
+    <div class="statistics-section">
         <div class="flex-1">
             <!-- Loading State -->
             <div v-if="isLoading" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -71,19 +85,21 @@ async function showErrorDetail(id: number) {
             </div>
 
             <!-- Statistics Cards -->
-            <div v-else-if="statistics" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div v-else-if="statistics" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                 <!-- Event Count Card -->
                 <Card class="dashboard-card clickable" :onclick="() => navigateTo('event-list')">
                     <template #content>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="pi pi-calendar text-2xl " />
-                                <div class="text-sm ">
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col gap-2 mr-3">
+                                <div class="text-sm font-medium text-adaptive-secondary">
                                     {{ t('dashboard.stats.events') }}
                                 </div>
+                                <div class="text-4xl font-bold text-adaptive">
+                                    {{ statistics.eventCount }}
+                                </div>
                             </div>
-                            <div class="text-3xl font-bold ">
-                                {{ statistics.eventCount }}
+                            <div class="stat-icon">
+                                <i class="pi pi-calendar text-2xl" />
                             </div>
                         </div>
                     </template>
@@ -92,15 +108,17 @@ async function showErrorDetail(id: number) {
                 <!-- Cup Count Card -->
                 <Card class="dashboard-card clickable" :onclick="() => navigateTo('cup-list')">
                     <template #content>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="pi pi-trophy text-2xl " />
-                                <div class="text-sm ">
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col gap-2 mr-3">
+                                <div class="text-sm font-medium text-adaptive-secondary">
                                     {{ t('dashboard.stats.cups') }}
                                 </div>
+                                <div class="text-4xl font-bold text-adaptive">
+                                    {{ statistics.cupCount }}
+                                </div>
                             </div>
-                            <div class="text-3xl font-bold ">
-                                {{ statistics.cupCount }}
+                            <div class="stat-icon">
+                                <i class="pi pi-trophy text-2xl" />
                             </div>
                         </div>
                     </template>
@@ -108,19 +126,22 @@ async function showErrorDetail(id: number) {
 
                 <!-- Person Count Card -->
                 <Card
-                    class="dashboard-card" :class="[{ clickable: authStore.isAuthenticated }]"
+                    class="dashboard-card"
+                    :class="[{ clickable: authStore.isAuthenticated }]"
                     :onclick="authStore.isAuthenticated ? () => navigateTo('person-list') : undefined"
                 >
                     <template #content>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="pi pi-users text-2xl " />
-                                <div class="text-sm ">
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col gap-2 mr-3">
+                                <div class="text-sm font-medium text-adaptive-secondary">
                                     {{ t('dashboard.stats.persons') }}
                                 </div>
+                                <div class="text-4xl font-bold text-adaptive">
+                                    {{ statistics.personCount }}
+                                </div>
                             </div>
-                            <div class="text-3xl font-bold ">
-                                {{ statistics.personCount }}
+                            <div class="stat-icon">
+                                <i class="pi pi-users text-2xl" />
                             </div>
                         </div>
                     </template>
@@ -128,19 +149,22 @@ async function showErrorDetail(id: number) {
 
                 <!-- Organisation Count Card -->
                 <Card
-                    class="dashboard-card" :class="[{ clickable: authStore.isAuthenticated }]"
+                    class="dashboard-card"
+                    :class="[{ clickable: authStore.isAuthenticated }]"
                     :onclick="authStore.isAuthenticated ? () => navigateTo('organisation-list') : undefined"
                 >
                     <template #content>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="pi pi-building text-2xl " />
-                                <div class="text-sm ">
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col gap-2 mr-3">
+                                <div class="text-sm font-medium text-adaptive-secondary">
                                     {{ t('dashboard.stats.organisations') }}
                                 </div>
+                                <div class="text-4xl font-bold text-adaptive">
+                                    {{ statistics.organisationCount }}
+                                </div>
                             </div>
-                            <div class="text-3xl font-bold ">
-                                {{ statistics.organisationCount }}
+                            <div class="stat-icon">
+                                <i class="pi pi-building text-2xl" />
                             </div>
                         </div>
                     </template>
@@ -149,15 +173,17 @@ async function showErrorDetail(id: number) {
                 <!-- Split Time Count Card -->
                 <Card class="dashboard-card">
                     <template #content>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="pi pi-clock text-2xl " />
-                                <div class="text-sm ">
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col gap-2 mr-3">
+                                <div class="text-sm font-medium text-adaptive-secondary">
                                     {{ t('dashboard.stats.split_times') }}
                                 </div>
+                                <div class="text-4xl font-bold text-adaptive">
+                                    {{ statistics.splitTimeCount.toLocaleString() }}
+                                </div>
                             </div>
-                            <div class="text-3xl font-bold ">
-                                {{ statistics.splitTimeCount.toLocaleString() }}
+                            <div class="stat-icon">
+                                <i class="pi pi-clock text-2xl" />
                             </div>
                         </div>
                     </template>
@@ -166,15 +192,17 @@ async function showErrorDetail(id: number) {
                 <!-- Race Count Card -->
                 <Card class="dashboard-card">
                     <template #content>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="pi pi-flag text-2xl " />
-                                <div class="text-sm ">
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col gap-2 mr-3">
+                                <div class="text-sm font-medium text-adaptive-secondary">
                                     {{ t('dashboard.stats.races') }}
                                 </div>
+                                <div class="text-4xl font-bold text-adaptive">
+                                    {{ statistics.raceCount }}
+                                </div>
                             </div>
-                            <div class="text-3xl font-bold ">
-                                {{ statistics.raceCount }}
+                            <div class="stat-icon">
+                                <i class="pi pi-flag text-2xl" />
                             </div>
                         </div>
                     </template>
@@ -183,15 +211,17 @@ async function showErrorDetail(id: number) {
                 <!-- Certificate Count Card -->
                 <Card class="dashboard-card">
                     <template #content>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="pi pi-file text-2xl " />
-                                <div class="text-sm ">
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col gap-2 mr-3">
+                                <div class="text-sm font-medium text-adaptive-secondary">
                                     {{ t('dashboard.stats.certificates') }}
                                 </div>
+                                <div class="text-4xl font-bold text-adaptive">
+                                    {{ statistics.certificateCount }}
+                                </div>
                             </div>
-                            <div class="text-3xl font-bold ">
-                                {{ statistics.certificateCount }}
+                            <div class="stat-icon">
+                                <i class="pi pi-file text-2xl" />
                             </div>
                         </div>
                     </template>
@@ -200,94 +230,198 @@ async function showErrorDetail(id: number) {
         </div>
     </div>
 
-    <Panel :header="t('labels.message', 2)" class="my-4" toggleable>
-        <template #icons>
+    <!-- Messages Section -->
+    <div class="messages-section mt-12">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-semibold text-adaptive">
+                {{ t('labels.message', 2) }}
+            </h2>
             <Button
                 v-if="errorStore.errorCount > 0"
-                id="deleteAll"
                 icon="pi pi-trash"
-                severity="secondary"
+                :label="t('labels.deleteAll')"
+                severity="danger"
                 outlined
-                raised
-                rounded
-                text
-                :title="t('labels.deleteAll')"
-                :aria-label="t('labels.deleteAll')"
+                size="small"
                 @click="errorStore.clearErrors"
             />
-        </template>
-        <div class="flex flex-row align-items-center" />
-        <div v-if="errorStore.errorCount === 0" class="ml-3">
-            {{ t("messages.noMessages") }}
         </div>
-        <table v-if="errorStore.errorCount > 0" class="ml-3">
-            <thead>
-                <tr>
-                    <th style="width: 6rem; text-align: left">
-                        {{ t("labels.type") }}
-                    </th>
-                    <th style="width: 15rem; text-align: left">
-                        {{ t("labels.timestamp") }}
-                    </th>
-                    <th style="width: 30rem; text-align: left">
-                        {{ t("labels.message") }}
-                    </th>
-                    <th style="width: 4rem; text-align: left">
-                        {{ t("labels.action") }}
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="error in errorStore.errors" :key="error.id">
-                    <td>{{ t("labels.error") }}</td>
-                    <td>{{ formatDateAndTime(error.timestamp ?? new Date(Date.now()), locale) }}</td>
-                    <td>
-                        {{
-                            error.originalError instanceof BackendException
-                                ? (error.originalError as BackendException).message
-                                : ((error.originalError as Error).name ?? (error.originalError as Error).message)
-                        }}
-                    </td>
-                    <td>
-                        <div class="flex flex-row">
-                            <Button
-                                icon="pi pi-eye"
-                                :title="t('labels.detail')"
-                                :aria-label="t('labels.detail')"
-                                outlined
-                                raised
-                                rounded
-                                @click="showErrorDetail(error.id)"
-                            />
-                            <Button
-                                class="ml-2"
-                                icon="pi pi-trash"
-                                :title="t('labels.delete')"
-                                :aria-label="t('labels.delete')"
-                                outlined
-                                raised
-                                rounded
-                                @click="errorStore.removeError(error.id)"
-                            />
+
+        <!-- No Messages State -->
+        <Card v-if="errorStore.errorCount === 0" class="no-messages-card text-center py-8">
+            <template #content>
+                <i class="pi pi-check-circle text-6xl no-messages-icon mb-4" />
+                <p class="text-lg text-adaptive-secondary">
+                    {{ t("messages.noMessages") }}
+                </p>
+            </template>
+        </Card>
+
+        <!-- Error Messages -->
+        <div v-else class="flex flex-col gap-4">
+            <Card v-for="error in errorStore.errors" :key="error.id" class="error-card">
+                <template #content>
+                    <div class="flex items-start gap-4">
+                        <div class="error-icon">
+                            <i class="pi pi-exclamation-triangle text-xl" />
                         </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </Panel>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-sm font-semibold text-red-600">{{ t("labels.error") }}</span>
+                                <span class="text-xs text-adaptive-secondary">
+                                    {{ formatDateAndTime(error.timestamp ?? new Date(Date.now()), locale) }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-adaptive mb-3">
+                                {{
+                                    error.originalError instanceof BackendException
+                                        ? (error.originalError as BackendException).message
+                                        : ((error.originalError as Error).name ?? (error.originalError as Error).message)
+                                }}
+                            </p>
+                            <div class="flex gap-2">
+                                <Button
+                                    icon="pi pi-eye"
+                                    :label="t('labels.detail')"
+                                    size="small"
+                                    outlined
+                                    @click="showErrorDetail(error.id)"
+                                />
+                                <Button
+                                    icon="pi pi-trash"
+                                    :label="t('labels.delete')"
+                                    severity="danger"
+                                    size="small"
+                                    outlined
+                                    @click="errorStore.removeError(error.id)"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </Card>
+        </div>
+    </div>
 </template>
 
 <style scoped>
+/* Hero Section */
+.hero-section {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgb(var(--border-color));
+}
+
+.hero-logo {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.hero-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Dashboard Cards */
 .dashboard-card {
     transition: all 0.3s ease;
+    border-radius: 12px;
+    border: 1px solid rgba(251, 146, 60, 0.2);
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, transparent 100%);
 }
 
 .dashboard-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    border-color: rgba(251, 146, 60, 0.4);
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, transparent 100%);
 }
 
 .dashboard-card.clickable {
     cursor: pointer;
+}
+
+/* Stat Icons */
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(251, 146, 60, 0.1);
+    color: rgb(251, 146, 60);
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover .stat-icon {
+    background: rgba(251, 146, 60, 0.2);
+    transform: scale(1.1);
+}
+
+/* No Messages Card */
+.no-messages-card {
+    border: 1px solid rgba(251, 146, 60, 0.2);
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.02) 0%, transparent 100%);
+}
+
+.no-messages-icon {
+    color: rgb(251, 146, 60);
+}
+
+/* Error Cards */
+.error-card {
+    border-left: 4px solid rgb(239, 68, 68);
+    transition: all 0.2s ease;
+}
+
+.error-card:hover {
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.error-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.1);
+    color: rgb(239, 68, 68);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+    .hero-section {
+        border-bottom-color: rgb(var(--border-color));
+    }
+
+    .dashboard-card {
+        border-color: rgba(59, 130, 246, 0.2);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+    }
+
+    .dashboard-card:hover {
+        border-color: rgba(59, 130, 246, 0.4);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+    }
+
+    .stat-icon {
+        background: rgba(59, 130, 246, 0.15);
+        color: rgb(96, 165, 250);
+    }
+
+    .dashboard-card:hover .stat-icon {
+        background: rgba(59, 130, 246, 0.25);
+    }
+
+    .no-messages-card {
+        border-color: rgba(59, 130, 246, 0.2);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, transparent 100%);
+    }
+
+    .no-messages-icon {
+        color: rgb(96, 165, 250);
+    }
 }
 </style>

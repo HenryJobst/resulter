@@ -230,7 +230,7 @@ public class PersonServiceImpl implements PersonService {
         }
 
         // Find operation with path compression
-        java.util.function.Function<Long, Long> find = new java.util.function.Function<Long, Long>() {
+        java.util.function.Function<Long, Long> find = new java.util.function.Function<>() {
             public Long apply(Long id) {
                 if (!parent.get(id).equals(id)) {
                     parent.put(id, apply(parent.get(id))); // Path compression

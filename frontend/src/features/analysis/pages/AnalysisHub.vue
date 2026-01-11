@@ -237,11 +237,8 @@ function startAnalysis() {
                     v-for="analysisType in analysisTypes"
                     :key="analysisType.key"
                     class="analysis-card"
-                    :class="[
-                        selectedAnalysisType === analysisType.key ? 'selected' : '',
-                        !analysisType.enabled ? 'disabled' : '',
-                    ]"
-                    @click="analysisType.enabled && selectAnalysisType(analysisType.key)"
+                    :class="{ selected: selectedAnalysisType === analysisType.key }"
+                    @click="selectAnalysisType(analysisType.key)"
                 >
                     <template #title>
                         <div class="flex items-center gap-3">
@@ -255,11 +252,6 @@ function startAnalysis() {
                         <p class="description-text text-sm mt-2">
                             {{ t(analysisType.descriptionKey) }}
                         </p>
-                        <div v-if="!analysisType.enabled" class="mt-3">
-                            <span class="coming-soon-badge">
-                                {{ t('labels.coming_soon') }}
-                            </span>
-                        </div>
                     </template>
                 </Card>
             </div>
@@ -405,7 +397,7 @@ function startAnalysis() {
     border: 2px solid transparent;
 }
 
-.analysis-card:not(.disabled):hover {
+.analysis-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
@@ -413,11 +405,6 @@ function startAnalysis() {
 .analysis-card.selected {
     border-color: rgb(59, 130, 246);
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.01) 100%);
-}
-
-.analysis-card.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
 }
 
 /* Icon Wrapper */

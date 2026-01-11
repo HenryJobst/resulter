@@ -37,6 +37,18 @@ function navigateTo(routeName: string) {
 function isActive(routeName: string) {
     return route.name === routeName
 }
+
+function isAnalysisActive() {
+    const analysisRoutes = [
+        'analysis-hub',
+        'split-time-analysis',
+        'split-time-table-analysis',
+        'mental-resilience-analysis',
+        'anomaly-detection-analysis',
+        'hanging-detection-analysis',
+    ]
+    return analysisRoutes.includes(route.name as string)
+}
 </script>
 
 <template>
@@ -94,8 +106,8 @@ function isActive(routeName: string) {
                     <Button
                         :label="t('navigations.analysis')"
                         icon="pi pi-chart-line"
-                        :severity="isActive('analysis-hub') ? 'primary' : 'secondary'"
-                        :text="!isActive('analysis-hub')"
+                        :severity="isAnalysisActive() ? 'primary' : 'secondary'"
+                        :text="!isAnalysisActive()"
                         rounded
                         @click="navigateTo('analysis-hub')"
                     />

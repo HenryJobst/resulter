@@ -7,14 +7,19 @@ import org.springframework.data.domain.Sort;
 import java.time.LocalDate;
 import java.util.function.UnaryOperator;
 
-public record PersonDto(Long id, String familyName, String givenName, GenderDto gender, LocalDate birthDate) {
+public record PersonDto(Long id, String familyName, String givenName, GenderDto gender, LocalDate birthDate, Boolean showMergeButton) {
 
     static public PersonDto from(Person person) {
+        return from(person, false);
+    }
+
+    static public PersonDto from(Person person, boolean showMergeButton) {
         return new PersonDto(ObjectUtils.isNotEmpty(person.id()) ? person.id().value() : 0,
             person.personName().familyName().value(),
             person.personName().givenName().value(),
             GenderDto.from(person.gender()),
-            person.birthDate() != null ? person.birthDate().value() : null);
+            person.birthDate() != null ? person.birthDate().value() : null,
+            showMergeButton);
     }
 
     static UnaryOperator<String> mapOperator = (String s) -> switch (s) {

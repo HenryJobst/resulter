@@ -48,8 +48,16 @@ public class PersonController {
                 filter.orElse(null),
                 mapped,
                 dup);
+
+        // Determine which persons should show merge button (only when duplicates mode is active)
+        java.util.Set<Long> groupLeaders = dup
+                ? personService.determineGroupLeaders(persons.getContent())
+                : java.util.Collections.emptySet();
+
         return ResponseEntity.ok(new PageImpl<>(
-                persons.getContent().stream().map(PersonDto::from).toList(),
+                persons.getContent().stream()
+                        .map(p -> PersonDto.from(p, groupLeaders.contains(p.id().value())))
+                        .toList(),
                 FilterAndSortConverter.mapOrderProperties(persons.getPageable(), PersonDto::mapOrdersDomainToDto),
                 persons.getTotalElements()));
     }
@@ -64,8 +72,14 @@ public class PersonController {
                 filter.orElse(null),
                 mapped,
                 true);
+
+        // Determine which persons should show merge button
+        java.util.Set<Long> groupLeaders = personService.determineGroupLeaders(persons.getContent());
+
         return ResponseEntity.ok(new PageImpl<>(
-                persons.getContent().stream().map(PersonDto::from).toList(),
+                persons.getContent().stream()
+                        .map(p -> PersonDto.from(p, groupLeaders.contains(p.id().value())))
+                        .toList(),
                 FilterAndSortConverter.mapOrderProperties(persons.getPageable(), PersonDto::mapOrdersDomainToDto),
                 persons.getTotalElements()));
     }

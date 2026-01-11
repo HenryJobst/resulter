@@ -56,4 +56,13 @@ public interface PersonService {
 
     @Transactional
     void deletePerson(PersonId personId);
+
+    /**
+     * Determines which persons in the list should show the merge button.
+     * Uses a two-tier similarity approach:
+     * - Regular threshold (>750): determines if a person has duplicates (needed for merge button)
+     * - Strict threshold (>1050): groups very similar persons together (only smallest ID gets button)
+     * Returns a set of person IDs that should show the merge button.
+     */
+    java.util.Set<Long> determineGroupLeaders(List<Person> persons);
 }

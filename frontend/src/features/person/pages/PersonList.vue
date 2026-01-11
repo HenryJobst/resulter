@@ -90,7 +90,7 @@ watch(() => route.query.duplicates, (newValue) => {
             </template>
             <template #extra_row_actions="{ value }">
                 <router-link
-                    v-if="authStore.isAdmin"
+                    v-if="authStore.isAdmin && value.showMergeButton"
                     :to="{
                         name: `person-merge`,
                         params: { id: value.id },
@@ -98,7 +98,6 @@ watch(() => route.query.duplicates, (newValue) => {
                     }"
                 >
                     <Button
-                        v-if="authStore.isAdmin"
                         v-tooltip="t('labels.merge')"
                         icon="pi pi-link"
                         class="mr-2"

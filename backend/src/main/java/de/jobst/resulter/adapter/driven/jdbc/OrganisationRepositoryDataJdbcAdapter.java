@@ -15,11 +15,15 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import de.jobst.resulter.domain.OrganisationType;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.domain.*;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -38,15 +42,18 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     private final FilterStringConverter filterStringConverter;
     private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
 
+    private final NamedParameterJdbcTemplate jdbc;
+
     public OrganisationRepositoryDataJdbcAdapter(
-            NamedParameterJdbcTemplate namedParameterJdbcTemplate,
-            OrganisationJdbcRepository organisationJdbcRepository,
-            CountryJdbcRepository countryJdbcRepository,
-            FilterStringConverter filterStringConverter) {
+        NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+        OrganisationJdbcRepository organisationJdbcRepository,
+        CountryJdbcRepository countryJdbcRepository,
+        FilterStringConverter filterStringConverter, NamedParameterJdbcTemplate jdbc) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.organisationJdbcRepository = organisationJdbcRepository;
         this.countryJdbcRepository = countryJdbcRepository;
         this.filterStringConverter = filterStringConverter;
+        this.jdbc = jdbc;
         this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
     }
 
@@ -130,15 +137,61 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     @Transactional(readOnly = true)
     public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet) {
-        return StreamSupport.stream(
-                        organisationJdbcRepository
-                                .findAllById(idSet.stream()
-                                        .map(OrganisationId::value)
-                                        .toList())
-                                .spliterator(),
-                        true)
-                .map(x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver()))
-                .collect(Collectors.toMap(Organisation::getId, x -> x));
+
+        // 1. Load main rows
+        List<Long> idList = idSet.stream().map(OrganisationId::value).toList();
+        List<OrganisationDbo> organisations = jdbc.query("""
+                                                  SELECT
+                                                      id,
+                                                      name,
+                                                      short_name,
+                                                      type,
+                                                      country_id
+                                                  FROM organisation
+                                                  WHERE id in (:ids)
+                                                  """,
+            Map.of("ids", idList),
+            organisationRowMapper());
+
+        if (organisations.isEmpty()) {
+            return Map.of();
+        }
+
+        // 2. Load all children in one query
+        Map<Long, List<OrganisationOrganisationDbo>> organisationOrganisationByOrganisationId = jdbc.query("""
+                                                                      SELECT
+                                                                          organisation_id,
+                                                                          parent_organisation_id
+                                                                      FROM organisation_organisation
+                                                                      WHERE parent_organisation_id IN (:ids)
+                                                                      """,
+                Map.of("ids", idList),
+                organisationOrganisationRowMapper())
+            .stream()
+            .collect(Collectors.groupingBy(x -> x.getParentId().getId()));
+
+        // 3. Attach children to parents
+        organisations.forEach(list -> list.setChildOrganisations(new HashSet<>(organisationOrganisationByOrganisationId.getOrDefault(list.getId(),
+            List.of()))));
+
+        return organisations.parallelStream()
+            .map(x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver()))
+            .collect(Collectors.toMap(Organisation::getId, x -> x));
+    }
+
+    private RowMapper<OrganisationDbo> organisationRowMapper() {
+        return (rs, rowNum) -> new OrganisationDbo(
+            rs.getLong("id"),
+            rs.getString("name"),
+            rs.getString("short_name"), OrganisationType.valueOf(rs.getString("type")),
+            AggregateReference.to(rs.getLong("country_id"))
+        );
+    }
+
+    private RowMapper<OrganisationOrganisationDbo> organisationOrganisationRowMapper() {
+        return (rs, rowNum) -> new OrganisationOrganisationDbo(
+            rs.getLong("organisation_id"),
+            rs.getLong("parent_organisation_id"));
     }
 
     @Override

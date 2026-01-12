@@ -50,6 +50,19 @@ public class OrganisationDbo {
         this.name = name;
     }
 
+    public OrganisationDbo(Long id,
+                           String name,
+                           String shortName,
+                           OrganisationType type,
+                           @Nullable AggregateReference<CountryDbo, Long> country) {
+        this.id = id;
+        this.name = name;
+        this.shortName = shortName;
+        this.type = type;
+        this.childOrganisations = Set.of();
+        this.country = country;
+    }
+
     @SuppressWarnings("ConstantConditions")
     public static OrganisationDbo from(Organisation organisation, DboResolvers dboResolvers) {
         OrganisationDbo organisationDbo;
@@ -73,7 +86,7 @@ public class OrganisationDbo {
         }
 
         organisationDbo.setChildOrganisations(organisation.getChildOrganisations().stream()
-                .map(it -> new OrganisationOrganisationDbo(it.value()))
+                .map(it -> new OrganisationOrganisationDbo(it.value(), organisationDbo.getId()))
                 .collect(Collectors.toSet()));
 
         return organisationDbo;
@@ -93,7 +106,7 @@ public class OrganisationDbo {
                 id,
                 name,
                 shortName,
-                type.value(),
+                type.name(),
                 Optional.ofNullable(country).map(x -> CountryId.of(x.getId())).orElse(CountryId.empty()),
                 childOrganisations.stream()
                         .map(x -> OrganisationId.of(x.id.getId()))

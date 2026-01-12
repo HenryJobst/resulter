@@ -43,7 +43,9 @@ public class SplitTimeListJdbcRepositoryImpl
         }
 
         // 2. Load all children in one query
-        Set<Long> listIds = lists.stream().map(SplitTimeListDbo::getId).collect(Collectors.toUnmodifiableSet());
+        Set<Long> listIds =
+            lists.stream().map(SplitTimeListDbo::getId)
+                .filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet());
 
         Map<Long, List<SplitTimeDbo>> splitTimesByListId = jdbc.query("""
                                                                       SELECT

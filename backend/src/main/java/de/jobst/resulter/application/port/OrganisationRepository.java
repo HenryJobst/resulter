@@ -27,7 +27,7 @@ public interface OrganisationRepository {
 
     void deleteOrganisation(Organisation organisation);
 
-    Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet);
+    Map<OrganisationId, Organisation> findAllById(Set<Long> idSet);
 
     Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet);
 

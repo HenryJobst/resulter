@@ -71,8 +71,7 @@ public final class Organisation implements Comparable<Organisation> {
         return new Organisation(
                 id == null ? OrganisationId.empty() : OrganisationId.of(id),
                 OrganisationName.of(name),
-                OrganisationShortName.of(shortName),
-                OrganisationType.fromValue(type),
+                OrganisationShortName.of(shortName), OrganisationType.valueOf(type),
                 country,
                 childOrganisations);
     }

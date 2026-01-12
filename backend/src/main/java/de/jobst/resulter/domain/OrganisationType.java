@@ -1,6 +1,5 @@
 package de.jobst.resulter.domain;
 
-import java.util.Objects;
 import org.jmolecules.ddd.annotation.ValueObject;
 
 @ValueObject
@@ -19,15 +18,6 @@ public enum OrganisationType {
 
     OrganisationType(String value) {
         this.value = value;
-    }
-
-    public static OrganisationType fromValue(String v) {
-        for (OrganisationType c : OrganisationType.values()) {
-            if (Objects.equals(c.value, v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
     }
 
     public String value() {

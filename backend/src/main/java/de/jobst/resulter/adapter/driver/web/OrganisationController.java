@@ -82,7 +82,7 @@ public class OrganisationController {
                 OrganisationId.of(id),
                 OrganisationName.of(organisationDto.name()),
                 OrganisationShortName.of(organisationDto.shortName()),
-                OrganisationType.fromValue(organisationDto.type().id()),
+                OrganisationType.valueOf(organisationDto.type().id()),
                 (organisationDto.country() != null)
                         ? CountryId.of(organisationDto.country().id())
                         : null,
@@ -100,7 +100,7 @@ public class OrganisationController {
         Organisation organisation = organisationService.createOrganisation(
                 OrganisationName.of(organisationDto.name()),
                 OrganisationShortName.of(organisationDto.shortName()),
-                OrganisationType.fromValue(organisationDto.type().id()),
+                OrganisationType.valueOf(organisationDto.type().id()),
                 (organisationDto.country() != null)
                         ? CountryId.of(organisationDto.country().id())
                         : null,

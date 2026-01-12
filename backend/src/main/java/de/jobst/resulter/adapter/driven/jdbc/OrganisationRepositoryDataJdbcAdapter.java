@@ -42,18 +42,15 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     private final FilterStringConverter filterStringConverter;
     private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
 
-    private final NamedParameterJdbcTemplate jdbc;
-
     public OrganisationRepositoryDataJdbcAdapter(
         NamedParameterJdbcTemplate namedParameterJdbcTemplate,
         OrganisationJdbcRepository organisationJdbcRepository,
         CountryJdbcRepository countryJdbcRepository,
-        FilterStringConverter filterStringConverter, NamedParameterJdbcTemplate jdbc) {
+        FilterStringConverter filterStringConverter) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.organisationJdbcRepository = organisationJdbcRepository;
         this.countryJdbcRepository = countryJdbcRepository;
         this.filterStringConverter = filterStringConverter;
-        this.jdbc = jdbc;
         this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
     }
 
@@ -99,9 +96,13 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     @Transactional
     public List<Organisation> findAll() {
-        return organisationJdbcRepository.findAll().stream()
-                .map(x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver()))
-                .toList();
+        List<@Nullable Long> organisationIds =
+            namedParameterJdbcTemplate.queryForList("SELECT id FROM organisation",
+            Map.of(),
+            Long.class);
+        //noinspection NullableProblems
+        return getOrganisationDbos(organisationIds).stream().map(
+            x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver())).toList();
     }
 
     @Override
@@ -136,11 +137,16 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
 
     @Override
     @Transactional(readOnly = true)
-    public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet) {
+    public Map<OrganisationId, Organisation> findAllById(Set<Long> idSet) {
+        List<OrganisationDbo> organisations = getOrganisationDbos(idSet.stream().toList());
+        return organisations.parallelStream()
+            .map(x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver()))
+            .collect(Collectors.toMap(Organisation::getId, x -> x));
+    }
 
+    List<OrganisationDbo> getOrganisationDbos(List<Long> idList) {
         // 1. Load main rows
-        List<Long> idList = idSet.stream().map(OrganisationId::value).toList();
-        List<OrganisationDbo> organisations = jdbc.query("""
+        List<OrganisationDbo> organisations = namedParameterJdbcTemplate.query("""
                                                   SELECT
                                                       id,
                                                       name,
@@ -154,11 +160,11 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
             organisationRowMapper());
 
         if (organisations.isEmpty()) {
-            return Map.of();
+            return List.of();
         }
 
         // 2. Load all children in one query
-        Map<Long, List<OrganisationOrganisationDbo>> organisationOrganisationByOrganisationId = jdbc.query("""
+        Map<Long, List<OrganisationOrganisationDbo>> organisationOrganisationByOrganisationId = namedParameterJdbcTemplate.query("""
                                                                       SELECT
                                                                           organisation_id,
                                                                           parent_organisation_id
@@ -174,9 +180,7 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
         organisations.forEach(list -> list.setChildOrganisations(new HashSet<>(organisationOrganisationByOrganisationId.getOrDefault(list.getId(),
             List.of()))));
 
-        return organisations.parallelStream()
-            .map(x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver()))
-            .collect(Collectors.toMap(Organisation::getId, x -> x));
+        return organisations;
     }
 
     private RowMapper<OrganisationDbo> organisationRowMapper() {
@@ -203,8 +207,9 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
         parameters.addValue("idSet", idValues);
 
         List<@Nullable Long> resultList = namedParameterJdbcTemplate.queryForList(getCteQuery(), parameters, Long.class);
-        Set<OrganisationId> organisationIdSet =
-                resultList.stream().filter(Objects::nonNull).map(OrganisationId::of).collect(Collectors.toSet());
+        @SuppressWarnings("NullableProblems")
+        Set<Long> organisationIdSet =
+                resultList.stream().filter(Objects::nonNull).collect(Collectors.toSet());
 
         return findAllById(organisationIdSet);
     }

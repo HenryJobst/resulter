@@ -42,7 +42,7 @@ public class InMemoryRaceRepository implements RaceRepository {
     @Override
     public Race findOrCreate(Race race) {
         return races.values().stream()
-                .filter(it -> Objects.equals(it.getRaceName(), race.getRaceName())
+                .filter(it -> Objects.equals(it.getEventId(), race.getEventId())
                         && Objects.equals(it.getRaceNumber(), race.getRaceNumber()))
                 .findAny()
                 .orElseGet(() -> save(race));

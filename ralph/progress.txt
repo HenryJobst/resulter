@@ -8,6 +8,8 @@
 - Port interfaces are in `application/port/`, JDBC adapters in `adapter/driven/jdbc/`, inmemory in `adapter/driven/inmemory/`
 - Organisation domain stores CountryId (not Country), so asOrganisation() doesn't need to resolve Countries - just extract IDs
 - OrganisationDbo.asOrganisation() accepts either resolver functions OR maps - use maps for batch loading
+- EventOrganisationDbo.id is package-private, access with `eo.id.getId()` not via getter
+- JdbcRepository.findAllById returns Iterable; use StreamSupport.stream(iter.spliterator(), false) to convert
 
 ---
 
@@ -91,5 +93,21 @@ Thread: https://ampcode.com/threads/T-019bb993-086a-779b-a3a8-af9524cbe393
 - EventDbo follows same Map-accepting pattern as OrganisationDbo
 - Event stores OrganisationIds (not full Organisation objects), so the Map parameter is for consistency but not strictly required for resolution
 - The conversion logic is identical between resolver-based and Map-based methods - just different method signatures
+---
+
+## 2026-01-14 00:00 - US-006
+Thread: https://ampcode.com/threads/T-019bb994-a974-74f8-8214-5775d4690737
+- Added `batchLoadOrganisations(Collection<EventDbo>)` helper method to EventRepositoryDataJdbcAdapter
+- Updated `findAll()` to use batch Organisation loading via the new helper
+- Updated `findAllById()` to use batch Organisation loading
+- Both methods now collect org IDs and batch-load with single query instead of N+1
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/EventRepositoryDataJdbcAdapter.java
+
+**Learnings for future iterations:**
+- EventOrganisationDbo.id is package-private, access it directly as `eo.id.getId()` (not via getter)
+- OrganisationJdbcRepository.findAllById returns Iterable, use StreamSupport.stream() to convert to stream
+- The batchLoadOrganisations pattern: collect IDs -> findAllById -> collect to Map<Long, Organisation>
 ---
 

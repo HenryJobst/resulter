@@ -89,11 +89,27 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
 
+    private Map<Long, Country> batchLoadCountries(Collection<OrganisationDbo> organisationDbos) {
+        Set<Long> countryIds = organisationDbos.stream()
+                .map(OrganisationDbo::getCountry)
+                .filter(Objects::nonNull)
+                .map(ref -> ref.getId())
+                .collect(Collectors.toSet());
+        if (countryIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return countryJdbcRepository.findAllByIdIn(countryIds).stream()
+                .map(CountryDbo::asCountry)
+                .collect(Collectors.toMap(c -> c.getId().value(), c -> c));
+    }
+
     @Override
     @Transactional
     public List<Organisation> findAll() {
-        return organisationJdbcRepository.findAll().stream()
-                .map(x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver()))
+        Collection<OrganisationDbo> organisationDbos = organisationJdbcRepository.findAll();
+        Map<Long, Country> countryMap = batchLoadCountries(organisationDbos);
+        return organisationDbos.stream()
+                .map(x -> x.asOrganisation(Collections.emptyMap(), countryMap))
                 .toList();
     }
 

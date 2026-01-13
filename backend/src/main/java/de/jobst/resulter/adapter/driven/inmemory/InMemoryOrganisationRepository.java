@@ -78,7 +78,9 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
 
     @Override
     public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet) {
-        return null;
+        return idSet.stream()
+            .filter(organisations::containsKey)
+            .collect(java.util.stream.Collectors.toMap(id -> id, organisations::get));
     }
 
     @Override

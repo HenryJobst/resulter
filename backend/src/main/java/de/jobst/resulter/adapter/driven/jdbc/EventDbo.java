@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -150,6 +151,44 @@ public class EventDbo {
     @SuppressWarnings("unused")
     public Event asEvent(Function<Long, Organisation> organisationResolver) {
         return asEvents(List.of(this), organisationResolver).getFirst();
+    }
+
+    /**
+     * Convert a collection of EventDbos to Events using pre-loaded Organisation map for batch loading.
+     */
+    public static List<Event> asEvents(
+            Collection<EventDbo> eventDbos, Map<Long, Organisation> organisationMap) {
+
+        return eventDbos.stream()
+                .map(it -> Event.of(
+                        it.id,
+                        it.name,
+                        it.startTime != null && it.startTimeZone != null ?
+                                it.startTime.toInstant().atZone(ZoneId.of(it.startTimeZone)) :
+                                null,
+                        it.endTime != null && it.endTimeZone != null ?
+                                it.endTime.toInstant().atZone(ZoneId.of(it.endTimeZone)) : null,
+                        it.organisations.stream()
+                                .map(x -> OrganisationId.of(x.id.getId()))
+                                .toList(),
+                        it.state,
+                        it.discipline,
+                        it.aggregateScore))
+                .toList();
+    }
+
+    /**
+     * Static method to convert a single EventDbo to Event using pre-loaded Organisation map.
+     */
+    public static Event asEvent(EventDbo eventDbo, Map<Long, Organisation> organisationMap) {
+        return asEvents(List.of(eventDbo), organisationMap).getFirst();
+    }
+
+    /**
+     * Instance method to convert this EventDbo to Event using pre-loaded Organisation map.
+     */
+    public Event asEvent(Map<Long, Organisation> organisationMap) {
+        return asEvents(List.of(this), organisationMap).getFirst();
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

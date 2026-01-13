@@ -13,6 +13,8 @@ import org.jspecify.annotations.Nullable;
 @Getter
 public class Race implements Comparable<Race> {
 
+    public record DomainKey(EventId eventId, RaceNumber raceNumber) {}
+
     @Identity
     @Setter
     private RaceId id;
@@ -54,4 +56,7 @@ public class Race implements Comparable<Race> {
         return RaceComparator.COMPARATOR.compare(this, o);
     }
 
+    public DomainKey getDomainKey() {
+        return new DomainKey(eventId, raceNumber);
+    }
 }

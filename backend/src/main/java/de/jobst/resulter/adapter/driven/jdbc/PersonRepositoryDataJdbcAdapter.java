@@ -8,8 +8,10 @@ import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransf
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.domain.BirthDate;
+import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
+import java.time.LocalDate;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -91,7 +93,93 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     @Override
     @Transactional
     public Collection<PersonPerson> findOrCreate(Collection<Person> persons) {
-        return persons.stream().map(this::findOrCreate).toList();
+        if (persons.isEmpty()) {
+            return List.of();
+        }
+
+        // Step 1: Batch-load all existing persons matching the composite keys
+        Map<Person.DomainKey, Person> existingPersons = batchFindExistingPersons(persons);
+
+        // Step 2: Separate into found and not found
+        List<PersonPerson> results = new ArrayList<>();
+        List<Person> toCreate = new ArrayList<>();
+        
+        for (Person person : persons) {
+            Person.DomainKey key = person.getDomainKey();
+            Person existing = existingPersons.get(key);
+            if (existing != null) {
+                results.add(new PersonPerson(person, existing));
+            } else {
+                toCreate.add(person);
+            }
+        }
+
+        // Step 3: Batch insert new persons
+        if (!toCreate.isEmpty()) {
+            List<Person> created = batchInsertPersons(toCreate);
+            for (int i = 0; i < toCreate.size(); i++) {
+                results.add(new PersonPerson(toCreate.get(i), created.get(i)));
+            }
+        }
+
+        return results;
+    }
+
+    private Map<Person.DomainKey, Person> batchFindExistingPersons(Collection<Person> persons) {
+        // Build a composite query using OR clauses for each person's key
+        StringBuilder sql = new StringBuilder("SELECT * FROM person WHERE ");
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        List<String> conditions = new ArrayList<>();
+        
+        int idx = 0;
+        for (Person person : persons) {
+            String familyName = person.personName().familyName().value();
+            String givenName = person.personName().givenName().value();
+            LocalDate birthDate = Optional.ofNullable(person.birthDate()).map(BirthDate::value).orElse(null);
+            Gender gender = person.gender();
+            
+            String condition = "(family_name = :fn" + idx 
+                    + " AND given_name = :gn" + idx
+                    + " AND birth_date " + (birthDate == null ? "IS NULL" : "= :bd" + idx)
+                    + " AND gender = :g" + idx + ")";
+            conditions.add(condition);
+            
+            params.addValue("fn" + idx, familyName);
+            params.addValue("gn" + idx, givenName);
+            if (birthDate != null) {
+                params.addValue("bd" + idx, birthDate);
+            }
+            params.addValue("g" + idx, gender.name());
+            idx++;
+        }
+        
+        sql.append(String.join(" OR ", conditions));
+        
+        List<PersonDbo> found = namedParameterJdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
+            PersonDbo dbo = new PersonDbo();
+            dbo.setId(rs.getLong("id"));
+            dbo.setFamilyName(rs.getString("family_name"));
+            dbo.setGivenName(rs.getString("given_name"));
+            dbo.setGender(Gender.of(rs.getString("gender")));
+            java.sql.Date bd = rs.getDate("birth_date");
+            dbo.setBirthDate(bd != null ? bd.toLocalDate() : null);
+            return dbo;
+        });
+        
+        return found.stream()
+                .map(dbo -> dbo.asPerson())
+                .collect(Collectors.toMap(Person::getDomainKey, p -> p));
+    }
+
+    private List<Person> batchInsertPersons(List<Person> persons) {
+        // Use individual saves for now - Spring Data JDBC doesn't have native batch insert
+        // returning generated IDs, but we avoid N+1 by doing single check query
+        List<Person> created = new ArrayList<>();
+        for (Person person : persons) {
+            Person saved = save(person);
+            created.add(saved);
+        }
+        return created;
     }
 
     @Override

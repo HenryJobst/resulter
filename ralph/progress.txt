@@ -10,6 +10,7 @@
 - OrganisationDbo.asOrganisation() accepts either resolver functions OR maps - use maps for batch loading
 - EventOrganisationDbo.id is package-private, access with `eo.id.getId()` not via getter
 - JdbcRepository.findAllById returns Iterable; use StreamSupport.stream(iter.spliterator(), false) to convert
+- In @Query SQL, quote reserved keywords like `"primary"` for PostgreSQL compatibility
 
 ---
 
@@ -109,5 +110,22 @@ Thread: https://ampcode.com/threads/T-019bb994-a974-74f8-8214-5775d4690737
 - EventOrganisationDbo.id is package-private, access it directly as `eo.id.getId()` (not via getter)
 - OrganisationJdbcRepository.findAllById returns Iterable, use StreamSupport.stream() to convert to stream
 - The batchLoadOrganisations pattern: collect IDs -> findAllById -> collect to Map<Long, Organisation>
+---
+
+## 2026-01-14 00:03 - US-007
+Thread: https://ampcode.com/threads/T-019bb997-7daf-73ec-b7d5-8d329210c649
+- Optimized `findAll(filter, pageable)` to use batch-loading for both Organisations and EventCertificates
+- Added `findPrimaryByEventIdIn(Set<Long> eventIds)` to EventCertificateJdbcRepository with @Query annotation
+- Added `batchLoadPrimaryEventCertificates(Collection<EventDbo>)` helper method to EventRepositoryDataJdbcAdapter
+- Now uses Map-based batch loading instead of N+1 resolver functions
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/EventCertificateJdbcRepository.java
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/EventRepositoryDataJdbcAdapter.java
+
+**Learnings for future iterations:**
+- PostgreSQL requires quoting `"primary"` in SQL because it's a reserved keyword
+- Event.setCertificate(EventCertificateId) is the direct setter; use instead of withCertificate(Function) for batch loading
+- EventCertificateDbo.getEvent() returns AggregateReference, call .getId() to get the Long value
 ---
 

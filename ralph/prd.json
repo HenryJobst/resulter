@@ -74,7 +74,7 @@
         "Tests pass: ./mvnw test -pl backend"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {

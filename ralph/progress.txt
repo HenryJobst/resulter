@@ -171,3 +171,25 @@ Thread: https://ampcode.com/threads/T-019bb99d-23a6-7498-8b29-78e06cacf658
 - Same DomainKey pattern as Person works for Race: add record + getDomainKey() method
 ---
 
+## 2026-01-14 00:12 - US-010
+Thread: https://ampcode.com/threads/T-019bb99f-9b40-71ce-a0a6-eb14e79079af
+- Optimized `findOrCreate(Collection<ResultList>)` to use batch existence checking with single composite query
+- Added `ResultList.DomainKey` record for (eventId, raceId, creator, createTime) uniqueness key
+- Added `getDomainKey()` method to ResultList domain entity
+- Added `batchFindExistingResultLists()` method: builds SQL with OR clauses for each result list's composite key
+- Added `batchInsertResultLists()` helper for inserting new result lists
+- Added `NamedParameterJdbcTemplate` dependency to ResultListRepositoryDataJdbcAdapter
+- Fixed InMemoryResultListRepository to use DomainKey instead of just (creator, createTime)
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/domain/ResultList.java
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/ResultListRepositoryDataJdbcAdapter.java
+- backend/src/main/java/de/jobst/resulter/adapter/driven/inmemory/InMemoryResultListRepository.java
+
+**Learnings for future iterations:**
+- ResultList uniqueness key is (eventId, raceId, creator, createTime) - includes timezone handling
+- InMemoryResultListRepository was missing eventId and raceId in uniqueness check - always verify InMemory matches JDBC semantics
+- For nullable fields in composite keys (creator, createTime), use `IS NULL` in SQL when value is null
+- Same DomainKey pattern as Person and Race works for ResultList
+---
+

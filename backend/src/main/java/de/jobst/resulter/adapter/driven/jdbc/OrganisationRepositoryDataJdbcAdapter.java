@@ -146,14 +146,17 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     @Transactional(readOnly = true)
     public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet) {
-        return StreamSupport.stream(
+        List<OrganisationDbo> organisationDbos = StreamSupport.stream(
                         organisationJdbcRepository
                                 .findAllById(idSet.stream()
                                         .map(OrganisationId::value)
                                         .toList())
                                 .spliterator(),
-                        true)
-                .map(x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver()))
+                        false)
+                .toList();
+        Map<Long, Country> countryMap = batchLoadCountries(organisationDbos);
+        return organisationDbos.stream()
+                .map(x -> x.asOrganisation(Collections.emptyMap(), countryMap))
                 .collect(Collectors.toMap(Organisation::getId, x -> x));
     }
 
@@ -210,9 +213,10 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
             page = organisationJdbcRepository.findAll(
                     FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDbo::mapOrdersDomainToDbo));
         }
+        Map<Long, Country> countryMap = batchLoadCountries(page.getContent());
         return new PageImpl<>(
                 page.stream()
-                        .map(x -> OrganisationDbo.asOrganisation(x, getOrganisationResolver(), getCountryResolver()))
+                        .map(x -> x.asOrganisation(Collections.emptyMap(), countryMap))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(page.getPageable(), OrganisationDbo::mapOrdersDboToDomain),
                 page.getTotalElements());
@@ -220,10 +224,14 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
 
     @Override
     public List<Organisation> findByIds(Collection<OrganisationId> childOrganisationIds) {
-        var childOrganisations = organisationJdbcRepository.findAllById(
-                childOrganisationIds.stream().map(OrganisationId::value).toList());
-        return StreamSupport.stream(childOrganisations.spliterator(), true)
-                .map(x -> x.asOrganisation(getOrganisationResolver(), getCountryResolver()))
+        List<OrganisationDbo> organisationDbos = StreamSupport.stream(
+                organisationJdbcRepository.findAllById(
+                        childOrganisationIds.stream().map(OrganisationId::value).toList()).spliterator(),
+                false)
+                .toList();
+        Map<Long, Country> countryMap = batchLoadCountries(organisationDbos);
+        return organisationDbos.stream()
+                .map(x -> x.asOrganisation(Collections.emptyMap(), countryMap))
                 .toList();
     }
 }

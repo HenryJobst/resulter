@@ -11,9 +11,16 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -21,9 +28,13 @@ import java.util.Optional;
 public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository {
 
     private final ResultListJdbcRepository resultListJdbcRepository;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public ResultListRepositoryDataJdbcAdapter(ResultListJdbcRepository resultListJdbcRepository) {
+    public ResultListRepositoryDataJdbcAdapter(
+            ResultListJdbcRepository resultListJdbcRepository,
+            NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.resultListJdbcRepository = resultListJdbcRepository;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @SuppressWarnings("unused")
@@ -65,7 +76,111 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     @Override
     @Transactional
     public Collection<ResultList> findOrCreate(Collection<ResultList> resultLists) {
-        return resultLists.stream().map(this::findOrCreate).toList();
+        if (resultLists.isEmpty()) {
+            return List.of();
+        }
+
+        Map<ResultList.DomainKey, ResultList> existingResultLists = batchFindExistingResultLists(resultLists);
+
+        List<ResultList> results = new ArrayList<>();
+        List<ResultList> toCreate = new ArrayList<>();
+
+        for (ResultList resultList : resultLists) {
+            ResultList.DomainKey key = resultList.getDomainKey();
+            ResultList existing = existingResultLists.get(key);
+            if (existing != null) {
+                results.add(existing);
+            } else {
+                toCreate.add(resultList);
+            }
+        }
+
+        if (!toCreate.isEmpty()) {
+            List<ResultList> created = batchInsertResultLists(toCreate);
+            results.addAll(created);
+        }
+
+        return results;
+    }
+
+    private Map<ResultList.DomainKey, ResultList> batchFindExistingResultLists(Collection<ResultList> resultLists) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT id, event_id, race_id, creator, create_time, create_time_zone, status FROM result_list WHERE ");
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        List<String> conditions = new ArrayList<>();
+
+        int idx = 0;
+        for (ResultList resultList : resultLists) {
+            Long eventId = resultList.getEventId().value();
+            Long raceId = resultList.getRaceId().value();
+            String creator = resultList.getCreator();
+            ZonedDateTime createTime = resultList.getCreateTime();
+
+            StringBuilder condition = new StringBuilder();
+            condition.append("(event_id = :e").append(idx);
+            condition.append(" AND race_id = :r").append(idx);
+
+            params.addValue("e" + idx, eventId);
+            params.addValue("r" + idx, raceId);
+
+            if (creator != null) {
+                condition.append(" AND creator = :c").append(idx);
+                params.addValue("c" + idx, creator);
+            } else {
+                condition.append(" AND creator IS NULL");
+            }
+
+            if (createTime != null) {
+                condition.append(" AND create_time = :t").append(idx);
+                condition.append(" AND create_time_zone = :z").append(idx);
+                params.addValue("t" + idx, Timestamp.from(createTime.toOffsetDateTime().toInstant()));
+                params.addValue("z" + idx, createTime.getZone().getId());
+            } else {
+                condition.append(" AND create_time IS NULL");
+            }
+
+            condition.append(")");
+            conditions.add(condition.toString());
+            idx++;
+        }
+
+        sql.append(String.join(" OR ", conditions));
+
+        List<ResultList> found = namedParameterJdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
+            Long id = rs.getLong("id");
+            Long eventId = rs.getLong("event_id");
+            Long raceId = rs.getLong("race_id");
+            String creator = rs.getString("creator");
+            Timestamp createTime = rs.getTimestamp("create_time");
+            String createTimeZone = rs.getString("create_time_zone");
+            String status = rs.getString("status");
+
+            ZonedDateTime zonedCreateTime = null;
+            if (createTime != null && createTimeZone != null) {
+                zonedCreateTime = createTime.toInstant().atZone(ZoneId.of(createTimeZone));
+            }
+
+            return new ResultList(
+                    ResultListId.of(id),
+                    EventId.of(eventId),
+                    RaceId.of(raceId),
+                    creator,
+                    zonedCreateTime,
+                    status,
+                    null);
+        });
+
+        return found.stream()
+                .collect(Collectors.toMap(ResultList::getDomainKey, r -> r));
+    }
+
+    private List<ResultList> batchInsertResultLists(List<ResultList> resultLists) {
+        List<ResultList> created = new ArrayList<>();
+        for (ResultList resultList : resultLists) {
+            ResultList saved = save(resultList);
+            created.add(saved);
+        }
+        return created;
     }
 
     @Override

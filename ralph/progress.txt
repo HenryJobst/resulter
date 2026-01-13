@@ -147,5 +147,27 @@ Thread: https://ampcode.com/threads/T-019bb99a-9aaf-7624-bde9-d71fb0ff6e14
 - For batch composite key lookups, build OR clauses dynamically: `(col1=:p1 AND col2=:p2) OR (col1=:p3 AND col2=:p4)`
 - Handle NULL birthDate separately in SQL: use `birth_date IS NULL` when value is null
 - PersonDbo has both static `asPerson(PersonDbo)` and instance `asPerson()` - use lambda `dbo -> dbo.asPerson()` to avoid ambiguous method reference
+- Race uniqueness key is (eventId, raceNumber) - add DomainKey record and getDomainKey() method for batch operations
+---
+
+## 2026-01-14 00:09 - US-009
+Thread: https://ampcode.com/threads/T-019bb99d-23a6-7498-8b29-78e06cacf658
+- Optimized `findOrCreate(Collection<Race>)` to use batch existence checking with single composite query
+- Added `Race.DomainKey` record for (eventId, raceNumber) uniqueness key
+- Added `getDomainKey()` method to Race domain entity
+- Added `batchFindExistingRaces()` method: builds SQL with OR clauses for each race's composite key
+- Added `batchInsertRaces()` helper for inserting new races
+- Added `NamedParameterJdbcTemplate` dependency to RaceRepositoryDataJdbcAdapter
+- Fixed InMemoryRaceRepository to use correct uniqueness key (eventId, raceNumber) instead of (raceName, raceNumber)
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/domain/Race.java
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/RaceRepositoryDataJdbcAdapter.java
+- backend/src/main/java/de/jobst/resulter/adapter/driven/inmemory/InMemoryRaceRepository.java
+
+**Learnings for future iterations:**
+- Race uniqueness is (eventId, raceNumber), matching the JDBC `findByEventIdAndNumber` method
+- InMemoryRaceRepository had a bug using raceName instead of eventId - always verify InMemory matches JDBC semantics
+- Same DomainKey pattern as Person works for Race: add record + getDomainKey() method
 ---
 

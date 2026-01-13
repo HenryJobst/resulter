@@ -46,3 +46,18 @@ Thread: https://ampcode.com/threads/T-019bb98c-27a2-70ab-8d11-e89b6726c967
 - Added both instance and static versions of asOrganisation with Maps for flexibility
 ---
 
+## 2026-01-13 23:54 - US-003
+Thread: https://ampcode.com/threads/T-019bb990-1f85-723f-8f2a-6c84f28afae8
+- **Already completed in US-002** - The overloaded asOrganisation method was implemented ahead of schedule
+- Verified: instance method `asOrganisation(Map<Long, Organisation>, Map<Long, Country>)` exists at line 104
+- Verified: static method with same maps exists at line 117
+- Verified: Original resolver-based methods remain at lines 83-102
+- Compile and tests pass
+
+**Files changed:** None (already done)
+
+**Learnings for future iterations:**
+- When implementing batch-loading patterns, the Map-accepting methods are often added together with the batch-loading logic
+- Check if stories are already satisfied by previous work before implementing
+---
+

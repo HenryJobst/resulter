@@ -1,0 +1,212 @@
+{
+  "project": "Resulter",
+  "branchName": "ralph/backend-query-optimization",
+  "description": "Backend Query Performance Optimization - Eliminate N+1 queries by implementing batch-loading patterns in repository adapters",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add batch-loading for Country repository",
+      "description": "As a developer, I want Countries loaded in a single batch query so that each Organisation does not trigger a separate DB call.",
+      "acceptanceCriteria": [
+        "Add findAllById(Set<Long> ids) method to CountryRepository port interface",
+        "Implement batch query with IN-clause in CountryRepositoryDataJdbcAdapter",
+        "Return Map<Long, Country> for efficient lookup",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Add batch Country loading to OrganisationRepositoryDataJdbcAdapter",
+      "description": "As a developer, I want all Countries for a list of Organisations loaded in one query instead of N queries.",
+      "acceptanceCriteria": [
+        "Collect all country_ids from Organisation list",
+        "Use CountryRepository.findAllById() to batch-load Countries",
+        "Pass Country map to asOrganisation() method instead of resolver function",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Add overloaded asOrganisation method accepting Maps",
+      "description": "As a developer, I want OrganisationDbo to accept pre-loaded Maps for batch conversion.",
+      "acceptanceCriteria": [
+        "Add asOrganisation(Map<Long, Organisation> orgMap, Map<Long, Country> countryMap) to OrganisationDbo",
+        "Existing resolver-based method remains for single-entity use cases",
+        "Both methods produce identical Organisation domain objects",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Optimize OrganisationRepositoryDataJdbcAdapter.findAll methods",
+      "description": "As a developer, I want findAll() and findAll(filter, pageable) to use batch-loading for Countries.",
+      "acceptanceCriteria": [
+        "findAll() uses batch Country loading instead of getCountryResolver()",
+        "findAll(filter, pageable) uses batch Country loading",
+        "Maximum 3 queries for loading 100 organisations (main + children + countries)",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Add overloaded asEvent method accepting Maps to EventDbo",
+      "description": "As a developer, I want EventDbo to accept pre-loaded Organisation map for batch conversion.",
+      "acceptanceCriteria": [
+        "Add asEvent(Map<Long, Organisation> orgMap) static method to EventDbo",
+        "Existing resolver-based method remains for single-entity use cases",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Optimize EventRepositoryDataJdbcAdapter.findAll()",
+      "description": "As a developer, I want findAll() to use batch-loading for Organisations.",
+      "acceptanceCriteria": [
+        "Collect all organisation_ids from Event list",
+        "Use OrganisationRepository.findAllById() to batch-load Organisations",
+        "Pass Organisation map to EventDbo.asEvent()",
+        "Maximum 5 queries for loading 100 events",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Optimize EventRepositoryDataJdbcAdapter.findAll(filter, pageable)",
+      "description": "As a developer, I want paginated findAll to use batch-loading for Organisations and Certificates.",
+      "acceptanceCriteria": [
+        "Batch-load Organisations for all events in page",
+        "Batch-load primary EventCertificates with single query using IN-clause",
+        "Maximum 5 queries for loading a page of events",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Optimize PersonRepositoryDataJdbcAdapter.findOrCreate(Collection)",
+      "description": "As a developer, I want batch existence checking for persons instead of N individual queries.",
+      "acceptanceCriteria": [
+        "Build composite key query to check all persons in one query",
+        "Use batch insert for new persons",
+        "Maximum 2 queries for 100 persons (check + insert)",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Optimize RaceRepositoryDataJdbcAdapter.findOrCreate(Collection)",
+      "description": "As a developer, I want batch operations for Race findOrCreate.",
+      "acceptanceCriteria": [
+        "Batch existence check using IN-clause",
+        "Batch insert for new races",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Optimize ResultListRepositoryDataJdbcAdapter.findOrCreate(Collection)",
+      "description": "As a developer, I want batch operations for ResultList findOrCreate.",
+      "acceptanceCriteria": [
+        "Batch existence check using IN-clause",
+        "Batch insert for new result lists",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Optimize SplitTimeListRepositoryDataJdbcAdapter.findOrCreate(Collection)",
+      "description": "As a developer, I want batch operations for SplitTimeList findOrCreate.",
+      "acceptanceCriteria": [
+        "Batch existence check using IN-clause",
+        "Batch insert for new split time lists",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Optimize CupRepositoryDataJdbcAdapter for batch loading",
+      "description": "As a developer, I want Cup list operations to batch-load related Events and Organisations.",
+      "acceptanceCriteria": [
+        "Batch-load all Events for Cups in one query",
+        "Batch-load all Organisations for Cups in one query",
+        "Maximum 10 queries for loading cup list",
+        "Typecheck passes: ./mvnw compile -pl backend",
+        "Tests pass: ./mvnw test -pl backend"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Enable SQL logging and document baseline metrics",
+      "description": "As a developer, I want to measure query counts before and after optimization.",
+      "acceptanceCriteria": [
+        "SQL logging enabled in application-dev.yaml",
+        "Document baseline query counts for: GET /api/events, GET /api/organisations, GET /api/cups",
+        "Create PERFORMANCE.md with baseline measurements",
+        "Typecheck passes: ./mvnw compile -pl backend"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Document final performance metrics",
+      "description": "As a developer, I want final query counts documented showing at least 50% reduction.",
+      "acceptanceCriteria": [
+        "Update PERFORMANCE.md with final query counts",
+        "Show percentage reduction for each endpoint",
+        "Confirm minimum 50% reduction achieved",
+        "Typecheck passes: ./mvnw compile -pl backend"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

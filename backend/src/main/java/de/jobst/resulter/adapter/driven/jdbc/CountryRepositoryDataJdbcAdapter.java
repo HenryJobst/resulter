@@ -9,7 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -43,6 +46,19 @@ public class CountryRepositoryDataJdbcAdapter implements CountryRepository {
     public Optional<Country> findById(CountryId countryId) {
         Optional<CountryDbo> countryEntity = countryJdbcRepository.findById(countryId.value());
         return countryEntity.map(CountryDbo::asCountry);
+    }
+
+    @Override
+    @Transactional
+    public Map<CountryId, Country> findAllById(Set<CountryId> ids) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        Set<Long> rawIds = ids.stream().map(CountryId::value).collect(Collectors.toSet());
+        Collection<CountryDbo> countryDbos = countryJdbcRepository.findAllByIdIn(rawIds);
+        return countryDbos.stream()
+            .map(CountryDbo::asCountry)
+            .collect(Collectors.toMap(Country::getId, country -> country));
     }
 
     @Override

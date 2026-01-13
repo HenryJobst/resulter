@@ -46,6 +46,18 @@ public class InMemoryCountryRepository implements CountryRepository {
     }
 
     @Override
+    public Map<CountryId, Country> findAllById(Set<CountryId> ids) {
+        Map<CountryId, Country> result = new HashMap<>();
+        for (CountryId id : ids) {
+            Country country = countries.get(id);
+            if (country != null) {
+                result.put(id, country);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public Country findOrCreate(Country country) {
         return countries.values()
             .stream()

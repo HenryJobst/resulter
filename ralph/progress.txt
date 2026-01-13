@@ -2,3 +2,47 @@
 # Branch: ralph/backend-query-optimization
 # Started: 2026-01-13
 
+## Codebase Patterns
+- CountryJdbcRepository already has `findAllByIdIn(Set<Long> ids)` method with @Query annotation for batch loading
+- InMemoryCountryRepository uses `java.util.*` wildcard import covering all collection types
+- Port interfaces are in `application/port/`, JDBC adapters in `adapter/driven/jdbc/`, inmemory in `adapter/driven/inmemory/`
+- Organisation domain stores CountryId (not Country), so asOrganisation() doesn't need to resolve Countries - just extract IDs
+- OrganisationDbo.asOrganisation() accepts either resolver functions OR maps - use maps for batch loading
+
+---
+
+## 2026-01-13 23:48 - US-001
+Thread: https://ampcode.com/threads/T-019bb98a-656a-7339-8e00-e64b93db4dae
+- Implemented `findAllById(Set<CountryId> ids)` in CountryRepositoryDataJdbcAdapter
+- Implemented same method in InMemoryCountryRepository for test compatibility
+- Returns `Map<CountryId, Country>` for efficient lookup
+- Uses existing `countryJdbcRepository.findAllByIdIn(rawIds)` for batch query
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/CountryRepositoryDataJdbcAdapter.java
+- backend/src/main/java/de/jobst/resulter/adapter/driven/inmemory/InMemoryCountryRepository.java
+
+**Learnings for future iterations:**
+- CountryJdbcRepository already had `findAllByIdIn` method prepared - check existing JdbcRepository methods before adding new ones
+- The port interface (CountryRepository) already declared `findAllById` - it just needed implementation
+- Always implement both JDBC and InMemory adapters when adding new repository methods
+---
+
+## 2026-01-13 23:52 - US-002
+Thread: https://ampcode.com/threads/T-019bb98c-27a2-70ab-8d11-e89b6726c967
+- Added overloaded `asOrganisation(Map<Long, Organisation>, Map<Long, Country>)` method to OrganisationDbo
+- Added `batchLoadCountries()` helper method to OrganisationRepositoryDataJdbcAdapter
+- Updated `findAll()` to use batch country loading instead of resolver function
+- Fixed InMemoryOrganisationRepository.findAllById() to return proper map instead of null
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/OrganisationDbo.java
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/OrganisationRepositoryDataJdbcAdapter.java
+- backend/src/main/java/de/jobst/resulter/adapter/driven/inmemory/InMemoryOrganisationRepository.java
+
+**Learnings for future iterations:**
+- OrganisationJdbcRepository.findAll() returns Collection, not List
+- The resolver functions in asOrganisation() are currently unused since domain stores IDs not full objects
+- Added both instance and static versions of asOrganisation with Maps for flexibility
+---
+

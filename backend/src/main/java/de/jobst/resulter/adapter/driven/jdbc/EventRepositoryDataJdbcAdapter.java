@@ -97,6 +97,22 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         };
     }
 
+    private Map<Long, EventCertificate> batchLoadPrimaryEventCertificates(Collection<EventDbo> eventDbos) {
+        Set<Long> eventIds = eventDbos.stream()
+                .map(EventDbo::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (eventIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Collection<EventCertificateDbo> certDbos = eventCertificateJdbcRepository.findPrimaryByEventIdIn(eventIds);
+        return certDbos.stream()
+                .filter(c -> c.getEvent() != null)
+                .collect(Collectors.toMap(
+                        c -> c.getEvent().getId(),
+                        EventCertificateDbo::asEventCertificate));
+    }
+
     @Override
     @Transactional
     public Event save(Event event) {
@@ -183,11 +199,19 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
             page = eventJdbcRepository.findAll(
                     FilterAndSortConverter.mapOrderProperties(pageable, EventDbo::mapOrdersDomainToDbo));
         }
+
+        List<EventDbo> eventDbos = page.getContent();
+        Map<Long, Organisation> orgMap = batchLoadOrganisations(eventDbos);
+        Map<Long, EventCertificate> certMap = batchLoadPrimaryEventCertificates(eventDbos);
+
         return new PageImpl<>(
-                page.stream()
+                eventDbos.stream()
                         .map(x -> {
-                            Event event = EventDbo.asEvent(x, getOrganisationResolver());
-                            event.withCertificate(getPrimaryEventCertificateResolver());
+                            Event event = EventDbo.asEvent(x, orgMap);
+                            EventCertificate cert = certMap.get(x.getId());
+                            if (cert != null) {
+                                event.setCertificate(cert.getId());
+                            }
                             return event;
                         })
                         .toList(),

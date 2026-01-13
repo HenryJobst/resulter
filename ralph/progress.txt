@@ -61,3 +61,18 @@ Thread: https://ampcode.com/threads/T-019bb990-1f85-723f-8f2a-6c84f28afae8
 - Check if stories are already satisfied by previous work before implementing
 ---
 
+## 2026-01-13 23:56 - US-004
+Thread: https://ampcode.com/threads/T-019bb991-5fe8-77aa-9634-9e390ab1e278
+- Updated `findAll(filter, pageable)` to use batch country loading instead of getCountryResolver()
+- Updated `findAllById()` to use batch country loading
+- Updated `findByIds()` to use batch country loading
+- Now all findAll variants use the `batchLoadCountries()` helper for efficient Country loading
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/OrganisationRepositoryDataJdbcAdapter.java
+
+**Learnings for future iterations:**
+- The pattern is: collect DBOs, batch-load Countries with `batchLoadCountries()`, then use `asOrganisation(Collections.emptyMap(), countryMap)`
+- Empty orgMap is fine because Organisation domain stores CountryId, not full Country objects
+---
+

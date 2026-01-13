@@ -38,8 +38,7 @@ public class InMemoryResultListRepository implements ResultListRepository {
     public ResultList findOrCreate(ResultList resultList) {
         return resultLists.values()
             .stream()
-            .filter(it -> Objects.equals(it.getCreator(), resultList.getCreator()) &&
-                          Objects.equals(it.getCreateTime(), resultList.getCreateTime()))
+            .filter(it -> Objects.equals(it.getDomainKey(), resultList.getDomainKey()))
             .findAny()
             .orElseGet(() -> save(resultList));
     }

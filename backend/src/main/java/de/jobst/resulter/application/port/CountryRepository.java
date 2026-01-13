@@ -7,7 +7,9 @@ import org.jmolecules.ddd.annotation.Repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @SecondaryPort
@@ -18,6 +20,8 @@ public interface CountryRepository {
     List<Country> findAll();
 
     Optional<Country> findById(CountryId CountryId);
+
+    Map<CountryId, Country> findAllById(Set<CountryId> ids);
 
     Country findOrCreate(Country country);
 

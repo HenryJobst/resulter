@@ -11,6 +11,8 @@
 - EventOrganisationDbo.id is package-private, access with `eo.id.getId()` not via getter
 - JdbcRepository.findAllById returns Iterable; use StreamSupport.stream(iter.spliterator(), false) to convert
 - In @Query SQL, quote reserved keywords like `"primary"` for PostgreSQL compatibility
+- For batch composite key lookups, build OR clauses: `(col1=:p1_0 AND col2=:p2_0) OR (col1=:p1_1 AND col2=:p2_1)` with indexed params
+- Domain entities have DomainKey records (e.g., Person.DomainKey) for composite key uniqueness - use for Map keys
 
 ---
 
@@ -127,5 +129,23 @@ Thread: https://ampcode.com/threads/T-019bb997-7daf-73ec-b7d5-8d329210c649
 - PostgreSQL requires quoting `"primary"` in SQL because it's a reserved keyword
 - Event.setCertificate(EventCertificateId) is the direct setter; use instead of withCertificate(Function) for batch loading
 - EventCertificateDbo.getEvent() returns AggregateReference, call .getId() to get the Long value
+---
+
+## 2026-01-14 00:06 - US-008
+Thread: https://ampcode.com/threads/T-019bb99a-9aaf-7624-bde9-d71fb0ff6e14
+- Optimized `findOrCreate(Collection<Person>)` to use batch existence checking with single composite query
+- Added `batchFindExistingPersons()` method: builds SQL with OR clauses for each person's composite key (familyName, givenName, birthDate, gender)
+- Added `batchInsertPersons()` helper for inserting new persons
+- Now uses 1 query for existence check + N inserts only for new persons (instead of N queries for all)
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/PersonRepositoryDataJdbcAdapter.java
+
+**Learnings for future iterations:**
+- Person uniqueness requires composite key: (familyName, givenName, birthDate, gender)
+- Person.DomainKey is a record that encapsulates this composite key - use it for Map keys
+- For batch composite key lookups, build OR clauses dynamically: `(col1=:p1 AND col2=:p2) OR (col1=:p3 AND col2=:p4)`
+- Handle NULL birthDate separately in SQL: use `birth_date IS NULL` when value is null
+- PersonDbo has both static `asPerson(PersonDbo)` and instance `asPerson()` - use lambda `dbo -> dbo.asPerson()` to avoid ambiguous method reference
 ---
 

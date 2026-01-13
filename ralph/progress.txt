@@ -76,3 +76,20 @@ Thread: https://ampcode.com/threads/T-019bb991-5fe8-77aa-9634-9e390ab1e278
 - Empty orgMap is fine because Organisation domain stores CountryId, not full Country objects
 ---
 
+## 2026-01-13 23:58 - US-005
+Thread: https://ampcode.com/threads/T-019bb993-086a-779b-a3a8-af9524cbe393
+- Added Map-accepting overloads to EventDbo for batch Organisation loading
+- Added `asEvents(Collection<EventDbo>, Map<Long, Organisation>)` static method
+- Added `asEvent(EventDbo, Map<Long, Organisation>)` static method
+- Added `asEvent(Map<Long, Organisation>)` instance method
+- Original resolver-based methods remain unchanged
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/EventDbo.java
+
+**Learnings for future iterations:**
+- EventDbo follows same Map-accepting pattern as OrganisationDbo
+- Event stores OrganisationIds (not full Organisation objects), so the Map parameter is for consistency but not strictly required for resolution
+- The conversion logic is identical between resolver-based and Map-based methods - just different method signatures
+---
+

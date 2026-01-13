@@ -9,8 +9,12 @@ import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.domain.*;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -68,6 +72,23 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         return id -> countryJdbcRepository.findById(id).orElseThrow().asCountry();
     }
 
+    private Map<Long, Organisation> batchLoadOrganisations(Collection<EventDbo> eventDbos) {
+        Set<Long> orgIds = eventDbos.stream()
+                .flatMap(e -> e.getOrganisations().stream())
+                .map(eo -> eo.id.getId())
+                .collect(Collectors.toSet());
+        if (orgIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<OrganisationDbo> orgDbos = StreamSupport.stream(
+                organisationJdbcRepository.findAllById(orgIds).spliterator(), false)
+                .toList();
+        return orgDbos.stream()
+                .collect(Collectors.toMap(
+                        dbo -> Objects.requireNonNull(dbo.getId()),
+                        dbo -> dbo.asOrganisation(getOrganisationResolver(), getCountryResolver())));
+    }
+
     private Function<EventId, @Nullable EventCertificate> getPrimaryEventCertificateResolver() {
         return id -> {
             Optional<EventCertificateDbo> optionalEventCertificateDbo =
@@ -103,7 +124,8 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Transactional(readOnly = true)
     public List<Event> findAll() {
         Collection<EventDbo> resultList = eventJdbcRepository.findAll();
-        return EventDbo.asEvents(resultList, getOrganisationResolver());
+        Map<Long, Organisation> orgMap = batchLoadOrganisations(resultList);
+        return EventDbo.asEvents(resultList, orgMap);
     }
 
     @Transactional(readOnly = true)
@@ -175,10 +197,13 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
 
     @Override
     public List<Event> findAllById(Collection<EventId> eventIds) {
-        Iterable<EventDbo> events = eventJdbcRepository.findAllById(
-                eventIds.stream().map(EventId::value).collect(Collectors.toSet()));
-        return StreamSupport.stream(events.spliterator(), false)
-                .map(x -> EventDbo.asEvent(x, getOrganisationResolver()))
-                .collect(Collectors.toList());
+        List<EventDbo> eventDbos = StreamSupport.stream(
+                eventJdbcRepository.findAllById(
+                        eventIds.stream().map(EventId::value).collect(Collectors.toSet()))
+                        .spliterator(),
+                false)
+                .toList();
+        Map<Long, Organisation> orgMap = batchLoadOrganisations(eventDbos);
+        return EventDbo.asEvents(eventDbos, orgMap);
     }
 }

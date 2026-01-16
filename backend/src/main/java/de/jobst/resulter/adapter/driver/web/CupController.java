@@ -64,8 +64,17 @@ public class CupController {
     @GetMapping("/cup/all")
     public ResponseEntity<List<CupDto>> getAllCups() {
         List<Cup> cups = cupService.findAll();
+
+        // Batch-load all Events for all Cups
+        List<EventId> allEventIds = cups.stream()
+                .flatMap(cup -> cup.getEventIds().stream())
+                .distinct()
+                .toList();
+        Map<EventId, Event> eventMap = eventService.findAllById(allEventIds).stream()
+                .collect(Collectors.toMap(Event::getId, event -> event));
+
         return ResponseEntity.ok(
-                cups.stream().map(x -> CupDto.from(x, eventService)).toList());
+                cups.stream().map(x -> CupDto.from(x, eventMap)).toList());
     }
 
     @GetMapping("/cup")
@@ -76,9 +85,18 @@ public class CupController {
                 pageable != null
                         ? FilterAndSortConverter.mapOrderProperties(pageable, CupDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
+
+        // Batch-load all Events for all Cups in the page
+        List<EventId> allEventIds = cups.getContent().stream()
+                .flatMap(cup -> cup.getEventIds().stream())
+                .distinct()
+                .toList();
+        Map<EventId, Event> eventMap = eventService.findAllById(allEventIds).stream()
+                .collect(Collectors.toMap(Event::getId, event -> event));
+
         return ResponseEntity.ok(new PageImpl<>(
                 cups.getContent().stream()
-                        .map(x -> CupDto.from(x, eventService))
+                        .map(x -> CupDto.from(x, eventMap))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(cups.getPageable(), CupDto::mapOrdersDomainToDto),
                 cups.getTotalElements()));
@@ -101,8 +119,14 @@ public class CupController {
     }
 
     private CupDetailedDto createCupDetailedDto(CupDetailed cupDetailed) {
+        // Batch-load all Events
+        Map<EventId, Event> eventMap = eventService.findAllById(cupDetailed.getEventIds().stream().toList()).stream()
+                .collect(Collectors.toMap(Event::getId, event -> event));
+
         List<EventKeyDto> eventKeyDtos = cupDetailed.getEventIds().stream()
-                .map(x -> EventKeyDto.from(eventService.getById(x)))
+                .map(eventMap::get)
+                .filter(java.util.Objects::nonNull)
+                .map(EventKeyDto::from)
                 .sorted()
                 .toList();
 

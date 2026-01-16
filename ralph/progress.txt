@@ -203,3 +203,23 @@
 - Use `getDomainKey()` comparison for simpler InMemory implementations instead of multiple filter() calls
 ---
 
+## 2026-01-16 14:00 - US-012
+- Optimized Cup list operations to batch-load Events instead of N+1 queries
+- Added overloaded `CupDto.from(Cup, Map<EventId, Event>)` method for batch conversion
+- Updated `CupController.getAllCups()` to batch-load all Events for all Cups in one query
+- Updated `CupController.searchCups()` paginated endpoint to batch-load Events for page
+- Updated `CupController.createCupDetailedDto()` to batch-load Events
+- Reduced queries from 1 + N (for N events) to just 2 queries total (1 for cups + 1 for all events)
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/adapter/driver/web/dto/CupDto.java
+- backend/src/main/java/de/jobst/resulter/adapter/driver/web/CupController.java
+
+**Learnings for future iterations:**
+- The N+1 issue was in the controller/DTO layer, not the repository layer
+- CupDto.from() was calling eventService.getById() for each EventId (N+1 pattern)
+- EventService.findAllById() returns List<Event>, need to convert to Map with Collectors.toMap()
+- Cup domain only stores EventIds, not full Events - batch loading happens at presentation layer
+- EventKeyDto only needs id, name, startTime - no Organisation loading needed for Cup lists
+---
+

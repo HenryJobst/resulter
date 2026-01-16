@@ -4,17 +4,26 @@ import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
+import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.ResultListId;
+import de.jobst.resulter.domain.ClassResultShortName;
+import de.jobst.resulter.domain.RaceNumber;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -22,9 +31,13 @@ import java.util.Optional;
 public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepository {
 
     private final SplitTimeListJdbcRepository splitTimeListJdbcRepository;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public SplitTimeListRepositoryDataJdbcAdapter(SplitTimeListJdbcRepository splitTimeListJdbcRepository) {
+    public SplitTimeListRepositoryDataJdbcAdapter(
+            SplitTimeListJdbcRepository splitTimeListJdbcRepository,
+            NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.splitTimeListJdbcRepository = splitTimeListJdbcRepository;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @Override
@@ -68,7 +81,96 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
     @Override
     @Transactional
     public Collection<@Nullable SplitTimeList> findOrCreate(Collection<SplitTimeList> splitTimeLists) {
-        return splitTimeLists.stream().map(this::findOrCreate).toList();
+        if (splitTimeLists.isEmpty()) {
+            return List.of();
+        }
+
+        Map<SplitTimeList.DomainKey, SplitTimeList> existingSplitTimeLists = batchFindExistingSplitTimeLists(splitTimeLists);
+
+        List<SplitTimeList> results = new ArrayList<>();
+        List<SplitTimeList> toCreate = new ArrayList<>();
+
+        for (SplitTimeList splitTimeList : splitTimeLists) {
+            SplitTimeList.DomainKey key = splitTimeList.getDomainKey();
+            SplitTimeList existing = existingSplitTimeLists.get(key);
+            if (existing != null) {
+                results.add(existing);
+            } else {
+                toCreate.add(splitTimeList);
+            }
+        }
+
+        if (!toCreate.isEmpty()) {
+            List<SplitTimeList> created = batchInsertSplitTimeLists(toCreate);
+            results.addAll(created);
+        }
+
+        return results;
+    }
+
+    private Map<SplitTimeList.DomainKey, SplitTimeList> batchFindExistingSplitTimeLists(Collection<SplitTimeList> splitTimeLists) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT id, event_id, result_list_id, class_result_short_name, person_id, race_number FROM split_time_list WHERE ");
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        List<String> conditions = new ArrayList<>();
+
+        int idx = 0;
+        for (SplitTimeList splitTimeList : splitTimeLists) {
+            Long eventId = splitTimeList.getEventId().value();
+            Long resultListId = splitTimeList.getResultListId().value();
+            String classResultShortName = splitTimeList.getClassResultShortName().value();
+            Long personId = splitTimeList.getPersonId().value();
+            Byte raceNumber = splitTimeList.getRaceNumber().value();
+
+            StringBuilder condition = new StringBuilder();
+            condition.append("(event_id = :e").append(idx);
+            condition.append(" AND result_list_id = :rl").append(idx);
+            condition.append(" AND class_result_short_name = :cs").append(idx);
+            condition.append(" AND person_id = :p").append(idx);
+            condition.append(" AND race_number = :rn").append(idx);
+            condition.append(")");
+
+            params.addValue("e" + idx, eventId);
+            params.addValue("rl" + idx, resultListId);
+            params.addValue("cs" + idx, classResultShortName);
+            params.addValue("p" + idx, personId);
+            params.addValue("rn" + idx, raceNumber != null ? raceNumber : (byte) 1);
+
+            conditions.add(condition.toString());
+            idx++;
+        }
+
+        sql.append(String.join(" OR ", conditions));
+
+        List<SplitTimeList> found = namedParameterJdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
+            Long id = rs.getLong("id");
+            Long eventId = rs.getLong("event_id");
+            Long resultListId = rs.getLong("result_list_id");
+            String classResultShortName = rs.getString("class_result_short_name");
+            Long personId = rs.getLong("person_id");
+            Byte raceNumber = rs.getByte("race_number");
+
+            return new SplitTimeList(
+                    SplitTimeListId.of(id),
+                    EventId.of(eventId),
+                    ResultListId.of(resultListId),
+                    ClassResultShortName.of(classResultShortName),
+                    PersonId.of(personId),
+                    RaceNumber.of(raceNumber),
+                    List.of());
+        });
+
+        return found.stream()
+                .collect(Collectors.toMap(SplitTimeList::getDomainKey, s -> s));
+    }
+
+    private List<SplitTimeList> batchInsertSplitTimeLists(List<SplitTimeList> splitTimeLists) {
+        List<SplitTimeList> created = new ArrayList<>();
+        for (SplitTimeList splitTimeList : splitTimeLists) {
+            SplitTimeList saved = save(splitTimeList);
+            created.add(saved);
+        }
+        return created;
     }
 
     @Override

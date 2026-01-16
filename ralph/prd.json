@@ -175,7 +175,7 @@
         "Typecheck passes: ./mvnw compile -pl backend"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": ""
     }
   ]

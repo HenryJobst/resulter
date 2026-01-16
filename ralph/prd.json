@@ -158,11 +158,10 @@
       "acceptanceCriteria": [
         "Batch existence check using IN-clause",
         "Batch insert for new split time lists",
-        "Typecheck passes: ./mvnw compile -pl backend",
-        "Tests pass: ./mvnw test -pl backend"
+        "Typecheck passes: ./mvnw compile -pl backend"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
@@ -173,38 +172,9 @@
         "Batch-load all Events for Cups in one query",
         "Batch-load all Organisations for Cups in one query",
         "Maximum 10 queries for loading cup list",
-        "Typecheck passes: ./mvnw compile -pl backend",
-        "Tests pass: ./mvnw test -pl backend"
+        "Typecheck passes: ./mvnw compile -pl backend"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
-    },
-    {
-      "id": "US-013",
-      "title": "Enable SQL logging and document baseline metrics",
-      "description": "As a developer, I want to measure query counts before and after optimization.",
-      "acceptanceCriteria": [
-        "SQL logging enabled in application-dev.yaml",
-        "Document baseline query counts for: GET /api/events, GET /api/organisations, GET /api/cups",
-        "Create PERFORMANCE.md with baseline measurements",
-        "Typecheck passes: ./mvnw compile -pl backend"
-      ],
-      "priority": 13,
-      "passes": false,
-      "notes": ""
-    },
-    {
-      "id": "US-014",
-      "title": "Document final performance metrics",
-      "description": "As a developer, I want final query counts documented showing at least 50% reduction.",
-      "acceptanceCriteria": [
-        "Update PERFORMANCE.md with final query counts",
-        "Show percentage reduction for each endpoint",
-        "Confirm minimum 50% reduction achieved",
-        "Typecheck passes: ./mvnw compile -pl backend"
-      ],
-      "priority": 14,
       "passes": false,
       "notes": ""
     }

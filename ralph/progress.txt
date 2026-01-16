@@ -17,7 +17,6 @@
 ---
 
 ## 2026-01-13 23:48 - US-001
-Thread: https://ampcode.com/threads/T-019bb98a-656a-7339-8e00-e64b93db4dae
 - Implemented `findAllById(Set<CountryId> ids)` in CountryRepositoryDataJdbcAdapter
 - Implemented same method in InMemoryCountryRepository for test compatibility
 - Returns `Map<CountryId, Country>` for efficient lookup
@@ -34,7 +33,6 @@ Thread: https://ampcode.com/threads/T-019bb98a-656a-7339-8e00-e64b93db4dae
 ---
 
 ## 2026-01-13 23:52 - US-002
-Thread: https://ampcode.com/threads/T-019bb98c-27a2-70ab-8d11-e89b6726c967
 - Added overloaded `asOrganisation(Map<Long, Organisation>, Map<Long, Country>)` method to OrganisationDbo
 - Added `batchLoadCountries()` helper method to OrganisationRepositoryDataJdbcAdapter
 - Updated `findAll()` to use batch country loading instead of resolver function
@@ -52,7 +50,6 @@ Thread: https://ampcode.com/threads/T-019bb98c-27a2-70ab-8d11-e89b6726c967
 ---
 
 ## 2026-01-13 23:54 - US-003
-Thread: https://ampcode.com/threads/T-019bb990-1f85-723f-8f2a-6c84f28afae8
 - **Already completed in US-002** - The overloaded asOrganisation method was implemented ahead of schedule
 - Verified: instance method `asOrganisation(Map<Long, Organisation>, Map<Long, Country>)` exists at line 104
 - Verified: static method with same maps exists at line 117
@@ -67,7 +64,6 @@ Thread: https://ampcode.com/threads/T-019bb990-1f85-723f-8f2a-6c84f28afae8
 ---
 
 ## 2026-01-13 23:56 - US-004
-Thread: https://ampcode.com/threads/T-019bb991-5fe8-77aa-9634-9e390ab1e278
 - Updated `findAll(filter, pageable)` to use batch country loading instead of getCountryResolver()
 - Updated `findAllById()` to use batch country loading
 - Updated `findByIds()` to use batch country loading
@@ -82,7 +78,6 @@ Thread: https://ampcode.com/threads/T-019bb991-5fe8-77aa-9634-9e390ab1e278
 ---
 
 ## 2026-01-13 23:58 - US-005
-Thread: https://ampcode.com/threads/T-019bb993-086a-779b-a3a8-af9524cbe393
 - Added Map-accepting overloads to EventDbo for batch Organisation loading
 - Added `asEvents(Collection<EventDbo>, Map<Long, Organisation>)` static method
 - Added `asEvent(EventDbo, Map<Long, Organisation>)` static method
@@ -99,7 +94,6 @@ Thread: https://ampcode.com/threads/T-019bb993-086a-779b-a3a8-af9524cbe393
 ---
 
 ## 2026-01-14 00:00 - US-006
-Thread: https://ampcode.com/threads/T-019bb994-a974-74f8-8214-5775d4690737
 - Added `batchLoadOrganisations(Collection<EventDbo>)` helper method to EventRepositoryDataJdbcAdapter
 - Updated `findAll()` to use batch Organisation loading via the new helper
 - Updated `findAllById()` to use batch Organisation loading
@@ -115,7 +109,6 @@ Thread: https://ampcode.com/threads/T-019bb994-a974-74f8-8214-5775d4690737
 ---
 
 ## 2026-01-14 00:03 - US-007
-Thread: https://ampcode.com/threads/T-019bb997-7daf-73ec-b7d5-8d329210c649
 - Optimized `findAll(filter, pageable)` to use batch-loading for both Organisations and EventCertificates
 - Added `findPrimaryByEventIdIn(Set<Long> eventIds)` to EventCertificateJdbcRepository with @Query annotation
 - Added `batchLoadPrimaryEventCertificates(Collection<EventDbo>)` helper method to EventRepositoryDataJdbcAdapter
@@ -132,7 +125,6 @@ Thread: https://ampcode.com/threads/T-019bb997-7daf-73ec-b7d5-8d329210c649
 ---
 
 ## 2026-01-14 00:06 - US-008
-Thread: https://ampcode.com/threads/T-019bb99a-9aaf-7624-bde9-d71fb0ff6e14
 - Optimized `findOrCreate(Collection<Person>)` to use batch existence checking with single composite query
 - Added `batchFindExistingPersons()` method: builds SQL with OR clauses for each person's composite key (familyName, givenName, birthDate, gender)
 - Added `batchInsertPersons()` helper for inserting new persons
@@ -151,7 +143,6 @@ Thread: https://ampcode.com/threads/T-019bb99a-9aaf-7624-bde9-d71fb0ff6e14
 ---
 
 ## 2026-01-14 00:09 - US-009
-Thread: https://ampcode.com/threads/T-019bb99d-23a6-7498-8b29-78e06cacf658
 - Optimized `findOrCreate(Collection<Race>)` to use batch existence checking with single composite query
 - Added `Race.DomainKey` record for (eventId, raceNumber) uniqueness key
 - Added `getDomainKey()` method to Race domain entity
@@ -172,7 +163,6 @@ Thread: https://ampcode.com/threads/T-019bb99d-23a6-7498-8b29-78e06cacf658
 ---
 
 ## 2026-01-14 00:12 - US-010
-Thread: https://ampcode.com/threads/T-019bb99f-9b40-71ce-a0a6-eb14e79079af
 - Optimized `findOrCreate(Collection<ResultList>)` to use batch existence checking with single composite query
 - Added `ResultList.DomainKey` record for (eventId, raceId, creator, createTime) uniqueness key
 - Added `getDomainKey()` method to ResultList domain entity
@@ -191,5 +181,25 @@ Thread: https://ampcode.com/threads/T-019bb99f-9b40-71ce-a0a6-eb14e79079af
 - InMemoryResultListRepository was missing eventId and raceId in uniqueness check - always verify InMemory matches JDBC semantics
 - For nullable fields in composite keys (creator, createTime), use `IS NULL` in SQL when value is null
 - Same DomainKey pattern as Person and Race works for ResultList
+---
+
+## 2026-01-16 13:45 - US-011
+- Optimized `findOrCreate(Collection<SplitTimeList>)` to use batch existence checking with single composite query
+- SplitTimeList.DomainKey record already existed for (eventId, resultListId, classResultShortName, personId, raceNumber)
+- Added `batchFindExistingSplitTimeLists()` method: builds SQL with OR clauses for each split time list's composite key
+- Added `batchInsertSplitTimeLists()` helper for inserting new split time lists
+- Added `NamedParameterJdbcTemplate` dependency to SplitTimeListRepositoryDataJdbcAdapter
+- Fixed InMemorySplitTimeListRepository.findOrCreate(Collection) to iterate and call single-entity findOrCreate
+- Fixed InMemorySplitTimeListRepository.findOrCreate(SplitTimeList) to use DomainKey for proper uniqueness (was missing raceNumber)
+
+**Files changed:**
+- backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/SplitTimeListRepositoryDataJdbcAdapter.java
+- backend/src/main/java/de/jobst/resulter/adapter/driven/inmemory/InMemorySplitTimeListRepository.java
+
+**Learnings for future iterations:**
+- SplitTimeList uniqueness key is (eventId, resultListId, classResultShortName, personId, raceNumber) - 5 fields
+- SplitTimeList.DomainKey was already defined in the domain entity - no need to add it
+- InMemorySplitTimeListRepository was missing raceNumber in uniqueness check and returned null for collection method
+- Use `getDomainKey()` comparison for simpler InMemory implementations instead of multiple filter() calls
 ---
 

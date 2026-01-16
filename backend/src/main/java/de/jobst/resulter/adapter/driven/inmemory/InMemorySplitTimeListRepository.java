@@ -46,17 +46,16 @@ public class InMemorySplitTimeListRepository implements SplitTimeListRepository 
     public SplitTimeList findOrCreate(SplitTimeList splitTimeList) {
         return splitTimeLists.values()
             .stream()
-            .filter(it -> Objects.equals(it.getEventId(), splitTimeList.getEventId()))
-            .filter(it -> Objects.equals(it.getResultListId(), splitTimeList.getResultListId()))
-            .filter(it -> Objects.equals(it.getClassResultShortName(), splitTimeList.getClassResultShortName()))
-            .filter(it -> Objects.equals(it.getPersonId(), splitTimeList.getPersonId()))
+            .filter(it -> Objects.equals(it.getDomainKey(), splitTimeList.getDomainKey()))
             .findAny()
             .orElseGet(() -> save(splitTimeList));
     }
 
     @Override
     public Collection<SplitTimeList> findOrCreate(Collection<SplitTimeList> splitTimeLists) {
-        return null;
+        return splitTimeLists.stream()
+            .map(this::findOrCreate)
+            .toList();
     }
 
     @Override

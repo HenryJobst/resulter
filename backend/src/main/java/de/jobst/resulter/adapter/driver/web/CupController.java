@@ -134,11 +134,25 @@ public class CupController {
         Map<Long, PersonDto> personsDto = cupDetailed.getPersonsById().entrySet().stream()
                 .collect(Collectors.toMap(entry -> entry.getKey().value(), entry -> PersonDto.from(entry.getValue())));
 
+        // Batch-load all Organisations (for OrganisationScores and Statistics)
+        List<Organisation> organisationsForScores = cupDetailed.getOverallOrganisationScores().stream()
+                .map(score -> score.organisation())
+                .toList();
+        List<Organisation> organisationsForStats = cupDetailed.getCupStatistics().organisationStatistics().stream()
+                .map(stats -> stats.organisation())
+                .toList();
+        List<Organisation> allOrganisations = new java.util.ArrayList<>();
+        allOrganisations.addAll(organisationsForScores);
+        allOrganisations.addAll(organisationsForStats);
+
+        Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(allOrganisations);
+        Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(allOrganisations);
+
         // Convert cup statistics
         CupStatisticsDto cupStatisticsDto = CupStatisticsDto.from(
                 cupDetailed.getCupStatistics(),
-                countryService,
-                organisationService);
+                countryMap,
+                orgMap);
 
         return CupDetailedDto.from(
                 ObjectUtils.isNotEmpty(cupDetailed.getId())
@@ -154,7 +168,7 @@ public class CupController {
                 cupDetailed.getType().isGroupedByOrganisation()
                         ? cupDetailed.getOverallOrganisationScores().stream()
                                 .map(entry -> new OrganisationScoreDto(
-                                        OrganisationDto.from(entry.organisation(), countryService, organisationService),
+                                        OrganisationDto.from(entry.organisation(), countryMap, orgMap),
                                         entry.score(),
                                         entry.personWithScores().stream()
                                                 .map(PersonWithScoreDto::from)

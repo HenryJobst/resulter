@@ -11,6 +11,7 @@ import de.jobst.resulter.domain.OrganisationId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -56,6 +57,14 @@ public class OrganisationMapper {
                         .filter(java.util.Objects::nonNull)
                         .map(OrganisationMapper::toKeyDto)
                         .toList());
+    }
+
+    public List<OrganisationDto> toDtos(List<Organisation> organisations) {
+        Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(organisations);
+        Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(organisations);
+        return organisations.stream()
+                .map(o -> toDto(o, countryMap, orgMap))
+                .toList();
     }
 
     public static OrganisationKeyDto toKeyDto(Organisation organisation) {

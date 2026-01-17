@@ -20,6 +20,13 @@ public class CupStatisticsMapper {
         this.organisationStatisticsMapper = organisationStatisticsMapper;
     }
 
+    public CupStatisticsDto toDto(CupStatistics cupStatistics) {
+        return new CupStatisticsDto(
+                CupOverallStatisticsDto.from(cupStatistics.overallStatistics()),
+                organisationStatisticsMapper.toDtos(cupStatistics.organisationStatistics())
+        );
+    }
+
     public CupStatisticsDto toDto(
             CupStatistics cupStatistics,
             Map<CountryId, Country> countryMap,

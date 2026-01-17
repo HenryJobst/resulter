@@ -9,7 +9,9 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @PrimaryPort
 public interface CountryService {
@@ -22,6 +24,8 @@ public interface CountryService {
     Country getById(CountryId countryId);
 
     Optional<Country> findById(CountryId id);
+
+    Map<CountryId, Country> findAllById(Set<CountryId> ids);
 
     @NonNull
     Country updateCountry(CountryId id, CountryCode code, CountryName name);

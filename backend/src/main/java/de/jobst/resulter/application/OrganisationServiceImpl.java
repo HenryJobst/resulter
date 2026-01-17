@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class OrganisationServiceImpl implements OrganisationService {
@@ -117,5 +119,18 @@ public class OrganisationServiceImpl implements OrganisationService {
     @Override
     public List<Organisation> findAllById(Set<OrganisationId> organisationIds) {
         return organisationRepository.findByIds(organisationIds);
+    }
+
+    @Override
+    public Map<OrganisationId, Organisation> findAllByIdAsMap(Set<OrganisationId> organisationIds) {
+        return organisationRepository.findAllById(organisationIds);
+    }
+
+    @Override
+    public Map<OrganisationId, Organisation> batchLoadChildOrganisations(List<Organisation> organisations) {
+        Set<OrganisationId> childOrgIds = organisations.stream()
+                .flatMap(org -> org.getChildOrganisations().stream())
+                .collect(Collectors.toSet());
+        return organisationRepository.findAllById(childOrgIds);
     }
 }

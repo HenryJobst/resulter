@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,4 +50,8 @@ public interface OrganisationService {
     Page<Organisation> findAll(@Nullable String filter, @NonNull Pageable pageable);
 
     List<Organisation> findAllById(Set<OrganisationId> organisationIds);
+
+    Map<OrganisationId, Organisation> findAllByIdAsMap(Set<OrganisationId> organisationIds);
+
+    Map<OrganisationId, Organisation> batchLoadChildOrganisations(List<Organisation> organisations);
 }

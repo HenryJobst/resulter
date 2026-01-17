@@ -3,6 +3,7 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.adapter.driver.web.constraints.FullDtoGroup;
 import de.jobst.resulter.adapter.driver.web.constraints.KeyDtoGroup;
 import de.jobst.resulter.adapter.driver.web.constraints.ValidId;
+import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.domain.EventCertificate;
@@ -30,7 +31,7 @@ public record EventCertificateDto(
                         : 0,
                 eventCertificate.getName().value(),
                 ObjectUtils.isNotEmpty(eventCertificate.getEvent())
-                        ? EventKeyDto.from(eventService.getById(eventCertificate.getEvent()))
+                        ? EventMapper.toKeyDto(eventService.getById(eventCertificate.getEvent()))
                         : null,
                 ObjectUtils.isNotEmpty(eventCertificate.getLayoutDescription())
                         ? eventCertificate.getLayoutDescription().value()

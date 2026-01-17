@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.OrganisationScoreMapper;
+import de.jobst.resulter.adapter.driver.web.mapper.RaceClassResultGroupedCupScoreMapper;
 import de.jobst.resulter.domain.aggregations.EventRacesCupScore;
 
 import java.util.List;
@@ -21,8 +22,6 @@ public record EventRacesCupScoreDto(
                 eventRacesCupScore.raceOrganisationGroupedCupScores().stream()
                         .map(r -> RaceOrganisationGroupedCupScoreDto.from(r, organisationScoreMapper))
                         .toList(),
-                eventRacesCupScore.raceClassResultGroupedCupScores().stream()
-                        .map(RaceClassResultGroupedCupScoreDto::from)
-                        .toList());
+                RaceClassResultGroupedCupScoreMapper.toDtos(eventRacesCupScore.raceClassResultGroupedCupScores()));
     }
 }

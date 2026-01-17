@@ -5,7 +5,6 @@ import de.jobst.resulter.adapter.driver.web.dto.OrganisationTypeDto;
 import de.jobst.resulter.adapter.driver.web.mapper.OrganisationMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.OrganisationTypeMapper;
 import de.jobst.resulter.application.port.OrganisationService;
-import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/organisation")
@@ -31,27 +27,19 @@ import java.util.Set;
 public class OrganisationController {
 
     private final OrganisationService organisationService;
-    private final CountryService countryService;
     private final OrganisationMapper organisationMapper;
 
     public OrganisationController(
             OrganisationService organisationService,
-            CountryService countryService,
             OrganisationMapper organisationMapper) {
         this.organisationService = organisationService;
-        this.countryService = countryService;
         this.organisationMapper = organisationMapper;
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<OrganisationDto>> getAllOrganisations() {
         List<Organisation> organisations = organisationService.findAll();
-        Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(organisations);
-        Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(organisations);
-
-        return ResponseEntity.ok(organisations.stream()
-                .map(o -> organisationMapper.toDto(o, countryMap, orgMap))
-                .toList());
+        return ResponseEntity.ok(organisationMapper.toDtos(organisations));
     }
 
     @GetMapping("")
@@ -63,13 +51,8 @@ public class OrganisationController {
                         ? FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
 
-        Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(organisations.getContent());
-        Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(organisations.getContent());
-
         return ResponseEntity.ok(new PageImpl<>(
-                organisations.getContent().stream()
-                        .map(o -> organisationMapper.toDto(o, countryMap, orgMap))
-                        .toList(),
+                organisationMapper.toDtos(organisations.getContent()),
                 FilterAndSortConverter.mapOrderProperties(
                         organisations.getPageable(), OrganisationDto::mapOrdersDomainToDto),
                 organisations.getTotalElements()));

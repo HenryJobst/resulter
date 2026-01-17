@@ -4,6 +4,7 @@ import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.CountryCode;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.CountryName;
+import de.jobst.resulter.domain.Organisation;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
 import org.jspecify.annotations.NonNull;
 
@@ -26,6 +27,8 @@ public interface CountryService {
     Optional<Country> findById(CountryId id);
 
     Map<CountryId, Country> findAllById(Set<CountryId> ids);
+
+    Map<CountryId, Country> batchLoadForOrganisations(List<Organisation> organisations);
 
     @NonNull
     Country updateCountry(CountryId id, CountryCode code, CountryName name);

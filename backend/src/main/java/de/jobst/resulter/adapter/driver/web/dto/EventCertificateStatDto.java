@@ -1,19 +1,5 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
-import de.jobst.resulter.application.port.EventService;
-import de.jobst.resulter.application.port.PersonService;
-import de.jobst.resulter.domain.EventCertificateStat;
 import java.time.Instant;
 
-public record EventCertificateStatDto(long id, EventKeyDto event, PersonKeyDto person, Instant generated) {
-
-    public static EventCertificateStatDto from(
-            EventCertificateStat eventCertificateStat, EventService eventService, PersonService personService) {
-        return new EventCertificateStatDto(
-                eventCertificateStat.getId().value(),
-                EventMapper.toKeyDto(eventService.getById(eventCertificateStat.getEvent())),
-                PersonKeyDto.from(personService.getById(eventCertificateStat.getPerson())),
-                eventCertificateStat.getGenerated());
-    }
-}
+public record EventCertificateStatDto(long id, EventKeyDto event, PersonKeyDto person, Instant generated) {}

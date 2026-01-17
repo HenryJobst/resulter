@@ -1,6 +1,9 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.*;
+import de.jobst.resulter.adapter.driver.web.mapper.CupMapper;
+import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
+import de.jobst.resulter.adapter.driver.web.mapper.PersonMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.CupStatisticsMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.OrganisationScoreMapper;
 import de.jobst.resulter.application.port.CountryService;
@@ -41,6 +44,8 @@ public class CupController {
     private final de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository;
     private final OrganisationScoreMapper organisationScoreMapper;
     private final CupStatisticsMapper cupStatisticsMapper;
+    private final CupMapper cupMapper;
+    private final EventMapper eventMapper;
 
     public CupController(
             CupService cupService,
@@ -51,7 +56,9 @@ public class CupController {
             de.jobst.resulter.application.port.ResultListService resultListService,
             de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository,
             OrganisationScoreMapper organisationScoreMapper,
-            CupStatisticsMapper cupStatisticsMapper) {
+            CupStatisticsMapper cupStatisticsMapper,
+            CupMapper cupMapper,
+            EventMapper eventMapper) {
         this.cupService = cupService;
         this.eventService = eventService;
         this.organisationService = organisationService;
@@ -61,6 +68,8 @@ public class CupController {
         this.splitTimeListRepository = splitTimeListRepository;
         this.organisationScoreMapper = organisationScoreMapper;
         this.cupStatisticsMapper = cupStatisticsMapper;
+        this.cupMapper = cupMapper;
+        this.eventMapper = eventMapper;
     }
 
     @GetMapping("/cup_types")
@@ -72,17 +81,7 @@ public class CupController {
     @GetMapping("/cup/all")
     public ResponseEntity<List<CupDto>> getAllCups() {
         List<Cup> cups = cupService.findAll();
-
-        // Batch-load all Events for all Cups
-        List<EventId> allEventIds = cups.stream()
-                .flatMap(cup -> cup.getEventIds().stream())
-                .distinct()
-                .toList();
-        Map<EventId, Event> eventMap = eventService.findAllById(allEventIds).stream()
-                .collect(Collectors.toMap(Event::getId, event -> event));
-
-        return ResponseEntity.ok(
-                cups.stream().map(x -> CupDto.from(x, eventMap)).toList());
+        return ResponseEntity.ok(cupMapper.toDtos(cups));
     }
 
     @GetMapping("/cup")
@@ -94,25 +93,15 @@ public class CupController {
                         ? FilterAndSortConverter.mapOrderProperties(pageable, CupDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
 
-        // Batch-load all Events for all Cups in the page
-        List<EventId> allEventIds = cups.getContent().stream()
-                .flatMap(cup -> cup.getEventIds().stream())
-                .distinct()
-                .toList();
-        Map<EventId, Event> eventMap = eventService.findAllById(allEventIds).stream()
-                .collect(Collectors.toMap(Event::getId, event -> event));
-
         return ResponseEntity.ok(new PageImpl<>(
-                cups.getContent().stream()
-                        .map(x -> CupDto.from(x, eventMap))
-                        .toList(),
+                cupMapper.toDtos(cups.getContent()),
                 FilterAndSortConverter.mapOrderProperties(cups.getPageable(), CupDto::mapOrdersDomainToDto),
                 cups.getTotalElements()));
     }
 
     @GetMapping("/cup/{id}")
     public ResponseEntity<CupDto> getCup(@PathVariable Long id) {
-        return ResponseEntity.ok(CupDto.from(cupService.getById(CupId.of(id)), eventService));
+        return ResponseEntity.ok(cupMapper.toDto(cupService.getById(CupId.of(id))));
     }
 
     @GetMapping("/cup/{id}/results")
@@ -134,13 +123,13 @@ public class CupController {
         List<EventKeyDto> eventKeyDtos = cupDetailed.getEventIds().stream()
                 .map(eventMap::get)
                 .filter(java.util.Objects::nonNull)
-                .map(EventKeyDto::from)
+                .map(EventMapper::toKeyDto)
                 .sorted()
                 .toList();
 
         // Convert Map<PersonId, Person> to Map<Long, PersonDto>
         Map<Long, PersonDto> personsDto = cupDetailed.getPersonsById().entrySet().stream()
-                .collect(Collectors.toMap(entry -> entry.getKey().value(), entry -> PersonDto.from(entry.getValue())));
+                .collect(Collectors.toMap(entry -> entry.getKey().value(), entry -> PersonMapper.toDto(entry.getValue())));
 
         // Convert cup statistics
         CupStatisticsDto cupStatisticsDto = cupStatisticsMapper.toDto(cupDetailed.getCupStatistics());
@@ -154,7 +143,7 @@ public class CupController {
                 eventKeyDtos,
                 cupDetailed.getEventRacesCupScore().stream()
                         .map(x -> EventRacesCupScoreDto.from(
-                                x, organisationService, eventCertificateService, hasSplitTimes(x.event()), organisationScoreMapper))
+                                x, hasSplitTimes(x.event()), organisationScoreMapper, eventMapper))
                         .toList(),
                 cupDetailed.getType().isGroupedByOrganisation()
                         ? organisationScoreMapper.toDtos(cupDetailed.getOverallOrganisationScores())
@@ -183,7 +172,7 @@ public class CupController {
                 cupDto.events() == null
                         ? new ArrayList<>()
                         : cupDto.events().stream().map(x -> EventId.of(x.id())).toList());
-        return ResponseEntity.ok(CupDto.from(cup, eventService));
+        return ResponseEntity.ok(cupMapper.toDto(cup));
     }
 
     @PostMapping("/cup")
@@ -199,7 +188,7 @@ public class CupController {
                                 .map(x -> EventId.of(x.id()))
                                 .filter(ObjectUtils::isNotEmpty)
                                 .toList());
-        return ResponseEntity.ok(CupDto.from(cup, eventService));
+        return ResponseEntity.ok(cupMapper.toDto(cup));
     }
 
     @DeleteMapping("/cup/{id}")

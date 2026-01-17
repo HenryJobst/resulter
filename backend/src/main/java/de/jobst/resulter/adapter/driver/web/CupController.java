@@ -1,28 +1,25 @@
 package de.jobst.resulter.adapter.driver.web;
 
-import de.jobst.resulter.adapter.driver.web.dto.*;
+import de.jobst.resulter.adapter.driver.web.dto.CupDetailedDto;
+import de.jobst.resulter.adapter.driver.web.dto.CupDto;
+import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
+import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
+import de.jobst.resulter.adapter.driver.web.mapper.CupDetailedMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.CupMapper;
-import de.jobst.resulter.adapter.driver.web.mapper.CupStatisticsMapper;
-import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
-import de.jobst.resulter.adapter.driver.web.mapper.EventRacesCupScoreMapper;
-import de.jobst.resulter.adapter.driver.web.mapper.OrganisationScoreMapper;
-import de.jobst.resulter.adapter.driver.web.mapper.PersonMapper;
-import de.jobst.resulter.adapter.driver.web.mapper.PersonWithScoreMapper;
-import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.application.port.CupService;
-import de.jobst.resulter.application.port.EventCertificateService;
-import de.jobst.resulter.application.port.EventService;
-import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
-import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.Cup;
+import de.jobst.resulter.domain.CupId;
+import de.jobst.resulter.domain.CupName;
+import de.jobst.resulter.domain.CupScoreList;
+import de.jobst.resulter.domain.CupType;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.aggregations.CupDetailed;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jspecify.annotations.Nullable;
@@ -31,50 +28,27 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
 public class CupController {
 
     private final CupService cupService;
-    private final EventService eventService;
-    private final OrganisationService organisationService;
-    private final CountryService countryService;
-    private final EventCertificateService eventCertificateService;
-    private final de.jobst.resulter.application.port.ResultListService resultListService;
-    private final de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository;
-    private final OrganisationScoreMapper organisationScoreMapper;
-    private final CupStatisticsMapper cupStatisticsMapper;
     private final CupMapper cupMapper;
-    private final EventMapper eventMapper;
-    private final EventRacesCupScoreMapper eventRacesCupScoreMapper;
+    private final CupDetailedMapper cupDetailedMapper;
 
-    public CupController(
-            CupService cupService,
-            EventService eventService,
-            OrganisationService organisationService,
-            CountryService countryService,
-            EventCertificateService eventCertificateService,
-            de.jobst.resulter.application.port.ResultListService resultListService,
-            de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository,
-            OrganisationScoreMapper organisationScoreMapper,
-            CupStatisticsMapper cupStatisticsMapper,
-            CupMapper cupMapper,
-            EventMapper eventMapper,
-            EventRacesCupScoreMapper eventRacesCupScoreMapper) {
+    public CupController(CupService cupService, CupMapper cupMapper, CupDetailedMapper cupDetailedMapper) {
         this.cupService = cupService;
-        this.eventService = eventService;
-        this.organisationService = organisationService;
-        this.countryService = countryService;
-        this.eventCertificateService = eventCertificateService;
-        this.resultListService = resultListService;
-        this.splitTimeListRepository = splitTimeListRepository;
-        this.organisationScoreMapper = organisationScoreMapper;
-        this.cupStatisticsMapper = cupStatisticsMapper;
         this.cupMapper = cupMapper;
-        this.eventMapper = eventMapper;
-        this.eventRacesCupScoreMapper = eventRacesCupScoreMapper;
+        this.cupDetailedMapper = cupDetailedMapper;
     }
 
     @GetMapping("/cup_types")
@@ -112,59 +86,7 @@ public class CupController {
     @GetMapping("/cup/{id}/results")
     public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
         CupDetailed cupDetailed = cupService.getCupDetailed(CupId.of(id));
-        return ResponseEntity.ok(createCupDetailedDto(cupDetailed));
-    }
-
-    private Boolean hasSplitTimes(Event event) {
-        return resultListService.findByEventId(event.getId()).stream().anyMatch(resultList -> !splitTimeListRepository
-                .findByResultListId(resultList.getId())
-                .isEmpty());
-    }
-
-    private CupDetailedDto createCupDetailedDto(CupDetailed cupDetailed) {
-        // Batch-load all Events
-        Map<EventId, Event> eventMap = eventService
-                .findAllById(cupDetailed.getEventIds().stream().toList())
-                .stream()
-                .collect(Collectors.toMap(Event::getId, event -> event));
-
-        List<EventKeyDto> eventKeyDtos = cupDetailed.getEventIds().stream()
-                .map(eventMap::get)
-                .filter(java.util.Objects::nonNull)
-                .map(EventMapper::toKeyDto)
-                .sorted()
-                .toList();
-
-        // Convert Map<PersonId, Person> to Map<Long, PersonDto>
-        Map<Long, PersonDto> personsDto = cupDetailed.getPersonsById().entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> entry.getKey().value(), entry -> PersonMapper.toDto(entry.getValue())));
-
-        // Convert cup statistics
-        CupStatisticsDto cupStatisticsDto = cupStatisticsMapper.toDto(cupDetailed.getCupStatistics());
-
-        return new CupDetailedDto(
-                ObjectUtils.isNotEmpty(cupDetailed.getId())
-                        ? cupDetailed.getId().value()
-                        : 0,
-                cupDetailed.getName().value(),
-                CupTypeDto.from(cupDetailed.getType()),
-                eventKeyDtos,
-                cupDetailed.getEventRacesCupScore().stream()
-                        .map(x -> eventRacesCupScoreMapper.toDto(x, hasSplitTimes(x.event())))
-                        .toList(),
-                cupDetailed.getType().isGroupedByOrganisation()
-                        ? organisationScoreMapper.toDtos(cupDetailed.getOverallOrganisationScores())
-                        : List.of(),
-                cupDetailed.getType().isGroupedByOrganisation()
-                        ? List.of()
-                        : cupDetailed.getAggregatedPersonScoresList().stream()
-                                .map(it -> new AggregatedPersonScoresDto(
-                                        it.classResultShortName().value(),
-                                        PersonWithScoreMapper.toDtos(it.personWithScoreList())))
-                                .toList(),
-                personsDto,
-                cupStatisticsDto);
+        return ResponseEntity.ok(cupDetailedMapper.toDto(cupDetailed));
     }
 
     @PutMapping("/cup/{id}")

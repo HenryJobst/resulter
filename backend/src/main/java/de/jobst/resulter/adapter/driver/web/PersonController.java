@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.GenderDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonDto;
+import de.jobst.resulter.adapter.driver.web.mapper.PersonMapper;
 import de.jobst.resulter.application.port.PersonService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
@@ -33,7 +34,7 @@ public class PersonController {
     @GetMapping("/person/all")
     public ResponseEntity<List<PersonDto>> getAllPersons() {
         List<Person> persons = personService.findAll();
-        return ResponseEntity.ok(persons.stream().map(PersonDto::from).toList());
+        return ResponseEntity.ok(PersonMapper.toDtos(persons));
     }
 
     @GetMapping("/person")
@@ -56,7 +57,7 @@ public class PersonController {
 
         return ResponseEntity.ok(new PageImpl<>(
                 persons.getContent().stream()
-                        .map(p -> PersonDto.from(p, groupLeaders.contains(p.id().value())))
+                        .map(p -> PersonMapper.toDto(p, groupLeaders.contains(p.id().value())))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(persons.getPageable(), PersonDto::mapOrdersDomainToDto),
                 persons.getTotalElements()));
@@ -78,7 +79,7 @@ public class PersonController {
 
         return ResponseEntity.ok(new PageImpl<>(
                 persons.getContent().stream()
-                        .map(p -> PersonDto.from(p, groupLeaders.contains(p.id().value())))
+                        .map(p -> PersonMapper.toDto(p, groupLeaders.contains(p.id().value())))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(persons.getPageable(), PersonDto::mapOrdersDomainToDto),
                 persons.getTotalElements()));
@@ -87,7 +88,7 @@ public class PersonController {
     @GetMapping("/person/{id}")
     public ResponseEntity<PersonDto> getPerson(@PathVariable Long id) {
         Optional<Person> person = personService.findById(PersonId.of(id));
-        return person.map(value -> ResponseEntity.ok(PersonDto.from(value)))
+        return person.map(value -> ResponseEntity.ok(PersonMapper.toDto(value)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -98,7 +99,7 @@ public class PersonController {
                 PersonName.of(personDto.familyName(), personDto.givenName()),
                 ObjectUtils.isNotEmpty(personDto.birthDate()) ? BirthDate.of(personDto.birthDate()) : null,
                 Gender.of(personDto.gender().id()));
-        return ResponseEntity.ok(PersonDto.from(person));
+        return ResponseEntity.ok(PersonMapper.toDto(person));
     }
 
     @DeleteMapping("/person/{id}")
@@ -118,12 +119,12 @@ public class PersonController {
     @GetMapping("/person/{id}/doubles")
     public ResponseEntity<List<PersonDto>> getDoubles(@PathVariable Long id) {
         List<Person> doubles = personService.findDoubles(PersonId.of(id));
-        return ResponseEntity.ok(doubles.stream().map(PersonDto::from).toList());
+        return ResponseEntity.ok(PersonMapper.toDtos(doubles));
     }
 
     @PostMapping("/person/{id}/merge")
     public ResponseEntity<PersonDto> mergePersons(@PathVariable Long id, @RequestBody Long removeId) {
         Person person = personService.mergePersons(PersonId.of(id), PersonId.of(removeId));
-        return ResponseEntity.ok(PersonDto.from(person));
+        return ResponseEntity.ok(PersonMapper.toDto(person));
     }
 }

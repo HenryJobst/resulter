@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
+import de.jobst.resulter.adapter.driver.web.mapper.OrganisationMapper;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.Event;
@@ -38,7 +39,7 @@ public record EventDto(
                 event.getOrganisationIds().stream()
                         .map(x -> {
                             var organisation = organisationService.getById(x);
-                            return OrganisationKeyDto.from(organisation);
+                            return OrganisationMapper.toKeyDto(organisation);
                         })
                         .toList(),
                 ObjectUtils.isNotEmpty(event.getCertificate())

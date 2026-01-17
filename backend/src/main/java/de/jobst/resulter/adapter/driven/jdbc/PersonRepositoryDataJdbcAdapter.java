@@ -5,15 +5,15 @@ import com.turkraft.springfilter.parser.node.FilterNode;
 import com.turkraft.springfilter.transformer.FilterNodeTransformer;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
-import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.PersonRepository;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.BirthDate;
 import de.jobst.resulter.domain.Gender;
 import de.jobst.resulter.domain.Person;
 import de.jobst.resulter.domain.PersonId;
-import java.time.LocalDate;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -103,7 +103,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         // Step 2: Separate into found and not found
         List<PersonPerson> results = new ArrayList<>();
         List<Person> toCreate = new ArrayList<>();
-        
+
         for (Person person : persons) {
             Person.DomainKey key = person.getDomainKey();
             Person existing = existingPersons.get(key);
@@ -130,20 +130,22 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         StringBuilder sql = new StringBuilder("SELECT * FROM person WHERE ");
         MapSqlParameterSource params = new MapSqlParameterSource();
         List<String> conditions = new ArrayList<>();
-        
+
         int idx = 0;
         for (Person person : persons) {
             String familyName = person.personName().familyName().value();
             String givenName = person.personName().givenName().value();
-            LocalDate birthDate = Optional.ofNullable(person.birthDate()).map(BirthDate::value).orElse(null);
+            LocalDate birthDate = Optional.ofNullable(person.birthDate())
+                    .map(BirthDate::value)
+                    .orElse(null);
             Gender gender = person.gender();
-            
-            String condition = "(family_name = :fn" + idx 
+
+            String condition = "(family_name = :fn" + idx
                     + " AND given_name = :gn" + idx
                     + " AND birth_date " + (birthDate == null ? "IS NULL" : "= :bd" + idx)
                     + " AND gender = :g" + idx + ")";
             conditions.add(condition);
-            
+
             params.addValue("fn" + idx, familyName);
             params.addValue("gn" + idx, givenName);
             if (birthDate != null) {
@@ -152,9 +154,9 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
             params.addValue("g" + idx, gender.name());
             idx++;
         }
-        
+
         sql.append(String.join(" OR ", conditions));
-        
+
         List<PersonDbo> found = namedParameterJdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
             PersonDbo dbo = new PersonDbo();
             dbo.setId(rs.getLong("id"));
@@ -165,10 +167,8 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
             dbo.setBirthDate(bd != null ? bd.toLocalDate() : null);
             return dbo;
         });
-        
-        return found.stream()
-                .map(dbo -> dbo.asPerson())
-                .collect(Collectors.toMap(Person::getDomainKey, p -> p));
+
+        return found.stream().map(dbo -> dbo.asPerson()).collect(Collectors.toMap(Person::getDomainKey, p -> p));
     }
 
     private List<Person> batchInsertPersons(List<Person> persons) {

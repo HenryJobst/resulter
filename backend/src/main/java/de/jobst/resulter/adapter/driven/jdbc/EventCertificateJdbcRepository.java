@@ -3,7 +3,6 @@ package de.jobst.resulter.adapter.driven.jdbc;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
-
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;

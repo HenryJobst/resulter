@@ -8,10 +8,9 @@ import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.aggregations.OrganisationStatistics;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 @Component
 public class OrganisationStatisticsMapper {
@@ -40,8 +39,7 @@ public class OrganisationStatisticsMapper {
                 stats.nonScoringStarts(),
                 stats.startsPerRunner(),
                 stats.nonScoringStartsPerRunner(),
-                stats.nonScoringRatio()
-        );
+                stats.nonScoringRatio());
     }
 
     public List<OrganisationStatisticsDto> toDtos(List<OrganisationStatistics> organisationStatistics) {

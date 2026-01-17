@@ -5,8 +5,8 @@ import com.turkraft.springfilter.parser.node.FilterNode;
 import com.turkraft.springfilter.transformer.FilterNodeTransformer;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
-import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.OrganisationRepository;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
@@ -168,9 +168,12 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("idSet", idValues);
 
-        List<@Nullable Long> resultList = namedParameterJdbcTemplate.queryForList(getCteQuery(), parameters, Long.class);
-        Set<OrganisationId> organisationIdSet =
-                resultList.stream().filter(Objects::nonNull).map(OrganisationId::of).collect(Collectors.toSet());
+        List<@Nullable Long> resultList =
+                namedParameterJdbcTemplate.queryForList(getCteQuery(), parameters, Long.class);
+        Set<OrganisationId> organisationIdSet = resultList.stream()
+                .filter(Objects::nonNull)
+                .map(OrganisationId::of)
+                .collect(Collectors.toSet());
 
         return findAllById(organisationIdSet);
     }
@@ -225,9 +228,12 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     public List<Organisation> findByIds(Collection<OrganisationId> childOrganisationIds) {
         List<OrganisationDbo> organisationDbos = StreamSupport.stream(
-                organisationJdbcRepository.findAllById(
-                        childOrganisationIds.stream().map(OrganisationId::value).toList()).spliterator(),
-                false)
+                        organisationJdbcRepository
+                                .findAllById(childOrganisationIds.stream()
+                                        .map(OrganisationId::value)
+                                        .toList())
+                                .spliterator(),
+                        false)
                 .toList();
         Map<Long, Country> countryMap = batchLoadCountries(organisationDbos);
         return organisationDbos.stream()

@@ -2,17 +2,18 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.*;
 import de.jobst.resulter.adapter.driver.web.mapper.CupMapper;
+import de.jobst.resulter.adapter.driver.web.mapper.CupStatisticsMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
+import de.jobst.resulter.adapter.driver.web.mapper.EventRacesCupScoreMapper;
+import de.jobst.resulter.adapter.driver.web.mapper.OrganisationScoreMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.PersonMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.PersonWithScoreMapper;
-import de.jobst.resulter.adapter.driver.web.mapper.CupStatisticsMapper;
-import de.jobst.resulter.adapter.driver.web.mapper.OrganisationScoreMapper;
 import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.application.port.CupService;
-import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.OrganisationService;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.aggregations.CupDetailed;
 import java.time.Year;
@@ -47,6 +48,7 @@ public class CupController {
     private final CupStatisticsMapper cupStatisticsMapper;
     private final CupMapper cupMapper;
     private final EventMapper eventMapper;
+    private final EventRacesCupScoreMapper eventRacesCupScoreMapper;
 
     public CupController(
             CupService cupService,
@@ -59,7 +61,8 @@ public class CupController {
             OrganisationScoreMapper organisationScoreMapper,
             CupStatisticsMapper cupStatisticsMapper,
             CupMapper cupMapper,
-            EventMapper eventMapper) {
+            EventMapper eventMapper,
+            EventRacesCupScoreMapper eventRacesCupScoreMapper) {
         this.cupService = cupService;
         this.eventService = eventService;
         this.organisationService = organisationService;
@@ -71,6 +74,7 @@ public class CupController {
         this.cupStatisticsMapper = cupStatisticsMapper;
         this.cupMapper = cupMapper;
         this.eventMapper = eventMapper;
+        this.eventRacesCupScoreMapper = eventRacesCupScoreMapper;
     }
 
     @GetMapping("/cup_types")
@@ -112,13 +116,16 @@ public class CupController {
     }
 
     private Boolean hasSplitTimes(Event event) {
-        return resultListService.findByEventId(event.getId()).stream()
-                .anyMatch(resultList -> !splitTimeListRepository.findByResultListId(resultList.getId()).isEmpty());
+        return resultListService.findByEventId(event.getId()).stream().anyMatch(resultList -> !splitTimeListRepository
+                .findByResultListId(resultList.getId())
+                .isEmpty());
     }
 
     private CupDetailedDto createCupDetailedDto(CupDetailed cupDetailed) {
         // Batch-load all Events
-        Map<EventId, Event> eventMap = eventService.findAllById(cupDetailed.getEventIds().stream().toList()).stream()
+        Map<EventId, Event> eventMap = eventService
+                .findAllById(cupDetailed.getEventIds().stream().toList())
+                .stream()
                 .collect(Collectors.toMap(Event::getId, event -> event));
 
         List<EventKeyDto> eventKeyDtos = cupDetailed.getEventIds().stream()
@@ -130,12 +137,13 @@ public class CupController {
 
         // Convert Map<PersonId, Person> to Map<Long, PersonDto>
         Map<Long, PersonDto> personsDto = cupDetailed.getPersonsById().entrySet().stream()
-                .collect(Collectors.toMap(entry -> entry.getKey().value(), entry -> PersonMapper.toDto(entry.getValue())));
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().value(), entry -> PersonMapper.toDto(entry.getValue())));
 
         // Convert cup statistics
         CupStatisticsDto cupStatisticsDto = cupStatisticsMapper.toDto(cupDetailed.getCupStatistics());
 
-        return CupDetailedDto.from(
+        return new CupDetailedDto(
                 ObjectUtils.isNotEmpty(cupDetailed.getId())
                         ? cupDetailed.getId().value()
                         : 0,
@@ -143,8 +151,7 @@ public class CupController {
                 CupTypeDto.from(cupDetailed.getType()),
                 eventKeyDtos,
                 cupDetailed.getEventRacesCupScore().stream()
-                        .map(x -> EventRacesCupScoreDto.from(
-                                x, hasSplitTimes(x.event()), organisationScoreMapper, eventMapper))
+                        .map(x -> eventRacesCupScoreMapper.toDto(x, hasSplitTimes(x.event())))
                         .toList(),
                 cupDetailed.getType().isGroupedByOrganisation()
                         ? organisationScoreMapper.toDtos(cupDetailed.getOverallOrganisationScores())

@@ -15,18 +15,10 @@ import org.jspecify.annotations.Nullable;
 @Getter
 public class ResultList implements Comparable<ResultList> {
 
-    public record DomainKey(
-            Long eventId,
-            Long raceId,
-            @Nullable String creator,
-            @Nullable ZonedDateTime createTime) {}
+    public record DomainKey(Long eventId, Long raceId, @Nullable String creator, @Nullable ZonedDateTime createTime) {}
 
     public DomainKey getDomainKey() {
-        return new DomainKey(
-                eventId.value(),
-                raceId.value(),
-                creator,
-                createTime);
+        return new DomainKey(eventId.value(), raceId.value(), creator, createTime);
     }
 
     @Association
@@ -79,8 +71,10 @@ public class ResultList implements Comparable<ResultList> {
         }
 
         if (var == 0) {
-            var = Objects.compare(this.createTime, o.createTime,
-                (zonedDateTime, other) -> zonedDateTime != null ? zonedDateTime.compareTo(other) : 0);
+            var = Objects.compare(
+                    this.createTime,
+                    o.createTime,
+                    (zonedDateTime, other) -> zonedDateTime != null ? zonedDateTime.compareTo(other) : 0);
         }
 
         if (var == 0) {

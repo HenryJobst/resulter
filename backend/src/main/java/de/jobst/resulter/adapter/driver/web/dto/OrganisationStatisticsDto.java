@@ -7,6 +7,4 @@ public record OrganisationStatisticsDto(
         int nonScoringStarts,
         double startsPerRunner,
         double nonScoringStartsPerRunner,
-        double nonScoringRatio
-) {
-}
+        double nonScoringRatio) {}

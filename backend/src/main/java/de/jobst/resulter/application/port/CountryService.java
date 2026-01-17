@@ -5,14 +5,13 @@ import de.jobst.resulter.domain.CountryCode;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.CountryName;
 import de.jobst.resulter.domain.Organisation;
-import org.jmolecules.architecture.hexagonal.PrimaryPort;
-import org.jspecify.annotations.NonNull;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.jmolecules.architecture.hexagonal.PrimaryPort;
+import org.jspecify.annotations.NonNull;
 
 @PrimaryPort
 public interface CountryService {

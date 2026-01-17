@@ -5,13 +5,12 @@ import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Repository;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -31,7 +30,6 @@ public class InMemorySplitTimeListRepository implements SplitTimeListRepository 
         return splitTimeList;
     }
 
-
     @Override
     public List<SplitTimeList> findAll() {
         return List.copyOf(splitTimeLists.values());
@@ -44,18 +42,15 @@ public class InMemorySplitTimeListRepository implements SplitTimeListRepository 
 
     @Override
     public SplitTimeList findOrCreate(SplitTimeList splitTimeList) {
-        return splitTimeLists.values()
-            .stream()
-            .filter(it -> Objects.equals(it.getDomainKey(), splitTimeList.getDomainKey()))
-            .findAny()
-            .orElseGet(() -> save(splitTimeList));
+        return splitTimeLists.values().stream()
+                .filter(it -> Objects.equals(it.getDomainKey(), splitTimeList.getDomainKey()))
+                .findAny()
+                .orElseGet(() -> save(splitTimeList));
     }
 
     @Override
     public Collection<SplitTimeList> findOrCreate(Collection<SplitTimeList> splitTimeLists) {
-        return splitTimeLists.stream()
-            .map(this::findOrCreate)
-            .toList();
+        return splitTimeLists.stream().map(this::findOrCreate).toList();
     }
 
     @Override
@@ -65,10 +60,9 @@ public class InMemorySplitTimeListRepository implements SplitTimeListRepository 
 
     @Override
     public List<SplitTimeList> findByResultListId(ResultListId resultListId) {
-        return splitTimeLists.values()
-            .stream()
-            .filter(stl -> Objects.equals(stl.getResultListId(), resultListId))
-            .toList();
+        return splitTimeLists.values().stream()
+                .filter(stl -> Objects.equals(stl.getResultListId(), resultListId))
+                .toList();
     }
 
     @SuppressWarnings("unused")
@@ -85,5 +79,4 @@ public class InMemorySplitTimeListRepository implements SplitTimeListRepository 
     public void resetSaveCount() {
         savedSplitTimeLists.clear();
     }
-
 }

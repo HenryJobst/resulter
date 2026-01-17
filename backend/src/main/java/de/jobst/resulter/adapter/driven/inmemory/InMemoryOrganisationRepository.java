@@ -3,6 +3,9 @@ package de.jobst.resulter.adapter.driven.inmemory;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -11,10 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -29,12 +28,12 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
         Organisation savedOrganisation;
         if (ObjectUtils.isEmpty(organisation.getId()) || organisation.getId().value() == 0) {
             savedOrganisation = new Organisation(
-                OrganisationId.of(sequence.incrementAndGet()),
-                organisation.getName(),
-                organisation.getShortName(),
-                organisation.getType(),
-                organisation.getCountry(),
-                organisation.getChildOrganisations());
+                    OrganisationId.of(sequence.incrementAndGet()),
+                    organisation.getName(),
+                    organisation.getShortName(),
+                    organisation.getType(),
+                    organisation.getCountry(),
+                    organisation.getChildOrganisations());
         } else {
             savedOrganisation = organisation;
         }
@@ -55,11 +54,10 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
 
     @Override
     public Organisation findOrCreate(Organisation organisation) {
-        return organisations.values()
-            .stream()
-            .filter(it -> Objects.equals(it.getName(), organisation.getName()))
-            .findAny()
-            .orElseGet(() -> save(organisation));
+        return organisations.values().stream()
+                .filter(it -> Objects.equals(it.getName(), organisation.getName()))
+                .findAny()
+                .orElseGet(() -> save(organisation));
     }
 
     @Override
@@ -79,8 +77,8 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
     @Override
     public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet) {
         return idSet.stream()
-            .filter(organisations::containsKey)
-            .collect(java.util.stream.Collectors.toMap(id -> id, organisations::get));
+                .filter(organisations::containsKey)
+                .collect(java.util.stream.Collectors.toMap(id -> id, organisations::get));
     }
 
     @Override
@@ -113,5 +111,4 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
     public void resetSaveCount() {
         savedOrganisations.clear();
     }
-
 }

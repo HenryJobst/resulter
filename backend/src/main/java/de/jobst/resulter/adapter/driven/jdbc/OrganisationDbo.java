@@ -20,7 +20,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ =@PersistenceCreator)
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @PersistenceCreator)
 @Table(name = "organisation")
 public class OrganisationDbo {
 
@@ -56,7 +56,7 @@ public class OrganisationDbo {
         OrganisationDbo organisationDbo;
         if (organisation.getId().isPersistent()) {
             organisationDbo = Objects.requireNonNull(
-                dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId()));
+                    dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId()));
             organisationDbo.setName(organisation.getName().value());
         } else {
             organisationDbo = new OrganisationDbo(organisation.getName().value());
@@ -101,8 +101,7 @@ public class OrganisationDbo {
                         .toList());
     }
 
-    public Organisation asOrganisation(
-            Map<Long, Organisation> organisationMap, Map<Long, Country> countryMap) {
+    public Organisation asOrganisation(Map<Long, Organisation> organisationMap, Map<Long, Country> countryMap) {
         return Organisation.of(
                 id,
                 name,
@@ -115,9 +114,7 @@ public class OrganisationDbo {
     }
 
     public static Organisation asOrganisation(
-            OrganisationDbo organisationDbo,
-            Map<Long, Organisation> organisationMap,
-            Map<Long, Country> countryMap) {
+            OrganisationDbo organisationDbo, Map<Long, Organisation> organisationMap, Map<Long, Country> countryMap) {
         return organisationDbo.asOrganisation(organisationMap, countryMap);
     }
 

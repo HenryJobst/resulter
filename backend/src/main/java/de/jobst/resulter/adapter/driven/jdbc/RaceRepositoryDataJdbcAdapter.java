@@ -4,7 +4,6 @@ import de.jobst.resulter.application.port.RaceRepository;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.Race;
 import de.jobst.resulter.domain.RaceId;
-import de.jobst.resulter.domain.RaceNumber;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,8 +25,7 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public RaceRepositoryDataJdbcAdapter(
-            RaceJdbcRepository raceJdbcRepository,
-            NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+            RaceJdbcRepository raceJdbcRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.raceJdbcRepository = raceJdbcRepository;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
@@ -119,17 +117,12 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
         sql.append(String.join(" OR ", conditions));
 
         List<RaceDbo> found = namedParameterJdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
-            RaceDbo dbo = new RaceDbo(
-                    rs.getLong("event_id"),
-                    rs.getString("name"),
-                    rs.getByte("number"));
+            RaceDbo dbo = new RaceDbo(rs.getLong("event_id"), rs.getString("name"), rs.getByte("number"));
             dbo.setId(rs.getLong("id"));
             return dbo;
         });
 
-        return found.stream()
-                .map(RaceDbo::asRace)
-                .collect(Collectors.toMap(Race::getDomainKey, r -> r));
+        return found.stream().map(RaceDbo::asRace).collect(Collectors.toMap(Race::getDomainKey, r -> r));
     }
 
     private List<Race> batchInsertRaces(List<Race> races) {

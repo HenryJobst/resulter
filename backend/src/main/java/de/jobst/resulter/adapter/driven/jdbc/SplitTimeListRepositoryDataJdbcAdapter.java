@@ -1,13 +1,19 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.port.SplitTimeListRepository;
+import de.jobst.resulter.domain.ClassResultShortName;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.PersonId;
+import de.jobst.resulter.domain.RaceNumber;
+import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
-import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.ResultListId;
-import de.jobst.resulter.domain.ClassResultShortName;
-import de.jobst.resulter.domain.RaceNumber;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,13 +23,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "false")
@@ -43,39 +42,47 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
     @Override
     public @Nullable SplitTimeList save(SplitTimeList splitTimeList) {
         DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setSplitTimeListDboResolver(id -> splitTimeListJdbcRepository.findById(id.value()).orElseThrow());
+        dboResolvers.setSplitTimeListDboResolver(
+                id -> splitTimeListJdbcRepository.findById(id.value()).orElseThrow());
         SplitTimeListDbo splitTimeListEntity = SplitTimeListDbo.from(splitTimeList, dboResolvers);
         SplitTimeListDbo savedSplitTimeListEntity = splitTimeListJdbcRepository.save(splitTimeListEntity);
-        return SplitTimeListDbo.asSplitTimeLists(List.of(savedSplitTimeListEntity)).stream().findFirst().orElse(null);
+        return SplitTimeListDbo.asSplitTimeLists(List.of(savedSplitTimeListEntity)).stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public List<SplitTimeList> findAll() {
-        return SplitTimeListDbo.asSplitTimeLists(splitTimeListJdbcRepository.findAll()).stream().sorted().toList();
+        return SplitTimeListDbo.asSplitTimeLists(splitTimeListJdbcRepository.findAll()).stream()
+                .sorted()
+                .toList();
     }
 
     @Override
     public Optional<SplitTimeList> findById(SplitTimeListId splitTimeListId) {
         Optional<SplitTimeListDbo> splitTimeListEntity = splitTimeListJdbcRepository.findById(splitTimeListId.value());
-        return splitTimeListEntity.isPresent() ?
-               SplitTimeListDbo.asSplitTimeLists(List.of(splitTimeListEntity.orElse(null))).stream().findFirst() :
-               Optional.empty();
+        return splitTimeListEntity.isPresent()
+                ? SplitTimeListDbo.asSplitTimeLists(List.of(splitTimeListEntity.orElse(null))).stream()
+                        .findFirst()
+                : Optional.empty();
     }
 
     @Override
     public @Nullable SplitTimeList findOrCreate(SplitTimeList splitTimeList) {
         Optional<SplitTimeListDbo> splitTimeListEntity =
-            splitTimeListJdbcRepository.findByEventIdAndResultListIdAndClassResultShortNameAndPersonIdAndRaceNumber(
-                AggregateReference.to(splitTimeList.getEventId().value()),
-                AggregateReference.to(splitTimeList.getResultListId().value()),
-                splitTimeList.getClassResultShortName().value(),
-                AggregateReference.to(splitTimeList.getPersonId().value()),
-                splitTimeList.getRaceNumber().value());
+                splitTimeListJdbcRepository.findByEventIdAndResultListIdAndClassResultShortNameAndPersonIdAndRaceNumber(
+                        AggregateReference.to(splitTimeList.getEventId().value()),
+                        AggregateReference.to(splitTimeList.getResultListId().value()),
+                        splitTimeList.getClassResultShortName().value(),
+                        AggregateReference.to(splitTimeList.getPersonId().value()),
+                        splitTimeList.getRaceNumber().value());
         if (splitTimeListEntity.isEmpty()) {
             return save(splitTimeList);
         }
         SplitTimeListDbo entity = splitTimeListEntity.get();
-        return SplitTimeListDbo.asSplitTimeLists(List.of(entity)).stream().findFirst().orElse(null);
+        return SplitTimeListDbo.asSplitTimeLists(List.of(entity)).stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -85,7 +92,8 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
             return List.of();
         }
 
-        Map<SplitTimeList.DomainKey, SplitTimeList> existingSplitTimeLists = batchFindExistingSplitTimeLists(splitTimeLists);
+        Map<SplitTimeList.DomainKey, SplitTimeList> existingSplitTimeLists =
+                batchFindExistingSplitTimeLists(splitTimeLists);
 
         List<SplitTimeList> results = new ArrayList<>();
         List<SplitTimeList> toCreate = new ArrayList<>();
@@ -108,7 +116,8 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
         return results;
     }
 
-    private Map<SplitTimeList.DomainKey, SplitTimeList> batchFindExistingSplitTimeLists(Collection<SplitTimeList> splitTimeLists) {
+    private Map<SplitTimeList.DomainKey, SplitTimeList> batchFindExistingSplitTimeLists(
+            Collection<SplitTimeList> splitTimeLists) {
         StringBuilder sql = new StringBuilder(
                 "SELECT id, event_id, result_list_id, class_result_short_name, person_id, race_number FROM split_time_list WHERE ");
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -118,7 +127,8 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
         for (SplitTimeList splitTimeList : splitTimeLists) {
             Long eventId = splitTimeList.getEventId().value();
             Long resultListId = splitTimeList.getResultListId().value();
-            String classResultShortName = splitTimeList.getClassResultShortName().value();
+            String classResultShortName =
+                    splitTimeList.getClassResultShortName().value();
             Long personId = splitTimeList.getPersonId().value();
             Byte raceNumber = splitTimeList.getRaceNumber().value();
 
@@ -160,8 +170,7 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
                     List.of());
         });
 
-        return found.stream()
-                .collect(Collectors.toMap(SplitTimeList::getDomainKey, s -> s));
+        return found.stream().collect(Collectors.toMap(SplitTimeList::getDomainKey, s -> s));
     }
 
     private List<SplitTimeList> batchInsertSplitTimeLists(List<SplitTimeList> splitTimeLists) {
@@ -177,20 +186,20 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
     @Transactional(propagation = Propagation.MANDATORY)
     public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
         if (splitTimeListJdbcRepository.existsByPersonId(oldPersonId.value())) {
-            int updatedRows =
-                splitTimeListJdbcRepository.replacePersonIdInSplitTimeList(oldPersonId.value(), newPersonId.value());
-            log.debug("Updated {} rows in split_time_list with person_id {} to person_id {}",
-                updatedRows,
-                oldPersonId,
-                newPersonId);
+            int updatedRows = splitTimeListJdbcRepository.replacePersonIdInSplitTimeList(
+                    oldPersonId.value(), newPersonId.value());
+            log.debug(
+                    "Updated {} rows in split_time_list with person_id {} to person_id {}",
+                    updatedRows,
+                    oldPersonId,
+                    newPersonId);
         }
     }
 
     @Override
     public List<SplitTimeList> findByResultListId(de.jobst.resulter.domain.ResultListId resultListId) {
         Collection<SplitTimeListDbo> splitTimeListDbos =
-            splitTimeListJdbcRepository.findByResultListIdOptimized(resultListId.value());
+                splitTimeListJdbcRepository.findByResultListIdOptimized(resultListId.value());
         return SplitTimeListDbo.asSplitTimeLists(splitTimeListDbos).stream().toList();
     }
-
 }

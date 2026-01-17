@@ -3,13 +3,12 @@ package de.jobst.resulter.adapter.driven.inmemory;
 import de.jobst.resulter.application.port.CountryRepository;
 import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.CountryId;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Repository;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @ConditionalOnProperty(name = "resulter.repository.inmemory", havingValue = "true")
@@ -23,10 +22,7 @@ public class InMemoryCountryRepository implements CountryRepository {
     public Country save(Country country) {
         Country savedCountry;
         if (ObjectUtils.isEmpty(country.getId()) || country.getId().value() == 0) {
-            savedCountry = new Country(
-                CountryId.of(sequence.incrementAndGet()),
-                country.getCode(),
-                country.getName());
+            savedCountry = new Country(CountryId.of(sequence.incrementAndGet()), country.getCode(), country.getName());
         } else {
             savedCountry = country;
         }
@@ -59,11 +55,10 @@ public class InMemoryCountryRepository implements CountryRepository {
 
     @Override
     public Country findOrCreate(Country country) {
-        return countries.values()
-            .stream()
-            .filter(it -> Objects.equals(it.getName(), country.getName()))
-            .findAny()
-            .orElseGet(() -> save(country));
+        return countries.values().stream()
+                .filter(it -> Objects.equals(it.getName(), country.getName()))
+                .findAny()
+                .orElseGet(() -> save(country));
     }
 
     @Override
@@ -85,5 +80,4 @@ public class InMemoryCountryRepository implements CountryRepository {
     public void resetSaveCount() {
         savedCountrys.clear();
     }
-
 }

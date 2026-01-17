@@ -9,10 +9,9 @@ import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventStatus;
+import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 @Component
 public class EventMapper {
@@ -20,9 +19,7 @@ public class EventMapper {
     private final OrganisationService organisationService;
     private final EventCertificateService eventCertificateService;
 
-    public EventMapper(
-            OrganisationService organisationService,
-            EventCertificateService eventCertificateService) {
+    public EventMapper(OrganisationService organisationService, EventCertificateService eventCertificateService) {
         this.organisationService = organisationService;
         this.eventCertificateService = eventCertificateService;
     }
@@ -47,8 +44,7 @@ public class EventMapper {
                         : null,
                 hasSplitTimes,
                 DisciplineDto.from(event.getDiscipline()),
-                event.isAggregatedScore()
-        );
+                event.isAggregatedScore());
     }
 
     public static EventKeyDto toKeyDto(Event event) {

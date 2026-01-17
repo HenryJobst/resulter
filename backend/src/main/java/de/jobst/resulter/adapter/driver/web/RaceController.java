@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.RaceDto;
+import de.jobst.resulter.adapter.driver.web.mapper.RaceMapper;
 import de.jobst.resulter.application.port.RaceService;
 import de.jobst.resulter.domain.Race;
 import java.util.List;
@@ -28,7 +29,7 @@ public class RaceController {
     @GetMapping("/race/all")
     public ResponseEntity<List<RaceDto>> getAllRaces() {
         List<Race> races = raceService.findAll();
-        return ResponseEntity.ok(races.stream().map(RaceDto::from).toList());
+        return ResponseEntity.ok(races.stream().map(RaceMapper::toDto).toList());
     }
 
     @GetMapping("/race")
@@ -36,7 +37,7 @@ public class RaceController {
         // TODO: Implement filter and pageable
         List<Race> races = raceService.findAll();
         return ResponseEntity.ok(new PageImpl<>(
-                races.stream().map(RaceDto::from).toList(),
+                races.stream().map(RaceMapper::toDto).toList(),
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()),
                 races.size()));
     }

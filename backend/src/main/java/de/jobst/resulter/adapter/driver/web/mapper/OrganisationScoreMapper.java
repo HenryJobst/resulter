@@ -1,7 +1,6 @@
 package de.jobst.resulter.adapter.driver.web.mapper;
 
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationScoreDto;
-import de.jobst.resulter.adapter.driver.web.dto.PersonWithScoreDto;
 import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.Country;
@@ -35,7 +34,7 @@ public class OrganisationScoreMapper {
                 organisationMapper.toDto(organisationScore.organisation()),
                 organisationScore.score(),
                 organisationScore.personWithScores().stream()
-                        .map(PersonWithScoreDto::from)
+                        .map(PersonWithScoreMapper::toDto)
                         .toList());
     }
 
@@ -47,7 +46,7 @@ public class OrganisationScoreMapper {
                 organisationMapper.toDto(organisationScore.organisation(), countryMap, orgMap),
                 organisationScore.score(),
                 organisationScore.personWithScores().stream()
-                        .map(PersonWithScoreDto::from)
+                        .map(PersonWithScoreMapper::toDto)
                         .toList());
     }
 

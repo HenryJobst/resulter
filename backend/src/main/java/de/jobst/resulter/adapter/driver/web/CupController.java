@@ -4,6 +4,7 @@ import de.jobst.resulter.adapter.driver.web.dto.*;
 import de.jobst.resulter.adapter.driver.web.mapper.CupMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.PersonMapper;
+import de.jobst.resulter.adapter.driver.web.mapper.PersonWithScoreMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.CupStatisticsMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.OrganisationScoreMapper;
 import de.jobst.resulter.application.port.CountryService;
@@ -153,9 +154,7 @@ public class CupController {
                         : cupDetailed.getAggregatedPersonScoresList().stream()
                                 .map(it -> new AggregatedPersonScoresDto(
                                         it.classResultShortName().value(),
-                                        it.personWithScoreList().stream()
-                                                .map(PersonWithScoreDto::from)
-                                                .toList()))
+                                        PersonWithScoreMapper.toDtos(it.personWithScoreList())))
                                 .toList(),
                 personsDto,
                 cupStatisticsDto);

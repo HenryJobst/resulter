@@ -8,10 +8,9 @@ import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.aggregations.OrganisationScore;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 @Component
 public class OrganisationScoreMapper {
@@ -51,9 +50,8 @@ public class OrganisationScoreMapper {
     }
 
     public List<OrganisationScoreDto> toDtos(List<OrganisationScore> organisationScores) {
-        List<Organisation> organisations = organisationScores.stream()
-                .map(OrganisationScore::organisation)
-                .toList();
+        List<Organisation> organisations =
+                organisationScores.stream().map(OrganisationScore::organisation).toList();
         Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(organisations);
         Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(organisations);
         return organisationScores.stream()

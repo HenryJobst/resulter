@@ -1,11 +1,11 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import org.springframework.data.domain.Sort;
-
 import java.time.LocalDate;
 import java.util.function.UnaryOperator;
+import org.springframework.data.domain.Sort;
 
-public record PersonDto(Long id, String familyName, String givenName, GenderDto gender, LocalDate birthDate, Boolean showMergeButton) {
+public record PersonDto(
+        Long id, String familyName, String givenName, GenderDto gender, LocalDate birthDate, Boolean showMergeButton) {
 
     static UnaryOperator<String> mapOperator = (String s) -> switch (s) {
         case "id" -> "id.value";

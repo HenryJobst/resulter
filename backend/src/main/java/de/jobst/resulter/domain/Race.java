@@ -27,8 +27,7 @@ public class Race implements Comparable<Race> {
 
     private RaceNumber raceNumber;
 
-    public Race(
-        RaceId id, EventId eventId, @Nullable RaceName raceName, RaceNumber raceNumber) {
+    public Race(RaceId id, EventId eventId, @Nullable RaceName raceName, RaceNumber raceNumber) {
         this.id = id;
         this.eventId = eventId;
         this.raceName = raceName;

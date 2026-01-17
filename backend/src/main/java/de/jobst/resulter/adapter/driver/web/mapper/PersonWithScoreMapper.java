@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driver.web.mapper;
 
 import de.jobst.resulter.adapter.driver.web.dto.PersonWithScoreDto;
 import de.jobst.resulter.domain.PersonWithScore;
-
 import java.util.List;
 
 public class PersonWithScoreMapper {
@@ -19,8 +18,6 @@ public class PersonWithScoreMapper {
     }
 
     public static List<PersonWithScoreDto> toDtos(List<PersonWithScore> personWithScores) {
-        return personWithScores.stream()
-                .map(PersonWithScoreMapper::toDto)
-                .toList();
+        return personWithScores.stream().map(PersonWithScoreMapper::toDto).toList();
     }
 }

@@ -5,10 +5,12 @@ import de.jobst.resulter.adapter.driver.web.constraints.KeyDtoGroup;
 import de.jobst.resulter.adapter.driver.web.constraints.ValidId;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.application.port.EventCertificateService;
-import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.MediaFileService;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
 @Slf4j
 @Validated
@@ -31,6 +30,7 @@ public class EventCertificateController {
     private final EventCertificateService eventCertificateService;
     private final EventService eventService;
     private final MediaFileService mediaFileService;
+    private final de.jobst.resulter.adapter.driver.web.mapper.EventCertificateMapper eventCertificateMapper;
 
     @Value("#{'${resulter.media-file-path-thumbnails}'}")
     private String mediaFileThumbnailsPath;
@@ -38,10 +38,12 @@ public class EventCertificateController {
     public EventCertificateController(
             EventCertificateService eventCertificateService,
             EventService eventService,
-            MediaFileService mediaFileService) {
+            MediaFileService mediaFileService,
+            de.jobst.resulter.adapter.driver.web.mapper.EventCertificateMapper eventCertificateMapper) {
         this.eventCertificateService = eventCertificateService;
         this.eventService = eventService;
         this.mediaFileService = mediaFileService;
+        this.eventCertificateMapper = eventCertificateMapper;
     }
 
     @GetMapping("/event_certificate/all")
@@ -49,7 +51,7 @@ public class EventCertificateController {
     public ResponseEntity<List<EventCertificateDto>> getAllEventCertificates() {
         List<EventCertificate> eventCertificates = eventCertificateService.findAll();
         return ResponseEntity.ok(eventCertificates.stream()
-                .map(x -> EventCertificateDto.from(x, mediaFileThumbnailsPath, eventService, mediaFileService))
+                .map(x -> eventCertificateMapper.toDto(x, mediaFileThumbnailsPath))
                 .toList());
     }
 
@@ -64,7 +66,7 @@ public class EventCertificateController {
                         : Pageable.unpaged());
         return ResponseEntity.ok(new PageImpl<>(
                 eventCertificates.getContent().stream()
-                        .map(x -> EventCertificateDto.from(x, mediaFileThumbnailsPath, eventService, mediaFileService))
+                        .map(x -> eventCertificateMapper.toDto(x, mediaFileThumbnailsPath))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(
                         eventCertificates.getPageable(), EventCertificateDto::mapOrdersDomainToDto),
@@ -76,12 +78,12 @@ public class EventCertificateController {
     public ResponseEntity<EventCertificateDto> createEventCertificate(
             @Validated(CreateDtoGroup.class) @RequestBody EventCertificateDto eventCertificateDto) {
         EventCertificate eventCertificate = eventCertificateService.createEventCertificate(
-                eventCertificateDto.name(), EventId.of(eventCertificateDto.event().id()),
+                eventCertificateDto.name(),
+                EventId.of(eventCertificateDto.event().id()),
                 eventCertificateDto.layoutDescription(),
                 MediaFileId.of(eventCertificateDto.blankCertificate().id()),
                 eventCertificateDto.primary());
-        return ResponseEntity.ok(
-                EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath, eventService, mediaFileService));
+        return ResponseEntity.ok(eventCertificateMapper.toDto(eventCertificate, mediaFileThumbnailsPath));
     }
 
     @GetMapping("/event_certificate/{id}")
@@ -89,8 +91,7 @@ public class EventCertificateController {
     public ResponseEntity<EventCertificateDto> getEventCertificate(@PathVariable Long id) {
         Optional<EventCertificate> eventCertificate = eventCertificateService.findById(EventCertificateId.of(id));
         return eventCertificate
-                .map(value -> ResponseEntity.ok(
-                        EventCertificateDto.from(value, mediaFileThumbnailsPath, eventService, mediaFileService)))
+                .map(value -> ResponseEntity.ok(eventCertificateMapper.toDto(value, mediaFileThumbnailsPath)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -107,8 +108,7 @@ public class EventCertificateController {
                 MediaFileId.of(eventCertificateDto.blankCertificate().id()),
                 eventCertificateDto.primary());
 
-        return ResponseEntity.ok(
-                EventCertificateDto.from(eventCertificate, mediaFileThumbnailsPath, eventService, mediaFileService));
+        return ResponseEntity.ok(eventCertificateMapper.toDto(eventCertificate, mediaFileThumbnailsPath));
     }
 
     @DeleteMapping("/event_certificate/{id}")

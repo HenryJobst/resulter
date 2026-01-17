@@ -5,17 +5,16 @@ import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
-import org.jspecify.annotations.Nullable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 public class OrganisationServiceImpl implements OrganisationService {
@@ -60,12 +59,12 @@ public class OrganisationServiceImpl implements OrganisationService {
 
     @Override
     public Organisation updateOrganisation(
-        OrganisationId id,
-        OrganisationName name,
-        OrganisationShortName shortName,
-        OrganisationType type,
-        @org.jspecify.annotations.Nullable CountryId countryId,
-        Collection<OrganisationId> childOrganisationIds) {
+            OrganisationId id,
+            OrganisationName name,
+            OrganisationShortName shortName,
+            OrganisationType type,
+            @org.jspecify.annotations.Nullable CountryId countryId,
+            Collection<OrganisationId> childOrganisationIds) {
 
         Optional<Country> optionalCountry = Optional.ofNullable(countryId).flatMap(countryRepository::findById);
         List<Organisation> childOrganisations = findByIds(childOrganisationIds);
@@ -80,11 +79,11 @@ public class OrganisationServiceImpl implements OrganisationService {
 
     @Override
     public @org.jspecify.annotations.Nullable Organisation createOrganisation(
-        OrganisationName name,
-        OrganisationShortName shortName,
-        OrganisationType type,
-        CountryId countryId,
-        Collection<OrganisationId> childOrganisationIds) {
+            OrganisationName name,
+            OrganisationShortName shortName,
+            OrganisationType type,
+            CountryId countryId,
+            Collection<OrganisationId> childOrganisationIds) {
 
         Optional<Country> optionalCountry = countryRepository.findById(countryId);
         if (optionalCountry.isEmpty()) {

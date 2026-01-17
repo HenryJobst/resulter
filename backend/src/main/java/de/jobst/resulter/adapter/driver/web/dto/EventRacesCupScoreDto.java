@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
+import de.jobst.resulter.adapter.driver.web.mapper.OrganisationScoreMapper;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.CountryService;
@@ -17,11 +18,12 @@ public record EventRacesCupScoreDto(
             OrganisationService organisationService,
             CountryService countryService,
             EventCertificateService eventCertificateService,
-            Boolean hasSplitTimes) {
+            Boolean hasSplitTimes,
+            OrganisationScoreMapper organisationScoreMapper) {
         return new EventRacesCupScoreDto(
                 EventDto.from(eventRacesCupScore.event(), organisationService, eventCertificateService, hasSplitTimes),
                 eventRacesCupScore.raceOrganisationGroupedCupScores().stream()
-                        .map(r -> RaceOrganisationGroupedCupScoreDto.from(r, countryService, organisationService))
+                        .map(r -> RaceOrganisationGroupedCupScoreDto.from(r, countryService, organisationService, organisationScoreMapper))
                         .toList(),
                 eventRacesCupScore.raceClassResultGroupedCupScores().stream()
                         .map(RaceClassResultGroupedCupScoreDto::from)

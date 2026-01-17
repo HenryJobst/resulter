@@ -2,6 +2,8 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationDto;
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationTypeDto;
+import de.jobst.resulter.adapter.driver.web.mapper.OrganisationMapper;
+import de.jobst.resulter.adapter.driver.web.mapper.OrganisationTypeMapper;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
@@ -30,10 +32,15 @@ public class OrganisationController {
 
     private final OrganisationService organisationService;
     private final CountryService countryService;
+    private final OrganisationMapper organisationMapper;
 
-    public OrganisationController(OrganisationService organisationService, CountryService countryService) {
+    public OrganisationController(
+            OrganisationService organisationService,
+            CountryService countryService,
+            OrganisationMapper organisationMapper) {
         this.organisationService = organisationService;
         this.countryService = countryService;
+        this.organisationMapper = organisationMapper;
     }
 
     @GetMapping("/all")
@@ -43,7 +50,7 @@ public class OrganisationController {
         Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(organisations);
 
         return ResponseEntity.ok(organisations.stream()
-                .map(o -> OrganisationDto.from(o, countryMap, orgMap))
+                .map(o -> organisationMapper.toDto(o, countryMap, orgMap))
                 .toList());
     }
 
@@ -61,7 +68,7 @@ public class OrganisationController {
 
         return ResponseEntity.ok(new PageImpl<>(
                 organisations.getContent().stream()
-                        .map(o -> OrganisationDto.from(o, countryMap, orgMap))
+                        .map(o -> organisationMapper.toDto(o, countryMap, orgMap))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(
                         organisations.getPageable(), OrganisationDto::mapOrdersDomainToDto),
@@ -72,14 +79,14 @@ public class OrganisationController {
     public ResponseEntity<OrganisationDto> getOrganisation(@PathVariable Long id) {
         Optional<Organisation> organisation = organisationService.findById(OrganisationId.of(id));
         return organisation
-                .map(value -> ResponseEntity.ok(OrganisationDto.from(value, countryService, organisationService)))
+                .map(value -> ResponseEntity.ok(organisationMapper.toDto(value)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/types")
     public ResponseEntity<List<OrganisationTypeDto>> handleOrganisationTypes() {
         List<OrganisationTypeDto> organisationTypes = Arrays.stream(OrganisationType.values())
-                .map(OrganisationTypeDto::from)
+                .map(OrganisationTypeMapper::toDto)
                 .toList();
         return ResponseEntity.ok(organisationTypes);
     }
@@ -101,7 +108,7 @@ public class OrganisationController {
                         : organisationDto.childOrganisations().stream()
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
-        return ResponseEntity.ok(OrganisationDto.from(organisation, countryService, organisationService));
+        return ResponseEntity.ok(organisationMapper.toDto(organisation));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -120,7 +127,7 @@ public class OrganisationController {
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
         if (null != organisation) {
-            return ResponseEntity.ok(OrganisationDto.from(organisation, countryService, organisationService));
+            return ResponseEntity.ok(organisationMapper.toDto(organisation));
         } else {
             return ResponseEntity.notFound().build();
         }

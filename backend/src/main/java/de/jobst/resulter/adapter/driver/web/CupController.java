@@ -1,6 +1,8 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.*;
+import de.jobst.resulter.adapter.driver.web.mapper.CupStatisticsMapper;
+import de.jobst.resulter.adapter.driver.web.mapper.OrganisationScoreMapper;
 import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.application.port.CupService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
@@ -37,6 +39,8 @@ public class CupController {
     private final EventCertificateService eventCertificateService;
     private final de.jobst.resulter.application.port.ResultListService resultListService;
     private final de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository;
+    private final OrganisationScoreMapper organisationScoreMapper;
+    private final CupStatisticsMapper cupStatisticsMapper;
 
     public CupController(
             CupService cupService,
@@ -45,7 +49,9 @@ public class CupController {
             CountryService countryService,
             EventCertificateService eventCertificateService,
             de.jobst.resulter.application.port.ResultListService resultListService,
-            de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository) {
+            de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository,
+            OrganisationScoreMapper organisationScoreMapper,
+            CupStatisticsMapper cupStatisticsMapper) {
         this.cupService = cupService;
         this.eventService = eventService;
         this.organisationService = organisationService;
@@ -53,6 +59,8 @@ public class CupController {
         this.eventCertificateService = eventCertificateService;
         this.resultListService = resultListService;
         this.splitTimeListRepository = splitTimeListRepository;
+        this.organisationScoreMapper = organisationScoreMapper;
+        this.cupStatisticsMapper = cupStatisticsMapper;
     }
 
     @GetMapping("/cup_types")
@@ -149,7 +157,7 @@ public class CupController {
         Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(allOrganisations);
 
         // Convert cup statistics
-        CupStatisticsDto cupStatisticsDto = CupStatisticsDto.from(
+        CupStatisticsDto cupStatisticsDto = cupStatisticsMapper.toDto(
                 cupDetailed.getCupStatistics(),
                 countryMap,
                 orgMap);
@@ -163,16 +171,11 @@ public class CupController {
                 eventKeyDtos,
                 cupDetailed.getEventRacesCupScore().stream()
                         .map(x -> EventRacesCupScoreDto.from(
-                                x, organisationService, countryService, eventCertificateService, hasSplitTimes(x.event())))
+                                x, organisationService, countryService, eventCertificateService, hasSplitTimes(x.event()), organisationScoreMapper))
                         .toList(),
                 cupDetailed.getType().isGroupedByOrganisation()
                         ? cupDetailed.getOverallOrganisationScores().stream()
-                                .map(entry -> new OrganisationScoreDto(
-                                        OrganisationDto.from(entry.organisation(), countryMap, orgMap),
-                                        entry.score(),
-                                        entry.personWithScores().stream()
-                                                .map(PersonWithScoreDto::from)
-                                                .toList()))
+                                .map(entry -> organisationScoreMapper.toDto(entry, countryMap, orgMap))
                                 .toList()
                         : List.of(),
                 cupDetailed.getType().isGroupedByOrganisation()

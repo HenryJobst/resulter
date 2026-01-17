@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CountryServiceImpl implements CountryService {
@@ -45,6 +47,11 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public Optional<Country> findById(CountryId id) {
         return countryRepository.findById(id);
+    }
+
+    @Override
+    public Map<CountryId, Country> findAllById(Set<CountryId> ids) {
+        return countryRepository.findAllById(ids);
     }
 
     @Override

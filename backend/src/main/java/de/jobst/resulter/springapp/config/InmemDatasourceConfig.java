@@ -16,10 +16,10 @@ public class InmemDatasourceConfig {
     @Primary
     public DataSource dataSource() {
         return DataSourceBuilder.create()
-            .url("jdbc:p6spy:h2:file:./testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE;AUTO_RECONNECT=TRUE;")
+            .url("jdbc:h2:file:./testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE;AUTO_RECONNECT=TRUE;")
             .username("test")
             .password("test")
-            .driverClassName("com.p6spy.engine.spy.P6SpyDriver")
+            .driverClassName("org.h2.Driver")
             .build();
     }
 }

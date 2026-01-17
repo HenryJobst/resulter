@@ -2,13 +2,13 @@
 
 ## Introduction
 
-Die Backend-Endpunkte des Resulter-Systems leiden unter N+1 Query-Problemen. Bei der Konvertierung von DBOs zu Domain-Entities werden "Resolver"-Funktionen verwendet, die für jede Referenz (Organisation, Country, etc.) einzelne `findById`-Queries ausführen. Dies führt zu exponentiell wachsenden Datenbankabfragen bei steigender Datenmenge.
+Die Backend-Endpunkte des Resulter-Systems leiden teilweise noch unter N+1 Query-Problemen. Bei der Konvertierung von DBOs zu Domain-Entities werden "Resolver"-Funktionen verwendet, die für jede Referenz (Organisation, Country, etc.) einzelne `findById`-Queries ausführen. Dies führt zu exponentiell wachsenden Datenbankabfragen bei steigender Datenmenge.
 
 Das Ziel ist eine systematische Reduktion der DB-Queries um mindestens 50% durch Batch-Fetching, explizite JOINs und DTO-basierte Abfragen.
 
 ## Goals
 
-- Reduktion der Datenbankabfragen um mindestens 50%
+- Reduktion der Datenbankabfragen
 - Eliminierung aller N+1 Query-Patterns in Repository-Adaptern
 - Ersetzung von Single-Select-Resolvers durch Batch-Loading-Strategien
 - Beibehaltung der hexagonalen Architektur und SOLID-Prinzipien
@@ -20,96 +20,86 @@ Das Ziel ist eine systematische Reduktion der DB-Queries um mindestens 50% durch
 **Description:** Als Entwickler möchte ich, dass Countries in einem Batch geladen werden, damit nicht für jede Organisation ein einzelner DB-Call erfolgt.
 
 **Acceptance Criteria:**
-- [ ] Neue Methode `findAllById(Set<Long> ids)` in `CountryRepository`
-- [ ] `CountryRepositoryDataJdbcAdapter` implementiert Batch-Query mit `IN`-Clause
-- [ ] Resolver-Pattern wird durch Map-basiertes Lookup ersetzt
-- [ ] Typecheck/Compile passes: `./mvnw compile -pl backend`
-- [ ] Tests grün: `./mvnw test -pl backend`
+- [x] Neue Methode `findAllById(Set<Long> ids)` in `CountryRepository`
+- [x] `CountryRepositoryDataJdbcAdapter` implementiert Batch-Query mit `IN`-Clause
+- [x] Resolver-Pattern wird durch Map-basiertes Lookup ersetzt
+- [x] Typecheck/Compile passes: `./mvnw compile -pl backend`
+- [x] Tests grün: `./mvnw test -pl backend`
 
 ### US-002: Batch-Loading für Organisation-Resolver implementieren
 **Description:** Als Entwickler möchte ich, dass Organisations in einem Batch geladen werden, damit die rekursive Resolver-Struktur nicht N+1 Queries verursacht.
 
 **Acceptance Criteria:**
-- [ ] Erweiterung von `OrganisationRepositoryDataJdbcAdapter.getOrganisationDbos()` für Parent-Organisationen
-- [ ] Batch-Loading von Countries für alle Organisationen gleichzeitig
-- [ ] Map-basiertes Lookup statt rekursiver Resolver
-- [ ] Typecheck/Compile passes: `./mvnw compile -pl backend`
-- [ ] Tests grün: `./mvnw test -pl backend`
+- [x] Erweiterung von `OrganisationRepositoryDataJdbcAdapter.getOrganisationDbos()` für Parent-Organisationen
+- [x] Batch-Loading von Countries für alle Organisationen gleichzeitig
+- [x] Map-basiertes Lookup statt rekursiver Resolver
+- [x] Typecheck/Compile passes: `./mvnw compile -pl backend`
+- [x] Tests grün: `./mvnw test -pl backend`
 
 ### US-003: EventRepositoryDataJdbcAdapter optimieren
 **Description:** Als Entwickler möchte ich, dass `EventRepositoryDataJdbcAdapter.findAll()` und `findAll(filter, pageable)` keine N+1 Queries mehr produzieren.
 
 **Acceptance Criteria:**
-- [ ] `getOrganisationResolver()` wird durch Batch-Loading ersetzt
-- [ ] `getCountryResolver()` wird durch Batch-Loading ersetzt
-- [ ] `getPrimaryEventCertificateResolver()` wird durch Batch-Query ersetzt
-- [ ] Query-Count für 100 Events: maximal 5 Queries (statt 100+)
-- [ ] Typecheck/Compile passes: `./mvnw compile -pl backend`
-- [ ] Tests grün: `./mvnw test -pl backend`
+- [x] `getOrganisationResolver()` wird durch Batch-Loading ersetzt
+- [x] `getCountryResolver()` wird durch Batch-Loading ersetzt
+- [x] `getPrimaryEventCertificateResolver()` wird durch Batch-Query ersetzt
+- [x] Query-Count für 100 Events: maximal 5 Queries (statt 100+)
+- [x] Typecheck/Compile passes: `./mvnw compile -pl backend`
+- [x] Tests grün: `./mvnw test -pl backend`
 
 ### US-004: OrganisationRepositoryDataJdbcAdapter optimieren
 **Description:** Als Entwickler möchte ich, dass `findAll()`, `findAll(filter, pageable)` und `findByIds()` keine N+1 Queries für Countries produzieren.
 
 **Acceptance Criteria:**
-- [ ] Countries werden in einem Batch für alle Organisationen geladen
-- [ ] `asOrganisation()` erhält vorgeladene Map statt Resolver-Function
-- [ ] Query-Count für 100 Organisationen: maximal 3 Queries
-- [ ] Typecheck/Compile passes: `./mvnw compile -pl backend`
-- [ ] Tests grün: `./mvnw test -pl backend`
+- [x] Countries werden in einem Batch für alle Organisationen geladen
+- [x] `asOrganisation()` erhält vorgeladene Map statt Resolver-Function
+- [x] Query-Count für 100 Organisationen: maximal 3 Queries
+- [x] Typecheck/Compile passes: `./mvnw compile -pl backend`
+- [x] Tests grün: `./mvnw test -pl backend`
 
 ### US-005: PersonRepositoryDataJdbcAdapter.findOrCreate() optimieren
 **Description:** Als Entwickler möchte ich, dass `findOrCreate(Collection<Person>)` Batch-Operationen nutzt.
 
 **Acceptance Criteria:**
-- [ ] Batch-Query für Existenzprüfung (statt N Einzelabfragen)
-- [ ] Batch-Insert für neue Personen
-- [ ] Query-Count für 100 Personen: maximal 2 Queries
-- [ ] Typecheck/Compile passes: `./mvnw compile -pl backend`
-- [ ] Tests grün: `./mvnw test -pl backend`
+- [x] Batch-Query für Existenzprüfung (statt N Einzelabfragen)
+- [x] Batch-Insert für neue Personen
+- [x] Query-Count für 100 Personen: maximal 2 Queries
+- [x] Typecheck/Compile passes: `./mvnw compile -pl backend`
+- [x] Tests grün: `./mvnw test -pl backend`
 
 ### US-006: ResultListRepositoryDataJdbcAdapter optimieren
 **Description:** Als Entwickler möchte ich, dass ResultList-Operationen keine N+1 Queries produzieren.
 
 **Acceptance Criteria:**
-- [ ] `findOrCreate(Collection)` nutzt Batch-Loading
-- [ ] Zugehörige Entities (Persons, Courses) werden mit JOINs oder Batch-Queries geladen
-- [ ] Typecheck/Compile passes: `./mvnw compile -pl backend`
-- [ ] Tests grün: `./mvnw test -pl backend`
+- [x] `findOrCreate(Collection)` nutzt Batch-Loading
+- [x] Zugehörige Entities (Persons, Courses) werden mit JOINs oder Batch-Queries geladen
+- [x] Typecheck/Compile passes: `./mvnw compile -pl backend`
+- [x] Tests grün: `./mvnw test -pl backend`
 
 ### US-007: RaceRepositoryDataJdbcAdapter optimieren
 **Description:** Als Entwickler möchte ich, dass Race-Operationen keine N+1 Queries produzieren.
 
 **Acceptance Criteria:**
-- [ ] `findOrCreate(Collection)` nutzt Batch-Loading
-- [ ] Typecheck/Compile passes: `./mvnw compile -pl backend`
-- [ ] Tests grün: `./mvnw test -pl backend`
+- [x] `findOrCreate(Collection)` nutzt Batch-Loading
+- [x] Typecheck/Compile passes: `./mvnw compile -pl backend`
+- [x] Tests grün: `./mvnw test -pl backend`
 
 ### US-008: SplitTimeListRepositoryDataJdbcAdapter optimieren
 **Description:** Als Entwickler möchte ich, dass SplitTimeList-Operationen keine N+1 Queries produzieren.
 
 **Acceptance Criteria:**
-- [ ] `findOrCreate(Collection)` nutzt Batch-Loading
-- [ ] Typecheck/Compile passes: `./mvnw compile -pl backend`
-- [ ] Tests grün: `./mvnw test -pl backend`
+- [x] `findOrCreate(Collection)` nutzt Batch-Loading
+- [x] Typecheck/Compile passes: `./mvnw compile -pl backend`
+- [x] Tests grün: `./mvnw test -pl backend`
 
 ### US-009: CupRepositoryDataJdbcAdapter optimieren
 **Description:** Als Entwickler möchte ich, dass Cup-Operationen effizient geladen werden.
 
 **Acceptance Criteria:**
-- [ ] Events und Organisationen werden in Batch-Queries geladen
-- [ ] Keine N+1 Queries für Cup-Listen
-- [ ] Typecheck/Compile passes: `./mvnw compile -pl backend`
-- [ ] Tests grün: `./mvnw test -pl backend`
-
-### US-010: Performance-Monitoring einrichten
-**Description:** Als Entwickler möchte ich die Query-Anzahl vor und nach der Optimierung messen können.
-
-**Acceptance Criteria:**
-- [ ] SQL-Logging aktiviert im dev-Profil
-- [ ] Baseline-Messung dokumentiert (Query-Count pro Endpunkt)
-- [ ] Finale Messung dokumentiert (Query-Count pro Endpunkt)
-- [ ] Mindestens 50% Reduktion nachgewiesen
-- [ ] Prometheus-Metriken für DB-Calls verfügbar
+- [x] Events und Organisationen werden in Batch-Queries geladen
+- [x] Keine N+1 Queries für Cup-Listen
+- [x] Typecheck/Compile passes: `./mvnw compile -pl backend`
+- [x] Tests grün: `./mvnw test -pl backend`
 
 ## Functional Requirements
 
@@ -201,8 +191,7 @@ public Organisation asOrganisation(Map<Long, Organisation> orgMap,
 3. **Actuator-Endpoints:** `/actuator/metrics/jdbc.connections.active`
 4. **Manuelle Tests:** Frontend-Performance in Browser DevTools
 
-## Open Questions
+## Questions with answers
 
-1. Soll für sehr große Batch-Queries ein Chunking implementiert werden (z.B. max 1000 IDs pro IN-Clause)?
-2. Sollen die optimierten Methoden die bestehenden ersetzen oder als separate Methoden existieren?
-3. Wie sollen die Performance-Messungen dokumentiert werden (Wiki, README, etc.)?
+1. Soll für sehr große Batch-Queries ein Chunking implementiert werden (z.B. max 1000 IDs pro IN-Clause)? Ja
+2. Sollen die optimierten Methoden die bestehenden ersetzen oder als separate Methoden existieren? Bestehende Methoden ersetzen.

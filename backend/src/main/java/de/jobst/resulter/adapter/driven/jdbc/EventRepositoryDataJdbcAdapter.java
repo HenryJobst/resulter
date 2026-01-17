@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -138,9 +137,30 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Event> findAll() {
-        Collection<EventDbo> resultList = eventJdbcRepository.findAll();
-        Map<Long, Organisation> orgMap = batchLoadOrganisations(resultList);
-        return EventDbo.asEvents(resultList, orgMap);
+        // Load events without MappedCollection to avoid N+1 queries
+        List<EventDbo> eventDbos = eventJdbcRepository.findAllEventsWithoutOrganisations();
+
+        if (eventDbos.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Batch load all event-organisation mappings in single query
+        List<Long> eventIds =
+                eventDbos.stream().map(EventDbo::getId).filter(Objects::nonNull).toList();
+
+        Map<Long, Set<EventOrganisationDbo>> eventOrgMap =
+                eventJdbcRepository.findOrganisationsByEventIds(eventIds).stream()
+                        .collect(Collectors.groupingBy(eo -> eo.getEventId().getId(), Collectors.toSet()));
+
+        // Populate organisations in EventDbo objects
+        eventDbos.forEach(event -> {
+            Set<EventOrganisationDbo> orgs = eventOrgMap.getOrDefault(event.getId(), Collections.emptySet());
+            event.setOrganisations(orgs);
+        });
+
+        // Batch load organisation entities and convert to domain
+        Map<Long, Organisation> orgMap = batchLoadOrganisations(eventDbos);
+        return EventDbo.asEvents(eventDbos, orgMap);
     }
 
     @Transactional(readOnly = true)
@@ -174,32 +194,48 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Override
     public Page<Event> findAll(@Nullable String filter, Pageable pageable) {
         Page<EventDbo> page;
+        String nameFilter = null;
+        ExampleMatcher.StringMatcher nameMatcher = ExampleMatcher.StringMatcher.CONTAINING;
+
         if (filter != null) {
-            EventDbo eventDbo = new EventDbo();
-            AtomicReference<ExampleMatcher> matcher = new AtomicReference<>(ExampleMatcher.matching()
-                    .withIgnorePaths("organisations", "startTime", "endTime", "state", "eventCertificates"));
-            // .withIncludeNullValues().withStringMatcher(ExampleMatcher.StringMatcher.ENDING);
+            // Parse filter to extract name filter and matcher
             FilterNode filterNode = filterStringConverter.convert(filter);
             log.info("FilterNode: {}", filterNode);
             MappingFilterNodeTransformResult transformResult = filterNodeTransformer.transform(filterNode);
-            transformResult.filterMap().forEach((key, value) -> {
-                if (key.equals("name")) {
-                    String unquotedValue = value.value().replace("'", "");
-                    eventDbo.setName(unquotedValue);
-                    matcher.set(matcher.get().withMatcher("name", m -> m.stringMatcher(value.matcher())));
-                }
-            });
 
-            page = eventJdbcRepository.findAll(
-                    Example.of(eventDbo, matcher.get()),
-                    FilterAndSortConverter.mapOrderProperties(pageable, EventDbo::mapOrdersDomainToDbo));
-
-        } else {
-            page = eventJdbcRepository.findAll(
-                    FilterAndSortConverter.mapOrderProperties(pageable, EventDbo::mapOrdersDomainToDbo));
+            // Extract name filter if present
+            if (transformResult.filterMap().containsKey("name")) {
+                nameFilter = transformResult.filterMap().get("name").value().replace("'", "");
+                nameMatcher = transformResult.filterMap().get("name").matcher();
+            }
         }
 
+        // Use optimized query without MappedCollection loading (for both filtered and unfiltered)
+        page = eventJdbcRepository.findAllWithoutOrganisations(
+                nameFilter,
+                nameMatcher,
+                FilterAndSortConverter.mapOrderProperties(pageable, EventDbo::mapOrdersDomainToDbo));
+
         List<EventDbo> eventDbos = page.getContent();
+
+        if (eventDbos.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+
+        // Batch load event-organisation mappings for all queries
+        List<Long> eventIds =
+                eventDbos.stream().map(EventDbo::getId).filter(Objects::nonNull).toList();
+
+        Map<Long, Set<EventOrganisationDbo>> eventOrgMap =
+                eventJdbcRepository.findOrganisationsByEventIds(eventIds).stream()
+                        .collect(Collectors.groupingBy(eo -> eo.getEventId().getId(), Collectors.toSet()));
+
+        // Populate organisations in EventDbo objects
+        eventDbos.forEach(event -> {
+            Set<EventOrganisationDbo> orgs = eventOrgMap.getOrDefault(event.getId(), Collections.emptySet());
+            event.setOrganisations(orgs);
+        });
+
         Map<Long, Organisation> orgMap = batchLoadOrganisations(eventDbos);
         Map<Long, EventCertificate> certMap = batchLoadPrimaryEventCertificates(eventDbos);
 
@@ -220,13 +256,30 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
 
     @Override
     public List<Event> findAllById(Collection<EventId> eventIds) {
-        List<EventDbo> eventDbos = StreamSupport.stream(
-                        eventJdbcRepository
-                                .findAllById(
-                                        eventIds.stream().map(EventId::value).collect(Collectors.toSet()))
-                                .spliterator(),
-                        false)
-                .toList();
+        if (eventIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> ids = eventIds.stream().map(EventId::value).toList();
+
+        // Load events without MappedCollection to avoid N+1 queries
+        List<EventDbo> eventDbos = eventJdbcRepository.findAllByIdWithoutOrganisations(ids);
+
+        if (eventDbos.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Batch load all event-organisation mappings in single query
+        Map<Long, Set<EventOrganisationDbo>> eventOrgMap = eventJdbcRepository.findOrganisationsByEventIds(ids).stream()
+                .collect(Collectors.groupingBy(eo -> eo.getEventId().getId(), Collectors.toSet()));
+
+        // Populate organisations in EventDbo objects
+        eventDbos.forEach(event -> {
+            Set<EventOrganisationDbo> orgs = eventOrgMap.getOrDefault(event.getId(), Collections.emptySet());
+            event.setOrganisations(orgs);
+        });
+
+        // Batch load organisation entities and convert to domain
         Map<Long, Organisation> orgMap = batchLoadOrganisations(eventDbos);
         return EventDbo.asEvents(eventDbos, orgMap);
     }

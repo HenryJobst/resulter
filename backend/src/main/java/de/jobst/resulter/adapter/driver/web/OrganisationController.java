@@ -18,7 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/organisation")
@@ -36,8 +39,23 @@ public class OrganisationController {
     @GetMapping("/all")
     public ResponseEntity<List<OrganisationDto>> getAllOrganisations() {
         List<Organisation> organisations = organisationService.findAll();
+
+        // Batch-load all Countries
+        Set<CountryId> countryIds = organisations.stream()
+                .map(Organisation::getCountry)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<CountryId, Country> countryMap = countryService.findAllById(countryIds);
+
+        // Batch-load all Child Organisations
+        Set<OrganisationId> childOrgIds = organisations.stream()
+                .flatMap(org -> org.getChildOrganisations().stream())
+                .collect(Collectors.toSet());
+        Map<OrganisationId, Organisation> orgMap = organisationService.findAllById(childOrgIds).stream()
+                .collect(Collectors.toMap(Organisation::getId, org -> org));
+
         return ResponseEntity.ok(organisations.stream()
-                .map(o -> OrganisationDto.from(o, countryService, organisationService))
+                .map(o -> OrganisationDto.from(o, countryMap, orgMap))
                 .toList());
     }
 
@@ -49,9 +67,24 @@ public class OrganisationController {
                 pageable != null
                         ? FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
+
+        // Batch-load all Countries for the page
+        Set<CountryId> countryIds = organisations.getContent().stream()
+                .map(Organisation::getCountry)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<CountryId, Country> countryMap = countryService.findAllById(countryIds);
+
+        // Batch-load all Child Organisations for the page
+        Set<OrganisationId> childOrgIds = organisations.getContent().stream()
+                .flatMap(org -> org.getChildOrganisations().stream())
+                .collect(Collectors.toSet());
+        Map<OrganisationId, Organisation> orgMap = organisationService.findAllById(childOrgIds).stream()
+                .collect(Collectors.toMap(Organisation::getId, org -> org));
+
         return ResponseEntity.ok(new PageImpl<>(
                 organisations.getContent().stream()
-                        .map(o -> OrganisationDto.from(o, countryService, organisationService))
+                        .map(o -> OrganisationDto.from(o, countryMap, orgMap))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(
                         organisations.getPageable(), OrganisationDto::mapOrdersDomainToDto),

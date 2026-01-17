@@ -1,24 +1,11 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.domain.PersonRaceResult;
-import de.jobst.resulter.domain.PersonResult;
+import java.time.Duration;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.time.Duration;
-
-public record PersonResultDto(Long position, Long personId, Duration runTime, String resultStatus, Long organisationId,
-                              Byte raceNumber) implements Comparable<PersonResultDto> {
-
-    static public PersonResultDto from(PersonResult personResult) {
-        PersonRaceResult personRaceResult = personResult.personRaceResults().value().stream().findFirst().orElseThrow();
-        Double runTime = personRaceResult.getRuntime().value();
-        return new PersonResultDto(personRaceResult.getPosition().value(),
-            personResult.personId().value(),
-            runTime != null ? Duration.ofSeconds(runTime.longValue()) : null,
-            personRaceResult.getState().value(),
-            personResult.organisationId() != null ? personResult.organisationId().value() : null,
-            personRaceResult.getRaceNumber().value());
-    }
+public record PersonResultDto(
+        Long position, Long personId, Duration runTime, String resultStatus, Long organisationId, Byte raceNumber)
+        implements Comparable<PersonResultDto> {
 
     @Override
     public int compareTo(PersonResultDto o) {

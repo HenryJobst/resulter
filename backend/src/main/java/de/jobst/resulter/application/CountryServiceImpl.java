@@ -8,14 +8,13 @@ import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.CountryName;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
-import org.springframework.stereotype.Service;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CountryServiceImpl implements CountryService {

@@ -6,6 +6,9 @@ import de.jobst.resulter.adapter.driver.web.mapper.PersonMapper;
 import de.jobst.resulter.application.port.PersonService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jspecify.annotations.Nullable;
@@ -15,10 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
@@ -38,22 +37,19 @@ public class PersonController {
     }
 
     @GetMapping("/person")
-    public ResponseEntity<Page<PersonDto>> searchPersons(@RequestParam Optional<String> filter,
-                                                         @RequestParam Optional<Boolean> duplicates,
-                                                         @Nullable Pageable pageable) {
+    public ResponseEntity<Page<PersonDto>> searchPersons(
+            @RequestParam Optional<String> filter,
+            @RequestParam Optional<Boolean> duplicates,
+            @Nullable Pageable pageable) {
         boolean dup = duplicates.orElse(false);
         Pageable mapped = pageable != null
                 ? FilterAndSortConverter.mapOrderProperties(pageable, PersonDto::mapOrdersDtoToDomain)
                 : Pageable.unpaged();
-        Page<Person> persons = personService.findAllOrPossibleDuplicates(
-                filter.orElse(null),
-                mapped,
-                dup);
+        Page<Person> persons = personService.findAllOrPossibleDuplicates(filter.orElse(null), mapped, dup);
 
         // Determine which persons should show merge button (only when duplicates mode is active)
-        java.util.Set<Long> groupLeaders = dup
-                ? personService.determineGroupLeaders(persons.getContent())
-                : java.util.Collections.emptySet();
+        java.util.Set<Long> groupLeaders =
+                dup ? personService.determineGroupLeaders(persons.getContent()) : java.util.Collections.emptySet();
 
         return ResponseEntity.ok(new PageImpl<>(
                 persons.getContent().stream()
@@ -64,15 +60,12 @@ public class PersonController {
     }
 
     @GetMapping("/person/duplicates")
-    public ResponseEntity<Page<PersonDto>> searchDuplicatePersons(@RequestParam Optional<String> filter,
-                                                                  @Nullable Pageable pageable) {
+    public ResponseEntity<Page<PersonDto>> searchDuplicatePersons(
+            @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
         Pageable mapped = pageable != null
                 ? FilterAndSortConverter.mapOrderProperties(pageable, PersonDto::mapOrdersDtoToDomain)
                 : Pageable.unpaged();
-        Page<Person> persons = personService.findAllOrPossibleDuplicates(
-                filter.orElse(null),
-                mapped,
-                true);
+        Page<Person> persons = personService.findAllOrPossibleDuplicates(filter.orElse(null), mapped, true);
 
         // Determine which persons should show merge button
         java.util.Set<Long> groupLeaders = personService.determineGroupLeaders(persons.getContent());

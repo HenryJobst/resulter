@@ -1,21 +1,21 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
+import java.util.List;
+import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Sort;
 
-import java.util.List;
-import java.util.Objects;
-
 public record EventDto(
-    Long id,
-    String name,
-    String startTime,
-    EventStatusDto state,
-    List<OrganisationKeyDto> organisations,
-    EventCertificateKeyDto certificate,
-    Boolean hasSplitTimes,
-    DisciplineDto discipline,
-    Boolean aggregateScore) implements Comparable<EventDto> {
+        Long id,
+        String name,
+        String startTime,
+        EventStatusDto state,
+        List<OrganisationKeyDto> organisations,
+        EventCertificateKeyDto certificate,
+        Boolean hasSplitTimes,
+        DisciplineDto discipline,
+        Boolean aggregateScore)
+        implements Comparable<EventDto> {
 
     public static String mapOrdersDtoToDomain(Sort.Order order) {
         return switch (order.getProperty()) {
@@ -44,8 +44,8 @@ public record EventDto(
     @Override
     public int compareTo(@NonNull EventDto o) {
         int val = (Objects.nonNull(this.startTime) && Objects.nonNull(o.startTime)
-                   ? this.startTime.compareTo(o.startTime)
-                   : (Objects.equals(this.startTime, o.startTime) ? 0 : (Objects.nonNull(this.startTime) ? -1 : 1)));
+                ? this.startTime.compareTo(o.startTime)
+                : (Objects.equals(this.startTime, o.startTime) ? 0 : (Objects.nonNull(this.startTime) ? -1 : 1)));
         if (val == 0) {
             val = this.name.compareTo(o.name);
         }

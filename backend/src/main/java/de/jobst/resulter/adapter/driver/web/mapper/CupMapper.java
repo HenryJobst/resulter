@@ -2,17 +2,15 @@ package de.jobst.resulter.adapter.driver.web.mapper;
 
 import de.jobst.resulter.adapter.driver.web.dto.CupDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
-import de.jobst.resulter.adapter.driver.web.dto.EventKeyDto;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.stereotype.Component;
 
 @Component
 public class CupMapper {
@@ -55,11 +53,9 @@ public class CupMapper {
                 .flatMap(cup -> cup.getEventIds().stream())
                 .distinct()
                 .toList();
-        Map<EventId, Event> eventMap = eventService.findAllById(allEventIds).stream()
-                .collect(Collectors.toMap(Event::getId, event -> event));
+        Map<EventId, Event> eventMap =
+                eventService.findAllById(allEventIds).stream().collect(Collectors.toMap(Event::getId, event -> event));
 
-        return cups.stream()
-                .map(cup -> toDto(cup, eventMap))
-                .toList();
+        return cups.stream().map(cup -> toDto(cup, eventMap)).toList();
     }
 }

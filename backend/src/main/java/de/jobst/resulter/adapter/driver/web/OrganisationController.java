@@ -7,6 +7,10 @@ import de.jobst.resulter.adapter.driver.web.mapper.OrganisationTypeMapper;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
@@ -16,11 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/organisation")
 @Slf4j
@@ -29,9 +28,7 @@ public class OrganisationController {
     private final OrganisationService organisationService;
     private final OrganisationMapper organisationMapper;
 
-    public OrganisationController(
-            OrganisationService organisationService,
-            OrganisationMapper organisationMapper) {
+    public OrganisationController(OrganisationService organisationService, OrganisationMapper organisationMapper) {
         this.organisationService = organisationService;
         this.organisationMapper = organisationMapper;
     }

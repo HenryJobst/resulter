@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driver.web.mapper;
 
 import de.jobst.resulter.adapter.driver.web.dto.RaceClassResultGroupedCupScoreDto;
 import de.jobst.resulter.domain.aggregations.RaceClassResultGroupedCupScore;
-
 import java.util.List;
 
 public class RaceClassResultGroupedCupScoreMapper {
@@ -11,7 +10,8 @@ public class RaceClassResultGroupedCupScoreMapper {
         // Utility class
     }
 
-    public static RaceClassResultGroupedCupScoreDto toDto(RaceClassResultGroupedCupScore raceClassResultGroupedCupScore) {
+    public static RaceClassResultGroupedCupScoreDto toDto(
+            RaceClassResultGroupedCupScore raceClassResultGroupedCupScore) {
         return new RaceClassResultGroupedCupScoreDto(
                 RaceMapper.toDto(raceClassResultGroupedCupScore.race()),
                 raceClassResultGroupedCupScore.classResultScores() != null
@@ -19,7 +19,8 @@ public class RaceClassResultGroupedCupScoreMapper {
                         : List.of());
     }
 
-    public static List<RaceClassResultGroupedCupScoreDto> toDtos(List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores) {
+    public static List<RaceClassResultGroupedCupScoreDto> toDtos(
+            List<RaceClassResultGroupedCupScore> raceClassResultGroupedCupScores) {
         return raceClassResultGroupedCupScores.stream()
                 .map(RaceClassResultGroupedCupScoreMapper::toDto)
                 .toList();

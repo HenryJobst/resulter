@@ -3,9 +3,8 @@ package de.jobst.resulter.adapter.driver.web.mapper;
 import de.jobst.resulter.adapter.driver.web.dto.GenderDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonDto;
 import de.jobst.resulter.domain.Person;
-import org.apache.commons.lang3.ObjectUtils;
-
 import java.util.List;
+import org.apache.commons.lang3.ObjectUtils;
 
 public class PersonMapper {
 
@@ -28,14 +27,10 @@ public class PersonMapper {
     }
 
     public static List<PersonDto> toDtos(List<Person> persons) {
-        return persons.stream()
-                .map(PersonMapper::toDto)
-                .toList();
+        return persons.stream().map(PersonMapper::toDto).toList();
     }
 
     public static List<PersonDto> toDtos(List<Person> persons, boolean showMergeButton) {
-        return persons.stream()
-                .map(p -> toDto(p, showMergeButton))
-                .toList();
+        return persons.stream().map(p -> toDto(p, showMergeButton)).toList();
     }
 }

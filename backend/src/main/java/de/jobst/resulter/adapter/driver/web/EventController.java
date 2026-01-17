@@ -13,6 +13,10 @@ import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.validation.Valid;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jspecify.annotations.Nullable;
@@ -25,11 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -44,15 +43,18 @@ public class EventController {
     private final de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository;
     private final CupRepository cupRepository;
     private final EventMapper eventMapper;
+    private final de.jobst.resulter.adapter.driver.web.mapper.EventResultsMapper eventResultsMapper;
 
     public EventController(
-        EventService eventService,
-        ResultListService resultListService, OrganisationService organisationService,
-        EventCertificateService eventCertificateService,
-        MediaFileService mediaFileService,
-        de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository,
-        CupRepository cupRepository,
-        EventMapper eventMapper) {
+            EventService eventService,
+            ResultListService resultListService,
+            OrganisationService organisationService,
+            EventCertificateService eventCertificateService,
+            MediaFileService mediaFileService,
+            de.jobst.resulter.application.port.SplitTimeListRepository splitTimeListRepository,
+            CupRepository cupRepository,
+            EventMapper eventMapper,
+            de.jobst.resulter.adapter.driver.web.mapper.EventResultsMapper eventResultsMapper) {
         this.eventService = eventService;
         this.resultListService = resultListService;
         this.organisationService = organisationService;
@@ -61,6 +63,7 @@ public class EventController {
         this.splitTimeListRepository = splitTimeListRepository;
         this.cupRepository = cupRepository;
         this.eventMapper = eventMapper;
+        this.eventResultsMapper = eventResultsMapper;
     }
 
     @GetMapping("/event/all")
@@ -76,12 +79,14 @@ public class EventController {
     }
 
     private Boolean hasSplitTimes(Event event) {
-        return resultListService.findByEventId(event.getId()).stream()
-                .anyMatch(resultList -> !splitTimeListRepository.findByResultListId(resultList.getId()).isEmpty());
+        return resultListService.findByEventId(event.getId()).stream().anyMatch(resultList -> !splitTimeListRepository
+                .findByResultListId(resultList.getId())
+                .isEmpty());
     }
 
     @GetMapping("/event")
-    public ResponseEntity<Page<EventDto>> searchEvents(@RequestParam Optional<String> filter, @Nullable Pageable pageable) {
+    public ResponseEntity<Page<EventDto>> searchEvents(
+            @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
         Page<Event> events = eventService.findAll(
                 filter.orElse(null),
                 pageable != null
@@ -155,8 +160,7 @@ public class EventController {
                                 .map(x -> OrganisationId.of(x.id()))
                                 .collect(Collectors.toSet()),
                 eventDto.discipline().id(),
-                eventDto.aggregateScore()
-            );
+                eventDto.aggregateScore());
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
@@ -188,8 +192,7 @@ public class EventController {
                         ? EventCertificateId.of(eventDto.certificate().id())
                         : null,
                 Discipline.fromValue(eventDto.discipline().id()),
-                eventDto.aggregateScore()
-            );
+                eventDto.aggregateScore());
         return ResponseEntity.ok(eventMapper.toDto(event, hasSplitTimes(event)));
     }
 
@@ -204,7 +207,7 @@ public class EventController {
     public ResponseEntity<EventResultsDto> getEventResults(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
         boolean eventHasCup = !cupRepository.findByEvent(event.getId()).isEmpty();
-        return ResponseEntity.ok(EventResultsDto.from(event, resultListService, eventHasCup));
+        return ResponseEntity.ok(eventResultsMapper.toDto(event, eventHasCup));
     }
 
     @PutMapping("/event/{id}/certificate")
@@ -213,18 +216,17 @@ public class EventController {
             @PathVariable Long id, @Valid @RequestBody EventCertificateDto eventCertificateDto) {
 
         Event event = eventService.getById(EventId.of(id));
-        MediaFile blankCertificate =
-            mediaFileService.getById(MediaFileId.of(eventCertificateDto.blankCertificate().id()));
+        MediaFile blankCertificate = mediaFileService.getById(
+                MediaFileId.of(eventCertificateDto.blankCertificate().id()));
 
         EventCertificate eventCertificate = EventCertificate.of(
-            EventCertificateId.empty().value(),
-            eventCertificateDto.name(),
-            event.getId(),
-            eventCertificateDto.layoutDescription(),
-            blankCertificate.getId(),
-            eventCertificateDto.primary());
-        CertificateServiceImpl.Certificate certificate =
-                resultListService.createCertificate(event, eventCertificate);
+                EventCertificateId.empty().value(),
+                eventCertificateDto.name(),
+                event.getId(),
+                eventCertificateDto.layoutDescription(),
+                blankCertificate.getId(),
+                eventCertificateDto.primary());
+        CertificateServiceImpl.Certificate certificate = resultListService.createCertificate(event, eventCertificate);
         if (null != certificate) {
             return ResponseEntity.ok()
                     .header(

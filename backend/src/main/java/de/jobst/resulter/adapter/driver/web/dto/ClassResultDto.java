@@ -1,18 +1,9 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.domain.ClassResult;
-
 import java.util.Collection;
 
 public record ClassResultDto(String shortName, String name, Long courseId, Collection<PersonResultDto> personResults)
-    implements Comparable<ClassResultDto> {
-
-    static public ClassResultDto from(ClassResult classResult) {
-        return new ClassResultDto(classResult.classResultShortName().value(),
-            classResult.classResultName().value(),
-            classResult.courseId() != null ? classResult.courseId().value() : null,
-            classResult.personResults().value().stream().map(PersonResultDto::from).sorted().toList());
-    }
+        implements Comparable<ClassResultDto> {
 
     @Override
     public int compareTo(ClassResultDto o) {

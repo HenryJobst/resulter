@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driver.web.mapper;
 
 import de.jobst.resulter.adapter.driver.web.dto.ClassResultScoreDto;
 import de.jobst.resulter.domain.ClassResultScores;
-
 import java.util.List;
 
 public class ClassResultScoreMapper {
@@ -18,8 +17,6 @@ public class ClassResultScoreMapper {
     }
 
     public static List<ClassResultScoreDto> toDtos(List<ClassResultScores> classResultScores) {
-        return classResultScores.stream()
-                .map(ClassResultScoreMapper::toDto)
-                .toList();
+        return classResultScores.stream().map(ClassResultScoreMapper::toDto).toList();
     }
 }

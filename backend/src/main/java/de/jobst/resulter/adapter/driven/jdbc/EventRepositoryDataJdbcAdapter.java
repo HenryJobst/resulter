@@ -5,8 +5,8 @@ import com.turkraft.springfilter.parser.node.FilterNode;
 import com.turkraft.springfilter.transformer.FilterNodeTransformer;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
-import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.EventRepository;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,7 +46,8 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
             PersonJdbcRepository personJdbcRepository,
             OrganisationJdbcRepository organisationJdbcRepository,
             CountryJdbcRepository countryJdbcRepository,
-            EventCertificateJdbcRepository eventCertificateJdbcRepository, FilterStringConverter filterStringConverter) {
+            EventCertificateJdbcRepository eventCertificateJdbcRepository,
+            FilterStringConverter filterStringConverter) {
         this.eventJdbcRepository = eventJdbcRepository;
         this.personJdbcRepository = personJdbcRepository;
         this.organisationJdbcRepository = organisationJdbcRepository;
@@ -81,7 +82,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
             return Collections.emptyMap();
         }
         List<OrganisationDbo> orgDbos = StreamSupport.stream(
-                organisationJdbcRepository.findAllById(orgIds).spliterator(), false)
+                        organisationJdbcRepository.findAllById(orgIds).spliterator(), false)
                 .toList();
         return orgDbos.stream()
                 .collect(Collectors.toMap(
@@ -93,24 +94,22 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         return id -> {
             Optional<EventCertificateDbo> optionalEventCertificateDbo =
                     eventCertificateJdbcRepository.findByEventAndPrimary(AggregateReference.to(id.value()), true);
-            return optionalEventCertificateDbo.map(EventCertificateDbo::asEventCertificate).orElse(null);
+            return optionalEventCertificateDbo
+                    .map(EventCertificateDbo::asEventCertificate)
+                    .orElse(null);
         };
     }
 
     private Map<Long, EventCertificate> batchLoadPrimaryEventCertificates(Collection<EventDbo> eventDbos) {
-        Set<Long> eventIds = eventDbos.stream()
-                .map(EventDbo::getId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<Long> eventIds =
+                eventDbos.stream().map(EventDbo::getId).filter(Objects::nonNull).collect(Collectors.toSet());
         if (eventIds.isEmpty()) {
             return Collections.emptyMap();
         }
         Collection<EventCertificateDbo> certDbos = eventCertificateJdbcRepository.findPrimaryByEventIdIn(eventIds);
         return certDbos.stream()
                 .filter(c -> c.getEvent() != null)
-                .collect(Collectors.toMap(
-                        c -> c.getEvent().getId(),
-                        EventCertificateDbo::asEventCertificate));
+                .collect(Collectors.toMap(c -> c.getEvent().getId(), EventCertificateDbo::asEventCertificate));
     }
 
     @Override
@@ -222,10 +221,11 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     @Override
     public List<Event> findAllById(Collection<EventId> eventIds) {
         List<EventDbo> eventDbos = StreamSupport.stream(
-                eventJdbcRepository.findAllById(
-                        eventIds.stream().map(EventId::value).collect(Collectors.toSet()))
-                        .spliterator(),
-                false)
+                        eventJdbcRepository
+                                .findAllById(
+                                        eventIds.stream().map(EventId::value).collect(Collectors.toSet()))
+                                .spliterator(),
+                        false)
                 .toList();
         Map<Long, Organisation> orgMap = batchLoadOrganisations(eventDbos);
         return EventDbo.asEvents(eventDbos, orgMap);

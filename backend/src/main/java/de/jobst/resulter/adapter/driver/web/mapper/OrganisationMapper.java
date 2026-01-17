@@ -8,12 +8,11 @@ import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.stereotype.Component;
 
 @Component
 public class OrganisationMapper {
@@ -42,7 +41,8 @@ public class OrganisationMapper {
                         .toList());
     }
 
-    public OrganisationDto toDto(Organisation organisation, Map<CountryId, Country> countryMap, Map<OrganisationId, Organisation> orgMap) {
+    public OrganisationDto toDto(
+            Organisation organisation, Map<CountryId, Country> countryMap, Map<OrganisationId, Organisation> orgMap) {
         Country country = organisation.getCountry() != null ? countryMap.get(organisation.getCountry()) : null;
         return new OrganisationDto(
                 ObjectUtils.isNotEmpty(organisation.getId())
@@ -62,14 +62,14 @@ public class OrganisationMapper {
     public List<OrganisationDto> toDtos(List<Organisation> organisations) {
         Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(organisations);
         Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(organisations);
-        return organisations.stream()
-                .map(o -> toDto(o, countryMap, orgMap))
-                .toList();
+        return organisations.stream().map(o -> toDto(o, countryMap, orgMap)).toList();
     }
 
     public static OrganisationKeyDto toKeyDto(Organisation organisation) {
         return new OrganisationKeyDto(
-                ObjectUtils.isNotEmpty(organisation.getId()) ? organisation.getId().value() : 0,
+                ObjectUtils.isNotEmpty(organisation.getId())
+                        ? organisation.getId().value()
+                        : 0,
                 organisation.getName().value());
     }
 }

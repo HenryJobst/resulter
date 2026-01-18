@@ -73,13 +73,6 @@ cd frontend && pnpm test:unit src/features/event/services/EventService.spec.ts
 
 **Infrastructure:** Keycloak OAuth2, Docker, Traefik (reverse proxy), Prometheus, Grafana
 
-**Deployment Architecture:**
-- Frontend and backend deployed on same domain with path-based routing
-- Frontend: `resulter.olberlin.de/`
-- Backend: `resulter.olberlin.de/api`
-- Traefik routes `/api` requests to backend and strips `/api` prefix
-- Same-origin architecture eliminates need for CORS and cross-domain cookies
-
 ## Architecture
 
 ### Backend - Hexagonal Architecture (Ports & Adapters)
@@ -237,7 +230,7 @@ public interface EventRepository extends CrudRepository<EventDbo, Long> {
 
 - Port interface in `application/port/`
 - Implementation in `adapter/driven/jdbc/`
-- Use **native SQL** with `@Query` for custom queries (Spring Data JDBC, not JPA/JPQL)
+- Use **native SQL** with `@Query` for custom queries (not JPQL)
 - Return DTOs for complex multi-join queries to avoid N+1 problems
 - No lazy loading - use explicit joins in queries
 
@@ -272,11 +265,9 @@ public class EventServiceImpl implements EventService {
 
 - Pattern: Interface + `*ServiceImpl`
 - Annotate implementation with `@Service`
-- Use **constructor injection** for dependencies (not `@Autowired` field injection)
 - Use `@Transactional` for multi-DB operations
 - Return DTOs, not entities (unless necessary for internal use)
 - Use `.orElseThrow()` for existence checks
-- ServiceImpl classes should use Repository methods, not query database directly
 
 ### Controllers
 
@@ -300,11 +291,9 @@ public class EventController {
 
 - Annotate: `@RestController`
 - Class-level `@RequestMapping` for base path (e.g., `/api/events`)
-- Use **constructor injection** for dependencies (not `@Autowired` field injection)
 - Return `ResponseEntity<ApiResponse<T>>`
 - No try-catch blocks - GlobalExceptionHandler handles all exceptions
 - DTOs for request/response, never expose entities
-- Controllers should not autowire Repositories directly - use Services instead
 
 ### DTOs
 
@@ -327,6 +316,62 @@ public record EventDto(
 - Use Java records
 - Compact canonical constructor for validation
 - Validate not null, not blank, valid ranges
+
+### Mappers
+
+Mapper classes convert between Domain entities and DTOs. Located in `adapter/driver/web/mapper/`:
+
+```java
+@Component
+public class OrganisationMapper {
+
+    private final CountryService countryService;
+    private final OrganisationService organisationService;
+
+    public OrganisationMapper(CountryService countryService, OrganisationService organisationService) {
+        this.countryService = countryService;
+        this.organisationService = organisationService;
+    }
+
+    // Single entity conversion (may cause N+1 if used in loops)
+    public OrganisationDto toDto(Organisation organisation) {
+        Optional<Country> country = Optional.ofNullable(organisation.getCountry())
+            .flatMap(countryService::findById);
+        return new OrganisationDto(/* ... */);
+    }
+
+    // Batch conversion with pre-loaded context (avoids N+1)
+    public OrganisationDto toDto(Organisation organisation, 
+            Map<CountryId, Country> countryMap, 
+            Map<OrganisationId, Organisation> orgMap) {
+        Country country = organisation.getCountry() != null 
+            ? countryMap.get(organisation.getCountry()) : null;
+        return new OrganisationDto(/* ... */);
+    }
+
+    // Batch method: loads all dependencies once, then maps
+    public List<OrganisationDto> toDtos(List<Organisation> organisations) {
+        Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(organisations);
+        Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(organisations);
+        return organisations.stream().map(o -> toDto(o, countryMap, orgMap)).toList();
+    }
+
+    // Static method for simple key DTOs (no dependencies needed)
+    public static OrganisationKeyDto toKeyDto(Organisation organisation) {
+        return new OrganisationKeyDto(organisation.getId().value(), organisation.getName().value());
+    }
+}
+```
+
+**Mapper Conventions:**
+- Annotate with `@Component`
+- Use constructor injection for service dependencies
+- Provide three method variants:
+  - `toDto(Entity)` - single entity, fetches dependencies on demand
+  - `toDto(Entity, Map..., Map...)` - single entity with pre-loaded context
+  - `toDtos(List<Entity>)` - batch conversion, loads dependencies once via `batchLoadFor*()` methods
+- `toKeyDto(Entity)` - static method for simple key/reference DTOs (id + name)
+- Always use batch methods (`toDtos`) when converting lists to avoid N+1 queries
 
 ### API Response Structure
 
@@ -472,11 +517,10 @@ export function useCreateEvent() {
 
 This project uses Spring Data JDBC, **not** JPA/Hibernate:
 
-- No lazy loading - use `@Query` with explicit joins
+- No lazy loading - use `@Query` with explicit joins or Batch Loading Pattern
 - Use DTOs for complex queries to avoid N+1 problems
 - `AggregateReference<T, ID>` for relationships instead of `@ManyToOne`
 - Explicit cascade handling in services
-- Database schema managed by Liquibase changesets
 
 ### SOLID Principles
 

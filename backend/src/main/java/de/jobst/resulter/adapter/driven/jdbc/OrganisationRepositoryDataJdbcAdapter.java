@@ -11,10 +11,8 @@ import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -103,7 +101,33 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     @Transactional
     public List<Organisation> findAll() {
-        Collection<OrganisationDbo> organisationDbos = organisationJdbcRepository.findAll();
+        // Load organisations without MappedCollection to avoid N+1 queries
+        List<OrganisationDbo> organisationDbos =
+                organisationJdbcRepository.findAllOrganisationsWithoutChildOrganisations();
+
+        if (organisationDbos.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Batch load all organisation-organisation mappings in single query
+        List<Long> organisationIds = organisationDbos.stream()
+                .map(OrganisationDbo::getId)
+                .filter(Objects::nonNull)
+                .toList();
+
+        Map<Long, Set<OrganisationOrganisationDbo>> orgChildOrgMap =
+                organisationJdbcRepository.findChildOrganisationsByOrganisationIds(organisationIds).stream()
+                        .collect(Collectors.groupingBy(
+                                oo -> oo.getParentOrganisationId().getId(), Collectors.toSet()));
+
+        // Populate childOrganisations in OrganisationDbo objects
+        organisationDbos.forEach(org -> {
+            Set<OrganisationOrganisationDbo> childOrgs =
+                    orgChildOrgMap.getOrDefault(org.getId(), Collections.emptySet());
+            org.setChildOrganisations(childOrgs);
+        });
+
+        // Batch load country entities and convert to domain
         Map<Long, Country> countryMap = batchLoadCountries(organisationDbos);
         return organisationDbos.stream()
                 .map(x -> x.asOrganisation(Collections.emptyMap(), countryMap))
@@ -143,14 +167,33 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     @Transactional(readOnly = true)
     public Map<OrganisationId, Organisation> findAllById(Set<OrganisationId> idSet) {
-        List<OrganisationDbo> organisationDbos = StreamSupport.stream(
-                        organisationJdbcRepository
-                                .findAllById(idSet.stream()
-                                        .map(OrganisationId::value)
-                                        .toList())
-                                .spliterator(),
-                        false)
-                .toList();
+        if (idSet.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Long> ids = idSet.stream().map(OrganisationId::value).toList();
+
+        // Load organisations without MappedCollection to avoid N+1 queries
+        List<OrganisationDbo> organisationDbos = organisationJdbcRepository.findAllByIdWithoutChildOrganisations(ids);
+
+        if (organisationDbos.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        // Batch load all organisation-organisation mappings in single query
+        Map<Long, Set<OrganisationOrganisationDbo>> orgChildOrgMap =
+                organisationJdbcRepository.findChildOrganisationsByOrganisationIds(ids).stream()
+                        .collect(Collectors.groupingBy(
+                                oo -> oo.getParentOrganisationId().getId(), Collectors.toSet()));
+
+        // Populate childOrganisations in OrganisationDbo objects
+        organisationDbos.forEach(org -> {
+            Set<OrganisationOrganisationDbo> childOrgs =
+                    orgChildOrgMap.getOrDefault(org.getId(), Collections.emptySet());
+            org.setChildOrganisations(childOrgs);
+        });
+
+        // Batch load country entities and convert to domain
         Map<Long, Country> countryMap = batchLoadCountries(organisationDbos);
         return organisationDbos.stream()
                 .map(x -> x.asOrganisation(Collections.emptyMap(), countryMap))
@@ -179,44 +222,72 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     public Page<Organisation> findAll(@Nullable String filter, Pageable pageable) {
         Page<OrganisationDbo> page;
+        String nameFilter = null;
+        ExampleMatcher.StringMatcher nameMatcher = ExampleMatcher.StringMatcher.CONTAINING;
+        String shortNameFilter = null;
+        ExampleMatcher.StringMatcher shortNameMatcher = ExampleMatcher.StringMatcher.CONTAINING;
+        Long idFilter = null;
+
         if (filter != null) {
-            OrganisationDbo organisationDbo = new OrganisationDbo();
-            AtomicReference<ExampleMatcher> matcher = new AtomicReference<>(
-                    ExampleMatcher.matching()
-                    // .withIgnorePaths("")
-                    );
+            // Parse filter to extract filters and matchers
             FilterNode filterNode = filterStringConverter.convert(filter);
             log.info("FilterNode: {}", filterNode);
             MappingFilterNodeTransformResult transformResult = filterNodeTransformer.transform(filterNode);
-            transformResult.filterMap().forEach((key, value) -> {
-                String unquotedValue = value.value().replace("'", "");
-                switch (key) {
-                    case "name" -> {
-                        organisationDbo.setName(unquotedValue);
-                        matcher.set(matcher.get().withMatcher("name", m -> m.stringMatcher(value.matcher())));
-                    }
-                    case "shortName" -> {
-                        organisationDbo.setShortName(unquotedValue);
-                        matcher.set(matcher.get().withMatcher("shortName", m -> m.stringMatcher(value.matcher())));
-                    }
-                    case "id" -> {
-                        organisationDbo.setId(Long.parseLong(unquotedValue));
-                        matcher.set(matcher.get().withMatcher("id", ExampleMatcher.GenericPropertyMatcher::exact));
-                    }
-                }
-            });
 
-            page = organisationJdbcRepository.findAll(
-                    Example.of(organisationDbo, matcher.get()),
-                    FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDbo::mapOrdersDomainToDbo));
-
-        } else {
-            page = organisationJdbcRepository.findAll(
-                    FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDbo::mapOrdersDomainToDbo));
+            // Extract filters if present
+            if (transformResult.filterMap().containsKey("name")) {
+                nameFilter = transformResult.filterMap().get("name").value().replace("'", "");
+                nameMatcher = transformResult.filterMap().get("name").matcher();
+            }
+            if (transformResult.filterMap().containsKey("shortName")) {
+                shortNameFilter =
+                        transformResult.filterMap().get("shortName").value().replace("'", "");
+                shortNameMatcher = transformResult.filterMap().get("shortName").matcher();
+            }
+            if (transformResult.filterMap().containsKey("id")) {
+                idFilter = Long.parseLong(
+                        transformResult.filterMap().get("id").value().replace("'", ""));
+            }
         }
-        Map<Long, Country> countryMap = batchLoadCountries(page.getContent());
+
+        // Use optimized query without MappedCollection loading (for both filtered and unfiltered)
+        page = organisationJdbcRepository.findAllWithoutChildOrganisations(
+                nameFilter,
+                nameMatcher,
+                shortNameFilter,
+                shortNameMatcher,
+                idFilter,
+                FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDbo::mapOrdersDomainToDbo));
+
+        List<OrganisationDbo> organisationDbos = page.getContent();
+
+        if (organisationDbos.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+
+        // Batch load organisation-organisation mappings for all queries
+        List<Long> organisationIds = organisationDbos.stream()
+                .map(OrganisationDbo::getId)
+                .filter(Objects::nonNull)
+                .toList();
+
+        Map<Long, Set<OrganisationOrganisationDbo>> orgChildOrgMap =
+                organisationJdbcRepository.findChildOrganisationsByOrganisationIds(organisationIds).stream()
+                        .collect(Collectors.groupingBy(
+                                oo -> oo.getParentOrganisationId().getId(), Collectors.toSet()));
+
+        // Populate childOrganisations in OrganisationDbo objects
+        organisationDbos.forEach(org -> {
+            Set<OrganisationOrganisationDbo> childOrgs =
+                    orgChildOrgMap.getOrDefault(org.getId(), Collections.emptySet());
+            org.setChildOrganisations(childOrgs);
+        });
+
+        // Batch load country entities
+        Map<Long, Country> countryMap = batchLoadCountries(organisationDbos);
+
         return new PageImpl<>(
-                page.stream()
+                organisationDbos.stream()
                         .map(x -> x.asOrganisation(Collections.emptyMap(), countryMap))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(page.getPageable(), OrganisationDbo::mapOrdersDboToDomain),
@@ -225,14 +296,34 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
 
     @Override
     public List<Organisation> findByIds(Collection<OrganisationId> childOrganisationIds) {
-        List<OrganisationDbo> organisationDbos = StreamSupport.stream(
-                        organisationJdbcRepository
-                                .findAllById(childOrganisationIds.stream()
-                                        .map(OrganisationId::value)
-                                        .toList())
-                                .spliterator(),
-                        false)
-                .toList();
+        if (childOrganisationIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> ids =
+                childOrganisationIds.stream().map(OrganisationId::value).toList();
+
+        // Load organisations without MappedCollection to avoid N+1 queries
+        List<OrganisationDbo> organisationDbos = organisationJdbcRepository.findAllByIdWithoutChildOrganisations(ids);
+
+        if (organisationDbos.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Batch load all organisation-organisation mappings in single query
+        Map<Long, Set<OrganisationOrganisationDbo>> orgChildOrgMap =
+                organisationJdbcRepository.findChildOrganisationsByOrganisationIds(ids).stream()
+                        .collect(Collectors.groupingBy(
+                                oo -> oo.getParentOrganisationId().getId(), Collectors.toSet()));
+
+        // Populate childOrganisations in OrganisationDbo objects
+        organisationDbos.forEach(org -> {
+            Set<OrganisationOrganisationDbo> childOrgs =
+                    orgChildOrgMap.getOrDefault(org.getId(), Collections.emptySet());
+            org.setChildOrganisations(childOrgs);
+        });
+
+        // Batch load country entities and convert to domain
         Map<Long, Country> countryMap = batchLoadCountries(organisationDbos);
         return organisationDbos.stream()
                 .map(x -> x.asOrganisation(Collections.emptyMap(), countryMap))

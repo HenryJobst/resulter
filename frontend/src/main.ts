@@ -2,7 +2,7 @@ import messages from '@intlify/unplugin-vue-i18n/messages'
 
 import { definePreset } from '@primeuix/themes'
 import Lara from '@primeuix/themes/lara'
-import { VueQueryPlugin } from '@tanstack/vue-query'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { AxiosError } from 'axios'
 import { createPinia } from 'pinia'
 // noinspection SpellCheckingInspection
@@ -41,6 +41,14 @@ export const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
 const router = setupRouter(i18n)
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 5, // 5 seconds - prevents duplicate requests on fast navigation
+        },
+    },
+})
 
 const MyPreset = definePreset(Lara, {
     semantic: {
@@ -125,7 +133,7 @@ export function renderApp() {
         primevue.config.locale = mergePrimeVueLocale(primevue.config.locale, primevueLocaleMessages[unref(i18n.global.locale) as string])
     }
     app.use(AuthStorePlugin, { pinia, router })
-    app.use(VueQueryPlugin)
+    app.use(VueQueryPlugin, { queryClient })
     app.use(ToastService)
     app.use(pinia)
     app.use(i18n)

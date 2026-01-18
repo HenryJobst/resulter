@@ -23,8 +23,7 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
     private final RaceJdbcRepository raceJdbcRepository;
     private final JdbcClient jdbcClient;
 
-    public RaceRepositoryDataJdbcAdapter(
-            RaceJdbcRepository raceJdbcRepository, JdbcClient jdbcClient) {
+    public RaceRepositoryDataJdbcAdapter(RaceJdbcRepository raceJdbcRepository, JdbcClient jdbcClient) {
         this.raceJdbcRepository = raceJdbcRepository;
         this.jdbcClient = jdbcClient;
     }
@@ -115,7 +114,8 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
 
         sql.append(String.join(" OR ", conditions));
 
-        List<RaceDbo> found = jdbcClient.sql(sql.toString())
+        List<RaceDbo> found = jdbcClient
+                .sql(sql.toString())
                 .params(params)
                 .query((rs, rowNum) -> {
                     RaceDbo dbo = new RaceDbo(rs.getLong("event_id"), rs.getString("name"), rs.getByte("number"));

@@ -2,15 +2,14 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.application.util.BatchUtils;
 import de.jobst.resulter.domain.CupScoreList;
-import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class CupScoreListJdbcCustomRepositoryImpl implements CupScoreListJdbcCustomRepository {
@@ -47,23 +46,20 @@ public class CupScoreListJdbcCustomRepositoryImpl implements CupScoreListJdbcCus
 
         sql.append(String.join(" OR ", conditions));
 
-        jdbcClient.sql(sql.toString())
-                .params(params)
-                .update();
+        jdbcClient.sql(sql.toString()).params(params).update();
     }
 
     @Override
     @Transactional
     public void deleteAllByEventId(Long eventId) {
-        String sql = """
+        String sql =
+                """
             DELETE FROM cup_score_list
             WHERE result_list_id IN (
                 SELECT id FROM result_list WHERE event_id = :eventId
             )
             """;
 
-        jdbcClient.sql(sql)
-            .param("eventId", eventId)
-            .update();
+        jdbcClient.sql(sql).param("eventId", eventId).update();
     }
 }

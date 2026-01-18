@@ -155,7 +155,8 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
         sql.append(String.join(" OR ", conditions));
 
-        List<PersonDbo> found = jdbcClient.sql(sql.toString())
+        List<PersonDbo> found = jdbcClient
+                .sql(sql.toString())
                 .params(params)
                 .query((rs, rowNum) -> {
                     PersonDbo dbo = new PersonDbo();
@@ -287,13 +288,15 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         sqlParts.params.put("limit", limit);
         sqlParts.params.put("offset", offset);
 
-        List<Person> content = jdbcClient.sql(selectSql)
+        List<Person> content = jdbcClient
+                .sql(selectSql)
                 .params(sqlParts.params)
                 .query((rs, rowNum) -> mapPerson(rs))
                 .list();
 
         String countSql = "SELECT COUNT(*) " + base + sqlParts.whereSql;
-        Long total = jdbcClient.sql(countSql)
+        Long total = jdbcClient
+                .sql(countSql)
                 .params(sqlParts.params)
                 .query(Long.class)
                 .optional()

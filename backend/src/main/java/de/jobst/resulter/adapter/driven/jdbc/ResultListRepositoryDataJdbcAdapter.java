@@ -15,8 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.NestedExceptionUtils;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,12 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository {
 
     private final ResultListJdbcRepository resultListJdbcRepository;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final JdbcClient jdbcClient;
 
     public ResultListRepositoryDataJdbcAdapter(
-            ResultListJdbcRepository resultListJdbcRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+            ResultListJdbcRepository resultListJdbcRepository, JdbcClient jdbcClient) {
         this.resultListJdbcRepository = resultListJdbcRepository;
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.jdbcClient = jdbcClient;
     }
 
     @SuppressWarnings("unused")
@@ -112,7 +111,7 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     private Map<ResultList.DomainKey, ResultList> batchFindExistingResultLists(Collection<ResultList> resultLists) {
         StringBuilder sql = new StringBuilder(
                 "SELECT id, event_id, race_id, creator, create_time, create_time_zone, status FROM result_list WHERE ");
-        MapSqlParameterSource params = new MapSqlParameterSource();
+        Map<String, Object> params = new java.util.HashMap<>();
         List<String> conditions = new ArrayList<>();
 
         int idx = 0;
@@ -126,12 +125,12 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
             condition.append("(event_id = :e").append(idx);
             condition.append(" AND race_id = :r").append(idx);
 
-            params.addValue("e" + idx, eventId);
-            params.addValue("r" + idx, raceId);
+            params.put("e" + idx, eventId);
+            params.put("r" + idx, raceId);
 
             if (creator != null) {
                 condition.append(" AND creator = :c").append(idx);
-                params.addValue("c" + idx, creator);
+                params.put("c" + idx, creator);
             } else {
                 condition.append(" AND creator IS NULL");
             }
@@ -139,9 +138,8 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
             if (createTime != null) {
                 condition.append(" AND create_time = :t").append(idx);
                 condition.append(" AND create_time_zone = :z").append(idx);
-                params.addValue(
-                        "t" + idx, Timestamp.from(createTime.toOffsetDateTime().toInstant()));
-                params.addValue("z" + idx, createTime.getZone().getId());
+                params.put("t" + idx, Timestamp.from(createTime.toOffsetDateTime().toInstant()));
+                params.put("z" + idx, createTime.getZone().getId());
             } else {
                 condition.append(" AND create_time IS NULL");
             }
@@ -153,29 +151,32 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
 
         sql.append(String.join(" OR ", conditions));
 
-        List<ResultList> found = namedParameterJdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
-            Long id = rs.getLong("id");
-            Long eventId = rs.getLong("event_id");
-            Long raceId = rs.getLong("race_id");
-            String creator = rs.getString("creator");
-            Timestamp createTime = rs.getTimestamp("create_time");
-            String createTimeZone = rs.getString("create_time_zone");
-            String status = rs.getString("status");
+        List<ResultList> found = jdbcClient.sql(sql.toString())
+                .params(params)
+                .query((rs, rowNum) -> {
+                    Long id = rs.getLong("id");
+                    Long eventId = rs.getLong("event_id");
+                    Long raceId = rs.getLong("race_id");
+                    String creator = rs.getString("creator");
+                    Timestamp createTime = rs.getTimestamp("create_time");
+                    String createTimeZone = rs.getString("create_time_zone");
+                    String status = rs.getString("status");
 
-            ZonedDateTime zonedCreateTime = null;
-            if (createTime != null && createTimeZone != null) {
-                zonedCreateTime = createTime.toInstant().atZone(ZoneId.of(createTimeZone));
-            }
+                    ZonedDateTime zonedCreateTime = null;
+                    if (createTime != null && createTimeZone != null) {
+                        zonedCreateTime = createTime.toInstant().atZone(ZoneId.of(createTimeZone));
+                    }
 
-            return new ResultList(
-                    ResultListId.of(id),
-                    EventId.of(eventId),
-                    RaceId.of(raceId),
-                    creator,
-                    zonedCreateTime,
-                    status,
-                    null);
-        });
+                    return new ResultList(
+                            ResultListId.of(id),
+                            EventId.of(eventId),
+                            RaceId.of(raceId),
+                            creator,
+                            zonedCreateTime,
+                            status,
+                            null);
+                })
+                .list();
 
         return found.stream().collect(Collectors.toMap(ResultList::getDomainKey, r -> r));
     }

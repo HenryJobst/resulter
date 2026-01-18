@@ -18,8 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,13 +29,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepository {
 
     private final SplitTimeListJdbcRepository splitTimeListJdbcRepository;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final JdbcClient jdbcClient;
 
     public SplitTimeListRepositoryDataJdbcAdapter(
             SplitTimeListJdbcRepository splitTimeListJdbcRepository,
-            NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+            JdbcClient jdbcClient) {
         this.splitTimeListJdbcRepository = splitTimeListJdbcRepository;
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.jdbcClient = jdbcClient;
     }
 
     @Override
@@ -120,7 +119,7 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
             Collection<SplitTimeList> splitTimeLists) {
         StringBuilder sql = new StringBuilder(
                 "SELECT id, event_id, result_list_id, class_result_short_name, person_id, race_number FROM split_time_list WHERE ");
-        MapSqlParameterSource params = new MapSqlParameterSource();
+        Map<String, Object> params = new java.util.HashMap<>();
         List<String> conditions = new ArrayList<>();
 
         int idx = 0;
@@ -140,11 +139,11 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
             condition.append(" AND race_number = :rn").append(idx);
             condition.append(")");
 
-            params.addValue("e" + idx, eventId);
-            params.addValue("rl" + idx, resultListId);
-            params.addValue("cs" + idx, classResultShortName);
-            params.addValue("p" + idx, personId);
-            params.addValue("rn" + idx, raceNumber != null ? raceNumber : (byte) 1);
+            params.put("e" + idx, eventId);
+            params.put("rl" + idx, resultListId);
+            params.put("cs" + idx, classResultShortName);
+            params.put("p" + idx, personId);
+            params.put("rn" + idx, raceNumber != null ? raceNumber : (byte) 1);
 
             conditions.add(condition.toString());
             idx++;
@@ -152,23 +151,26 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
 
         sql.append(String.join(" OR ", conditions));
 
-        List<SplitTimeList> found = namedParameterJdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
-            Long id = rs.getLong("id");
-            Long eventId = rs.getLong("event_id");
-            Long resultListId = rs.getLong("result_list_id");
-            String classResultShortName = rs.getString("class_result_short_name");
-            Long personId = rs.getLong("person_id");
-            Byte raceNumber = rs.getByte("race_number");
+        List<SplitTimeList> found = jdbcClient.sql(sql.toString())
+                .params(params)
+                .query((rs, rowNum) -> {
+                    Long id = rs.getLong("id");
+                    Long eventId = rs.getLong("event_id");
+                    Long resultListId = rs.getLong("result_list_id");
+                    String classResultShortName = rs.getString("class_result_short_name");
+                    Long personId = rs.getLong("person_id");
+                    Byte raceNumber = rs.getByte("race_number");
 
-            return new SplitTimeList(
-                    SplitTimeListId.of(id),
-                    EventId.of(eventId),
-                    ResultListId.of(resultListId),
-                    ClassResultShortName.of(classResultShortName),
-                    PersonId.of(personId),
-                    RaceNumber.of(raceNumber),
-                    List.of());
-        });
+                    return new SplitTimeList(
+                            SplitTimeListId.of(id),
+                            EventId.of(eventId),
+                            ResultListId.of(resultListId),
+                            ClassResultShortName.of(classResultShortName),
+                            PersonId.of(personId),
+                            RaceNumber.of(raceNumber),
+                            List.of());
+                })
+                .list();
 
         return found.stream().collect(Collectors.toMap(SplitTimeList::getDomainKey, s -> s));
     }

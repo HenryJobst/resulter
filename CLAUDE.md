@@ -168,6 +168,97 @@ public class EventJdbcRepositoryImpl implements EventJdbcRepositoryCustom {
 - `EventRepositoryDataJdbcAdapter.java` - Service adapter with batch loading orchestration
 - `EventJdbcRepository.java` - Base repository with batch loading queries
 
+**JdbcClient vs NamedParameterJdbcTemplate:**
+
+Always use `JdbcClient` (Spring 6.1+) instead of `NamedParameterJdbcTemplate`:
+
+```java
+// ✓ Preferred: JdbcClient (fluent, modern)
+List<PersonDbo> found = jdbcClient.sql("SELECT * FROM person WHERE id IN (:ids)")
+    .param("ids", idList)
+    .query((rs, rowNum) -> mapRow(rs))
+    .list();
+
+// ✗ Deprecated: NamedParameterJdbcTemplate
+MapSqlParameterSource params = new MapSqlParameterSource();
+params.addValue("ids", idList);
+List<PersonDbo> found = namedParameterJdbcTemplate.query(sql, params, rowMapper);
+```
+
+**For batch operations with many items**, chunk into batches to avoid parameter limits.
+
+Use `BatchUtils` utility class (`application/util/BatchUtils.java`) for cleaner batch processing:
+
+```java
+import de.jobst.resulter.application.util.BatchUtils;
+
+// ✓ Preferred: Using BatchUtils (cleaner, reusable)
+public void deleteAllByKeys(Set<DomainKey> keys) {
+    BatchUtils.processInBatches(keys, this::deleteBatch);
+}
+
+// With custom batch size
+public void deleteAllByKeys(Set<DomainKey> keys) {
+    BatchUtils.processInBatches(keys, 1000, this::deleteBatch);
+}
+
+// Manual approach (avoid if possible)
+private static final int BATCH_SIZE = 500;
+
+public void deleteAllByKeys(Set<DomainKey> keys) {
+    List<DomainKey> keyList = new ArrayList<>(keys);
+    for (int start = 0; start < keyList.size(); start += BATCH_SIZE) {
+        List<DomainKey> batch = keyList.subList(start, Math.min(start + BATCH_SIZE, keyList.size()));
+        deleteBatch(batch);  // Single DELETE with OR-conditions
+    }
+}
+```
+
+**BatchUtils features:**
+- Default batch size: 500 items
+- Handles empty/null collections gracefully
+- Converts any Collection to List if needed
+- Accepts Consumer<List<T>> for batch processing logic
+
+**OR-based DELETE/UPDATE pattern for composite keys:**
+
+When deleting or updating by composite keys, use OR-conditions in a single query instead of `batchUpdate()`:
+
+```java
+// ✓ Preferred: Single query with OR-conditions
+private void deleteBatch(List<DomainKey> batch) {
+    StringBuilder sql = new StringBuilder("DELETE FROM table_name WHERE ");
+    Map<String, Object> params = new HashMap<>();
+    List<String> conditions = new ArrayList<>();
+
+    int idx = 0;
+    for (DomainKey key : batch) {
+        String condition = "(cup_id = :c" + idx
+                + " AND result_list_id = :r" + idx
+                + " AND status = :s" + idx + ")";
+        conditions.add(condition);
+
+        params.put("c" + idx, key.cupId().value());
+        params.put("r" + idx, key.resultListId().value());
+        params.put("s" + idx, key.status());
+        idx++;
+    }
+
+    sql.append(String.join(" OR ", conditions));
+
+    jdbcClient.sql(sql.toString())
+        .params(params)
+        .update();
+}
+
+// ✗ Avoid: batchUpdate with multiple round trips
+namedParameterJdbcTemplate.batchUpdate(sql, batchParams.toArray(new MapSqlParameterSource[0]));
+```
+
+**Benefits:** Single database round trip instead of N queries, better performance for batch operations.
+
+**Reference implementation:** `CupScoreListJdbcCustomRepositoryImpl.deleteBatch()`
+
 ### Frontend - Feature-Based Structure
 
 Organized by features in `frontend/src/features/`:

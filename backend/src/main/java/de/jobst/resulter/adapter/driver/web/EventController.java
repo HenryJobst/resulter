@@ -81,6 +81,15 @@ public class EventController {
                 .isEmpty());
     }
 
+    /**
+     * Batch load hasSplitTimes for multiple events to avoid N+1 queries.
+     */
+    private Map<Long, Boolean> batchHasSplitTimes(List<Event> events) {
+        return events.stream()
+                .collect(
+                        java.util.stream.Collectors.toMap(event -> event.getId().value(), this::hasSplitTimes));
+    }
+
     @GetMapping("/event")
     public ResponseEntity<Page<EventDto>> searchEvents(
             @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
@@ -89,10 +98,13 @@ public class EventController {
                 pageable != null
                         ? FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
+
+        // Use batch loading to avoid N+1 queries when converting to DTOs
+        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(events.getContent());
+        List<EventDto> eventDtos = eventMapper.toDtos(events.getContent(), hasSplitTimesMap);
+
         return ResponseEntity.ok(new PageImpl<>(
-                events.getContent().stream()
-                        .map(x -> eventMapper.toDto(x, hasSplitTimes(x)))
-                        .toList(),
+                eventDtos,
                 FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
                 events.getTotalElements()));
     }

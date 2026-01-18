@@ -160,9 +160,61 @@ public class EventJdbcRepositoryImpl implements EventJdbcRepositoryCustom {
 }
 ```
 
+**CRITICAL: @Query Does NOT Prevent @MappedCollection Auto-Loading**
+
+Spring Data JDBC **ALWAYS** auto-loads `@MappedCollection` fields when using repository methods, even with custom `@Query` annotations. This causes N+1 queries:
+
+```java
+// ✗ THIS STILL CAUSES N+1 QUERIES!
+@Query("SELECT id, name FROM organisation WHERE id IN (:ids)")
+List<OrganisationDbo> findAllByIdWithoutChildOrganisations(@Param("ids") Collection<Long> ids);
+```
+
+Even though the query only selects `id` and `name`, Spring Data JDBC detects the `@MappedCollection childOrganisations` field in `OrganisationDbo` and automatically executes:
+```sql
+SELECT * FROM organisation_organisation WHERE parent_organisation_id = 1
+SELECT * FROM organisation_organisation WHERE parent_organisation_id = 2
+... (N+1 queries)
+```
+
+**Solution: Use Custom Repository Fragment with JdbcClient**
+
+To truly prevent auto-loading, implement a custom repository fragment:
+
+```java
+// 1. Custom interface
+public interface OrganisationJdbcRepositoryCustom {
+    List<OrganisationDbo> findAllByIdWithoutChildOrganisations(Collection<Long> ids);
+}
+
+// 2. Custom implementation using JdbcClient
+public class OrganisationJdbcRepositoryImpl implements OrganisationJdbcRepositoryCustom {
+    private final JdbcClient jdbcClient;
+
+    @Override
+    public List<OrganisationDbo> findAllByIdWithoutChildOrganisations(Collection<Long> ids) {
+        String query = "SELECT id, name, short_name, type, country_id FROM organisation WHERE id IN (:ids)";
+        return jdbcClient.sql(query)
+            .param("ids", ids)
+            .query(new OrganisationDboRowMapper())  // Custom RowMapper sets childOrganisations = new HashSet<>()
+            .list();
+    }
+}
+
+// 3. Main repository extends custom fragment
+public interface OrganisationJdbcRepository extends CrudRepository<OrganisationDbo, Long>,
+                                                     OrganisationJdbcRepositoryCustom {
+    // @Query methods still trigger auto-loading - avoid for batch operations!
+}
+```
+
+The custom `RowMapper` bypasses Spring Data JDBC's entity loading entirely, preventing auto-loading of `@MappedCollection` fields.
+
 **Performance improvement:** Query count reduced from N+1 to 3-4 queries (70-80% reduction).
 
 **Reference implementations:**
+- `OrganisationJdbcRepositoryCustom.java` - Custom repository interface with JdbcClient methods
+- `OrganisationJdbcRepositoryImpl.java` - JdbcClient implementation with custom RowMapper
 - `EventJdbcRepositoryCustom.java` - Custom repository interface
 - `EventJdbcRepositoryImpl.java` - JdbcClient-based pagination implementation
 - `EventRepositoryDataJdbcAdapter.java` - Service adapter with batch loading orchestration
@@ -385,6 +437,25 @@ public class EventController {
 - Return `ResponseEntity<ApiResponse<T>>`
 - No try-catch blocks - GlobalExceptionHandler handles all exceptions
 - DTOs for request/response, never expose entities
+- **CRITICAL:** Always use mapper batch methods (`mapper.toDtos()`) instead of single-entity methods (`mapper.toDto()`) to avoid N+1 queries, even for single entities:
+
+```java
+// ✓ Correct: Use batch loading even for single entity
+@GetMapping("/event/{id}")
+public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
+    Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
+    Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(List.of(event));
+    List<EventDto> eventDtos = eventMapper.toDtos(List.of(event), hasSplitTimesMap);
+    return ResponseEntity.ok(eventDtos.get(0));
+}
+
+// ✗ Incorrect: Single-entity mapping causes N+1 queries
+@GetMapping("/event/{id}")
+public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
+    Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
+    return ResponseEntity.ok(eventMapper.toDto(event, hasSplitTimes(event)));  // N+1!
+}
+```
 
 ### DTOs
 

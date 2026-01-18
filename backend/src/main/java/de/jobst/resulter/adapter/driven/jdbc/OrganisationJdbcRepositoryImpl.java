@@ -4,6 +4,8 @@ import de.jobst.resulter.domain.OrganisationType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
@@ -26,6 +28,30 @@ public class OrganisationJdbcRepositoryImpl implements OrganisationJdbcRepositor
 
     public OrganisationJdbcRepositoryImpl(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
+    }
+
+    @Override
+    public List<OrganisationDbo> findAllOrganisationsWithoutChildOrganisations() {
+        String query = "SELECT id, name, short_name, type, country_id " + "FROM organisation " + "ORDER BY id";
+
+        return jdbcClient.sql(query).query(new OrganisationDboRowMapper()).list();
+    }
+
+    @Override
+    public List<OrganisationDbo> findAllByIdWithoutChildOrganisations(Collection<Long> organisationIds) {
+        if (organisationIds == null || organisationIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String query = "SELECT id, name, short_name, type, country_id " + "FROM organisation "
+                + "WHERE id IN (:ids) "
+                + "ORDER BY id";
+
+        return jdbcClient
+                .sql(query)
+                .param("ids", organisationIds)
+                .query(new OrganisationDboRowMapper())
+                .list();
     }
 
     @Override

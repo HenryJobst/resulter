@@ -5,13 +5,16 @@ import com.turkraft.springfilter.parser.node.FilterNode;
 import com.turkraft.springfilter.transformer.FilterNodeTransformer;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
-import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.MediaFileRepository;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.MediaFile;
 import de.jobst.resulter.domain.MediaFileId;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -120,5 +123,14 @@ public class MediaFileRepositoryDataJdbcAdapter implements MediaFileRepository {
     @Override
     public Optional<MediaFile> findById(MediaFileId mediaFileId) {
         return mediaFileJdbcRepository.findById(mediaFileId.value()).map(x -> x.asMediaFile());
+    }
+
+    @Override
+    public List<MediaFile> findAllById(Collection<MediaFileId> mediaFileIds) {
+        List<Long> ids = mediaFileIds.stream().map(MediaFileId::value).collect(Collectors.toList());
+        Iterable<MediaFileDbo> dbos = mediaFileJdbcRepository.findAllById(ids);
+        return StreamSupport.stream(dbos.spliterator(), false)
+                .map(dbo -> dbo.asMediaFile())
+                .toList();
     }
 }

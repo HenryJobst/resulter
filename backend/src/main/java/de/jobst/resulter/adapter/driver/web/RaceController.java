@@ -21,15 +21,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class RaceController {
 
     private final RaceService raceService;
+    private final RaceMapper raceMapper;
 
-    public RaceController(RaceService raceService) {
+    public RaceController(RaceService raceService, RaceMapper raceMapper) {
         this.raceService = raceService;
+        this.raceMapper = raceMapper;
     }
 
     @GetMapping("/race/all")
     public ResponseEntity<List<RaceDto>> getAllRaces() {
         List<Race> races = raceService.findAll();
-        return ResponseEntity.ok(races.stream().map(RaceMapper::toDto).toList());
+        return ResponseEntity.ok(raceMapper.toDtos(races));
     }
 
     @GetMapping("/race")
@@ -37,7 +39,7 @@ public class RaceController {
         // TODO: Implement filter and pageable
         List<Race> races = raceService.findAll();
         return ResponseEntity.ok(new PageImpl<>(
-                races.stream().map(RaceMapper::toDto).toList(),
+                raceMapper.toDtos(races),
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()),
                 races.size()));
     }

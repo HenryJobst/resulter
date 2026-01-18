@@ -71,6 +71,8 @@ public class EventController {
         List<Event> events = eventService.findAll();
         Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(events);
         List<EventDto> eventDtos = eventMapper.toDtos(events, hasSplitTimesMap);
+        return ResponseEntity.ok(
+                eventDtos.stream().sorted(Comparator.reverseOrder()).toList());
         return ResponseEntity.ok(eventDtos.stream()
         Map<EventId, Boolean> hasSplitTimesByEventId = hasSplitTimesByEventId(events);
         return ResponseEntity.ok(events.stream()

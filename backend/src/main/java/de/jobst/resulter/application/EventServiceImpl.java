@@ -3,17 +3,18 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
+import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -73,6 +74,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Map<EventId, Event> findAllByIdAsMap(Set<EventId> eventIds) {
+        return eventRepository.findAllById(eventIds).stream().collect(Collectors.toMap(Event::getId, event -> event));
+    }
+
+    @Override
     public Event updateEvent(
             EventId id,
             EventName name,
@@ -93,8 +99,8 @@ public class EventServiceImpl implements EventService {
                 status,
                 organisations.stream().map(Organisation::getId).toList(),
                 certificate != null ? certificate.getId() : null,
-                discipline, aggregatedScore
-            );
+                discipline,
+                aggregatedScore);
         if (certificate != null) {
             List<EventCertificate> eventCertificates = eventCertificateRepository.findAllByEvent(event.getId());
             eventCertificates.forEach(eventCertificate ->
@@ -114,9 +120,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event createEvent(String eventName, ZonedDateTime dateTime, Set<OrganisationId> organisationIds,
-                             String discipline,
-                             Boolean aggregatedScore) {
+    public Event createEvent(
+            String eventName,
+            ZonedDateTime dateTime,
+            Set<OrganisationId> organisationIds,
+            String discipline,
+            Boolean aggregatedScore) {
         List<Organisation> organisations = organisationRepository.findByIds(organisationIds);
         Event event = Event.of(
                 EventId.empty().value(),
@@ -126,8 +135,7 @@ public class EventServiceImpl implements EventService {
                 organisations.stream().map(Organisation::getId).toList(),
                 EventStatus.PLANNED,
                 Discipline.fromValue(discipline),
-                aggregatedScore
-            );
+                aggregatedScore);
         return eventRepository.save(event);
     }
 

@@ -4,11 +4,13 @@ import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.domain.MediaFile;
 import de.jobst.resulter.domain.MediaFileId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -58,6 +60,14 @@ public class InMemoryMediaFileRepository implements MediaFileRepository {
     @Override
     public Optional<MediaFile> findById(MediaFileId mediaFileId) {
         return Optional.ofNullable(mediaFiles.get(mediaFileId));
+    }
+
+    @Override
+    public List<MediaFile> findAllById(Collection<MediaFileId> mediaFileIds) {
+        return mediaFileIds.stream()
+                .map(mediaFiles::get)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @SuppressWarnings("unused")

@@ -32,8 +32,9 @@ public class EventMapper {
 
     /**
      * Convert single event to DTO. This method causes N+1 queries by loading organisations one by one.
-     * Use toDtos() for batch conversion to avoid N+1 queries.
+     * @deprecated Use toDtos() for batch conversion to avoid N+1 queries.
      */
+    @Deprecated(since = "4.6.2", forRemoval = true)
     public EventDto toDto(Event event, Boolean hasSplitTimes) {
         return new EventDto(
                 ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0,

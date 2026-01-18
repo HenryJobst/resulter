@@ -4,6 +4,15 @@ import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
 import org.apache.tika.Tika;
@@ -17,12 +26,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class MediaFileServiceImpl implements MediaFileService {
@@ -150,12 +153,23 @@ public class MediaFileServiceImpl implements MediaFileService {
     }
 
     @Override
+    public List<MediaFile> findAllById(Collection<MediaFileId> mediaFileIds) {
+        return mediaFileRepository.findAllById(mediaFileIds);
+    }
+
+    @Override
+    public Map<MediaFileId, MediaFile> findAllByIdAsMap(Set<MediaFileId> mediaFileIds) {
+        return mediaFileRepository.findAllById(mediaFileIds).stream()
+                .collect(Collectors.toMap(MediaFile::getId, mediaFile -> mediaFile));
+    }
+
+    @Override
     public @Nullable MediaFile update(
-        MediaFileId mediaFileId,
-        MediaFileName mediaFileName,
-        MediaFileContentType mediaFileContentType,
-        MediaFileSize mediaFileSize,
-        MediaFileDescription mediaFileDescription) {
+            MediaFileId mediaFileId,
+            MediaFileName mediaFileName,
+            MediaFileContentType mediaFileContentType,
+            MediaFileSize mediaFileSize,
+            MediaFileDescription mediaFileDescription) {
         Optional<MediaFile> optionalMediaFile = findById(mediaFileId);
         if (optionalMediaFile.isEmpty()) {
             return null;

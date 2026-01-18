@@ -669,6 +669,41 @@ export function useCreateEvent() {
 }
 ```
 
+### Preventing Duplicate API Requests with TanStack Query
+
+**Problem:** When state that is part of a `queryKey` (e.g., filters, settings) is initialized in `onMounted`, it causes duplicate API requests:
+1. `useQuery` executes immediately on component setup
+2. `onMounted` runs and modifies state included in `queryKey`
+3. `queryKey` change triggers a second query
+
+**Solution:** Initialize all state that affects `queryKey` **synchronously before** `useQuery`:
+
+```typescript
+// ✗ BAD: Causes duplicate requests
+const settingsStore = useSettingsStore()
+
+onMounted(() => {
+    // This changes queryKey AFTER first query already started
+    initializeFilters(settingsStore.settings.filters)
+})
+
+const query = useQuery({
+    queryKey: ['items', settingsStore.settings], // includes filters
+    queryFn: fetchItems,
+})
+
+// ✓ GOOD: Initialize before useQuery
+const settingsStore = useSettingsStore()
+
+// Synchronous initialization - before useQuery
+initializeFilters(settingsStore.settings.filters)
+
+const query = useQuery({
+    queryKey: ['items', settingsStore.settings],
+    queryFn: fetchItems,
+})
+```
+
 ## Important Patterns and Rules
 
 ### Code Comment Guidelines

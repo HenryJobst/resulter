@@ -6,6 +6,7 @@ import com.turkraft.springfilter.transformer.FilterNodeTransformer;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
 import de.jobst.resulter.application.port.EventRepository;
+import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import java.util.Collection;
@@ -17,7 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -35,6 +35,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     private final EventJdbcRepository eventJdbcRepository;
     private final PersonJdbcRepository personJdbcRepository;
     private final OrganisationJdbcRepository organisationJdbcRepository;
+    private final OrganisationRepository organisationRepository;
     private final CountryJdbcRepository countryJdbcRepository;
     private final EventCertificateJdbcRepository eventCertificateJdbcRepository;
     private final FilterStringConverter filterStringConverter;
@@ -44,12 +45,14 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
             EventJdbcRepository eventJdbcRepository,
             PersonJdbcRepository personJdbcRepository,
             OrganisationJdbcRepository organisationJdbcRepository,
+            OrganisationRepository organisationRepository,
             CountryJdbcRepository countryJdbcRepository,
             EventCertificateJdbcRepository eventCertificateJdbcRepository,
             FilterStringConverter filterStringConverter) {
         this.eventJdbcRepository = eventJdbcRepository;
         this.personJdbcRepository = personJdbcRepository;
         this.organisationJdbcRepository = organisationJdbcRepository;
+        this.organisationRepository = organisationRepository;
         this.countryJdbcRepository = countryJdbcRepository;
         this.eventCertificateJdbcRepository = eventCertificateJdbcRepository;
         this.filterStringConverter = filterStringConverter;
@@ -73,20 +76,20 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     }
 
     private Map<Long, Organisation> batchLoadOrganisations(Collection<EventDbo> eventDbos) {
-        Set<Long> orgIds = eventDbos.stream()
+        Set<OrganisationId> orgIds = eventDbos.stream()
                 .flatMap(e -> e.getOrganisations().stream())
-                .map(eo -> eo.id.getId())
+                .map(eo -> OrganisationId.of(eo.id.getId()))
                 .collect(Collectors.toSet());
         if (orgIds.isEmpty()) {
             return Collections.emptyMap();
         }
-        List<OrganisationDbo> orgDbos = StreamSupport.stream(
-                        organisationJdbcRepository.findAllById(orgIds).spliterator(), false)
-                .toList();
-        return orgDbos.stream()
-                .collect(Collectors.toMap(
-                        dbo -> Objects.requireNonNull(dbo.getId()),
-                        dbo -> dbo.asOrganisation(getOrganisationResolver(), getCountryResolver())));
+
+        // Use OrganisationRepository which already has optimized batch loading
+        Map<OrganisationId, Organisation> orgMap = organisationRepository.findAllById(orgIds);
+
+        // Convert from OrganisationId keys to Long keys for EventDbo.asEvents
+        return orgMap.entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey().value(), Map.Entry::getValue));
     }
 
     private Function<EventId, @Nullable EventCertificate> getPrimaryEventCertificateResolver() {

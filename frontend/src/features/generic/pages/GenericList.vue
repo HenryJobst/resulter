@@ -11,7 +11,7 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import InputText from 'primevue/inputtext'
 import { useToast } from 'primevue/usetoast'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatDate, formatTime, formatYear } from '@/features/generic/services/GenericFunctions'
 import { settingsStoreFactory } from '@/features/generic/stores/settings.store'
@@ -69,18 +69,17 @@ const { t, locale } = useI18n()
 const useSettingsStore = settingsStoreFactory(props.settingsStoreSuffix, props.initialTableSettings)
 const settingsStore = useSettingsStore()
 
-onMounted(() => {
-    props.columns?.forEach((col) => {
-        const filters = settingsStore.settings.filters
-        if (col.filterable && filters) {
-            if (filters && !(col.field in filters)) {
-                filters[col.field] = {
-                    value: null,
-                    matchMode: col.filterMatchMode || 'contains',
-                }
+// Initialize filters BEFORE useQuery to prevent double query execution
+props.columns?.forEach((col) => {
+    const filters = settingsStore.settings.filters
+    if (col.filterable && filters) {
+        if (filters && !(col.field in filters)) {
+            filters[col.field] = {
+                value: null,
+                matchMode: col.filterMatchMode || 'contains',
             }
         }
-    })
+    }
 })
 
 const queryClient = useQueryClient()

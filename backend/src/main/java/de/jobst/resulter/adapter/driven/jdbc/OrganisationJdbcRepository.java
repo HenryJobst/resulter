@@ -22,21 +22,6 @@ public interface OrganisationJdbcRepository
     Optional<OrganisationDbo> findByName(String name);
 
     /**
-     * Find all organisations without loading the MappedCollection (childOrganisations).
-     * Use this for batch loading to avoid N+1 queries.
-     */
-    @Query("SELECT * FROM organisation ORDER BY id")
-    List<OrganisationDbo> findAllOrganisationsWithoutChildOrganisations();
-
-    /**
-     * Find organisations by IDs without loading the MappedCollection (childOrganisations).
-     * Use this for batch loading to avoid N+1 queries.
-     */
-    @Query("SELECT * FROM organisation WHERE id IN (:organisationIds) ORDER BY id")
-    List<OrganisationDbo> findAllByIdWithoutChildOrganisations(
-            @Param("organisationIds") Collection<Long> organisationIds);
-
-    /**
      * Find all organisation-organisation mappings for given organisation IDs.
      * Use this for batch loading child organisations after loading organisations.
      */

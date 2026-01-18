@@ -1,39 +1,55 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import de.jobst.resulter.application.util.BatchUtils;
 import de.jobst.resulter.domain.CupScoreList;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Repository
 public class CupScoreListJdbcCustomRepositoryImpl implements CupScoreListJdbcCustomRepository {
 
-    private final NamedParameterJdbcTemplate namedJdbcTemplate;
+    private final JdbcClient jdbcClient;
 
-    public CupScoreListJdbcCustomRepositoryImpl(NamedParameterJdbcTemplate namedJdbcTemplate) {
-        this.namedJdbcTemplate = namedJdbcTemplate;
+    public CupScoreListJdbcCustomRepositoryImpl(JdbcClient jdbcClient) {
+        this.jdbcClient = jdbcClient;
     }
 
     @Override
     @Transactional
     public void deleteAllByDomainKeys(Set<CupScoreList.DomainKey> domainKeys) {
-        String sql =
-            "DELETE FROM cup_score_list WHERE cup_id = :cupId AND result_list_id = :resultListId AND LOWER(status) = " +
-            "LOWER(:status)";
+        BatchUtils.processInBatches(domainKeys, this::deleteBatch);
+    }
 
-        List<MapSqlParameterSource> batchParams = domainKeys.stream().map(tuple -> {
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("cupId", tuple.cupId().value());
-            params.addValue("resultListId", tuple.resultListId().value());
-            params.addValue("status", tuple.status());
-            return params;
-        }).toList();
+    private void deleteBatch(List<CupScoreList.DomainKey> batch) {
+        StringBuilder sql = new StringBuilder("DELETE FROM cup_score_list WHERE ");
+        Map<String, Object> params = new HashMap<>();
+        List<String> conditions = new ArrayList<>();
 
-        namedJdbcTemplate.batchUpdate(sql, batchParams.toArray(new MapSqlParameterSource[0]));
+        int idx = 0;
+        for (CupScoreList.DomainKey tuple : batch) {
+            String condition = "(cup_id = :c" + idx
+                    + " AND result_list_id = :r" + idx
+                    + " AND LOWER(status) = LOWER(:s" + idx + "))";
+            conditions.add(condition);
+
+            params.put("c" + idx, tuple.cupId().value());
+            params.put("r" + idx, tuple.resultListId().value());
+            params.put("s" + idx, tuple.status());
+            idx++;
+        }
+
+        sql.append(String.join(" OR ", conditions));
+
+        jdbcClient.sql(sql.toString())
+                .params(params)
+                .update();
     }
 
     @Override
@@ -46,9 +62,8 @@ public class CupScoreListJdbcCustomRepositoryImpl implements CupScoreListJdbcCus
             )
             """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("eventId", eventId);
-
-        namedJdbcTemplate.update(sql, params);
+        jdbcClient.sql(sql)
+            .param("eventId", eventId)
+            .update();
     }
 }

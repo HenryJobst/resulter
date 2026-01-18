@@ -28,8 +28,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.domain.*;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,16 +40,16 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     private final PersonJdbcRepository personJdbcRepository;
     private final FilterStringConverter filterStringConverter;
     private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final JdbcClient jdbcClient;
 
     public PersonRepositoryDataJdbcAdapter(
             PersonJdbcRepository personJdbcRepository,
             FilterStringConverter filterStringConverter,
-            NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+            JdbcClient jdbcClient) {
         this.personJdbcRepository = personJdbcRepository;
         this.filterStringConverter = filterStringConverter;
         this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.jdbcClient = jdbcClient;
     }
 
     @Override
@@ -126,9 +125,8 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
     }
 
     private Map<Person.DomainKey, Person> batchFindExistingPersons(Collection<Person> persons) {
-        // Build a composite query using OR clauses for each person's key
         StringBuilder sql = new StringBuilder("SELECT * FROM person WHERE ");
-        MapSqlParameterSource params = new MapSqlParameterSource();
+        Map<String, Object> params = new java.util.HashMap<>();
         List<String> conditions = new ArrayList<>();
 
         int idx = 0;
@@ -146,27 +144,30 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
                     + " AND gender = :g" + idx + ")";
             conditions.add(condition);
 
-            params.addValue("fn" + idx, familyName);
-            params.addValue("gn" + idx, givenName);
+            params.put("fn" + idx, familyName);
+            params.put("gn" + idx, givenName);
             if (birthDate != null) {
-                params.addValue("bd" + idx, birthDate);
+                params.put("bd" + idx, birthDate);
             }
-            params.addValue("g" + idx, gender.name());
+            params.put("g" + idx, gender.name());
             idx++;
         }
 
         sql.append(String.join(" OR ", conditions));
 
-        List<PersonDbo> found = namedParameterJdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
-            PersonDbo dbo = new PersonDbo();
-            dbo.setId(rs.getLong("id"));
-            dbo.setFamilyName(rs.getString("family_name"));
-            dbo.setGivenName(rs.getString("given_name"));
-            dbo.setGender(Gender.of(rs.getString("gender")));
-            java.sql.Date bd = rs.getDate("birth_date");
-            dbo.setBirthDate(bd != null ? bd.toLocalDate() : null);
-            return dbo;
-        });
+        List<PersonDbo> found = jdbcClient.sql(sql.toString())
+                .params(params)
+                .query((rs, rowNum) -> {
+                    PersonDbo dbo = new PersonDbo();
+                    dbo.setId(rs.getLong("id"));
+                    dbo.setFamilyName(rs.getString("family_name"));
+                    dbo.setGivenName(rs.getString("given_name"));
+                    dbo.setGender(Gender.of(rs.getString("gender")));
+                    java.sql.Date bd = rs.getDate("birth_date");
+                    dbo.setBirthDate(bd != null ? bd.toLocalDate() : null);
+                    return dbo;
+                })
+                .list();
 
         return found.stream().map(dbo -> dbo.asPerson()).collect(Collectors.toMap(Person::getDomainKey, p -> p));
     }
@@ -241,7 +242,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     private SqlParts buildSqlWhereAndParamsFromTransform(MappingFilterNodeTransformResult transform) {
         List<String> where = new ArrayList<>();
-        MapSqlParameterSource params = new MapSqlParameterSource();
+        Map<String, Object> params = new java.util.HashMap<>();
         transform.filterMap().forEach((key, val) -> {
             String unquoted = val.value().replace("'", "");
             switch (key) {
@@ -251,7 +252,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
                         where, params, "p" + ".given_name", "givenName", unquoted, val.matcher());
                 case "id" -> {
                     where.add("p" + ".id = :id");
-                    params.addValue("id", Long.parseLong(unquoted));
+                    params.put("id", Long.parseLong(unquoted));
                 }
             }
         });
@@ -259,7 +260,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         return new SqlParts(whereSql, params);
     }
 
-    private record SqlParts(String whereSql, MapSqlParameterSource params) {}
+    private record SqlParts(String whereSql, Map<String, Object> params) {}
 
     @Override
     public Page<Person> findDuplicates(@Nullable String filter, Pageable pageable) {
@@ -273,10 +274,9 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
             MappingFilterNodeTransformResult transform = parseFilter(filter);
             sqlParts = buildSqlWhereAndParamsFromTransform(transform);
         } else {
-            sqlParts = new SqlParts("", new MapSqlParameterSource());
+            sqlParts = new SqlParts("", new java.util.HashMap<>());
         }
 
-        // Sorting and pagination using shared pageable mapping
         Pageable dboPageable = mapPageableToDbo(pageable);
         String orderBy = buildOrderBySql(dboPageable.getSort());
         int limit = dboPageable.isPaged() ? dboPageable.getPageSize() : Integer.MAX_VALUE;
@@ -284,15 +284,20 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
         String selectSql = "SELECT p.id, p.family_name, p.given_name, p.gender, p.birth_date " + base
                 + sqlParts.whereSql + orderBy + " LIMIT :limit OFFSET :offset";
-        sqlParts.params.addValue("limit", limit);
-        sqlParts.params.addValue("offset", offset);
+        sqlParts.params.put("limit", limit);
+        sqlParts.params.put("offset", offset);
 
-        List<Person> content =
-                namedParameterJdbcTemplate.query(selectSql, sqlParts.params, (rs, rowNum) -> mapPerson(rs));
+        List<Person> content = jdbcClient.sql(selectSql)
+                .params(sqlParts.params)
+                .query((rs, rowNum) -> mapPerson(rs))
+                .list();
 
         String countSql = "SELECT COUNT(*) " + base + sqlParts.whereSql;
-        Long total = namedParameterJdbcTemplate.queryForObject(countSql, sqlParts.params, Long.class);
-        if (total == null) total = 0L;
+        Long total = jdbcClient.sql(countSql)
+                .params(sqlParts.params)
+                .query(Long.class)
+                .optional()
+                .orElse(0L);
 
         Page<Person> page = new PageImpl<>(content, dboPageable, total);
         return new PageImpl<>(
@@ -303,7 +308,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     private static void addStringFilter(
             List<String> where,
-            MapSqlParameterSource params,
+            Map<String, Object> params,
             String column,
             String paramBase,
             String value,
@@ -315,13 +320,13 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
             case ENDING -> pattern = "%" + valLower;
             case EXACT -> {
                 where.add("LOWER(" + column + ") = :" + paramBase);
-                params.addValue(paramBase, valLower);
+                params.put(paramBase, valLower);
                 return;
             }
-            default -> pattern = "%" + valLower + "%"; // CONTAINING and default
+            default -> pattern = "%" + valLower + "%";
         }
         where.add("LOWER(" + column + ") LIKE :" + paramBase);
-        params.addValue(paramBase, pattern);
+        params.put(paramBase, pattern);
     }
 
     private static String buildOrderBySql(@Nullable Sort sort) {

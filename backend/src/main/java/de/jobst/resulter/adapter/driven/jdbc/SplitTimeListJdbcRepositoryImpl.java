@@ -4,7 +4,7 @@ import de.jobst.resulter.domain.SplitTime;
 import de.jobst.resulter.domain.SplitTimeListId;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,47 +16,50 @@ import java.util.stream.Collectors;
 public class SplitTimeListJdbcRepositoryImpl
     implements SplitTimeListJdbcRepositoryCustom {
 
-    private final NamedParameterJdbcTemplate jdbc;
+    private final JdbcClient jdbcClient;
 
-    public SplitTimeListJdbcRepositoryImpl(NamedParameterJdbcTemplate jdbc) {
-        this.jdbc = jdbc;
+    public SplitTimeListJdbcRepositoryImpl(JdbcClient jdbcClient) {
+        this.jdbcClient = jdbcClient;
     }
 
     @Override
     public Collection<SplitTimeListDbo> findByResultListIdOptimized(Long resultListId) {
 
-        // 1. Load parent rows
-        List<SplitTimeListDbo> lists = jdbc.query("""
-                                                  SELECT
-                                                      id,
-                                                      event_id,
-                                                      result_list_id,
-                                                      person_id,
-                                                      class_result_short_name,
-                                                      race_number
-                                                  FROM split_time_list
-                                                  WHERE result_list_id = :resultListId
-                                                  """, Map.of("resultListId", resultListId), splitTimeListRowMapper());
+        List<SplitTimeListDbo> lists = jdbcClient.sql("""
+                SELECT
+                    id,
+                    event_id,
+                    result_list_id,
+                    person_id,
+                    class_result_short_name,
+                    race_number
+                FROM split_time_list
+                WHERE result_list_id = :resultListId
+                """)
+            .param("resultListId", resultListId)
+            .query(splitTimeListRowMapper())
+            .list();
 
         if (lists.isEmpty()) {
             return List.of();
         }
 
-        // 2. Load all children in one query
         Set<Long> listIds = lists.stream().map(SplitTimeListDbo::getId).collect(Collectors.toUnmodifiableSet());
 
-        Map<Long, List<SplitTimeDbo>> splitTimesByListId = jdbc.query("""
-                                                                      SELECT
-                                                                          split_time_list_id,
-                                                                          control_code,
-                                                                          punch_time
-                                                                      FROM split_time
-                                                                      WHERE split_time_list_id IN (:ids)
-                                                                      """, Map.of("ids", listIds), splitTimeRowMapper())
+        Map<Long, List<SplitTimeDbo>> splitTimesByListId = jdbcClient.sql("""
+                SELECT
+                    split_time_list_id,
+                    control_code,
+                    punch_time
+                FROM split_time
+                WHERE split_time_list_id IN (:ids)
+                """)
+            .param("ids", listIds)
+            .query(splitTimeRowMapper())
+            .list()
             .stream()
             .collect(Collectors.groupingBy(SplitTimeDbo::getSplitTimeListId));
 
-        // 3. Attach children to parents
         lists.forEach(list -> list.setSplitTimes(new HashSet<>(splitTimesByListId.getOrDefault(list.getId(),
             List.of()))));
 

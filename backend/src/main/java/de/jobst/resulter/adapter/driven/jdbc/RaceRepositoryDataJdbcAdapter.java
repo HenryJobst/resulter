@@ -12,8 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
 
     private final RaceJdbcRepository raceJdbcRepository;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final JdbcClient jdbcClient;
 
     public RaceRepositoryDataJdbcAdapter(
-            RaceJdbcRepository raceJdbcRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+            RaceJdbcRepository raceJdbcRepository, JdbcClient jdbcClient) {
         this.raceJdbcRepository = raceJdbcRepository;
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.jdbcClient = jdbcClient;
     }
 
     @Override
@@ -98,7 +97,7 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
 
     private Map<Race.DomainKey, Race> batchFindExistingRaces(Collection<Race> races) {
         StringBuilder sql = new StringBuilder("SELECT * FROM race WHERE ");
-        MapSqlParameterSource params = new MapSqlParameterSource();
+        Map<String, Object> params = new java.util.HashMap<>();
         List<String> conditions = new ArrayList<>();
 
         int idx = 0;
@@ -109,18 +108,21 @@ public class RaceRepositoryDataJdbcAdapter implements RaceRepository {
             String condition = "(event_id = :e" + idx + " AND number = :n" + idx + ")";
             conditions.add(condition);
 
-            params.addValue("e" + idx, eventId);
-            params.addValue("n" + idx, number);
+            params.put("e" + idx, eventId);
+            params.put("n" + idx, number);
             idx++;
         }
 
         sql.append(String.join(" OR ", conditions));
 
-        List<RaceDbo> found = namedParameterJdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
-            RaceDbo dbo = new RaceDbo(rs.getLong("event_id"), rs.getString("name"), rs.getByte("number"));
-            dbo.setId(rs.getLong("id"));
-            return dbo;
-        });
+        List<RaceDbo> found = jdbcClient.sql(sql.toString())
+                .params(params)
+                .query((rs, rowNum) -> {
+                    RaceDbo dbo = new RaceDbo(rs.getLong("event_id"), rs.getString("name"), rs.getByte("number"));
+                    dbo.setId(rs.getLong("id"));
+                    return dbo;
+                })
+                .list();
 
         return found.stream().map(RaceDbo::asRace).collect(Collectors.toMap(Race::getDomainKey, r -> r));
     }

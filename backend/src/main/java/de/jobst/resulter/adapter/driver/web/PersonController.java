@@ -52,9 +52,7 @@ public class PersonController {
                 dup ? personService.determineGroupLeaders(persons.getContent()) : java.util.Collections.emptySet();
 
         return ResponseEntity.ok(new PageImpl<>(
-                persons.getContent().stream()
-                        .map(p -> PersonMapper.toDto(p, groupLeaders.contains(p.id().value())))
-                        .toList(),
+                PersonMapper.toDtos(persons.getContent(), groupLeaders),
                 FilterAndSortConverter.mapOrderProperties(persons.getPageable(), PersonDto::mapOrdersDomainToDto),
                 persons.getTotalElements()));
     }
@@ -71,9 +69,7 @@ public class PersonController {
         java.util.Set<Long> groupLeaders = personService.determineGroupLeaders(persons.getContent());
 
         return ResponseEntity.ok(new PageImpl<>(
-                persons.getContent().stream()
-                        .map(p -> PersonMapper.toDto(p, groupLeaders.contains(p.id().value())))
-                        .toList(),
+                PersonMapper.toDtos(persons.getContent(), groupLeaders),
                 FilterAndSortConverter.mapOrderProperties(persons.getPageable(), PersonDto::mapOrdersDomainToDto),
                 persons.getTotalElements()));
     }

@@ -138,7 +138,8 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
             if (createTime != null) {
                 condition.append(" AND create_time = :t").append(idx);
                 condition.append(" AND create_time_zone = :z").append(idx);
-                params.put("t" + idx, Timestamp.from(createTime.toOffsetDateTime().toInstant()));
+                params.put(
+                        "t" + idx, Timestamp.from(createTime.toOffsetDateTime().toInstant()));
                 params.put("z" + idx, createTime.getZone().getId());
             } else {
                 condition.append(" AND create_time IS NULL");
@@ -151,7 +152,8 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
 
         sql.append(String.join(" OR ", conditions));
 
-        List<ResultList> found = jdbcClient.sql(sql.toString())
+        List<ResultList> found = jdbcClient
+                .sql(sql.toString())
                 .params(params)
                 .query((rs, rowNum) -> {
                     Long id = rs.getLong("id");

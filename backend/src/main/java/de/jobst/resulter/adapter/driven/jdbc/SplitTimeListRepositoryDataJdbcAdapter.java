@@ -32,8 +32,7 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
     private final JdbcClient jdbcClient;
 
     public SplitTimeListRepositoryDataJdbcAdapter(
-            SplitTimeListJdbcRepository splitTimeListJdbcRepository,
-            JdbcClient jdbcClient) {
+            SplitTimeListJdbcRepository splitTimeListJdbcRepository, JdbcClient jdbcClient) {
         this.splitTimeListJdbcRepository = splitTimeListJdbcRepository;
         this.jdbcClient = jdbcClient;
     }
@@ -151,7 +150,8 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
 
         sql.append(String.join(" OR ", conditions));
 
-        List<SplitTimeList> found = jdbcClient.sql(sql.toString())
+        List<SplitTimeList> found = jdbcClient
+                .sql(sql.toString())
                 .params(params)
                 .query((rs, rowNum) -> {
                     Long id = rs.getLong("id");

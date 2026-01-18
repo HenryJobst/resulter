@@ -5,13 +5,11 @@ import com.turkraft.springfilter.parser.node.FilterNode;
 import com.turkraft.springfilter.transformer.FilterNodeTransformer;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformResult;
 import de.jobst.resulter.adapter.driven.jdbc.transformer.MappingFilterNodeTransformer;
-import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.application.port.CupRepository;
+import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -69,8 +67,31 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Cup> findAll() {
-        Iterable<CupDbo> resultList = this.cupJdbcRepository.findAll();
-        return CupDbo.asCups(resultList);
+        // Load cups without MappedCollection to avoid N+1 queries
+        List<CupDbo> cupDbos = cupJdbcRepository.findAllCupsWithoutEvents();
+
+        if (cupDbos.isEmpty()) {
+            return List.of();
+        }
+
+        // Batch load all cup-event mappings in single query
+        List<Long> cupIds = cupDbos.stream()
+                .map(CupDbo::getId)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
+        java.util.Map<Long, java.util.Set<CupEventDbo>> cupEventMap =
+                cupJdbcRepository.findEventsByCupIds(cupIds).stream()
+                        .collect(java.util.stream.Collectors.groupingBy(
+                                ce -> ce.getCupId().getId(), java.util.stream.Collectors.toSet()));
+
+        // Populate events in CupDbo objects
+        cupDbos.forEach(cup -> {
+            java.util.Set<CupEventDbo> events = cupEventMap.getOrDefault(cup.getId(), java.util.Collections.emptySet());
+            cup.setEvents(events);
+        });
+
+        return CupDbo.asCups(cupDbos);
     }
 
     @Transactional(readOnly = true)
@@ -110,43 +131,65 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Override
     public Page<Cup> findAll(@Nullable String filter, Pageable pageable) {
         Page<CupDbo> page;
+        String nameFilter = null;
+        ExampleMatcher.StringMatcher nameMatcher = ExampleMatcher.StringMatcher.CONTAINING;
+        Integer yearFilter = null;
+        Long idFilter = null;
+
         if (filter != null) {
-            CupDbo cupDbo = new CupDbo();
-            AtomicReference<ExampleMatcher> matcher = new AtomicReference<>(
-                    ExampleMatcher.matching()
-                    // .withIgnorePaths("")
-                    );
+            // Parse filter to extract filters and matchers
             FilterNode filterNode = filterStringConverter.convert(filter);
             log.info("FilterNode: {}", filterNode);
             MappingFilterNodeTransformResult transformResult = filterNodeTransformer.transform(filterNode);
-            transformResult.filterMap().forEach((key, value) -> {
-                String unquotedValue = value.value().replace("'", "");
-                switch (key) {
-                    case "name" -> {
-                        cupDbo.setName(unquotedValue);
-                        matcher.set(matcher.get().withMatcher("name", m -> m.stringMatcher(value.matcher())));
-                    }
-                    case "year" -> {
-                        cupDbo.setYear(Integer.parseInt(unquotedValue));
-                        matcher.set(matcher.get().withMatcher("year", ExampleMatcher.GenericPropertyMatcher::exact));
-                    }
-                    case "id" -> {
-                        cupDbo.setId(Long.parseLong(unquotedValue));
-                        matcher.set(matcher.get().withMatcher("id", ExampleMatcher.GenericPropertyMatcher::exact));
-                    }
-                }
-            });
 
-            page = cupJdbcRepository.findAll(
-                    Example.of(cupDbo, matcher.get()),
-                    FilterAndSortConverter.mapOrderProperties(pageable, CupDbo::mapOrdersDomainToDbo));
-
-        } else {
-            page = cupJdbcRepository.findAll(
-                    FilterAndSortConverter.mapOrderProperties(pageable, CupDbo::mapOrdersDomainToDbo));
+            // Extract filters if present
+            if (transformResult.filterMap().containsKey("name")) {
+                nameFilter = transformResult.filterMap().get("name").value().replace("'", "");
+                nameMatcher = transformResult.filterMap().get("name").matcher();
+            }
+            if (transformResult.filterMap().containsKey("year")) {
+                yearFilter = Integer.parseInt(
+                        transformResult.filterMap().get("year").value().replace("'", ""));
+            }
+            if (transformResult.filterMap().containsKey("id")) {
+                idFilter = Long.parseLong(
+                        transformResult.filterMap().get("id").value().replace("'", ""));
+            }
         }
+
+        // Use optimized query without MappedCollection loading (for both filtered and unfiltered)
+        page = cupJdbcRepository.findAllWithoutEvents(
+                nameFilter,
+                nameMatcher,
+                yearFilter,
+                idFilter,
+                FilterAndSortConverter.mapOrderProperties(pageable, CupDbo::mapOrdersDomainToDbo));
+
+        List<CupDbo> cupDbos = page.getContent();
+
+        if (cupDbos.isEmpty()) {
+            return new PageImpl<>(java.util.Collections.emptyList(), pageable, 0);
+        }
+
+        // Batch load cup-event mappings for all queries
+        List<Long> cupIds = cupDbos.stream()
+                .map(CupDbo::getId)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
+        java.util.Map<Long, java.util.Set<CupEventDbo>> cupEventMap =
+                cupJdbcRepository.findEventsByCupIds(cupIds).stream()
+                        .collect(java.util.stream.Collectors.groupingBy(
+                                ce -> ce.getCupId().getId(), java.util.stream.Collectors.toSet()));
+
+        // Populate events in CupDbo objects
+        cupDbos.forEach(cup -> {
+            java.util.Set<CupEventDbo> events = cupEventMap.getOrDefault(cup.getId(), java.util.Collections.emptySet());
+            cup.setEvents(events);
+        });
+
         return new PageImpl<>(
-                page.stream().map(CupDbo::asCup).toList(),
+                cupDbos.stream().map(CupDbo::asCup).toList(),
                 FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
                 page.getTotalElements());
     }

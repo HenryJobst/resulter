@@ -20,8 +20,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.domain.*;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,20 +29,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class OrganisationRepositoryDataJdbcAdapter implements OrganisationRepository {
 
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
+    private final JdbcClient jdbcClient;
     private final OrganisationJdbcRepository organisationJdbcRepository;
     private final CountryJdbcRepository countryJdbcRepository;
-
     private final FilterStringConverter filterStringConverter;
     private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
 
     public OrganisationRepositoryDataJdbcAdapter(
-            NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+            JdbcClient jdbcClient,
             OrganisationJdbcRepository organisationJdbcRepository,
             CountryJdbcRepository countryJdbcRepository,
             FilterStringConverter filterStringConverter) {
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.jdbcClient = jdbcClient;
         this.organisationJdbcRepository = organisationJdbcRepository;
         this.countryJdbcRepository = countryJdbcRepository;
         this.filterStringConverter = filterStringConverter;
@@ -165,11 +162,12 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     public Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet) {
         List<Long> idValues = idSet.stream().map(OrganisationId::value).toList();
 
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("idSet", idValues);
+        List<@Nullable Long> resultList = jdbcClient
+                .sql(getCteQuery())
+                .param("idSet", idValues)
+                .query(Long.class)
+                .list();
 
-        List<@Nullable Long> resultList =
-                namedParameterJdbcTemplate.queryForList(getCteQuery(), parameters, Long.class);
         Set<OrganisationId> organisationIdSet = resultList.stream()
                 .filter(Objects::nonNull)
                 .map(OrganisationId::of)

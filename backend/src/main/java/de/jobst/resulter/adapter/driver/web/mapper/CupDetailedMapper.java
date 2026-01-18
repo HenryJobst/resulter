@@ -11,9 +11,12 @@ import de.jobst.resulter.application.port.ResultListService;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.ResultList;
+import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.aggregations.CupDetailed;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;
@@ -65,6 +68,13 @@ public class CupDetailedMapper {
         // Convert cup statistics
         CupStatisticsDto cupStatisticsDto = cupStatisticsMapper.toDto(cupDetailed.getCupStatistics());
 
+        // Batch-load hasSplitTimes status for all events
+        List<Event> eventsFromCupScore = cupDetailed.getEventRacesCupScore().stream()
+                .map(x -> x.event())
+                .distinct()
+                .toList();
+        Map<EventId, Boolean> hasSplitTimesMap = batchHasSplitTimes(eventsFromCupScore);
+
         return new CupDetailedDto(
                 ObjectUtils.isNotEmpty(cupDetailed.getId())
                         ? cupDetailed.getId().value()
@@ -73,7 +83,8 @@ public class CupDetailedMapper {
                 CupTypeDto.from(cupDetailed.getType()),
                 eventKeyDtos,
                 cupDetailed.getEventRacesCupScore().stream()
-                        .map(x -> eventRacesCupScoreMapper.toDto(x, hasSplitTimes(x.event())))
+                        .map(x -> eventRacesCupScoreMapper.toDto(
+                                x, hasSplitTimesMap.getOrDefault(x.event().getId(), false)))
                         .toList(),
                 cupDetailed.getType().isGroupedByOrganisation()
                         ? organisationScoreMapper.toDtos(cupDetailed.getOverallOrganisationScores())
@@ -89,9 +100,42 @@ public class CupDetailedMapper {
                 cupStatisticsDto);
     }
 
+    @Deprecated(since = "4.6.2", forRemoval = true)
     private Boolean hasSplitTimes(Event event) {
         return resultListService.findByEventId(event.getId()).stream().anyMatch(resultList -> !splitTimeListRepository
                 .findByResultListId(resultList.getId())
                 .isEmpty());
+    }
+
+    private Map<EventId, Boolean> batchHasSplitTimes(List<Event> events) {
+        if (events.isEmpty()) {
+            return Map.of();
+        }
+
+        // Batch load result lists for all events
+        Set<EventId> eventIds = events.stream().map(Event::getId).collect(Collectors.toSet());
+
+        List<ResultList> allResultLists = eventIds.stream()
+                .flatMap(eventId -> resultListService.findByEventId(eventId).stream())
+                .toList();
+
+        // Batch load split time lists for all result lists
+        Set<ResultListId> resultListIds =
+                allResultLists.stream().map(ResultList::getId).collect(Collectors.toSet());
+
+        Map<ResultListId, Boolean> hasSplitTimesPerResultList = resultListIds.stream()
+                .collect(Collectors.toMap(resultListId -> resultListId, resultListId -> !splitTimeListRepository
+                        .findByResultListId(resultListId)
+                        .isEmpty()));
+
+        // Group by event and check if any result list has split times
+        Map<EventId, List<ResultList>> resultListsByEvent =
+                allResultLists.stream().collect(Collectors.groupingBy(ResultList::getEventId));
+
+        return eventIds.stream()
+                .collect(Collectors.toMap(
+                        eventId -> eventId, eventId -> resultListsByEvent.getOrDefault(eventId, List.of()).stream()
+                                .anyMatch(resultList ->
+                                        hasSplitTimesPerResultList.getOrDefault(resultList.getId(), false))));
     }
 }

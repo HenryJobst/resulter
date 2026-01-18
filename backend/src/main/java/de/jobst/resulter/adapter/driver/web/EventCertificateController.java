@@ -50,9 +50,7 @@ public class EventCertificateController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EventCertificateDto>> getAllEventCertificates() {
         List<EventCertificate> eventCertificates = eventCertificateService.findAll();
-        return ResponseEntity.ok(eventCertificates.stream()
-                .map(x -> eventCertificateMapper.toDto(x, mediaFileThumbnailsPath))
-                .toList());
+        return ResponseEntity.ok(eventCertificateMapper.toDtos(eventCertificates, mediaFileThumbnailsPath));
     }
 
     @GetMapping("/event_certificate")
@@ -65,9 +63,7 @@ public class EventCertificateController {
                         ? FilterAndSortConverter.mapOrderProperties(pageable, EventCertificateDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
         return ResponseEntity.ok(new PageImpl<>(
-                eventCertificates.getContent().stream()
-                        .map(x -> eventCertificateMapper.toDto(x, mediaFileThumbnailsPath))
-                        .toList(),
+                eventCertificateMapper.toDtos(eventCertificates.getContent(), mediaFileThumbnailsPath),
                 FilterAndSortConverter.mapOrderProperties(
                         eventCertificates.getPageable(), EventCertificateDto::mapOrdersDomainToDto),
                 eventCertificates.getTotalElements()));
@@ -83,7 +79,9 @@ public class EventCertificateController {
                 eventCertificateDto.layoutDescription(),
                 MediaFileId.of(eventCertificateDto.blankCertificate().id()),
                 eventCertificateDto.primary());
-        return ResponseEntity.ok(eventCertificateMapper.toDto(eventCertificate, mediaFileThumbnailsPath));
+        return ResponseEntity.ok(eventCertificateMapper
+                .toDtos(List.of(eventCertificate), mediaFileThumbnailsPath)
+                .get(0));
     }
 
     @GetMapping("/event_certificate/{id}")
@@ -91,7 +89,9 @@ public class EventCertificateController {
     public ResponseEntity<EventCertificateDto> getEventCertificate(@PathVariable Long id) {
         Optional<EventCertificate> eventCertificate = eventCertificateService.findById(EventCertificateId.of(id));
         return eventCertificate
-                .map(value -> ResponseEntity.ok(eventCertificateMapper.toDto(value, mediaFileThumbnailsPath)))
+                .map(value -> ResponseEntity.ok(eventCertificateMapper
+                        .toDtos(List.of(value), mediaFileThumbnailsPath)
+                        .get(0)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -108,7 +108,9 @@ public class EventCertificateController {
                 MediaFileId.of(eventCertificateDto.blankCertificate().id()),
                 eventCertificateDto.primary());
 
-        return ResponseEntity.ok(eventCertificateMapper.toDto(eventCertificate, mediaFileThumbnailsPath));
+        return ResponseEntity.ok(eventCertificateMapper
+                .toDtos(List.of(eventCertificate), mediaFileThumbnailsPath)
+                .get(0));
     }
 
     @DeleteMapping("/event_certificate/{id}")

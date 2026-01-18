@@ -4,6 +4,7 @@ import de.jobst.resulter.adapter.driver.web.dto.GenderDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonDto;
 import de.jobst.resulter.domain.Person;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 
 public class PersonMapper {
@@ -32,5 +33,11 @@ public class PersonMapper {
 
     public static List<PersonDto> toDtos(List<Person> persons, boolean showMergeButton) {
         return persons.stream().map(p -> toDto(p, showMergeButton)).toList();
+    }
+
+    public static List<PersonDto> toDtos(List<Person> persons, Set<Long> groupLeaderIds) {
+        return persons.stream()
+                .map(p -> toDto(p, groupLeaderIds.contains(p.id().value())))
+                .toList();
     }
 }

@@ -1,18 +1,18 @@
 package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.*;
+import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @PrimaryPort
 public interface EventService {
@@ -29,6 +29,8 @@ public interface EventService {
 
     List<Event> findAllById(Collection<EventId> eventIds);
 
+    Map<EventId, Event> findAllByIdAsMap(Set<EventId> eventIds);
+
     @NonNull
     Event updateEvent(
             EventId id,
@@ -43,9 +45,12 @@ public interface EventService {
     @Transactional
     void deleteEvent(EventId eventId);
 
-    Event createEvent(String eventName, ZonedDateTime dateTime, Set<OrganisationId> organisationIds,
-                      String discipline,
-                      Boolean aggregatedScore);
+    Event createEvent(
+            String eventName,
+            ZonedDateTime dateTime,
+            Set<OrganisationId> organisationIds,
+            String discipline,
+            Boolean aggregatedScore);
 
     Page<Event> findAll(@Nullable String filter, @NonNull Pageable pageable);
 }

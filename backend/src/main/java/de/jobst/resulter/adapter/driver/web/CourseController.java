@@ -1,6 +1,7 @@
 package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.CourseDto;
+import de.jobst.resulter.adapter.driver.web.mapper.CourseMapper;
 import de.jobst.resulter.application.port.CourseService;
 import de.jobst.resulter.domain.Course;
 import java.util.List;
@@ -20,15 +21,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class CourseController {
 
     private final CourseService courseService;
+    private final CourseMapper courseMapper;
 
-    public CourseController(CourseService courseService) {
+    public CourseController(CourseService courseService, CourseMapper courseMapper) {
         this.courseService = courseService;
+        this.courseMapper = courseMapper;
     }
 
     @GetMapping("/course/all")
     public ResponseEntity<List<CourseDto>> getAllCourses() {
         List<Course> courses = courseService.findAll();
-        return ResponseEntity.ok(courses.stream().map(CourseDto::from).toList());
+        return ResponseEntity.ok(courseMapper.toDtos(courses));
     }
 
     @GetMapping("/course")
@@ -37,7 +40,7 @@ public class CourseController {
         // TODO: Handle filter, pageable
         List<Course> courses = courseService.findAll();
         return ResponseEntity.ok(new PageImpl<>(
-                courses.stream().map(CourseDto::from).toList(),
+                courseMapper.toDtos(courses),
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()),
                 courses.size()));
     }

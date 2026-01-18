@@ -69,8 +69,9 @@ public class EventController {
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
         List<Event> events = eventService.findAll();
-        return ResponseEntity.ok(events.stream()
-                .map(x -> eventMapper.toDto(x, hasSplitTimes(x)))
+        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(events);
+        List<EventDto> eventDtos = eventMapper.toDtos(events, hasSplitTimesMap);
+        return ResponseEntity.ok(eventDtos.stream()
                 .sorted(Comparator.reverseOrder())
                 .toList());
     }
@@ -144,13 +145,20 @@ public class EventController {
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
-        return ResponseEntity.ok(eventMapper.toDto(event, hasSplitTimes(event)));
+        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(List.of(event));
+        List<EventDto> eventDtos = eventMapper.toDtos(List.of(event), hasSplitTimesMap);
+        return ResponseEntity.ok(eventDtos.get(0));
     }
 
     @GetMapping("/event/{id}")
     public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
-        return ResponseEntity.ok(eventMapper.toDto(event, hasSplitTimes(event)));
+
+        // Batch load organisations even for single event to avoid N+1
+        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(List.of(event));
+        List<EventDto> eventDtos = eventMapper.toDtos(List.of(event), hasSplitTimesMap);
+
+        return ResponseEntity.ok(eventDtos.get(0));
     }
 
     @PutMapping("/event/{id}")
@@ -173,7 +181,9 @@ public class EventController {
                         : null,
                 Discipline.fromValue(eventDto.discipline().id()),
                 eventDto.aggregateScore());
-        return ResponseEntity.ok(eventMapper.toDto(event, hasSplitTimes(event)));
+        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(List.of(event));
+        List<EventDto> eventDtos = eventMapper.toDtos(List.of(event), hasSplitTimesMap);
+        return ResponseEntity.ok(eventDtos.get(0));
     }
 
     @DeleteMapping("/event/{id}")

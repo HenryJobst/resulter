@@ -112,6 +112,69 @@ The backend follows strict hexagonal architecture with DDD principles enforced b
 - Services cannot query the database directly - they must use Repository methods
 - Data flows: DTOs/Domain Entities between Controllers and Services; DBOs between Repositories and Services
 
+**Batch Loading Pattern (N+1 Query Optimization):**
+
+Spring Data JDBC's `@MappedCollection` causes N+1 queries (1 main query + N queries for each association). Use the Batch Loading Pattern to eliminate this:
+
+1. **Load entities WITHOUT associations** using custom queries
+2. **Batch load associations** in a single query for all entities
+3. **Populate associations** programmatically
+
+Example implementation (see `EventRepositoryDataJdbcAdapter.java`):
+
+```java
+// 1. Load events without MappedCollection
+List<EventDbo> eventDbos = eventJdbcRepository.findAllEventsWithoutOrganisations();
+
+// 2. Batch load event-organisation mappings (single query for all events)
+List<Long> eventIds = eventDbos.stream().map(EventDbo::getId).toList();
+Map<Long, Set<EventOrganisationDbo>> eventOrgMap =
+    eventJdbcRepository.findOrganisationsByEventIds(eventIds).stream()
+        .collect(Collectors.groupingBy(eo -> eo.getEventId().getId(), Collectors.toSet()));
+
+// 3. Populate organisations in EventDbo objects
+eventDbos.forEach(event -> {
+    Set<EventOrganisationDbo> orgs = eventOrgMap.getOrDefault(event.getId(), Collections.emptySet());
+    event.setOrganisations(orgs);
+});
+
+// 4. Batch load organisation entities (if needed)
+Map<Long, Organisation> orgMap = batchLoadOrganisations(eventDbos);
+```
+
+**For paginated queries**, implement custom repository fragment with JdbcClient:
+
+```java
+// Custom interface
+public interface EventJdbcRepositoryCustom {
+    Page<EventDbo> findAllWithoutOrganisations(Pageable pageable);
+}
+
+// Implementation using JdbcClient (no MappedCollection loading)
+public class EventJdbcRepositoryImpl implements EventJdbcRepositoryCustom {
+    private final JdbcClient jdbcClient;
+
+    @Override
+    public Page<EventDbo> findAllWithoutOrganisations(Pageable pageable) {
+        String query = "SELECT id, name, ... FROM event " + orderByClause + " LIMIT ? OFFSET ?";
+        List<EventDbo> eventDbos = jdbcClient.sql(query)
+            .param(pageable.getPageSize())
+            .param(pageable.getOffset())
+            .query(new EventDboRowMapper())
+            .list();
+        // Return PageImpl with total count
+    }
+}
+```
+
+**Performance improvement:** Query count reduced from N+1 to 3-4 queries (70-80% reduction).
+
+**Reference implementations:**
+- `EventJdbcRepositoryCustom.java` - Custom repository interface
+- `EventJdbcRepositoryImpl.java` - JdbcClient-based pagination implementation
+- `EventRepositoryDataJdbcAdapter.java` - Service adapter with batch loading orchestration
+- `EventJdbcRepository.java` - Base repository with batch loading queries
+
 ### Frontend - Feature-Based Structure
 
 Organized by features in `frontend/src/features/`:

@@ -37,7 +37,7 @@
         <native-maven-plugin.version>0.11.3</native-maven-plugin.version>
         <p6spy-spring-boot-starter.version>2.0.0</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
-        <spring-oxm.version>7.0.2</spring-oxm.version>
+        <spring-oxm.version>7.0.3</spring-oxm.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.1</springdoc-openapi-starter-webmvc-ui.version>
         <testcontainers.version>2.0.3</testcontainers.version>
         <thumbnailator.version>0.4.21</thumbnailator.version>

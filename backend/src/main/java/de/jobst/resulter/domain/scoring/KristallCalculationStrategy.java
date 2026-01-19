@@ -4,7 +4,6 @@ import de.jobst.resulter.domain.*;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
 
@@ -49,8 +48,6 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
             return List.of();
         }
 
-        AtomicInteger nextPoints = new AtomicInteger(10);
-
         Set<OrganisationId> organisationWithScore = new HashSet<>();
         var personRaceResultsWithScore = personRaceResults.stream()
             .filter(x -> Optional.ofNullable(organisationByPerson.get(x.getPersonId()))
@@ -58,11 +55,31 @@ public class KristallCalculationStrategy implements CupTypeCalculationStrategy {
                 .isPresent())
             .toList();
 
-        return personRaceResultsWithScore.stream()
-            .map(x -> calculateScore(x,
-                organisationByPerson.get(x.getPersonId()),
-                Math.max(nextPoints.getAndUpdate(n -> n > 1 ? n - 1 : 1), 1)))
-            .toList();
+        List<CupScore> scores = new ArrayList<>();
+        int nextPoints = 10;
+        PunchTime previousRuntime = null;
+        int currentGroupPoints = 10;
+        int currentGroupSize = 0;
+
+        for (PersonRaceResult result : personRaceResultsWithScore) {
+            PunchTime currentRuntime = result.getRuntime();
+
+            if (previousRuntime != null && !currentRuntime.equals(previousRuntime)) {
+                // New time group, update points for next group
+                nextPoints = Math.max(currentGroupPoints - currentGroupSize, 1);
+                currentGroupPoints = nextPoints;
+                currentGroupSize = 0;
+            }
+
+            currentGroupSize++;
+            previousRuntime = currentRuntime;
+
+            scores.add(calculateScore(result,
+                organisationByPerson.get(result.getPersonId()),
+                currentGroupPoints));
+        }
+
+        return scores;
     }
 
     private CupScore calculateScore(PersonRaceResult personRaceResult,

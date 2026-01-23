@@ -1,0 +1,31 @@
+[_]
+schema-version = "0.2"
+
+[io.buildpacks]
+include = [
+    "dist/",
+    "default.conf"
+]
+
+[[io.buildpacks.group]]
+id = "paketo-buildpacks/nginx"
+version = "~0.20"
+
+[build]
+
+# Nginx buildpack configuration
+[[build.env]]
+name = "BP_WEB_SERVER"
+value = "nginx"
+
+[[build.env]]
+name = "BP_WEB_SERVER_ROOT"
+value = "dist"
+
+[[build.env]]
+name = "BP_NGINX_CONF_FILE"
+value = "default.conf"
+
+[metadata]
+name = "resulter-frontend"
+version = "4.6.4"

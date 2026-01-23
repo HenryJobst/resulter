@@ -23,8 +23,12 @@ Resulter is a full-stack orienteering competition management system that handles
 mvn clean install                      # Build entire project
 mvn compile                            # Compile backend
 
-# Docker build
+# Docker build (Dockerfile-based)
 ./backend/build.sh                     # Build Docker image
+
+# Paketo Buildpacks build (alternative)
+./backend/build-paketo.sh              # Build with Cloud Native Buildpacks
+# Requires pack CLI: brew install buildpacks/tap/pack
 ```
 
 ### Frontend (from /frontend directory)
@@ -39,6 +43,13 @@ pnpm test:e2e:dev                      # Open Cypress in dev mode
 pnpm lint                              # Lint with ESLint
 pnpm lint:fix                          # Fix linting issues
 pnpm type-check                        # Type check with vue-tsc
+
+# Docker build (Dockerfile-based)
+./build.sh                             # Build Docker image
+
+# Paketo Buildpacks build (alternative)
+./build-paketo.sh                      # Build with Cloud Native Buildpacks
+# Requires pack CLI: brew install buildpacks/tap/pack
 ```
 
 ### Running Single Tests
@@ -498,8 +509,30 @@ XML result files (IOF format) parsed in `backend/src/main/java/de/jobst/resulter
 
 ### Docker Images
 
+Two build approaches available:
+
+**Dockerfile-based (default):**
 - Backend: `./backend/build.sh` builds Docker image
 - Frontend: `./frontend/build.sh` builds Docker image
+- CI/CD: `.github/workflows/build-image.yml`
+- Tags: `latest`, `4.6.4`, `4`, `4.6`
+
+**Paketo Buildpacks (alternative):**
+- Backend: `./backend/build-paketo.sh` builds with Cloud Native Buildpacks
+- Frontend: `./frontend/build-paketo.sh` builds with Cloud Native Buildpacks
+- CI/CD: `.github/workflows/build-paketo.yml`
+- Tags: `paketo-latest`, `paketo-4.6.4`, `paketo-4`, `paketo-4.6`
+- Requires pack CLI: `brew install buildpacks/tap/pack`
+- Benefits: 12-factor app, runtime config, automatic SBOM, non-root user, auto-updating base images
+
+**Key Differences:**
+- **Config**: Dockerfile uses build-time ARGs; Paketo uses runtime ENV vars
+- **Base**: Dockerfile uses Alpine; Paketo uses Ubuntu Jammy
+- **User**: Dockerfile runs as root; Paketo runs as non-root (UID 1000)
+- **Paths**: Dockerfile uses `/app`; Paketo uses `/workspace`
+- **SBOM**: Paketo auto-generates Software Bill of Materials
+
+**Deployment:**
 - Full deployment: Docker Compose file in `deploy/resulter/docker-compose.yml`
 
 ### Traefik Configuration

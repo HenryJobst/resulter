@@ -69,8 +69,20 @@ communication with Keycloak, and the frontend uses secure session cookies.
    ```
 5. Deployment
 
-- there are separate deployment scripts (build.sh) to build docker images for frontend and backend
-- there is a compose file to start the whole application with database in docker containers
+   **Two build approaches available:**
+
+   **Option 1: Dockerfile-based build (default)**
+   - Separate build scripts for frontend and backend: `./backend/build.sh` and `./frontend/build.sh`
+   - Traditional Docker build with Alpine base images
+
+   **Option 2: Paketo Buildpacks (Cloud Native Buildpacks)**
+   - Build scripts: `./backend/build-paketo.sh` and `./frontend/build-paketo.sh`
+   - Requires pack CLI: `brew install buildpacks/tap/pack` (macOS) or see [buildpacks.io](https://buildpacks.io/docs/tools/pack/)
+   - Benefits: 12-factor apps, runtime configuration, automatic SBOM generation, non-root user
+   - CI/CD: `.github/workflows/build-paketo.yml`
+
+   **Running the application:**
+   - There is a compose file in `deploy/resulter/` to start the complete application with database in Docker containers
 
 ## Usage
 
@@ -156,9 +168,20 @@ Kommunikation mit Keycloak übernimmt und das Frontend sichere Session-Cookies v
     ```
 5. Deployment
 
-- es gibt je ein Script (build.sh) um Docker-Images für Frontend und Backend zu bauen
-- im Verzeichnis deploy/resulter gibt es ein Docker-Compose-File mit dem die komplette Anwendung mit Datenbank gestartet
-  werden kann
+   **Zwei Build-Varianten verfügbar:**
+
+   **Option 1: Dockerfile-basierter Build (Standard)**
+   - Separate Build-Skripte für Frontend und Backend: `./backend/build.sh` und `./frontend/build.sh`
+   - Traditioneller Docker-Build mit Alpine-Base-Images
+
+   **Option 2: Paketo Buildpacks (Cloud Native Buildpacks)**
+   - Build-Skripte: `./backend/build-paketo.sh` und `./frontend/build-paketo.sh`
+   - Benötigt pack CLI: `brew install buildpacks/tap/pack` (macOS) oder siehe [buildpacks.io](https://buildpacks.io/docs/tools/pack/)
+   - Vorteile: 12-Faktor-Apps, Runtime-Konfiguration, automatische SBOM-Generierung, Non-Root-User
+   - CI/CD: `.github/workflows/build-paketo.yml`
+
+   **Anwendung ausführen:**
+   - Im Verzeichnis `deploy/resulter/` gibt es ein Docker-Compose-File, mit dem die komplette Anwendung mit Datenbank gestartet werden kann
 
 ## Nutzung
 

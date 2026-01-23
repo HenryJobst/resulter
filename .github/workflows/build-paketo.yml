@@ -1,0 +1,180 @@
+name: Build and Push Paketo Images
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - 'releases/**'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ${{ vars.IMAGE_DEPLOY_REPO }}
+  IMAGE_NAME_FRONTEND: ${{ github.repository }}/frontend
+  IMAGE_NAME_BACKEND: ${{ github.repository }}/backend
+
+permissions:
+  actions: write
+  checks: read
+  contents: read
+  deployments: write
+  packages: write
+  pull-requests: read
+  security-events: read
+  statuses: read
+
+jobs:
+  build-backend-paketo:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install pack CLI
+        uses: buildpacks/github-actions/setup-pack@v5.7.4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version information
+        id: extract
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            MAJOR_VERSION=$(echo $VERSION | cut -d'.' -f1)
+            MAJOR_MINOR_VERSION=$(echo $VERSION | cut -d'.' -f1-2)
+            echo "VERSION=${VERSION}" >> $GITHUB_ENV
+            echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
+            echo "MAJOR_MINOR_VERSION=${MAJOR_MINOR_VERSION}" >> $GITHUB_ENV
+            echo "IS_VERSION_SET=true" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == refs/heads/releases/v* ]]; then
+            BRANCH_NAME=${GITHUB_REF#refs/heads/releases/}
+            FULL_VERSION=${GITHUB_REF#refs/heads/releases/v}
+            MAJOR_VERSION=$(echo $BRANCH_NAME | cut -d'.' -f1 | cut -d'v' -f2)
+            MAJOR_MINOR_VERSION=$(echo $BRANCH_NAME | awk -F'.' '{print $1"."$2}' | cut -d'v' -f2)
+            echo "VERSION=${FULL_VERSION}" >> $GITHUB_ENV
+            echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
+            echo "MAJOR_MINOR_VERSION=${MAJOR_MINOR_VERSION}" >> $GITHUB_ENV
+            echo "IS_VERSION_SET=true" >> $GITHUB_ENV
+          else
+            echo "IS_VERSION_SET=false" >> $GITHUB_ENV
+          fi
+
+      - name: Build backend with Paketo
+        working-directory: ./backend
+        run: |
+          pack build temp-backend:build \
+            --builder paketobuildpacks/builder-jammy-base \
+            --buildpack paketo-buildpacks/java \
+            --env BP_JVM_VERSION=21 \
+            --env BP_MAVEN_VERSION=3.9.x \
+            --env BP_MAVEN_BUILD_ARGUMENTS="-Dmaven.test.skip=true clean install" \
+            --env BP_MAVEN_SETTINGS_PATH=settings.xml \
+            --path . \
+            --cache-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}-cache \
+            --verbose
+
+      - name: Tag and push backend image
+        run: |
+          docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-latest
+          docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ github.sha }}
+
+          if [ "${{ env.IS_VERSION_SET }}" == "true" ]; then
+            docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ env.VERSION }}
+            docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ env.MAJOR_VERSION }}
+            docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ env.MAJOR_MINOR_VERSION }}
+          fi
+
+          docker push --all-tags ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
+
+  build-frontend-paketo:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install pack CLI
+        uses: buildpacks/github-actions/setup-pack@v5.7.4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version information
+        id: extract
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            MAJOR_VERSION=$(echo $VERSION | cut -d'.' -f1)
+            MAJOR_MINOR_VERSION=$(echo $VERSION | cut -d'.' -f1-2)
+            echo "VERSION=${VERSION}" >> $GITHUB_ENV
+            echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
+            echo "MAJOR_MINOR_VERSION=${MAJOR_MINOR_VERSION}" >> $GITHUB_ENV
+            echo "IS_VERSION_SET=true" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == refs/heads/releases/v* ]]; then
+            BRANCH_NAME=${GITHUB_REF#refs/heads/releases/}
+            FULL_VERSION=${GITHUB_REF#refs/heads/releases/v}
+            MAJOR_VERSION=$(echo $BRANCH_NAME | cut -d'.' -f1 | cut -d'v' -f2)
+            MAJOR_MINOR_VERSION=$(echo $BRANCH_NAME | awk -F'.' '{print $1"."$2}' | cut -d'v' -f2)
+            echo "VERSION=${FULL_VERSION}" >> $GITHUB_ENV
+            echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
+            echo "MAJOR_MINOR_VERSION=${MAJOR_MINOR_VERSION}" >> $GITHUB_ENV
+            echo "IS_VERSION_SET=true" >> $GITHUB_ENV
+          else
+            echo "IS_VERSION_SET=false" >> $GITHUB_ENV
+          fi
+
+      - name: Build frontend with Paketo
+        working-directory: ./frontend
+        env:
+          VITE_API_ENDPOINT: ${{ secrets.VITE_API_ENDPOINT }}
+          VITE_IMPRESS_TEXT_DE: ${{ vars.VITE_IMPRESS_TEXT_DE }}
+          VITE_IMPRESS_TEXT_EN: ${{ vars.VITE_IMPRESS_TEXT_EN }}
+        run: |
+          pack build temp-frontend:build \
+            --builder paketobuildpacks/builder-jammy-base \
+            --buildpack paketo-buildpacks/nodejs \
+            --buildpack paketo-buildpacks/nginx \
+            --env BP_NODE_VERSION=22.x \
+            --env BP_NODE_PROJECT_PATH=. \
+            --env BP_NODE_RUN_SCRIPTS=build \
+            --env BP_ENABLE_PNPM=true \
+            --env VITE_API_ENDPOINT="${VITE_API_ENDPOINT}" \
+            --env VITE_IMPRESS_TEXT_DE="${VITE_IMPRESS_TEXT_DE}" \
+            --env VITE_IMPRESS_TEXT_EN="${VITE_IMPRESS_TEXT_EN}" \
+            --env BP_WEB_SERVER=nginx \
+            --env BP_WEB_SERVER_ROOT=dist \
+            --env BP_NGINX_CONF_FILE=default.conf \
+            --path . \
+            --cache-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}-cache \
+            --verbose
+
+      - name: Tag and push frontend image
+        run: |
+          docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-latest
+          docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ github.sha }}
+
+          if [ "${{ env.IS_VERSION_SET }}" == "true" ]; then
+            docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ env.VERSION }}
+            docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ env.MAJOR_VERSION }}
+            docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ env.MAJOR_MINOR_VERSION }}
+          fi
+
+          docker push --all-tags ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}

@@ -14,7 +14,7 @@
             "cache": true
         },
         "dev": {
-            "cache": true
+            "cache": false
         },
         "test:unit": {
             "cache": true

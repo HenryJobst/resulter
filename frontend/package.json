@@ -67,7 +67,7 @@
         "@antfu/eslint-config": "^6.7.3",
         "@intlify/unplugin-vue-i18n": "^11.0.3",
         "@nx/eslint": "22.3.3",
-        "@nx/playwright": "22.3.3",
+        "@nx/playwright": "22.4.2",
         "@nx/vite": "22.3.3",
         "@nx/vue": "22.3.3",
         "@nx/web": "22.3.3",

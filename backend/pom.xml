@@ -43,7 +43,7 @@
         <thumbnailator.version>0.4.21</thumbnailator.version>
         <tika-core.version>3.2.3</tika-core.version>
         <turkraft-springfilter-core.version>3.2.5</turkraft-springfilter-core.version>
-        <spotless-maven-plugin.version>3.1.0</spotless-maven-plugin.version>
+        <spotless-maven-plugin.version>3.2.0</spotless-maven-plugin.version>
         <google-java-format.version>1.25.2</google-java-format.version>
         <cleanthat.version>2.22</cleanthat.version>
         <eclipse-jdt.version>4.34</eclipse-jdt.version>

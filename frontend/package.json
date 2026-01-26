@@ -91,7 +91,7 @@
         "@vue/tsconfig": "^0.8.1",
         "autoprefixer": "^10.4.23",
         "axe-core": "^4.11.1",
-        "baseline-browser-mapping": "^2.9.16",
+        "baseline-browser-mapping": "^2.9.18",
         "cypress": "^15.9.0",
         "dotenv": "^17.2.3",
         "eslint": "^9.39.2",

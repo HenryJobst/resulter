@@ -66,7 +66,7 @@ function createUrlSearchParams(tableSettings: TableSettings) {
         let filterParam: any = null
         Object.keys(tableSettings.filters).forEach((key) => {
             const filter = tableSettings.filters![key] as DataTableFilterMetaData
-            if (filter.value) {
+            if (filter.value !== undefined && filter.value !== null && filter.value !== '') {
                 if (!filterParam)
                     filterParam = sfEqual('1', '1')
                 switch (filter.matchMode) {

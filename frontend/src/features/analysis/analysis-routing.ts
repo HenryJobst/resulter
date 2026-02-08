@@ -26,15 +26,14 @@ export const analysisRoutes: RouteRecordRaw[] = [
         path: '/:locale/analysis/cheat-detection',
         name: 'cheat-detection-analysis',
         component: () => import('@/features/analysis/pages/AnomalyDetectionAnalysis.vue'),
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to) => {
             const authStore = useAuthStore()
-            if (authStore.isAdmin) {
-                next()
-            }
-            else {
-                // Redirect to analysis hub if not admin
-                next({ name: 'analysis-hub' })
-            }
+            const authenticated = await authStore.ensureAuthInitialized()
+            if (authenticated && authStore.isAdmin)
+                return true
+
+            // Redirect to analysis hub if not admin
+            return { name: 'analysis-hub', params: { locale: to.params.locale } }
         },
         props: route => ({
             scope: route.query.scope || 'event',
@@ -51,15 +50,14 @@ export const analysisRoutes: RouteRecordRaw[] = [
         path: '/:locale/analysis/hanging-detection',
         name: 'hanging-detection-analysis',
         component: () => import('@/features/analysis/pages/HangingDetectionAnalysis.vue'),
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to) => {
             const authStore = useAuthStore()
-            if (authStore.isAdmin) {
-                next()
-            }
-            else {
-                // Redirect to analysis hub if not admin
-                next({ name: 'analysis-hub' })
-            }
+            const authenticated = await authStore.ensureAuthInitialized()
+            if (authenticated && authStore.isAdmin)
+                return true
+
+            // Redirect to analysis hub if not admin
+            return { name: 'analysis-hub', params: { locale: to.params.locale } }
         },
         props: route => ({
             scope: route.query.scope || 'event',

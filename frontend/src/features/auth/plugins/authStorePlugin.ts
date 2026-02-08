@@ -22,7 +22,7 @@ const authStorePlugin = {
         if (options.router) {
             options.router.isReady().then(() => {
                 console.log('[BFF Auth Plugin] Router is ready, calling initAuth...')
-                store.initAuth().then((authenticated) => {
+                store.ensureAuthInitialized().then((authenticated) => {
                     console.log('[BFF Auth Plugin] initAuth completed. Authenticated:', authenticated)
                     console.log('[BFF Auth Plugin] Store state:', {
                         authenticated: store.authenticated,
@@ -49,7 +49,7 @@ const authStorePlugin = {
         else {
             // Fallback if no router provided
             console.log('[BFF Auth Plugin] No router provided, calling initAuth directly...')
-            store.initAuth()
+            store.ensureAuthInitialized()
         }
     },
 }

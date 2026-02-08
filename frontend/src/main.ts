@@ -114,6 +114,26 @@ function mergePrimeVueLocale(base: any, override: any) {
 
 export function renderApp() {
     const app = createApp(App)
+    // Global error handler
+    app.config.errorHandler = (err) => {
+        if (err instanceof AxiosError) {
+            const axiosError = err as AxiosError
+            if (axiosError?.isAxiosError) {
+                // ignore error, error reporting is already handled by the axios token interceptor
+                return
+            }
+        }
+
+        console.error('Global error:', err)
+        const errorStore = getErrorStore()
+        errorStore.addError(err)
+        if (router.currentRoute.value.name !== 'start-page') {
+            router.push({ name: 'start-page' }).catch(() => {
+                /* ignore to prevent error loop */
+            })
+        }
+    }
+
     app.directive('tooltip', Tooltip)
     app.use(PrimeVue, {
         ripple: true,
@@ -139,26 +159,6 @@ export function renderApp() {
     app.use(i18n)
     app.use(router)
     app.mount('#app')
-
-    // Global error handler
-    app.config.errorHandler = (err) => {
-        if (err instanceof AxiosError) {
-            const axiosError = err as AxiosError
-            if (axiosError?.isAxiosError) {
-                // ignore error, error reporting is already handled by the axios token interceptor
-                return
-            }
-        }
-
-        console.error('Global error:', err)
-        const errorStore = getErrorStore()
-        errorStore.addError(err)
-        if (router.currentRoute.value.name !== 'start-page') {
-            router.push({ name: 'start-page' }).catch(() => {
-                /* ignore to prevent error loop */
-            })
-        }
-    }
 
     return app
 }

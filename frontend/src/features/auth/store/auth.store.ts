@@ -12,6 +12,8 @@ export const useAuthStore = defineStore(
     () => {
         const authenticated = ref<boolean>(false)
         const user = ref<User>({})
+        const authInitialized = ref<boolean>(false)
+        let initAuthPromise: Promise<boolean> | null = null
 
         // Computed properties
         const isAuthenticated = computed(() => authenticated.value)
@@ -78,13 +80,31 @@ export const useAuthStore = defineStore(
                 console.log('[Auth Store] Fetching CSRF token...')
                 await bffAuthService.getCsrfToken()
                 console.log('[Auth Store] CSRF token fetched')
+                authInitialized.value = true
                 return true
             }
             else {
                 console.log('[Auth Store] No user info, clearing data')
                 clearUserData()
-                return false
             }
+            authInitialized.value = true
+            return authenticated.value
+        }
+
+        /**
+         * Ensure authentication is initialized exactly once during app startup.
+         * Additional calls reuse the in-flight request to prevent races.
+         */
+        async function ensureAuthInitialized(): Promise<boolean> {
+            if (authInitialized.value)
+                return authenticated.value
+
+            if (!initAuthPromise) {
+                initAuthPromise = initAuth().finally(() => {
+                    initAuthPromise = null
+                })
+            }
+            return await initAuthPromise
         }
 
         /**
@@ -109,6 +129,7 @@ export const useAuthStore = defineStore(
             login,
             logout,
             initAuth,
+            ensureAuthInitialized,
             setBffUser,
             clearUserData,
         }

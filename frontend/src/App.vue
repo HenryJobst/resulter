@@ -21,7 +21,6 @@ const { t, locale } = useI18n()
 const authStore = useAuthStore()
 
 const currentLocale = ref(locale.value)
-const fullUrl = ref('')
 const sidebarCollapsed = ref(false)
 
 function mergePrimeVueLocale(base: any, override: any) {
@@ -39,8 +38,6 @@ const primevue = usePrimeVue()
 const frontendVersion = __APP_VERSION__
 
 onMounted(() => {
-    fullUrl.value = cleanUrl(window.location.href)
-
     // Check localStorage for sidebar preference
     const savedSidebarState = localStorage.getItem('sidebarCollapsed')
     if (savedSidebarState !== null) {
@@ -51,17 +48,7 @@ onMounted(() => {
 // Synchronisation, um die Lokalisierung vom Router-Pfad zu ändern
 watch(router.currentRoute, (route) => {
     currentLocale.value = route.params.locale as string
-    fullUrl.value = cleanUrl(window.location.href)
 })
-
-function cleanUrl(url: string) {
-    const urlObj = new URL(url)
-    // delete router state or error parameters
-    urlObj.hash = ''
-    // Optional: delete query parameters, if desired
-    // urlObj.search = '';
-    return urlObj.toString()
-}
 
 async function switchPrimeVueLocale(locale: string) {
     if (!locale)
@@ -114,7 +101,6 @@ function setDetails(details: string) {
         <TopNavbar
             v-model:current-locale="currentLocale"
             :sidebar-collapsed="sidebarCollapsed"
-            :full-url="fullUrl"
             @toggle-sidebar="toggleSidebar"
         />
 

@@ -10,7 +10,6 @@ import { getFlagClass, SUPPORT_LOCALES } from '@/i18n'
 const props = defineProps<{
     sidebarCollapsed: boolean
     currentLocale: string
-    fullUrl: string
 }>()
 
 const emit = defineEmits<{
@@ -44,7 +43,7 @@ function isAnalysisActive() {
         'split-time-analysis',
         'split-time-table-analysis',
         'mental-resilience-analysis',
-        'anomaly-detection-analysis',
+        'cheat-detection-analysis',
         'hanging-detection-analysis',
     ]
     return analysisRoutes.includes(route.name as string)
@@ -131,7 +130,7 @@ function isAnalysisActive() {
                     severity="secondary"
                     text
                     rounded
-                    @click="authStore.login(fullUrl, currentLocale)"
+                    @click="authStore.login(route.fullPath, currentLocale)"
                 />
                 <Button
                     v-if="authStore.isAuthenticated"

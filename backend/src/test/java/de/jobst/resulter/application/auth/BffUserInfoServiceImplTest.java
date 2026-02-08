@@ -2,7 +2,6 @@ package de.jobst.resulter.application.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import de.jobst.resulter.adapter.BffUserInfoDto;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -45,30 +44,32 @@ class BffUserInfoServiceImplTest {
                 new OAuth2AuthenticationToken(oidcUser, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")), "keycloak");
 
         // Act
-        Optional<BffUserInfoDto> result = service.extractUserInfo(authentication);
+        Optional<BffUserInfo> result = service.extractUserInfo(authentication);
 
         // Assert
         assertThat(result).isPresent();
-        BffUserInfoDto userInfo = result.get();
+        BffUserInfo userInfo = result.get();
         assertThat(userInfo.username()).isEqualTo("testuser");
         assertThat(userInfo.email()).isEqualTo("test@example.com");
         assertThat(userInfo.name()).isEqualTo("Test User");
-        assertThat(userInfo.roles()).containsExactly("ADMIN");
+        assertThat(userInfo.roles()).containsExactlyInAnyOrder("ADMIN");
         assertThat(userInfo.groups()).containsExactlyInAnyOrder("sales", "marketing");
-        assertThat(userInfo.permissions().canAccessAdmin()).isTrue();
     }
 
     @Test
     void extractUserInfo_withNullAuthentication_returnsEmpty() {
-        Optional<BffUserInfoDto> result = service.extractUserInfo(null);
+        Optional<BffUserInfo> result = service.extractUserInfo(null);
         assertThat(result).isEmpty();
     }
 
     @Test
     void extractUserInfo_withMultipleRoles_returnsAllRoles() {
         // Arrange
-        Map<String, Object> claims =
-                Map.of("sub", "user123", "preferred_username", "testuser", "email", "test@example.com");
+        Map<String, Object> claims = Map.of(
+                "sub", "user123",
+                "preferred_username", "testuser",
+                "email", "test@example.com",
+                "realm_access", Map.of("roles", List.of("ADMIN", "USER", "ENDPOINT_ADMIN")));
 
         OidcIdToken idToken =
                 new OidcIdToken("token", Instant.now(), Instant.now().plusSeconds(3600), claims);
@@ -76,14 +77,12 @@ class BffUserInfoServiceImplTest {
         OAuth2AuthenticationToken authentication = getOAuth2AuthenticationToken(idToken);
 
         // Act
-        Optional<BffUserInfoDto> result = service.extractUserInfo(authentication);
+        Optional<BffUserInfo> result = service.extractUserInfo(authentication);
 
         // Assert
         assertThat(result).isPresent();
-        BffUserInfoDto userInfo = result.get();
+        BffUserInfo userInfo = result.get();
         assertThat(userInfo.roles()).containsExactlyInAnyOrder("ADMIN", "USER", "ENDPOINT_ADMIN");
-        assertThat(userInfo.permissions().canAccessAdmin()).isTrue();
-        assertThat(userInfo.permissions().canManageEvents()).isTrue();
     }
 
     private static @NonNull OAuth2AuthenticationToken getOAuth2AuthenticationToken(OidcIdToken idToken) {

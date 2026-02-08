@@ -2,7 +2,6 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.BffUserInfoDto;
 import de.jobst.resulter.application.auth.BffUserInfoService;
-import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
@@ -25,30 +24,22 @@ public class BffController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<BffUserInfoDto> getUserInfo(@Nullable Authentication authentication,
-                                                      jakarta.servlet.http.HttpServletRequest request) {
-        log.info("GET /bff/user called");
-        log.info("Authentication: {}", authentication != null ? authentication.getName() : "null");
-        log.info("Session ID: {}", request.getSession(false) != null ? request.getSession(false).getId() : "no session");
-
-        if (request.getCookies() != null) {
-            log.info("Cookies received: {}", java.util.Arrays.stream(request.getCookies())
-                    .map(Cookie::getName)
-                    .collect(java.util.stream.Collectors.joining(", ")));
-        } else {
-            log.warn("No cookies received in /bff/user request");
-        }
+    public ResponseEntity<BffUserInfoDto> getUserInfo(@Nullable Authentication authentication) {
+        log.debug("GET /bff/user called, authenticated={}",
+                authentication != null && authentication.isAuthenticated());
 
         return bffUserInfoService
                 .extractUserInfo(authentication)
                 .map(userInfo -> {
-                    log.info("Returning user info for: {}", userInfo.username());
-                    return ResponseEntity.ok(userInfo);
+                    BffUserInfoDto dto = BffUserInfoDto.from(
+                            userInfo.username(),
+                            userInfo.email(),
+                            userInfo.name(),
+                            userInfo.roles(),
+                            userInfo.groups());
+                    return ResponseEntity.ok(dto);
                 })
-                .orElseGet(() -> {
-                    log.warn("No user info found, returning 401");
-                    return ResponseEntity.status(401).build();
-                });
+                .orElseGet(() -> ResponseEntity.status(401).build());
     }
 
     @GetMapping("/csrf")
@@ -56,13 +47,12 @@ public class BffController {
         // CSRF token automatically added to response by Spring Security
         // This endpoint exists to trigger token generation for SPA
         // By accepting CsrfToken as parameter, we force Spring to generate and set the cookie
-        log.info("CSRF token requested, token: {}", csrfToken.getToken());
+        log.debug("CSRF token requested");
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/debug/authorities")
-    public ResponseEntity<Map<String, Object>> getAuthorities(@Nullable Authentication authentication,
-                                                                jakarta.servlet.http.HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> getAuthorities(@Nullable Authentication authentication) {
         log.info("GET /bff/debug/authorities called");
 
         Map<String, Object> debug = new java.util.HashMap<>();
@@ -78,8 +68,6 @@ public class BffController {
         } else {
             debug.put("authentication", "null");
         }
-
-        debug.put("sessionId", request.getSession(false) != null ? request.getSession(false).getId() : "no session");
 
         return ResponseEntity.ok(debug);
     }

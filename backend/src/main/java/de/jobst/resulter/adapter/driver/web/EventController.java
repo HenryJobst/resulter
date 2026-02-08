@@ -62,8 +62,10 @@ public class EventController {
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
         List<Event> events = eventService.findAll();
+        Map<EventId, Boolean> hasSplitTimesByEventId = hasSplitTimesByEventId(events);
         return ResponseEntity.ok(events.stream()
-                .map(x -> EventDto.from(x, organisationService, eventCertificateService, hasSplitTimes(x)))
+                .map(x -> EventDto.from(x, organisationService, eventCertificateService,
+                        hasSplitTimesByEventId.getOrDefault(x.getId(), Boolean.FALSE)))
                 .sorted(Comparator.reverseOrder())
                 .toList());
     }
@@ -80,12 +82,40 @@ public class EventController {
                 pageable != null
                         ? FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
+        Map<EventId, Boolean> hasSplitTimesByEventId = hasSplitTimesByEventId(events.getContent());
         return ResponseEntity.ok(new PageImpl<>(
                 events.getContent().stream()
-                        .map(x -> EventDto.from(x, organisationService, eventCertificateService, hasSplitTimes(x)))
+                        .map(x -> EventDto.from(x, organisationService, eventCertificateService,
+                                hasSplitTimesByEventId.getOrDefault(x.getId(), Boolean.FALSE)))
                         .toList(),
                 FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
                 events.getTotalElements()));
+    }
+
+    private Map<EventId, Boolean> hasSplitTimesByEventId(Collection<Event> events) {
+        if (events.isEmpty()) {
+            return Map.of();
+        }
+
+        Set<EventId> eventIds = events.stream().map(Event::getId).collect(Collectors.toSet());
+        Map<EventId, Boolean> hasSplitTimesByEventId = new HashMap<>();
+        eventIds.forEach(eventId -> hasSplitTimesByEventId.put(eventId, Boolean.FALSE));
+
+        Map<ResultListId, EventId> resultListEventById = resultListService.findAll().stream()
+                .filter(resultList -> eventIds.contains(resultList.getEventId()))
+                .collect(Collectors.toMap(ResultList::getId, ResultList::getEventId, (left, right) -> left));
+
+        if (resultListEventById.isEmpty()) {
+            return hasSplitTimesByEventId;
+        }
+
+        splitTimeListRepository.findAll().stream()
+                .map(SplitTimeList::getResultListId)
+                .map(resultListEventById::get)
+                .filter(Objects::nonNull)
+                .forEach(eventId -> hasSplitTimesByEventId.put(eventId, Boolean.TRUE));
+
+        return hasSplitTimesByEventId;
     }
 
     @GetMapping("/event_status")

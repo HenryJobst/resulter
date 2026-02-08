@@ -1,7 +1,5 @@
 package de.jobst.resulter.application.auth;
 
-import de.jobst.resulter.adapter.BffUserInfoDto;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class BffUserInfoServiceImpl implements BffUserInfoService {
 
     @Override
-    public Optional<BffUserInfoDto> extractUserInfo(@Nullable Authentication authentication) {
+    public Optional<BffUserInfo> extractUserInfo(@Nullable Authentication authentication) {
 
         if (authentication == null
                 || !authentication.isAuthenticated()
@@ -39,8 +37,7 @@ public class BffUserInfoServiceImpl implements BffUserInfoService {
 
             List<String> groups = extractGroups(oauth2User);
 
-            BffUserInfoDto userInfo =
-                BffUserInfoDto.from(username != null ? username : "unknown", email, name, roles, groups);
+            BffUserInfo userInfo = new BffUserInfo(username != null ? username : "unknown", email, name, roles, groups);
 
             log.debug("Extracted user info for: {}", username);
 

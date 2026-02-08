@@ -20,6 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,14 +54,14 @@ public class MediaFileServiceImpl implements MediaFileService {
             throw new RuntimeException(e);
         }
 
-        File originalFile = new File(filePathAndName.filePath());
+        File originalFile = filePathAndName.filePath().toFile();
         try {
             file.transferTo(originalFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        File thumbnailDir = new File(mediaFileThumbnailsPath);
+        File thumbnailDir = ensureDirectory(mediaFileThumbnailsPath).toFile();
 
         File thumbnailFile;
         try {
@@ -84,12 +87,37 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     private FilePathAndName getFilePathAndName(MultipartFile file, String mediaFilePath)
             throws IOException, MimeTypeException {
-        String fileName = StringUtils.cleanPath(getFilename(file));
-        String filePath = Optional.of(mediaFilePath).orElseThrow() + fileName;
+        Path basePath = ensureDirectory(Optional.of(mediaFilePath).orElseThrow());
+        String fileName = sanitizeFilename(getFilename(file));
+        Path filePath = basePath.resolve(fileName).normalize();
+
+        if (!filePath.startsWith(basePath)) {
+            throw new IllegalArgumentException("Invalid file path");
+        }
         return new FilePathAndName(fileName, filePath);
     }
 
-    private record FilePathAndName(String fileName, String filePath) {}
+    private static String sanitizeFilename(String fileName) {
+        String cleaned = StringUtils.cleanPath(fileName);
+        String onlyName = Paths.get(cleaned).getFileName().toString();
+
+        if (onlyName.isBlank() || onlyName.contains("..")) {
+            throw new IllegalArgumentException("Invalid filename");
+        }
+        return onlyName;
+    }
+
+    private static Path ensureDirectory(String directoryPath) {
+        Path directory = Paths.get(directoryPath).toAbsolutePath().normalize();
+        try {
+            Files.createDirectories(directory);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return directory;
+    }
+
+    private record FilePathAndName(String fileName, Path filePath) {}
 
     private String getFilename(MultipartFile file) throws IOException, MimeTypeException {
         String originalFilename = file.getOriginalFilename();
@@ -117,7 +145,8 @@ public class MediaFileServiceImpl implements MediaFileService {
     private String getExtensionByMimeType(String mimeType) throws MimeTypeException {
         MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
         MimeType type = allTypes.forName(mimeType);
-        return type.getExtension();
+        String extension = type.getExtension();
+        return extension.startsWith(".") ? extension.substring(1) : extension;
     }
 
     @Override

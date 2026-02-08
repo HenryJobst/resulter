@@ -72,7 +72,7 @@
         "@nx/playwright": "22.4.2",
         "@nx/vite": "22.3.3",
         "@nx/vue": "22.3.3",
-        "@nx/web": "22.3.3",
+        "@nx/web": "22.4.2",
         "@pinia/testing": "^1.0.3",
         "@playwright/test": "^1.57.0",
         "@rollup/plugin-dynamic-import-vars": "^2.1.5",

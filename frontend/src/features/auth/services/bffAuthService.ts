@@ -88,15 +88,42 @@ class BffAuthService {
             // Store redirect path for post-logout
             sessionStorage.setItem('bff_post_logout_redirect', redirectPath)
 
-            // Redirect DIRECTLY to backend (not proxied) - browser needs to follow redirects to Keycloak logout
-            console.log('[BFF Auth Service] Navigating to /bff/logout')
-            window.location.href = `${this.backendUrl}/bff/logout`
+            // Ensure CSRF token is present before POST logout
+            await this.getCsrfToken()
+            const csrfToken = this.getCookieValue('XSRF-TOKEN')
+
+            // Browser navigation via form submit keeps redirect chain to Keycloak logout.
+            const form = document.createElement('form')
+            form.method = 'POST'
+            form.action = `${this.backendUrl}/bff/logout`
+            form.style.display = 'none'
+
+            if (csrfToken) {
+                const csrfInput = document.createElement('input')
+                csrfInput.type = 'hidden'
+                csrfInput.name = '_csrf'
+                csrfInput.value = csrfToken
+                form.appendChild(csrfInput)
+            }
+
+            document.body.appendChild(form)
+            console.log('[BFF Auth Service] Submitting POST /bff/logout')
+            form.submit()
         }
         catch (error) {
             console.error('Logout failed:', error)
             // Even if logout fails, redirect to intended path
             window.location.href = redirectPath
         }
+    }
+
+    private getCookieValue(name: string): string | null {
+        const value = `; ${document.cookie}`
+        const parts = value.split(`; ${name}=`)
+        if (parts.length === 2) {
+            return parts.pop()?.split(';').shift() || null
+        }
+        return null
     }
 
     /**

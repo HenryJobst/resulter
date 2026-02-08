@@ -98,7 +98,7 @@ public class BffSecurityConfiguration {
                             }
                         }))
                 .logout(logout -> logout
-                        .logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/bff/logout"))
+                        .logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/bff/logout"))
                         .logoutSuccessHandler(oidcLogoutSuccessHandler())
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)

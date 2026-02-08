@@ -1,6 +1,5 @@
 package de.jobst.resulter.springapp.config;
 
-import java.time.Instant;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
@@ -17,9 +16,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -48,6 +51,9 @@ public class OAuth2ResourceServerSecurityConfiguration {
 
     @Value("#{'${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}'}")
     private String jwkSetUri;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
 
     @Value("#{'${resulter.settings.api-token.client-audience}'}")
     private String clientAudience;
@@ -232,32 +238,22 @@ public class OAuth2ResourceServerSecurityConfiguration {
     @Bean
     @Primary
     public JwtDecoder jwtDecoder() {
-        // Create decoder that supports both RS256 (OIDC standard) and RS512
-        // Explicitly add RS256 to ensure compatibility with Keycloak
+        // Create decoder that supports both RS256 (OIDC standard) and RS512.
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
                 .jwsAlgorithm(SignatureAlgorithm.RS256)
                 .jwsAlgorithm(SignatureAlgorithm.RS512)
                 .build();
 
-        decoder.setJwtValidator(token -> {
-            // Validate expiration
-            if (token.getExpiresAt() != null && token.getExpiresAt().isBefore(Instant.now())) {
-                return OAuth2TokenValidatorResult.failure(new OAuth2Error("Invalid token: expired"));
-            }
-
-            // Validate audience only for access tokens (not ID tokens)
-            // ID tokens have different audience (client_id), access tokens have API audience
+        OAuth2TokenValidator<Jwt> defaultValidator = JwtValidators.createDefaultWithIssuer(issuerUri);
+        OAuth2TokenValidator<Jwt> audienceValidator = token -> {
             List<String> audience = token.getAudience();
-            if (audience != null && !audience.isEmpty()) {
-                // Only validate if audience claim exists and is non-empty
-                if (!audience.contains(clientAudience) && !audience.contains("account")) {
-                    // Accept either API audience or "account" (common for ID tokens)
-                    return OAuth2TokenValidatorResult.failure(new OAuth2Error("Invalid token: invalid audience"));
-                }
+            if (audience == null || audience.isEmpty() || !audience.contains(clientAudience)) {
+                return OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
+                        "Invalid token audience", null));
             }
-
             return OAuth2TokenValidatorResult.success();
-        });
+        };
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(defaultValidator, audienceValidator));
 
         return decoder;
     }

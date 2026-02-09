@@ -90,6 +90,10 @@ After starting the application, you can upload result files from orienteering co
 these and provides detailed result lists. Future features such as certificate printing and points calculations will be
 added in upcoming versions.
 
+Documentation:
+- Guide for integrating new fonts into document PDF export (iText):
+  [`doc/itext-font-integration-guide.md`](doc/itext-font-integration-guide.md)
+
 ## Contributions
 
 We welcome contributions to the development of Resulter. Please consult with us in advance to avoid duplicate
@@ -188,6 +192,10 @@ Kommunikation mit Keycloak übernimmt und das Frontend sichere Session-Cookies v
 Nach dem Starten der Anwendung können Sie Ergebnisdateien von Orientierungslauf-Wettkämpfen hochladen. Die Anwendung
 verarbeitet diese und stellt detaillierte Ergebnislisten zur Verfügung. Zukünftige Funktionen wie Urkundendruck und
 Punkteberechnungen werden in kommenden Versionen ergänzt.
+
+Dokumentation:
+- Anleitung zum Einbinden neuer Schriftarten in den Dokument-PDF-Export (iText):
+  [`doc/itext-font-integration-guide.md`](doc/itext-font-integration-guide.md)
 
 ## Beiträge
 

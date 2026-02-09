@@ -1,4 +1,7 @@
-name : Build and Push Docker Images
+# LEGACY workflow: active for current production path.
+# Migration target is build-paketo.yml.
+# Marked legacy on 2026-02-09.
+name : LEGACY - Build and Push Docker Images
 
 on :
     push :

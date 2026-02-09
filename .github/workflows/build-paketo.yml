@@ -24,7 +24,104 @@ permissions:
   statuses: read
 
 jobs:
+  backend-quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21 for x64
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          architecture: x64
+          cache: maven
+      - name: Create Maven settings with fallback repositories
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'EOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                    https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <profiles>
+              <profile>
+                <id>fallback-repos</id>
+                <repositories>
+                  <repository>
+                    <id>central</id>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <releases><enabled>true</enabled></releases>
+                  </repository>
+                  <repository>
+                    <id>google-maven-central</id>
+                    <url>https://maven-central.storage-download.googleapis.com/maven2/</url>
+                    <releases><enabled>true</enabled></releases>
+                  </repository>
+                </repositories>
+                <pluginRepositories>
+                  <pluginRepository>
+                    <id>central</id>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <releases><enabled>true</enabled></releases>
+                  </pluginRepository>
+                  <pluginRepository>
+                    <id>google-maven-central</id>
+                    <url>https://maven-central.storage-download.googleapis.com/maven2/</url>
+                    <releases><enabled>true</enabled></releases>
+                  </pluginRepository>
+                </pluginRepositories>
+              </profile>
+            </profiles>
+            <activeProfiles>
+              <activeProfile>fallback-repos</activeProfile>
+            </activeProfiles>
+          </settings>
+          EOF
+      - name: Build with Maven (with retry)
+        run: |
+          for i in {1..3}; do
+            echo "Build attempt $i of 3..."
+            if mvn --batch-mode compile; then
+              echo "Build successful!"
+              exit 0
+            fi
+            if [ $i -lt 3 ]; then
+              echo "Build failed, waiting 10 seconds before retry..."
+              sleep 10
+            fi
+          done
+          echo "Build failed after 3 attempts"
+          exit 1
+        working-directory: ./backend
+
+  frontend-quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          architecture: x64
+          cache: pnpm
+          cache-dependency-path: ./frontend/pnpm-lock.yaml
+      - name: Use Latest Corepack
+        run: |
+          echo "Before: corepack version => $(corepack --version || echo 'not installed')"
+          npm install -g corepack@latest
+          echo "After : corepack version => $(corepack --version)"
+          corepack enable
+          pnpm --version
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+        working-directory: ./frontend
+      - name: Build frontend
+        run: pnpm build
+        working-directory: ./frontend
+
   build-backend-paketo:
+    needs: [backend-quality-gate, frontend-quality-gate]
     runs-on: ubuntu-latest
     environment: production
 
@@ -83,9 +180,39 @@ jobs:
             --cache-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}-cache \
             --verbose
 
+      - name: Verify SBOM metadata exists (backend)
+        run: |
+          BUILD_METADATA=$(docker inspect temp-backend:build --format '{{ index .Config.Labels "io.buildpacks.build.metadata" }}')
+          echo "$BUILD_METADATA" | grep -q '"bom"' || (echo "SBOM metadata missing in backend image" && exit 1)
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Security scan backend image (fail on HIGH/CRITICAL)
+        run: trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed temp-backend:build
+
+      - name: Export backend SBOM artifact
+        run: |
+          trivy image --format cyclonedx --output backend-sbom.cdx.json temp-backend:build
+          test -s backend-sbom.cdx.json
+
+      - name: Upload backend SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-sbom-${{ github.sha }}
+          path: backend-sbom.cdx.json
+
       - name: Tag and push backend image
         run: |
-          docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-latest
+          if [[ "${{ github.ref }}" == refs/heads/releases/* ]]; then
+            docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-latest
+          fi
           docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ github.sha }}
 
           if [ "${{ env.IS_VERSION_SET }}" == "true" ]; then
@@ -97,6 +224,7 @@ jobs:
           docker push --all-tags ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
 
   build-frontend-paketo:
+    needs: [backend-quality-gate, frontend-quality-gate]
     runs-on: ubuntu-latest
     environment: production
 
@@ -166,9 +294,39 @@ jobs:
             --cache-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}-cache \
             --verbose
 
+      - name: Verify SBOM metadata exists (frontend)
+        run: |
+          BUILD_METADATA=$(docker inspect temp-frontend:build --format '{{ index .Config.Labels "io.buildpacks.build.metadata" }}')
+          echo "$BUILD_METADATA" | grep -q '"bom"' || (echo "SBOM metadata missing in frontend image" && exit 1)
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Security scan frontend image (fail on HIGH/CRITICAL)
+        run: trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed temp-frontend:build
+
+      - name: Export frontend SBOM artifact
+        run: |
+          trivy image --format cyclonedx --output frontend-sbom.cdx.json temp-frontend:build
+          test -s frontend-sbom.cdx.json
+
+      - name: Upload frontend SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-sbom-${{ github.sha }}
+          path: frontend-sbom.cdx.json
+
       - name: Tag and push frontend image
         run: |
-          docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-latest
+          if [[ "${{ github.ref }}" == refs/heads/releases/* ]]; then
+            docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-latest
+          fi
           docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ github.sha }}
 
           if [ "${{ env.IS_VERSION_SET }}" == "true" ]; then

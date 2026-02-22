@@ -4,6 +4,8 @@ import de.jobst.resulter.domain.CupType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
@@ -25,6 +27,26 @@ public class CupJdbcRepositoryImpl implements CupJdbcRepositoryCustom {
 
     public CupJdbcRepositoryImpl(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
+    }
+
+    @Override
+    public List<CupDbo> findAllCupsWithoutEvents() {
+        return jdbcClient
+                .sql("SELECT id, name, type, year FROM cup ORDER BY id")
+                .query(new CupDboRowMapper())
+                .list();
+    }
+
+    @Override
+    public List<CupDbo> findAllByIdWithoutEvents(Collection<Long> cupIds) {
+        if (cupIds == null || cupIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return jdbcClient
+                .sql("SELECT id, name, type, year FROM cup WHERE id IN (:ids) ORDER BY id")
+                .param("ids", cupIds)
+                .query(new CupDboRowMapper())
+                .list();
     }
 
     @Override

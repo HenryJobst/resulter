@@ -23,20 +23,6 @@ public interface CupJdbcRepository
     List<CupDbo> findByEventId(@Param("eventId") Long eventId);
 
     /**
-     * Find all cups without loading the MappedCollection (events).
-     * Use this for batch loading to avoid N+1 queries.
-     */
-    @Query("SELECT * FROM cup ORDER BY id")
-    List<CupDbo> findAllCupsWithoutEvents();
-
-    /**
-     * Find cups by IDs without loading the MappedCollection (events).
-     * Use this for batch loading to avoid N+1 queries.
-     */
-    @Query("SELECT * FROM cup WHERE id IN (:cupIds) ORDER BY id")
-    List<CupDbo> findAllByIdWithoutEvents(@Param("cupIds") Collection<Long> cupIds);
-
-    /**
      * Find all cup-event mappings for given cup IDs.
      * Use this for batch loading events after loading cups.
      */

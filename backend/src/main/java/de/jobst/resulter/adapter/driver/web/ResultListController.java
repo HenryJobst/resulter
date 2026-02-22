@@ -77,7 +77,7 @@ public class ResultListController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteEventCertificateStat(@PathVariable Long id) {
         resultListService.deleteEventCertificateStat(EventCertificateStatId.of(id));
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/certificate_schema")

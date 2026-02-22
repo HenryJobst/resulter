@@ -59,7 +59,7 @@ public class OrganisationController {
     public ResponseEntity<OrganisationDto> getOrganisation(@PathVariable Long id) {
         Optional<Organisation> organisation = organisationService.findById(OrganisationId.of(id));
         return organisation
-                .map(value -> ResponseEntity.ok(organisationMapper.toDto(value)))
+                .map(value -> ResponseEntity.ok(organisationMapper.toDtos(List.of(value)).getFirst()))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -88,7 +88,7 @@ public class OrganisationController {
                         : organisationDto.childOrganisations().stream()
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
-        return ResponseEntity.ok(organisationMapper.toDto(organisation));
+        return ResponseEntity.ok(organisationMapper.toDtos(List.of(organisation)).getFirst());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -107,7 +107,7 @@ public class OrganisationController {
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
         if (null != organisation) {
-            return ResponseEntity.ok(organisationMapper.toDto(organisation));
+            return ResponseEntity.ok(organisationMapper.toDtos(List.of(organisation)).getFirst());
         } else {
             return ResponseEntity.notFound().build();
         }

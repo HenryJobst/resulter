@@ -103,6 +103,7 @@
         "detail": "Detail|Details",
         "timestamp": "Zeitstempel",
         "select_language": "Sprache auswählen",
+        "open_navigation_menu": "Navigationsmenü öffnen",
         "defaultImpressText": "Impressum nicht gesetzt!",
         "possible_duplicates": "mögliche Dopplungen",
         "split_time_analysis_ranking": "Zwischenzeiten-Rangliste",

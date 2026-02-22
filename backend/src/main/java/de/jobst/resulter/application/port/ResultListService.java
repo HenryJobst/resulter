@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @PrimaryPort
@@ -21,6 +22,7 @@ public interface ResultListService {
     ResultList update(ResultList resultList);
 
     Collection<ResultList> findByEventId(EventId id);
+    Map<EventId, List<ResultList>> findAllByEventIds(Collection<EventId> eventIds);
 
     @Transactional
     List<CupScoreList> calculateScore(ResultListId id);

@@ -58,6 +58,18 @@ public class InMemoryResultListRepository implements ResultListRepository {
     }
 
     @Override
+    public Collection<ResultList> findAllByEventIds(Collection<EventId> eventIds) {
+        if (eventIds == null || eventIds.isEmpty()) {
+            return List.of();
+        }
+
+        Set<EventId> eventIdSet = new HashSet<>(eventIds);
+        return resultLists.values().stream()
+                .filter(it -> eventIdSet.contains(it.getEventId()))
+                .toList();
+    }
+
+    @Override
     public Optional<ResultList> findById(ResultListId resultListId) {
         return resultLists.values().stream()
                 .filter(it -> Objects.equals(it.getId(), resultListId))

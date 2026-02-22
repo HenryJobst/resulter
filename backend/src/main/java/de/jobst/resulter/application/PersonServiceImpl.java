@@ -15,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -82,6 +84,14 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public List<Person> findAll() {
         return personRepository.findAll();
+    }
+
+    @Override
+    public Map<PersonId, Person> findAllByIdAsMap(Set<PersonId> personIds) {
+        if (personIds == null || personIds.isEmpty()) {
+            return Map.of();
+        }
+        return personRepository.findAllById(personIds);
     }
 
     @Override

@@ -103,6 +103,7 @@
         "detail": "Detail|Details",
         "timestamp": "Timestamp",
         "select_language": "Select language",
+        "open_navigation_menu": "Open navigation menu",
         "defaultImpressText": "Impress not set!",
         "possible_duplicates": "possible duplicates",
         "split_time_analysis_ranking": "Split Times Ranking",

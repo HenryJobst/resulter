@@ -13,7 +13,7 @@ public class RaceClassResultGroupedCupScoreMapper {
     public static RaceClassResultGroupedCupScoreDto toDto(
             RaceClassResultGroupedCupScore raceClassResultGroupedCupScore) {
         return new RaceClassResultGroupedCupScoreDto(
-                RaceMapper.toDto(raceClassResultGroupedCupScore.race()),
+                RaceMapper.toDtoStatic(raceClassResultGroupedCupScore.race()),
                 raceClassResultGroupedCupScore.classResultScores() != null
                         ? ClassResultScoreMapper.toDtos(raceClassResultGroupedCupScore.classResultScores())
                         : List.of());

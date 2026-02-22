@@ -100,42 +100,23 @@ public class CupDetailedMapper {
                 cupStatisticsDto);
     }
 
-    @Deprecated(since = "4.6.2", forRemoval = true)
-    private Boolean hasSplitTimes(Event event) {
-        return resultListService.findByEventId(event.getId()).stream().anyMatch(resultList -> !splitTimeListRepository
-                .findByResultListId(resultList.getId())
-                .isEmpty());
-    }
-
     private Map<EventId, Boolean> batchHasSplitTimes(List<Event> events) {
         if (events.isEmpty()) {
             return Map.of();
         }
 
-        // Batch load result lists for all events
         Set<EventId> eventIds = events.stream().map(Event::getId).collect(Collectors.toSet());
+        Map<EventId, List<ResultList>> resultListsByEvent = resultListService.findAllByEventIds(eventIds);
 
-        List<ResultList> allResultLists = eventIds.stream()
-                .flatMap(eventId -> resultListService.findByEventId(eventId).stream())
-                .toList();
-
-        // Batch load split time lists for all result lists
-        Set<ResultListId> resultListIds =
-                allResultLists.stream().map(ResultList::getId).collect(Collectors.toSet());
-
-        Map<ResultListId, Boolean> hasSplitTimesPerResultList = resultListIds.stream()
-                .collect(Collectors.toMap(resultListId -> resultListId, resultListId -> !splitTimeListRepository
-                        .findByResultListId(resultListId)
-                        .isEmpty()));
-
-        // Group by event and check if any result list has split times
-        Map<EventId, List<ResultList>> resultListsByEvent =
-                allResultLists.stream().collect(Collectors.groupingBy(ResultList::getEventId));
+        Set<ResultListId> resultListIds = resultListsByEvent.values().stream()
+                .flatMap(List::stream)
+                .map(ResultList::getId)
+                .collect(Collectors.toSet());
+        Set<ResultListId> resultListIdsWithSplitTimes = splitTimeListRepository.existsByResultListIds(resultListIds);
 
         return eventIds.stream()
                 .collect(Collectors.toMap(
                         eventId -> eventId, eventId -> resultListsByEvent.getOrDefault(eventId, List.of()).stream()
-                                .anyMatch(resultList ->
-                                        hasSplitTimesPerResultList.getOrDefault(resultList.getId(), false))));
+                                .anyMatch(resultList -> resultListIdsWithSplitTimes.contains(resultList.getId()))));
     }
 }

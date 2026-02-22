@@ -25,6 +25,12 @@ public interface CupJdbcRepositoryCustom {
      */
     List<CupDbo> findAllByIdWithoutEvents(Collection<Long> cupIds);
 
+    /**
+     * Find cups for a specific event without loading the MappedCollection (events).
+     * Uses JdbcClient with custom RowMapper to avoid Spring Data JDBC auto-loading.
+     */
+    List<CupDbo> findByEventIdWithoutEvents(Long eventId);
+
 
     /**
      * Find all cups with pagination, without loading the MappedCollection (events).

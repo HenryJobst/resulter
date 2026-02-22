@@ -16,7 +16,7 @@ public class RaceOrganisationGroupedCupScoreMapper {
 
     public RaceOrganisationGroupedCupScoreDto toDto(RaceOrganisationGroupedCupScore raceCupScore) {
         return new RaceOrganisationGroupedCupScoreDto(
-                RaceMapper.toDto(raceCupScore.race()),
+                RaceMapper.toDtoStatic(raceCupScore.race()),
                 raceCupScore.organisationScores() != null
                         ? organisationScoreMapper.toDtos(raceCupScore.organisationScores())
                         : List.of());

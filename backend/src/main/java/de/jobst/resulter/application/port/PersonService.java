@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @PrimaryPort
 public interface PersonService {
@@ -23,6 +25,7 @@ public interface PersonService {
     Optional<Person> findById(PersonId personId);
 
     List<Person> findAll();
+    Map<PersonId, Person> findAllByIdAsMap(Set<PersonId> personIds);
 
     Collection<PersonRepository.PersonPerson> findOrCreate(Collection<Person> persons);
 

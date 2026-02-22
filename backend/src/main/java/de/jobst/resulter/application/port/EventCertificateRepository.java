@@ -11,7 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @SecondaryPort
@@ -29,6 +31,7 @@ public interface EventCertificateRepository {
     Page<EventCertificate> findAll(@Nullable String filter, @NonNull Pageable pageable);
 
     List<EventCertificate> findAllByEvent(EventId id);
+    Map<EventCertificateId, EventCertificate> findAllByIdAsMap(Set<EventCertificateId> eventCertificateIds);
 
     void saveAll(List<EventCertificate> eventCertificates);
 

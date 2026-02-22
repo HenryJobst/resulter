@@ -124,7 +124,26 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
     @Override
     @Transactional
     public List<Cup> findByEvent(EventId eventId) {
-        List<CupDbo> cups = cupJdbcRepository.findByEventId(eventId.value());
+        List<CupDbo> cups = cupJdbcRepository.findByEventIdWithoutEvents(eventId.value());
+        if (cups.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> cupIds = cups.stream()
+                .map(CupDbo::getId)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
+        java.util.Map<Long, java.util.Set<CupEventDbo>> cupEventMap =
+                cupJdbcRepository.findEventsByCupIds(cupIds).stream()
+                        .collect(java.util.stream.Collectors.groupingBy(
+                                ce -> ce.getCupId().getId(), java.util.stream.Collectors.toSet()));
+
+        cups.forEach(cup -> {
+            java.util.Set<CupEventDbo> events = cupEventMap.getOrDefault(cup.getId(), java.util.Collections.emptySet());
+            cup.setEvents(events);
+        });
+
         return CupDbo.asCups(cups);
     }
 

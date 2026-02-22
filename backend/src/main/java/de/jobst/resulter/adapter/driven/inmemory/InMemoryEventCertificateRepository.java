@@ -77,6 +77,17 @@ public class InMemoryEventCertificateRepository implements EventCertificateRepos
     }
 
     @Override
+    public Map<EventCertificateId, EventCertificate> findAllByIdAsMap(Set<EventCertificateId> eventCertificateIds) {
+        if (eventCertificateIds == null || eventCertificateIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return eventCertificates.entrySet().stream()
+                .filter(entry -> eventCertificateIds.contains(entry.getKey()))
+                .collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    @Override
     public void saveAll(List<EventCertificate> eventCertificates) {
         eventCertificates.forEach(this::save);
     }

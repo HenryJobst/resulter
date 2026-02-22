@@ -222,7 +222,9 @@ function setDetails(details: string) {
                 <ConfirmDialog />
                 <router-view v-slot="{ Component, route: currentRoute }">
                     <Transition name="route-fade" mode="out-in">
-                        <component :is="Component" :key="currentRoute.fullPath" />
+                        <div :key="currentRoute.fullPath" class="route-fade-shell">
+                            <component :is="Component" />
+                        </div>
                     </Transition>
                 </router-view>
                 <VueQueryDevtools />
@@ -272,5 +274,9 @@ function setDetails(details: string) {
 .route-fade-enter-from,
 .route-fade-leave-to {
     opacity: 0;
+}
+
+.route-fade-shell {
+    width: 100%;
 }
 </style>

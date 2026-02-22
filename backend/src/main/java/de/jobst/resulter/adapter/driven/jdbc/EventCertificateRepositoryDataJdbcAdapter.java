@@ -11,8 +11,12 @@ import de.jobst.resulter.domain.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -142,6 +146,18 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
         return eventCertificateJdbcRepository.findAllByEvent(AggregateReference.to(id.value())).stream()
                 .map(EventCertificateDbo::asEventCertificate)
                 .toList();
+    }
+
+    @Override
+    public Map<EventCertificateId, EventCertificate> findAllByIdAsMap(Set<EventCertificateId> eventCertificateIds) {
+        if (eventCertificateIds == null || eventCertificateIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<Long> ids = eventCertificateIds.stream().map(EventCertificateId::value).toList();
+        return StreamSupport.stream(eventCertificateJdbcRepository.findAllById(ids).spliterator(), false)
+                .map(EventCertificateDbo::asEventCertificate)
+                .collect(Collectors.toMap(EventCertificate::getId, eventCertificate -> eventCertificate));
     }
 
     @Override

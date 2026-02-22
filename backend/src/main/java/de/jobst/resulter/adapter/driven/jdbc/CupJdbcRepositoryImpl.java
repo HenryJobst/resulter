@@ -50,6 +50,26 @@ public class CupJdbcRepositoryImpl implements CupJdbcRepositoryCustom {
     }
 
     @Override
+    public List<CupDbo> findByEventIdWithoutEvents(Long eventId) {
+        if (eventId == null) {
+            return Collections.emptyList();
+        }
+
+        return jdbcClient
+                .sql(
+                        """
+                        SELECT c.id, c.name, c.type, c.year
+                        FROM cup c
+                        JOIN cup_event ce ON c.id = ce.cup_id
+                        WHERE ce.event_id = :eventId
+                        ORDER BY c.id
+                        """)
+                .param("eventId", eventId)
+                .query(new CupDboRowMapper())
+                .list();
+    }
+
+    @Override
     public Page<CupDbo> findAllWithoutEvents(Pageable pageable) {
         return findAllWithoutEvents(null, ExampleMatcher.StringMatcher.CONTAINING, null, null, pageable);
     }
@@ -194,7 +214,7 @@ public class CupJdbcRepositoryImpl implements CupJdbcRepositoryCustom {
             case "name" -> "name";
             case "type" -> "type";
             case "year" -> "year";
-            default -> dboProperty;
+            default -> "id";
         };
     }
 

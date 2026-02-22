@@ -69,19 +69,25 @@ public class EventController {
                 eventDtos.stream().sorted(Comparator.reverseOrder()).toList());
     }
 
-    private Boolean hasSplitTimes(Event event) {
-        return resultListService.findByEventId(event.getId()).stream().anyMatch(resultList -> !splitTimeListRepository
-                .findByResultListId(resultList.getId())
-                .isEmpty());
-    }
-
-    /**
-     * Batch load hasSplitTimes for multiple events to avoid N+1 queries.
-     */
     private Map<Long, Boolean> batchHasSplitTimes(List<Event> events) {
-        return events.stream()
-                .collect(
-                        java.util.stream.Collectors.toMap(event -> event.getId().value(), this::hasSplitTimes));
+        if (events.isEmpty()) {
+            return Map.of();
+        }
+
+        Set<EventId> eventIds = events.stream().map(Event::getId).collect(Collectors.toSet());
+        Map<EventId, List<ResultList>> resultListsByEvent = resultListService.findAllByEventIds(eventIds);
+
+        Set<ResultListId> allResultListIds = resultListsByEvent.values().stream()
+                .flatMap(List::stream)
+                .map(ResultList::getId)
+                .collect(Collectors.toSet());
+
+        Set<ResultListId> resultListIdsWithSplitTimes = splitTimeListRepository.existsByResultListIds(allResultListIds);
+
+        return events.stream().collect(Collectors.toMap(
+                event -> event.getId().value(),
+                event -> resultListsByEvent.getOrDefault(event.getId(), List.of()).stream()
+                        .anyMatch(resultList -> resultListIdsWithSplitTimes.contains(resultList.getId()))));
     }
 
     @GetMapping("/event")

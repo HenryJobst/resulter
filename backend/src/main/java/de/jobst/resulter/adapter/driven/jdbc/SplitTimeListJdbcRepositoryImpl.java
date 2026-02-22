@@ -68,6 +68,24 @@ public class SplitTimeListJdbcRepositoryImpl implements SplitTimeListJdbcReposit
         return lists;
     }
 
+    @Override
+    public Set<Long> existsByResultListIds(Collection<Long> resultListIds) {
+        if (resultListIds == null || resultListIds.isEmpty()) {
+            return Set.of();
+        }
+
+        return new HashSet<>(jdbcClient
+                .sql(
+                        """
+                        SELECT DISTINCT result_list_id
+                        FROM split_time_list
+                        WHERE result_list_id IN (:ids)
+                        """)
+                .param("ids", resultListIds)
+                .query((rs, rowNum) -> rs.getLong("result_list_id"))
+                .list());
+    }
+
     private RowMapper<SplitTimeListDbo> splitTimeListRowMapper() {
         return (rs, rowNum) -> {
             SplitTimeListDbo dbo = new SplitTimeListDbo(

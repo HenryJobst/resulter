@@ -8,6 +8,8 @@ import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventCertificate;
+import de.jobst.resulter.domain.EventCertificateId;
 import de.jobst.resulter.domain.EventStatus;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
@@ -62,7 +64,11 @@ public class EventMapper {
      * Convert single event to DTO using pre-loaded organisation map.
      * Avoids N+1 queries by using the provided organisation map.
      */
-    public EventDto toDto(Event event, Map<OrganisationId, Organisation> organisationMap, Boolean hasSplitTimes) {
+    public EventDto toDto(
+            Event event,
+            Map<OrganisationId, Organisation> organisationMap,
+            Map<EventCertificateId, EventCertificate> eventCertificateMap,
+            Boolean hasSplitTimes) {
         return new EventDto(
                 ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0,
                 event.getName().value(),
@@ -79,7 +85,8 @@ public class EventMapper {
                         .filter(Objects::nonNull)
                         .toList(),
                 ObjectUtils.isNotEmpty(event.getCertificate())
-                        ? EventCertificateKeyDto.from(eventCertificateService.getById(event.getCertificate()))
+                                && ObjectUtils.isNotEmpty(eventCertificateMap.get(event.getCertificate()))
+                        ? EventCertificateKeyDto.from(eventCertificateMap.get(event.getCertificate()))
                         : null,
                 hasSplitTimes,
                 DisciplineDto.from(event.getDiscipline()),
@@ -95,14 +102,21 @@ public class EventMapper {
         Set<OrganisationId> allOrgIds = events.stream()
                 .flatMap(event -> event.getOrganisationIds().stream())
                 .collect(Collectors.toSet());
+        Set<EventCertificateId> allCertificateIds = events.stream()
+                .map(Event::getCertificate)
+                .filter(ObjectUtils::isNotEmpty)
+                .collect(Collectors.toSet());
 
         Map<OrganisationId, Organisation> organisationMap = organisationService.findAllByIdAsMap(allOrgIds);
+        Map<EventCertificateId, EventCertificate> eventCertificateMap =
+                eventCertificateService.findAllByIdAsMap(allCertificateIds);
 
         // Convert all events using the pre-loaded organisation map
         return events.stream()
                 .map(event -> toDto(
                         event,
                         organisationMap,
+                        eventCertificateMap,
                         hasSplitTimesMap.getOrDefault(
                                 ObjectUtils.isNotEmpty(event.getId())
                                         ? event.getId().value()

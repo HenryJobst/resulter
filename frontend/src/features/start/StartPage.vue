@@ -71,8 +71,8 @@ async function showErrorDetail(id: number) {
             </div>
 
             <!-- Error State -->
-            <div v-else-if="isError" class="p-4 bg-red-50 border border-red-200 rounded">
-                <p class="text-red-700">
+            <div v-else-if="isError" class="p-4 bg-red-50 dark:bg-red-950/35 border border-red-200 dark:border-red-900 rounded">
+                <p class="text-red-700 dark:text-red-300">
                     {{ t('dashboard.error_loading') }}
                 </p>
                 <Button
@@ -87,88 +87,118 @@ async function showErrorDetail(id: number) {
             <!-- Statistics Cards -->
             <div v-else-if="statistics" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                 <!-- Event Count Card -->
-                <Card class="dashboard-card clickable" :onclick="() => navigateTo('event-list')">
-                    <template #content>
-                        <div class="flex items-center justify-between">
-                            <div class="flex flex-col gap-2 mr-3">
-                                <div class="text-sm font-medium text-adaptive-secondary">
-                                    {{ t('dashboard.stats.events') }}
+                <div
+                    class="dashboard-card-click-target clickable"
+                    role="button"
+                    tabindex="0"
+                    @click="navigateTo('event-list')"
+                    @keydown.enter.prevent="navigateTo('event-list')"
+                    @keydown.space.prevent="navigateTo('event-list')"
+                >
+                    <Card class="dashboard-card">
+                        <template #content>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col gap-2 mr-3">
+                                    <div class="text-sm font-medium text-adaptive-secondary">
+                                        {{ t('dashboard.stats.events') }}
+                                    </div>
+                                    <div class="text-4xl font-bold text-adaptive">
+                                        {{ statistics.eventCount }}
+                                    </div>
                                 </div>
-                                <div class="text-4xl font-bold text-adaptive">
-                                    {{ statistics.eventCount }}
+                                <div class="stat-icon">
+                                    <i class="pi pi-calendar text-2xl" />
                                 </div>
                             </div>
-                            <div class="stat-icon">
-                                <i class="pi pi-calendar text-2xl" />
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </div>
 
                 <!-- Cup Count Card -->
-                <Card class="dashboard-card clickable" :onclick="() => navigateTo('cup-list')">
-                    <template #content>
-                        <div class="flex items-center justify-between">
-                            <div class="flex flex-col gap-2 mr-3">
-                                <div class="text-sm font-medium text-adaptive-secondary">
-                                    {{ t('dashboard.stats.cups') }}
+                <div
+                    class="dashboard-card-click-target clickable"
+                    role="button"
+                    tabindex="0"
+                    @click="navigateTo('cup-list')"
+                    @keydown.enter.prevent="navigateTo('cup-list')"
+                    @keydown.space.prevent="navigateTo('cup-list')"
+                >
+                    <Card class="dashboard-card">
+                        <template #content>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col gap-2 mr-3">
+                                    <div class="text-sm font-medium text-adaptive-secondary">
+                                        {{ t('dashboard.stats.cups') }}
+                                    </div>
+                                    <div class="text-4xl font-bold text-adaptive">
+                                        {{ statistics.cupCount }}
+                                    </div>
                                 </div>
-                                <div class="text-4xl font-bold text-adaptive">
-                                    {{ statistics.cupCount }}
+                                <div class="stat-icon">
+                                    <i class="pi pi-trophy text-2xl" />
                                 </div>
                             </div>
-                            <div class="stat-icon">
-                                <i class="pi pi-trophy text-2xl" />
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </div>
 
                 <!-- Person Count Card -->
-                <Card
-                    class="dashboard-card"
+                <div
+                    class="dashboard-card-click-target"
                     :class="[{ clickable: authStore.isAuthenticated }]"
-                    :onclick="authStore.isAuthenticated ? () => navigateTo('person-list') : undefined"
+                    :role="authStore.isAuthenticated ? 'button' : undefined"
+                    :tabindex="authStore.isAuthenticated ? 0 : undefined"
+                    @click="authStore.isAuthenticated ? navigateTo('person-list') : undefined"
+                    @keydown.enter.prevent="authStore.isAuthenticated ? navigateTo('person-list') : undefined"
+                    @keydown.space.prevent="authStore.isAuthenticated ? navigateTo('person-list') : undefined"
                 >
-                    <template #content>
-                        <div class="flex items-center justify-between">
-                            <div class="flex flex-col gap-2 mr-3">
-                                <div class="text-sm font-medium text-adaptive-secondary">
-                                    {{ t('dashboard.stats.persons') }}
+                    <Card class="dashboard-card">
+                        <template #content>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col gap-2 mr-3">
+                                    <div class="text-sm font-medium text-adaptive-secondary">
+                                        {{ t('dashboard.stats.persons') }}
+                                    </div>
+                                    <div class="text-4xl font-bold text-adaptive">
+                                        {{ statistics.personCount }}
+                                    </div>
                                 </div>
-                                <div class="text-4xl font-bold text-adaptive">
-                                    {{ statistics.personCount }}
+                                <div class="stat-icon">
+                                    <i class="pi pi-users text-2xl" />
                                 </div>
                             </div>
-                            <div class="stat-icon">
-                                <i class="pi pi-users text-2xl" />
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </div>
 
                 <!-- Organisation Count Card -->
-                <Card
-                    class="dashboard-card"
+                <div
+                    class="dashboard-card-click-target"
                     :class="[{ clickable: authStore.isAuthenticated }]"
-                    :onclick="authStore.isAuthenticated ? () => navigateTo('organisation-list') : undefined"
+                    :role="authStore.isAuthenticated ? 'button' : undefined"
+                    :tabindex="authStore.isAuthenticated ? 0 : undefined"
+                    @click="authStore.isAuthenticated ? navigateTo('organisation-list') : undefined"
+                    @keydown.enter.prevent="authStore.isAuthenticated ? navigateTo('organisation-list') : undefined"
+                    @keydown.space.prevent="authStore.isAuthenticated ? navigateTo('organisation-list') : undefined"
                 >
-                    <template #content>
-                        <div class="flex items-center justify-between">
-                            <div class="flex flex-col gap-2 mr-3">
-                                <div class="text-sm font-medium text-adaptive-secondary">
-                                    {{ t('dashboard.stats.organisations') }}
+                    <Card class="dashboard-card">
+                        <template #content>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col gap-2 mr-3">
+                                    <div class="text-sm font-medium text-adaptive-secondary">
+                                        {{ t('dashboard.stats.organisations') }}
+                                    </div>
+                                    <div class="text-4xl font-bold text-adaptive">
+                                        {{ statistics.organisationCount }}
+                                    </div>
                                 </div>
-                                <div class="text-4xl font-bold text-adaptive">
-                                    {{ statistics.organisationCount }}
+                                <div class="stat-icon">
+                                    <i class="pi pi-building text-2xl" />
                                 </div>
                             </div>
-                            <div class="stat-icon">
-                                <i class="pi pi-building text-2xl" />
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </div>
 
                 <!-- Split Time Count Card -->
                 <Card class="dashboard-card">
@@ -340,6 +370,23 @@ async function showErrorDetail(id: number) {
     cursor: pointer;
 }
 
+.dashboard-card-click-target {
+    border-radius: 12px;
+}
+
+.dashboard-card-click-target.clickable {
+    cursor: pointer;
+}
+
+.dashboard-card-click-target[role='button']:focus-visible {
+    outline: none;
+}
+
+.dashboard-card-click-target[role='button']:focus-visible .dashboard-card {
+    outline: 2px solid rgba(251, 146, 60, 0.8);
+    outline-offset: 2px;
+}
+
 /* Stat Icons */
 .stat-icon {
     width: 64px;
@@ -397,31 +444,31 @@ async function showErrorDetail(id: number) {
     }
 
     .dashboard-card {
-        border-color: rgba(59, 130, 246, 0.2);
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+        border-color: rgba(251, 146, 60, 0.2);
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, transparent 100%);
     }
 
     .dashboard-card:hover {
-        border-color: rgba(59, 130, 246, 0.4);
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+        border-color: rgba(251, 146, 60, 0.4);
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, transparent 100%);
     }
 
     .stat-icon {
-        background: rgba(59, 130, 246, 0.15);
-        color: rgb(96, 165, 250);
+        background: rgba(251, 146, 60, 0.15);
+        color: rgb(251, 146, 60);
     }
 
     .dashboard-card:hover .stat-icon {
-        background: rgba(59, 130, 246, 0.25);
+        background: rgba(251, 146, 60, 0.25);
     }
 
     .no-messages-card {
-        border-color: rgba(59, 130, 246, 0.2);
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, transparent 100%);
+        border-color: rgba(251, 146, 60, 0.2);
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.02) 0%, transparent 100%);
     }
 
     .no-messages-icon {
-        color: rgb(96, 165, 250);
+        color: rgb(251, 146, 60);
     }
 }
 </style>

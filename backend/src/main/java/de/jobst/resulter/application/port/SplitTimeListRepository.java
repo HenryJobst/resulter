@@ -10,6 +10,7 @@ import org.jmolecules.ddd.annotation.Repository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @SecondaryPort
@@ -28,4 +29,5 @@ public interface SplitTimeListRepository {
     void replacePersonId(PersonId oldPersonId, PersonId newPersonId);
 
     List<SplitTimeList> findByResultListId(ResultListId resultListId);
+    Set<ResultListId> existsByResultListIds(Collection<ResultListId> resultListIds);
 }

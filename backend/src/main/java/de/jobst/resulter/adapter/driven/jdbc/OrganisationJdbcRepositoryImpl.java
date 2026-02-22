@@ -214,7 +214,7 @@ public class OrganisationJdbcRepositoryImpl implements OrganisationJdbcRepositor
             case "type" -> "type";
             case "country.name" -> "country_id";
             case "childOrganisations" -> "id";
-            default -> dboProperty;
+            default -> "id";
         };
     }
 

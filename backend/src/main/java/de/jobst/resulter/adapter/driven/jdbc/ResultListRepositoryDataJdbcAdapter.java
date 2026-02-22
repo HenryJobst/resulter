@@ -207,6 +207,41 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
+    public Collection<ResultList> findAllByEventIds(Collection<EventId> eventIds) {
+        if (eventIds == null || eventIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> eventIdValues = eventIds.stream().map(EventId::value).toList();
+        return jdbcClient
+                .sql(
+                        """
+                        SELECT id, event_id, race_id, creator, create_time, create_time_zone, status
+                        FROM result_list
+                        WHERE event_id IN (:eventIds)
+                        """)
+                .param("eventIds", eventIdValues)
+                .query((rs, rowNum) -> {
+                    String createTimeZone = rs.getString("create_time_zone");
+                    Timestamp createTime = rs.getTimestamp("create_time");
+                    ZonedDateTime zonedCreateTime = null;
+                    if (createTime != null && createTimeZone != null) {
+                        zonedCreateTime = createTime.toInstant().atZone(ZoneId.of(createTimeZone));
+                    }
+
+                    return new ResultList(
+                            ResultListId.of(rs.getLong("id")),
+                            EventId.of(rs.getLong("event_id")),
+                            RaceId.of(rs.getLong("race_id")),
+                            rs.getString("creator"),
+                            zonedCreateTime,
+                            rs.getString("status"),
+                            null);
+                })
+                .list();
+    }
+
+    @Override
     public Optional<ResultList> findById(ResultListId resultListId) {
         Collection<PersonRaceResultJdbcDto> personRaceResultJdbcDtos =
                 resultListJdbcRepository.findPersonRaceResultsByResultListId(resultListId.value());

@@ -83,6 +83,16 @@ public class ResultListServiceImpl implements ResultListService {
         return resultListRepository.findByEventId(id);
     }
 
+    @Override
+    public Map<EventId, List<ResultList>> findAllByEventIds(Collection<EventId> eventIds) {
+        if (eventIds == null || eventIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return resultListRepository.findAllByEventIds(eventIds).stream()
+                .collect(Collectors.groupingBy(ResultList::getEventId));
+    }
+
     @Transactional
     @Override
     public List<CupScoreList> calculateScore(ResultListId id) {

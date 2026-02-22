@@ -65,6 +65,19 @@ public class InMemorySplitTimeListRepository implements SplitTimeListRepository 
                 .toList();
     }
 
+    @Override
+    public Set<ResultListId> existsByResultListIds(Collection<ResultListId> resultListIds) {
+        if (resultListIds == null || resultListIds.isEmpty()) {
+            return Set.of();
+        }
+
+        Set<ResultListId> queryIds = new HashSet<>(resultListIds);
+        return splitTimeLists.values().stream()
+                .map(SplitTimeList::getResultListId)
+                .filter(queryIds::contains)
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
     @SuppressWarnings("unused")
     public List<SplitTimeList> savedSplitTimeLists() {
         return savedSplitTimeLists;

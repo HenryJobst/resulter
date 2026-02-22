@@ -104,6 +104,7 @@
         "detail": "Detail|Details",
         "timestamp": "Zeitstempel",
         "select_language": "Sprache auswählen",
+        "open_navigation_menu": "Navigationsmenü öffnen",
         "defaultImpressText": "Impressum nicht gesetzt!",
         "defaultPrivacyText": "Datenschutzerklärung nicht gesetzt!",
         "privacyContactHint": "Für Datenschutzanfragen wenden Sie sich bitte an die Kontaktadresse im ",

@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RaceMapper {
 
-    @Deprecated(since = "4.6.2", forRemoval = true)
-    public static RaceDto toDto(Race race) {
+    public static RaceDto toDtoStatic(Race race) {
         assert race.getRaceName() != null;
         return new RaceDto(
                 ObjectUtils.isNotEmpty(race.getId()) ? race.getId().value() : 0,
@@ -18,12 +17,13 @@ public class RaceMapper {
                 race.getRaceNumber().value());
     }
 
+    @Deprecated(since = "4.6.2", forRemoval = true)
+    public static RaceDto toDto(Race race) {
+        return toDtoStatic(race);
+    }
+
     public RaceDto toDtoInstance(Race race) {
-        assert race.getRaceName() != null;
-        return new RaceDto(
-                ObjectUtils.isNotEmpty(race.getId()) ? race.getId().value() : 0,
-                race.getRaceName().value(),
-                race.getRaceNumber().value());
+        return toDtoStatic(race);
     }
 
     public List<RaceDto> toDtos(List<Race> races) {

@@ -84,7 +84,7 @@ function isAnalysisActive() {
                     severity="secondary"
                     text
                     rounded
-                    aria-label="Open navigation menu"
+                    :aria-label="t('labels.open_navigation_menu')"
                     :aria-expanded="mobileNavOpen"
                     aria-controls="mobile-main-nav"
                     @click="mobileNavOpen = !mobileNavOpen"

@@ -166,7 +166,7 @@ public class EventJdbcRepositoryImpl implements EventJdbcRepositoryCustom {
             case "state" -> "state";
             case "discipline" -> "discipline";
             case "aggregateScore" -> "aggregate_score";
-            default -> dboProperty;
+            default -> "id";
         };
     }
 

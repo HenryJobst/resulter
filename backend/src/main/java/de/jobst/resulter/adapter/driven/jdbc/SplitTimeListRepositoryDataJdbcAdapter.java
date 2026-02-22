@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -203,5 +204,17 @@ public class SplitTimeListRepositoryDataJdbcAdapter implements SplitTimeListRepo
         Collection<SplitTimeListDbo> splitTimeListDbos =
                 splitTimeListJdbcRepository.findByResultListIdOptimized(resultListId.value());
         return SplitTimeListDbo.asSplitTimeLists(splitTimeListDbos).stream().toList();
+    }
+
+    @Override
+    public Set<ResultListId> existsByResultListIds(Collection<ResultListId> resultListIds) {
+        if (resultListIds == null || resultListIds.isEmpty()) {
+            return Set.of();
+        }
+
+        Set<Long> existingResultListIds = splitTimeListJdbcRepository.existsByResultListIds(
+                resultListIds.stream().map(ResultListId::value).collect(Collectors.toSet()));
+
+        return existingResultListIds.stream().map(ResultListId::of).collect(Collectors.toSet());
     }
 }

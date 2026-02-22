@@ -7,6 +7,8 @@
 @import '@fontsource/manrope/600.css';
 @import '@fontsource/manrope/700.css';
 @import '@fontsource/manrope/800.css';
+@import '@fontsource/fraunces/600.css';
+@import '@fontsource/fraunces/700.css';
 
 /* Dark Mode CSS Variables */
 :root {
@@ -18,18 +20,18 @@
     --text-tertiary: 107 114 128; /* gray-500 */
     --border-color: 229 231 235; /* gray-200 */
     --border-color-strong: 209 213 219; /* gray-300 */
-    --purple-highlight-bg: 255 237 213; /* orange-50 */
-    --purple-badge-bg: 254 215 170; /* orange-100 */
-    --purple-badge-text: 154 52 18; /* orange-800 */
-    --slate-highlight-bg: 241 245 249; /* blue-50 */
-    --slate-badge-bg: 226 232 240; /* blue-100 */
-    --slate-badge-text: 51 65 85; /* blue-800 */
-    --stone-highlight-bg: 250 250 249; /* cyan-50 */
-    --stone-badge-bg: 231 229 228; /* cyan-100 */
-    --stone-badge-text: 68 64 60; /* cyan-800 */
-    --zinc-highlight-bg: 244 244 245; /* emerald-50 */
-    --zinc-badge-bg: 228 228 231; /* emerald-100 */
-    --zinc-badge-text: 63 63 70; /* emerald-800 */
+    --orange-highlight-bg: 255 237 213; /* orange-100 */
+    --orange-badge-bg: 254 215 170; /* orange-200 */
+    --orange-badge-text: 154 52 18; /* orange-800 */
+    --slate-highlight-bg: 241 245 249; /* slate-100 */
+    --slate-badge-bg: 226 232 240; /* slate-200 */
+    --slate-badge-text: 51 65 85; /* slate-700 */
+    --stone-highlight-bg: 250 250 249; /* stone-50 */
+    --stone-badge-bg: 231 229 228; /* stone-200 */
+    --stone-badge-text: 68 64 60; /* stone-700 */
+    --zinc-highlight-bg: 244 244 245; /* zinc-100 */
+    --zinc-badge-bg: 228 228 231; /* zinc-200 */
+    --zinc-badge-text: 63 63 70; /* zinc-700 */
     --gray-badge-bg: 243 244 246; /* gray-100 */
     --gray-badge-text: 31 41 55; /* gray-800 */
 }
@@ -44,18 +46,18 @@
         --text-tertiary: 209 213 219; /* gray-300 */
         --border-color: 75 85 99; /* gray-600 */
         --border-color-strong: 55 65 81; /* gray-700 */
-        --purple-highlight-bg: 55 48 70; /* subtle dark purple-gray */
-        --purple-badge-bg: 107 33 168; /* purple-800 */
-        --purple-badge-text: 233 213 255; /* purple-100 */
-        --slate-highlight-bg: 51 65 85; /* subtle dark blue-gray */
-        --slate-badge-bg: 71 85 105; /* slate-600 medium */
-        --slate-badge-text: 248 250 252; /* slate-50 very light */
-        --stone-highlight-bg: 68 64 60; /* subtle dark cyan-gray */
-        --stone-badge-bg: 87 83 78; /* stone-600 medium */
-        --stone-badge-text: 250 250 249; /* stone-50 very light */
-        --zinc-highlight-bg: 63 63 70; /* subtle dark emerald-gray */
-        --zinc-badge-bg: 82 82 91; /* zinc-600 medium */
-        --zinc-badge-text: 250 250 250; /* zinc-50 very light */
+        --orange-highlight-bg: 67 32 15; /* orange-950 */
+        --orange-badge-bg: 124 45 18; /* orange-900 */
+        --orange-badge-text: 255 237 213; /* orange-100 */
+        --slate-highlight-bg: 51 65 85; /* slate-700 */
+        --slate-badge-bg: 71 85 105; /* slate-600 */
+        --slate-badge-text: 248 250 252; /* slate-50 */
+        --stone-highlight-bg: 68 64 60; /* stone-700 */
+        --stone-badge-bg: 87 83 78; /* stone-600 */
+        --stone-badge-text: 250 250 249; /* stone-50 */
+        --zinc-highlight-bg: 63 63 70; /* zinc-700 */
+        --zinc-badge-bg: 82 82 91; /* zinc-600 */
+        --zinc-badge-text: 250 250 250; /* zinc-50 */
         --gray-badge-bg: 55 65 81; /* gray-700 */
         --gray-badge-text: 229 231 235; /* gray-200 */
     }
@@ -72,11 +74,11 @@
     .bg-adaptive-tertiary {
         background-color: rgb(var(--bg-tertiary));
     }
-    .bg-purple-highlight {
-        background-color: rgb(var(--purple-highlight-bg));
+    .bg-orange-highlight {
+        background-color: rgb(var(--orange-highlight-bg));
     }
-    .bg-purple-badge {
-        background-color: rgb(var(--purple-badge-bg));
+    .bg-orange-badge {
+        background-color: rgb(var(--orange-badge-bg));
     }
     .bg-slate-highlight {
         background-color: rgb(var(--slate-highlight-bg));
@@ -105,8 +107,8 @@
     .text-adaptive-tertiary {
         color: rgb(var(--text-tertiary));
     }
-    .text-purple-badge {
-        color: rgb(var(--purple-badge-text));
+    .text-orange-badge {
+        color: rgb(var(--orange-badge-text));
     }
     .text-slate-badge {
         color: rgb(var(--slate-badge-text));
@@ -175,7 +177,13 @@
 }
 
 /* Typography enhancements */
-h1, h2, h3, h4, h5, h6 {
+h1, h2 {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+h3, h4, h5, h6 {
   font-weight: 600;
   letter-spacing: -0.02em;
 }
@@ -216,8 +224,8 @@ h1, h2, h3, h4, h5, h6 {
 .p-datatable .p-datatable-thead > tr > th {
   font-weight: 600;
   font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: none;
+  letter-spacing: 0.015em;
 }
 
 .p-datatable .p-datatable-tbody > tr {

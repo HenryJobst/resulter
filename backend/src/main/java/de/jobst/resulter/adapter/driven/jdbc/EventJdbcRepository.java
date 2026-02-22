@@ -22,20 +22,6 @@ public interface EventJdbcRepository
     Optional<EventDbo> findByName(String name);
 
     /**
-     * Find all events without loading the MappedCollection (organisations).
-     * Use this for batch loading to avoid N+1 queries.
-     */
-    @Query("SELECT * FROM event ORDER BY id")
-    List<EventDbo> findAllEventsWithoutOrganisations();
-
-    /**
-     * Find events by IDs without loading the MappedCollection (organisations).
-     * Use this for batch loading to avoid N+1 queries.
-     */
-    @Query("SELECT * FROM event WHERE id IN (:eventIds) ORDER BY id")
-    List<EventDbo> findAllByIdWithoutOrganisations(@Param("eventIds") Collection<Long> eventIds);
-
-    /**
      * Find all event-organisation mappings for given event IDs.
      * Use this for batch loading organisations after loading events.
      */

@@ -1,5 +1,7 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
+import java.util.Collection;
+import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
@@ -10,6 +12,19 @@ import org.springframework.data.domain.Pageable;
  * Provides methods that avoid N+1 queries by not loading MappedCollections.
  */
 public interface CupJdbcRepositoryCustom {
+
+    /**
+     * Find all cups without loading the MappedCollection (events).
+     * Uses JdbcClient with custom RowMapper to avoid Spring Data JDBC auto-loading.
+     */
+    List<CupDbo> findAllCupsWithoutEvents();
+
+    /**
+     * Find cups by IDs without loading the MappedCollection (events).
+     * Uses JdbcClient with custom RowMapper to avoid Spring Data JDBC auto-loading.
+     */
+    List<CupDbo> findAllByIdWithoutEvents(Collection<Long> cupIds);
+
 
     /**
      * Find all cups with pagination, without loading the MappedCollection (events).

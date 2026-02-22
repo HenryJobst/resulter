@@ -38,21 +38,57 @@ async function showErrorDetail(id: number) {
 <template>
     <!-- Hero Section -->
     <div class="hero-section mb-6">
-        <div class="flex items-center gap-6">
-            <img
-                alt="Resulter Logo"
-                class="hero-logo"
-                src="@/assets/Logo_Resulter_400px.webp"
-                width="120"
-                height="119"
-            >
-            <div>
-                <h1 class="text-3xl font-bold text-adaptive mb-2">
-                    {{ t('pages.start') }}
-                </h1>
-                <p class="text-sm text-adaptive-secondary">
-                    {{ t('dashboard.welcome_message') }}
-                </p>
+        <div class="hero-content flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div class="hero-main flex items-center gap-6">
+                <img
+                    alt="Resulter Logo"
+                    class="hero-logo"
+                    src="@/assets/Logo_Resulter_400px.webp"
+                    width="120"
+                    height="119"
+                >
+                <div>
+                    <h1 class="text-3xl font-bold text-adaptive mb-2">
+                        {{ t('pages.start') }}
+                    </h1>
+                    <p class="text-sm text-adaptive-secondary mb-3">
+                        {{ t('dashboard.welcome_message') }}
+                    </p>
+                    <div class="hero-badges flex flex-wrap gap-2" aria-label="Dashboard highlights">
+                        <div
+                            class="hero-badge"
+                            role="button"
+                            tabindex="0"
+                            @click="navigateTo('event-list')"
+                            @keydown.enter.prevent="navigateTo('event-list')"
+                            @keydown.space.prevent="navigateTo('event-list')"
+                        >
+                            <span class="hero-badge-label">{{ t('dashboard.stats.events') }}</span>
+                            <span class="hero-badge-value">{{ statistics?.eventCount ?? '—' }}</span>
+                        </div>
+                        <div
+                            class="hero-badge"
+                            role="button"
+                            tabindex="0"
+                            @click="navigateTo('cup-list')"
+                            @keydown.enter.prevent="navigateTo('cup-list')"
+                            @keydown.space.prevent="navigateTo('cup-list')"
+                        >
+                            <span class="hero-badge-label">{{ t('dashboard.stats.cups') }}</span>
+                            <span class="hero-badge-value">{{ statistics?.cupCount ?? '—' }}</span>
+                        </div>
+                        <div class="hero-badge">
+                            <span class="hero-badge-label">{{ t('dashboard.stats.races') }}</span>
+                            <span class="hero-badge-value">{{ statistics?.raceCount ?? '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-ambient hidden md:flex items-center gap-3" aria-hidden="true">
+                <span class="hero-dot hero-dot--lg" />
+                <span class="hero-dot hero-dot--md" />
+                <span class="hero-dot hero-dot--sm" />
             </div>
         </div>
     </div>
@@ -337,8 +373,33 @@ async function showErrorDetail(id: number) {
 <style scoped>
 /* Hero Section */
 .hero-section {
-    padding: 1.5rem 0;
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem;
+    border: 1px solid rgba(251, 146, 60, 0.16);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(251, 146, 60, 0.2) 0%, rgba(251, 146, 60, 0) 42%),
+        linear-gradient(135deg, rgba(251, 146, 60, 0.07) 0%, rgba(251, 146, 60, 0.015) 45%, rgba(255, 255, 255, 0) 100%);
     border-bottom: 1px solid rgb(var(--border-color));
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.32;
+    background-image:
+        linear-gradient(rgba(251, 146, 60, 0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(251, 146, 60, 0.22) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: linear-gradient(to bottom right, black 20%, transparent 85%);
 }
 
 .hero-logo {
@@ -349,6 +410,58 @@ async function showErrorDetail(id: number) {
 
 .hero-logo:hover {
     transform: scale(1.05);
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(251, 146, 60, 0.28);
+    background: rgba(251, 146, 60, 0.12);
+}
+
+.hero-badge[role='button'] {
+    cursor: pointer;
+}
+
+.hero-badge[role='button']:focus-visible {
+    outline: 2px solid rgba(251, 146, 60, 0.7);
+    outline-offset: 2px;
+}
+
+.hero-badge-label {
+    font-size: 0.75rem;
+    color: rgb(var(--text-secondary));
+}
+
+.hero-badge-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: rgb(var(--text-primary));
+}
+
+.hero-dot {
+    display: inline-block;
+    border-radius: 999px;
+    border: 1px solid rgba(251, 146, 60, 0.45);
+    background: rgba(251, 146, 60, 0.2);
+}
+
+.hero-dot--lg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.hero-dot--md {
+    width: 0.85rem;
+    height: 0.85rem;
+}
+
+.hero-dot--sm {
+    width: 0.6rem;
+    height: 0.6rem;
 }
 
 /* Dashboard Cards */
@@ -440,7 +553,20 @@ async function showErrorDetail(id: number) {
 /* Dark Mode Adjustments */
 @media (prefers-color-scheme: dark) {
     .hero-section {
+        border-color: rgba(251, 146, 60, 0.2);
         border-bottom-color: rgb(var(--border-color));
+        background:
+            radial-gradient(circle at 90% 10%, rgba(251, 146, 60, 0.24) 0%, rgba(251, 146, 60, 0) 46%),
+            linear-gradient(135deg, rgba(251, 146, 60, 0.08) 0%, rgba(251, 146, 60, 0.02) 45%, rgba(0, 0, 0, 0) 100%);
+    }
+
+    .hero-section::before {
+        opacity: 0.2;
+    }
+
+    .hero-badge {
+        border-color: rgba(251, 146, 60, 0.4);
+        background: rgba(251, 146, 60, 0.16);
     }
 
     .dashboard-card {

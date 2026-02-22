@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import Select from 'primevue/select'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store/auth.store'
@@ -21,6 +21,7 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const mobileNavOpen = ref(false)
 
 const localLocale = computed({
     get: () => props.currentLocale,
@@ -30,6 +31,7 @@ const localLocale = computed({
 })
 
 function navigateTo(routeName: string) {
+    mobileNavOpen.value = false
     router.push({ name: routeName, params: { locale: props.currentLocale } })
 }
 
@@ -51,7 +53,7 @@ function isAnalysisActive() {
 </script>
 
 <template>
-    <header class="top-navbar sticky top-0 z-50 bg-adaptive border-b border-adaptive shadow-sm">
+    <header class="top-navbar sticky top-0 z-50 border-b border-adaptive shadow-sm">
         <div class="flex items-center justify-between h-16 px-4">
             <!-- Left: Sidebar Toggle + Logo + Navigation -->
             <div class="flex items-center gap-2">
@@ -76,8 +78,20 @@ function isAnalysisActive() {
                     >
                 </router-link>
 
+                <Button
+                    icon="pi pi-list"
+                    class="md:hidden"
+                    severity="secondary"
+                    text
+                    rounded
+                    aria-label="Open navigation menu"
+                    :aria-expanded="mobileNavOpen"
+                    aria-controls="mobile-main-nav"
+                    @click="mobileNavOpen = !mobileNavOpen"
+                />
+
                 <!-- Main Navigation direkt nach Logo -->
-                <nav class="hidden md:flex items-center gap-2 ml-4">
+                <nav class="desktop-nav hidden md:flex items-center gap-2 ml-4">
                     <Button
                         :label="t('navigations.start')"
                         icon="pi pi-home"
@@ -162,18 +176,58 @@ function isAnalysisActive() {
                 </Select>
             </div>
         </div>
+
+        <nav v-if="mobileNavOpen" id="mobile-main-nav" class="md:hidden border-t border-adaptive bg-adaptive-secondary px-4 py-3">
+            <div class="flex flex-col gap-2">
+                <Button
+                    :label="t('navigations.start')"
+                    icon="pi pi-home"
+                    :severity="isActive('start-page') ? 'primary' : 'secondary'"
+                    :text="!isActive('start-page')"
+                    class="w-full justify-start"
+                    @click="navigateTo('start-page')"
+                />
+                <Button
+                    :label="t('navigations.cups')"
+                    icon="pi pi-trophy"
+                    :severity="isActive('cup-list') ? 'primary' : 'secondary'"
+                    :text="!isActive('cup-list')"
+                    class="w-full justify-start"
+                    @click="navigateTo('cup-list')"
+                />
+                <Button
+                    :label="t('navigations.events')"
+                    icon="pi pi-calendar"
+                    :severity="isActive('event-list') ? 'primary' : 'secondary'"
+                    :text="!isActive('event-list')"
+                    class="w-full justify-start"
+                    @click="navigateTo('event-list')"
+                />
+                <Button
+                    :label="t('navigations.analysis')"
+                    icon="pi pi-chart-line"
+                    :severity="isAnalysisActive() ? 'primary' : 'secondary'"
+                    :text="!isAnalysisActive()"
+                    class="w-full justify-start"
+                    @click="navigateTo('analysis-hub')"
+                />
+                <Button
+                    :label="t('navigations.about')"
+                    icon="pi pi-info-circle"
+                    :severity="isActive('about-page') ? 'primary' : 'secondary'"
+                    :text="!isActive('about-page')"
+                    class="w-full justify-start"
+                    @click="navigateTo('about-page')"
+                />
+            </div>
+        </nav>
     </header>
 </template>
 
 <style scoped>
 .top-navbar {
+    background-color: rgb(var(--bg-primary) / 0.88);
     backdrop-filter: blur(8px);
-}
-
-/* Responsive: Show hamburger menu on mobile */
-@media (max-width: 768px) {
-    nav {
-        display: none;
-    }
+    -webkit-backdrop-filter: blur(8px);
 }
 </style>

@@ -216,7 +216,11 @@ function setDetails(details: string) {
                 </Toast>
                 <MessageDetailDialog />
                 <ConfirmDialog />
-                <router-view />
+                <router-view v-slot="{ Component, route: currentRoute }">
+                    <Transition name="route-fade" mode="out-in">
+                        <component :is="Component" :key="currentRoute.fullPath" />
+                    </Transition>
+                </router-view>
                 <VueQueryDevtools />
             </main>
         </div>
@@ -248,4 +252,13 @@ function setDetails(details: string) {
 </template>
 
 <style scoped>
+.route-fade-enter-active,
+.route-fade-leave-active {
+    transition: opacity 150ms ease;
+}
+
+.route-fade-enter-from,
+.route-fade-leave-to {
+    opacity: 0;
+}
 </style>

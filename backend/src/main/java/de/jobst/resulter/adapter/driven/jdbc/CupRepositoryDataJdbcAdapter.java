@@ -190,7 +190,7 @@ public class CupRepositoryDataJdbcAdapter implements CupRepository {
 
         return new PageImpl<>(
                 cupDbos.stream().map(CupDbo::asCup).toList(),
-                FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
+                FilterAndSortConverter.mapOrderProperties(page.getPageable(), CupDbo::mapOrdersDboToDomain),
                 page.getTotalElements());
     }
 }

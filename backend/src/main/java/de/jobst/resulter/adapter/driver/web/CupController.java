@@ -80,7 +80,7 @@ public class CupController {
 
     @GetMapping("/cup/{id}")
     public ResponseEntity<CupDto> getCup(@PathVariable Long id) {
-        return ResponseEntity.ok(cupMapper.toDto(cupService.getById(CupId.of(id))));
+        return ResponseEntity.ok(cupMapper.toDtos(List.of(cupService.getById(CupId.of(id)))).getFirst());
     }
 
     @GetMapping("/cup/{id}/results")
@@ -100,7 +100,7 @@ public class CupController {
                 cupDto.events() == null
                         ? new ArrayList<>()
                         : cupDto.events().stream().map(x -> EventId.of(x.id())).toList());
-        return ResponseEntity.ok(cupMapper.toDto(cup));
+        return ResponseEntity.ok(cupMapper.toDtos(List.of(cup)).getFirst());
     }
 
     @PostMapping("/cup")
@@ -116,7 +116,7 @@ public class CupController {
                                 .map(x -> EventId.of(x.id()))
                                 .filter(ObjectUtils::isNotEmpty)
                                 .toList());
-        return ResponseEntity.ok(cupMapper.toDto(cup));
+        return ResponseEntity.ok(cupMapper.toDtos(List.of(cup)).getFirst());
     }
 
     @DeleteMapping("/cup/{id}")

@@ -5,6 +5,8 @@ import de.jobst.resulter.domain.EventStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
@@ -26,6 +28,28 @@ public class EventJdbcRepositoryImpl implements EventJdbcRepositoryCustom {
 
     public EventJdbcRepositoryImpl(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
+    }
+
+    @Override
+    public List<EventDbo> findAllEventsWithoutOrganisations() {
+        return jdbcClient
+                .sql("SELECT id, name, start_time, start_time_zone, end_time, end_time_zone, "
+                        + "state, discipline, aggregate_score FROM event ORDER BY id")
+                .query(new EventDboRowMapper())
+                .list();
+    }
+
+    @Override
+    public List<EventDbo> findAllByIdWithoutOrganisations(Collection<Long> eventIds) {
+        if (eventIds == null || eventIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return jdbcClient
+                .sql("SELECT id, name, start_time, start_time_zone, end_time, end_time_zone, "
+                        + "state, discipline, aggregate_score FROM event WHERE id IN (:ids) ORDER BY id")
+                .param("ids", eventIds)
+                .query(new EventDboRowMapper())
+                .list();
     }
 
     @Override

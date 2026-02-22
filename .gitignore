@@ -47,3 +47,4 @@ backend/src/main/.DS_Store
 /testdb.trace.db
 /prometheus/prometheus_api_token
 /backend/Certificate_BBM Mittel-OL 2024_Mustermann_Max.pdf
+.todos/

@@ -121,9 +121,9 @@ public class CupController {
 
     @DeleteMapping("/cup/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Boolean> deleteCup(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCup(@PathVariable Long id) {
         cupService.deleteCup(CupId.of(id));
-        return ResponseEntity.ok(Boolean.TRUE);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/cup/{id}/calculate")

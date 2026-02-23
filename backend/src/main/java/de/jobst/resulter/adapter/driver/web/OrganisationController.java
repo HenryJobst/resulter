@@ -115,10 +115,10 @@ public class OrganisationController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteOrganisation(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
         boolean success = organisationService.deleteOrganisation(OrganisationId.of(id));
         if (success) {
-            return ResponseEntity.ok(Boolean.TRUE);
+            return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }

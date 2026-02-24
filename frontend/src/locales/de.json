@@ -399,7 +399,8 @@
             "totalTime": "Gesamtzeit",
             "timeBehind": "Rückstand",
             "finish": "Ziel",
-            "notCompetingAbbr": "AK",
+            "notCompeting": "AK",
+            "missingPunch": "Fehlst",
             "noData": "Keine Daten verfügbar. Bitte wählen Sie eine Klasse oder Bahn aus.",
             "help": {
                 "tableStructure": "Tabellenstruktur",

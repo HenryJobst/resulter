@@ -4,6 +4,7 @@ import de.jobst.resulter.adapter.driver.web.dto.AggregatedPersonScoresDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupDetailedDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupStatisticsDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
+import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventKeyDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonDto;
 import de.jobst.resulter.application.port.EventService;
@@ -17,6 +18,7 @@ import de.jobst.resulter.domain.aggregations.CupDetailed;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
 public class CupDetailedMapper {
 
     private final EventService eventService;
+    private final EventMapper eventMapper;
     private final ResultListService resultListService;
     private final SplitTimeListRepository splitTimeListRepository;
     private final CupStatisticsMapper cupStatisticsMapper;
@@ -33,12 +36,14 @@ public class CupDetailedMapper {
 
     public CupDetailedMapper(
             EventService eventService,
+            EventMapper eventMapper,
             ResultListService resultListService,
             SplitTimeListRepository splitTimeListRepository,
             CupStatisticsMapper cupStatisticsMapper,
             EventRacesCupScoreMapper eventRacesCupScoreMapper,
             OrganisationScoreMapper organisationScoreMapper) {
         this.eventService = eventService;
+        this.eventMapper = eventMapper;
         this.resultListService = resultListService;
         this.splitTimeListRepository = splitTimeListRepository;
         this.cupStatisticsMapper = cupStatisticsMapper;
@@ -74,6 +79,10 @@ public class CupDetailedMapper {
                 .distinct()
                 .toList();
         Map<EventId, Boolean> hasSplitTimesMap = batchHasSplitTimes(eventsFromCupScore);
+        Map<Long, Boolean> hasSplitTimesMapByLong = hasSplitTimesMap.entrySet().stream()
+                .collect(Collectors.toMap(entry -> entry.getKey().value(), Map.Entry::getValue));
+        Map<EventId, EventDto> eventDtosById = eventMapper.toDtos(eventsFromCupScore, hasSplitTimesMapByLong).stream()
+                .collect(Collectors.toMap(dto -> EventId.of(dto.id()), Function.identity()));
 
         return new CupDetailedDto(
                 ObjectUtils.isNotEmpty(cupDetailed.getId())
@@ -82,10 +91,7 @@ public class CupDetailedMapper {
                 cupDetailed.getName().value(),
                 CupTypeDto.from(cupDetailed.getType()),
                 eventKeyDtos,
-                cupDetailed.getEventRacesCupScore().stream()
-                        .map(x -> eventRacesCupScoreMapper.toDto(
-                                x, hasSplitTimesMap.getOrDefault(x.event().getId(), false)))
-                        .toList(),
+                eventRacesCupScoreMapper.toDtos(cupDetailed.getEventRacesCupScore(), eventDtosById),
                 cupDetailed.getType().isGroupedByOrganisation()
                         ? organisationScoreMapper.toDtos(cupDetailed.getOverallOrganisationScores())
                         : List.of(),

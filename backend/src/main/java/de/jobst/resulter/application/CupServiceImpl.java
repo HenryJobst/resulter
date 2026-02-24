@@ -8,7 +8,6 @@ import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.springapp.config.SpringSecurityAuditorAware;
 import java.time.Year;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -97,15 +96,20 @@ public class CupServiceImpl implements CupService {
     public CupDetailed getCupDetailed(CupId cupId) {
         Cup cup = getById(cupId);
         List<EventId> eventIds = cup.getEventIds().stream().toList();
+        Set<EventId> eventIdSet = new HashSet<>(eventIds);
         List<Race> races = raceService.findAllByEventIds(eventIds);
         log.debug("Cup {}: Found {} races with race numbers: {}",
             cupId.value(),
             races.size(),
             races.stream().map(r -> r.getRaceNumber().value()).toList());
 
+        Map<EventId, Event> eventsById = eventService.findAllByIdAsMap(eventIdSet);
+        Map<EventId, List<ResultList>> resultListsByEvent = resultListService.findAllByEventIds(eventIdSet);
+
         List<EventResultList> eventResultLists = eventIds.stream()
-                .map(eventId ->
-                        new EventResultLists(eventService.getById(eventId), resultListService.findByEventId(eventId)))
+                .map(eventId -> new EventResultLists(
+                        eventsById.get(eventId),
+                        resultListsByEvent.getOrDefault(eventId, List.of())))
                 .flatMap(rl2 -> rl2.resultLists().stream().map(rl -> new EventResultList(rl2.event(), rl)))
                 .sorted()
                 .toList();
@@ -114,10 +118,15 @@ public class CupServiceImpl implements CupService {
             eventResultLists.size(),
             eventResultLists.stream().map(erl -> erl.resultList().getRaceNumber().value()).toList());
 
+        Set<ResultListId> resultListIds = eventResultLists.stream()
+                .map(x -> x.resultList().getId())
+                .collect(Collectors.toSet());
+        Map<ResultListId, List<CupScoreList>> cupScoreListsByResultList =
+                resultListService.getCupScoreListsByResultListIds(resultListIds, cupId);
+
         List<List<CupScoreList>> cupScoreLists = eventResultLists.stream()
                 .map(r -> {
-                    List<CupScoreList> scores = resultListService.getCupScoreLists(r.resultList().getId(), cupId).stream()
-                        .toList();
+                    List<CupScoreList> scores = cupScoreListsByResultList.getOrDefault(r.resultList().getId(), List.of());
                     if (!scores.isEmpty()) {
                         log.debug("ResultList {} (Race {}): Found {} CupScoreLists with {} total scores",
                             r.resultList().getId().value(),
@@ -140,8 +149,11 @@ public class CupServiceImpl implements CupService {
 
         var strategy = cup.getCupTypeCalculationStrategy(organisationById);
 
-        List<Event> events =
-                eventService.getByIds(cup.getEventIds()).stream().sorted().toList();
+        List<Event> events = eventIds.stream()
+                .map(eventsById::get)
+                .filter(Objects::nonNull)
+                .sorted()
+                .toList();
         ClassResultAggregationResult classResultAggregationResult =
                 cup.getType().isGroupedByOrganisation()
                         ? null
@@ -417,15 +429,12 @@ public class CupServiceImpl implements CupService {
         Cup cup = getById(id);
         Collection<Event> events = eventService.getByIds(cup.getEventIds());
 
-        // Group by event to avoid N+1 queries and apply aggregatedScore filtering
-        Map<EventId, List<ResultList>> resultListsByEvent = new HashMap<>();
-        Map<EventId, Event> eventById = new HashMap<>();
+        Set<EventId> eventIds = events.stream().map(Event::getId).collect(Collectors.toSet());
+        Map<EventId, List<ResultList>> resultListsByEvent = resultListService.findAllByEventIds(eventIds);
+        Map<EventId, Event> eventById = events.stream().collect(Collectors.toMap(Event::getId, event -> event));
+
         events.forEach(event -> {
-            List<ResultList> eventResultLists = new ArrayList<>(
-                resultListService.findByEventId(event.getId())
-            );
-            resultListsByEvent.put(event.getId(), eventResultLists);
-            eventById.put(event.getId(), event);
+            List<ResultList> eventResultLists = resultListsByEvent.getOrDefault(event.getId(), List.of());
             log.debug("Event {} (aggregatedScore={}): Found {} ResultLists with race numbers: {}",
                 event.getId().value(),
                 event.isAggregatedScore(),

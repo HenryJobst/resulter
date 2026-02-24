@@ -82,7 +82,7 @@ const initialTableSettings: TableSettings = {
             <router-link
                 v-if="authStore.isAuthenticated"
                 class="ml-2"
-                :to="{ name: 'event-import' }"
+                :to="{ name: 'event-import', params: { locale: $route.params.locale } }"
             >
                 <Button
                     v-tooltip="t('labels.import')"
@@ -95,7 +95,7 @@ const initialTableSettings: TableSettings = {
             </router-link>
         </template>
         <template #extra_row_actions="{ value }">
-            <router-link :to="{ name: 'event-results', params: { id: value.id } }">
+            <router-link :to="{ name: 'event-results', params: { id: value.id, locale: $route.params.locale } }">
                 <Button
                     v-tooltip="t('labels.results')"
                     icon="pi pi-list"

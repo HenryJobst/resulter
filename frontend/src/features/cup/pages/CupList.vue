@@ -61,7 +61,7 @@ const initialTableSettings: TableSettings = {
     >
         <template #events="{ value }">
             <router-link
-                :to="{ name: 'event-results', params: { id: value.id } }"
+                :to="{ name: 'event-results', params: { id: value.id, locale: $route.params.locale } }"
                 target="_blank"
             >
                 <Chip class="event-chip clickable-chip">
@@ -71,7 +71,7 @@ const initialTableSettings: TableSettings = {
         </template>
         <template #extra_list_actions />
         <template #extra_row_actions="{ value }">
-            <router-link :to="{ name: 'cup-results', params: { id: value.id } }">
+            <router-link :to="{ name: 'cup-results', params: { id: value.id, locale: $route.params.locale } }">
                 <Button
                     v-tooltip="t('labels.results')"
                     icon="pi pi-list"

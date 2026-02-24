@@ -466,16 +466,15 @@ async function showErrorDetail(id: number) {
 
 /* Dashboard Cards */
 .dashboard-card {
-    transition: all 0.3s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
     border-radius: 12px;
     border: 1px solid rgba(251, 146, 60, 0.2);
     background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, transparent 100%);
 }
 
 .dashboard-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-    border-color: rgba(251, 146, 60, 0.4);
+    box-shadow: 0 8px 20px rgba(251, 146, 60, 0.2);
+    border-color: rgba(251, 146, 60, 0.5);
     background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, transparent 100%);
 }
 
@@ -488,6 +487,10 @@ async function showErrorDetail(id: number) {
 }
 
 .dashboard-card-click-target.clickable {
+    cursor: pointer;
+}
+
+.dashboard-card-click-target.clickable .dashboard-card {
     cursor: pointer;
 }
 

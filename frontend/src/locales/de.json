@@ -179,6 +179,7 @@
         "moderate_suspicion": "Mittlere Wahrscheinlichkeit",
         "no_suspicion": "Unwahrscheinlich",
         "no_data": "Keine Daten",
+        "no_data_hint": "Überprüfe deine Filter oder erstelle einen neuen Eintrag.",
         "hanging_index": "Tram-Index (HI)",
         "avg_hi": "Ø HI",
         "hanging_count": "Tram-Anzahl",

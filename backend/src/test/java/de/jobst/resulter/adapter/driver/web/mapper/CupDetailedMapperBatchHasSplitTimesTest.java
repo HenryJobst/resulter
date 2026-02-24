@@ -32,6 +32,7 @@ class CupDetailedMapperBatchHasSplitTimesTest {
     @BeforeEach
     void setUp() {
         EventService eventService = mock(EventService.class);
+        EventMapper eventMapper = mock(EventMapper.class);
         resultListService = mock(ResultListService.class);
         splitTimeListRepository = mock(SplitTimeListRepository.class);
         CupStatisticsMapper cupStatisticsMapper = mock(CupStatisticsMapper.class);
@@ -40,6 +41,7 @@ class CupDetailedMapperBatchHasSplitTimesTest {
 
         cupDetailedMapper = new CupDetailedMapper(
                 eventService,
+                eventMapper,
                 resultListService,
                 splitTimeListRepository,
                 cupStatisticsMapper,

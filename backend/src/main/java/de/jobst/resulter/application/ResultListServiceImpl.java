@@ -221,4 +221,10 @@ public class ResultListServiceImpl implements ResultListService {
     public List<CupScoreList> getCupScoreLists(ResultListId resultListId, CupId cupId) {
         return cupScoreListRepository.findAllByResultListIdAndCupId(resultListId, cupId);
     }
+
+    @Override
+    public Map<ResultListId, List<CupScoreList>> getCupScoreListsByResultListIds(
+            Collection<ResultListId> resultListIds, CupId cupId) {
+        return cupScoreListRepository.findAllByResultListIdsAndCupId(resultListIds, cupId);
+    }
 }

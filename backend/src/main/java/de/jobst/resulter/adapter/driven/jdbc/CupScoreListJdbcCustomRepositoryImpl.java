@@ -105,6 +105,27 @@ public class CupScoreListJdbcCustomRepositoryImpl implements CupScoreListJdbcCus
     }
 
     @Override
+    public List<CupScoreListDbo> findByResultListIdsAndCupIdWithoutCupScores(Collection<Long> resultListIds, Long cupId) {
+        if (resultListIds == null || resultListIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String query =
+                """
+            SELECT id, cup_id, result_list_id, creator, create_time, create_time_zone, status
+            FROM cup_score_list
+            WHERE result_list_id IN (:resultListIds) AND cup_id = :cupId
+            """;
+
+        return jdbcClient
+                .sql(query)
+                .param("resultListIds", resultListIds)
+                .param("cupId", cupId)
+                .query(new CupScoreListDboRowMapper())
+                .list();
+    }
+
+    @Override
     public List<CupScoreWithListId> findCupScoresByListIds(Collection<Long> cupScoreListIds) {
         if (cupScoreListIds == null || cupScoreListIds.isEmpty()) {
             return Collections.emptyList();

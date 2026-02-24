@@ -37,6 +37,11 @@ public interface CupScoreListJdbcCustomRepository {
     List<CupScoreListDbo> findByResultListIdAndCupIdWithoutCupScores(Long resultListId, Long cupId);
 
     /**
+     * Find cup score lists by multiple result list IDs and a cup ID without loading cupScores.
+     */
+    List<CupScoreListDbo> findByResultListIdsAndCupIdWithoutCupScores(Collection<Long> resultListIds, Long cupId);
+
+    /**
      * Batch load cup scores for multiple cup score lists.
      * Returns a map of cup_score_list_id to list of CupScoreDbo.
      *

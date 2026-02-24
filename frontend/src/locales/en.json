@@ -399,7 +399,8 @@
             "totalTime": "Total Time",
             "timeBehind": "Time Behind",
             "finish": "Finish",
-            "notCompetingAbbr": "NC",
+            "notCompeting": "NC",
+            "missingPunch": "Misp",
             "noData": "No data available. Please select a class or course.",
             "help": {
                 "tableStructure": "Table Structure",

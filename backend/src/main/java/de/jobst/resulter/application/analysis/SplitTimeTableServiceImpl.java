@@ -199,8 +199,8 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
         // Extract control codes
         List<String> controlCodes = extractControlCodes(filteredSplits, runtimeMap);
 
-        // Calculate cumulative times (position-indexed)
-        Map<Long, List<Double>> cumulativeTimes = calculateCumulativeTimes(filteredSplits, runtimeMap);
+        // Calculate cumulative times aligned to control sequence (position-indexed)
+        Map<Long, List<Double>> cumulativeTimes = calculateCumulativeTimes(filteredSplits, controlCodes, runtimeMap);
 
         // Calculate cumulative positions (position-indexed)
         Map<Integer, Map<Long, Integer>> cumulativePositions = calculatePositions(cumulativeTimes, controlCodes);
@@ -304,31 +304,127 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
      */
     private Map<Long, List<Double>> calculateCumulativeTimes(
             List<SplitTimeList> splits,
+            List<String> controlCodes,
             Map<RuntimeKey, Double> runtimeMap) {
 
         Map<Long, List<Double>> cumulativeTimes = new HashMap<>();
 
         for (SplitTimeList stl : splits) {
             Long personId = stl.getPersonId().value();
-
-            // Calculate segment times (includes virtual start at 0.0 and finish with runtime)
-            List<SegmentTime> segmentTimes = splitTimeAnalysisService.calculateSegmentTimes(stl, runtimeMap);
-
-            // Build cumulative times list by position
-            List<Double> cumTimes = new ArrayList<>();
-            cumTimes.add(0.0); // START at position 0
-
-            // Build cumulative times by summing segment times
-            double cumulative = 0.0;
-            for (SegmentTime segment : segmentTimes) {
-                cumulative += segment.timeSeconds();
-                cumTimes.add(cumulative);
-            }
+            List<Double> cumTimes = buildAlignedCumulativeTimes(stl, controlCodes, runtimeMap);
 
             cumulativeTimes.put(personId, cumTimes);
         }
 
         return cumulativeTimes;
+    }
+
+    /**
+     * Build a fixed-size cumulative list aligned to the reference control sequence.
+     * Missing controls stay null so subsequent punches are not shifted to wrong controls.
+     */
+    private List<Double> buildAlignedCumulativeTimes(
+            SplitTimeList splitTimeList,
+            List<String> controlCodes,
+            Map<RuntimeKey, Double> runtimeMap) {
+
+        List<Double> aligned = new ArrayList<>(Collections.nCopies(controlCodes.size(), null));
+
+        int startIndex = controlCodes.indexOf(START_CODE);
+        if (startIndex >= 0) {
+            aligned.set(startIndex, 0.0);
+        }
+
+        List<SplitTime> runnerSplits = splitTimeList.getSplitTimes().stream()
+                .filter(split -> split.controlCode() != null && split.controlCode().value() != null)
+                .filter(split -> split.punchTime().value() != null)
+                .filter(split -> split.punchTime().value() > 0.0)
+                .sorted()
+                .toList();
+
+        List<Integer> referenceControlIndices = new ArrayList<>();
+        for (int i = 0; i < controlCodes.size(); i++) {
+            String code = controlCodes.get(i);
+            if (!code.equals(START_CODE) && !code.equals(FINAL_CODE)) {
+                referenceControlIndices.add(i);
+            }
+        }
+
+        List<String> referenceCodes = referenceControlIndices.stream()
+                .map(controlCodes::get)
+                .toList();
+        List<String> runnerCodes = runnerSplits.stream()
+                .map(split -> split.controlCode().value())
+                .toList();
+
+        List<MatchIndex> matches = longestCommonSubsequenceMatches(referenceCodes, runnerCodes);
+
+        for (MatchIndex match : matches) {
+            int controlIndex = referenceControlIndices.get(match.referenceIndex());
+            Double punchTime = runnerSplits.get(match.runnerIndex()).punchTime().value();
+            aligned.set(controlIndex, punchTime);
+        }
+
+        int comparable = Math.min(referenceCodes.size(), runnerSplits.size());
+        boolean tooFewMatches = comparable > 0 && matches.size() * 2 < comparable;
+        if (tooFewMatches) {
+            for (int i = 0; i < comparable; i++) {
+                int controlIndex = referenceControlIndices.get(i);
+                aligned.set(controlIndex, runnerSplits.get(i).punchTime().value());
+            }
+        }
+
+        int finishIndex = controlCodes.indexOf(FINAL_CODE);
+        if (finishIndex >= 0) {
+            RuntimeKey runtimeKey = new RuntimeKey(
+                    splitTimeList.getPersonId().value(),
+                    splitTimeList.getClassResultShortName().value(),
+                    splitTimeList.getRaceNumber().value().intValue()
+            );
+            Double runtime = runtimeMap.get(runtimeKey);
+            if (runtime != null && runtime > 0) {
+                aligned.set(finishIndex, runtime);
+            }
+        }
+
+        return aligned;
+    }
+
+    private List<MatchIndex> longestCommonSubsequenceMatches(List<String> referenceCodes, List<String> runnerCodes) {
+        int n = referenceCodes.size();
+        int m = runnerCodes.size();
+
+        if (n == 0 || m == 0) {
+            return List.of();
+        }
+
+        int[][] dp = new int[n + 1][m + 1];
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+                if (Objects.equals(referenceCodes.get(i), runnerCodes.get(j))) {
+                    dp[i][j] = 1 + dp[i + 1][j + 1];
+                } else {
+                    dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+                }
+            }
+        }
+
+        List<MatchIndex> matches = new ArrayList<>();
+        int i = 0;
+        int j = 0;
+        while (i < n && j < m) {
+            if (Objects.equals(referenceCodes.get(i), runnerCodes.get(j))) {
+                matches.add(new MatchIndex(i, j));
+                i++;
+                j++;
+            } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+                i++;
+            } else {
+                j++;
+            }
+        }
+
+        return matches;
     }
 
     /**
@@ -346,7 +442,7 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
 
             // Get all times at this control position
             List<Map.Entry<Long, Double>> timesAtControl = cumulativeTimes.entrySet().stream()
-                    .filter(entry -> entry.getValue().size() > idx)
+                    .filter(entry -> entry.getValue().size() > idx && entry.getValue().get(idx) != null)
                     .map(entry -> Map.entry(entry.getKey(), entry.getValue().get(idx)))
                     .sorted(Map.Entry.comparingByValue())
                     .toList();
@@ -383,9 +479,11 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
                 .forEachOrdered(i -> {
                     Double fromTime = times.get(i - 1);
                     Double toTime = times.get(i);
-                    double segmentTime = toTime - fromTime;
-                    SegmentIndexPersonKey key = new SegmentIndexPersonKey(i - 1, i, personId);
-                    segmentTimes.put(key, segmentTime);
+                    if (fromTime != null && toTime != null) {
+                        double segmentTime = toTime - fromTime;
+                        SegmentIndexPersonKey key = new SegmentIndexPersonKey(i - 1, i, personId);
+                        segmentTimes.put(key, segmentTime);
+                    }
                 });
         }
 
@@ -514,7 +612,7 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
                         return status != ResultStatus.NOT_COMPETING;
                     })
                     .map(Map.Entry::getValue)
-                    .filter(times -> times.size() > idx)
+                    .filter(times -> times.size() > idx && times.get(idx) != null)
                     .map(times -> times.get(idx))
                     .min(Double::compare)
                     .orElse(null);
@@ -626,6 +724,20 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
                     SegmentIndexKey segmentKey = new SegmentIndexKey(i - 1, i);
                     segPos = segmentPositions.getOrDefault(segmentKey, Map.of()).get(personIdValue);
 
+                    // If intermediate controls are missing, derive a per-runner segment from the
+                    // last available cumulative time to the current control.
+                    if (segTime == null && cumTime != null) {
+                        int previousKnownIndex = findPreviousKnownIndex(personCumTimes, i - 1);
+                        if (previousKnownIndex >= 0) {
+                            Double previousTime = personCumTimes.get(previousKnownIndex);
+                            if (previousTime != null) {
+                                segTime = cumTime - previousTime;
+                                segPos = null; // Not comparable across runners (different origin control)
+                                fromControl = controlCodes.get(previousKnownIndex);
+                            }
+                        }
+                    }
+
                     // Check for error (still uses control codes for error detection)
                     RunnerSegmentKey errorKey = new RunnerSegmentKey(personIdValue, fromControl, controlCode);
                     ErrorInfo errorInfo = errorMap.get(errorKey);
@@ -658,7 +770,7 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
                 ));
             }
 
-            boolean hasIncompleteSplits = !hasCompleteSplits(stl, controlCodes);
+            boolean hasIncompleteSplits = hasMissingIntermediateCumulative(cells);
 
             // Position will be assigned later after all rows are created
             rows.add(new SplitTimeTableRow(personIdValue, personName, className, cells, hasIncompleteSplits, notCompeting, finishTime, null));
@@ -671,14 +783,17 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
      * Check if runner has complete splits for all controls.
      */
     private boolean hasCompleteSplits(SplitTimeList stl, List<String> controlCodes) {
-        Set<@Nullable String> runnerControls = stl.getSplitTimes().stream()
-                .map(split -> split.controlCode().value())
-                .collect(Collectors.toSet());
+        Map<String, Long> requiredCounts = controlCodes.stream()
+                .filter(controlCode -> !controlCode.equals(START_CODE) && !controlCode.equals(FINAL_CODE))
+                .collect(Collectors.groupingBy(code -> code, Collectors.counting()));
 
-        // Check if all controls (except virtual start and finish) are present
-        return controlCodes.stream()
-            .filter(controlCode -> !controlCode.equals(START_CODE) && !controlCode.equals(FINAL_CODE))
-            .allMatch(runnerControls::contains);
+        Map<String, Long> runnerCounts = stl.getSplitTimes().stream()
+                .map(split -> split.controlCode().value())
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(code -> code, Collectors.counting()));
+
+        return requiredCounts.entrySet().stream()
+                .allMatch(entry -> runnerCounts.getOrDefault(entry.getKey(), 0L) >= entry.getValue());
     }
 
     /**
@@ -712,6 +827,7 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
         // Sort competing runners by finish time
         List<SplitTimeTableRow> competingRunners = rows.stream()
                 .filter(row -> !row.notCompeting())
+                .filter(row -> !row.hasIncompleteSplits())
                 .filter(row -> row.finishTime() != null)
                 .sorted(Comparator.comparing(SplitTimeTableRow::finishTime))
                 .toList();
@@ -723,9 +839,11 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
         }
 
         // Create new rows with positions assigned
-        return rows.stream()
+        List<SplitTimeTableRow> rowsWithPositions = rows.stream()
                 .map(row -> {
-                    Integer position = row.notCompeting() ? null : positionMap.get(row.personId());
+                    Integer position = (row.notCompeting() || row.hasIncompleteSplits())
+                            ? null
+                            : positionMap.get(row.personId());
                     return new SplitTimeTableRow(
                             row.personId(),
                             row.personName(),
@@ -738,6 +856,50 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
                     );
                 })
                 .toList();
+
+        // Stable backend ordering:
+        // 1) Competing runners with complete splits (by overall position)
+        // 2) Competing runners with incomplete splits (by finish time if present)
+        // 3) Not competing runners (AK) (by finish time if present)
+        return rowsWithPositions.stream()
+                .sorted(Comparator
+                        .comparingInt(this::rowGroupPriority)
+                        .thenComparing(row -> row.position() != null ? row.position() : Integer.MAX_VALUE)
+                        .thenComparing(row -> row.finishTime() != null ? row.finishTime() : Double.MAX_VALUE))
+                .toList();
+    }
+
+    private int rowGroupPriority(SplitTimeTableRow row) {
+        if (row.notCompeting()) {
+            return 2;
+        }
+        if (row.hasIncompleteSplits()) {
+            return 1;
+        }
+        return 0;
+    }
+
+    private int findPreviousKnownIndex(List<Double> cumulativeTimes, int startIndex) {
+        for (int i = startIndex; i >= 0; i--) {
+            if (i < cumulativeTimes.size() && cumulativeTimes.get(i) != null) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * A runner is incomplete if any intermediate control (excluding virtual start/finish)
+     * has no cumulative time in the generated row.
+     */
+    private boolean hasMissingIntermediateCumulative(List<SplitTimeTableCell> cells) {
+        for (SplitTimeTableCell cell : cells) {
+            String code = cell.controlCode();
+            if (!START_CODE.equals(code) && !FINAL_CODE.equals(code) && cell.cumulativeTime() == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -750,6 +912,8 @@ public class SplitTimeTableServiceImpl implements SplitTimeTableService {
      * Key for segment without person (for grouping by segment position).
      */
     private record SegmentIndexKey(int fromIndex, int toIndex) {}
+
+    private record MatchIndex(int referenceIndex, int runnerIndex) {}
 
     /**
      * Key for error detection (still uses control codes since errors are detected via PI analysis).

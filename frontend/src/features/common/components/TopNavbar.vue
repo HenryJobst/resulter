@@ -179,7 +179,7 @@ watch(mobileNavOpen, (isOpen) => {
                 <Button
                     ref="mobileMenuButtonRef"
                     icon="pi pi-list"
-                    class="md:hidden"
+                    class="lg:hidden"
                     severity="secondary"
                     text
                     rounded
@@ -190,7 +190,7 @@ watch(mobileNavOpen, (isOpen) => {
                 />
 
                 <!-- Main Navigation direkt nach Logo -->
-                <nav :aria-label="t('labels.main_navigation')" class="desktop-nav hidden md:flex items-center gap-2 ml-4">
+                <nav :aria-label="t('labels.main_navigation')" class="desktop-nav hidden lg:flex items-center gap-2 ml-4">
                     <Button
                         :label="t('navigations.start')"
                         icon="pi pi-home"
@@ -281,7 +281,7 @@ watch(mobileNavOpen, (isOpen) => {
             id="mobile-main-nav"
             ref="mobileMenuRef"
             :aria-label="t('labels.mobile_navigation')"
-            class="md:hidden border-t border-adaptive bg-adaptive-secondary px-4 py-3"
+            class="lg:hidden border-t border-adaptive bg-adaptive-secondary px-4 py-3"
             @keydown="onMobileNavKeydown"
         >
             <div class="flex flex-col gap-2">

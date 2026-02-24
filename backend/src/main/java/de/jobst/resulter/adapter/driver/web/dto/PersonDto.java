@@ -13,7 +13,7 @@ public record PersonDto(
         case "givenName" -> "personName.givenName.value";
         case "gender" -> "gender.id";
         case "birthDate" -> "birthDate.value";
-        default -> s;
+        default -> "id.value";
     };
 
     public static String mapOrdersDtoToDomain(Sort.Order order) {
@@ -21,6 +21,13 @@ public record PersonDto(
     }
 
     public static String mapOrdersDomainToDto(Sort.Order order) {
-        return mapOperator.apply(order.getProperty());
+        return switch (order.getProperty()) {
+            case "id.value" -> "id";
+            case "personName.familyName.value" -> "familyName";
+            case "personName.givenName.value" -> "givenName";
+            case "gender.id" -> "gender";
+            case "birthDate.value" -> "birthDate";
+            default -> "id";
+        };
     }
 }

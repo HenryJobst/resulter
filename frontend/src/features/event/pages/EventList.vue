@@ -23,7 +23,7 @@ const columns: GenericListColumn[] = [
     { label: 'labels.date', field: 'startTime', type: 'date', sortable: true, style: 'width: 14rem; max-width: 14rem;' },
     { label: 'labels.time', field: 'startTime', type: 'time', sortable: true, style: 'width: 6rem; max-width: 6rem;' },
     { label: 'labels.organisation', field: 'organisations', type: 'list', sortable: false, style: 'min-width: 15rem;' },
-    { label: 'labels.split_times', field: 'hasSplitTimes', type: 'custom', sortable: true, style: 'width: 8rem; max-width: 8rem;' },
+    { label: 'labels.split_times', field: 'hasSplitTimes', type: 'custom', sortable: false, style: 'width: 8rem; max-width: 8rem;' },
 ]
 
 const organisationQuery = useQuery({

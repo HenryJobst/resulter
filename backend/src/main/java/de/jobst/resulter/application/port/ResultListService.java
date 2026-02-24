@@ -1,6 +1,5 @@
 package de.jobst.resulter.application.port;
 
-import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.domain.*;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +27,10 @@ public interface ResultListService {
     List<CupScoreList> calculateScore(ResultListId id);
 
     @Transactional
-    CertificateServiceImpl.Certificate createCertificate(
+    CertificateService.Certificate createCertificate(
             ResultListId resultListId, ClassResultShortName classResultShortName, PersonId personId);
 
-    CertificateServiceImpl.Certificate createCertificate(Event event, EventCertificate eventCertificate);
+    CertificateService.Certificate createCertificate(Event event, EventCertificate eventCertificate);
 
     List<EventCertificateStat> getCertificateStats(EventId eventId);
 

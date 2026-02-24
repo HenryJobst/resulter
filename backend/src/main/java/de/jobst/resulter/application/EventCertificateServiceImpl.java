@@ -81,7 +81,7 @@ public class EventCertificateServiceImpl implements EventCertificateService {
                     eventCertificateRepository
                             .findAllByEvent(optionalEvent.get().getId())
                             .stream()
-                            .filter(x -> x.getId() == eventCertificate.getId())
+                            .filter(x -> !x.getId().equals(eventCertificate.getId()))
                             .toList();
             eventCertificates.forEach(x -> x.setPrimary(false));
             eventCertificateRepository.saveAll(eventCertificates);

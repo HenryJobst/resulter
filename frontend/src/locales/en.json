@@ -182,6 +182,7 @@
         "moderate_suspicion": "Moderate Likelihood",
         "no_suspicion": "Unlikely",
         "no_data": "No Data",
+        "no_data_hint": "Check your filters or create a new entry.",
         "hanging_index": "Hanging Index (HI)",
         "avg_hi": "Avg. HI",
         "hanging_count": "Hanging Count",

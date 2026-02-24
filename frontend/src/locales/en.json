@@ -181,6 +181,8 @@
         "no_suspicion": "Unlikely",
         "no_data": "No Data",
         "no_data_hint": "Check your filters or create a new entry.",
+        "no_data_filtered": "No entries match the active filters.",
+        "clear_filters": "Clear filters",
         "hanging_index": "Hanging Index (HI)",
         "avg_hi": "Avg. HI",
         "hanging_count": "Hanging Count",

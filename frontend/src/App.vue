@@ -97,6 +97,7 @@ function setDetails(details: string) {
 
 <template>
     <div class="app-layout">
+        <a href="#main-content" class="skip-link">{{ t('labels.skip_to_content') }}</a>
         <!-- Top Navigation -->
         <TopNavbar
             v-model:current-locale="currentLocale"
@@ -114,7 +115,7 @@ function setDetails(details: string) {
             />
 
             <!-- Main Content -->
-            <main class="flex-1 p-6 min-h-screen bg-adaptive overflow-x-auto">
+            <main id="main-content" class="flex-1 p-6 min-h-screen bg-adaptive overflow-x-auto">
                 <Toast position="top-right">
                     <template #message="slotProps">
                         <div class="flex flex-column flex-auto">

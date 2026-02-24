@@ -5,26 +5,13 @@ import axiosInstance from '@/features/auth/services/api'
 const dashboardUrl: string = '/dashboard'
 
 /**
- * API Response wrapper from backend.
- */
-interface ApiResponse<T> {
-    success: boolean
-    message: any
-    data: T
-    errors: string[] | null
-    errorCode: number
-    timestamp: number
-    path: string
-}
-
-/**
  * Fetch dashboard statistics from API.
  *
  * @returns Promise with dashboard statistics
  */
 async function fetchDashboardStatistics(): Promise<DashboardStatistics> {
-    const response = await axiosInstance.get<ApiResponse<DashboardStatistics>>(`${dashboardUrl}/statistics`)
-    return response.data.data // Extract data from ApiResponse wrapper
+    const response = await axiosInstance.get<DashboardStatistics>(`${dashboardUrl}/statistics`)
+    return response.data
 }
 
 /**

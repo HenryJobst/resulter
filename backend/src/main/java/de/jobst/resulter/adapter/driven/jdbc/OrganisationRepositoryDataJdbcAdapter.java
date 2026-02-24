@@ -203,6 +203,10 @@ public class OrganisationRepositoryDataJdbcAdapter implements OrganisationReposi
     @Override
     @Transactional
     public Map<OrganisationId, Organisation> loadOrganisationTree(Set<OrganisationId> idSet) {
+        if (idSet == null || idSet.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         List<Long> idValues = idSet.stream().map(OrganisationId::value).toList();
 
         List<@Nullable Long> resultList = jdbcClient

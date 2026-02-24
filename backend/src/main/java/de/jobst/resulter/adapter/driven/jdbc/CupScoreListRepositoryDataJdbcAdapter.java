@@ -6,6 +6,7 @@ import de.jobst.resulter.domain.CupScoreList;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.ResultListId;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +115,38 @@ public class CupScoreListRepositoryDataJdbcAdapter implements CupScoreListReposi
 
         // 4. Convert to domain entities
         return CupScoreListDbo.asCupScoreLists(cupScoreListDbos);
+    }
+
+    @Override
+    public Map<ResultListId, List<CupScoreList>> findAllByResultListIdsAndCupId(
+            Collection<ResultListId> resultListIds, CupId cupId) {
+        if (resultListIds == null || resultListIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Long> resultListIdValues = resultListIds.stream().map(ResultListId::value).toList();
+        List<CupScoreListDbo> cupScoreListDbos =
+                cupScoreListJdbcCustomRepository.findByResultListIdsAndCupIdWithoutCupScores(
+                        resultListIdValues, cupId.value());
+
+        if (cupScoreListDbos.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Long> listIds = cupScoreListDbos.stream().map(CupScoreListDbo::getId).toList();
+        List<CupScoreListJdbcCustomRepository.CupScoreWithListId> cupScoresWithListIds =
+                cupScoreListJdbcCustomRepository.findCupScoresByListIds(listIds);
+
+        Map<Long, Set<CupScoreDbo>> cupScoresByListId = cupScoresWithListIds.stream()
+                .collect(Collectors.groupingBy(
+                        CupScoreListJdbcCustomRepository.CupScoreWithListId::cupScoreListId,
+                        Collectors.mapping(
+                                CupScoreListJdbcCustomRepository.CupScoreWithListId::cupScore, Collectors.toSet())));
+
+        cupScoreListDbos.forEach(dbo -> dbo.setCupScores(cupScoresByListId.getOrDefault(dbo.getId(), Collections.emptySet())));
+
+        return CupScoreListDbo.asCupScoreLists(cupScoreListDbos).stream()
+                .collect(Collectors.groupingBy(CupScoreList::getResultListId));
     }
 
     @Override

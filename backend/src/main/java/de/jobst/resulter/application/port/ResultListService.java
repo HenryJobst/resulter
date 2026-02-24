@@ -40,4 +40,6 @@ public interface ResultListService {
     List<CupScoreList> getCupScoreLists(ResultListId resultListId);
 
     List<CupScoreList> getCupScoreLists(ResultListId resultListId, CupId cupId);
+
+    Map<ResultListId, List<CupScoreList>> getCupScoreListsByResultListIds(Collection<ResultListId> resultListIds, CupId cupId);
 }

@@ -8,7 +8,9 @@ import de.jobst.resulter.domain.ResultListId;
 import org.jmolecules.architecture.hexagonal.SecondaryPort;
 import org.jmolecules.ddd.annotation.Repository;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Repository
@@ -24,6 +26,8 @@ public interface CupScoreListRepository {
     List<CupScoreList> findAllByResultListId(ResultListId resultListId);
 
     List<CupScoreList> findAllByResultListIdAndCupId(ResultListId resultListId, CupId cupId);
+
+    Map<ResultListId, List<CupScoreList>> findAllByResultListIdsAndCupId(Collection<ResultListId> resultListIds, CupId cupId);
 
     void replacePersonId(PersonId oldPersonId, PersonId newPersonId);
 }

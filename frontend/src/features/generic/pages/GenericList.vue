@@ -352,6 +352,17 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
                         </div>
                     </template>
                 </Column>
+                <template #empty>
+                    <div class="flex flex-col items-center gap-3 py-12 text-adaptive-secondary">
+                        <i class="pi pi-inbox text-5xl opacity-30" />
+                        <p class="text-base font-medium">
+                            {{ t('labels.no_data') }}
+                        </p>
+                        <p class="text-sm opacity-70">
+                            {{ t('labels.no_data_hint') }}
+                        </p>
+                    </div>
+                </template>
             </DataTable>
         </div>
     </div>

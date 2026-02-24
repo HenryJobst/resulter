@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import Select from 'primevue/select'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store/auth.store'
@@ -22,6 +22,8 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const mobileNavOpen = ref(false)
+const mobileMenuRef = ref<HTMLElement | null>(null)
+const mobileMenuButtonRef = ref<{ $el?: HTMLElement } | null>(null)
 
 const localLocale = computed({
     get: () => props.currentLocale,
@@ -31,7 +33,9 @@ const localLocale = computed({
 })
 
 function navigateTo(routeName: string) {
-    mobileNavOpen.value = false
+    if (mobileNavOpen.value) {
+        closeMobileNav()
+    }
     router.push({ name: routeName, params: { locale: props.currentLocale } })
 }
 
@@ -50,6 +54,80 @@ function isAnalysisActive() {
     ]
     return analysisRoutes.includes(route.name as string)
 }
+
+function getMobileMenuFocusableElements() {
+    if (!mobileMenuRef.value) {
+        return []
+    }
+
+    const focusables = mobileMenuRef.value.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    return Array.from(focusables).filter(el => !el.hasAttribute('disabled') && el.tabIndex !== -1)
+}
+
+function focusMobileMenuToggleButton() {
+    const buttonElement = mobileMenuButtonRef.value?.$el?.querySelector('button') ?? mobileMenuButtonRef.value?.$el
+    if (buttonElement instanceof HTMLElement) {
+        buttonElement.focus()
+    }
+}
+
+function closeMobileNav() {
+    mobileNavOpen.value = false
+    nextTick(() => {
+        focusMobileMenuToggleButton()
+    })
+}
+
+function toggleMobileNav() {
+    mobileNavOpen.value = !mobileNavOpen.value
+}
+
+function onMobileNavKeydown(event: KeyboardEvent) {
+    if (!mobileNavOpen.value) {
+        return
+    }
+
+    if (event.key === 'Escape') {
+        event.preventDefault()
+        closeMobileNav()
+        return
+    }
+
+    if (event.key !== 'Tab') {
+        return
+    }
+
+    const focusables = getMobileMenuFocusableElements()
+    if (focusables.length === 0) {
+        return
+    }
+
+    const first = focusables[0]
+    const last = focusables[focusables.length - 1]
+    const active = document.activeElement as HTMLElement | null
+
+    if (event.shiftKey && active === first) {
+        event.preventDefault()
+        last.focus()
+    }
+    else if (!event.shiftKey && active === last) {
+        event.preventDefault()
+        first.focus()
+    }
+}
+
+watch(mobileNavOpen, (isOpen) => {
+    if (!isOpen) {
+        return
+    }
+
+    nextTick(() => {
+        const focusables = getMobileMenuFocusableElements()
+        focusables[0]?.focus()
+    })
+})
 </script>
 
 <template>
@@ -83,6 +161,7 @@ function isAnalysisActive() {
                 </router-link>
 
                 <Button
+                    ref="mobileMenuButtonRef"
                     icon="pi pi-list"
                     class="md:hidden"
                     severity="secondary"
@@ -91,7 +170,7 @@ function isAnalysisActive() {
                     :aria-label="t('labels.open_navigation_menu')"
                     :aria-expanded="mobileNavOpen"
                     aria-controls="mobile-main-nav"
-                    @click="mobileNavOpen = !mobileNavOpen"
+                    @click="toggleMobileNav"
                 />
 
                 <!-- Main Navigation direkt nach Logo -->
@@ -184,8 +263,10 @@ function isAnalysisActive() {
         <nav
             v-if="mobileNavOpen"
             id="mobile-main-nav"
+            ref="mobileMenuRef"
             :aria-label="t('labels.mobile_navigation')"
             class="md:hidden border-t border-adaptive bg-adaptive-secondary px-4 py-3"
+            @keydown="onMobileNavKeydown"
         >
             <div class="flex flex-col gap-2">
                 <Button

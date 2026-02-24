@@ -181,6 +181,8 @@
         "no_suspicion": "Unwahrscheinlich",
         "no_data": "Keine Daten",
         "no_data_hint": "Überprüfe deine Filter oder erstelle einen neuen Eintrag.",
+        "no_data_filtered": "Keine Einträge entsprechen den aktiven Filtern.",
+        "clear_filters": "Filter zurücksetzen",
         "hanging_index": "Tram-Index (HI)",
         "avg_hi": "Ø HI",
         "hanging_count": "Tram-Anzahl",

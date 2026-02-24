@@ -145,6 +145,68 @@ function reload() {
     deleteMutation.reset()
 }
 
+function isFilterValueActive(value: unknown): boolean {
+    if (value === null || value === undefined) {
+        return false
+    }
+
+    if (typeof value === 'string') {
+        return value.trim().length > 0
+    }
+
+    if (Array.isArray(value)) {
+        return value.length > 0
+    }
+
+    return true
+}
+
+const hasActiveFilters = computed(() => {
+    const filters = settingsStore.settings.filters
+    if (!filters) {
+        return false
+    }
+
+    return Object.values(filters).some((filter: any) => {
+        if (!filter) {
+            return false
+        }
+
+        if ('constraints' in filter && Array.isArray(filter.constraints)) {
+            return filter.constraints.some((constraint: any) => isFilterValueActive(constraint?.value))
+        }
+
+        return isFilterValueActive(filter.value)
+    })
+})
+
+function clearAllFilters() {
+    const filters = settingsStore.settings.filters
+    if (!filters) {
+        return
+    }
+
+    Object.values(filters).forEach((filter: any) => {
+        if (!filter) {
+            return
+        }
+
+        if ('constraints' in filter && Array.isArray(filter.constraints)) {
+            filter.constraints.forEach((constraint: any) => {
+                if (constraint) {
+                    constraint.value = null
+                }
+            })
+            return
+        }
+
+        filter.value = null
+    })
+
+    settingsStore.settings.first = 0
+    settingsStore.settings.page = 0
+}
+
 function pageChanged(e: DataTablePageEvent) {
     /* console.log(`Page: ${e.page}`)
     console.log(`Rows: ${e.rows}`)
@@ -354,11 +416,25 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
                 </Column>
                 <template #empty>
                     <div class="flex flex-col items-center gap-3 py-12 text-adaptive-secondary">
-                        <i class="pi pi-inbox text-5xl opacity-30" />
+                        <i
+                            :class="hasActiveFilters ? 'pi pi-filter-slash text-5xl opacity-30' : 'pi pi-inbox text-5xl opacity-30'"
+                        />
                         <p class="text-base font-medium">
                             {{ t('labels.no_data') }}
                         </p>
-                        <p class="text-sm opacity-70">
+                        <template v-if="hasActiveFilters">
+                            <p class="text-sm opacity-70">
+                                {{ t('labels.no_data_filtered') }}
+                            </p>
+                            <Button
+                                :label="t('labels.clear_filters')"
+                                icon="pi pi-filter-slash"
+                                severity="secondary"
+                                size="small"
+                                @click="clearAllFilters"
+                            />
+                        </template>
+                        <p v-else class="text-sm opacity-70">
                             {{ t('labels.no_data_hint') }}
                         </p>
                     </div>

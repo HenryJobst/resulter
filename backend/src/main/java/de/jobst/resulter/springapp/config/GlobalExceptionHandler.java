@@ -5,82 +5,126 @@ import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import de.jobst.resulter.domain.util.ResponseNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
+    private ResponseEntity<ProblemDetail> toProblemDetail(
+            HttpStatus status,
+            MessageKey messageKey,
+            List<String> errors,
+            HttpServletRequest request,
+            Exception ex,
+            Integer legacyErrorCode) {
+
+        log.error("Handling {} with status {} at path {}", ex.getClass().getSimpleName(), status.value(), request.getRequestURI(), ex);
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
+        problemDetail.setType(URI.create("https://resulter.dev/problems/" + messageKey.key()));
+        problemDetail.setTitle(messageKey.key());
+        problemDetail.setDetail(errors.isEmpty() ? messageKey.key() : errors.getFirst());
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("code", messageKey.key());
+        problemDetail.setProperty("params", Map.of());
+        problemDetail.setProperty("errors", errors);
+        problemDetail.setProperty("timestamp", System.currentTimeMillis());
+        problemDetail.setProperty("path", request.getRequestURI());
+        if (legacyErrorCode != null) {
+            problemDetail.setProperty("errorCode", legacyErrorCode);
+        }
+
+        return ResponseEntity.status(status).body(problemDetail);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Object>> handleGeneralException(Exception ex, HttpServletRequest request) {
-        return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
-            LocalizableString.of(MessageKeys.UNEXPECTED_ERROR),
-            AdditionalStatusCodes.UNEXPECTED.value(),
-            request.getRequestURI(),
-            ex);
+    public ResponseEntity<ProblemDetail> handleGeneralException(Exception ex, HttpServletRequest request) {
+        return toProblemDetail(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            MessageKeys.UNEXPECTED_ERROR,
+            Collections.singletonList(ex.getMessage()),
+            request,
+            ex,
+            AdditionalStatusCodes.UNEXPECTED.value());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(ResourceNotFoundException ex,
+    public ResponseEntity<ProblemDetail> handleResourceNotFoundException(ResourceNotFoundException ex,
                                                                                HttpServletRequest request) {
-        return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
-            LocalizableString.of(MessageKeys.RESOURCE_NOT_FOUND),
-            HttpStatus.NOT_FOUND.value(),
-            request.getRequestURI(),
-            ex);
+        return toProblemDetail(
+            HttpStatus.NOT_FOUND,
+            MessageKeys.RESOURCE_NOT_FOUND,
+            Collections.singletonList(ex.getMessage()),
+            request,
+            ex,
+            HttpStatus.NOT_FOUND.value());
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(NoResourceFoundException ex,
+    public ResponseEntity<ProblemDetail> handleNoResourceFoundException(NoResourceFoundException ex,
                                                                                HttpServletRequest request) {
-        return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
-            LocalizableString.of(MessageKeys.NO_RESOURCE_FOUND),
-            HttpStatus.NOT_FOUND.value(),
-            request.getRequestURI(),
-            ex);
+        return toProblemDetail(
+            HttpStatus.NOT_FOUND,
+            MessageKeys.NO_RESOURCE_FOUND,
+            Collections.singletonList(ex.getMessage()),
+            request,
+            ex,
+            HttpStatus.NOT_FOUND.value());
     }
 
     @ExceptionHandler(ResponseNotFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleResponseNotFoundException(ResponseNotFoundException ex,
+    public ResponseEntity<ProblemDetail> handleResponseNotFoundException(ResponseNotFoundException ex,
                                                                                HttpServletRequest request) {
-        return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
-            LocalizableString.of(MessageKeys.RESPONSE_NOT_FOUND),
-            HttpStatus.NO_CONTENT.value(),
-            request.getRequestURI(),
-            ex);
+        return toProblemDetail(
+            HttpStatus.NO_CONTENT,
+            MessageKeys.RESPONSE_NOT_FOUND,
+            Collections.singletonList(ex.getMessage()),
+            request,
+            ex,
+            HttpStatus.NO_CONTENT.value());
     }
 
     @ExceptionHandler(OptimisticEntityLockException.class)
-    public ResponseEntity<ApiResponse<Object>> handleOptimisticEntityLockException(OptimisticEntityLockException ex,
+    public ResponseEntity<ProblemDetail> handleOptimisticEntityLockException(OptimisticEntityLockException ex,
                                                                                    HttpServletRequest request) {
-        return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
-            LocalizableString.of(MessageKeys.ENTITY_LOCK_CONFLICT),
-            HttpStatus.CONFLICT.value(),
-            request.getRequestURI(),
-            ex);
+        return toProblemDetail(
+            HttpStatus.CONFLICT,
+            MessageKeys.ENTITY_LOCK_CONFLICT,
+            Collections.singletonList(ex.getMessage()),
+            request,
+            ex,
+            HttpStatus.CONFLICT.value());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex,
+    public ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException ex,
                                                                               HttpServletRequest request) {
-        return ResponseUtil.error(Collections.singletonList(ex.getMessage()),
-            LocalizableString.of(MessageKeys.BAD_REQUEST),
-            HttpStatus.BAD_REQUEST.value(),
-            request.getRequestURI(),
-            ex);
+        return toProblemDetail(
+            HttpStatus.BAD_REQUEST,
+            MessageKeys.BAD_REQUEST,
+            Collections.singletonList(ex.getMessage()),
+            request,
+            ex,
+            HttpStatus.BAD_REQUEST.value());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(ConstraintViolationException ex,
+    public ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex,
                                                                                   HttpServletRequest request) {
         List<String> errors = ex.getConstraintViolations().stream()
             .map(violation -> MessageFormat.format("Invalid value ''{0}'' for {1}, {2}",
@@ -88,15 +132,17 @@ public class GlobalExceptionHandler {
                 violation.getPropertyPath(),
                 violation.getMessage()))
             .toList();
-        return ResponseUtil.error(errors,
-            LocalizableString.of(MessageKeys.BAD_REQUEST),
-            HttpStatus.BAD_REQUEST.value(),
-            request.getRequestURI(),
-            ex);
+        return toProblemDetail(
+            HttpStatus.BAD_REQUEST,
+            MessageKeys.BAD_REQUEST,
+            errors,
+            request,
+            ex,
+            HttpStatus.BAD_REQUEST.value());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Object>> handleValidationExceptions(MethodArgumentNotValidException ex,
+    public ResponseEntity<ProblemDetail> handleValidationExceptions(MethodArgumentNotValidException ex,
                                                                           HttpServletRequest request) {
         List<String> errors = new ArrayList<>();
         ex.getBindingResult()
@@ -104,11 +150,13 @@ public class GlobalExceptionHandler {
             .forEach(error -> errors.add(MessageFormat.format("{0}: {1}",
                 error.getField(),
                 error.getDefaultMessage())));
-        return ResponseUtil.error(errors,
-            LocalizableString.of(MessageKeys.BAD_REQUEST),
-            HttpStatus.BAD_REQUEST.value(),
-            request.getRequestURI(),
-            ex);
+        return toProblemDetail(
+            HttpStatus.BAD_REQUEST,
+            MessageKeys.BAD_REQUEST,
+            errors,
+            request,
+            ex,
+            HttpStatus.BAD_REQUEST.value());
     }
 
 }

@@ -94,7 +94,9 @@ const entityMutation = useMutation({
             life: toastDisplayDuration,
         })
         await router.push(
-            props.routeLocation ? props.routeLocation : { name: `${props.routerPrefix}-list` },
+            props.routeLocation
+                ? props.routeLocation
+                : { name: `${props.routerPrefix}-list`, params: { locale: route.params.locale as string } },
         )
     },
 })
@@ -111,6 +113,7 @@ function submitHandler() {
 function navigateToList() {
     router.replace({
         name: `${props.routerPrefix}-list`,
+        params: { locale: route.params.locale as string },
         query: route.query,
     })
 }

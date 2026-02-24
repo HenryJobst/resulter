@@ -9,7 +9,7 @@ import { useQueries } from '@tanstack/vue-query'
 import Panel from 'primevue/panel'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import CupStatisticsWidget from '@/features/cup/widgets/CupStatistics.vue'
 import { EventService } from '@/features/event/services/event.service'
 
@@ -24,6 +24,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const router = useRouter()
+const currentRoute = useRoute()
 
 function person(personId: number): string {
     const person = props.persons?.[personId]
@@ -185,13 +186,13 @@ function navigateToPersonResult(
         query.personId = personId.toString()
     }
 
-    const route = router.resolve({
+    const resolvedRoute = router.resolve({
         name: 'event-results',
-        params: { id: eventId.toString() },
+        params: { id: eventId.toString(), locale: currentRoute.params.locale as string },
         query,
     })
 
-    window.open(route.href, '_blank')
+    window.open(resolvedRoute.href, '_blank')
 }
 </script>
 
@@ -242,7 +243,7 @@ function navigateToPersonResult(
                             </td>
                             <td class="px-3 py-1.5">
                                 <router-link
-                                    :to="{ name: 'event-results', params: { id: event.id } }"
+                                    :to="{ name: 'event-results', params: { id: event.id, locale: $route.params.locale } }"
                                     target="_blank"
                                     class="text-sm text-adaptive-secondary hover:text-primary hover:underline"
                                 >

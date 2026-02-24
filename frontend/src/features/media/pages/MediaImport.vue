@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { MediaService, mediaService } from '@/features/media/services/media.service'
 import { acceptedFileTypes } from '@/features/media/util/file_types'
 import MediaImportForm from '@/features/media/widgets/MediaImportForm.vue'
@@ -18,8 +18,9 @@ const queryClient = useQueryClient()
 const toast = useToast()
 
 const router = useRouter()
+const route = useRoute()
 async function redirectBack() {
-    await router.replace({ name: 'media-list' })
+    await router.replace({ name: 'media-list', params: { locale: route.params.locale as string } })
 }
 
 const mediaMutation = useMutation({

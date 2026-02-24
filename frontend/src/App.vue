@@ -75,7 +75,10 @@ function toggleSidebar() {
 watch(currentLocale, (val) => {
     router.push({
         name: router.currentRoute.value.name!,
-        params: { locale: val },
+        params: {
+            ...router.currentRoute.value.params,
+            locale: val,
+        },
     })
     switchPrimeVueLocale(val)
     moment.locale(val)

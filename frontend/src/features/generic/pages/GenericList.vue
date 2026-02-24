@@ -251,7 +251,7 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
         <h1>{{ props.listLabel }}</h1>
         <div class="flex justify-content-between my-2">
             <div v-if="props.newEnabled" class="flex justify-content-start">
-                <router-link v-if="changeable" :to="{ name: `${props.routerPrefix}-new` }">
+                <router-link v-if="changeable" :to="{ name: `${props.routerPrefix}-new`, params: { locale: $route.params.locale } }">
                     <Button
                         v-tooltip.right="t('labels.new')"
                         icon="pi pi-plus"
@@ -315,7 +315,7 @@ const debouncedFilterInput = useDebounceFn((_filterModel: any, filterCallback: (
                                 v-if="props.editEnabled && changeable"
                                 :to="{
                                     name: `${props.routerPrefix}-edit`,
-                                    params: { id: data.id },
+                                    params: { id: data.id, locale: $route.params.locale },
                                 }"
                             >
                                 <Button

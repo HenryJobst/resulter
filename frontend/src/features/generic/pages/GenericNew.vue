@@ -6,7 +6,7 @@ import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
 import { computed, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Spinner from '@/components/SpinnerComponent.vue'
 import { toastDisplayDuration } from '@/utils/constants'
 
@@ -30,6 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const queryClient = useQueryClient()
 const toast = useToast()
 
@@ -73,7 +74,10 @@ function submitHandler() {
 }
 
 function navigateToList() {
-    return router.replace({ name: `${props.routerPrefix}-list` })
+    return router.replace({
+        name: `${props.routerPrefix}-list`,
+        params: { locale: route.params.locale as string },
+    })
 }
 </script>
 

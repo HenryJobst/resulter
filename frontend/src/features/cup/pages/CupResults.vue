@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import FogCupResults from '@/features/cup/pages/FogCupResults.vue'
 import KjPokalResults from '@/features/cup/pages/KjPokalResults.vue'
@@ -21,6 +21,7 @@ const { t } = useI18n()
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 const cupResultsQuery = useQuery({
     queryKey: ['cupResults', props.id],
@@ -28,7 +29,7 @@ const cupResultsQuery = useQuery({
 })
 
 function navigateToList() {
-    router.replace({ name: `cup-list` })
+    router.replace({ name: 'cup-list', params: { locale: route.params.locale as string } })
 }
 
 const queryClient = useQueryClient()

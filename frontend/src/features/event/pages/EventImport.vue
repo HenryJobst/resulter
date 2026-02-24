@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { EventService, eventService } from '@/features/event/services/event.service'
 import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
 import { toastDisplayDuration } from '@/utils/constants'
@@ -17,8 +17,9 @@ const queryClient = useQueryClient()
 const toast = useToast()
 
 const router = useRouter()
+const route = useRoute()
 async function redirectBack() {
-    await router.replace({ name: 'event-list' })
+    await router.replace({ name: 'event-list', params: { locale: route.params.locale as string } })
 }
 
 const eventMutation = useMutation({

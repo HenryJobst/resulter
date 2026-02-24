@@ -8,12 +8,13 @@ import { createPinia } from 'pinia'
 // noinspection SpellCheckingInspection
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
 import Tooltip from 'primevue/tooltip'
 import { createApp, unref } from 'vue'
 import AuthStorePlugin from '@/features/auth/plugins/authStorePlugin'
 import { getErrorStore } from '@/features/common/stores/getErrorStore'
-import { setupI18n } from '@/i18n'
+import { setupI18n, SUPPORT_LOCALES } from '@/i18n'
 import { primevueLocaleMessages } from '@/PrimevueMessages'
 
 import App from './App.vue'
@@ -128,7 +129,10 @@ export function renderApp() {
         const errorStore = getErrorStore()
         errorStore.addError(err)
         if (router.currentRoute.value.name !== 'start-page') {
-            router.push({ name: 'start-page' }).catch(() => {
+            const routeLocale = router.currentRoute.value.params.locale
+            const activeLocale = typeof routeLocale === 'string' ? routeLocale : unref(i18n.global.locale)
+            const fallbackLocale = SUPPORT_LOCALES.includes(activeLocale) ? activeLocale : 'en'
+            router.push({ name: 'start-page', params: { locale: fallbackLocale } }).catch(() => {
                 /* ignore to prevent error loop */
             })
         }
@@ -154,6 +158,7 @@ export function renderApp() {
     }
     app.use(AuthStorePlugin, { pinia, router })
     app.use(VueQueryPlugin, { queryClient })
+    app.use(ConfirmationService)
     app.use(ToastService)
     app.use(pinia)
     app.use(i18n)

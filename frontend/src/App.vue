@@ -79,6 +79,8 @@ watch(currentLocale, (val) => {
             ...router.currentRoute.value.params,
             locale: val,
         },
+        query: router.currentRoute.value.query,
+        hash: router.currentRoute.value.hash,
     })
     switchPrimeVueLocale(val)
     moment.locale(val)

@@ -66,9 +66,13 @@ function isAnalysisActive() {
                     rounded
                     @click="emit('toggleSidebar')"
                 />
-                <router-link :to="{ name: 'start-page', params: { locale: currentLocale } }" class="flex items-center">
+                <router-link
+                    :to="{ name: 'start-page', params: { locale: currentLocale } }"
+                    :aria-label="t('labels.go_to_homepage')"
+                    class="flex items-center"
+                >
                     <img
-                        :alt="t('labels.logo')"
+                        :alt="t('labels.go_to_homepage')"
                         src="@/assets/Logo_Resulter_60px.webp"
                         width="48"
                         height="47"
@@ -91,7 +95,7 @@ function isAnalysisActive() {
                 />
 
                 <!-- Main Navigation direkt nach Logo -->
-                <nav class="desktop-nav hidden md:flex items-center gap-2 ml-4">
+                <nav :aria-label="t('labels.main_navigation')" class="desktop-nav hidden md:flex items-center gap-2 ml-4">
                     <Button
                         :label="t('navigations.start')"
                         icon="pi pi-home"
@@ -177,7 +181,12 @@ function isAnalysisActive() {
             </div>
         </div>
 
-        <nav v-if="mobileNavOpen" id="mobile-main-nav" class="md:hidden border-t border-adaptive bg-adaptive-secondary px-4 py-3">
+        <nav
+            v-if="mobileNavOpen"
+            id="mobile-main-nav"
+            :aria-label="t('labels.mobile_navigation')"
+            class="md:hidden border-t border-adaptive bg-adaptive-secondary px-4 py-3"
+        >
             <div class="flex flex-col gap-2">
                 <Button
                     :label="t('navigations.start')"

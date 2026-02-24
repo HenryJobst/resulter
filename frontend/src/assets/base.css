@@ -176,6 +176,23 @@
   /*color: var(--default-font-color)*/
 }
 
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0.5rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  background: rgb(251 146 60);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 0.5rem;
+}
+
 /* Typography enhancements */
 h1, h2 {
   font-family: 'Fraunces', 'Times New Roman', serif;

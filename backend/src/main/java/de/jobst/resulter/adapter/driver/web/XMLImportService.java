@@ -137,6 +137,8 @@ public class XMLImportService {
                                         .orElse(BigInteger.ONE)
                                         .byteValue()),
                                 personRaceResult.getSplitTimes().stream()
+                                        .filter(x -> "OK".equalsIgnoreCase(x.getStatus()))
+                                        .filter(x -> x.getTime() != null && x.getTime() > 0.0)
                                         .map(x -> new SplitTime(
                                                 ControlCode.of(x.getControlCode()), PunchTime.of(x.getTime()),
                                             SplitTimeListId.empty()))

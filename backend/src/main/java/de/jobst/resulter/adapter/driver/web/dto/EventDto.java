@@ -25,7 +25,8 @@ public record EventDto(
             case "state" -> "state.id";
             case "organisations" -> "organisations";
             case "discipline" -> "discipline.id";
-            default -> order.getProperty();
+            case "hasSplitTimes" -> "startTime.value";
+            default -> "id.value";
         };
     }
 

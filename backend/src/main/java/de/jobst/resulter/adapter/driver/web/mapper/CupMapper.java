@@ -40,7 +40,10 @@ public class CupMapper {
                 CupTypeDto.from(cup.getType()),
                 cup.getYear().getValue(),
                 cup.getEventIds().stream()
-                        .map(eventMap::get)
+                        .map(eventId -> {
+                            Event event = eventMap.get(eventId);
+                            return event != null ? event : eventService.findById(eventId).orElse(null);
+                        })
                         .filter(java.util.Objects::nonNull)
                         .map(EventMapper::toKeyDto)
                         .sorted()

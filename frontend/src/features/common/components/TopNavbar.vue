@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import Select from 'primevue/select'
+import { useConfirm } from 'primevue/useconfirm'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -21,6 +22,7 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const confirm = useConfirm()
 const mobileNavOpen = ref(false)
 const mobileMenuRef = ref<HTMLElement | null>(null)
 const mobileMenuButtonRef = ref<{ $el?: HTMLElement } | null>(null)
@@ -116,6 +118,20 @@ function onMobileNavKeydown(event: KeyboardEvent) {
         event.preventDefault()
         first.focus()
     }
+}
+
+function confirmLogout() {
+    confirm.require({
+        message: t('messages.logout_confirm_message'),
+        header: t('messages.logout_confirm_header'),
+        icon: 'pi pi-sign-out',
+        acceptLabel: t('navigations.logout'),
+        rejectLabel: t('labels.cancel'),
+        acceptSeverity: 'secondary',
+        accept: () => {
+            authStore.logout()
+        },
+    })
 }
 
 watch(mobileNavOpen, (isOpen) => {
@@ -236,7 +252,7 @@ watch(mobileNavOpen, (isOpen) => {
                     severity="secondary"
                     text
                     rounded
-                    @click="authStore.logout()"
+                    @click="confirmLogout"
                 />
                 <Select
                     v-model="localLocale"

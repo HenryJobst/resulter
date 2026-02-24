@@ -3,7 +3,6 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatsDto;
-import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import java.util.List;
@@ -58,7 +57,7 @@ public class ResultListController {
     @GetMapping("/result_list/{id}/certificate")
     public ResponseEntity<ByteArrayResource> getCertificate(
             @PathVariable Long id, @RequestParam String classResultShortName, @RequestParam Long personId) {
-        CertificateServiceImpl.Certificate certificate = resultListService.createCertificate(
+        CertificateService.Certificate certificate = resultListService.createCertificate(
                 ResultListId.of(id), ClassResultShortName.of(classResultShortName), PersonId.of(personId));
         if (null != certificate) {
             return ResponseEntity.ok()

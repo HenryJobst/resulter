@@ -1,6 +1,5 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.springapp.config.SpringSecurityAuditorAware;
@@ -141,7 +140,7 @@ public class ResultListServiceImpl implements ResultListService {
 
     @Transactional
     @Override
-    public CertificateServiceImpl.@Nullable Certificate createCertificate(
+    public CertificateService.@Nullable Certificate createCertificate(
         ResultListId resultListId, ClassResultShortName classResultShortName, PersonId personId) {
         ResultList resultList = resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(
                 resultListId, classResultShortName, personId);
@@ -180,7 +179,7 @@ public class ResultListServiceImpl implements ResultListService {
             return null;
         }
 
-        CertificateServiceImpl.Certificate certificate = certificateService.createCertificate(
+        CertificateService.Certificate certificate = certificateService.createCertificate(
                 person,
                 organisation.orElse(null),
                 event,
@@ -197,7 +196,7 @@ public class ResultListServiceImpl implements ResultListService {
     }
 
     @Override
-    public CertificateServiceImpl.Certificate createCertificate(Event event, EventCertificate eventCertificate) {
+    public CertificateService.Certificate createCertificate(Event event, EventCertificate eventCertificate) {
 
         return certificateService.createCertificate(event, eventCertificate, mediaFileService);
     }

@@ -7,7 +7,6 @@ import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
 import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.EventResultsMapper;
-import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
@@ -214,7 +213,7 @@ public class EventController {
                 eventCertificateDto.layoutDescription(),
                 blankCertificate.getId(),
                 eventCertificateDto.primary());
-        CertificateServiceImpl.Certificate certificate = resultListService.createCertificate(event, eventCertificate);
+        CertificateService.Certificate certificate = resultListService.createCertificate(event, eventCertificate);
         if (null != certificate) {
             return ResponseEntity.ok()
                     .header(

@@ -19,7 +19,7 @@ public record EventCertificateDto(
         return switch (order.getProperty()) {
             case "id" -> "id.value";
             case "name" -> "name.value";
-            default -> order.getProperty();
+            default -> "id.value";
         };
     }
 
@@ -27,7 +27,7 @@ public record EventCertificateDto(
         return switch (order.getProperty()) {
             case "id.value" -> "id";
             case "name.value" -> "name";
-            default -> order.getProperty();
+            default -> "id";
         };
     }
 }

@@ -9,7 +9,8 @@ public record CupDto(Long id, String name, CupTypeDto type, Integer year, List<E
         return switch (order.getProperty()) {
             case "id" -> "id.value";
             case "name" -> "name.value";
-            default -> order.getProperty();
+            case "year" -> "year";
+            default -> "id.value";
         };
     }
 
@@ -17,7 +18,8 @@ public record CupDto(Long id, String name, CupTypeDto type, Integer year, List<E
         return switch (order.getProperty()) {
             case "id.value" -> "id";
             case "name.value" -> "name";
-            default -> order.getProperty();
+            case "year" -> "year";
+            default -> "id";
         };
     }
 }

@@ -51,20 +51,25 @@ public class EventCertificateMapper {
             Map<EventId, Event> eventMap,
             Map<MediaFileId, MediaFile> mediaFileMap,
             String thumbnailPath) {
+        Event event = ObjectUtils.isNotEmpty(eventCertificate.getEvent())
+                ? eventMap.get(eventCertificate.getEvent())
+                : null;
+        MediaFile mediaFile = ObjectUtils.isNotEmpty(eventCertificate.getBlankCertificate())
+                ? mediaFileMap.get(eventCertificate.getBlankCertificate())
+                : null;
         return new EventCertificateDto(
                 ObjectUtils.isNotEmpty(eventCertificate.getId())
                         ? eventCertificate.getId().value()
                         : 0,
                 eventCertificate.getName().value(),
-                ObjectUtils.isNotEmpty(eventCertificate.getEvent())
-                        ? EventMapper.toKeyDto(eventMap.get(eventCertificate.getEvent()))
+                event != null
+                        ? EventMapper.toKeyDto(event)
                         : null,
                 ObjectUtils.isNotEmpty(eventCertificate.getLayoutDescription())
                         ? eventCertificate.getLayoutDescription().value()
                         : null,
-                ObjectUtils.isNotEmpty(eventCertificate.getBlankCertificate())
-                        ? MediaFileKeyMapper.toDto(
-                                mediaFileMap.get(eventCertificate.getBlankCertificate()), thumbnailPath)
+                mediaFile != null
+                        ? MediaFileKeyMapper.toDto(mediaFile, thumbnailPath)
                         : null,
                 eventCertificate.isPrimary());
     }

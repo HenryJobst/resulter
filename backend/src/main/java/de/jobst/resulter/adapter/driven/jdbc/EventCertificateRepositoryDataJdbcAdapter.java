@@ -137,7 +137,7 @@ public class EventCertificateRepositoryDataJdbcAdapter implements EventCertifica
                 page.stream()
                         .map(EventCertificateDbo::asEventCertificate)
                         .toList(),
-                FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
+                FilterAndSortConverter.mapOrderProperties(page.getPageable(), EventCertificateDbo::mapOrdersDboToDomain),
                 page.getTotalElements());
     }
 

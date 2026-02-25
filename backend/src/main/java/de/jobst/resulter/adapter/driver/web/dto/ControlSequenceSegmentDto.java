@@ -7,7 +7,7 @@ import java.util.List;
 public record ControlSequenceSegmentDto(
         List<String> controls,
         String segmentLabel,
-        List<RunnerSplitDto> runnerSplits,
+        List<SequenceRunnerSplitDto> runnerSplits,
         List<String> classes
 ) {
 
@@ -15,8 +15,8 @@ public record ControlSequenceSegmentDto(
         List<String> controls = segment.controls().stream().map(c -> c.value()).toList();
         String segmentLabel = String.join(" → ", controls);
 
-        List<RunnerSplitDto> runnerSplits = segment.runnerSplits().stream()
-                .map(RunnerSplitDto::from)
+        List<SequenceRunnerSplitDto> runnerSplits = segment.runnerSplits().stream()
+                .map(SequenceRunnerSplitDto::from)
                 .toList();
 
         return new ControlSequenceSegmentDto(

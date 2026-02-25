@@ -130,6 +130,7 @@
         "total_time": "Gesamtzeit",
         "segment_details": "Abschnittsdetails",
         "sequence_segments": "Abschnittsfolgen",
+        "sequence_leg_breakdown": "Teilabschnittszeiten",
         "analysis": "Analyse",
         "analysis_hub": "Analyse-Zentrale",
         "analysis_type": "Analyse-Typ",

@@ -8,6 +8,7 @@ import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.analysis.ControlSegment;
 import de.jobst.resulter.domain.analysis.ControlSequenceSegment;
 import de.jobst.resulter.domain.analysis.RunnerSplit;
+import de.jobst.resulter.domain.analysis.SequenceRunnerSplit;
 import de.jobst.resulter.domain.analysis.SplitTimeAnalysis;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -285,7 +286,7 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
 
         int minControls = Math.max(2, sequenceMinControls);
         Map<String, List<String>> controlsBySequenceKey = new HashMap<>();
-        Map<String, List<RunnerSplitData>> sequenceMap = new HashMap<>();
+        Map<String, List<SequenceRunnerSplitData>> sequenceMap = new HashMap<>();
 
         for (SplitTimeList splitTimeList : splitTimeLists) {
             Long personIdValue = splitTimeList.getPersonId().value();
@@ -336,23 +337,29 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                     List<String> sequenceControls = controlCodes.subList(startIndex, endIndex + 1);
                     String sequenceKey = String.join(">", sequenceControls);
                     double sequenceTime = legPrefixSums[endIndex] - legPrefixSums[startIndex];
+                    List<Double> legTimesForWindow = new ArrayList<>();
+                    for (int legIndex = startIndex + 1; legIndex <= endIndex; legIndex++) {
+                        legTimesForWindow.add(
+                                validSplits.get(legIndex).punchTime().value() - validSplits.get(legIndex - 1).punchTime().value());
+                    }
 
                     controlsBySequenceKey.putIfAbsent(sequenceKey, List.copyOf(sequenceControls));
                     sequenceMap.computeIfAbsent(sequenceKey, k -> new ArrayList<>())
-                            .add(new RunnerSplitData(
+                            .add(new SequenceRunnerSplitData(
                                     splitTimeList.getPersonId(),
                                     splitTimeList.getClassResultShortName().value(),
-                                    sequenceTime
+                                    sequenceTime,
+                                    List.copyOf(legTimesForWindow)
                             ));
                 }
             }
         }
 
         List<ControlSequenceSegment> sequenceSegments = new ArrayList<>();
-        for (Map.Entry<String, List<RunnerSplitData>> sequenceEntry : sequenceMap.entrySet()) {
+        for (Map.Entry<String, List<SequenceRunnerSplitData>> sequenceEntry : sequenceMap.entrySet()) {
             String sequenceKey = sequenceEntry.getKey();
-            List<RunnerSplitData> runnerData = mergeRunnerDataByPerson(sequenceEntry.getValue());
-            runnerData.sort(Comparator.comparingDouble(RunnerSplitData::splitTimeSeconds));
+            List<SequenceRunnerSplitData> runnerData = mergeSequenceRunnerDataByPerson(sequenceEntry.getValue());
+            runnerData.sort(Comparator.comparingDouble(SequenceRunnerSplitData::splitTimeSeconds));
 
             if (runnerData.size() <= 1 && filterPersonIds.isEmpty()) {
                 continue;
@@ -378,12 +385,12 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             }
 
             List<String> classes = runnerData.stream()
-                    .map(RunnerSplitData::classResultShortName)
+                    .map(SequenceRunnerSplitData::classResultShortName)
                     .distinct()
                     .sorted()
                     .toList();
 
-            List<RunnerSplit> runnerSplits = getRunnerSplits(runnerData, limitedSize);
+            List<SequenceRunnerSplit> runnerSplits = getSequenceRunnerSplits(runnerData, limitedSize);
             List<ControlCode> controls = controlsBySequenceKey.getOrDefault(sequenceKey, List.of()).stream()
                     .map(ControlCode::of)
                     .toList();
@@ -451,6 +458,49 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             }
         }
         return new ArrayList<>(bestByPerson.values());
+    }
+
+    private static List<SequenceRunnerSplitData> mergeSequenceRunnerDataByPerson(List<SequenceRunnerSplitData> runnerData) {
+        Map<PersonId, SequenceRunnerSplitData> bestByPerson = new HashMap<>();
+        for (SequenceRunnerSplitData data : runnerData) {
+            SequenceRunnerSplitData existing = bestByPerson.get(data.personId());
+            if (existing == null || data.splitTimeSeconds() < existing.splitTimeSeconds()) {
+                bestByPerson.put(data.personId(), data);
+            }
+        }
+        return new ArrayList<>(bestByPerson.values());
+    }
+
+    private static List<SequenceRunnerSplit> getSequenceRunnerSplits(
+            List<SequenceRunnerSplitData> runnerData, int limitedSize) {
+        List<SequenceRunnerSplit> runnerSplits = new ArrayList<>();
+        Double leaderTime = runnerData.isEmpty() ? 0.0 : runnerData.getFirst().splitTimeSeconds();
+
+        int currentPosition = 1;
+        Double previousTime = null;
+
+        for (int i = 0; i < limitedSize; i++) {
+            SequenceRunnerSplitData data = runnerData.get(i);
+            Double currentTime = data.splitTimeSeconds();
+
+            if (previousTime == null || Math.abs(currentTime - previousTime) > 0.001) {
+                currentPosition = i + 1;
+            }
+
+            Double timeBehind = currentTime - leaderTime;
+
+            runnerSplits.add(new SequenceRunnerSplit(
+                    data.personId(),
+                    data.classResultShortName(),
+                    currentPosition,
+                    currentTime,
+                    timeBehind,
+                    data.legSplitTimesSeconds()
+            ));
+
+            previousTime = currentTime;
+        }
+        return runnerSplits;
     }
 
     private int compareControlCodeLists(ControlSequenceSegment first, ControlSequenceSegment second) {
@@ -727,5 +777,12 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             PersonId personId,
             String classResultShortName,
             Double splitTimeSeconds
+    ) {}
+
+    private record SequenceRunnerSplitData(
+            PersonId personId,
+            String classResultShortName,
+            Double splitTimeSeconds,
+            List<Double> legSplitTimesSeconds
     ) {}
 }

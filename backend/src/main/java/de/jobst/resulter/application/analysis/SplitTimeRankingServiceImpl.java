@@ -6,6 +6,7 @@ import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.application.port.SplitTimeRankingService;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.analysis.ControlSegment;
+import de.jobst.resulter.domain.analysis.ControlSequenceSegment;
 import de.jobst.resulter.domain.analysis.RunnerSplit;
 import de.jobst.resulter.domain.analysis.SplitTimeAnalysis;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,8 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
 
     // Maximum number of runners to include per segment (to limit response size)
     private static final int MAX_RUNNERS_PER_SEGMENT = 100;
+    private static final int MAX_RUNNERS_PER_SEQUENCE = 100;
+    private static final int MAX_SEQUENCE_SEGMENTS = 500;
 
     private final SplitTimeListRepository splitTimeListRepository;
     private final PersonRepository personRepository;
@@ -39,7 +42,9 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             ResultListId resultListId,
             boolean mergeBidirectional,
             List<Long> filterPersonIds,
-            boolean filterIntersection) {
+            boolean filterIntersection,
+            boolean includeSequences,
+            int sequenceMinControls) {
 
         long startTime = System.currentTimeMillis();
 
@@ -86,12 +91,29 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         );
         log.info("⏱ Processing: Calculated {} segments in {}ms", controlSegments.size(), System.currentTimeMillis() - calcStart);
 
+        List<ControlSequenceSegment> sequenceSegments = List.of();
+        if (includeSequences) {
+            long sequenceStart = System.currentTimeMillis();
+            sequenceSegments = calculateControlSequenceSegments(
+                    splitTimeLists,
+                    runtimeMap,
+                    filterPersonIds,
+                    filterIntersection,
+                    sequenceMinControls
+            );
+            log.info(
+                    "⏱ Processing: Calculated {} sequence segments in {}ms",
+                    sequenceSegments.size(),
+                    System.currentTimeMillis() - sequenceStart);
+        }
+
         // Create a single analysis with all classes combined
         SplitTimeAnalysis analysis = new SplitTimeAnalysis(
                 resultListId,
                 eventId,
                 ClassResultShortName.of("Alle Klassen"),
-                controlSegments
+                controlSegments,
+                sequenceSegments
         );
 
         log.info("⏱ TOTAL: Split time analysis completed in {}ms", System.currentTimeMillis() - startTime);
@@ -254,6 +276,138 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         return controlSegments;
     }
 
+    private List<ControlSequenceSegment> calculateControlSequenceSegments(
+            List<SplitTimeList> splitTimeLists,
+            Map<String, Double> runtimeMap,
+            List<Long> filterPersonIds,
+            boolean filterIntersection,
+            int sequenceMinControls) {
+
+        int minControls = Math.max(2, sequenceMinControls);
+        Map<String, List<String>> controlsBySequenceKey = new HashMap<>();
+        Map<String, List<RunnerSplitData>> sequenceMap = new HashMap<>();
+
+        for (SplitTimeList splitTimeList : splitTimeLists) {
+            Long personIdValue = splitTimeList.getPersonId().value();
+            if (!filterPersonIds.isEmpty() && !filterPersonIds.contains(personIdValue)) {
+                continue;
+            }
+
+            List<SplitTime> extendedSplitTimes = addStartAndFinishControls(
+                    splitTimeList.getSplitTimes(),
+                    splitTimeList.getId(),
+                    splitTimeList.getPersonId(),
+                    splitTimeList.getClassResultShortName(),
+                    splitTimeList.getRaceNumber(),
+                    runtimeMap
+            );
+
+            List<SplitTime> sortedSplitTimes = new ArrayList<>(extendedSplitTimes);
+            sortedSplitTimes.sort(Comparator.comparing(
+                    st -> st.punchTime().value(),
+                    Comparator.nullsLast(Comparator.naturalOrder())
+            ));
+
+            List<SplitTime> validSplits = sortedSplitTimes.stream()
+                    .filter(st -> st.punchTime().value() != null)
+                    .toList();
+
+            if (validSplits.size() < minControls) {
+                continue;
+            }
+
+            List<String> controlCodes = validSplits.stream()
+                    .map(st -> st.controlCode().value())
+                    .toList();
+            int maxControls = controlCodes.size() - 1; // max n-1 controls
+            if (maxControls < minControls) {
+                continue;
+            }
+
+            double[] legPrefixSums = new double[controlCodes.size()];
+            for (int i = 1; i < validSplits.size(); i++) {
+                double legTime = validSplits.get(i).punchTime().value() - validSplits.get(i - 1).punchTime().value();
+                legPrefixSums[i] = legPrefixSums[i - 1] + legTime;
+            }
+
+            for (int controlCount = minControls; controlCount <= maxControls; controlCount++) {
+                for (int startIndex = 0; startIndex + controlCount <= controlCodes.size(); startIndex++) {
+                    int endIndex = startIndex + controlCount - 1;
+                    List<String> sequenceControls = controlCodes.subList(startIndex, endIndex + 1);
+                    String sequenceKey = String.join(">", sequenceControls);
+                    double sequenceTime = legPrefixSums[endIndex] - legPrefixSums[startIndex];
+
+                    controlsBySequenceKey.putIfAbsent(sequenceKey, List.copyOf(sequenceControls));
+                    sequenceMap.computeIfAbsent(sequenceKey, k -> new ArrayList<>())
+                            .add(new RunnerSplitData(
+                                    splitTimeList.getPersonId(),
+                                    splitTimeList.getClassResultShortName().value(),
+                                    sequenceTime
+                            ));
+                }
+            }
+        }
+
+        List<ControlSequenceSegment> sequenceSegments = new ArrayList<>();
+        for (Map.Entry<String, List<RunnerSplitData>> sequenceEntry : sequenceMap.entrySet()) {
+            String sequenceKey = sequenceEntry.getKey();
+            List<RunnerSplitData> runnerData = mergeRunnerDataByPerson(sequenceEntry.getValue());
+            runnerData.sort(Comparator.comparingDouble(RunnerSplitData::splitTimeSeconds));
+
+            if (runnerData.size() <= 1 && filterPersonIds.isEmpty()) {
+                continue;
+            }
+
+            if (filterIntersection && !filterPersonIds.isEmpty()) {
+                Set<Long> segmentPersonIds = runnerData.stream()
+                        .map(data -> data.personId().value())
+                        .collect(Collectors.toSet());
+                if (!segmentPersonIds.containsAll(filterPersonIds)) {
+                    continue;
+                }
+            }
+
+            int totalRunners = runnerData.size();
+            int limitedSize = Math.min(totalRunners, MAX_RUNNERS_PER_SEQUENCE);
+            if (totalRunners > MAX_RUNNERS_PER_SEQUENCE) {
+                log.debug(
+                        "Limiting sequence {} from {} to {} runners",
+                        sequenceKey,
+                        totalRunners,
+                        MAX_RUNNERS_PER_SEQUENCE);
+            }
+
+            List<String> classes = runnerData.stream()
+                    .map(RunnerSplitData::classResultShortName)
+                    .distinct()
+                    .sorted()
+                    .toList();
+
+            List<RunnerSplit> runnerSplits = getRunnerSplits(runnerData, limitedSize);
+            List<ControlCode> controls = controlsBySequenceKey.getOrDefault(sequenceKey, List.of()).stream()
+                    .map(ControlCode::of)
+                    .toList();
+
+            sequenceSegments.add(new ControlSequenceSegment(controls, runnerSplits, classes));
+        }
+
+        int rawCount = sequenceSegments.size();
+        sequenceSegments.sort(Comparator
+                .comparingInt((ControlSequenceSegment s) -> s.runnerSplits().size()).reversed()
+                .thenComparingInt(s -> s.controls().size())
+                .thenComparing(this::compareControlCodeLists));
+
+        if (sequenceSegments.size() > MAX_SEQUENCE_SEGMENTS) {
+            sequenceSegments = new ArrayList<>(sequenceSegments.subList(0, MAX_SEQUENCE_SEGMENTS));
+            log.info(
+                    "Limited sequence segments from {} to {} entries (guardrail)",
+                    rawCount,
+                    MAX_SEQUENCE_SEGMENTS);
+        }
+
+        return sequenceSegments;
+    }
+
     private static List<RunnerSplit> getRunnerSplits(List<RunnerSplitData> runnerData, int limitedSize) {
         List<RunnerSplit> runnerSplits = new ArrayList<>();
         Double leaderTime = runnerData.isEmpty() ? 0.0 : runnerData.getFirst().splitTimeSeconds();
@@ -286,6 +440,28 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             previousTime = currentTime;
         }
         return runnerSplits;
+    }
+
+    private static List<RunnerSplitData> mergeRunnerDataByPerson(List<RunnerSplitData> runnerData) {
+        Map<PersonId, RunnerSplitData> bestByPerson = new HashMap<>();
+        for (RunnerSplitData data : runnerData) {
+            RunnerSplitData existing = bestByPerson.get(data.personId());
+            if (existing == null || data.splitTimeSeconds() < existing.splitTimeSeconds()) {
+                bestByPerson.put(data.personId(), data);
+            }
+        }
+        return new ArrayList<>(bestByPerson.values());
+    }
+
+    private int compareControlCodeLists(ControlSequenceSegment first, ControlSequenceSegment second) {
+        int max = Math.min(first.controls().size(), second.controls().size());
+        for (int i = 0; i < max; i++) {
+            int compare = compareControlCodes(first.controls().get(i).value(), second.controls().get(i).value());
+            if (compare != 0) {
+                return compare;
+            }
+        }
+        return Integer.compare(first.controls().size(), second.controls().size());
     }
 
     private List<ControlSegment> mergeBidirectionalSegments(List<ControlSegment> segments) {

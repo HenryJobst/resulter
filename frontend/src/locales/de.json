@@ -131,6 +131,7 @@
         "segment_details": "Abschnittsdetails",
         "sequence_segments": "Abschnittsfolgen",
         "sequence_leg_breakdown": "Teilabschnittszeiten",
+        "sequence_time": "Folgenzeit",
         "analysis": "Analyse",
         "analysis_hub": "Analyse-Zentrale",
         "analysis_type": "Analyse-Typ",

@@ -133,6 +133,7 @@
         "total_time": "Total Time",
         "segment_details": "Segment Details",
         "sequence_segments": "Sequence Segments",
+        "sequence_leg_breakdown": "Leg Breakdown",
         "analysis": "Analysis",
         "analysis_hub": "Analysis Hub",
         "analysis_type": "Analysis Type",

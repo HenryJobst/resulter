@@ -8,6 +8,6 @@ import java.util.List;
 @ValueObject
 public record ControlSequenceSegment(
         List<ControlCode> controls,
-        List<RunnerSplit> runnerSplits,
+        List<SequenceRunnerSplit> runnerSplits,
         List<String> classes
 ) {}

@@ -344,20 +344,40 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                     }
 
                     controlsBySequenceKey.putIfAbsent(sequenceKey, List.copyOf(sequenceControls));
+                    String courseKey = String.join(">", controlCodes);
                     sequenceMap.computeIfAbsent(sequenceKey, k -> new ArrayList<>())
                             .add(new SequenceRunnerSplitData(
                                     splitTimeList.getPersonId(),
                                     splitTimeList.getClassResultShortName().value(),
                                     sequenceTime,
-                                    List.copyOf(legTimesForWindow)
+                                    List.copyOf(legTimesForWindow),
+                                    courseKey
                             ));
                 }
             }
         }
 
+        Set<String> courseSharedSequenceKeys = sequenceMap.entrySet().stream()
+                .filter(entry -> entry.getValue().stream()
+                        .map(SequenceRunnerSplitData::courseKey)
+                        .distinct()
+                        .count() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
+        if (courseSharedSequenceKeys.size() < sequenceMap.size()) {
+            log.info(
+                    "Reduced sequence keys from {} to {} by removing course-exclusive sequences",
+                    sequenceMap.size(),
+                    courseSharedSequenceKeys.size());
+        }
+
         List<ControlSequenceSegment> sequenceSegments = new ArrayList<>();
         for (Map.Entry<String, List<SequenceRunnerSplitData>> sequenceEntry : sequenceMap.entrySet()) {
             String sequenceKey = sequenceEntry.getKey();
+            if (!courseSharedSequenceKeys.contains(sequenceKey)) {
+                continue;
+            }
             List<SequenceRunnerSplitData> runnerData = mergeSequenceRunnerDataByPerson(sequenceEntry.getValue());
             runnerData.sort(Comparator.comparingDouble(SequenceRunnerSplitData::splitTimeSeconds));
 
@@ -399,6 +419,25 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         }
 
         int rawCount = sequenceSegments.size();
+        sequenceSegments = removeFullCourseSingleClassSequences(sequenceSegments);
+        int afterFullCourseFilterCount = sequenceSegments.size();
+        if (afterFullCourseFilterCount < rawCount) {
+            log.info(
+                    "Reduced sequence segments from {} to {} by removing full-course single-class sequences",
+                    rawCount,
+                    afterFullCourseFilterCount);
+        }
+
+        sequenceSegments = removeContainedShorterSequences(sequenceSegments);
+        int reducedCount = sequenceSegments.size();
+        if (reducedCount < afterFullCourseFilterCount) {
+            log.info(
+                    "Reduced sequence segments from {} to {} by removing contained shorter sequences",
+                    afterFullCourseFilterCount,
+                    reducedCount);
+        }
+
+        sequenceSegments = new ArrayList<>(sequenceSegments);
         sequenceSegments.sort(Comparator
                 .comparingInt((ControlSequenceSegment s) -> s.runnerSplits().size()).reversed()
                 .thenComparingInt(s -> s.controls().size())
@@ -413,6 +452,66 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         }
 
         return sequenceSegments;
+    }
+
+    private List<ControlSequenceSegment> removeContainedShorterSequences(List<ControlSequenceSegment> sequenceSegments) {
+        if (sequenceSegments.size() <= 1) {
+            return sequenceSegments;
+        }
+
+        List<ControlSequenceSegment> sortedByLengthDesc = sequenceSegments.stream()
+                .sorted(Comparator.comparingInt((ControlSequenceSegment s) -> s.controls().size()).reversed())
+                .toList();
+
+        List<ControlSequenceSegment> kept = new ArrayList<>();
+        for (ControlSequenceSegment candidate : sortedByLengthDesc) {
+            boolean contained = kept.stream()
+                    .anyMatch(existing ->
+                            isContainedSubSequence(candidate.controls(), existing.controls())
+                                    && shouldRemoveCandidateByExisting(candidate, existing));
+            if (!contained) {
+                kept.add(candidate);
+            }
+        }
+        return kept;
+    }
+
+    private List<ControlSequenceSegment> removeFullCourseSingleClassSequences(List<ControlSequenceSegment> sequenceSegments) {
+        return sequenceSegments;
+    }
+
+    /**
+     * Remove shorter contained sequences only when the containing sequence does not contain
+     * more classes or persons than the candidate.
+     */
+    private boolean shouldRemoveCandidateByExisting(ControlSequenceSegment candidate, ControlSequenceSegment existingLonger) {
+        int candidateClasses = candidate.classes().size();
+        int existingClasses = existingLonger.classes().size();
+        int candidatePersons = candidate.runnerSplits().size();
+        int existingPersons = existingLonger.runnerSplits().size();
+
+        boolean existingHasNotMoreClasses = existingClasses <= candidateClasses;
+        boolean existingHasNotMorePersons = existingPersons <= candidatePersons;
+        return existingHasNotMoreClasses && existingHasNotMorePersons;
+    }
+
+    private boolean isContainedSubSequence(List<ControlCode> shorter, List<ControlCode> longer) {
+        if (shorter.size() >= longer.size()) {
+            return false;
+        }
+        for (int start = 0; start + shorter.size() <= longer.size(); start++) {
+            boolean matches = true;
+            for (int i = 0; i < shorter.size(); i++) {
+                if (!Objects.equals(shorter.get(i).value(), longer.get(start + i).value())) {
+                    matches = false;
+                    break;
+                }
+            }
+            if (matches) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static List<RunnerSplit> getRunnerSplits(List<RunnerSplitData> runnerData, int limitedSize) {
@@ -783,6 +882,7 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             PersonId personId,
             String classResultShortName,
             Double splitTimeSeconds,
-            List<Double> legSplitTimesSeconds
+            List<Double> legSplitTimesSeconds,
+            String courseKey
     ) {}
 }

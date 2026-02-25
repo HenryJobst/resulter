@@ -52,21 +52,27 @@ public class SplitTimeAnalysisController {
             @PathVariable Long id,
             @RequestParam(required = false, defaultValue = "false") @Nullable Boolean mergeBidirectional,
             @RequestParam(required = false) @Nullable List<Long> filterPersonIds,
-            @RequestParam(required = false, defaultValue = "false") @Nullable Boolean filterIntersection) {
+            @RequestParam(required = false, defaultValue = "false") @Nullable Boolean filterIntersection,
+            @RequestParam(required = false, defaultValue = "false") @Nullable Boolean includeSequences,
+            @RequestParam(required = false, defaultValue = "3") @Nullable Integer sequenceMinControls) {
 
         log.debug(
-                "Analyzing split times (ranking) for result list {} (merge: {}, person filters: {}, intersection: {})",
+                "Analyzing split times (ranking) for result list {} (merge: {}, person filters: {}, intersection: {}, includeSequences: {}, sequenceMinControls: {})",
                 id,
                 mergeBidirectional,
                 filterPersonIds,
-                filterIntersection);
+                filterIntersection,
+                includeSequences,
+                sequenceMinControls);
 
         List<SplitTimeAnalysisDto> analyses = splitTimeRankingService
                 .analyzeSplitTimesRanking(
                         ResultListId.of(id),
                         Optional.ofNullable(mergeBidirectional).orElse(false),
                         Optional.ofNullable(filterPersonIds).orElse(List.of()),
-                        Optional.ofNullable(filterIntersection).orElse(false))
+                        Optional.ofNullable(filterIntersection).orElse(false),
+                        Optional.ofNullable(includeSequences).orElse(false),
+                        Optional.ofNullable(sequenceMinControls).orElse(3))
                 .stream()
                 .map(SplitTimeAnalysisDto::from)
                 .toList();

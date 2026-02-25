@@ -146,20 +146,11 @@ function formatSeconds(seconds: number): string {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
-function getSequenceLegBreakdown(controls: string[], legSplitTimes: string[]): string {
-    if (!controls || controls.length < 2 || !legSplitTimes || legSplitTimes.length === 0) {
+function getSequenceLegTime(legSplitTimes: string[], index: number): string {
+    if (!legSplitTimes || index < 0 || index >= legSplitTimes.length) {
         return ''
     }
-    const parts: string[] = []
-    for (let i = 0; i < legSplitTimes.length; i++) {
-        const from = controls[i]
-        const to = controls[i + 1]
-        if (!from || !to) {
-            continue
-        }
-        parts.push(`${from} → ${to}: ${legSplitTimes[i]}`)
-    }
-    return parts.join(' | ')
+    return legSplitTimes[index] ?? ''
 }
 
 // Extract all unique classes from segments
@@ -494,12 +485,17 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], ()
                                             </template>
                                         </Column>
                                         <Column field="classResultShortName" :header="t('labels.class')" style="width: 12%" />
-                                        <Column field="splitTime" :header="t('labels.split_time')" style="width: 14%" />
-                                        <Column :header="t('labels.sequence_leg_breakdown')" style="width: 31%">
+                                        <Column
+                                            v-for="(targetControl, legIndex) in sequenceSegment.controls.slice(1)"
+                                            :key="`leg-${sequenceSegment.segmentLabel}-${targetControl}-${legIndex}`"
+                                            :header="targetControl"
+                                            style="width: 10%"
+                                        >
                                             <template #body="slotProps">
-                                                {{ getSequenceLegBreakdown(sequenceSegment.controls, slotProps.data.legSplitTimes) }}
+                                                {{ getSequenceLegTime(slotProps.data.legSplitTimes, legIndex) }}
                                             </template>
                                         </Column>
+                                        <Column field="splitTime" :header="t('labels.sequence_time')" style="width: 14%" />
                                         <Column field="timeBehind" :header="t('labels.time_behind')" style="width: 18%" />
                                     </DataTable>
                                     <div v-if="sequenceSegment.runnerSplits.length === 100" class="p-2 text-sm text-gray-600 italic">

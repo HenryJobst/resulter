@@ -48,3 +48,6 @@ backend/src/main/.DS_Store
 /prometheus/prometheus_api_token
 /backend/Certificate_BBM Mittel-OL 2024_Mustermann_Max.pdf
 .todos/
+/backup/recovery/resulter_current_2026-02-24.dump
+/backup/recovery/resulter_eba752_2026-02-24.dump
+/backup/recovery/resulter_legacy_volume_2026-02-24.dump

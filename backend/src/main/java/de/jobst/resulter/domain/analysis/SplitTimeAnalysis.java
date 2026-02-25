@@ -9,5 +9,6 @@ import java.util.List;
 
 @ValueObject
 public record SplitTimeAnalysis(ResultListId resultListId, EventId eventId, ClassResultShortName classResultShortName,
-                                List<ControlSegment> controlSegments) {
+                                List<ControlSegment> controlSegments,
+                                List<ControlSequenceSegment> sequenceSegments) {
 }

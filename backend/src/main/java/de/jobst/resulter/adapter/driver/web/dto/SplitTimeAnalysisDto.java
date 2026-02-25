@@ -8,7 +8,8 @@ public record SplitTimeAnalysisDto(
         Long resultListId,
         Long eventId,
         String classResultShortName,
-        List<ControlSegmentDto> controlSegments
+        List<ControlSegmentDto> controlSegments,
+        List<ControlSequenceSegmentDto> sequenceSegments
 ) {
 
     public static SplitTimeAnalysisDto from(SplitTimeAnalysis analysis) {
@@ -16,11 +17,16 @@ public record SplitTimeAnalysisDto(
                 .map(ControlSegmentDto::from)
                 .toList();
 
+        List<ControlSequenceSegmentDto> sequenceSegments = analysis.sequenceSegments().stream()
+                .map(ControlSequenceSegmentDto::from)
+                .toList();
+
         return new SplitTimeAnalysisDto(
                 analysis.resultListId().value(),
                 analysis.eventId().value(),
                 analysis.classResultShortName().value(),
-                controlSegments
+                controlSegments,
+                sequenceSegments
         );
     }
 }

@@ -17,13 +17,17 @@ public interface SplitTimeRankingService {
      * @param mergeBidirectional If true, merge forward and reverse directions
      * @param filterPersonIds Optional list of person IDs to filter (null or empty = all)
      * @param filterIntersection If true, show only segments where ALL filtered persons appear together
+     * @param includeSequences If true, compute additional rankings for contiguous control sequences
+     * @param sequenceMinControls Minimum controls per sequence (e.g. 3 = two legs)
      * @return List of split time analyses (one per class) or empty list if no data
      */
     List<SplitTimeAnalysis> analyzeSplitTimesRanking(
         ResultListId resultListId,
         boolean mergeBidirectional,
         List<Long> filterPersonIds,
-        boolean filterIntersection
+        boolean filterIntersection,
+        boolean includeSequences,
+        int sequenceMinControls
     );
 
     /**

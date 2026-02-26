@@ -98,8 +98,6 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             sequenceSegments = calculateControlSequenceSegments(
                     splitTimeLists,
                     runtimeMap,
-                    filterPersonIds,
-                    filterIntersection,
                     sequenceMinControls
             );
             log.info(
@@ -280,8 +278,6 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
     private List<ControlSequenceSegment> calculateControlSequenceSegments(
             List<SplitTimeList> splitTimeLists,
             Map<String, Double> runtimeMap,
-            List<Long> filterPersonIds,
-            boolean filterIntersection,
             int sequenceMinControls) {
 
         int minControls = Math.max(2, sequenceMinControls);
@@ -289,11 +285,6 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         Map<String, List<SequenceRunnerSplitData>> sequenceMap = new HashMap<>();
 
         for (SplitTimeList splitTimeList : splitTimeLists) {
-            Long personIdValue = splitTimeList.getPersonId().value();
-            if (!filterPersonIds.isEmpty() && !filterPersonIds.contains(personIdValue)) {
-                continue;
-            }
-
             List<SplitTime> extendedSplitTimes = addStartAndFinishControls(
                     splitTimeList.getSplitTimes(),
                     splitTimeList.getId(),
@@ -344,57 +335,27 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                     }
 
                     controlsBySequenceKey.putIfAbsent(sequenceKey, List.copyOf(sequenceControls));
-                    String courseKey = String.join(">", controlCodes);
                     sequenceMap.computeIfAbsent(sequenceKey, k -> new ArrayList<>())
                             .add(new SequenceRunnerSplitData(
                                     splitTimeList.getPersonId(),
                                     splitTimeList.getClassResultShortName().value(),
                                     sequenceTime,
-                                    List.copyOf(legTimesForWindow),
-                                    courseKey
+                                    List.copyOf(legTimesForWindow)
                             ));
                 }
             }
         }
 
-        Set<String> courseSharedSequenceKeys = sequenceMap.entrySet().stream()
-                .filter(entry -> entry.getValue().stream()
-                        .map(SequenceRunnerSplitData::courseKey)
-                        .distinct()
-                        .count() > 1)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
-
-        if (courseSharedSequenceKeys.size() < sequenceMap.size()) {
-            log.info(
-                    "Reduced sequence keys from {} to {} by removing course-exclusive sequences",
-                    sequenceMap.size(),
-                    courseSharedSequenceKeys.size());
-        }
-
         List<ControlSequenceSegment> sequenceSegments = new ArrayList<>();
         for (Map.Entry<String, List<SequenceRunnerSplitData>> sequenceEntry : sequenceMap.entrySet()) {
             String sequenceKey = sequenceEntry.getKey();
-            if (!courseSharedSequenceKeys.contains(sequenceKey)) {
-                continue;
-            }
             List<SequenceRunnerSplitData> runnerData = mergeSequenceRunnerDataByPerson(sequenceEntry.getValue());
             runnerData.sort(Comparator.comparingDouble(SequenceRunnerSplitData::splitTimeSeconds));
 
-            if (runnerData.size() <= 1 && filterPersonIds.isEmpty()) {
+            int totalRunners = runnerData.size();
+            if (totalRunners <= 1) {
                 continue;
             }
-
-            if (filterIntersection && !filterPersonIds.isEmpty()) {
-                Set<Long> segmentPersonIds = runnerData.stream()
-                        .map(data -> data.personId().value())
-                        .collect(Collectors.toSet());
-                if (!segmentPersonIds.containsAll(filterPersonIds)) {
-                    continue;
-                }
-            }
-
-            int totalRunners = runnerData.size();
             int limitedSize = Math.min(totalRunners, MAX_RUNNERS_PER_SEQUENCE);
             if (totalRunners > MAX_RUNNERS_PER_SEQUENCE) {
                 log.debug(
@@ -418,81 +379,56 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             sequenceSegments.add(new ControlSequenceSegment(controls, runnerSplits, classes));
         }
 
-        int rawCount = sequenceSegments.size();
-        sequenceSegments = removeFullCourseSingleClassSequences(sequenceSegments);
-        int afterFullCourseFilterCount = sequenceSegments.size();
-        if (afterFullCourseFilterCount < rawCount) {
+        int beforeCoverageRemovalCount = sequenceSegments.size();
+        sequenceSegments = removeCoveredByLongerSequencesWithSameRunnerCount(sequenceSegments);
+        if (sequenceSegments.size() < beforeCoverageRemovalCount) {
             log.info(
-                    "Reduced sequence segments from {} to {} by removing full-course single-class sequences",
-                    rawCount,
-                    afterFullCourseFilterCount);
-        }
-
-        sequenceSegments = removeContainedShorterSequences(sequenceSegments);
-        int reducedCount = sequenceSegments.size();
-        if (reducedCount < afterFullCourseFilterCount) {
-            log.info(
-                    "Reduced sequence segments from {} to {} by removing contained shorter sequences",
-                    afterFullCourseFilterCount,
-                    reducedCount);
+                    "Reduced sequence segments from {} to {} by removing covered shorter sequences with same runner count",
+                    beforeCoverageRemovalCount,
+                    sequenceSegments.size());
         }
 
         sequenceSegments = new ArrayList<>(sequenceSegments);
         sequenceSegments.sort(Comparator
-                .comparingInt((ControlSequenceSegment s) -> s.runnerSplits().size()).reversed()
-                .thenComparingInt(s -> s.controls().size())
+                .comparingInt((ControlSequenceSegment s) -> s.controls().size()).reversed()
+                .thenComparing(Comparator.comparingInt((ControlSequenceSegment s) -> s.runnerSplits().size()).reversed())
                 .thenComparing(this::compareControlCodeLists));
 
         if (sequenceSegments.size() > MAX_SEQUENCE_SEGMENTS) {
             sequenceSegments = new ArrayList<>(sequenceSegments.subList(0, MAX_SEQUENCE_SEGMENTS));
             log.info(
                     "Limited sequence segments from {} to {} entries (guardrail)",
-                    rawCount,
+                    sequenceMap.size(),
                     MAX_SEQUENCE_SEGMENTS);
         }
 
         return sequenceSegments;
     }
 
-    private List<ControlSequenceSegment> removeContainedShorterSequences(List<ControlSequenceSegment> sequenceSegments) {
+    private List<ControlSequenceSegment> removeCoveredByLongerSequencesWithSameRunnerCount(
+            List<ControlSequenceSegment> sequenceSegments) {
         if (sequenceSegments.size() <= 1) {
             return sequenceSegments;
         }
 
-        List<ControlSequenceSegment> sortedByLengthDesc = sequenceSegments.stream()
-                .sorted(Comparator.comparingInt((ControlSequenceSegment s) -> s.controls().size()).reversed())
+        List<ControlSequenceSegment> candidates = sequenceSegments.stream()
+                .sorted(Comparator
+                        .comparingInt((ControlSequenceSegment s) -> s.controls().size()).reversed()
+                        .thenComparing(Comparator.comparingInt((ControlSequenceSegment s) -> s.runnerSplits().size()).reversed()))
                 .toList();
 
         List<ControlSequenceSegment> kept = new ArrayList<>();
-        for (ControlSequenceSegment candidate : sortedByLengthDesc) {
-            boolean contained = kept.stream()
-                    .anyMatch(existing ->
-                            isContainedSubSequence(candidate.controls(), existing.controls())
-                                    && shouldRemoveCandidateByExisting(candidate, existing));
-            if (!contained) {
+        for (ControlSequenceSegment candidate : candidates) {
+            boolean coveredByLongerWithSameRunnerCount = kept.stream()
+                    .anyMatch(existingLonger ->
+                            existingLonger.controls().size() > candidate.controls().size()
+                                    && existingLonger.runnerSplits().size() == candidate.runnerSplits().size()
+                                    && isContainedSubSequence(candidate.controls(), existingLonger.controls()));
+            if (!coveredByLongerWithSameRunnerCount) {
                 kept.add(candidate);
             }
         }
         return kept;
-    }
-
-    private List<ControlSequenceSegment> removeFullCourseSingleClassSequences(List<ControlSequenceSegment> sequenceSegments) {
-        return sequenceSegments;
-    }
-
-    /**
-     * Remove shorter contained sequences only when the containing sequence does not contain
-     * more classes or persons than the candidate.
-     */
-    private boolean shouldRemoveCandidateByExisting(ControlSequenceSegment candidate, ControlSequenceSegment existingLonger) {
-        int candidateClasses = candidate.classes().size();
-        int existingClasses = existingLonger.classes().size();
-        int candidatePersons = candidate.runnerSplits().size();
-        int existingPersons = existingLonger.runnerSplits().size();
-
-        boolean existingHasNotMoreClasses = existingClasses <= candidateClasses;
-        boolean existingHasNotMorePersons = existingPersons <= candidatePersons;
-        return existingHasNotMoreClasses && existingHasNotMorePersons;
     }
 
     private boolean isContainedSubSequence(List<ControlCode> shorter, List<ControlCode> longer) {
@@ -882,7 +818,6 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             PersonId personId,
             String classResultShortName,
             Double splitTimeSeconds,
-            List<Double> legSplitTimesSeconds,
-            String courseKey
+            List<Double> legSplitTimesSeconds
     ) {}
 }

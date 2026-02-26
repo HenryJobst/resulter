@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 class SplitTimeRankingServiceImplTest {
 
     @Test
-    void analyzeSplitTimesRanking_shouldIncludeSequenceSegmentsWhenEnabled() {
+    void analyzeSplitTimesRanking_shouldSortSequencesByControlCountThenRunnerCount() {
         SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
         PersonRepository personRepository = mock(PersonRepository.class);
         ResultListRepository resultListRepository = mock(ResultListRepository.class);
@@ -50,10 +50,9 @@ class SplitTimeRankingServiceImplTest {
                 SplitTime.of("32", 198.0, SplitTimeListId.of(2L)),
                 SplitTime.of("33", 315.0, SplitTimeListId.of(2L))
         ));
-        SplitTimeList runner3 = splitTimeList(3L, "D21", List.of(
-                SplitTime.of("31", 99.0, SplitTimeListId.of(3L)),
-                SplitTime.of("32", 188.0, SplitTimeListId.of(3L)),
-                SplitTime.of("40", 305.0, SplitTimeListId.of(3L))
+        SplitTimeList runner3 = splitTimeList(3L, "H21", List.of(
+                SplitTime.of("31", 108.0, SplitTimeListId.of(3L)),
+                SplitTime.of("32", 205.0, SplitTimeListId.of(3L))
         ));
 
         when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2, runner3));
@@ -66,16 +65,102 @@ class SplitTimeRankingServiceImplTest {
                 List.of(),
                 false,
                 true,
-                3
+                2
         );
 
         assertThat(analyses).hasSize(1);
         assertThat(analyses.getFirst().sequenceSegments()).isNotEmpty();
-
         assertThat(analyses.getFirst().sequenceSegments().stream()
                 .map(ControlSequenceSegment::controls)
                 .map(list -> list.stream().map(c -> c.value()).toList()))
-                .contains(List.of("S", "31", "32"));
+                .containsExactly(
+                        List.of("S", "31", "32"),
+                        List.of("31", "32", "33"),
+                        List.of("S", "31"),
+                        List.of("31", "32")
+                );
+    }
+
+    @Test
+    void analyzeSplitTimesRanking_shouldExcludeSequenceSegmentsWithSingleRunner() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository,
+                personRepository,
+                resultListRepository
+        );
+
+        ResultListId resultListId = ResultListId.of(11L);
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
+                SplitTime.of("32", 190.0, SplitTimeListId.of(1L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId,
+                false,
+                List.of(),
+                false,
+                true,
+                2
+        );
+
+        assertThat(analyses).hasSize(1);
+        assertThat(analyses.getFirst().sequenceSegments()).isEmpty();
+    }
+
+    @Test
+    void analyzeSplitTimesRanking_shouldRemoveShorterCoveredSequencesWithSameRunnerCount() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository,
+                personRepository,
+                resultListRepository
+        );
+
+        ResultListId resultListId = ResultListId.of(13L);
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
+                SplitTime.of("32", 190.0, SplitTimeListId.of(1L)),
+                SplitTime.of("33", 300.0, SplitTimeListId.of(1L))
+        ));
+        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
+                SplitTime.of("31", 105.0, SplitTimeListId.of(2L)),
+                SplitTime.of("32", 198.0, SplitTimeListId.of(2L)),
+                SplitTime.of("33", 315.0, SplitTimeListId.of(2L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId,
+                false,
+                List.of(),
+                false,
+                true,
+                2
+        );
+
+        assertThat(analyses).hasSize(1);
+        assertThat(analyses.getFirst().sequenceSegments().stream()
+                .map(ControlSequenceSegment::controls)
+                .map(list -> list.stream().map(c -> c.value()).toList()))
+                .containsExactly(
+                        List.of("S", "31", "32"),
+                        List.of("31", "32", "33")
+                );
     }
 
     @Test
@@ -90,7 +175,7 @@ class SplitTimeRankingServiceImplTest {
                 resultListRepository
         );
 
-        ResultListId resultListId = ResultListId.of(11L);
+        ResultListId resultListId = ResultListId.of(12L);
         SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
                 SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
                 SplitTime.of("32", 190.0, SplitTimeListId.of(1L))
@@ -110,106 +195,11 @@ class SplitTimeRankingServiceImplTest {
                 List.of(),
                 false,
                 false,
-                3
+                2
         );
 
         assertThat(analyses).hasSize(1);
         assertThat(analyses.getFirst().sequenceSegments()).isEmpty();
-    }
-
-    @Test
-    void analyzeSplitTimesRanking_shouldApplyIntersectionFilterOnSequences() {
-        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
-        PersonRepository personRepository = mock(PersonRepository.class);
-        ResultListRepository resultListRepository = mock(ResultListRepository.class);
-
-        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
-                splitTimeListRepository,
-                personRepository,
-                resultListRepository
-        );
-
-        ResultListId resultListId = ResultListId.of(12L);
-        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
-                SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
-                SplitTime.of("32", 190.0, SplitTimeListId.of(1L)),
-                SplitTime.of("33", 300.0, SplitTimeListId.of(1L))
-        ));
-        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
-                SplitTime.of("31", 102.0, SplitTimeListId.of(2L)),
-                SplitTime.of("33", 315.0, SplitTimeListId.of(2L))
-        ));
-
-        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2));
-        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
-        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
-
-        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
-                resultListId,
-                false,
-                List.of(1L, 2L),
-                true,
-                true,
-                2
-        );
-
-        assertThat(analyses).hasSize(1);
-        assertThat(analyses.getFirst().sequenceSegments())
-                .extracting(segment -> segment.controls().stream().map(c -> c.value()).toList())
-                .containsExactly(List.of("S", "31"));
-    }
-
-    @Test
-    void analyzeSplitTimesRanking_shouldRemoveShorterContainedSequences() {
-        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
-        PersonRepository personRepository = mock(PersonRepository.class);
-        ResultListRepository resultListRepository = mock(ResultListRepository.class);
-
-        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
-                splitTimeListRepository,
-                personRepository,
-                resultListRepository
-        );
-
-        ResultListId resultListId = ResultListId.of(13L);
-        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
-                SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
-                SplitTime.of("32", 190.0, SplitTimeListId.of(1L)),
-                SplitTime.of("33", 300.0, SplitTimeListId.of(1L))
-        ));
-        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
-                SplitTime.of("31", 101.0, SplitTimeListId.of(2L)),
-                SplitTime.of("32", 192.0, SplitTimeListId.of(2L)),
-                SplitTime.of("33", 304.0, SplitTimeListId.of(2L))
-        ));
-        SplitTimeList runner3 = splitTimeList(3L, "D21", List.of(
-                SplitTime.of("31", 103.0, SplitTimeListId.of(3L)),
-                SplitTime.of("32", 194.0, SplitTimeListId.of(3L)),
-                SplitTime.of("40", 318.0, SplitTimeListId.of(3L))
-        ));
-
-        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2, runner3));
-        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
-        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
-
-        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
-                resultListId,
-                false,
-                List.of(),
-                false,
-                true,
-                2
-        );
-
-        List<List<String>> controls = analyses.getFirst().sequenceSegments().stream()
-                .map(segment -> segment.controls().stream().map(c -> c.value()).toList())
-                .toList();
-
-        assertThat(controls).contains(List.of("S", "31", "32"));
-        assertThat(controls).doesNotContain(List.of("S", "31"));
-        assertThat(controls).doesNotContain(List.of("31", "32"));
-        assertThat(controls).doesNotContain(List.of("32", "33"));
-        assertThat(controls).doesNotContain(List.of("31", "32", "33"));
     }
 
     private static SplitTimeList splitTimeList(Long personId, String className, List<SplitTime> splitTimes) {

@@ -77,6 +77,15 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         long runtimeMapStart = System.currentTimeMillis();
         Map<String, Double> runtimeMap = buildRuntimeMap(resultList);
         log.info("⏱ Processing: Built runtime map with {} entries in {}ms", runtimeMap.size(), System.currentTimeMillis() - runtimeMapStart);
+        Map<String, String> classToCourseKey = buildClassToCourseKeyMap(resultList);
+        log.info("⏱ Processing: Built class->course key map with {} entries", classToCourseKey.size());
+        Set<String> validResultKeys = buildValidResultKeys(resultList);
+        log.info("⏱ Processing: Built valid result key set with {} entries", validResultKeys.size());
+        Map<String, CourseMetadata> courseMetadataByCourseKey = buildCourseMetadataByCourseKey(
+                splitTimeLists,
+                classToCourseKey,
+                validResultKeys);
+        log.info("⏱ Processing: Built course metadata for {} courses", courseMetadataByCourseKey.size());
 
         // Get eventId (same for all split time lists)
         EventId eventId = splitTimeLists.getFirst().getEventId();
@@ -98,6 +107,8 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             sequenceSegments = calculateControlSequenceSegments(
                     splitTimeLists,
                     runtimeMap,
+                    classToCourseKey,
+                    courseMetadataByCourseKey,
                     sequenceMinControls
             );
             log.info(
@@ -278,6 +289,8 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
     private List<ControlSequenceSegment> calculateControlSequenceSegments(
             List<SplitTimeList> splitTimeLists,
             Map<String, Double> runtimeMap,
+            Map<String, String> classToCourseKey,
+            Map<String, CourseMetadata> courseMetadataByCourseKey,
             int sequenceMinControls) {
 
         int minControls = Math.max(2, sequenceMinControls);
@@ -285,6 +298,11 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         Map<String, List<SequenceRunnerSplitData>> sequenceMap = new HashMap<>();
 
         for (SplitTimeList splitTimeList : splitTimeLists) {
+            String className = splitTimeList.getClassResultShortName().value();
+            String courseKey = classToCourseKey.getOrDefault(className, "CLASS:" + className);
+            String courseControlsKey = Optional.ofNullable(courseMetadataByCourseKey.get(courseKey))
+                    .map(CourseMetadata::controlsKey)
+                    .orElse(buildCourseControlsKey(splitTimeList.getSplitTimes()));
             List<SplitTime> extendedSplitTimes = addStartAndFinishControls(
                     splitTimeList.getSplitTimes(),
                     splitTimeList.getId(),
@@ -340,7 +358,8 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                                     splitTimeList.getPersonId(),
                                     splitTimeList.getClassResultShortName().value(),
                                     sequenceTime,
-                                    List.copyOf(legTimesForWindow)
+                                    List.copyOf(legTimesForWindow),
+                                    courseControlsKey
                             ));
                 }
             }
@@ -354,6 +373,13 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
 
             int totalRunners = runnerData.size();
             if (totalRunners <= 1) {
+                continue;
+            }
+            long distinctCourseControls = runnerData.stream()
+                    .map(SequenceRunnerSplitData::courseControlsKey)
+                    .distinct()
+                    .count();
+            if (distinctCourseControls <= 1) {
                 continue;
             }
             int limitedSize = Math.min(totalRunners, MAX_RUNNERS_PER_SEQUENCE);
@@ -403,6 +429,122 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
         }
 
         return sequenceSegments;
+    }
+
+    private List<String> splitControlsKey(String controlsKey) {
+        if (controlsKey == null || controlsKey.isBlank()) {
+            return List.of();
+        }
+        return Arrays.asList(controlsKey.split(">"));
+    }
+
+    private Set<String> buildValidResultKeys(ResultList resultList) {
+        Set<String> validResultKeys = new HashSet<>();
+        if (resultList.getClassResults() == null) {
+            return validResultKeys;
+        }
+
+        for (ClassResult classResult : resultList.getClassResults()) {
+            for (PersonResult personResult : classResult.personResults().value()) {
+                for (PersonRaceResult raceResult : personResult.personRaceResults().value()) {
+                    ResultStatus state = raceResult.getState();
+                    if (state != ResultStatus.OK && state != ResultStatus.FINISHED) {
+                        continue;
+                    }
+                    validResultKeys.add(makeRuntimeKey(
+                            personResult.personId(),
+                            classResult.classResultShortName(),
+                            raceResult.getRaceNumber()));
+                }
+            }
+        }
+        return validResultKeys;
+    }
+
+    private Map<String, CourseMetadata> buildCourseMetadataByCourseKey(
+            List<SplitTimeList> splitTimeLists,
+            Map<String, String> classToCourseKey,
+            Set<String> validResultKeys) {
+        Map<String, CourseSequenceAggregation> aggregations = new HashMap<>();
+
+        for (SplitTimeList splitTimeList : splitTimeLists) {
+            String className = splitTimeList.getClassResultShortName().value();
+            String runtimeKey = makeRuntimeKey(
+                    splitTimeList.getPersonId(),
+                    splitTimeList.getClassResultShortName(),
+                    splitTimeList.getRaceNumber());
+            if (!validResultKeys.contains(runtimeKey)) {
+                continue;
+            }
+
+            String courseKey = classToCourseKey.getOrDefault(className, "CLASS:" + className);
+            String controlsKey = buildCourseControlsKey(splitTimeList.getSplitTimes());
+
+            CourseSequenceAggregation aggregation = aggregations.computeIfAbsent(
+                    courseKey,
+                    ignored -> new CourseSequenceAggregation());
+            aggregation.controlsKeyCounts.merge(controlsKey, 1, Integer::sum);
+            aggregation.classes.add(className);
+        }
+
+        Map<String, CourseMetadata> metadataByCourseKey = new HashMap<>();
+        for (Map.Entry<String, CourseSequenceAggregation> entry : aggregations.entrySet()) {
+            CourseSequenceAggregation aggregation = entry.getValue();
+            Map.Entry<String, Integer> representativeControls = aggregation.controlsKeyCounts.entrySet().stream()
+                    .sorted(Comparator
+                            .comparingInt((Map.Entry<String, Integer> item) -> item.getValue()).reversed()
+                            .thenComparingInt(item -> splitControlsKey(item.getKey()).size())
+                            .thenComparing(Map.Entry::getKey))
+                    .findFirst()
+                    .orElse(null);
+            String representativeControlsKey = representativeControls != null
+                    ? representativeControls.getKey()
+                    : "S>F";
+            int representativeRunnerCount = representativeControls != null
+                    ? representativeControls.getValue()
+                    : 0;
+            List<String> classes = new ArrayList<>(aggregation.classes);
+            classes.sort(String::compareTo);
+            metadataByCourseKey.put(
+                    entry.getKey(),
+                    new CourseMetadata(representativeControlsKey, classes, representativeRunnerCount));
+        }
+
+        return metadataByCourseKey;
+    }
+
+    private String buildCourseControlsKey(List<SplitTime> splitTimes) {
+        List<String> controls = splitTimes.stream()
+                .filter(splitTime -> splitTime.punchTime().value() != null)
+                .sorted(Comparator.comparing(splitTime -> splitTime.punchTime().value()))
+                .map(splitTime -> splitTime.controlCode().value())
+                .filter(controlCode -> controlCode != null && !controlCode.isBlank())
+                .map(String::trim)
+                .filter(controlCode -> !controlCode.equalsIgnoreCase("S") && !controlCode.equalsIgnoreCase("F"))
+                .toList();
+
+        List<String> normalizedControls = new ArrayList<>(controls.size() + 2);
+        normalizedControls.add("S");
+        normalizedControls.addAll(controls);
+        normalizedControls.add("F");
+        return String.join(">", normalizedControls);
+    }
+
+    private Map<String, String> buildClassToCourseKeyMap(ResultList resultList) {
+        Map<String, String> classToCourseKey = new HashMap<>();
+        if (resultList.getClassResults() == null) {
+            return classToCourseKey;
+        }
+
+        for (ClassResult classResult : resultList.getClassResults()) {
+            if (classResult.courseId() != null && classResult.courseId().value() != null) {
+                classToCourseKey.put(
+                        classResult.classResultShortName().value(),
+                        "CID:" + classResult.courseId().value()
+                );
+            }
+        }
+        return classToCourseKey;
     }
 
     private List<ControlSequenceSegment> removeCoveredByLongerSequencesWithSameRunnerCount(
@@ -818,6 +960,18 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             PersonId personId,
             String classResultShortName,
             Double splitTimeSeconds,
-            List<Double> legSplitTimesSeconds
+            List<Double> legSplitTimesSeconds,
+            String courseControlsKey
+    ) {}
+
+    private static final class CourseSequenceAggregation {
+        private final Map<String, Integer> controlsKeyCounts = new HashMap<>();
+        private final Set<String> classes = new HashSet<>();
+    }
+
+    private record CourseMetadata(
+            String controlsKey,
+            List<String> classes,
+            int runnerCount
     ) {}
 }

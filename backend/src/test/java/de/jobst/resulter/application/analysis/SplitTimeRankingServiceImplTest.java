@@ -45,12 +45,12 @@ class SplitTimeRankingServiceImplTest {
                 SplitTime.of("32", 190.0, SplitTimeListId.of(1L)),
                 SplitTime.of("33", 300.0, SplitTimeListId.of(1L))
         ));
-        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
+        SplitTimeList runner2 = splitTimeList(2L, "D21", List.of(
                 SplitTime.of("31", 105.0, SplitTimeListId.of(2L)),
                 SplitTime.of("32", 198.0, SplitTimeListId.of(2L)),
-                SplitTime.of("33", 315.0, SplitTimeListId.of(2L))
+                SplitTime.of("40", 315.0, SplitTimeListId.of(2L))
         ));
-        SplitTimeList runner3 = splitTimeList(3L, "H21", List.of(
+        SplitTimeList runner3 = splitTimeList(3L, "D21", List.of(
                 SplitTime.of("31", 108.0, SplitTimeListId.of(3L)),
                 SplitTime.of("32", 205.0, SplitTimeListId.of(3L))
         ));
@@ -75,7 +75,6 @@ class SplitTimeRankingServiceImplTest {
                 .map(list -> list.stream().map(c -> c.value()).toList()))
                 .containsExactly(
                         List.of("S", "31", "32"),
-                        List.of("31", "32", "33"),
                         List.of("S", "31"),
                         List.of("31", "32")
                 );
@@ -134,10 +133,11 @@ class SplitTimeRankingServiceImplTest {
                 SplitTime.of("32", 190.0, SplitTimeListId.of(1L)),
                 SplitTime.of("33", 300.0, SplitTimeListId.of(1L))
         ));
-        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
-                SplitTime.of("31", 105.0, SplitTimeListId.of(2L)),
-                SplitTime.of("32", 198.0, SplitTimeListId.of(2L)),
-                SplitTime.of("33", 315.0, SplitTimeListId.of(2L))
+        SplitTimeList runner2 = splitTimeList(2L, "D21", List.of(
+                SplitTime.of("30", 70.0, SplitTimeListId.of(2L)),
+                SplitTime.of("31", 150.0, SplitTimeListId.of(2L)),
+                SplitTime.of("32", 240.0, SplitTimeListId.of(2L)),
+                SplitTime.of("33", 360.0, SplitTimeListId.of(2L))
         ));
 
         when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2));
@@ -157,10 +157,52 @@ class SplitTimeRankingServiceImplTest {
         assertThat(analyses.getFirst().sequenceSegments().stream()
                 .map(ControlSequenceSegment::controls)
                 .map(list -> list.stream().map(c -> c.value()).toList()))
-                .containsExactly(
-                        List.of("S", "31", "32"),
-                        List.of("31", "32", "33")
-                );
+                .containsExactly(List.of("31", "32", "33"));
+    }
+
+    @Test
+    void analyzeSplitTimesRanking_shouldRemoveSequencesContainingOnlySingleCourse() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository,
+                personRepository,
+                resultListRepository
+        );
+
+        ResultListId resultListId = ResultListId.of(14L);
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
+                SplitTime.of("32", 190.0, SplitTimeListId.of(1L)),
+                SplitTime.of("33", 300.0, SplitTimeListId.of(1L))
+        ));
+        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
+                SplitTime.of("31", 102.0, SplitTimeListId.of(2L)),
+                SplitTime.of("32", 194.0, SplitTimeListId.of(2L)),
+                SplitTime.of("33", 306.0, SplitTimeListId.of(2L))
+        ));
+        SplitTimeList runner3 = splitTimeList(3L, "D21", List.of(
+                SplitTime.of("45", 120.0, SplitTimeListId.of(3L)),
+                SplitTime.of("46", 240.0, SplitTimeListId.of(3L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2, runner3));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId,
+                false,
+                List.of(),
+                false,
+                true,
+                2
+        );
+
+        assertThat(analyses).hasSize(1);
+        assertThat(analyses.getFirst().sequenceSegments()).isEmpty();
     }
 
     @Test
@@ -225,4 +267,5 @@ class SplitTimeRankingServiceImplTest {
                 List.of()
         );
     }
+
 }

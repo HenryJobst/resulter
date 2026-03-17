@@ -15,34 +15,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class OrganisationScoreMapper {
 
-    private final OrganisationMapper organisationMapper;
     private final CountryService countryService;
     private final OrganisationService organisationService;
 
-    public OrganisationScoreMapper(
-            OrganisationMapper organisationMapper,
-            CountryService countryService,
-            OrganisationService organisationService) {
-        this.organisationMapper = organisationMapper;
+    public OrganisationScoreMapper(CountryService countryService, OrganisationService organisationService) {
         this.countryService = countryService;
         this.organisationService = organisationService;
     }
 
-    public OrganisationScoreDto toDto(OrganisationScore organisationScore) {
-        return new OrganisationScoreDto(
-                organisationMapper.toDto(organisationScore.organisation()),
-                organisationScore.score(),
-                organisationScore.personWithScores().stream()
-                        .map(PersonWithScoreMapper::toDto)
-                        .toList());
-    }
-
-    public OrganisationScoreDto toDto(
+    private static OrganisationScoreDto toDto(
             OrganisationScore organisationScore,
             Map<CountryId, Country> countryMap,
             Map<OrganisationId, Organisation> orgMap) {
         return new OrganisationScoreDto(
-                organisationMapper.toDto(organisationScore.organisation(), countryMap, orgMap),
+                OrganisationMapper.toDto(organisationScore.organisation(), countryMap, orgMap),
                 organisationScore.score(),
                 organisationScore.personWithScores().stream()
                         .map(PersonWithScoreMapper::toDto)

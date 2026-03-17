@@ -7,11 +7,17 @@ import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventKeyDto;
 import de.jobst.resulter.adapter.driver.web.dto.PersonDto;
+import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
+import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.ResultListService;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.Event;
+import de.jobst.resulter.domain.EventCertificate;
+import de.jobst.resulter.domain.EventCertificateId;
 import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.Organisation;
+import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.aggregations.CupDetailed;
@@ -27,7 +33,8 @@ import org.springframework.stereotype.Component;
 public class CupDetailedMapper {
 
     private final EventService eventService;
-    private final EventMapper eventMapper;
+    private final OrganisationService organisationService;
+    private final EventCertificateService eventCertificateService;
     private final ResultListService resultListService;
     private final SplitTimeListRepository splitTimeListRepository;
     private final CupStatisticsMapper cupStatisticsMapper;
@@ -36,14 +43,16 @@ public class CupDetailedMapper {
 
     public CupDetailedMapper(
             EventService eventService,
-            EventMapper eventMapper,
+            OrganisationService organisationService,
+            EventCertificateService eventCertificateService,
             ResultListService resultListService,
             SplitTimeListRepository splitTimeListRepository,
             CupStatisticsMapper cupStatisticsMapper,
             EventRacesCupScoreMapper eventRacesCupScoreMapper,
             OrganisationScoreMapper organisationScoreMapper) {
         this.eventService = eventService;
-        this.eventMapper = eventMapper;
+        this.organisationService = organisationService;
+        this.eventCertificateService = eventCertificateService;
         this.resultListService = resultListService;
         this.splitTimeListRepository = splitTimeListRepository;
         this.cupStatisticsMapper = cupStatisticsMapper;
@@ -81,7 +90,19 @@ public class CupDetailedMapper {
         Map<EventId, Boolean> hasSplitTimesMap = batchHasSplitTimes(eventsFromCupScore);
         Map<Long, Boolean> hasSplitTimesMapByLong = hasSplitTimesMap.entrySet().stream()
                 .collect(Collectors.toMap(entry -> entry.getKey().value(), Map.Entry::getValue));
-        Map<EventId, EventDto> eventDtosById = eventMapper.toDtos(eventsFromCupScore, hasSplitTimesMapByLong).stream()
+        Set<OrganisationId> orgIds = eventsFromCupScore.stream()
+                .flatMap(e -> e.getOrganisationIds().stream())
+                .collect(Collectors.toSet());
+        Map<OrganisationId, Organisation> organisationMap = organisationService.findAllByIdAsMap(orgIds);
+        Set<EventCertificateId> certIds = eventsFromCupScore.stream()
+                .map(Event::getCertificate)
+                .filter(ObjectUtils::isNotEmpty)
+                .collect(Collectors.toSet());
+        Map<EventCertificateId, EventCertificate> eventCertificateMap =
+                eventCertificateService.findAllByIdAsMap(certIds);
+        Map<EventId, EventDto> eventDtosById = EventMapper.toDtos(
+                        eventsFromCupScore, hasSplitTimesMapByLong, organisationMap, eventCertificateMap)
+                .stream()
                 .collect(Collectors.toMap(dto -> EventId.of(dto.id()), Function.identity()));
 
         return new CupDetailedDto(

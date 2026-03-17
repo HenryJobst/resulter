@@ -4,12 +4,14 @@ import de.jobst.resulter.adapter.driver.web.dto.OrganisationDto;
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationTypeDto;
 import de.jobst.resulter.adapter.driver.web.mapper.OrganisationMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.OrganisationTypeMapper;
+import de.jobst.resulter.application.port.CountryService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -26,17 +28,22 @@ import org.springframework.web.bind.annotation.*;
 public class OrganisationController {
 
     private final OrganisationService organisationService;
-    private final OrganisationMapper organisationMapper;
+    private final CountryService countryService;
 
-    public OrganisationController(OrganisationService organisationService, OrganisationMapper organisationMapper) {
+    public OrganisationController(OrganisationService organisationService, CountryService countryService) {
         this.organisationService = organisationService;
-        this.organisationMapper = organisationMapper;
+        this.countryService = countryService;
+    }
+
+    private List<OrganisationDto> toOrganisationDtos(List<Organisation> organisations) {
+        Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(organisations);
+        Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(organisations);
+        return OrganisationMapper.toDtos(organisations, countryMap, orgMap);
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<OrganisationDto>> getAllOrganisations() {
-        List<Organisation> organisations = organisationService.findAll();
-        return ResponseEntity.ok(organisationMapper.toDtos(organisations));
+        return ResponseEntity.ok(toOrganisationDtos(organisationService.findAll()));
     }
 
     @GetMapping("")
@@ -49,7 +56,7 @@ public class OrganisationController {
                         : Pageable.unpaged());
 
         return ResponseEntity.ok(new PageImpl<>(
-                organisationMapper.toDtos(organisations.getContent()),
+                toOrganisationDtos(organisations.getContent()),
                 FilterAndSortConverter.mapOrderProperties(
                         organisations.getPageable(), OrganisationDto::mapOrdersDomainToDto),
                 organisations.getTotalElements()));
@@ -59,7 +66,7 @@ public class OrganisationController {
     public ResponseEntity<OrganisationDto> getOrganisation(@PathVariable Long id) {
         Optional<Organisation> organisation = organisationService.findById(OrganisationId.of(id));
         return organisation
-                .map(value -> ResponseEntity.ok(organisationMapper.toDtos(List.of(value)).getFirst()))
+                .map(value -> ResponseEntity.ok(toOrganisationDtos(List.of(value)).getFirst()))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -88,7 +95,7 @@ public class OrganisationController {
                         : organisationDto.childOrganisations().stream()
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
-        return ResponseEntity.ok(organisationMapper.toDtos(List.of(organisation)).getFirst());
+        return ResponseEntity.ok(toOrganisationDtos(List.of(organisation)).getFirst());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -107,7 +114,7 @@ public class OrganisationController {
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
         if (null != organisation) {
-            return ResponseEntity.ok(organisationMapper.toDtos(List.of(organisation)).getFirst());
+            return ResponseEntity.ok(toOrganisationDtos(List.of(organisation)).getFirst());
         } else {
             return ResponseEntity.notFound().build();
         }

@@ -36,36 +36,46 @@ import org.springframework.web.bind.annotation.*;
 public class EventController {
 
     private final EventService eventService;
+    private final OrganisationService organisationService;
+    private final EventCertificateService eventCertificateService;
     private final ResultListService resultListService;
     private final MediaFileService mediaFileService;
     private final SplitTimeListRepository splitTimeListRepository;
     private final CupRepository cupRepository;
-    private final EventMapper eventMapper;
     private final EventResultsMapper eventResultsMapper;
 
     public EventController(
             EventService eventService,
-            ResultListService resultListService, MediaFileService mediaFileService,
+            OrganisationService organisationService,
+            EventCertificateService eventCertificateService,
+            ResultListService resultListService,
+            MediaFileService mediaFileService,
             SplitTimeListRepository splitTimeListRepository,
             CupRepository cupRepository,
-            EventMapper eventMapper,
             EventResultsMapper eventResultsMapper) {
         this.eventService = eventService;
+        this.organisationService = organisationService;
+        this.eventCertificateService = eventCertificateService;
         this.resultListService = resultListService;
         this.mediaFileService = mediaFileService;
         this.splitTimeListRepository = splitTimeListRepository;
         this.cupRepository = cupRepository;
-        this.eventMapper = eventMapper;
         this.eventResultsMapper = eventResultsMapper;
     }
 
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
         List<Event> events = eventService.findAll();
-        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(events);
-        List<EventDto> eventDtos = eventMapper.toDtos(events, hasSplitTimesMap);
+        List<EventDto> eventDtos = toEventDtos(events);
         return ResponseEntity.ok(
                 eventDtos.stream().sorted(Comparator.reverseOrder()).toList());
+    }
+
+    private List<EventDto> toEventDtos(List<Event> events) {
+        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(events);
+        Map<OrganisationId, Organisation> organisationMap = batchLoadOrganisations(events);
+        Map<EventCertificateId, EventCertificate> eventCertificateMap = batchLoadCertificates(events);
+        return EventMapper.toDtos(events, hasSplitTimesMap, organisationMap, eventCertificateMap);
     }
 
     private Map<Long, Boolean> batchHasSplitTimes(List<Event> events) {
@@ -89,6 +99,21 @@ public class EventController {
                         .anyMatch(resultList -> resultListIdsWithSplitTimes.contains(resultList.getId()))));
     }
 
+    private Map<OrganisationId, Organisation> batchLoadOrganisations(List<Event> events) {
+        Set<OrganisationId> orgIds = events.stream()
+                .flatMap(e -> e.getOrganisationIds().stream())
+                .collect(Collectors.toSet());
+        return organisationService.findAllByIdAsMap(orgIds);
+    }
+
+    private Map<EventCertificateId, EventCertificate> batchLoadCertificates(List<Event> events) {
+        Set<EventCertificateId> certIds = events.stream()
+                .map(Event::getCertificate)
+                .filter(org.apache.commons.lang3.ObjectUtils::isNotEmpty)
+                .collect(Collectors.toSet());
+        return eventCertificateService.findAllByIdAsMap(certIds);
+    }
+
     @GetMapping("/event")
     public ResponseEntity<Page<EventDto>> searchEvents(
             @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
@@ -98,9 +123,7 @@ public class EventController {
                         ? FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
 
-        // Use batch loading to avoid N+1 queries when converting to DTOs
-        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(events.getContent());
-        List<EventDto> eventDtos = eventMapper.toDtos(events.getContent(), hasSplitTimesMap);
+        List<EventDto> eventDtos = toEventDtos(events.getContent());
 
         return ResponseEntity.ok(new PageImpl<>(eventDtos,
             FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
@@ -142,20 +165,14 @@ public class EventController {
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
-        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(List.of(event));
-        List<EventDto> eventDtos = eventMapper.toDtos(List.of(event), hasSplitTimesMap);
-        return ResponseEntity.ok(eventDtos.getFirst());
+        return ResponseEntity.ok(toEventDtos(List.of(event)).getFirst());
     }
 
     @GetMapping("/event/{id}")
     public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
 
-        // Batch load organizations even for single event to avoid N+1
-        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(List.of(event));
-        List<EventDto> eventDtos = eventMapper.toDtos(List.of(event), hasSplitTimesMap);
-
-        return ResponseEntity.ok(eventDtos.getFirst());
+        return ResponseEntity.ok(toEventDtos(List.of(event)).getFirst());
     }
 
     @PutMapping("/event/{id}")
@@ -178,9 +195,7 @@ public class EventController {
                         : null,
                 Discipline.fromValue(eventDto.discipline().id()),
                 eventDto.aggregateScore());
-        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(List.of(event));
-        List<EventDto> eventDtos = eventMapper.toDtos(List.of(event), hasSplitTimesMap);
-        return ResponseEntity.ok(eventDtos.getFirst());
+        return ResponseEntity.ok(toEventDtos(List.of(event)).getFirst());
     }
 
     @DeleteMapping("/event/{id}")

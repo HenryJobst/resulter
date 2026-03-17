@@ -7,11 +7,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.EventResultsMapper;
 import de.jobst.resulter.application.port.CupRepository;
+import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.MediaFileService;
+import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.ResultListService;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.Discipline;
@@ -36,20 +37,22 @@ class EventControllerBatchHasSplitTimesTest {
     @BeforeEach
     void setUp() {
         EventService eventService = mock(EventService.class);
+        OrganisationService organisationService = mock(OrganisationService.class);
+        EventCertificateService eventCertificateService = mock(EventCertificateService.class);
         resultListService = mock(ResultListService.class);
         MediaFileService mediaFileService = mock(MediaFileService.class);
         splitTimeListRepository = mock(SplitTimeListRepository.class);
         CupRepository cupRepository = mock(CupRepository.class);
-        EventMapper eventMapper = mock(EventMapper.class);
         EventResultsMapper eventResultsMapper = mock(EventResultsMapper.class);
 
         eventController = new EventController(
                 eventService,
+                organisationService,
+                eventCertificateService,
                 resultListService,
                 mediaFileService,
                 splitTimeListRepository,
                 cupRepository,
-                eventMapper,
                 eventResultsMapper);
     }
 

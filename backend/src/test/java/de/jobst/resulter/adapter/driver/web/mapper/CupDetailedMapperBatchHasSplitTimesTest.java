@@ -7,7 +7,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
+import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.ResultListService;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.Discipline;
@@ -32,7 +34,8 @@ class CupDetailedMapperBatchHasSplitTimesTest {
     @BeforeEach
     void setUp() {
         EventService eventService = mock(EventService.class);
-        EventMapper eventMapper = mock(EventMapper.class);
+        OrganisationService organisationService = mock(OrganisationService.class);
+        EventCertificateService eventCertificateService = mock(EventCertificateService.class);
         resultListService = mock(ResultListService.class);
         splitTimeListRepository = mock(SplitTimeListRepository.class);
         CupStatisticsMapper cupStatisticsMapper = mock(CupStatisticsMapper.class);
@@ -41,7 +44,8 @@ class CupDetailedMapperBatchHasSplitTimesTest {
 
         cupDetailedMapper = new CupDetailedMapper(
                 eventService,
-                eventMapper,
+                organisationService,
+                eventCertificateService,
                 resultListService,
                 splitTimeListRepository,
                 cupStatisticsMapper,

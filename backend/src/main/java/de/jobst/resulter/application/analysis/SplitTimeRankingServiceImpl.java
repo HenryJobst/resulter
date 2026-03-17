@@ -109,7 +109,9 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                     runtimeMap,
                     classToCourseKey,
                     courseMetadataByCourseKey,
-                    sequenceMinControls
+                    sequenceMinControls,
+                    filterPersonIds,
+                    filterIntersection
             );
             log.info(
                     "⏱ Processing: Calculated {} sequence segments in {}ms",
@@ -207,7 +209,7 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
 
             for (Map.Entry<String, List<RunnerSplitData>> toEntry : fromEntry.getValue().entrySet()) {
                 String toControl = toEntry.getKey();
-                List<RunnerSplitData> runnerData = toEntry.getValue();
+                List<RunnerSplitData> runnerData = mergeRunnerDataByPerson(toEntry.getValue());
 
                 // Sort by split time
                 runnerData.sort(Comparator.comparingDouble(RunnerSplitData::splitTimeSeconds));
@@ -291,7 +293,9 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             Map<String, Double> runtimeMap,
             Map<String, String> classToCourseKey,
             Map<String, CourseMetadata> courseMetadataByCourseKey,
-            int sequenceMinControls) {
+            int sequenceMinControls,
+            List<Long> filterPersonIds,
+            boolean filterIntersection) {
 
         int minControls = Math.max(2, sequenceMinControls);
         Map<String, List<String>> controlsBySequenceKey = new HashMap<>();
@@ -317,6 +321,14 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                     st -> st.punchTime().value(),
                     Comparator.nullsLast(Comparator.naturalOrder())
             ));
+
+            // Apply person ID filtering if specified
+            if (!filterPersonIds.isEmpty()) {
+                Long personIdValue = splitTimeList.getPersonId().value();
+                if (!filterPersonIds.contains(personIdValue)) {
+                    continue; // Skip this runner
+                }
+            }
 
             List<SplitTime> validSplits = sortedSplitTimes.stream()
                     .filter(st -> st.punchTime().value() != null)
@@ -372,7 +384,8 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
             runnerData.sort(Comparator.comparingDouble(SequenceRunnerSplitData::splitTimeSeconds));
 
             int totalRunners = runnerData.size();
-            if (totalRunners <= 1) {
+            // Without person filter: require at least 2 runners; with filter: allow single runner
+            if (totalRunners <= 1 && filterPersonIds.isEmpty()) {
                 continue;
             }
             long distinctCourseControls = runnerData.stream()
@@ -381,6 +394,18 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                     .count();
             if (distinctCourseControls <= 1) {
                 continue;
+            }
+
+            // If intersection filter is active, check if ALL filtered persons appear in this sequence
+            if (filterIntersection && !filterPersonIds.isEmpty()) {
+                Set<Long> segmentPersonIds = runnerData.stream()
+                        .map(data -> data.personId().value())
+                        .collect(Collectors.toSet());
+                if (!segmentPersonIds.containsAll(filterPersonIds)) {
+                    log.debug("Skipping sequence {} because not all filtered persons are present (intersection filter)",
+                            sequenceKey);
+                    continue;
+                }
             }
             int limitedSize = Math.min(totalRunners, MAX_RUNNERS_PER_SEQUENCE);
             if (totalRunners > MAX_RUNNERS_PER_SEQUENCE) {
@@ -420,11 +445,12 @@ public class SplitTimeRankingServiceImpl implements SplitTimeRankingService {
                 .thenComparing(Comparator.comparingInt((ControlSequenceSegment s) -> s.runnerSplits().size()).reversed())
                 .thenComparing(this::compareControlCodeLists));
 
-        if (sequenceSegments.size() > MAX_SEQUENCE_SEGMENTS) {
+        int beforeGuardrailCount = sequenceSegments.size();
+        if (beforeGuardrailCount > MAX_SEQUENCE_SEGMENTS) {
             sequenceSegments = new ArrayList<>(sequenceSegments.subList(0, MAX_SEQUENCE_SEGMENTS));
             log.info(
                     "Limited sequence segments from {} to {} entries (guardrail)",
-                    sequenceMap.size(),
+                    beforeGuardrailCount,
                     MAX_SEQUENCE_SEGMENTS);
         }
 

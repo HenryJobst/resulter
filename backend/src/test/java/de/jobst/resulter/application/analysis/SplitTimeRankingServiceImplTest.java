@@ -206,6 +206,112 @@ class SplitTimeRankingServiceImplTest {
     }
 
     @Test
+    void analyzeSplitTimesRanking_shouldApplyPersonFilterToSequenceSegments() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository,
+                personRepository,
+                resultListRepository
+        );
+
+        ResultListId resultListId = ResultListId.of(15L);
+        // runner1 (H21) and runner2 (D21) share a sequence; runner3 (H21) should be filtered out
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
+                SplitTime.of("32", 190.0, SplitTimeListId.of(1L))
+        ));
+        SplitTimeList runner2 = splitTimeList(2L, "D21", List.of(
+                SplitTime.of("31", 105.0, SplitTimeListId.of(2L)),
+                SplitTime.of("32", 200.0, SplitTimeListId.of(2L))
+        ));
+        SplitTimeList runner3 = splitTimeList(3L, "H21", List.of(
+                SplitTime.of("31", 108.0, SplitTimeListId.of(3L)),
+                SplitTime.of("32", 205.0, SplitTimeListId.of(3L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2, runner3));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId,
+                false,
+                List.of(1L, 2L), // only runner1 and runner2
+                false,
+                true,
+                2
+        );
+
+        assertThat(analyses).hasSize(1);
+        // All sequence runner splits must belong to filtered persons only
+        analyses.getFirst().sequenceSegments().forEach(seg ->
+                seg.runnerSplits().forEach(split ->
+                        assertThat(split.personId().value()).isIn(1L, 2L)
+                )
+        );
+        // runner3 must not appear in any sequence
+        analyses.getFirst().sequenceSegments().forEach(seg ->
+                assertThat(seg.runnerSplits().stream().map(s -> s.personId().value()).toList())
+                        .doesNotContain(3L)
+        );
+    }
+
+    @Test
+    void analyzeSplitTimesRanking_shouldApplyIntersectionFilterToSequenceSegments() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository,
+                personRepository,
+                resultListRepository
+        );
+
+        ResultListId resultListId = ResultListId.of(16L);
+        // runner1 (H21): runs 31->32->33; runner2 (D21): runs only 31->32; runner3 (H21): runs 31->32->33
+        // With filterIntersection=true for runner1+runner2, only sequences where BOTH appear are shown
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
+                SplitTime.of("32", 190.0, SplitTimeListId.of(1L)),
+                SplitTime.of("33", 300.0, SplitTimeListId.of(1L))
+        ));
+        SplitTimeList runner2 = splitTimeList(2L, "D21", List.of(
+                SplitTime.of("31", 105.0, SplitTimeListId.of(2L)),
+                SplitTime.of("32", 200.0, SplitTimeListId.of(2L))
+                // runner2 does NOT reach 33
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId,
+                false,
+                List.of(1L, 2L),
+                true, // filterIntersection: both must be present
+                true,
+                2
+        );
+
+        assertThat(analyses).hasSize(1);
+        // Only sequences where BOTH runner1 and runner2 appear should remain
+        analyses.getFirst().sequenceSegments().forEach(seg -> {
+            List<Long> personIds = seg.runnerSplits().stream().map(s -> s.personId().value()).toList();
+            assertThat(personIds).contains(1L, 2L);
+        });
+        // Sequences that include control 33 (only runner1) must not appear
+        analyses.getFirst().sequenceSegments().forEach(seg ->
+                assertThat(seg.controls().stream().map(c -> c.value()).toList())
+                        .doesNotContain("33")
+        );
+    }
+
+    @Test
     void analyzeSplitTimesRanking_shouldReturnNoSequenceSegmentsWhenDisabled() {
         SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
         PersonRepository personRepository = mock(PersonRepository.class);

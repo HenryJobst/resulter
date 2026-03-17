@@ -237,6 +237,24 @@ function loadMoreSequences() {
     visibleSequenceCount.value += SEQUENCE_INCREMENT
 }
 
+const filteredSegmentCount = computed(() => {
+    if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
+        return 0
+    let segments = splitTimeQueryRanking.data.value[0].controlSegments
+    if (filterClass.value)
+        segments = segments.filter(segment => segment.classes.includes(filterClass.value!))
+    return segments.length
+})
+
+const filteredSequenceSegmentCount = computed(() => {
+    if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
+        return 0
+    let segments = splitTimeQueryRanking.data.value[0].sequenceSegments
+    if (filterClass.value)
+        segments = segments.filter(segment => segment.classes.includes(filterClass.value!))
+    return segments.length
+})
+
 function removePersonFilter(personId: number) {
     filterPersonIds.value = filterPersonIds.value.filter(id => id !== personId)
 }
@@ -246,7 +264,7 @@ function navigateBack() {
 }
 
 // Reset visible count when data changes
-watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], () => {
+watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass, sequenceMinControls], () => {
     visibleSegmentCount.value = SEGMENT_INCREMENT
     visibleSequenceCount.value = SEQUENCE_INCREMENT
 })
@@ -433,7 +451,7 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], ()
                     </Accordion>
                     <div v-if="hasMoreSegments" class="mt-4 text-center">
                         <Button
-                            :label="`${t('labels.load_more')} (${analysis.controlSegments.length - visibleSegmentCount} ${t('labels.remaining')})`"
+                            :label="`${t('labels.load_more')} (${filteredSegmentCount - visibleSegmentCount} ${t('labels.remaining')})`"
                             icon="pi pi-angle-down"
                             severity="secondary"
                             outlined
@@ -506,7 +524,7 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], ()
                         </Accordion>
                         <div v-if="hasMoreSequenceSegments" class="mt-4 text-center">
                             <Button
-                                :label="`${t('labels.load_more')} (${analysis.sequenceSegments.length - visibleSequenceCount} ${t('labels.remaining')})`"
+                                :label="`${t('labels.load_more')} (${filteredSequenceSegmentCount - visibleSequenceCount} ${t('labels.remaining')})`"
                                 icon="pi pi-angle-down"
                                 severity="secondary"
                                 outlined

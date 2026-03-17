@@ -17,6 +17,9 @@ public record SequenceRunnerSplit(
 
     @Override
     public int compareTo(SequenceRunnerSplit o) {
+        if (this.splitTimeSeconds == null && o.splitTimeSeconds == null) return 0;
+        if (this.splitTimeSeconds == null) return 1;
+        if (o.splitTimeSeconds == null) return -1;
         return Double.compare(this.splitTimeSeconds, o.splitTimeSeconds);
     }
 }

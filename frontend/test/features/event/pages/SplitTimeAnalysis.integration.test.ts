@@ -112,7 +112,7 @@ describe('splitTimeAnalysis Integration', () => {
         await nextTick()
 
         expect(wrapper.exists()).toBe(true)
-        expect(wrapper.text()).toContain('labels.sequence_segments')
+        expect(wrapper.text()).toContain('Abschnittsfolgen')
 
         cleanupTest(wrapper)
     })

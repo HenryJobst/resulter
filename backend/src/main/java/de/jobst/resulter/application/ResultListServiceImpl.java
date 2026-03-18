@@ -33,6 +33,7 @@ public class ResultListServiceImpl implements ResultListService {
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
     private final EventCertificateService eventCertificateService;
     private final MediaFileService mediaFileService;
+    private final SplitTimeListRepository splitTimeListRepository;
 
     public ResultListServiceImpl(
             ResultListRepository resultListRepository,
@@ -43,7 +44,8 @@ public class ResultListServiceImpl implements ResultListService {
             CertificateService certificateService, EventCertificateStatRepository eventCertificateStatRepository,
             CupScoreListRepository cupScoreListRepository,
             SpringSecurityAuditorAware springSecurityAuditorAware, EventCertificateService eventCertificateService,
-            MediaFileService mediaFileService) {
+            MediaFileService mediaFileService,
+            SplitTimeListRepository splitTimeListRepository) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -55,6 +57,7 @@ public class ResultListServiceImpl implements ResultListService {
         this.springSecurityAuditorAware = springSecurityAuditorAware;
         this.eventCertificateService = eventCertificateService;
         this.mediaFileService = mediaFileService;
+        this.splitTimeListRepository = splitTimeListRepository;
     }
 
     @Override
@@ -90,6 +93,14 @@ public class ResultListServiceImpl implements ResultListService {
 
         return resultListRepository.findAllByEventIds(eventIds).stream()
                 .collect(Collectors.groupingBy(ResultList::getEventId));
+    }
+
+    @Override
+    public Set<ResultListId> findResultListIdsWithSplitTimes(Collection<ResultListId> resultListIds) {
+        if (resultListIds == null || resultListIds.isEmpty()) {
+            return Set.of();
+        }
+        return splitTimeListRepository.existsByResultListIds(resultListIds);
     }
 
     @Transactional

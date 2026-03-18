@@ -9,7 +9,6 @@ import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.ResultListService;
-import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.Cup;
@@ -24,6 +23,10 @@ import de.jobst.resulter.domain.ResultList;
 import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.aggregations.CupDetailed;
 import de.jobst.resulter.domain.aggregations.EventRacesCupScore;
+import de.jobst.resulter.domain.aggregations.OrganisationScore;
+import de.jobst.resulter.domain.aggregations.OrganisationStatistics;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +46,6 @@ public class CupQueryServiceImpl implements CupQueryService {
     private final EventCertificateService eventCertificateService;
     private final CountryService countryService;
     private final ResultListService resultListService;
-    private final SplitTimeListRepository splitTimeListRepository;
 
     public CupQueryServiceImpl(
             CupService cupService,
@@ -51,15 +53,13 @@ public class CupQueryServiceImpl implements CupQueryService {
             OrganisationService organisationService,
             EventCertificateService eventCertificateService,
             CountryService countryService,
-            ResultListService resultListService,
-            SplitTimeListRepository splitTimeListRepository) {
+            ResultListService resultListService) {
         this.cupService = cupService;
         this.eventService = eventService;
         this.organisationService = organisationService;
         this.eventCertificateService = eventCertificateService;
         this.countryService = countryService;
         this.resultListService = resultListService;
-        this.splitTimeListRepository = splitTimeListRepository;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class CupQueryServiceImpl implements CupQueryService {
 
     @Override
     public Optional<CupBatchResult> findById(Long id) {
-        return Optional.ofNullable(cupService.getById(CupId.of(id)))
+        return cupService.findById(CupId.of(id))
                 .map(cup -> buildCupBatchResult(List.of(cup), 1, Pageable.unpaged()));
     }
 
@@ -85,7 +85,7 @@ public class CupQueryServiceImpl implements CupQueryService {
         try {
             CupDetailed cupDetailed = cupService.getCupDetailed(CupId.of(id));
             return Optional.of(buildCupDetailedBatchResult(cupDetailed));
-        } catch (Exception e) {
+        } catch (ResourceNotFoundException e) {
             return Optional.empty();
         }
     }
@@ -129,14 +129,15 @@ public class CupQueryServiceImpl implements CupQueryService {
                 eventCertificateService.findAllByIdAsMap(certIds);
 
         // Countries and child organisations (for OrganisationScore and CupStatistics)
-        List<Organisation> allOrganisations = new java.util.ArrayList<>(organisationMap.values());
+        List<Organisation> allOrganisations = new ArrayList<>(organisationMap.values());
         // Also include organisations from cup statistics and organisation scores
         allOrganisations.addAll(cupDetailed.getOverallOrganisationScores().stream()
-                .map(de.jobst.resulter.domain.aggregations.OrganisationScore::organisation)
+                .map(OrganisationScore::organisation)
                 .toList());
         allOrganisations.addAll(cupDetailed.getCupStatistics().organisationStatistics().stream()
-                .map(de.jobst.resulter.domain.aggregations.OrganisationStatistics::organisation)
+                .map(OrganisationStatistics::organisation)
                 .toList());
+
         List<Organisation> uniqueOrganisations = allOrganisations.stream().distinct().toList();
 
         Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(uniqueOrganisations);
@@ -153,7 +154,7 @@ public class CupQueryServiceImpl implements CupQueryService {
                 childOrganisationMap);
     }
 
-    private Map<Long, Boolean> batchHasSplitTimes(List<Event> events) {
+    Map<Long, Boolean> batchHasSplitTimes(List<Event> events) {
         if (events.isEmpty()) {
             return Map.of();
         }
@@ -163,7 +164,8 @@ public class CupQueryServiceImpl implements CupQueryService {
                 .flatMap(List::stream)
                 .map(ResultList::getId)
                 .collect(Collectors.toSet());
-        Set<ResultListId> resultListIdsWithSplitTimes = splitTimeListRepository.existsByResultListIds(allResultListIds);
+        Set<ResultListId> resultListIdsWithSplitTimes =
+                resultListService.findResultListIdsWithSplitTimes(allResultListIds);
         return events.stream()
                 .collect(Collectors.toMap(
                         event -> event.getId().value(),

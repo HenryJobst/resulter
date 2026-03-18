@@ -15,11 +15,6 @@ public class RaceMapper {
                 race.getRaceNumber().value());
     }
 
-    @Deprecated(since = "4.6.2", forRemoval = true)
-    public static RaceDto toDto(Race race) {
-        return toDtoStatic(race);
-    }
-
     public static List<RaceDto> toDtos(List<Race> races) {
         return races.stream().map(RaceMapper::toDtoStatic).toList();
     }

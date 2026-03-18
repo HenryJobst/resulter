@@ -5,6 +5,7 @@ import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
+import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.EventResultsMapper;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
@@ -58,8 +59,10 @@ public class EventController {
 
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
-        return ResponseEntity.ok(
-                eventQueryService.findAllAsDto().stream().sorted(Comparator.reverseOrder()).toList());
+        EventBatchResult result = eventQueryService.findAll();
+        List<EventDto> dtos = EventMapper.toDtos(
+                result.events(), result.hasSplitTimesMap(), result.organisationMap(), result.certificateMap());
+        return ResponseEntity.ok(dtos.stream().sorted(Comparator.reverseOrder()).toList());
     }
 
     @GetMapping("/event")
@@ -68,11 +71,13 @@ public class EventController {
         Pageable mappedPageable = pageable != null
                 ? FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain)
                 : Pageable.unpaged();
-        Page<EventDto> eventDtos = eventQueryService.findAllAsDto(filter.orElse(null), mappedPageable);
+        EventBatchResult result = eventQueryService.findAll(filter.orElse(null), mappedPageable);
+        List<EventDto> dtos = EventMapper.toDtos(
+                result.events(), result.hasSplitTimesMap(), result.organisationMap(), result.certificateMap());
         return ResponseEntity.ok(new PageImpl<>(
-                eventDtos.getContent(),
-                FilterAndSortConverter.mapOrderProperties(eventDtos.getPageable(), EventDto::mapOrdersDomainToDto),
-                eventDtos.getTotalElements()));
+                dtos,
+                FilterAndSortConverter.mapOrderProperties(result.resolvedPageable(), EventDto::mapOrdersDomainToDto),
+                result.totalElements()));
     }
 
     @GetMapping("/event_status")
@@ -110,15 +115,28 @@ public class EventController {
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
-        return ResponseEntity.ok(eventQueryService
-                .findByIdAsDto(event.getId().value())
-                .orElseThrow(() -> new ResponseNotFoundException("Event could not be created")));
+        return eventQueryService
+                .findById(event.getId().value())
+                .map(result -> EventMapper.toDtos(
+                                result.events(),
+                                result.hasSplitTimesMap(),
+                                result.organisationMap(),
+                                result.certificateMap())
+                        .getFirst())
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseNotFoundException("Event could not be created"));
     }
 
     @GetMapping("/event/{id}")
     public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
         return eventQueryService
-                .findByIdAsDto(id)
+                .findById(id)
+                .map(result -> EventMapper.toDtos(
+                                result.events(),
+                                result.hasSplitTimesMap(),
+                                result.organisationMap(),
+                                result.certificateMap())
+                        .getFirst())
                 .map(ResponseEntity::ok)
                 .orElseThrow(ResourceNotFoundException::new);
     }
@@ -143,9 +161,16 @@ public class EventController {
                         : null,
                 Discipline.fromValue(eventDto.discipline().id()),
                 eventDto.aggregateScore());
-        return ResponseEntity.ok(eventQueryService
-                .findByIdAsDto(event.getId().value())
-                .orElseThrow(ResourceNotFoundException::new));
+        return eventQueryService
+                .findById(event.getId().value())
+                .map(result -> EventMapper.toDtos(
+                                result.events(),
+                                result.hasSplitTimesMap(),
+                                result.organisationMap(),
+                                result.certificateMap())
+                        .getFirst())
+                .map(ResponseEntity::ok)
+                .orElseThrow(ResourceNotFoundException::new);
     }
 
     @DeleteMapping("/event/{id}")

@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import de.jobst.resulter.domain.aggregations.EventRacesCupScore;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;
 
@@ -84,7 +86,7 @@ public class CupDetailedMapper {
 
         // Batch-load hasSplitTimes status for all events
         List<Event> eventsFromCupScore = cupDetailed.getEventRacesCupScore().stream()
-                .map(x -> x.event())
+                .map(EventRacesCupScore::event)
                 .distinct()
                 .toList();
         Map<EventId, Boolean> hasSplitTimesMap = batchHasSplitTimes(eventsFromCupScore);

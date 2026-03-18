@@ -2,7 +2,9 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationDto;
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationTypeDto;
+import de.jobst.resulter.adapter.driver.web.mapper.OrganisationMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.OrganisationTypeMapper;
+import de.jobst.resulter.application.port.OrganisationBatchResult;
 import de.jobst.resulter.application.port.OrganisationQueryService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
@@ -37,7 +39,9 @@ public class OrganisationController {
 
     @GetMapping("/all")
     public ResponseEntity<List<OrganisationDto>> getAllOrganisations() {
-        return ResponseEntity.ok(organisationQueryService.findAllAsDto());
+        OrganisationBatchResult result = organisationQueryService.findAll();
+        return ResponseEntity.ok(OrganisationMapper.toDtos(
+                result.organisations(), result.countryMap(), result.childOrganisationMap()));
     }
 
     @GetMapping("")
@@ -46,17 +50,23 @@ public class OrganisationController {
         Pageable mappedPageable = pageable != null
                 ? FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDto::mapOrdersDtoToDomain)
                 : Pageable.unpaged();
-        Page<OrganisationDto> dtos = organisationQueryService.findAllAsDto(filter.orElse(null), mappedPageable);
+        OrganisationBatchResult result = organisationQueryService.findAll(filter.orElse(null), mappedPageable);
+        List<OrganisationDto> dtos = OrganisationMapper.toDtos(
+                result.organisations(), result.countryMap(), result.childOrganisationMap());
         return ResponseEntity.ok(new PageImpl<>(
-                dtos.getContent(),
-                FilterAndSortConverter.mapOrderProperties(dtos.getPageable(), OrganisationDto::mapOrdersDomainToDto),
-                dtos.getTotalElements()));
+                dtos,
+                FilterAndSortConverter.mapOrderProperties(
+                        result.resolvedPageable(), OrganisationDto::mapOrdersDomainToDto),
+                result.totalElements()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrganisationDto> getOrganisation(@PathVariable Long id) {
         return organisationQueryService
-                .findByIdAsDto(id)
+                .findById(id)
+                .map(result -> OrganisationMapper.toDtos(
+                                result.organisations(), result.countryMap(), result.childOrganisationMap())
+                        .getFirst())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -87,7 +97,10 @@ public class OrganisationController {
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
         return organisationQueryService
-                .findByIdAsDto(organisation.getId().value())
+                .findById(organisation.getId().value())
+                .map(result -> OrganisationMapper.toDtos(
+                                result.organisations(), result.countryMap(), result.childOrganisationMap())
+                        .getFirst())
                 .map(ResponseEntity::ok)
                 .orElseThrow(ResourceNotFoundException::new);
     }
@@ -109,7 +122,10 @@ public class OrganisationController {
                                 .toList());
         if (null != organisation) {
             return organisationQueryService
-                    .findByIdAsDto(organisation.getId().value())
+                    .findById(organisation.getId().value())
+                    .map(result -> OrganisationMapper.toDtos(
+                                    result.organisations(), result.countryMap(), result.childOrganisationMap())
+                            .getFirst())
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } else {

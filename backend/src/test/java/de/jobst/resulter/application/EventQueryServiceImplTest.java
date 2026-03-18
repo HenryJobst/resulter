@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.jobst.resulter.adapter.driver.web.dto.EventDto;
+import de.jobst.resulter.application.port.EventBatchResult;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.OrganisationService;
@@ -58,7 +58,7 @@ class EventQueryServiceImplTest {
     }
 
     @Test
-    void findAllAsDto_shouldReturnDtosWithCorrectFields() {
+    void findAll_shouldReturnBatchResultWithCorrectData() {
         OrganisationId orgId = OrganisationId.of(10L);
         EventCertificateId certId = EventCertificateId.of(99L);
         Event event = Event.of(1L, "Test Event", null, null, Set.of(orgId), null, certId, Discipline.LONG, false);
@@ -70,21 +70,17 @@ class EventQueryServiceImplTest {
         when(eventCertificateService.findAllByIdAsMap(Set.of(certId)))
                 .thenReturn(Map.of(certId, EventCertificate.of(certId.value(), "Cert", event.getId(), "{}", null, true)));
 
-        List<EventDto> dtos = queryService.findAllAsDto();
+        EventBatchResult result = queryService.findAll();
 
-        assertThat(dtos).hasSize(1);
-        EventDto dto = dtos.getFirst();
-        assertThat(dto.id()).isEqualTo(1L);
-        assertThat(dto.name()).isEqualTo("Test Event");
-        assertThat(dto.hasSplitTimes()).isFalse();
-        assertThat(dto.organisations()).hasSize(1);
-        assertThat(dto.organisations().getFirst().name()).isEqualTo("Org A");
-        assertThat(dto.certificate()).isNotNull();
-        assertThat(dto.certificate().id()).isEqualTo(certId.value());
+        assertThat(result.events()).hasSize(1);
+        assertThat(result.events().getFirst().getId().value()).isEqualTo(1L);
+        assertThat(result.hasSplitTimesMap()).containsEntry(1L, false);
+        assertThat(result.organisationMap()).containsKey(orgId);
+        assertThat(result.certificateMap()).containsKey(certId);
     }
 
     @Test
-    void findAllAsDto_shouldPropagateSplitTimesFlag() {
+    void findAll_shouldPropagateSplitTimesFlag() {
         Event event1 = Event.of(1L, "With SplitTimes", null, null, Set.of(), null, Discipline.getDefault(), false);
         Event event2 = Event.of(2L, "Without SplitTimes", null, null, Set.of(), null, Discipline.getDefault(), false);
         ResultList rl1 = new ResultList(ResultListId.of(11L), event1.getId(), RaceId.of(1L), null, null, null, null);
@@ -97,27 +93,24 @@ class EventQueryServiceImplTest {
         when(organisationService.findAllByIdAsMap(Set.of())).thenReturn(Map.of());
         when(eventCertificateService.findAllByIdAsMap(Set.of())).thenReturn(Map.of());
 
-        List<EventDto> dtos = queryService.findAllAsDto();
+        EventBatchResult result = queryService.findAll();
 
-        assertThat(dtos).hasSize(2);
-        Map<Long, Boolean> splitTimesById = Map.of(
-                dtos.get(0).id(), dtos.get(0).hasSplitTimes(),
-                dtos.get(1).id(), dtos.get(1).hasSplitTimes());
-        assertThat(splitTimesById).containsEntry(1L, true).containsEntry(2L, false);
+        assertThat(result.events()).hasSize(2);
+        assertThat(result.hasSplitTimesMap()).containsEntry(1L, true).containsEntry(2L, false);
     }
 
     @Test
-    void findAllAsDto_shouldReturnEmptyListAndSkipBatchLoading() {
+    void findAll_shouldReturnEmptyBatchResultAndSkipBatchLoading() {
         when(eventService.findAll()).thenReturn(List.of());
 
-        List<EventDto> dtos = queryService.findAllAsDto();
+        EventBatchResult result = queryService.findAll();
 
-        assertThat(dtos).isEmpty();
+        assertThat(result.events()).isEmpty();
         verify(resultListService, never()).findAllByEventIds(Set.of());
     }
 
     @Test
-    void findByIdAsDto_shouldReturnPopulatedDto() {
+    void findById_shouldReturnBatchResultWithSingleEvent() {
         Event event = Event.of(5L, "Single Event", null, null, Set.of(), null, Discipline.getDefault(), false);
 
         when(eventService.findById(EventId.of(5L))).thenReturn(Optional.of(event));
@@ -125,24 +118,24 @@ class EventQueryServiceImplTest {
         when(organisationService.findAllByIdAsMap(Set.of())).thenReturn(Map.of());
         when(eventCertificateService.findAllByIdAsMap(Set.of())).thenReturn(Map.of());
 
-        Optional<EventDto> dto = queryService.findByIdAsDto(5L);
+        Optional<EventBatchResult> result = queryService.findById(5L);
 
-        assertThat(dto).isPresent();
-        assertThat(dto.get().id()).isEqualTo(5L);
-        assertThat(dto.get().name()).isEqualTo("Single Event");
+        assertThat(result).isPresent();
+        assertThat(result.get().events()).hasSize(1);
+        assertThat(result.get().events().getFirst().getId().value()).isEqualTo(5L);
     }
 
     @Test
-    void findByIdAsDto_shouldReturnEmptyForUnknownId() {
+    void findById_shouldReturnEmptyForUnknownId() {
         when(eventService.findById(EventId.of(999L))).thenReturn(Optional.empty());
 
-        Optional<EventDto> dto = queryService.findByIdAsDto(999L);
+        Optional<EventBatchResult> result = queryService.findById(999L);
 
-        assertThat(dto).isEmpty();
+        assertThat(result).isEmpty();
     }
 
     @Test
-    void findAllAsDto_pageable_shouldReturnPagedDtos() {
+    void findAll_pageable_shouldReturnBatchResultWithPageMetadata() {
         Event event = Event.of(7L, "Paged Event", null, null, Set.of(), null, Discipline.getDefault(), false);
         PageRequest pageable = PageRequest.of(0, 10);
         Page<Event> page = new PageImpl<>(List.of(event), pageable, 1L);
@@ -152,10 +145,10 @@ class EventQueryServiceImplTest {
         when(organisationService.findAllByIdAsMap(Set.of())).thenReturn(Map.of());
         when(eventCertificateService.findAllByIdAsMap(Set.of())).thenReturn(Map.of());
 
-        Page<EventDto> result = queryService.findAllAsDto(null, pageable);
+        EventBatchResult result = queryService.findAll(null, pageable);
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getTotalElements()).isEqualTo(1L);
-        assertThat(result.getContent().getFirst().id()).isEqualTo(7L);
+        assertThat(result.events()).hasSize(1);
+        assertThat(result.totalElements()).isEqualTo(1L);
+        assertThat(result.events().getFirst().getId().value()).isEqualTo(7L);
     }
 }

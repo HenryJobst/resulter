@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import de.jobst.resulter.adapter.driver.web.dto.OrganisationDto;
 import de.jobst.resulter.application.port.CountryService;
+import de.jobst.resulter.application.port.OrganisationBatchResult;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.CountryId;
@@ -34,7 +34,7 @@ class OrganisationQueryServiceImplTest {
     }
 
     @Test
-    void findAllAsDto_shouldReturnDtosWithCorrectFields() {
+    void findAll_shouldReturnBatchResultWithCorrectData() {
         CountryId countryId = CountryId.of(5L);
         OrganisationId orgId = OrganisationId.of(1L);
         Organisation org = Organisation.of(orgId.value(), "OC Zürich", "OCZ");
@@ -44,29 +44,27 @@ class OrganisationQueryServiceImplTest {
         when(countryService.batchLoadForOrganisations(List.of(org))).thenReturn(Map.of(countryId, country));
         when(organisationService.batchLoadChildOrganisations(List.of(org))).thenReturn(Map.of());
 
-        List<OrganisationDto> dtos = queryService.findAllAsDto();
+        OrganisationBatchResult result = queryService.findAll();
 
-        assertThat(dtos).hasSize(1);
-        OrganisationDto dto = dtos.getFirst();
-        assertThat(dto.id()).isEqualTo(orgId.value());
-        assertThat(dto.name()).isEqualTo("OC Zürich");
-        assertThat(dto.shortName()).isEqualTo("OCZ");
-        assertThat(dto.childOrganisations()).isEmpty();
+        assertThat(result.organisations()).hasSize(1);
+        assertThat(result.organisations().getFirst().getId()).isEqualTo(orgId);
+        assertThat(result.countryMap()).containsKey(countryId);
+        assertThat(result.childOrganisationMap()).isEmpty();
     }
 
     @Test
-    void findAllAsDto_shouldReturnEmptyList() {
+    void findAll_shouldReturnEmptyBatchResult() {
         when(organisationService.findAll()).thenReturn(List.of());
         when(countryService.batchLoadForOrganisations(List.of())).thenReturn(Map.of());
         when(organisationService.batchLoadChildOrganisations(List.of())).thenReturn(Map.of());
 
-        List<OrganisationDto> dtos = queryService.findAllAsDto();
+        OrganisationBatchResult result = queryService.findAll();
 
-        assertThat(dtos).isEmpty();
+        assertThat(result.organisations()).isEmpty();
     }
 
     @Test
-    void findByIdAsDto_shouldReturnPopulatedDto() {
+    void findById_shouldReturnBatchResultWithSingleOrganisation() {
         OrganisationId orgId = OrganisationId.of(2L);
         Organisation org = Organisation.of(orgId.value(), "SC Bern", "SCB");
 
@@ -74,24 +72,24 @@ class OrganisationQueryServiceImplTest {
         when(countryService.batchLoadForOrganisations(List.of(org))).thenReturn(Map.of());
         when(organisationService.batchLoadChildOrganisations(List.of(org))).thenReturn(Map.of());
 
-        Optional<OrganisationDto> dto = queryService.findByIdAsDto(orgId.value());
+        Optional<OrganisationBatchResult> result = queryService.findById(orgId.value());
 
-        assertThat(dto).isPresent();
-        assertThat(dto.get().id()).isEqualTo(orgId.value());
-        assertThat(dto.get().name()).isEqualTo("SC Bern");
+        assertThat(result).isPresent();
+        assertThat(result.get().organisations()).hasSize(1);
+        assertThat(result.get().organisations().getFirst().getId()).isEqualTo(orgId);
     }
 
     @Test
-    void findByIdAsDto_shouldReturnEmptyForUnknownId() {
+    void findById_shouldReturnEmptyForUnknownId() {
         when(organisationService.findById(OrganisationId.of(999L))).thenReturn(Optional.empty());
 
-        Optional<OrganisationDto> dto = queryService.findByIdAsDto(999L);
+        Optional<OrganisationBatchResult> result = queryService.findById(999L);
 
-        assertThat(dto).isEmpty();
+        assertThat(result).isEmpty();
     }
 
     @Test
-    void findAllAsDto_pageable_shouldReturnPagedDtos() {
+    void findAll_pageable_shouldReturnBatchResultWithPageMetadata() {
         OrganisationId orgId = OrganisationId.of(3L);
         Organisation org = Organisation.of(orgId.value(), "LV Basel", "LVB");
         PageRequest pageable = PageRequest.of(0, 10);
@@ -101,10 +99,10 @@ class OrganisationQueryServiceImplTest {
         when(countryService.batchLoadForOrganisations(List.of(org))).thenReturn(Map.of());
         when(organisationService.batchLoadChildOrganisations(List.of(org))).thenReturn(Map.of());
 
-        Page<OrganisationDto> result = queryService.findAllAsDto(null, pageable);
+        OrganisationBatchResult result = queryService.findAll(null, pageable);
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getTotalElements()).isEqualTo(1L);
-        assertThat(result.getContent().getFirst().name()).isEqualTo("LV Basel");
+        assertThat(result.organisations()).hasSize(1);
+        assertThat(result.totalElements()).isEqualTo(1L);
+        assertThat(result.organisations().getFirst().getId()).isEqualTo(orgId);
     }
 }

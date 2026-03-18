@@ -1,7 +1,6 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.adapter.driver.web.dto.EventDto;
-import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
+import de.jobst.resulter.application.port.EventBatchResult;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventQueryService;
 import de.jobst.resulter.application.port.EventService;
@@ -23,7 +22,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -50,26 +48,28 @@ public class EventQueryServiceImpl implements EventQueryService {
     }
 
     @Override
-    public List<EventDto> findAllAsDto() {
-        return toDtos(eventService.findAll());
+    public EventBatchResult findAll() {
+        List<Event> events = eventService.findAll();
+        return buildBatchResult(events, events.size(), Pageable.unpaged());
     }
 
     @Override
-    public Page<EventDto> findAllAsDto(String filter, Pageable pageable) {
+    public EventBatchResult findAll(String filter, Pageable pageable) {
         Page<Event> page = eventService.findAll(filter, pageable);
-        return new PageImpl<>(toDtos(page.getContent()), page.getPageable(), page.getTotalElements());
+        return buildBatchResult(page.getContent(), page.getTotalElements(), page.getPageable());
     }
 
     @Override
-    public Optional<EventDto> findByIdAsDto(Long id) {
-        return eventService.findById(EventId.of(id)).map(event -> toDtos(List.of(event)).getFirst());
+    public Optional<EventBatchResult> findById(Long id) {
+        return eventService.findById(EventId.of(id))
+                .map(event -> buildBatchResult(List.of(event), 1, Pageable.unpaged()));
     }
 
-    private List<EventDto> toDtos(List<Event> events) {
+    private EventBatchResult buildBatchResult(List<Event> events, long totalElements, Pageable pageable) {
         Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(events);
         Map<OrganisationId, Organisation> organisationMap = batchLoadOrganisations(events);
-        Map<EventCertificateId, EventCertificate> eventCertificateMap = batchLoadCertificates(events);
-        return EventMapper.toDtos(events, hasSplitTimesMap, organisationMap, eventCertificateMap);
+        Map<EventCertificateId, EventCertificate> certificateMap = batchLoadCertificates(events);
+        return new EventBatchResult(events, totalElements, pageable, hasSplitTimesMap, organisationMap, certificateMap);
     }
 
     private Map<Long, Boolean> batchHasSplitTimes(List<Event> events) {

@@ -11,7 +11,6 @@ import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.ResultListService;
-import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.Discipline;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventCertificate;
@@ -38,7 +37,6 @@ class EventQueryServiceImplTest {
     private OrganisationService organisationService;
     private EventCertificateService eventCertificateService;
     private ResultListService resultListService;
-    private SplitTimeListRepository splitTimeListRepository;
     private EventQueryServiceImpl queryService;
 
     @BeforeEach
@@ -47,14 +45,12 @@ class EventQueryServiceImplTest {
         organisationService = mock(OrganisationService.class);
         eventCertificateService = mock(EventCertificateService.class);
         resultListService = mock(ResultListService.class);
-        splitTimeListRepository = mock(SplitTimeListRepository.class);
 
         queryService = new EventQueryServiceImpl(
                 eventService,
                 organisationService,
                 eventCertificateService,
-                resultListService,
-                splitTimeListRepository);
+                resultListService);
     }
 
     @Test
@@ -88,7 +84,7 @@ class EventQueryServiceImplTest {
         when(eventService.findAll()).thenReturn(List.of(event1, event2));
         when(resultListService.findAllByEventIds(Set.of(event1.getId(), event2.getId())))
                 .thenReturn(Map.of(event1.getId(), List.of(rl1)));
-        when(splitTimeListRepository.existsByResultListIds(Set.of(rl1.getId())))
+        when(resultListService.findResultListIdsWithSplitTimes(Set.of(rl1.getId())))
                 .thenReturn(Set.of(rl1.getId()));
         when(organisationService.findAllByIdAsMap(Set.of())).thenReturn(Map.of());
         when(eventCertificateService.findAllByIdAsMap(Set.of())).thenReturn(Map.of());

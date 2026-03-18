@@ -6,7 +6,6 @@ import de.jobst.resulter.application.port.EventQueryService;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.ResultListService;
-import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventCertificateId;
@@ -32,19 +31,16 @@ public class EventQueryServiceImpl implements EventQueryService {
     private final OrganisationService organisationService;
     private final EventCertificateService eventCertificateService;
     private final ResultListService resultListService;
-    private final SplitTimeListRepository splitTimeListRepository;
 
     public EventQueryServiceImpl(
             EventService eventService,
             OrganisationService organisationService,
             EventCertificateService eventCertificateService,
-            ResultListService resultListService,
-            SplitTimeListRepository splitTimeListRepository) {
+            ResultListService resultListService) {
         this.eventService = eventService;
         this.organisationService = organisationService;
         this.eventCertificateService = eventCertificateService;
         this.resultListService = resultListService;
-        this.splitTimeListRepository = splitTimeListRepository;
     }
 
     @Override
@@ -82,7 +78,8 @@ public class EventQueryServiceImpl implements EventQueryService {
                 .flatMap(List::stream)
                 .map(ResultList::getId)
                 .collect(Collectors.toSet());
-        Set<ResultListId> resultListIdsWithSplitTimes = splitTimeListRepository.existsByResultListIds(allResultListIds);
+        Set<ResultListId> resultListIdsWithSplitTimes =
+                resultListService.findResultListIdsWithSplitTimes(allResultListIds);
         return events.stream().collect(Collectors.toMap(
                 event -> event.getId().value(),
                 event -> resultListsByEvent.getOrDefault(event.getId(), List.of()).stream()

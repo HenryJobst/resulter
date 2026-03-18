@@ -40,21 +40,17 @@ public class EventController {
     private final ResultListService resultListService;
     private final MediaFileService mediaFileService;
     private final CupRepository cupRepository;
-    private final EventResultsMapper eventResultsMapper;
-
     public EventController(
             EventService eventService,
             EventQueryService eventQueryService,
             ResultListService resultListService,
             MediaFileService mediaFileService,
-            CupRepository cupRepository,
-            EventResultsMapper eventResultsMapper) {
+            CupRepository cupRepository) {
         this.eventService = eventService;
         this.eventQueryService = eventQueryService;
         this.resultListService = resultListService;
         this.mediaFileService = mediaFileService;
         this.cupRepository = cupRepository;
-        this.eventResultsMapper = eventResultsMapper;
     }
 
     @GetMapping("/event/all")
@@ -184,7 +180,8 @@ public class EventController {
     public ResponseEntity<EventResultsDto> getEventResults(@PathVariable Long id) {
         Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
         boolean eventHasCup = !cupRepository.findByEvent(event.getId()).isEmpty();
-        return ResponseEntity.ok(eventResultsMapper.toDto(event, eventHasCup));
+        return ResponseEntity.ok(
+                EventResultsMapper.toDto(event, eventHasCup, resultListService.findByEventId(event.getId())));
     }
 
     @PutMapping("/event/{id}/certificate")

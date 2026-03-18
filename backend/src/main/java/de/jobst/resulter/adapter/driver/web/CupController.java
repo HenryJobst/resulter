@@ -6,15 +6,14 @@ import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.CupTypeDto;
 import de.jobst.resulter.adapter.driver.web.mapper.CupDetailedMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.CupMapper;
+import de.jobst.resulter.application.port.CupQueryService;
 import de.jobst.resulter.application.port.CupService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
-import de.jobst.resulter.domain.Cup;
 import de.jobst.resulter.domain.CupId;
 import de.jobst.resulter.domain.CupName;
 import de.jobst.resulter.domain.CupScoreList;
 import de.jobst.resulter.domain.CupType;
 import de.jobst.resulter.domain.EventId;
-import de.jobst.resulter.domain.aggregations.CupDetailed;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,13 +41,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class CupController {
 
     private final CupService cupService;
-    private final CupMapper cupMapper;
-    private final CupDetailedMapper cupDetailedMapper;
+    private final CupQueryService cupQueryService;
 
-    public CupController(CupService cupService, CupMapper cupMapper, CupDetailedMapper cupDetailedMapper) {
+    public CupController(CupService cupService, CupQueryService cupQueryService) {
         this.cupService = cupService;
-        this.cupMapper = cupMapper;
-        this.cupDetailedMapper = cupDetailedMapper;
+        this.cupQueryService = cupQueryService;
     }
 
     @GetMapping("/cup_types")
@@ -59,40 +56,47 @@ public class CupController {
 
     @GetMapping("/cup/all")
     public ResponseEntity<List<CupDto>> getAllCups() {
-        List<Cup> cups = cupService.findAll();
-        return ResponseEntity.ok(cupMapper.toDtos(cups));
+        var result = cupQueryService.findAll();
+        return ResponseEntity.ok(CupMapper.toDtos(result.cups(), result.eventMap()));
     }
 
     @GetMapping("/cup")
     public ResponseEntity<Page<CupDto>> searchCups(
             @RequestParam(required = false) Optional<String> filter, @Nullable Pageable pageable) {
-        Page<Cup> cups = cupService.findAll(
+        var result = cupQueryService.findAll(
                 filter.orElse(null),
                 pageable != null
                         ? FilterAndSortConverter.mapOrderProperties(pageable, CupDto::mapOrdersDtoToDomain)
                         : Pageable.unpaged());
 
         return ResponseEntity.ok(new PageImpl<>(
-                cupMapper.toDtos(cups.getContent()),
-                FilterAndSortConverter.mapOrderProperties(cups.getPageable(), CupDto::mapOrdersDomainToDto),
-                cups.getTotalElements()));
+                CupMapper.toDtos(result.cups(), result.eventMap()),
+                FilterAndSortConverter.mapOrderProperties(result.resolvedPageable(), CupDto::mapOrdersDomainToDto),
+                result.totalElements()));
     }
 
     @GetMapping("/cup/{id}")
     public ResponseEntity<CupDto> getCup(@PathVariable Long id) {
-        return ResponseEntity.ok(cupMapper.toDtos(List.of(cupService.getById(CupId.of(id)))).getFirst());
+        return cupQueryService
+                .findById(id)
+                .map(result -> CupMapper.toDtos(result.cups(), result.eventMap()).getFirst())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/cup/{id}/results")
     public ResponseEntity<CupDetailedDto> getCupDetailed(@PathVariable Long id) {
-        CupDetailed cupDetailed = cupService.getCupDetailed(CupId.of(id));
-        return ResponseEntity.ok(cupDetailedMapper.toDto(cupDetailed));
+        return cupQueryService
+                .findCupDetailed(id)
+                .map(CupDetailedMapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/cup/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CupDto> updateCup(@PathVariable Long id, @RequestBody CupDto cupDto) {
-        Cup cup = cupService.updateCup(
+        var cup = cupService.updateCup(
                 CupId.of(id),
                 CupName.of(cupDto.name()),
                 CupType.fromValue(cupDto.type().id()),
@@ -100,13 +104,16 @@ public class CupController {
                 cupDto.events() == null
                         ? new ArrayList<>()
                         : cupDto.events().stream().map(x -> EventId.of(x.id())).toList());
-        return ResponseEntity.ok(cupMapper.toDtos(List.of(cup)).getFirst());
+        var result = cupQueryService.findById(cup.getId().value());
+        return result.map(r -> CupMapper.toDtos(r.cups(), r.eventMap()).getFirst())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/cup")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CupDto> createCup(@RequestBody CupDto cupDto) {
-        Cup cup = cupService.createCup(
+        var cup = cupService.createCup(
                 cupDto.name(),
                 CupType.fromValue(cupDto.type().id()),
                 Year.of(cupDto.year()),
@@ -116,7 +123,10 @@ public class CupController {
                                 .map(x -> EventId.of(x.id()))
                                 .filter(ObjectUtils::isNotEmpty)
                                 .toList());
-        return ResponseEntity.ok(cupMapper.toDtos(List.of(cup)).getFirst());
+        var result = cupQueryService.findById(cup.getId().value());
+        return result.map(r -> CupMapper.toDtos(r.cups(), r.eventMap()).getFirst())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/cup/{id}")

@@ -3,8 +3,14 @@ package de.jobst.resulter.adapter.driver.web;
 import de.jobst.resulter.adapter.driver.web.dto.CupScoreListDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatsDto;
-import de.jobst.resulter.application.port.*;
-import de.jobst.resulter.domain.*;
+import de.jobst.resulter.adapter.driver.web.mapper.EventCertificateStatMapper;
+import de.jobst.resulter.application.port.CertificateService;
+import de.jobst.resulter.application.port.EventCertificateQueryService;
+import de.jobst.resulter.application.port.ResultListService;
+import de.jobst.resulter.domain.CupScoreList;
+import de.jobst.resulter.domain.EventCertificateStatId;
+import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.ResultListId;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -19,22 +25,23 @@ public class ResultListController {
 
     private final ResultListService resultListService;
     private final CertificateService certificateService;
-    private final de.jobst.resulter.adapter.driver.web.mapper.EventCertificateStatMapper eventCertificateStatMapper;
+    private final EventCertificateQueryService eventCertificateQueryService;
 
     public ResultListController(
             ResultListService resultListService,
             CertificateService certificateService,
-            de.jobst.resulter.adapter.driver.web.mapper.EventCertificateStatMapper eventCertificateStatMapper) {
+            EventCertificateQueryService eventCertificateQueryService) {
         this.resultListService = resultListService;
         this.certificateService = certificateService;
-        this.eventCertificateStatMapper = eventCertificateStatMapper;
+        this.eventCertificateQueryService = eventCertificateQueryService;
     }
 
     @GetMapping("/event/{id}/certificate_stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventCertificateStatsDto> getCertificateStats(@PathVariable Long id) {
-        List<EventCertificateStatDto> eventCertificateStatDtos =
-                eventCertificateStatMapper.toDtos(resultListService.getCertificateStats(EventId.of(id)));
+        var batchResult = eventCertificateQueryService.getCertificateStats(EventId.of(id));
+        List<EventCertificateStatDto> eventCertificateStatDtos = EventCertificateStatMapper.toDtos(
+                batchResult.eventCertificateStats(), batchResult.eventMap(), batchResult.personMap());
         return ResponseEntity.ok(new EventCertificateStatsDto(eventCertificateStatDtos));
     }
 
@@ -58,7 +65,8 @@ public class ResultListController {
     public ResponseEntity<ByteArrayResource> getCertificate(
             @PathVariable Long id, @RequestParam String classResultShortName, @RequestParam Long personId) {
         CertificateService.Certificate certificate = resultListService.createCertificate(
-                ResultListId.of(id), ClassResultShortName.of(classResultShortName), PersonId.of(personId));
+                ResultListId.of(id), de.jobst.resulter.domain.ClassResultShortName.of(classResultShortName),
+                de.jobst.resulter.domain.PersonId.of(personId));
         if (null != certificate) {
             return ResponseEntity.ok()
                     .header(

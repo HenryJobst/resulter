@@ -21,17 +21,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class CourseController {
 
     private final CourseService courseService;
-    private final CourseMapper courseMapper;
 
-    public CourseController(CourseService courseService, CourseMapper courseMapper) {
+    public CourseController(CourseService courseService) {
         this.courseService = courseService;
-        this.courseMapper = courseMapper;
     }
 
     @GetMapping("/course/all")
     public ResponseEntity<List<CourseDto>> getAllCourses() {
         List<Course> courses = courseService.findAll();
-        return ResponseEntity.ok(courseMapper.toDtos(courses));
+        return ResponseEntity.ok(CourseMapper.toDtos(courses));
     }
 
     @GetMapping("/course")
@@ -40,7 +38,7 @@ public class CourseController {
         // TODO: Handle filter, pageable
         List<Course> courses = courseService.findAll();
         return ResponseEntity.ok(new PageImpl<>(
-                courseMapper.toDtos(courses),
+                CourseMapper.toDtos(courses),
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()),
                 courses.size()));
     }

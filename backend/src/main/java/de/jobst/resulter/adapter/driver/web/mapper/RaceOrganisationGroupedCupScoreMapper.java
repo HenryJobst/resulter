@@ -1,24 +1,24 @@
 package de.jobst.resulter.adapter.driver.web.mapper;
 
 import de.jobst.resulter.adapter.driver.web.dto.RaceOrganisationGroupedCupScoreDto;
+import de.jobst.resulter.domain.Country;
+import de.jobst.resulter.domain.CountryId;
+import de.jobst.resulter.domain.Organisation;
+import de.jobst.resulter.domain.OrganisationId;
 import de.jobst.resulter.domain.aggregations.RaceOrganisationGroupedCupScore;
 import java.util.List;
-import org.springframework.stereotype.Component;
+import java.util.Map;
 
-@Component
 public class RaceOrganisationGroupedCupScoreMapper {
 
-    private final OrganisationScoreMapper organisationScoreMapper;
-
-    public RaceOrganisationGroupedCupScoreMapper(OrganisationScoreMapper organisationScoreMapper) {
-        this.organisationScoreMapper = organisationScoreMapper;
-    }
-
-    public RaceOrganisationGroupedCupScoreDto toDto(RaceOrganisationGroupedCupScore raceCupScore) {
+    public static RaceOrganisationGroupedCupScoreDto toDto(
+            RaceOrganisationGroupedCupScore raceCupScore,
+            Map<CountryId, Country> countryMap,
+            Map<OrganisationId, Organisation> orgMap) {
         return new RaceOrganisationGroupedCupScoreDto(
                 RaceMapper.toDtoStatic(raceCupScore.race()),
                 raceCupScore.organisationScores() != null
-                        ? organisationScoreMapper.toDtos(raceCupScore.organisationScores())
+                        ? OrganisationScoreMapper.toDtos(raceCupScore.organisationScores(), countryMap, orgMap)
                         : List.of());
     }
 }

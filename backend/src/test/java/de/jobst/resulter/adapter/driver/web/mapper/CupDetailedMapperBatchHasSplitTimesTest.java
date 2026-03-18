@@ -7,6 +7,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.jobst.resulter.application.CupQueryServiceImpl;
+import de.jobst.resulter.application.port.CountryService;
+import de.jobst.resulter.application.port.CupService;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
 import de.jobst.resulter.application.port.OrganisationService;
@@ -29,28 +32,20 @@ class CupDetailedMapperBatchHasSplitTimesTest {
 
     private ResultListService resultListService;
     private SplitTimeListRepository splitTimeListRepository;
-    private CupDetailedMapper cupDetailedMapper;
+    private CupQueryServiceImpl cupQueryServiceImpl;
 
     @BeforeEach
     void setUp() {
-        EventService eventService = mock(EventService.class);
-        OrganisationService organisationService = mock(OrganisationService.class);
-        EventCertificateService eventCertificateService = mock(EventCertificateService.class);
         resultListService = mock(ResultListService.class);
         splitTimeListRepository = mock(SplitTimeListRepository.class);
-        CupStatisticsMapper cupStatisticsMapper = mock(CupStatisticsMapper.class);
-        EventRacesCupScoreMapper eventRacesCupScoreMapper = mock(EventRacesCupScoreMapper.class);
-        OrganisationScoreMapper organisationScoreMapper = mock(OrganisationScoreMapper.class);
-
-        cupDetailedMapper = new CupDetailedMapper(
-                eventService,
-                organisationService,
-                eventCertificateService,
+        cupQueryServiceImpl = new CupQueryServiceImpl(
+                mock(CupService.class),
+                mock(EventService.class),
+                mock(OrganisationService.class),
+                mock(EventCertificateService.class),
+                mock(CountryService.class),
                 resultListService,
-                splitTimeListRepository,
-                cupStatisticsMapper,
-                eventRacesCupScoreMapper,
-                organisationScoreMapper);
+                splitTimeListRepository);
     }
 
     @Test
@@ -58,8 +53,10 @@ class CupDetailedMapperBatchHasSplitTimesTest {
         Event event1 = Event.of(101L, "Event 101", null, null, Set.of(), null, Discipline.getDefault(), false);
         Event event2 = Event.of(202L, "Event 202", null, null, Set.of(), null, Discipline.getDefault(), false);
 
-        ResultList resultList1 = new ResultList(ResultListId.of(111L), event1.getId(), RaceId.of(1L), null, null, null, null);
-        ResultList resultList2 = new ResultList(ResultListId.of(222L), event2.getId(), RaceId.of(2L), null, null, null, null);
+        ResultList resultList1 =
+                new ResultList(ResultListId.of(111L), event1.getId(), RaceId.of(1L), null, null, null, null);
+        ResultList resultList2 =
+                new ResultList(ResultListId.of(222L), event2.getId(), RaceId.of(2L), null, null, null, null);
 
         when(resultListService.findAllByEventIds(Set.of(event1.getId(), event2.getId())))
                 .thenReturn(Map.of(
@@ -68,26 +65,27 @@ class CupDetailedMapperBatchHasSplitTimesTest {
         when(splitTimeListRepository.existsByResultListIds(Set.of(resultList1.getId(), resultList2.getId())))
                 .thenReturn(Set.of(resultList1.getId()));
 
-        Method method = CupDetailedMapper.class.getDeclaredMethod("batchHasSplitTimes", List.class);
+        Method method = CupQueryServiceImpl.class.getDeclaredMethod("batchHasSplitTimes", List.class);
         method.setAccessible(true);
 
         @SuppressWarnings("unchecked")
-        Map<EventId, Boolean> result = (Map<EventId, Boolean>) method.invoke(cupDetailedMapper, List.of(event1, event2));
+        Map<Long, Boolean> result =
+                (Map<Long, Boolean>) method.invoke(cupQueryServiceImpl, List.of(event1, event2));
 
-        assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.of(
-                event1.getId(), true,
-                event2.getId(), false));
+        assertThat(result)
+                .containsExactlyInAnyOrderEntriesOf(
+                        Map.of(event1.getId().value(), true, event2.getId().value(), false));
         verify(resultListService).findAllByEventIds(Set.of(event1.getId(), event2.getId()));
         verify(splitTimeListRepository).existsByResultListIds(Set.of(resultList1.getId(), resultList2.getId()));
     }
 
     @Test
     void batchHasSplitTimes_shouldReturnEmptyMapForEmptyInput() throws Exception {
-        Method method = CupDetailedMapper.class.getDeclaredMethod("batchHasSplitTimes", List.class);
+        Method method = CupQueryServiceImpl.class.getDeclaredMethod("batchHasSplitTimes", List.class);
         method.setAccessible(true);
 
         @SuppressWarnings("unchecked")
-        Map<EventId, Boolean> result = (Map<EventId, Boolean>) method.invoke(cupDetailedMapper, List.of());
+        Map<Long, Boolean> result = (Map<Long, Boolean>) method.invoke(cupQueryServiceImpl, List.of());
 
         assertThat(result).isEmpty();
         verify(resultListService, never()).findAllByEventIds(any());

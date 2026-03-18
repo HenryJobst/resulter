@@ -5,8 +5,6 @@ import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.MediaFile;
 import de.jobst.resulter.domain.MediaFileId;
-import de.jobst.resulter.domain.Person;
-import de.jobst.resulter.domain.PersonId;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Pageable;

@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @PrimaryPort
 public interface ResultListService {
@@ -22,6 +23,8 @@ public interface ResultListService {
 
     Collection<ResultList> findByEventId(EventId id);
     Map<EventId, List<ResultList>> findAllByEventIds(Collection<EventId> eventIds);
+
+    Set<ResultListId> findResultListIdsWithSplitTimes(Collection<ResultListId> resultListIds);
 
     @Transactional
     List<CupScoreList> calculateScore(ResultListId id);

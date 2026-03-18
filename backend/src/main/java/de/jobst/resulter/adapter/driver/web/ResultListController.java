@@ -8,8 +8,10 @@ import de.jobst.resulter.application.port.CertificateService;
 import de.jobst.resulter.application.port.EventCertificateQueryService;
 import de.jobst.resulter.application.port.ResultListService;
 import de.jobst.resulter.domain.CupScoreList;
+import de.jobst.resulter.domain.ClassResultShortName;
 import de.jobst.resulter.domain.EventCertificateStatId;
 import de.jobst.resulter.domain.EventId;
+import de.jobst.resulter.domain.PersonId;
 import de.jobst.resulter.domain.ResultListId;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -65,8 +67,8 @@ public class ResultListController {
     public ResponseEntity<ByteArrayResource> getCertificate(
             @PathVariable Long id, @RequestParam String classResultShortName, @RequestParam Long personId) {
         CertificateService.Certificate certificate = resultListService.createCertificate(
-                ResultListId.of(id), de.jobst.resulter.domain.ClassResultShortName.of(classResultShortName),
-                de.jobst.resulter.domain.PersonId.of(personId));
+                ResultListId.of(id), ClassResultShortName.of(classResultShortName),
+                PersonId.of(personId));
         if (null != certificate) {
             return ResponseEntity.ok()
                     .header(

@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driver.web.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import de.jobst.resulter.adapter.driver.web.dto.EventCertificateStatDto;
 import de.jobst.resulter.domain.Discipline;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventCertificateStat;
@@ -21,17 +22,23 @@ class EventCertificateStatMapperTest {
     void toDtos_shouldMapCorrectly() {
         EventId eventId = EventId.of(10L);
         PersonId personId = PersonId.of(20L);
+        Instant generated = Instant.parse("2024-06-01T10:00:00Z");
 
-        EventCertificateStat stat = EventCertificateStat.of(1L, eventId, personId, Instant.now());
+        EventCertificateStat stat = EventCertificateStat.of(1L, eventId, personId, generated);
         Event event = Event.of(eventId.value(), "My Event", null, null, Set.of(), null, Discipline.getDefault(), false);
         Person person = Person.of(personId.value(), "Mustermann", "Max", null, Gender.M);
 
         Map<EventId, Event> eventMap = Map.of(eventId, event);
         Map<PersonId, Person> personMap = Map.of(personId, person);
 
-        List<?> dtos = EventCertificateStatMapper.toDtos(List.of(stat), eventMap, personMap);
+        List<EventCertificateStatDto> dtos = EventCertificateStatMapper.toDtos(List.of(stat), eventMap, personMap);
 
         assertThat(dtos).hasSize(1);
+        EventCertificateStatDto dto = dtos.getFirst();
+        assertThat(dto.id()).isEqualTo(1L);
+        assertThat(dto.event().id()).isEqualTo(eventId.value());
+        assertThat(dto.person().id()).isEqualTo(personId.value());
+        assertThat(dto.generated()).isEqualTo(generated);
     }
 
     @Test

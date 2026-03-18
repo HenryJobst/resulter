@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Year;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @PrimaryPort
 public interface CupService {
@@ -21,6 +22,8 @@ public interface CupService {
     Cup findOrCreate(Cup cup);
 
     Cup getById(CupId cupId);
+
+    Optional<Cup> findById(CupId cupId);
 
     Cup updateCup(CupId id, CupName name, CupType type, Year year, Collection<EventId> eventIds);
 

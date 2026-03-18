@@ -69,6 +69,11 @@ public class CupServiceImpl implements CupService {
     }
 
     @Override
+    public Optional<Cup> findById(CupId cupId) {
+        return cupRepository.findById(cupId);
+    }
+
+    @Override
     public Cup updateCup(CupId id, CupName name, CupType type, Year year, Collection<EventId> eventIds) {
         var events = eventService.findAllById(eventIds);
         return cupRepository.save(getById(id)

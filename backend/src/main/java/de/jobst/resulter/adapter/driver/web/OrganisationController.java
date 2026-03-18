@@ -2,16 +2,15 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationDto;
 import de.jobst.resulter.adapter.driver.web.dto.OrganisationTypeDto;
-import de.jobst.resulter.adapter.driver.web.mapper.OrganisationMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.OrganisationTypeMapper;
-import de.jobst.resulter.application.port.CountryService;
+import de.jobst.resulter.application.port.OrganisationQueryService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -28,45 +27,37 @@ import org.springframework.web.bind.annotation.*;
 public class OrganisationController {
 
     private final OrganisationService organisationService;
-    private final CountryService countryService;
+    private final OrganisationQueryService organisationQueryService;
 
-    public OrganisationController(OrganisationService organisationService, CountryService countryService) {
+    public OrganisationController(
+            OrganisationService organisationService, OrganisationQueryService organisationQueryService) {
         this.organisationService = organisationService;
-        this.countryService = countryService;
-    }
-
-    private List<OrganisationDto> toOrganisationDtos(List<Organisation> organisations) {
-        Map<CountryId, Country> countryMap = countryService.batchLoadForOrganisations(organisations);
-        Map<OrganisationId, Organisation> orgMap = organisationService.batchLoadChildOrganisations(organisations);
-        return OrganisationMapper.toDtos(organisations, countryMap, orgMap);
+        this.organisationQueryService = organisationQueryService;
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<OrganisationDto>> getAllOrganisations() {
-        return ResponseEntity.ok(toOrganisationDtos(organisationService.findAll()));
+        return ResponseEntity.ok(organisationQueryService.findAllAsDto());
     }
 
     @GetMapping("")
     public ResponseEntity<Page<OrganisationDto>> searchOrganisations(
             @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
-        Page<Organisation> organisations = organisationService.findAll(
-                filter.orElse(null),
-                pageable != null
-                        ? FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDto::mapOrdersDtoToDomain)
-                        : Pageable.unpaged());
-
+        Pageable mappedPageable = pageable != null
+                ? FilterAndSortConverter.mapOrderProperties(pageable, OrganisationDto::mapOrdersDtoToDomain)
+                : Pageable.unpaged();
+        Page<OrganisationDto> dtos = organisationQueryService.findAllAsDto(filter.orElse(null), mappedPageable);
         return ResponseEntity.ok(new PageImpl<>(
-                toOrganisationDtos(organisations.getContent()),
-                FilterAndSortConverter.mapOrderProperties(
-                        organisations.getPageable(), OrganisationDto::mapOrdersDomainToDto),
-                organisations.getTotalElements()));
+                dtos.getContent(),
+                FilterAndSortConverter.mapOrderProperties(dtos.getPageable(), OrganisationDto::mapOrdersDomainToDto),
+                dtos.getTotalElements()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrganisationDto> getOrganisation(@PathVariable Long id) {
-        Optional<Organisation> organisation = organisationService.findById(OrganisationId.of(id));
-        return organisation
-                .map(value -> ResponseEntity.ok(toOrganisationDtos(List.of(value)).getFirst()))
+        return organisationQueryService
+                .findByIdAsDto(id)
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -95,7 +86,10 @@ public class OrganisationController {
                         : organisationDto.childOrganisations().stream()
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
-        return ResponseEntity.ok(toOrganisationDtos(List.of(organisation)).getFirst());
+        return organisationQueryService
+                .findByIdAsDto(organisation.getId().value())
+                .map(ResponseEntity::ok)
+                .orElseThrow(ResourceNotFoundException::new);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -114,7 +108,10 @@ public class OrganisationController {
                                 .map(x -> OrganisationId.of(x.id()))
                                 .toList());
         if (null != organisation) {
-            return ResponseEntity.ok(toOrganisationDtos(List.of(organisation)).getFirst());
+            return organisationQueryService
+                    .findByIdAsDto(organisation.getId().value())
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
         } else {
             return ResponseEntity.notFound().build();
         }

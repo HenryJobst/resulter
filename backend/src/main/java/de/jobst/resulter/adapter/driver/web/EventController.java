@@ -5,7 +5,6 @@ import de.jobst.resulter.adapter.driver.web.dto.EventCertificateDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventResultsDto;
 import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
-import de.jobst.resulter.adapter.driver.web.mapper.EventMapper;
 import de.jobst.resulter.adapter.driver.web.mapper.EventResultsMapper;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.application.util.FilterAndSortConverter;
@@ -36,98 +35,44 @@ import org.springframework.web.bind.annotation.*;
 public class EventController {
 
     private final EventService eventService;
-    private final OrganisationService organisationService;
-    private final EventCertificateService eventCertificateService;
+    private final EventQueryService eventQueryService;
     private final ResultListService resultListService;
     private final MediaFileService mediaFileService;
-    private final SplitTimeListRepository splitTimeListRepository;
     private final CupRepository cupRepository;
     private final EventResultsMapper eventResultsMapper;
 
     public EventController(
             EventService eventService,
-            OrganisationService organisationService,
-            EventCertificateService eventCertificateService,
+            EventQueryService eventQueryService,
             ResultListService resultListService,
             MediaFileService mediaFileService,
-            SplitTimeListRepository splitTimeListRepository,
             CupRepository cupRepository,
             EventResultsMapper eventResultsMapper) {
         this.eventService = eventService;
-        this.organisationService = organisationService;
-        this.eventCertificateService = eventCertificateService;
+        this.eventQueryService = eventQueryService;
         this.resultListService = resultListService;
         this.mediaFileService = mediaFileService;
-        this.splitTimeListRepository = splitTimeListRepository;
         this.cupRepository = cupRepository;
         this.eventResultsMapper = eventResultsMapper;
     }
 
     @GetMapping("/event/all")
     public ResponseEntity<List<EventDto>> getAllEvents() {
-        List<Event> events = eventService.findAll();
-        List<EventDto> eventDtos = toEventDtos(events);
         return ResponseEntity.ok(
-                eventDtos.stream().sorted(Comparator.reverseOrder()).toList());
-    }
-
-    private List<EventDto> toEventDtos(List<Event> events) {
-        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(events);
-        Map<OrganisationId, Organisation> organisationMap = batchLoadOrganisations(events);
-        Map<EventCertificateId, EventCertificate> eventCertificateMap = batchLoadCertificates(events);
-        return EventMapper.toDtos(events, hasSplitTimesMap, organisationMap, eventCertificateMap);
-    }
-
-    private Map<Long, Boolean> batchHasSplitTimes(List<Event> events) {
-        if (events.isEmpty()) {
-            return Map.of();
-        }
-
-        Set<EventId> eventIds = events.stream().map(Event::getId).collect(Collectors.toSet());
-        Map<EventId, List<ResultList>> resultListsByEvent = resultListService.findAllByEventIds(eventIds);
-
-        Set<ResultListId> allResultListIds = resultListsByEvent.values().stream()
-                .flatMap(List::stream)
-                .map(ResultList::getId)
-                .collect(Collectors.toSet());
-
-        Set<ResultListId> resultListIdsWithSplitTimes = splitTimeListRepository.existsByResultListIds(allResultListIds);
-
-        return events.stream().collect(Collectors.toMap(
-                event -> event.getId().value(),
-                event -> resultListsByEvent.getOrDefault(event.getId(), List.of()).stream()
-                        .anyMatch(resultList -> resultListIdsWithSplitTimes.contains(resultList.getId()))));
-    }
-
-    private Map<OrganisationId, Organisation> batchLoadOrganisations(List<Event> events) {
-        Set<OrganisationId> orgIds = events.stream()
-                .flatMap(e -> e.getOrganisationIds().stream())
-                .collect(Collectors.toSet());
-        return organisationService.findAllByIdAsMap(orgIds);
-    }
-
-    private Map<EventCertificateId, EventCertificate> batchLoadCertificates(List<Event> events) {
-        Set<EventCertificateId> certIds = events.stream()
-                .map(Event::getCertificate)
-                .filter(org.apache.commons.lang3.ObjectUtils::isNotEmpty)
-                .collect(Collectors.toSet());
-        return eventCertificateService.findAllByIdAsMap(certIds);
+                eventQueryService.findAllAsDto().stream().sorted(Comparator.reverseOrder()).toList());
     }
 
     @GetMapping("/event")
     public ResponseEntity<Page<EventDto>> searchEvents(
             @RequestParam Optional<String> filter, @Nullable Pageable pageable) {
-        Page<Event> events = eventService.findAll(
-                filter.orElse(null),
-                pageable != null
-                        ? FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain)
-                        : Pageable.unpaged());
-
-        List<EventDto> eventDtos = toEventDtos(events.getContent());
-
-        return ResponseEntity.ok(new PageImpl<>(eventDtos,
-            FilterAndSortConverter.mapOrderProperties(events.getPageable(), EventDto::mapOrdersDomainToDto),
-            events.getTotalElements()));
+        Pageable mappedPageable = pageable != null
+                ? FilterAndSortConverter.mapOrderProperties(pageable, EventDto::mapOrdersDtoToDomain)
+                : Pageable.unpaged();
+        Page<EventDto> eventDtos = eventQueryService.findAllAsDto(filter.orElse(null), mappedPageable);
+        return ResponseEntity.ok(new PageImpl<>(
+                eventDtos.getContent(),
+                FilterAndSortConverter.mapOrderProperties(eventDtos.getPageable(), EventDto::mapOrdersDomainToDto),
+                eventDtos.getTotalElements()));
     }
 
     @GetMapping("/event_status")
@@ -165,14 +110,17 @@ public class EventController {
         if (null == event) {
             throw new ResponseNotFoundException("Event could not be created");
         }
-        return ResponseEntity.ok(toEventDtos(List.of(event)).getFirst());
+        return ResponseEntity.ok(eventQueryService
+                .findByIdAsDto(event.getId().value())
+                .orElseThrow(() -> new ResponseNotFoundException("Event could not be created")));
     }
 
     @GetMapping("/event/{id}")
     public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
-        Event event = eventService.findById(EventId.of(id)).orElseThrow(ResourceNotFoundException::new);
-
-        return ResponseEntity.ok(toEventDtos(List.of(event)).getFirst());
+        return eventQueryService
+                .findByIdAsDto(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(ResourceNotFoundException::new);
     }
 
     @PutMapping("/event/{id}")
@@ -195,7 +143,9 @@ public class EventController {
                         : null,
                 Discipline.fromValue(eventDto.discipline().id()),
                 eventDto.aggregateScore());
-        return ResponseEntity.ok(toEventDtos(List.of(event)).getFirst());
+        return ResponseEntity.ok(eventQueryService
+                .findByIdAsDto(event.getId().value())
+                .orElseThrow(ResourceNotFoundException::new));
     }
 
     @DeleteMapping("/event/{id}")

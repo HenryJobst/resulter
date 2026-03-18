@@ -7,11 +7,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.jobst.resulter.adapter.driver.web.mapper.EventResultsMapper;
-import de.jobst.resulter.application.port.CupRepository;
+import de.jobst.resulter.application.EventQueryServiceImpl;
 import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventService;
-import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.application.port.ResultListService;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
@@ -32,7 +30,7 @@ class EventControllerBatchHasSplitTimesTest {
 
     private ResultListService resultListService;
     private SplitTimeListRepository splitTimeListRepository;
-    private EventController eventController;
+    private EventQueryServiceImpl eventQueryService;
 
     @BeforeEach
     void setUp() {
@@ -40,20 +38,14 @@ class EventControllerBatchHasSplitTimesTest {
         OrganisationService organisationService = mock(OrganisationService.class);
         EventCertificateService eventCertificateService = mock(EventCertificateService.class);
         resultListService = mock(ResultListService.class);
-        MediaFileService mediaFileService = mock(MediaFileService.class);
         splitTimeListRepository = mock(SplitTimeListRepository.class);
-        CupRepository cupRepository = mock(CupRepository.class);
-        EventResultsMapper eventResultsMapper = mock(EventResultsMapper.class);
 
-        eventController = new EventController(
+        eventQueryService = new EventQueryServiceImpl(
                 eventService,
                 organisationService,
                 eventCertificateService,
                 resultListService,
-                mediaFileService,
-                splitTimeListRepository,
-                cupRepository,
-                eventResultsMapper);
+                splitTimeListRepository);
     }
 
     @Test
@@ -71,11 +63,11 @@ class EventControllerBatchHasSplitTimesTest {
         when(splitTimeListRepository.existsByResultListIds(Set.of(resultList1.getId(), resultList2.getId())))
                 .thenReturn(Set.of(resultList2.getId()));
 
-        Method method = EventController.class.getDeclaredMethod("batchHasSplitTimes", List.class);
+        Method method = EventQueryServiceImpl.class.getDeclaredMethod("batchHasSplitTimes", List.class);
         method.setAccessible(true);
 
         @SuppressWarnings("unchecked")
-        Map<Long, Boolean> result = (Map<Long, Boolean>) method.invoke(eventController, List.of(event1, event2));
+        Map<Long, Boolean> result = (Map<Long, Boolean>) method.invoke(eventQueryService, List.of(event1, event2));
 
         assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.of(
                 event1.getId().value(), false,
@@ -86,11 +78,11 @@ class EventControllerBatchHasSplitTimesTest {
 
     @Test
     void batchHasSplitTimes_shouldReturnEmptyMapForEmptyInput() throws Exception {
-        Method method = EventController.class.getDeclaredMethod("batchHasSplitTimes", List.class);
+        Method method = EventQueryServiceImpl.class.getDeclaredMethod("batchHasSplitTimes", List.class);
         method.setAccessible(true);
 
         @SuppressWarnings("unchecked")
-        Map<Long, Boolean> result = (Map<Long, Boolean>) method.invoke(eventController, List.of());
+        Map<Long, Boolean> result = (Map<Long, Boolean>) method.invoke(eventQueryService, List.of());
 
         assertThat(result).isEmpty();
         verify(resultListService, never()).findAllByEventIds(any());

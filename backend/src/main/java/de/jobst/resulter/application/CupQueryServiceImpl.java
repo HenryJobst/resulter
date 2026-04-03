@@ -112,7 +112,7 @@ public class CupQueryServiceImpl implements CupQueryService {
                 .toList();
 
         // hasSplitTimes
-        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(eventsFromCupScore);
+        Map<EventId, Boolean> hasSplitTimesMap = batchHasSplitTimes(eventsFromCupScore);
 
         // Organisations
         Set<OrganisationId> orgIds = eventsFromCupScore.stream()
@@ -154,7 +154,7 @@ public class CupQueryServiceImpl implements CupQueryService {
                 childOrganisationMap);
     }
 
-    Map<Long, Boolean> batchHasSplitTimes(List<Event> events) {
+    Map<EventId, Boolean> batchHasSplitTimes(List<Event> events) {
         if (events.isEmpty()) {
             return Map.of();
         }
@@ -168,7 +168,7 @@ public class CupQueryServiceImpl implements CupQueryService {
                 resultListService.findResultListIdsWithSplitTimes(allResultListIds);
         return events.stream()
                 .collect(Collectors.toMap(
-                        event -> event.getId().value(),
+                        Event::getId,
                         event -> resultListsByEvent.getOrDefault(event.getId(), List.of()).stream()
                                 .anyMatch(rl -> resultListIdsWithSplitTimes.contains(rl.getId()))));
     }

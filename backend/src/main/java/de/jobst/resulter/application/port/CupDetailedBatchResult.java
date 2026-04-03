@@ -14,7 +14,7 @@ import java.util.Map;
 public record CupDetailedBatchResult(
         CupDetailed cupDetailed,
         Map<EventId, Event> eventMap,
-        Map<Long, Boolean> hasSplitTimesMap,
+        Map<EventId, Boolean> hasSplitTimesMap,
         Map<OrganisationId, Organisation> organisationMap,
         Map<EventCertificateId, EventCertificate> certificateMap,
         Map<CountryId, Country> countryMap,

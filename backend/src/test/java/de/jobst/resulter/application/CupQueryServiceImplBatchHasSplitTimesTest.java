@@ -60,11 +60,11 @@ class CupQueryServiceImplBatchHasSplitTimesTest {
                         Set.of(resultList1.getId(), resultList2.getId())))
                 .thenReturn(Set.of(resultList1.getId()));
 
-        Map<Long, Boolean> result = cupQueryServiceImpl.batchHasSplitTimes(List.of(event1, event2));
+        Map<EventId, Boolean> result = cupQueryServiceImpl.batchHasSplitTimes(List.of(event1, event2));
 
         assertThat(result)
                 .containsExactlyInAnyOrderEntriesOf(
-                        Map.of(event1.getId().value(), true, event2.getId().value(), false));
+                        Map.of(event1.getId(), true, event2.getId(), false));
         verify(resultListService).findAllByEventIds(Set.of(event1.getId(), event2.getId()));
         verify(resultListService)
                 .findResultListIdsWithSplitTimes(Set.of(resultList1.getId(), resultList2.getId()));
@@ -72,7 +72,7 @@ class CupQueryServiceImplBatchHasSplitTimesTest {
 
     @Test
     void batchHasSplitTimes_shouldReturnEmptyMapForEmptyInput() {
-        Map<Long, Boolean> result = cupQueryServiceImpl.batchHasSplitTimes(List.of());
+        Map<EventId, Boolean> result = cupQueryServiceImpl.batchHasSplitTimes(List.of());
 
         assertThat(result).isEmpty();
         verify(resultListService, never()).findAllByEventIds(any());

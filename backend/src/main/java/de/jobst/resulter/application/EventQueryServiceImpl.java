@@ -62,13 +62,13 @@ public class EventQueryServiceImpl implements EventQueryService {
     }
 
     private EventBatchResult buildBatchResult(List<Event> events, long totalElements, Pageable pageable) {
-        Map<Long, Boolean> hasSplitTimesMap = batchHasSplitTimes(events);
+        Map<EventId, Boolean> hasSplitTimesMap = batchHasSplitTimes(events);
         Map<OrganisationId, Organisation> organisationMap = batchLoadOrganisations(events);
         Map<EventCertificateId, EventCertificate> certificateMap = batchLoadCertificates(events);
         return new EventBatchResult(events, totalElements, pageable, hasSplitTimesMap, organisationMap, certificateMap);
     }
 
-    private Map<Long, Boolean> batchHasSplitTimes(List<Event> events) {
+    private Map<EventId, Boolean> batchHasSplitTimes(List<Event> events) {
         if (events.isEmpty()) {
             return Map.of();
         }
@@ -81,7 +81,7 @@ public class EventQueryServiceImpl implements EventQueryService {
         Set<ResultListId> resultListIdsWithSplitTimes =
                 resultListService.findResultListIdsWithSplitTimes(allResultListIds);
         return events.stream().collect(Collectors.toMap(
-                event -> event.getId().value(),
+                Event::getId,
                 event -> resultListsByEvent.getOrDefault(event.getId(), List.of()).stream()
                         .anyMatch(resultList -> resultListIdsWithSplitTimes.contains(resultList.getId()))));
     }

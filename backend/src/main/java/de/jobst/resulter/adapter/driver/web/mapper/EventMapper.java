@@ -8,6 +8,7 @@ import de.jobst.resulter.adapter.driver.web.dto.EventStatusDto;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventCertificateId;
+import de.jobst.resulter.domain.EventId;
 import de.jobst.resulter.domain.EventStatus;
 import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.OrganisationId;
@@ -51,7 +52,7 @@ public class EventMapper {
 
     public static List<EventDto> toDtos(
             List<Event> events,
-            Map<Long, Boolean> hasSplitTimesMap,
+            Map<EventId, Boolean> hasSplitTimesMap,
             Map<OrganisationId, Organisation> organisationMap,
             Map<EventCertificateId, EventCertificate> eventCertificateMap) {
         return events.stream()
@@ -59,8 +60,7 @@ public class EventMapper {
                         event,
                         organisationMap,
                         eventCertificateMap,
-                        hasSplitTimesMap.getOrDefault(
-                                ObjectUtils.isNotEmpty(event.getId()) ? event.getId().value() : 0, false)))
+                        hasSplitTimesMap.getOrDefault(event.getId(), false)))
                 .toList();
     }
 

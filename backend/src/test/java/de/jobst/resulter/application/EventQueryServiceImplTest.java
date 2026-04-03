@@ -70,7 +70,7 @@ class EventQueryServiceImplTest {
 
         assertThat(result.events()).hasSize(1);
         assertThat(result.events().getFirst().getId().value()).isEqualTo(1L);
-        assertThat(result.hasSplitTimesMap()).containsEntry(1L, false);
+        assertThat(result.hasSplitTimesMap()).containsEntry(EventId.of(1L), false);
         assertThat(result.organisationMap()).containsKey(orgId);
         assertThat(result.certificateMap()).containsKey(certId);
     }
@@ -92,7 +92,7 @@ class EventQueryServiceImplTest {
         EventBatchResult result = queryService.findAll();
 
         assertThat(result.events()).hasSize(2);
-        assertThat(result.hasSplitTimesMap()).containsEntry(1L, true).containsEntry(2L, false);
+        assertThat(result.hasSplitTimesMap()).containsEntry(EventId.of(1L), true).containsEntry(EventId.of(2L), false);
     }
 
     @Test

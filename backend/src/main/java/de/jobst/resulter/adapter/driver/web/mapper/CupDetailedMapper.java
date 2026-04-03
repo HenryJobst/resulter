@@ -28,7 +28,7 @@ public class CupDetailedMapper {
     public static CupDetailedDto toDto(CupDetailedBatchResult batchResult) {
         CupDetailed cupDetailed = batchResult.cupDetailed();
         Map<EventId, Event> eventMap = batchResult.eventMap();
-        Map<Long, Boolean> hasSplitTimesMap = batchResult.hasSplitTimesMap();
+        Map<EventId, Boolean> hasSplitTimesMap = batchResult.hasSplitTimesMap();
         Map<OrganisationId, Organisation> organisationMap = batchResult.organisationMap();
         Map<EventCertificateId, EventCertificate> certificateMap = batchResult.certificateMap();
         Map<CountryId, Country> countryMap = batchResult.countryMap();

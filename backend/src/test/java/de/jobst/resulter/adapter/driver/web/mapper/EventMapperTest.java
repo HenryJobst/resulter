@@ -27,7 +27,7 @@ class EventMapperTest {
 
         List<EventDto> dtos = EventMapper.toDtos(
                 List.of(event),
-                Map.of(event.getId().value(), true),
+                Map.of(event.getId(), true),
                 Map.of(orgId, organisation),
                 Map.of(certificateId, certificate));
 
@@ -67,7 +67,7 @@ class EventMapperTest {
         Event event = Event.of(2L, "Event B", null, null, Set.of(orgId), null, Discipline.getDefault(), false);
 
         List<EventDto> dtos = EventMapper.toDtos(
-                List.of(event), Map.of(event.getId().value(), false), Map.of(), Map.of());
+                List.of(event), Map.of(event.getId(), false), Map.of(), Map.of());
 
         assertThat(dtos).hasSize(1);
         assertThat(dtos.getFirst().organisations()).isEmpty();

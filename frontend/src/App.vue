@@ -67,6 +67,10 @@ function showImprint() {
     router.push({ name: 'imprint-page', params: { locale: currentLocale.value } })
 }
 
+function showPrivacy() {
+    router.push({ name: 'privacy-page', params: { locale: currentLocale.value } })
+}
+
 function toggleSidebar() {
     sidebarCollapsed.value = !sidebarCollapsed.value
     localStorage.setItem('sidebarCollapsed', sidebarCollapsed.value.toString())
@@ -234,11 +238,19 @@ function setDetails(details: string) {
                     {{ t('labels.login_user', { username: authStore.user.username }) }}
                 </div>
             </div>
-            <div>
+            <div class="flex items-center gap-3">
                 <a
                     href="#"
                     class="text-sm text-adaptive-secondary hover:text-primary-600 transition-smooth"
-                    @click="showImprint"
+                    @click.prevent="showPrivacy"
+                >
+                    {{ t('navigations.privacy') }}
+                </a>
+                <span class="text-adaptive-secondary text-sm">·</span>
+                <a
+                    href="#"
+                    class="text-sm text-adaptive-secondary hover:text-primary-600 transition-smooth"
+                    @click.prevent="showImprint"
                 >
                     {{ t('navigations.imprint') }}
                 </a>

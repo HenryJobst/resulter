@@ -11,6 +11,7 @@ import { imprintRouting } from '@/features/imprint/imprint-routing'
 import { mediaRouting } from '@/features/media/media-routing'
 import { organisationRouting } from '@/features/organisation/organisation-routing'
 import { personRouting } from '@/features/person/person-routing'
+import { privacyRouting } from '@/features/privacy/privacy-routing'
 import { startRouting } from '@/features/start/start-routing'
 import { getLocale, loadLocaleMessages, setI18nLanguage, SUPPORT_LOCALES } from '@/i18n'
 
@@ -29,6 +30,7 @@ export function setupRouter(i18n: I18n): Router {
         ...mediaRouting,
         ...certificateRouting,
         ...imprintRouting,
+        ...privacyRouting,
         {
             path: '/:pathMatch(.*)*',
             redirect: () => `/${locale}`,

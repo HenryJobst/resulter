@@ -17,6 +17,7 @@
         "login": "Login",
         "logout": "Logout",
         "imprint": "Imprint",
+        "privacy": "Privacy Policy",
         "users": "Users",
         "groups": "Groups",
         "roles": "Roles"
@@ -104,6 +105,8 @@
         "timestamp": "Timestamp",
         "select_language": "Select language",
         "defaultImpressText": "Impress not set!",
+        "defaultPrivacyText": "Privacy policy not set!",
+        "privacyContactHint": "For privacy-related inquiries, please contact the responsible party named in the ",
         "possible_duplicates": "possible duplicates",
         "split_time_analysis_ranking": "Split Times Ranking",
         "merge_bidirectional": "Merge Bidirectional",

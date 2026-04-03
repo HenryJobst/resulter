@@ -515,13 +515,13 @@ Two build approaches available:
 - Backend: `./backend/build.sh` builds Docker image
 - Frontend: `./frontend/build.sh` builds Docker image
 - CI/CD: `.github/workflows/build-image.yml`
-- Tags: `latest`, `4.6.5`, `4`, `4.6`
+- Tags: `latest`, `4.6.6`, `4`, `4.6`
 
 **Paketo Buildpacks (alternative):**
 - Backend: `./backend/build-paketo.sh` builds with Cloud Native Buildpacks
 - Frontend: `./frontend/build-paketo.sh` builds with Cloud Native Buildpacks
 - CI/CD: `.github/workflows/build-paketo.yml`
-- Tags: `paketo-latest`, `paketo-4.6.5`, `paketo-4`, `paketo-4.6`
+- Tags: `paketo-latest`, `paketo-4.6.6`, `paketo-4`, `paketo-4.6`
 - Requires pack CLI: `brew install buildpacks/tap/pack`
 - Benefits: 12-factor app, runtime config, automatic SBOM, non-root user, auto-updating base images
 
@@ -567,6 +567,6 @@ Backend service labels in docker-compose.yml:
 
 ## Version & License
 
-- Current version: 4.6.5
+- Current version: 4.6.6
 - License: CC BY-NC-ND 4.0 (non-commercial use only)
 - Main branch: `main` for stable releases

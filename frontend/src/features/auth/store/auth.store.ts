@@ -127,12 +127,6 @@ export const useAuthStore = defineStore(
             clearUserData,
         }
     },
-    {
-        persist: {
-            storage: sessionStorage,
-            paths: ['authenticated'],
-        },
-    },
 )
 
 // Export store type

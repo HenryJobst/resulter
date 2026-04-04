@@ -12,6 +12,7 @@ env:
   REGISTRY: ${{ vars.IMAGE_DEPLOY_REPO }}
   IMAGE_NAME_FRONTEND: ${{ github.repository }}/frontend
   IMAGE_NAME_BACKEND: ${{ github.repository }}/backend
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 permissions:
   actions: write

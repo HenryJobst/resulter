@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DOMPurify from 'dompurify'
 import Card from 'primevue/card'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -9,7 +10,8 @@ const router = useRouter()
 
 const privacyText = computed(() => {
     const key = `VITE_PRIVACY_TEXT_${locale.value.toUpperCase()}`
-    return import.meta.env[key] || t('labels.defaultPrivacyText')
+    const raw = import.meta.env[key] || t('labels.defaultPrivacyText')
+    return DOMPurify.sanitize(raw)
 })
 
 function showImprint() {

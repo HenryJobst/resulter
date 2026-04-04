@@ -26,9 +26,16 @@ public class MappingFilterNodeTransformer implements FilterNodeTransformer<Mappi
     }
 
     
+    private static final java.util.regex.Pattern VALID_FIELD_NAME =
+            java.util.regex.Pattern.compile("[a-zA-Z][a-zA-Z0-9_]*(?:\\.[a-zA-Z][a-zA-Z0-9_]*)*");
+
     @Override
     public MappingFilterNodeTransformResult transformField(FieldNode node) {
-        return new MappingFilterNodeTransformResult(node.getName());
+        String name = node.getName();
+        if (!VALID_FIELD_NAME.matcher(name).matches()) {
+            throw new IllegalArgumentException("Invalid filter field name: " + name);
+        }
+        return new MappingFilterNodeTransformResult(name);
     }
 
     

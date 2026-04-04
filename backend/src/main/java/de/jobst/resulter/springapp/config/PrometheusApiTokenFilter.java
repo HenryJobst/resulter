@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -55,7 +57,9 @@ public class PrometheusApiTokenFilter extends OncePerRequestFilter {
                 responseInfo.setMessage("API Token for prometheus endpoint not given");
             } else {
                 authHeader.filter(t -> !t.startsWith(BEARER)
-                                || !t.substring(BEARER.length()).equals(apiToken.orElseThrow()))
+                                || !MessageDigest.isEqual(
+                                        t.substring(BEARER.length()).getBytes(StandardCharsets.UTF_8),
+                                        apiToken.orElseThrow().getBytes(StandardCharsets.UTF_8)))
                         .ifPresent(t -> {
                             responseInfo.setStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
                             responseInfo.setMessage(

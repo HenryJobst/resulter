@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/bff")
 @Slf4j
@@ -49,26 +47,5 @@ public class BffController {
         // By accepting CsrfToken as parameter, we force Spring to generate and set the cookie
         log.debug("CSRF token requested");
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/debug/authorities")
-    public ResponseEntity<Map<String, Object>> getAuthorities(@Nullable Authentication authentication) {
-        log.info("GET /bff/debug/authorities called");
-
-        Map<String, Object> debug = new java.util.HashMap<>();
-
-        if (authentication != null) {
-            debug.put("authenticated", authentication.isAuthenticated());
-            debug.put("principal", authentication.getPrincipal() != null ?
-                                   authentication.getPrincipal().getClass().getName() : "-");
-            debug.put("name", authentication.getName());
-            debug.put("authorities", authentication.getAuthorities().stream()
-                    .map(org.springframework.security.core.GrantedAuthority::getAuthority)
-                    .collect(java.util.stream.Collectors.toList()));
-        } else {
-            debug.put("authentication", "null");
-        }
-
-        return ResponseEntity.ok(debug);
     }
 }

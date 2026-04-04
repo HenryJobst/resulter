@@ -93,9 +93,10 @@ class BffAuthService {
             const csrfToken = this.getCookieValue('XSRF-TOKEN')
 
             // Browser navigation via form submit keeps redirect chain to Keycloak logout.
+            // Use apiBaseUrl (proxy in dev, direct API URL in prod) so CSRF cookie origin matches.
             const form = document.createElement('form')
             form.method = 'POST'
-            form.action = `${this.backendUrl}/bff/logout`
+            form.action = `${this.apiBaseUrl}/bff/logout`
             form.style.display = 'none'
 
             if (csrfToken) {

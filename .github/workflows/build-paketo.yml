@@ -179,7 +179,6 @@ jobs:
             --env BP_MAVEN_BUILD_ARGUMENTS="-Dmaven.test.skip=true clean install" \
             --env BP_MAVEN_SETTINGS_PATH=settings.xml \
             --path . \
-            --cache-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}-cache \
             --verbose
 
       - name: Verify SBOM metadata exists (backend)
@@ -295,7 +294,6 @@ jobs:
             --env BP_WEB_SERVER_ROOT=dist \
             --env BP_NGINX_CONF_FILE=default.conf \
             --path . \
-            --cache-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}-cache \
             --verbose
 
       - name: Verify SBOM metadata exists (frontend)

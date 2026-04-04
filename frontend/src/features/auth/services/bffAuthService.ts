@@ -88,24 +88,13 @@ class BffAuthService {
             // Store redirect path for post-logout
             sessionStorage.setItem('bff_post_logout_redirect', redirectPath)
 
-            // Ensure CSRF token is present before POST logout
-            await this.getCsrfToken()
-            const csrfToken = this.getCookieValue('XSRF-TOKEN')
-
-            // Browser navigation via form submit keeps redirect chain to Keycloak logout.
-            // Use apiBaseUrl (proxy in dev, direct API URL in prod) so CSRF cookie origin matches.
+            // Browser navigation via form submit keeps the redirect chain to Keycloak logout.
+            // /bff/logout is exempt from CSRF on the backend (logout-CSRF risk is low;
+            // the HttpOnly session cookie is the primary protection).
             const form = document.createElement('form')
             form.method = 'POST'
             form.action = `${this.apiBaseUrl}/bff/logout`
             form.style.display = 'none'
-
-            if (csrfToken) {
-                const csrfInput = document.createElement('input')
-                csrfInput.type = 'hidden'
-                csrfInput.name = '_csrf'
-                csrfInput.value = csrfToken
-                form.appendChild(csrfInput)
-            }
 
             document.body.appendChild(form)
             console.log('[BFF Auth Service] Submitting POST /bff/logout')

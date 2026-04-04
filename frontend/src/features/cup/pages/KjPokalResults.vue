@@ -274,6 +274,7 @@ function navigateToPersonResult(
                         <router-link
                             :to="{ name: 'event-results', params: { id: race.event.id, locale: $route.params.locale } }"
                             target="_blank"
+                            rel="noopener noreferrer"
                             class="text-sm text-adaptive-secondary hover:text-primary hover:underline"
                         >
                             {{ race.event.name }}

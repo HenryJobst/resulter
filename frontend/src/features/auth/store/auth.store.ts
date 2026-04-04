@@ -35,7 +35,6 @@ export const useAuthStore = defineStore(
          * @param userInfo BFF user info response
          */
         function setBffUser(userInfo: BffUserInfo) {
-            console.log('[Auth Store] setBffUser called with:', userInfo)
             authenticated.value = true
             user.value = {
                 username: userInfo.username,
@@ -45,7 +44,6 @@ export const useAuthStore = defineStore(
                 groups: userInfo.groups,
                 permissions: userInfo.permissions,
             }
-            console.log('[Auth Store] After setBffUser - authenticated:', authenticated.value, 'isAdmin:', isAdmin.value)
         }
 
         /**
@@ -71,20 +69,15 @@ export const useAuthStore = defineStore(
          * Calls /bff/user to retrieve user information and /bff/csrf to get CSRF token
          */
         async function initAuth(): Promise<boolean> {
-            console.log('[Auth Store] initAuth called')
             const userInfo = await bffAuthService.initAuth()
-            console.log('[Auth Store] User info received from BFF:', userInfo)
             if (userInfo) {
                 setBffUser(userInfo)
                 // Get CSRF token for authenticated users
-                console.log('[Auth Store] Fetching CSRF token...')
                 await bffAuthService.getCsrfToken()
-                console.log('[Auth Store] CSRF token fetched')
                 authInitialized.value = true
                 return true
             }
             else {
-                console.log('[Auth Store] No user info, clearing data')
                 clearUserData()
             }
             authInitialized.value = true
@@ -137,7 +130,7 @@ export const useAuthStore = defineStore(
     {
         persist: {
             storage: sessionStorage,
-            paths: ['authenticated', 'user'],
+            paths: ['authenticated'],
         },
     },
 )

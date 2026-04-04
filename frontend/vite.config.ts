@@ -8,14 +8,14 @@ import VueDevTools from 'vite-plugin-vue-devtools'
 import packageInfo from './package.json'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     plugins: [
         vue(),
         VueI18nPlugin({
             // locale messages resource pre-compile option
             include: resolve(dirname(fileURLToPath(import.meta.url)), './src/locales/**'),
         }),
-        VueDevTools(),
+        ...(mode !== 'production' ? [VueDevTools()] : []),
     ],
     build: {
         outDir: 'dist',
@@ -81,4 +81,4 @@ export default defineConfig({
         // Setzen der Versionsnummer als globale Konstante
         __APP_VERSION__: JSON.stringify(packageInfo.version),
     },
-})
+}))

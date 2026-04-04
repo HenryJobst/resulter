@@ -27,17 +27,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class MediaFileServiceImpl implements MediaFileService {
+
+    private static final Set<String> ALLOWED_MEDIA_TYPES = Set.of(
+            "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml", "application/pdf");
 
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
@@ -56,6 +54,17 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     @Override
     public MediaFile storeMediaFile(MultipartFile file) {
+        // Validate MIME type via magic-byte detection (do not trust client-supplied Content-Type)
+        String detectedType;
+        try {
+            detectedType = new Tika().detect(file.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (!ALLOWED_MEDIA_TYPES.contains(detectedType)) {
+            throw new IllegalArgumentException("Unsupported media type: " + detectedType);
+        }
+
         FilePathAndName filePathAndName;
         try {
             filePathAndName = getFilePathAndName(file, mediaFilePath);

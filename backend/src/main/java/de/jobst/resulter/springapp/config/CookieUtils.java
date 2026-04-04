@@ -31,7 +31,7 @@ public class CookieUtils {
     @Value("${server.servlet.session.cookie.domain:}")
     private @Nullable String cookieDomain;
 
-    @Value("${server.servlet.session.cookie.secure:false}")
+    @Value("${server.servlet.session.cookie.secure:true}")
     private boolean cookieSecure;
 
     // CSRF cookie name (Spring Security default)

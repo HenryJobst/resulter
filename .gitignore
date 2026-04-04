@@ -51,6 +51,4 @@ backend/src/main/.DS_Store
 .claude/
 frontend/.playwright-cli/
 frontend/output/
-/backup/recovery/resulter_current_2026-02-24.dump
-/backup/recovery/resulter_eba752_2026-02-24.dump
-/backup/recovery/resulter_legacy_volume_2026-02-24.dump
+/backup/recovery/*

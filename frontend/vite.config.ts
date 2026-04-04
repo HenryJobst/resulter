@@ -1,4 +1,5 @@
 import { dirname, resolve } from 'node:path'
+import process from 'node:process'
 
 import { fileURLToPath, URL } from 'node:url'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
@@ -8,14 +9,14 @@ import VueDevTools from 'vite-plugin-vue-devtools'
 import packageInfo from './package.json'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
     plugins: [
         vue(),
         VueI18nPlugin({
             // locale messages resource pre-compile option
             include: resolve(dirname(fileURLToPath(import.meta.url)), './src/locales/**'),
         }),
-        ...(mode !== 'production' ? [VueDevTools()] : []),
+        ...(process.env.NODE_ENV !== 'production' ? [VueDevTools()] : []),
     ],
     build: {
         outDir: 'dist',
@@ -81,4 +82,4 @@ export default defineConfig(({ mode }) => ({
         // Setzen der Versionsnummer als globale Konstante
         __APP_VERSION__: JSON.stringify(packageInfo.version),
     },
-}))
+})

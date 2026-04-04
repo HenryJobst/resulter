@@ -14,27 +14,4 @@ public record CupDetailedDto(
         List<OrganisationScoreDto> overallOrganisationScores,
         List<AggregatedPersonScoresDto> aggregatedPersonScores,
         Map<Long, PersonDto> persons,
-        CupStatisticsDto cupStatistics) {
-
-    public static CupDetailedDto from(
-            long cupId,
-            String name,
-            CupTypeDto cupType,
-            List<EventKeyDto> eventKeyDtos,
-            List<EventRacesCupScoreDto> eventRacesCupScoreDtos,
-            List<OrganisationScoreDto> overallOrganisationScoreDtos,
-            List<AggregatedPersonScoresDto> aggregatedPersonScoreDtos,
-            Map<Long, PersonDto> persons,
-            CupStatisticsDto cupStatistics) {
-        return new CupDetailedDto(
-                cupId,
-                name,
-                cupType,
-                eventKeyDtos,
-                eventRacesCupScoreDtos,
-                overallOrganisationScoreDtos,
-                aggregatedPersonScoreDtos,
-                persons,
-                cupStatistics);
-    }
-}
+        CupStatisticsDto cupStatistics) {}

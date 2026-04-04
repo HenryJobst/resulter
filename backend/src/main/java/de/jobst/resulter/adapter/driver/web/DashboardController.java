@@ -2,11 +2,6 @@ package de.jobst.resulter.adapter.driver.web;
 
 import de.jobst.resulter.application.port.DashboardStatisticsDto;
 import de.jobst.resulter.application.port.DashboardService;
-import de.jobst.resulter.springapp.config.ApiResponse;
-import de.jobst.resulter.springapp.config.LocalizableString;
-import de.jobst.resulter.springapp.config.MessageKeys;
-import de.jobst.resulter.springapp.config.ResponseUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +30,10 @@ public class DashboardController {
      * Get system-wide statistics for dashboard display.
      * Public endpoint - no authentication required.
      *
-     * @param request HTTP servlet request
      * @return ResponseEntity containing DashboardStatisticsDto
      */
     @GetMapping("/statistics")
-    public ResponseEntity<ApiResponse<DashboardStatisticsDto>> getStatistics(
-            HttpServletRequest request) {
+    public ResponseEntity<DashboardStatisticsDto> getStatistics() {
         log.debug("GET /dashboard/statistics - Fetching dashboard statistics");
 
         DashboardStatisticsDto statistics = dashboardService.getStatistics();
@@ -49,11 +42,8 @@ public class DashboardController {
         CacheControl cacheControl = CacheControl.maxAge(5, TimeUnit.MINUTES)
             .cachePublic();
 
-        return ResponseUtil.success(
-            statistics,
-            LocalizableString.of(MessageKeys.SUCCESSFULLY_RETRIEVED),
-            request.getRequestURI(),
-            cacheControl
-        );
+        return ResponseEntity.ok()
+            .cacheControl(cacheControl)
+            .body(statistics);
     }
 }

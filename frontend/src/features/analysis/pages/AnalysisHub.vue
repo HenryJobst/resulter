@@ -8,12 +8,13 @@ import Card from 'primevue/card'
 import Select from 'primevue/select'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import { eventService, EventService } from '@/features/event/services/event.service'
 
 const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 // State
@@ -157,6 +158,7 @@ function startAnalysis() {
     if (selectedAnalysisType.value === 'mental-resilience') {
         router.push({
             name: 'mental-resilience-analysis',
+            params: { locale: route.params.locale as string },
             query: {
                 scope: selectedScope.value,
                 resultListId: selectedResultList.value.id.toString(),
@@ -170,6 +172,7 @@ function startAnalysis() {
         router.push({
             name: 'split-time-analysis',
             params: {
+                locale: route.params.locale as string,
                 id: selectedEvent.value.id.toString(),
                 resultListId: selectedResultList.value.id.toString(),
             },
@@ -183,6 +186,7 @@ function startAnalysis() {
         // Navigate to split time table analysis page
         router.push({
             name: 'split-time-table-analysis',
+            params: { locale: route.params.locale as string },
             query: {
                 resultListId: selectedResultList.value.id.toString(),
                 eventName: selectedEvent.value.name,
@@ -193,6 +197,7 @@ function startAnalysis() {
     else if (selectedAnalysisType.value === 'cheat-detection') {
         router.push({
             name: 'cheat-detection-analysis',
+            params: { locale: route.params.locale as string },
             query: {
                 scope: selectedScope.value,
                 resultListId: selectedResultList.value.id.toString(),
@@ -204,6 +209,7 @@ function startAnalysis() {
     else if (selectedAnalysisType.value === 'hanging-detection') {
         router.push({
             name: 'hanging-detection-analysis',
+            params: { locale: route.params.locale as string },
             query: {
                 scope: selectedScope.value,
                 resultListId: selectedResultList.value.id.toString(),

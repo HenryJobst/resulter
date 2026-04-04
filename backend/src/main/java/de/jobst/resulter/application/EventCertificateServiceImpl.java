@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class EventCertificateServiceImpl implements EventCertificateService {
@@ -46,6 +48,11 @@ public class EventCertificateServiceImpl implements EventCertificateService {
         return eventCertificateRepository.findAll();
     }
 
+    @Override
+    public Map<EventCertificateId, EventCertificate> findAllByIdAsMap(Set<EventCertificateId> eventCertificateIds) {
+        return eventCertificateRepository.findAllByIdAsMap(eventCertificateIds);
+    }
+
     @NonNull
     @Override
     public EventCertificate updateEventCertificate(
@@ -74,7 +81,7 @@ public class EventCertificateServiceImpl implements EventCertificateService {
                     eventCertificateRepository
                             .findAllByEvent(optionalEvent.get().getId())
                             .stream()
-                            .filter(x -> x.getId() == eventCertificate.getId())
+                            .filter(x -> !x.getId().equals(eventCertificate.getId()))
                             .toList();
             eventCertificates.forEach(x -> x.setPrimary(false));
             eventCertificateRepository.saveAll(eventCertificates);

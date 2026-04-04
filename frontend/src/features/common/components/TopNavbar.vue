@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import Select from 'primevue/select'
-import { computed } from 'vue'
+import { useConfirm } from 'primevue/useconfirm'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store/auth.store'
@@ -21,6 +22,10 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const confirm = useConfirm()
+const mobileNavOpen = ref(false)
+const mobileMenuRef = ref<HTMLElement | null>(null)
+const mobileMenuButtonRef = ref<{ $el?: HTMLElement } | null>(null)
 
 const localLocale = computed({
     get: () => props.currentLocale,
@@ -30,6 +35,9 @@ const localLocale = computed({
 })
 
 function navigateTo(routeName: string) {
+    if (mobileNavOpen.value) {
+        closeMobileNav()
+    }
     router.push({ name: routeName, params: { locale: props.currentLocale } })
 }
 
@@ -48,10 +56,98 @@ function isAnalysisActive() {
     ]
     return analysisRoutes.includes(route.name as string)
 }
+
+function getMobileMenuFocusableElements() {
+    if (!mobileMenuRef.value) {
+        return []
+    }
+
+    const focusables = mobileMenuRef.value.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    return Array.from(focusables).filter(el => !el.hasAttribute('disabled') && el.tabIndex !== -1)
+}
+
+function focusMobileMenuToggleButton() {
+    const buttonElement = mobileMenuButtonRef.value?.$el?.querySelector('button') ?? mobileMenuButtonRef.value?.$el
+    if (buttonElement instanceof HTMLElement) {
+        buttonElement.focus()
+    }
+}
+
+function closeMobileNav() {
+    mobileNavOpen.value = false
+    nextTick(() => {
+        focusMobileMenuToggleButton()
+    })
+}
+
+function toggleMobileNav() {
+    mobileNavOpen.value = !mobileNavOpen.value
+}
+
+function onMobileNavKeydown(event: KeyboardEvent) {
+    if (!mobileNavOpen.value) {
+        return
+    }
+
+    if (event.key === 'Escape') {
+        event.preventDefault()
+        closeMobileNav()
+        return
+    }
+
+    if (event.key !== 'Tab') {
+        return
+    }
+
+    const focusables = getMobileMenuFocusableElements()
+    if (focusables.length === 0) {
+        return
+    }
+
+    const first = focusables[0]
+    const last = focusables[focusables.length - 1]
+    const active = document.activeElement as HTMLElement | null
+
+    if (event.shiftKey && active === first) {
+        event.preventDefault()
+        last.focus()
+    }
+    else if (!event.shiftKey && active === last) {
+        event.preventDefault()
+        first.focus()
+    }
+}
+
+function confirmLogout() {
+    confirm.require({
+        message: t('messages.logout_confirm_message'),
+        header: t('messages.logout_confirm_header'),
+        icon: 'pi pi-sign-out',
+        acceptLabel: t('navigations.logout'),
+        rejectLabel: t('labels.cancel'),
+        acceptSeverity: 'secondary',
+        accept: () => {
+            authStore.logout()
+        },
+    })
+}
+
+watch(mobileNavOpen, (isOpen) => {
+    if (!isOpen) {
+        return
+    }
+
+    nextTick(() => {
+        const focusables = getMobileMenuFocusableElements()
+        focusables[0]?.focus()
+    })
+})
 </script>
 
 <template>
-    <header class="top-navbar sticky top-0 z-50 bg-adaptive border-b border-adaptive shadow-sm">
+    <header class="top-navbar sticky top-0 z-50 border-b border-adaptive shadow-sm">
         <div class="flex items-center justify-between h-16 px-4">
             <!-- Left: Sidebar Toggle + Logo + Navigation -->
             <div class="flex items-center gap-2">
@@ -64,9 +160,13 @@ function isAnalysisActive() {
                     rounded
                     @click="emit('toggleSidebar')"
                 />
-                <router-link :to="{ name: 'start-page', params: { locale: currentLocale } }" class="flex items-center">
+                <router-link
+                    :to="{ name: 'start-page', params: { locale: currentLocale } }"
+                    :aria-label="t('labels.go_to_homepage')"
+                    class="flex items-center"
+                >
                     <img
-                        :alt="t('labels.logo')"
+                        :alt="t('labels.go_to_homepage')"
                         src="@/assets/Logo_Resulter_60px.webp"
                         width="48"
                         height="47"
@@ -76,8 +176,21 @@ function isAnalysisActive() {
                     >
                 </router-link>
 
+                <Button
+                    ref="mobileMenuButtonRef"
+                    icon="pi pi-list"
+                    class="lg:hidden"
+                    severity="secondary"
+                    text
+                    rounded
+                    :aria-label="t('labels.open_navigation_menu')"
+                    :aria-expanded="mobileNavOpen"
+                    aria-controls="mobile-main-nav"
+                    @click="toggleMobileNav"
+                />
+
                 <!-- Main Navigation direkt nach Logo -->
-                <nav class="hidden md:flex items-center gap-2 ml-4">
+                <nav :aria-label="t('labels.main_navigation')" class="desktop-nav hidden lg:flex items-center gap-2 ml-4">
                     <Button
                         :label="t('navigations.start')"
                         icon="pi pi-home"
@@ -139,7 +252,7 @@ function isAnalysisActive() {
                     severity="secondary"
                     text
                     rounded
-                    @click="authStore.logout()"
+                    @click="confirmLogout"
                 />
                 <Select
                     v-model="localLocale"
@@ -162,18 +275,65 @@ function isAnalysisActive() {
                 </Select>
             </div>
         </div>
+
+        <nav
+            v-if="mobileNavOpen"
+            id="mobile-main-nav"
+            ref="mobileMenuRef"
+            :aria-label="t('labels.mobile_navigation')"
+            class="lg:hidden border-t border-adaptive bg-adaptive-secondary px-4 py-3"
+            @keydown="onMobileNavKeydown"
+        >
+            <div class="flex flex-col gap-2">
+                <Button
+                    :label="t('navigations.start')"
+                    icon="pi pi-home"
+                    :severity="isActive('start-page') ? 'primary' : 'secondary'"
+                    :text="!isActive('start-page')"
+                    class="w-full justify-start"
+                    @click="navigateTo('start-page')"
+                />
+                <Button
+                    :label="t('navigations.cups')"
+                    icon="pi pi-trophy"
+                    :severity="isActive('cup-list') ? 'primary' : 'secondary'"
+                    :text="!isActive('cup-list')"
+                    class="w-full justify-start"
+                    @click="navigateTo('cup-list')"
+                />
+                <Button
+                    :label="t('navigations.events')"
+                    icon="pi pi-calendar"
+                    :severity="isActive('event-list') ? 'primary' : 'secondary'"
+                    :text="!isActive('event-list')"
+                    class="w-full justify-start"
+                    @click="navigateTo('event-list')"
+                />
+                <Button
+                    :label="t('navigations.analysis')"
+                    icon="pi pi-chart-line"
+                    :severity="isAnalysisActive() ? 'primary' : 'secondary'"
+                    :text="!isAnalysisActive()"
+                    class="w-full justify-start"
+                    @click="navigateTo('analysis-hub')"
+                />
+                <Button
+                    :label="t('navigations.about')"
+                    icon="pi pi-info-circle"
+                    :severity="isActive('about-page') ? 'primary' : 'secondary'"
+                    :text="!isActive('about-page')"
+                    class="w-full justify-start"
+                    @click="navigateTo('about-page')"
+                />
+            </div>
+        </nav>
     </header>
 </template>
 
 <style scoped>
 .top-navbar {
+    background-color: rgb(var(--bg-primary) / 0.88);
     backdrop-filter: blur(8px);
-}
-
-/* Responsive: Show hamburger menu on mobile */
-@media (max-width: 768px) {
-    nav {
-        display: none;
-    }
+    -webkit-backdrop-filter: blur(8px);
 }
 </style>

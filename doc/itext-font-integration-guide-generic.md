@@ -175,13 +175,6 @@ Optional:
 - update docs for template authors/editors,
 - monitor and log font-loading errors.
 
-### Mapping to Resulter (current state)
-
-- font files: `backend/src/main/resources/fonts`
-- schema whitelist: `backend/src/main/resources/schema/certificate_schema.json`
-- iText loading/rendering: `backend/src/main/java/de/jobst/resulter/application/certificate/CertificateServiceImpl.java`
-- Montserrat integration was added in commit `17472fce`.
-
 ### Common failure modes
 
 - `Font file not found`: layout filename does not exactly match the resource file.
@@ -359,13 +352,6 @@ Optional:
 - Fonts sind im Build-Artefakt enthalten,
 - Doku fuer Template-Autoren aktualisiert,
 - Logging/Monitoring fuer Font-Fehler aktiv.
-
-### Mapping auf Resulter (Ist-Stand)
-
-- Font-Dateien: `backend/src/main/resources/fonts`
-- Schema-Whitelist: `backend/src/main/resources/schema/certificate_schema.json`
-- iText-Rendering: `backend/src/main/java/de/jobst/resulter/application/certificate/CertificateServiceImpl.java`
-- Montserrat wurde mit Commit `17472fce` integriert.
 
 ### Typische Fehlerbilder
 

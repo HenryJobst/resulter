@@ -6,12 +6,15 @@ import de.jobst.resulter.domain.Country;
 import de.jobst.resulter.domain.CountryCode;
 import de.jobst.resulter.domain.CountryId;
 import de.jobst.resulter.domain.CountryName;
+import de.jobst.resulter.domain.Organisation;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
-import org.springframework.stereotype.Service;
-
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CountryServiceImpl implements CountryService {
@@ -45,6 +48,20 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public Optional<Country> findById(CountryId id) {
         return countryRepository.findById(id);
+    }
+
+    @Override
+    public Map<CountryId, Country> findAllById(Set<CountryId> ids) {
+        return countryRepository.findAllById(ids);
+    }
+
+    @Override
+    public Map<CountryId, Country> batchLoadForOrganisations(List<Organisation> organisations) {
+        Set<CountryId> countryIds = organisations.stream()
+                .map(Organisation::getCountry)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toSet());
+        return countryRepository.findAllById(countryIds);
     }
 
     @Override

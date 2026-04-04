@@ -23,7 +23,7 @@ const columns: GenericListColumn[] = [
     { label: 'labels.date', field: 'startTime', type: 'date', sortable: true, style: 'width: 14rem; max-width: 14rem;' },
     { label: 'labels.time', field: 'startTime', type: 'time', sortable: true, style: 'width: 6rem; max-width: 6rem;' },
     { label: 'labels.organisation', field: 'organisations', type: 'list', sortable: false, style: 'min-width: 15rem;' },
-    { label: 'labels.split_times', field: 'hasSplitTimes', type: 'custom', sortable: true, style: 'width: 8rem; max-width: 8rem;' },
+    { label: 'labels.split_times', field: 'hasSplitTimes', type: 'custom', sortable: false, style: 'width: 8rem; max-width: 8rem;' },
 ]
 
 const organisationQuery = useQuery({
@@ -82,7 +82,7 @@ const initialTableSettings: TableSettings = {
             <router-link
                 v-if="authStore.isAuthenticated"
                 class="ml-2"
-                :to="{ name: 'event-import' }"
+                :to="{ name: 'event-import', params: { locale: $route.params.locale } }"
             >
                 <Button
                     v-tooltip="t('labels.import')"
@@ -95,7 +95,7 @@ const initialTableSettings: TableSettings = {
             </router-link>
         </template>
         <template #extra_row_actions="{ value }">
-            <router-link :to="{ name: 'event-results', params: { id: value.id } }">
+            <router-link :to="{ name: 'event-results', params: { id: value.id, locale: $route.params.locale } }">
                 <Button
                     v-tooltip="t('labels.results')"
                     icon="pi pi-list"

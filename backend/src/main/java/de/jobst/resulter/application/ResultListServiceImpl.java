@@ -1,6 +1,5 @@
 package de.jobst.resulter.application;
 
-import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.springapp.config.SpringSecurityAuditorAware;
@@ -34,6 +33,7 @@ public class ResultListServiceImpl implements ResultListService {
     private final SpringSecurityAuditorAware springSecurityAuditorAware;
     private final EventCertificateService eventCertificateService;
     private final MediaFileService mediaFileService;
+    private final SplitTimeListRepository splitTimeListRepository;
 
     public ResultListServiceImpl(
             ResultListRepository resultListRepository,
@@ -44,7 +44,8 @@ public class ResultListServiceImpl implements ResultListService {
             CertificateService certificateService, EventCertificateStatRepository eventCertificateStatRepository,
             CupScoreListRepository cupScoreListRepository,
             SpringSecurityAuditorAware springSecurityAuditorAware, EventCertificateService eventCertificateService,
-            MediaFileService mediaFileService) {
+            MediaFileService mediaFileService,
+            SplitTimeListRepository splitTimeListRepository) {
         this.resultListRepository = resultListRepository;
         this.cupRepository = cupRepository;
         this.eventRepository = eventRepository;
@@ -56,6 +57,7 @@ public class ResultListServiceImpl implements ResultListService {
         this.springSecurityAuditorAware = springSecurityAuditorAware;
         this.eventCertificateService = eventCertificateService;
         this.mediaFileService = mediaFileService;
+        this.splitTimeListRepository = splitTimeListRepository;
     }
 
     @Override
@@ -81,6 +83,24 @@ public class ResultListServiceImpl implements ResultListService {
     @Override
     public Collection<ResultList> findByEventId(EventId id) {
         return resultListRepository.findByEventId(id);
+    }
+
+    @Override
+    public Map<EventId, List<ResultList>> findAllByEventIds(Collection<EventId> eventIds) {
+        if (eventIds == null || eventIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return resultListRepository.findAllByEventIds(eventIds).stream()
+                .collect(Collectors.groupingBy(ResultList::getEventId));
+    }
+
+    @Override
+    public Set<ResultListId> findResultListIdsWithSplitTimes(Collection<ResultListId> resultListIds) {
+        if (resultListIds == null || resultListIds.isEmpty()) {
+            return Set.of();
+        }
+        return splitTimeListRepository.existsByResultListIds(resultListIds);
     }
 
     @Transactional
@@ -131,7 +151,7 @@ public class ResultListServiceImpl implements ResultListService {
 
     @Transactional
     @Override
-    public CertificateServiceImpl.@Nullable Certificate createCertificate(
+    public CertificateService.@Nullable Certificate createCertificate(
         ResultListId resultListId, ClassResultShortName classResultShortName, PersonId personId) {
         ResultList resultList = resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(
                 resultListId, classResultShortName, personId);
@@ -170,7 +190,7 @@ public class ResultListServiceImpl implements ResultListService {
             return null;
         }
 
-        CertificateServiceImpl.Certificate certificate = certificateService.createCertificate(
+        CertificateService.Certificate certificate = certificateService.createCertificate(
                 person,
                 organisation.orElse(null),
                 event,
@@ -187,7 +207,7 @@ public class ResultListServiceImpl implements ResultListService {
     }
 
     @Override
-    public CertificateServiceImpl.Certificate createCertificate(Event event, EventCertificate eventCertificate) {
+    public CertificateService.Certificate createCertificate(Event event, EventCertificate eventCertificate) {
 
         return certificateService.createCertificate(event, eventCertificate, mediaFileService);
     }
@@ -210,5 +230,11 @@ public class ResultListServiceImpl implements ResultListService {
     @Override
     public List<CupScoreList> getCupScoreLists(ResultListId resultListId, CupId cupId) {
         return cupScoreListRepository.findAllByResultListIdAndCupId(resultListId, cupId);
+    }
+
+    @Override
+    public Map<ResultListId, List<CupScoreList>> getCupScoreListsByResultListIds(
+            Collection<ResultListId> resultListIds, CupId cupId) {
+        return cupScoreListRepository.findAllByResultListIdsAndCupId(resultListIds, cupId);
     }
 }

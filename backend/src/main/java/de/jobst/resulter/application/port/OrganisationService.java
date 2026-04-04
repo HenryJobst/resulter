@@ -1,16 +1,16 @@
 package de.jobst.resulter.application.port;
 
 import de.jobst.resulter.domain.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @PrimaryPort
 public interface OrganisationService {
@@ -49,4 +49,8 @@ public interface OrganisationService {
     Page<Organisation> findAll(@Nullable String filter, @NonNull Pageable pageable);
 
     List<Organisation> findAllById(Set<OrganisationId> organisationIds);
+
+    Map<OrganisationId, Organisation> findAllByIdAsMap(Set<OrganisationId> organisationIds);
+
+    Map<OrganisationId, Organisation> batchLoadChildOrganisations(List<Organisation> organisations);
 }

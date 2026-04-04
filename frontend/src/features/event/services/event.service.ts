@@ -216,6 +216,7 @@ export class EventService extends GenericService<SportEvent> {
         filterPersonIds: number[] = [],
         filterIntersection: boolean = false,
         _t: (key: string) => string,
+        options?: { includeSequences?: boolean, sequenceMinControls?: number },
     ): Promise<SplitTimeAnalysis[]> {
         const params = new URLSearchParams()
         if (mergeBidirectional) {
@@ -225,6 +226,13 @@ export class EventService extends GenericService<SportEvent> {
             params.append('filterIntersection', 'true')
         }
         filterPersonIds.forEach(id => params.append('filterPersonIds', id.toString()))
+
+        if (options?.includeSequences) {
+            params.append('includeSequences', 'true')
+        }
+        if (options?.sequenceMinControls != null) {
+            params.append('sequenceMinControls', options.sequenceMinControls.toString())
+        }
 
         const queryString = params.toString()
         const url = `${splitTimeAnalysisUrl}/result_list/${resultListId}/ranking${queryString ? `?${queryString}` : ''}`

@@ -8,12 +8,13 @@ import { createPinia } from 'pinia'
 // noinspection SpellCheckingInspection
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
 import Tooltip from 'primevue/tooltip'
 import { createApp, unref } from 'vue'
 import AuthStorePlugin from '@/features/auth/plugins/authStorePlugin'
 import { getErrorStore } from '@/features/common/stores/getErrorStore'
-import { setupI18n } from '@/i18n'
+import { setupI18n, SUPPORT_LOCALES } from '@/i18n'
 import { primevueLocaleMessages } from '@/PrimevueMessages'
 
 import App from './App.vue'
@@ -69,17 +70,17 @@ const MyPreset = definePreset(Lara, {
             light: {
                 surface: {
                     0: '#ffffff',
-                    50: '{orange.50}',
-                    100: '{orange.100}',
-                    200: '{orange.200}',
-                    300: '{orange.300}',
-                    400: '{orange.400}',
-                    500: '{orange.500}',
-                    600: '{orange.600}',
-                    700: '{orange.700}',
-                    800: '{orange.800}',
-                    900: '{orange.900}',
-                    950: '{orange.950}',
+                    50: '{slate.50}',
+                    100: '{slate.100}',
+                    200: '{slate.200}',
+                    300: '{slate.300}',
+                    400: '{slate.400}',
+                    500: '{slate.500}',
+                    600: '{slate.600}',
+                    700: '{slate.700}',
+                    800: '{slate.800}',
+                    900: '{slate.900}',
+                    950: '{slate.950}',
                 },
             },
             dark: {
@@ -128,7 +129,10 @@ export function renderApp() {
         const errorStore = getErrorStore()
         errorStore.addError(err)
         if (router.currentRoute.value.name !== 'start-page') {
-            router.push({ name: 'start-page' }).catch(() => {
+            const routeLocale = router.currentRoute.value.params.locale
+            const activeLocale = typeof routeLocale === 'string' ? routeLocale : unref(i18n.global.locale)
+            const fallbackLocale = SUPPORT_LOCALES.includes(activeLocale) ? activeLocale : 'en'
+            router.push({ name: 'start-page', params: { locale: fallbackLocale } }).catch(() => {
                 /* ignore to prevent error loop */
             })
         }
@@ -154,6 +158,7 @@ export function renderApp() {
     }
     app.use(AuthStorePlugin, { pinia, router })
     app.use(VueQueryPlugin, { queryClient })
+    app.use(ConfirmationService)
     app.use(ToastService)
     app.use(pinia)
     app.use(i18n)

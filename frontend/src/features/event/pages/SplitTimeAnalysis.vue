@@ -31,7 +31,9 @@ const filterPersonIds = ref<number[]>([])
 const filterIntersection = ref(false)
 const filterClass = ref<string | null>(null)
 const visibleSegmentCount = ref(50) // Show first 50 segments initially
+const visibleSequenceCount = ref(30) // Show first 30 sequence segments initially
 const SEGMENT_INCREMENT = 50
+const SEQUENCE_INCREMENT = 30
 
 const personsQuery = useQuery({
     queryKey: ['personsForResultList', props.resultListId],
@@ -51,14 +53,24 @@ const personsWithFullName = computed(() => {
     }))
 })
 
+const sequenceMinControls = ref(3)
+
 const splitTimeQueryRanking = useQuery({
-    queryKey: ['splitTimeAnalysisRanking', props.resultListId, mergeBidirectional, filterPersonIds, filterIntersection],
+    queryKey: [
+        'splitTimeAnalysisRanking',
+        props.resultListId,
+        mergeBidirectional,
+        filterPersonIds,
+        filterIntersection,
+        sequenceMinControls,
+    ],
     queryFn: () => EventService.getSplitTimeAnalysisRanking(
         Number.parseInt(props.resultListId),
         mergeBidirectional.value,
         filterPersonIds.value,
         filterIntersection.value,
         t,
+        { includeSequences: true, sequenceMinControls: sequenceMinControls.value },
     ),
 })
 
@@ -134,6 +146,13 @@ function formatSeconds(seconds: number): string {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
+function getSequenceLegTime(legSplitTimes: string[], index: number): string {
+    if (!legSplitTimes || index < 0 || index >= legSplitTimes.length) {
+        return ''
+    }
+    return legSplitTimes[index] ?? ''
+}
+
 // Extract all unique classes from segments
 const availableClasses = computed(() => {
     if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
@@ -141,6 +160,9 @@ const availableClasses = computed(() => {
 
     const classSet = new Set<string>()
     splitTimeQueryRanking.data.value[0].controlSegments.forEach((segment) => {
+        segment.classes.forEach(cls => classSet.add(cls))
+    })
+    splitTimeQueryRanking.data.value[0].sequenceSegments.forEach((segment) => {
         segment.classes.forEach(cls => classSet.add(cls))
     })
 
@@ -183,6 +205,56 @@ function loadMoreSegments() {
     visibleSegmentCount.value += SEGMENT_INCREMENT
 }
 
+const visibleSequenceSegments = computed(() => {
+    if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
+        return []
+
+    let sequenceSegments = splitTimeQueryRanking.data.value[0].sequenceSegments
+    if (filterClass.value) {
+        sequenceSegments = sequenceSegments.filter(segment =>
+            segment.classes.includes(filterClass.value!),
+        )
+    }
+
+    return sequenceSegments.slice(0, visibleSequenceCount.value)
+})
+
+const hasMoreSequenceSegments = computed(() => {
+    if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
+        return false
+
+    let sequenceSegments = splitTimeQueryRanking.data.value[0].sequenceSegments
+    if (filterClass.value) {
+        sequenceSegments = sequenceSegments.filter(segment =>
+            segment.classes.includes(filterClass.value!),
+        )
+    }
+
+    return sequenceSegments.length > visibleSequenceCount.value
+})
+
+function loadMoreSequences() {
+    visibleSequenceCount.value += SEQUENCE_INCREMENT
+}
+
+const filteredSegmentCount = computed(() => {
+    if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
+        return 0
+    let segments = splitTimeQueryRanking.data.value[0].controlSegments
+    if (filterClass.value)
+        segments = segments.filter(segment => segment.classes.includes(filterClass.value!))
+    return segments.length
+})
+
+const filteredSequenceSegmentCount = computed(() => {
+    if (!splitTimeQueryRanking.data.value || splitTimeQueryRanking.data.value.length === 0)
+        return 0
+    let segments = splitTimeQueryRanking.data.value[0].sequenceSegments
+    if (filterClass.value)
+        segments = segments.filter(segment => segment.classes.includes(filterClass.value!))
+    return segments.length
+})
+
 function removePersonFilter(personId: number) {
     filterPersonIds.value = filterPersonIds.value.filter(id => id !== personId)
 }
@@ -192,8 +264,9 @@ function navigateBack() {
 }
 
 // Reset visible count when data changes
-watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], () => {
+watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass, sequenceMinControls], () => {
     visibleSegmentCount.value = SEGMENT_INCREMENT
+    visibleSequenceCount.value = SEQUENCE_INCREMENT
 })
 </script>
 
@@ -378,7 +451,7 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], ()
                     </Accordion>
                     <div v-if="hasMoreSegments" class="mt-4 text-center">
                         <Button
-                            :label="`${t('labels.load_more')} (${analysis.controlSegments.length - visibleSegmentCount} ${t('labels.remaining')})`"
+                            :label="`${t('labels.load_more')} (${filteredSegmentCount - visibleSegmentCount} ${t('labels.remaining')})`"
                             icon="pi pi-angle-down"
                             severity="secondary"
                             outlined
@@ -387,6 +460,77 @@ watch([mergeBidirectional, filterPersonIds, filterIntersection, filterClass], ()
                     </div>
                     <div v-else-if="visibleSegments.length === 0" class="p-4">
                         {{ t('messages.no_split_times') }}
+                    </div>
+
+                    <div v-if="analysis.sequenceSegments.length > 0" class="mt-6">
+                        <h3 class="font-bold text-lg mb-2">
+                            {{ t('labels.sequence_segments') }}
+                            <span class="text-sm text-color-secondary ml-2">
+                                ({{ visibleSequenceSegments.length }} / {{ analysis.sequenceSegments.length }} {{ t('labels.segments') }})
+                            </span>
+                        </h3>
+                        <Accordion v-if="visibleSequenceSegments.length > 0" :multiple="true" lazy>
+                            <AccordionPanel
+                                v-for="sequenceSegment in visibleSequenceSegments"
+                                :key="sequenceSegment.segmentLabel"
+                                :value="sequenceSegment.segmentLabel"
+                            >
+                                <AccordionHeader>
+                                    <div class="flex w-full items-center">
+                                        <span class="text-color font-semibold text-left w-56">{{ sequenceSegment.segmentLabel }}</span>
+                                        <span class="text-color text-left w-40">
+                                            ({{ sequenceSegment.runnerSplits.length }} {{ t('labels.runners') }})
+                                        </span>
+                                        <span class="text-sm text-color italic text-left flex-1">
+                                            {{ sequenceSegment.classes.length > 0 ? sequenceSegment.classes.join(', ') : '' }}
+                                        </span>
+                                    </div>
+                                </AccordionHeader>
+                                <AccordionContent>
+                                    <DataTable
+                                        :value="sequenceSegment.runnerSplits"
+                                        striped-rows
+                                        :rows="50"
+                                        :paginator="sequenceSegment.runnerSplits.length > 50"
+                                        :lazy="false"
+                                        :scrollable="false"
+                                        size="small"
+                                    >
+                                        <Column field="position" :header="t('labels.position')" style="width: 8%" />
+                                        <Column :header="t('labels.name')" style="width: 35%">
+                                            <template #body="slotProps">
+                                                {{ getPersonName(slotProps.data.personId) }}
+                                            </template>
+                                        </Column>
+                                        <Column field="classResultShortName" :header="t('labels.class')" style="width: 12%" />
+                                        <Column
+                                            v-for="(targetControl, legIndex) in sequenceSegment.controls.slice(1)"
+                                            :key="`leg-${sequenceSegment.segmentLabel}-${targetControl}-${legIndex}`"
+                                            :header="targetControl"
+                                            style="width: 10%"
+                                        >
+                                            <template #body="slotProps">
+                                                {{ getSequenceLegTime(slotProps.data.legSplitTimes, legIndex) }}
+                                            </template>
+                                        </Column>
+                                        <Column field="splitTime" :header="t('labels.sequence_time')" style="width: 14%" />
+                                        <Column field="timeBehind" :header="t('labels.time_behind')" style="width: 18%" />
+                                    </DataTable>
+                                    <div v-if="sequenceSegment.runnerSplits.length === 100" class="p-2 text-sm text-gray-600 italic">
+                                        {{ t('messages.top_100_shown') }}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionPanel>
+                        </Accordion>
+                        <div v-if="hasMoreSequenceSegments" class="mt-4 text-center">
+                            <Button
+                                :label="`${t('labels.load_more')} (${filteredSequenceSegmentCount - visibleSequenceCount} ${t('labels.remaining')})`"
+                                icon="pi pi-angle-down"
+                                severity="secondary"
+                                outlined
+                                @click="loadMoreSequences"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

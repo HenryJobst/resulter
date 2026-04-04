@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.*;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -19,7 +20,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ =@PersistenceCreator)
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @PersistenceCreator)
 @Table(name = "organisation")
 public class OrganisationDbo {
 
@@ -55,7 +56,7 @@ public class OrganisationDbo {
         OrganisationDbo organisationDbo;
         if (organisation.getId().isPersistent()) {
             organisationDbo = Objects.requireNonNull(
-                dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId()));
+                    dboResolvers.getOrganisationDboResolver().findDboById(organisation.getId()));
             organisationDbo.setName(organisation.getName().value());
         } else {
             organisationDbo = new OrganisationDbo(organisation.getName().value());
@@ -98,6 +99,23 @@ public class OrganisationDbo {
                 childOrganisations.stream()
                         .map(x -> OrganisationId.of(x.id.getId()))
                         .toList());
+    }
+
+    public Organisation asOrganisation(Map<Long, Organisation> organisationMap, Map<Long, Country> countryMap) {
+        return Organisation.of(
+                id,
+                name,
+                shortName,
+                type.value(),
+                Optional.ofNullable(country).map(x -> CountryId.of(x.getId())).orElse(CountryId.empty()),
+                childOrganisations.stream()
+                        .map(x -> OrganisationId.of(x.id.getId()))
+                        .toList());
+    }
+
+    public static Organisation asOrganisation(
+            OrganisationDbo organisationDbo, Map<Long, Organisation> organisationMap, Map<Long, Country> countryMap) {
+        return organisationDbo.asOrganisation(organisationMap, countryMap);
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

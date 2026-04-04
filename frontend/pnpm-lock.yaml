@@ -3679,9 +3679,6 @@ packages:
     resolution: {integrity: sha512-N+MeXYoqr3pOgn8xfyRPREN7gHakLYjhsHhWGT3fWAiL4IkAt0iDw14QiiEm2bE30c5XX5q0FtAA3CK5f9/BUg==}
     engines: {node: '>=12'}
 
-  defu@6.1.4:
-    resolution: {integrity: sha512-mEQCMmwJu317oSz8CwdIOdwf3xMif1ttiM8LTufzc3g6kR+9Pe236twL8j3IYT1F7GfRgGcW6MWxzZjLIkuHIg==}
-
   defu@6.1.6:
     resolution: {integrity: sha512-f8mefEW4WIVg4LckePx3mALjQSPQgFlg9U8yaPdlsbdYcHQyj9n2zL2LJEA52smeYxOvmd/nB7TpMtHGMTHcug==}
 
@@ -10104,8 +10101,6 @@ snapshots:
 
   define-lazy-prop@3.0.0: {}
 
-  defu@6.1.4: {}
-
   defu@6.1.6: {}
 
   delayed-stream@1.0.0: {}
@@ -12205,7 +12200,7 @@ snapshots:
 
   pinia-plugin-persistedstate@4.7.1(@nuxt/kit@3.17.5(magicast@0.5.2))(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3))):
     dependencies:
-      defu: 6.1.4
+      defu: 6.1.6
     optionalDependencies:
       '@nuxt/kit': 3.17.5(magicast@0.5.2)
       pinia: 3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3))

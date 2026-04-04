@@ -66,8 +66,6 @@ class BffAuthService {
         sessionStorage.setItem('bff_post_login_redirect', redirectPath)
         sessionStorage.setItem('bff_post_login_locale', locale)
 
-        console.log('[BFF Auth Service] Initiating login to:', `${this.backendUrl}/oauth2/authorization/keycloak`)
-
         // Redirect DIRECTLY to backend (not proxied) - browser needs to follow redirects to Keycloak
         window.location.href = `${this.backendUrl}/oauth2/authorization/keycloak`
     }
@@ -79,8 +77,6 @@ class BffAuthService {
      */
     async logout(redirectPath: string = '/'): Promise<void> {
         try {
-            console.log('[BFF Auth Service] Logout initiated, redirectPath:', redirectPath)
-
             // Clear post-login redirect to prevent confusion on next login
             sessionStorage.removeItem('bff_post_login_redirect')
             sessionStorage.removeItem('bff_post_login_locale')
@@ -94,7 +90,6 @@ class BffAuthService {
             form.style.display = 'none'
 
             document.body.appendChild(form)
-            console.log('[BFF Auth Service] Submitting POST /bff/logout')
             form.submit()
         }
         catch (error) {

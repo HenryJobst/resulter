@@ -63,6 +63,7 @@ const initialTableSettings: TableSettings = {
             <router-link
                 :to="{ name: 'event-results', params: { id: value.id, locale: $route.params.locale } }"
                 target="_blank"
+                rel="noopener noreferrer"
             >
                 <Chip class="event-chip clickable-chip">
                     <span class="event-name">{{ value?.name }}</span>

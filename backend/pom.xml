@@ -38,12 +38,12 @@
         <p6spy-spring-boot-starter.version>2.0.0</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
         <spring-oxm.version>7.0.6</spring-oxm.version>
-        <springdoc-openapi-starter-webmvc-ui.version>3.0.1</springdoc-openapi-starter-webmvc-ui.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.0.2</springdoc-openapi-starter-webmvc-ui.version>
         <testcontainers.version>2.0.3</testcontainers.version>
         <thumbnailator.version>0.4.21</thumbnailator.version>
         <tika-core.version>3.2.3</tika-core.version>
         <turkraft-springfilter-core.version>3.2.5</turkraft-springfilter-core.version>
-        <spotless-maven-plugin.version>3.2.1</spotless-maven-plugin.version>
+        <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
         <google-java-format.version>1.25.2</google-java-format.version>
         <cleanthat.version>2.22</cleanthat.version>
         <eclipse-jdt.version>4.34</eclipse-jdt.version>
@@ -304,7 +304,7 @@
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.turkraft.springfilter</groupId>

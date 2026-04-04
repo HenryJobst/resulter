@@ -79,7 +79,12 @@ function toggleSidebar() {
 watch(currentLocale, (val) => {
     router.push({
         name: router.currentRoute.value.name!,
-        params: { locale: val },
+        params: {
+            ...router.currentRoute.value.params,
+            locale: val,
+        },
+        query: router.currentRoute.value.query,
+        hash: router.currentRoute.value.hash,
     })
     switchPrimeVueLocale(val)
     moment.locale(val)
@@ -101,6 +106,7 @@ function setDetails(details: string) {
 
 <template>
     <div class="app-layout">
+        <a href="#main-content" class="skip-link">{{ t('labels.skip_to_content') }}</a>
         <!-- Top Navigation -->
         <TopNavbar
             v-model:current-locale="currentLocale"
@@ -118,7 +124,7 @@ function setDetails(details: string) {
             />
 
             <!-- Main Content -->
-            <main class="flex-1 p-6 min-h-screen bg-adaptive overflow-x-auto">
+            <main id="main-content" class="flex-1 p-6 min-h-screen bg-adaptive overflow-x-auto">
                 <Toast position="top-right">
                     <template #message="slotProps">
                         <div class="flex flex-column flex-auto">
@@ -220,7 +226,13 @@ function setDetails(details: string) {
                 </Toast>
                 <MessageDetailDialog />
                 <ConfirmDialog />
-                <router-view />
+                <router-view v-slot="{ Component, route: currentRoute }">
+                    <Transition name="route-fade" mode="out-in">
+                        <div :key="currentRoute.fullPath" class="route-fade-shell">
+                            <component :is="Component" />
+                        </div>
+                    </Transition>
+                </router-view>
                 <VueQueryDevtools />
             </main>
         </div>
@@ -260,4 +272,17 @@ function setDetails(details: string) {
 </template>
 
 <style scoped>
+.route-fade-enter-active,
+.route-fade-leave-active {
+    transition: opacity 150ms ease;
+}
+
+.route-fade-enter-from,
+.route-fade-leave-to {
+    opacity: 0;
+}
+
+.route-fade-shell {
+    width: 100%;
+}
 </style>

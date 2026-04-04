@@ -1,13 +1,12 @@
 package de.jobst.resulter.adapter.driven.jdbc;
 
 import de.jobst.resulter.domain.*;
-
 import java.sql.Timestamp;
-import org.jspecify.annotations.Nullable;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -17,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.domain.Sort;
@@ -25,7 +25,7 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Data
-@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ =@PersistenceCreator)
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @PersistenceCreator)
 @Table(name = "event")
 public class EventDbo {
 
@@ -80,8 +80,7 @@ public class EventDbo {
     public static EventDbo from(Event event, DboResolvers dboResolvers) {
         EventDbo eventDbo;
         if (event.getId().isPersistent()) {
-            eventDbo = Objects.requireNonNull(
-                dboResolvers.getEventDboResolver().findDboById(event.getId()));
+            eventDbo = Objects.requireNonNull(dboResolvers.getEventDboResolver().findDboById(event.getId()));
             eventDbo.setName(event.getName().value());
         } else {
             eventDbo = new EventDbo(event.getName().value());
@@ -128,11 +127,12 @@ public class EventDbo {
                 .map(it -> Event.of(
                         it.id,
                         it.name,
-                        it.startTime != null && it.startTimeZone != null?
-                        it.startTime.toInstant().atZone(ZoneId.of(it.startTimeZone)) :
-                        null,
-                        it.endTime != null && it.endTimeZone != null ?
-                        it.endTime.toInstant().atZone(ZoneId.of(it.endTimeZone)) : null,
+                        it.startTime != null && it.startTimeZone != null
+                                ? it.startTime.toInstant().atZone(ZoneId.of(it.startTimeZone))
+                                : null,
+                        it.endTime != null && it.endTimeZone != null
+                                ? it.endTime.toInstant().atZone(ZoneId.of(it.endTimeZone))
+                                : null,
                         it.organisations.stream()
                                 .map(x -> OrganisationId.of(x.id.getId()))
                                 .toList(),
@@ -150,6 +150,44 @@ public class EventDbo {
     @SuppressWarnings("unused")
     public Event asEvent(Function<Long, Organisation> organisationResolver) {
         return asEvents(List.of(this), organisationResolver).getFirst();
+    }
+
+    /**
+     * Convert a collection of EventDbos to Events using pre-loaded Organisation map for batch loading.
+     */
+    public static List<Event> asEvents(Collection<EventDbo> eventDbos, Map<Long, Organisation> organisationMap) {
+
+        return eventDbos.stream()
+                .map(it -> Event.of(
+                        it.id,
+                        it.name,
+                        it.startTime != null && it.startTimeZone != null
+                                ? it.startTime.toInstant().atZone(ZoneId.of(it.startTimeZone))
+                                : null,
+                        it.endTime != null && it.endTimeZone != null
+                                ? it.endTime.toInstant().atZone(ZoneId.of(it.endTimeZone))
+                                : null,
+                        it.organisations.stream()
+                                .map(x -> OrganisationId.of(x.id.getId()))
+                                .toList(),
+                        it.state,
+                        it.discipline,
+                        it.aggregateScore))
+                .toList();
+    }
+
+    /**
+     * Static method to convert a single EventDbo to Event using pre-loaded Organisation map.
+     */
+    public static Event asEvent(EventDbo eventDbo, Map<Long, Organisation> organisationMap) {
+        return asEvents(List.of(eventDbo), organisationMap).getFirst();
+    }
+
+    /**
+     * Instance method to convert this EventDbo to Event using pre-loaded Organisation map.
+     */
+    public Event asEvent(Map<Long, Organisation> organisationMap) {
+        return asEvents(List.of(this), organisationMap).getFirst();
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

@@ -338,6 +338,24 @@ describe('eventService', () => {
                 expect.stringContaining('filterPersonIds=1'),
             )
         })
+
+        it('should include sequence options when requested', async () => {
+            const mockAnalysis = [{ personId: 1, splits: [] }]
+            vi.mocked(axiosInstance.get).mockResolvedValue({ data: mockAnalysis })
+
+            await EventService.getSplitTimeAnalysisRanking(
+                123,
+                false,
+                [],
+                false,
+                mockT,
+                { includeSequences: true, sequenceMinControls: 4 },
+            )
+
+            expect(axiosInstance.get).toHaveBeenCalledWith(
+                '/split_time_analysis/result_list/123/ranking?includeSequences=true&sequenceMinControls=4',
+            )
+        })
     })
 
     describe('getPersonsForResultList', () => {

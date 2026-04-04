@@ -1,13 +1,14 @@
 package de.jobst.resulter.application.port;
 
-import de.jobst.resulter.application.certificate.CertificateServiceImpl;
 import de.jobst.resulter.domain.*;
 import org.jmolecules.architecture.hexagonal.PrimaryPort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @PrimaryPort
 public interface ResultListService {
@@ -21,15 +22,18 @@ public interface ResultListService {
     ResultList update(ResultList resultList);
 
     Collection<ResultList> findByEventId(EventId id);
+    Map<EventId, List<ResultList>> findAllByEventIds(Collection<EventId> eventIds);
+
+    Set<ResultListId> findResultListIdsWithSplitTimes(Collection<ResultListId> resultListIds);
 
     @Transactional
     List<CupScoreList> calculateScore(ResultListId id);
 
     @Transactional
-    CertificateServiceImpl.Certificate createCertificate(
+    CertificateService.Certificate createCertificate(
             ResultListId resultListId, ClassResultShortName classResultShortName, PersonId personId);
 
-    CertificateServiceImpl.Certificate createCertificate(Event event, EventCertificate eventCertificate);
+    CertificateService.Certificate createCertificate(Event event, EventCertificate eventCertificate);
 
     List<EventCertificateStat> getCertificateStats(EventId eventId);
 
@@ -38,4 +42,6 @@ public interface ResultListService {
     List<CupScoreList> getCupScoreLists(ResultListId resultListId);
 
     List<CupScoreList> getCupScoreLists(ResultListId resultListId, CupId cupId);
+
+    Map<ResultListId, List<CupScoreList>> getCupScoreListsByResultListIds(Collection<ResultListId> resultListIds, CupId cupId);
 }

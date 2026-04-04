@@ -9,7 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @PrimaryPort
 public interface EventCertificateService {
@@ -17,6 +19,7 @@ public interface EventCertificateService {
     Optional<EventCertificate> findById(EventCertificateId eventCertificateCertificateCertificateId);
 
     List<EventCertificate> findAll();
+    Map<EventCertificateId, EventCertificate> findAllByIdAsMap(Set<EventCertificateId> eventCertificateIds);
 
     @NonNull
     EventCertificate updateEventCertificate(

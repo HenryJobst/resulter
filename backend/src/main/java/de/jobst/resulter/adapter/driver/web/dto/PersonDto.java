@@ -1,26 +1,11 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
-import de.jobst.resulter.domain.Person;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.data.domain.Sort;
-
 import java.time.LocalDate;
 import java.util.function.UnaryOperator;
+import org.springframework.data.domain.Sort;
 
-public record PersonDto(Long id, String familyName, String givenName, GenderDto gender, LocalDate birthDate, Boolean showMergeButton) {
-
-    static public PersonDto from(Person person) {
-        return from(person, false);
-    }
-
-    static public PersonDto from(Person person, boolean showMergeButton) {
-        return new PersonDto(ObjectUtils.isNotEmpty(person.id()) ? person.id().value() : 0,
-            person.personName().familyName().value(),
-            person.personName().givenName().value(),
-            GenderDto.from(person.gender()),
-            person.birthDate() != null ? person.birthDate().value() : null,
-            showMergeButton);
-    }
+public record PersonDto(
+        Long id, String familyName, String givenName, GenderDto gender, LocalDate birthDate, Boolean showMergeButton) {
 
     static UnaryOperator<String> mapOperator = (String s) -> switch (s) {
         case "id" -> "id.value";
@@ -28,7 +13,7 @@ public record PersonDto(Long id, String familyName, String givenName, GenderDto 
         case "givenName" -> "personName.givenName.value";
         case "gender" -> "gender.id";
         case "birthDate" -> "birthDate.value";
-        default -> s;
+        default -> "id.value";
     };
 
     public static String mapOrdersDtoToDomain(Sort.Order order) {
@@ -36,6 +21,13 @@ public record PersonDto(Long id, String familyName, String givenName, GenderDto 
     }
 
     public static String mapOrdersDomainToDto(Sort.Order order) {
-        return mapOperator.apply(order.getProperty());
+        return switch (order.getProperty()) {
+            case "id.value" -> "id";
+            case "personName.familyName.value" -> "familyName";
+            case "personName.givenName.value" -> "givenName";
+            case "gender.id" -> "gender";
+            case "birthDate.value" -> "birthDate";
+            default -> "id";
+        };
     }
 }

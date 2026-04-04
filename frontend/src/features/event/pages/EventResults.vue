@@ -538,7 +538,7 @@ function calculate(result_list_id: number) {
 }
 
 function navigateToList() {
-    router.replace({ name: `event-list` })
+    router.replace({ name: 'event-list', params: { locale: route.params.locale as string } })
 }
 
 function navigateToSplitTimeAnalysis(resultListId: number) {
@@ -556,7 +556,7 @@ function navigateToSplitTimeAnalysis(resultListId: number) {
 
     router.push({
         name: 'split-time-analysis',
-        params: { resultListId: resultListId.toString() },
+        params: { locale: route.params.locale as string, resultListId: resultListId.toString() },
         query: {
             eventName: eventQuery.data.value?.name || '',
             resultListLabel,
@@ -579,6 +579,7 @@ function navigateToSplitTimeTableAnalysis(resultListId: number) {
 
     router.push({
         name: 'split-time-table-analysis',
+        params: { locale: route.params.locale as string },
         query: {
             resultListId: resultListId.toString(),
             eventName: eventQuery.data.value?.name || '',
@@ -602,6 +603,7 @@ function navigateToMentalResilienceAnalysis(resultListId: number) {
 
     router.push({
         name: 'mental-resilience-analysis',
+        params: { locale: route.params.locale as string },
         query: {
             scope: 'event',
             resultListId: resultListId.toString(),
@@ -626,6 +628,7 @@ function navigateToAnomalyDetectionAnalysis(resultListId: number) {
 
     router.push({
         name: 'cheat-detection-analysis',
+        params: { locale: route.params.locale as string },
         query: {
             scope: 'event',
             resultListId: resultListId.toString(),
@@ -650,6 +653,7 @@ function navigateToHangingDetectionAnalysis(resultListId: number) {
 
     router.push({
         name: 'hanging-detection-analysis',
+        params: { locale: route.params.locale as string },
         query: {
             scope: 'event',
             resultListId: resultListId.toString(),

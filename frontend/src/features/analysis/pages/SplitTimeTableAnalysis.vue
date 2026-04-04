@@ -78,29 +78,11 @@ const availableGroups = computed(() => {
     }
 })
 
-// Sorted table rows by finish time
+// Table rows in backend-provided order
 const sortedRows = computed(() => {
     if (!tableQuery.data.value?.rows)
         return []
-
-    const rows = [...tableQuery.data.value.rows]
-
-    // Separate competing and AK (not competing) runners
-    const competingRunners = rows.filter(r => !r.notCompeting)
-    const akRunners = rows.filter(r => r.notCompeting)
-
-    // Sort both groups by finish time
-    const sortByFinishTime = (a: any, b: any) => {
-        const timeA = a.finishTime ?? Number.MAX_VALUE
-        const timeB = b.finishTime ?? Number.MAX_VALUE
-        return timeA - timeB
-    }
-
-    competingRunners.sort(sortByFinishTime)
-    akRunners.sort(sortByFinishTime)
-
-    // Competing runners first, then AK runners
-    return [...competingRunners, ...akRunners]
+    return tableQuery.data.value.rows
 })
 
 // Control codes without "S" (start)
@@ -189,6 +171,16 @@ function getColumnHeader(controlCode: string, index: number): string {
         return t('analysis.splitTimeTable.finish')
 
     return `${index + 1} (${controlCode})`
+}
+
+function getOverallPositionLabel(row: any): string | number {
+    if (row?.notCompeting)
+        return t('analysis.splitTimeTable.notCompeting')
+
+    if (row?.hasIncompleteSplits)
+        return t('analysis.splitTimeTable.missingPunch')
+
+    return row?.position ?? '—'
 }
 
 const isMobile = ref(false)
@@ -335,7 +327,7 @@ onUnmounted(() => {
                 >
                     <template #body="slotProps">
                         <div class="font-semibold">
-                            {{ slotProps.data.position ?? '—' }}
+                            {{ getOverallPositionLabel(slotProps.data) }}
                         </div>
                     </template>
                 </Column>
@@ -349,9 +341,6 @@ onUnmounted(() => {
                 >
                     <template #body="slotProps">
                         {{ slotProps.data.personName }}
-                        <span v-if="slotProps.data.notCompeting" class="text-gray-500 ml-2">
-                            ({{ t('analysis.splitTimeTable.notCompetingAbbr') }})
-                        </span>
                     </template>
                 </Column>
 

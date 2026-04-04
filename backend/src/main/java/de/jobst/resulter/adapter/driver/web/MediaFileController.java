@@ -92,10 +92,10 @@ public class MediaFileController {
 
     @DeleteMapping("/media/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Boolean> deleteMediaFile(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteMediaFile(@PathVariable Long id) {
         boolean success = mediaFileService.delete(MediaFileId.of(id));
         if (success) {
-            return ResponseEntity.ok(Boolean.TRUE);
+            return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }

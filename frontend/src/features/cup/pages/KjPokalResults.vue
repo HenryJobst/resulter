@@ -9,7 +9,7 @@ import { useQueries } from '@tanstack/vue-query'
 import Panel from 'primevue/panel'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import CupStatisticsWidget from '@/features/cup/widgets/CupStatistics.vue'
 import { EventService } from '@/features/event/services/event.service'
 
@@ -23,6 +23,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const router = useRouter()
+const currentRoute = useRoute()
 
 // Lade ResultLists für jedes Event um Race-ID → ResultList-ID Mapping zu erstellen
 const eventResultsQueries = useQueries({
@@ -224,13 +225,13 @@ function navigateToPersonResult(
         query.personId = personId.toString()
     }
 
-    const route = router.resolve({
+    const resolvedRoute = router.resolve({
         name: 'event-results',
-        params: { id: eventId.toString() },
+        params: { id: eventId.toString(), locale: currentRoute.params.locale as string },
         query,
     })
 
-    window.open(route.href, '_blank')
+    window.open(resolvedRoute.href, '_blank')
 }
 </script>
 
@@ -267,11 +268,11 @@ function navigateToPersonResult(
                         :key="index"
                         class="flex items-center space-x-2 py-1"
                     >
-                        <span class="inline-flex items-center justify-center w-2rem h-6 shrink-0 rounded-full bg-purple-badge text-purple-badge font-semibold text-xs">
+                        <span class="inline-flex items-center justify-center w-2rem h-6 shrink-0 rounded-full bg-orange-badge text-orange-badge font-semibold text-xs">
                             {{ index + 1 }}
                         </span>
                         <router-link
-                            :to="{ name: 'event-results', params: { id: race.event.id } }"
+                            :to="{ name: 'event-results', params: { id: race.event.id, locale: $route.params.locale } }"
                             target="_blank"
                             class="text-sm text-adaptive-secondary hover:text-primary hover:underline"
                         >
@@ -313,7 +314,7 @@ function navigateToPersonResult(
                             <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-adaptive-secondary tracking-wider">
                                 Verein
                             </th>
-                            <th scope="col" class="px-3 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider bg-purple-highlight">
+                            <th scope="col" class="px-3 py-2 text-center text-xs font-semibold text-adaptive-secondary tracking-wider bg-orange-highlight">
                                 Gesamt
                             </th>
                             <th
@@ -361,8 +362,8 @@ function navigateToPersonResult(
                                     <span class="text-sm font-semibold text-adaptive whitespace-nowrap">{{ combinedScore.club }}</span>
                                 </div>
                             </td>
-                            <td class="px-3 py-1.5 text-center bg-purple-highlight">
-                                <span class="inline-flex items-center justify-center px-2 py-0.5 w-3rem rounded-full text-sm font-bold bg-purple-badge text-purple-badge">
+                            <td class="px-3 py-1.5 text-center bg-orange-highlight">
+                                <span class="inline-flex items-center justify-center px-2 py-0.5 w-3rem rounded-full text-sm font-bold bg-orange-badge text-orange-badge">
                                     {{ combinedScore.total }}
                                 </span>
                             </td>
@@ -405,7 +406,7 @@ function navigateToPersonResult(
                         :key="index"
                         class="border border-adaptive rounded overflow-hidden"
                     >
-                        <div class="px-3 py-1.5 bg-purple-highlight border-b border-adaptive">
+                        <div class="px-3 py-1.5 bg-orange-highlight border-b border-adaptive">
                             <h4 class="text-sm font-semibold text-adaptive">
                                 Lauf {{ index + 1 }}
                             </h4>

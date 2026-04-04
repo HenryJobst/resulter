@@ -38,21 +38,57 @@ async function showErrorDetail(id: number) {
 <template>
     <!-- Hero Section -->
     <div class="hero-section mb-6">
-        <div class="flex items-center gap-6">
-            <img
-                alt="Resulter Logo"
-                class="hero-logo"
-                src="@/assets/Logo_Resulter_400px.webp"
-                width="120"
-                height="119"
-            >
-            <div>
-                <h1 class="text-3xl font-bold text-adaptive mb-2">
-                    {{ t('pages.start') }}
-                </h1>
-                <p class="text-sm text-adaptive-secondary">
-                    {{ t('dashboard.welcome_message') }}
-                </p>
+        <div class="hero-content flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div class="hero-main flex items-center gap-6">
+                <img
+                    alt="Resulter Logo"
+                    class="hero-logo"
+                    src="@/assets/Logo_Resulter_400px.webp"
+                    width="120"
+                    height="119"
+                >
+                <div>
+                    <h1 class="text-3xl font-bold text-adaptive mb-2">
+                        {{ t('pages.start') }}
+                    </h1>
+                    <p class="text-sm text-adaptive-secondary mb-3">
+                        {{ t('dashboard.welcome_message') }}
+                    </p>
+                    <div class="hero-badges flex flex-wrap gap-2" aria-label="Dashboard highlights">
+                        <div
+                            class="hero-badge"
+                            role="button"
+                            tabindex="0"
+                            @click="navigateTo('event-list')"
+                            @keydown.enter.prevent="navigateTo('event-list')"
+                            @keydown.space.prevent="navigateTo('event-list')"
+                        >
+                            <span class="hero-badge-label">{{ t('dashboard.stats.events') }}</span>
+                            <span class="hero-badge-value">{{ statistics?.eventCount ?? '—' }}</span>
+                        </div>
+                        <div
+                            class="hero-badge"
+                            role="button"
+                            tabindex="0"
+                            @click="navigateTo('cup-list')"
+                            @keydown.enter.prevent="navigateTo('cup-list')"
+                            @keydown.space.prevent="navigateTo('cup-list')"
+                        >
+                            <span class="hero-badge-label">{{ t('dashboard.stats.cups') }}</span>
+                            <span class="hero-badge-value">{{ statistics?.cupCount ?? '—' }}</span>
+                        </div>
+                        <div class="hero-badge">
+                            <span class="hero-badge-label">{{ t('dashboard.stats.races') }}</span>
+                            <span class="hero-badge-value">{{ statistics?.raceCount ?? '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-ambient hidden md:flex items-center gap-3" aria-hidden="true">
+                <span class="hero-dot hero-dot--lg" />
+                <span class="hero-dot hero-dot--md" />
+                <span class="hero-dot hero-dot--sm" />
             </div>
         </div>
     </div>
@@ -71,8 +107,8 @@ async function showErrorDetail(id: number) {
             </div>
 
             <!-- Error State -->
-            <div v-else-if="isError" class="p-4 bg-red-50 border border-red-200 rounded">
-                <p class="text-red-700">
+            <div v-else-if="isError" class="p-4 bg-red-50 dark:bg-red-950/35 border border-red-200 dark:border-red-900 rounded">
+                <p class="text-red-700 dark:text-red-300">
                     {{ t('dashboard.error_loading') }}
                 </p>
                 <Button
@@ -87,88 +123,118 @@ async function showErrorDetail(id: number) {
             <!-- Statistics Cards -->
             <div v-else-if="statistics" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                 <!-- Event Count Card -->
-                <Card class="dashboard-card clickable" :onclick="() => navigateTo('event-list')">
-                    <template #content>
-                        <div class="flex items-center justify-between">
-                            <div class="flex flex-col gap-2 mr-3">
-                                <div class="text-sm font-medium text-adaptive-secondary">
-                                    {{ t('dashboard.stats.events') }}
+                <div
+                    class="dashboard-card-click-target clickable"
+                    role="button"
+                    tabindex="0"
+                    @click="navigateTo('event-list')"
+                    @keydown.enter.prevent="navigateTo('event-list')"
+                    @keydown.space.prevent="navigateTo('event-list')"
+                >
+                    <Card class="dashboard-card">
+                        <template #content>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col gap-2 mr-3">
+                                    <div class="text-sm font-medium text-adaptive-secondary">
+                                        {{ t('dashboard.stats.events') }}
+                                    </div>
+                                    <div class="text-4xl font-bold text-adaptive">
+                                        {{ statistics.eventCount }}
+                                    </div>
                                 </div>
-                                <div class="text-4xl font-bold text-adaptive">
-                                    {{ statistics.eventCount }}
+                                <div class="stat-icon">
+                                    <i class="pi pi-calendar text-2xl" />
                                 </div>
                             </div>
-                            <div class="stat-icon">
-                                <i class="pi pi-calendar text-2xl" />
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </div>
 
                 <!-- Cup Count Card -->
-                <Card class="dashboard-card clickable" :onclick="() => navigateTo('cup-list')">
-                    <template #content>
-                        <div class="flex items-center justify-between">
-                            <div class="flex flex-col gap-2 mr-3">
-                                <div class="text-sm font-medium text-adaptive-secondary">
-                                    {{ t('dashboard.stats.cups') }}
+                <div
+                    class="dashboard-card-click-target clickable"
+                    role="button"
+                    tabindex="0"
+                    @click="navigateTo('cup-list')"
+                    @keydown.enter.prevent="navigateTo('cup-list')"
+                    @keydown.space.prevent="navigateTo('cup-list')"
+                >
+                    <Card class="dashboard-card">
+                        <template #content>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col gap-2 mr-3">
+                                    <div class="text-sm font-medium text-adaptive-secondary">
+                                        {{ t('dashboard.stats.cups') }}
+                                    </div>
+                                    <div class="text-4xl font-bold text-adaptive">
+                                        {{ statistics.cupCount }}
+                                    </div>
                                 </div>
-                                <div class="text-4xl font-bold text-adaptive">
-                                    {{ statistics.cupCount }}
+                                <div class="stat-icon">
+                                    <i class="pi pi-trophy text-2xl" />
                                 </div>
                             </div>
-                            <div class="stat-icon">
-                                <i class="pi pi-trophy text-2xl" />
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </div>
 
                 <!-- Person Count Card -->
-                <Card
-                    class="dashboard-card"
+                <div
+                    class="dashboard-card-click-target"
                     :class="[{ clickable: authStore.isAuthenticated }]"
-                    :onclick="authStore.isAuthenticated ? () => navigateTo('person-list') : undefined"
+                    :role="authStore.isAuthenticated ? 'button' : undefined"
+                    :tabindex="authStore.isAuthenticated ? 0 : undefined"
+                    @click="authStore.isAuthenticated ? navigateTo('person-list') : undefined"
+                    @keydown.enter.prevent="authStore.isAuthenticated ? navigateTo('person-list') : undefined"
+                    @keydown.space.prevent="authStore.isAuthenticated ? navigateTo('person-list') : undefined"
                 >
-                    <template #content>
-                        <div class="flex items-center justify-between">
-                            <div class="flex flex-col gap-2 mr-3">
-                                <div class="text-sm font-medium text-adaptive-secondary">
-                                    {{ t('dashboard.stats.persons') }}
+                    <Card class="dashboard-card">
+                        <template #content>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col gap-2 mr-3">
+                                    <div class="text-sm font-medium text-adaptive-secondary">
+                                        {{ t('dashboard.stats.persons') }}
+                                    </div>
+                                    <div class="text-4xl font-bold text-adaptive">
+                                        {{ statistics.personCount }}
+                                    </div>
                                 </div>
-                                <div class="text-4xl font-bold text-adaptive">
-                                    {{ statistics.personCount }}
+                                <div class="stat-icon">
+                                    <i class="pi pi-users text-2xl" />
                                 </div>
                             </div>
-                            <div class="stat-icon">
-                                <i class="pi pi-users text-2xl" />
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </div>
 
                 <!-- Organisation Count Card -->
-                <Card
-                    class="dashboard-card"
+                <div
+                    class="dashboard-card-click-target"
                     :class="[{ clickable: authStore.isAuthenticated }]"
-                    :onclick="authStore.isAuthenticated ? () => navigateTo('organisation-list') : undefined"
+                    :role="authStore.isAuthenticated ? 'button' : undefined"
+                    :tabindex="authStore.isAuthenticated ? 0 : undefined"
+                    @click="authStore.isAuthenticated ? navigateTo('organisation-list') : undefined"
+                    @keydown.enter.prevent="authStore.isAuthenticated ? navigateTo('organisation-list') : undefined"
+                    @keydown.space.prevent="authStore.isAuthenticated ? navigateTo('organisation-list') : undefined"
                 >
-                    <template #content>
-                        <div class="flex items-center justify-between">
-                            <div class="flex flex-col gap-2 mr-3">
-                                <div class="text-sm font-medium text-adaptive-secondary">
-                                    {{ t('dashboard.stats.organisations') }}
+                    <Card class="dashboard-card">
+                        <template #content>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col gap-2 mr-3">
+                                    <div class="text-sm font-medium text-adaptive-secondary">
+                                        {{ t('dashboard.stats.organisations') }}
+                                    </div>
+                                    <div class="text-4xl font-bold text-adaptive">
+                                        {{ statistics.organisationCount }}
+                                    </div>
                                 </div>
-                                <div class="text-4xl font-bold text-adaptive">
-                                    {{ statistics.organisationCount }}
+                                <div class="stat-icon">
+                                    <i class="pi pi-building text-2xl" />
                                 </div>
                             </div>
-                            <div class="stat-icon">
-                                <i class="pi pi-building text-2xl" />
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </div>
 
                 <!-- Split Time Count Card -->
                 <Card class="dashboard-card">
@@ -307,8 +373,33 @@ async function showErrorDetail(id: number) {
 <style scoped>
 /* Hero Section */
 .hero-section {
-    padding: 1.5rem 0;
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem;
+    border: 1px solid rgba(251, 146, 60, 0.16);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(251, 146, 60, 0.2) 0%, rgba(251, 146, 60, 0) 42%),
+        linear-gradient(135deg, rgba(251, 146, 60, 0.07) 0%, rgba(251, 146, 60, 0.015) 45%, rgba(255, 255, 255, 0) 100%);
     border-bottom: 1px solid rgb(var(--border-color));
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.32;
+    background-image:
+        linear-gradient(rgba(251, 146, 60, 0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(251, 146, 60, 0.22) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: linear-gradient(to bottom right, black 20%, transparent 85%);
 }
 
 .hero-logo {
@@ -321,23 +412,95 @@ async function showErrorDetail(id: number) {
     transform: scale(1.05);
 }
 
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(251, 146, 60, 0.28);
+    background: rgba(251, 146, 60, 0.12);
+}
+
+.hero-badge[role='button'] {
+    cursor: pointer;
+}
+
+.hero-badge[role='button']:focus-visible {
+    outline: 2px solid rgba(251, 146, 60, 0.7);
+    outline-offset: 2px;
+}
+
+.hero-badge-label {
+    font-size: 0.75rem;
+    color: rgb(var(--text-secondary));
+}
+
+.hero-badge-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: rgb(var(--text-primary));
+}
+
+.hero-dot {
+    display: inline-block;
+    border-radius: 999px;
+    border: 1px solid rgba(251, 146, 60, 0.45);
+    background: rgba(251, 146, 60, 0.2);
+}
+
+.hero-dot--lg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.hero-dot--md {
+    width: 0.85rem;
+    height: 0.85rem;
+}
+
+.hero-dot--sm {
+    width: 0.6rem;
+    height: 0.6rem;
+}
+
 /* Dashboard Cards */
 .dashboard-card {
-    transition: all 0.3s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
     border-radius: 12px;
     border: 1px solid rgba(251, 146, 60, 0.2);
     background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, transparent 100%);
 }
 
 .dashboard-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-    border-color: rgba(251, 146, 60, 0.4);
+    box-shadow: 0 8px 20px rgba(251, 146, 60, 0.2);
+    border-color: rgba(251, 146, 60, 0.5);
     background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, transparent 100%);
 }
 
 .dashboard-card.clickable {
     cursor: pointer;
+}
+
+.dashboard-card-click-target {
+    border-radius: 12px;
+}
+
+.dashboard-card-click-target.clickable {
+    cursor: pointer;
+}
+
+.dashboard-card-click-target.clickable .dashboard-card {
+    cursor: pointer;
+}
+
+.dashboard-card-click-target[role='button']:focus-visible {
+    outline: none;
+}
+
+.dashboard-card-click-target[role='button']:focus-visible .dashboard-card {
+    outline: 2px solid rgba(251, 146, 60, 0.8);
+    outline-offset: 2px;
 }
 
 /* Stat Icons */
@@ -393,35 +556,48 @@ async function showErrorDetail(id: number) {
 /* Dark Mode Adjustments */
 @media (prefers-color-scheme: dark) {
     .hero-section {
+        border-color: rgba(251, 146, 60, 0.2);
         border-bottom-color: rgb(var(--border-color));
+        background:
+            radial-gradient(circle at 90% 10%, rgba(251, 146, 60, 0.24) 0%, rgba(251, 146, 60, 0) 46%),
+            linear-gradient(135deg, rgba(251, 146, 60, 0.08) 0%, rgba(251, 146, 60, 0.02) 45%, rgba(0, 0, 0, 0) 100%);
+    }
+
+    .hero-section::before {
+        opacity: 0.2;
+    }
+
+    .hero-badge {
+        border-color: rgba(251, 146, 60, 0.4);
+        background: rgba(251, 146, 60, 0.16);
     }
 
     .dashboard-card {
-        border-color: rgba(59, 130, 246, 0.2);
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+        border-color: rgba(251, 146, 60, 0.2);
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, transparent 100%);
     }
 
     .dashboard-card:hover {
-        border-color: rgba(59, 130, 246, 0.4);
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+        border-color: rgba(251, 146, 60, 0.4);
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, transparent 100%);
     }
 
     .stat-icon {
-        background: rgba(59, 130, 246, 0.15);
-        color: rgb(96, 165, 250);
+        background: rgba(251, 146, 60, 0.15);
+        color: rgb(251, 146, 60);
     }
 
     .dashboard-card:hover .stat-icon {
-        background: rgba(59, 130, 246, 0.25);
+        background: rgba(251, 146, 60, 0.25);
     }
 
     .no-messages-card {
-        border-color: rgba(59, 130, 246, 0.2);
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, transparent 100%);
+        border-color: rgba(251, 146, 60, 0.2);
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.02) 0%, transparent 100%);
     }
 
     .no-messages-icon {
-        color: rgb(96, 165, 250);
+        color: rgb(251, 146, 60);
     }
 }
 </style>

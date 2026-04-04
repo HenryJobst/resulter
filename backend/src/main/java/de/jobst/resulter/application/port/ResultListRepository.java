@@ -23,6 +23,7 @@ public interface ResultListRepository {
     ResultList update(ResultList resultList);
 
     Collection<ResultList> findByEventId(EventId id);
+    Collection<ResultList> findAllByEventIds(Collection<EventId> eventIds);
 
     Optional<ResultList> findById(ResultListId resultListId);
 

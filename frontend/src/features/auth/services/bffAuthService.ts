@@ -85,9 +85,6 @@ class BffAuthService {
             sessionStorage.removeItem('bff_post_login_redirect')
             sessionStorage.removeItem('bff_post_login_locale')
 
-            // Store redirect path for post-logout
-            sessionStorage.setItem('bff_post_logout_redirect', redirectPath)
-
             // Browser navigation via form submit keeps the redirect chain to Keycloak logout.
             // /bff/logout is exempt from CSRF on the backend (logout-CSRF risk is low;
             // the HttpOnly session cookie is the primary protection).

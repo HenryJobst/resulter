@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
         return toProblemDetail(
             HttpStatus.INTERNAL_SERVER_ERROR,
             MessageKeys.UNEXPECTED_ERROR,
-            Collections.singletonList(ex.getMessage()),
+            Collections.singletonList("An unexpected error occurred"),
             request,
             ex,
             AdditionalStatusCodes.UNEXPECTED.value());

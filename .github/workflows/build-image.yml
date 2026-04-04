@@ -165,6 +165,8 @@ jobs :
                     VITE_API_ENDPOINT=${{ secrets.VITE_API_ENDPOINT }}
                     VITE_IMPRESS_TEXT_DE=${{ vars.VITE_IMPRESS_TEXT_DE }}
                     VITE_IMPRESS_TEXT_EN=${{ vars.VITE_IMPRESS_TEXT_EN }}
+                    VITE_PRIVACY_TEXT_DE=${{ vars.VITE_PRIVACY_TEXT_DE }}
+                    VITE_PRIVACY_TEXT_EN=${{ vars.VITE_PRIVACY_TEXT_EN }}
                     EOF
 
             -   name : Build and push

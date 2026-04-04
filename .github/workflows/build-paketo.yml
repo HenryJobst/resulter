@@ -279,6 +279,8 @@ jobs:
           VITE_API_ENDPOINT: ${{ secrets.VITE_API_ENDPOINT }}
           VITE_IMPRESS_TEXT_DE: ${{ vars.VITE_IMPRESS_TEXT_DE }}
           VITE_IMPRESS_TEXT_EN: ${{ vars.VITE_IMPRESS_TEXT_EN }}
+          VITE_PRIVACY_TEXT_DE: ${{ vars.VITE_PRIVACY_TEXT_DE }}
+          VITE_PRIVACY_TEXT_EN: ${{ vars.VITE_PRIVACY_TEXT_EN }}
         run: |
           pack build temp-frontend:build \
             --builder paketobuildpacks/builder-jammy-base \
@@ -291,6 +293,8 @@ jobs:
             --env VITE_API_ENDPOINT="${VITE_API_ENDPOINT}" \
             --env VITE_IMPRESS_TEXT_DE="${VITE_IMPRESS_TEXT_DE}" \
             --env VITE_IMPRESS_TEXT_EN="${VITE_IMPRESS_TEXT_EN}" \
+            --env VITE_PRIVACY_TEXT_DE="${VITE_PRIVACY_TEXT_DE}" \
+            --env VITE_PRIVACY_TEXT_EN="${VITE_PRIVACY_TEXT_EN}" \
             --env BP_WEB_SERVER=nginx \
             --env BP_WEB_SERVER_ROOT=dist \
             --env BP_NGINX_CONF_FILE=default.conf \

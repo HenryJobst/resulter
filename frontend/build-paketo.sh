@@ -19,6 +19,8 @@ FULL_IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
 VITE_API_ENDPOINT="${VITE_API_ENDPOINT:-https://resulter.olberlin.de/api}"
 VITE_IMPRESS_TEXT_DE="${VITE_IMPRESS_TEXT_DE:-Impressumstext}"
 VITE_IMPRESS_TEXT_EN="${VITE_IMPRESS_TEXT_EN:-Impress text}"
+VITE_PRIVACY_TEXT_DE="${VITE_PRIVACY_TEXT_DE:-Datenschutzerklärungstext}"
+VITE_PRIVACY_TEXT_EN="${VITE_PRIVACY_TEXT_EN:-Privacy policy text}"
 
 echo "========================================"
 echo "Building Resulter Frontend with Paketo"
@@ -30,6 +32,8 @@ echo "Build-time configuration (compiled into JS):"
 echo "  VITE_API_ENDPOINT: ${VITE_API_ENDPOINT}"
 echo "  VITE_IMPRESS_TEXT_DE: ${VITE_IMPRESS_TEXT_DE}"
 echo "  VITE_IMPRESS_TEXT_EN: ${VITE_IMPRESS_TEXT_EN}"
+echo "  VITE_PRIVACY_TEXT_DE: ${VITE_PRIVACY_TEXT_DE}"
+echo "  VITE_PRIVACY_TEXT_EN: ${VITE_PRIVACY_TEXT_EN}"
 echo ""
 
 # Check if pack CLI is installed
@@ -58,6 +62,8 @@ fi
 export VITE_API_ENDPOINT="${VITE_API_ENDPOINT}"
 export VITE_IMPRESS_TEXT_DE="${VITE_IMPRESS_TEXT_DE}"
 export VITE_IMPRESS_TEXT_EN="${VITE_IMPRESS_TEXT_EN}"
+export VITE_PRIVACY_TEXT_DE="${VITE_PRIVACY_TEXT_DE}"
+export VITE_PRIVACY_TEXT_EN="${VITE_PRIVACY_TEXT_EN}"
 
 # Build with pnpm
 pnpm install

@@ -110,7 +110,13 @@ public class BffSecurityConfiguration {
                     CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
                     repository.setCookiePath("/"); // Set path to root for frontend JavaScript access
                     csrf.csrfTokenRepository(repository)
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler());
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        // Logout is exempt from CSRF: the HttpOnly session cookie is the primary
+                        // protection; logout-CSRF risk (forced sign-out) is low and cookie-based
+                        // CSRF is unreliable across origins/proxies in SPA/BFF setups.
+                        .ignoringRequestMatchers(
+                            PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/bff/logout")
+                        );
                 })
                 .cors(cors -> cors.configurationSource(corsConfigurationSource));
 

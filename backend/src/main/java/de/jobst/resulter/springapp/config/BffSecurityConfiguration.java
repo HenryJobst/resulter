@@ -186,13 +186,8 @@ public class BffSecurityConfiguration {
 
     private AuthenticationFailureHandler oauth2AuthenticationFailureHandler() {
         return (HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) -> {
-            log.error("OAuth2 authentication failed", exception);
-            log.error("Error type: {}", exception.getClass().getName());
-            log.error("Error message: {}", exception.getMessage());
-            if (exception.getCause() != null) {
-                log.error("Caused by: {}", exception.getCause().getClass().getName());
-                log.error("Cause message: {}", exception.getCause().getMessage());
-            }
+            log.error("OAuth2 authentication failed: {}", exception.getClass().getSimpleName());
+            log.debug("OAuth2 authentication failure details", exception);
             // Redirect to frontend with error parameter
             response.sendRedirect(frontendUrl + "?auth_error=oauth2_failed");
         };

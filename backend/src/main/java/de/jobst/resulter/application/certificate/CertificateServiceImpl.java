@@ -338,7 +338,7 @@ public class CertificateServiceImpl implements CertificateService {
             }
 
             float center = (pageSize.getWidth() - document.getLeftMargin() - document.getRightMargin()) / 2;
-            System.out.println("Center: " + center);
+            log.debug("Center: {}", center);
 
             List<ParagraphDefinition> paragraphDefinitionsWithPlaceholders =
                     documentAndParagraphDefinitionsWithPlaceholders.getRight();

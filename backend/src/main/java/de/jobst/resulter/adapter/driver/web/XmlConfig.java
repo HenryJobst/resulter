@@ -12,6 +12,9 @@ public class XmlConfig {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
         //marshaller.setClassesToBeBound(RaceCourseData.class);
         marshaller.setPackagesToScan("de.jobst.resulter.adapter.driver.web.jaxb");
+        // Explicitly disable DTD and external entity processing to prevent XXE attacks
+        marshaller.setSupportDtd(false);
+        marshaller.setProcessExternalEntities(false);
         return marshaller;
     }
 }

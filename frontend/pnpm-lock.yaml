@@ -192,8 +192,8 @@ importers:
         specifier: ^9.39.4
         version: 9.39.4(jiti@2.6.1)
       eslint-plugin-cypress:
-        specifier: ^5.4.0
-        version: 5.4.0(eslint@9.39.4(jiti@2.6.1))
+        specifier: ^6.2.2
+        version: 6.2.2(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-format:
         specifier: ^1.5.0
         version: 1.5.0(eslint@9.39.4(jiti@2.6.1))
@@ -3763,6 +3763,10 @@ packages:
     resolution: {integrity: sha512-kCKF62fwtzwYm0IGBNjRUjtJgMfGapII+FslMHIjMR5KTnwEmBmWLDRSnc3XSNP8bNy34tekgQyDT0hr7pERRQ==}
     engines: {node: '>=12'}
 
+  dotenv@17.4.1:
+    resolution: {integrity: sha512-k8DaKGP6r1G30Lx8V4+pCsLzKr8vLmV2paqEj1Y55GdAgJuIqpRp5FfajGF8KtwMxCz9qJc6wUIJnm053d/WCw==}
+    engines: {node: '>=12'}
+
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
@@ -3950,9 +3954,8 @@ packages:
     peerDependencies:
       eslint: '*'
 
-  eslint-plugin-cypress@5.4.0:
-    resolution: {integrity: sha512-XAQYuzMpLWJdFRQorPO3GDx4XHqI362qr1/XIp0N6SNTAa8lyzmpTA26qNRc99I53NnqX9l0SHwbHXX7TAKIkg==}
-    deprecated: 'deprecate: accidentally includes breaking changes from 6.0.0'
+  eslint-plugin-cypress@6.2.2:
+    resolution: {integrity: sha512-lOhmMWb5/+zv28EaDOT7C3lgGgWL8DMZglTUNUaaGfleK89joDBRXX8LV01ygx3dK1RbvG54b8t025/5QEUKgg==}
     peerDependencies:
       eslint: '>=9'
 
@@ -9808,7 +9811,7 @@ snapshots:
       chokidar: 5.0.0
       confbox: 0.2.4
       defu: 6.1.6
-      dotenv: 17.4.0
+      dotenv: 17.4.1
       exsolve: 1.0.8
       giget: 3.2.0
       jiti: 2.6.1
@@ -10164,6 +10167,9 @@ snapshots:
 
   dotenv@17.4.0: {}
 
+  dotenv@17.4.1:
+    optional: true
+
   dunder-proto@1.0.1:
     dependencies:
       call-bind-apply-helpers: 1.0.2
@@ -10376,7 +10382,7 @@ snapshots:
       '@es-joy/jsdoccomment': 0.78.0
       eslint: 9.39.4(jiti@2.6.1)
 
-  eslint-plugin-cypress@5.4.0(eslint@9.39.4(jiti@2.6.1)):
+  eslint-plugin-cypress@6.2.2(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       eslint: 9.39.4(jiti@2.6.1)
       globals: 17.4.0

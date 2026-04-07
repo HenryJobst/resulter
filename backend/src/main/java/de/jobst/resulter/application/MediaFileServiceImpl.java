@@ -37,6 +37,9 @@ public class MediaFileServiceImpl implements MediaFileService {
     private static final Set<String> ALLOWED_MEDIA_TYPES = Set.of(
             "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml", "application/pdf");
 
+    // Only raster types are safe to process through Thumbnailator (SVG/PDF can contain XXE/SSRF payloads)
+    private static final Set<String> RASTER_IMAGE_TYPES = Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+
     @Value("#{'${resulter.media-file-path}'}")
     private String mediaFilePath;
 
@@ -67,7 +70,7 @@ public class MediaFileServiceImpl implements MediaFileService {
 
         FilePathAndName filePathAndName;
         try {
-            filePathAndName = getFilePathAndName(file, mediaFilePath);
+            filePathAndName = getFilePathAndName(file, mediaFilePath, detectedType);
         } catch (IOException | MimeTypeException e) {
             throw new RuntimeException(e);
         }
@@ -79,34 +82,33 @@ public class MediaFileServiceImpl implements MediaFileService {
             throw new RuntimeException(e);
         }
 
-        File thumbnailDir = ensureDirectory(mediaFileThumbnailsPath).toFile();
-
-        File thumbnailFile;
-        try {
-            thumbnailFile = Thumbnails.of(originalFile)
-                    .size(mediaFileThumbnailSize, mediaFileThumbnailSize)
-                    .outputFormat("jpg")
-                    .asFiles(thumbnailDir, Rename.SUFFIX_DOT_THUMBNAIL)
-                    .getFirst();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        // Only generate thumbnails for raster image types; SVG/PDF could contain XXE/SSRF payloads
+        String thumbnailFileName;
+        if (RASTER_IMAGE_TYPES.contains(detectedType)) {
+            File thumbnailDir = ensureDirectory(mediaFileThumbnailsPath).toFile();
+            try {
+                thumbnailFileName = Thumbnails.of(originalFile)
+                        .size(mediaFileThumbnailSize, mediaFileThumbnailSize)
+                        .outputFormat("jpg")
+                        .asFiles(thumbnailDir, Rename.SUFFIX_DOT_THUMBNAIL)
+                        .getFirst()
+                        .getName();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            thumbnailFileName = filePathAndName.fileName();
         }
 
-        MediaFile mediaFile;
-        try {
-            mediaFile = MediaFile.of(
-                    filePathAndName.fileName(), thumbnailFile.getName(), getContentType(file), file.getSize());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        MediaFile mediaFile = MediaFile.of(filePathAndName.fileName(), thumbnailFileName, detectedType, file.getSize());
 
         return mediaFileRepository.save(mediaFile);
     }
 
-    private FilePathAndName getFilePathAndName(MultipartFile file, String mediaFilePath)
+    private FilePathAndName getFilePathAndName(MultipartFile file, String mediaFilePath, String detectedType)
             throws IOException, MimeTypeException {
         Path basePath = ensureDirectory(Optional.of(mediaFilePath).orElseThrow());
-        String fileName = sanitizeFilename(getFilename(file));
+        String fileName = sanitizeFilename(getFilename(file, detectedType));
         Path filePath = basePath.resolve(fileName).normalize();
 
         if (!filePath.startsWith(basePath)) {
@@ -137,27 +139,13 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     private record FilePathAndName(String fileName, Path filePath) {}
 
-    private String getFilename(MultipartFile file) throws IOException, MimeTypeException {
+    private String getFilename(MultipartFile file, String detectedType) throws MimeTypeException {
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isEmpty()) {
-            // Generieren eines eindeutigen Dateinamens
-            String generatedFilename = UUID.randomUUID().toString();
-            // Optional: Hinzufügen einer Dateierweiterung basierend auf dem ContentType
-            String extension = getExtensionByMimeType(getContentType(file));
-            generatedFilename += "." + extension;
-            return generatedFilename;
+            String extension = getExtensionByMimeType(detectedType);
+            return UUID.randomUUID() + "." + extension;
         }
         return originalFilename;
-    }
-
-    private String getContentType(MultipartFile file) throws IOException {
-        String contentType = file.getContentType();
-        if (contentType != null) {
-            return contentType;
-        }
-
-        Tika tika = new Tika();
-        return tika.detect(file.getInputStream());
     }
 
     private String getExtensionByMimeType(String mimeType) throws MimeTypeException {

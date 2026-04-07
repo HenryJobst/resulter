@@ -29,7 +29,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
@@ -144,11 +144,7 @@ public class BffSecurityConfiguration {
             // OIDC RP-Initiated Logout: Redirect to Keycloak logout endpoint
             // This will clear the Keycloak SSO session and then redirect back to our frontend
             // Format: {issuer-uri}/protocol/openid-connect/logout?id_token_hint={token}&post_logout_redirect_uri={redirect}
-            String issuerUri = request.getServletContext().getInitParameter("issuer-uri");
-            if (issuerUri == null) {
-                // Fallback: construct from known Keycloak URL
-                issuerUri = jwtIssuerUri;
-            }
+            String issuerUri = jwtIssuerUri;
 
             try {
                 // Extract ID token from authentication for automatic logout (no confirmation needed)
@@ -176,9 +172,8 @@ public class BffSecurityConfiguration {
                 }
 
                 response.sendRedirect(logoutUrl.toString());
-            } catch (UnsupportedEncodingException e) {
-                log.error("Failed to encode logout URL", e);
-                // Fallback: just redirect to frontend
+            } catch (IOException e) {
+                log.error("Failed to redirect to logout URL", e);
                 response.sendRedirect(frontendUrl);
             }
         };

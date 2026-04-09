@@ -8,6 +8,8 @@ import { defineConfig } from 'vite'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import packageInfo from './package.json'
 
+const dbIdentifierCookieRegex = /X-DB-Identifier=([^;]+)/
+
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
@@ -38,7 +40,7 @@ export default defineConfig({
                         // Read X-DB-Identifier cookie from request and add as header
                         const cookies = req.headers.cookie
                         if (cookies) {
-                            const match = cookies.match(/X-DB-Identifier=([^;]+)/)
+                            const match = cookies.match(dbIdentifierCookieRegex)
                             if (match && match[1]) {
                                 proxyReq.setHeader('X-DB-Identifier', match[1])
                                 console.log(`[Vite Proxy] Forwarding X-DB-Identifier: ${match[1]}`)
@@ -61,7 +63,7 @@ export default defineConfig({
                         // Read X-DB-Identifier cookie from request and add as header
                         const cookies = req.headers.cookie
                         if (cookies) {
-                            const match = cookies.match(/X-DB-Identifier=([^;]+)/)
+                            const match = cookies.match(dbIdentifierCookieRegex)
                             if (match && match[1]) {
                                 proxyReq.setHeader('X-DB-Identifier', match[1])
                             }

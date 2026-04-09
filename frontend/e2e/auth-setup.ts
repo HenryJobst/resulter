@@ -3,6 +3,10 @@ import process from 'node:process'
 import { test } from '@playwright/test'
 import * as dotenv from 'dotenv'
 
+const usernameRegex = /username/i
+const passwordRegex = /password/i
+const localhostRegex = /localhost:5173/
+
 // we don't want to store credentials in the repository
 dotenv.config({
     path: './e2e/.env.local',
@@ -16,7 +20,7 @@ test('authenticate user with BFF', async ({ page }) => {
     }
 
     const stats = fs.existsSync(storageState!.toString()) ? fs.statSync(storageState!.toString()) : null
-    if (stats && stats.mtimeMs > new Date().getTime() - 600000) {
+    if (stats && stats.mtimeMs > Date.now() - 600000) {
         console.log(`\x1B[2m\tSign in skipped because session is fresh\x1B[0m`)
         return
     }
@@ -65,7 +69,7 @@ test('authenticate user with BFF', async ({ page }) => {
     if (!keycloakPageLoaded) {
         console.log(`\x1B[2m\tNo URL pattern matched. Checking for login form...\x1B[0m`)
         try {
-            await page.getByRole('textbox', { name: /username/i }).waitFor({ timeout: 2000 })
+            await page.getByRole('textbox', { name: usernameRegex }).waitFor({ timeout: 2000 })
             console.log(`\x1B[2m\tLogin form found on page: ${page.url()}\x1B[0m`)
             keycloakPageLoaded = true
         }
@@ -79,8 +83,8 @@ test('authenticate user with BFF', async ({ page }) => {
     console.log(`\x1B[2m\tSigning in as '${process.env.USERNAME}'\x1B[0m`)
 
     // Fill in Keycloak login form
-    await page.getByRole('textbox', { name: /username/i }).fill(process.env.USERNAME as string)
-    await page.getByRole('textbox', { name: /password/i }).fill(process.env.PASSWORD as string)
+    await page.getByRole('textbox', { name: usernameRegex }).fill(process.env.USERNAME as string)
+    await page.getByRole('textbox', { name: passwordRegex }).fill(process.env.PASSWORD as string)
 
     console.log(`\x1B[2m\tSubmitting login form\x1B[0m`)
 
@@ -91,7 +95,7 @@ test('authenticate user with BFF', async ({ page }) => {
     // After successful login, Keycloak redirects to backend, which sets session cookie
     // and redirects to the frontend
     console.log(`\x1B[2m\tWaiting for redirect to frontend...\x1B[0m`)
-    await page.waitForURL(/localhost:5173/, { timeout: 15000 })
+    await page.waitForURL(localhostRegex, { timeout: 15000 })
 
     console.log(`\x1B[2m\tSuccessfully redirected to frontend\x1B[0m`)
     console.log(`\x1B[2m\tSession cookie established\x1B[0m`)

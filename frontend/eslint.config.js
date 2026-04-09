@@ -16,6 +16,7 @@ export default antfu(
         // `.eslintignore` is no longer supported in Flat config, use `ignores` instead
         ignores: [
             '**/*.md/**', // Ignore code blocks in markdown files
+            '.playwright-cli/**',
         ],
 
         formatters: false,

@@ -27,6 +27,15 @@ vi.mock('@vueuse/core', () => ({
     useDebounceFn: vi.fn((fn: any) => fn),
 }))
 
+function createMountOptions() {
+    const base = createGlobalMountOptions()
+    return {
+        ...base,
+        mocks: { $route: { params: {}, query: {}, meta: {} }, $router: { push: vi.fn(), replace: vi.fn() } },
+        stubs: { ...base.stubs, RouterLink: { name: 'RouterLink', template: '<a><slot /></a>' } },
+    }
+}
+
 describe('genericList', () => {
     let mockEntityService: IGenericService<any>
     let mockColumns: GenericListColumn[]
@@ -96,7 +105,7 @@ describe('genericList', () => {
                     columns: mockColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.text()).toContain('Test List')
@@ -111,7 +120,7 @@ describe('genericList', () => {
                     listLabel: 'Test List',
                     visible: false,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.text()).not.toContain('Test List')
@@ -125,7 +134,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -144,7 +153,7 @@ describe('genericList', () => {
                     newEnabled: true,
                     changeable: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const buttons = wrapper.findAllComponents({ name: 'Button' })
@@ -160,7 +169,7 @@ describe('genericList', () => {
                     visible: true,
                     newEnabled: false,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.html()).toBeDefined()
@@ -174,7 +183,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const buttons = wrapper.findAllComponents({ name: 'Button' })
@@ -192,7 +201,7 @@ describe('genericList', () => {
                     columns: mockColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const dataTable = wrapper.findComponent({ name: 'DataTable' })
@@ -207,7 +216,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const dataTable = wrapper.findComponent({ name: 'DataTable' })
@@ -225,7 +234,7 @@ describe('genericList', () => {
                     columns: mockColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.props('columns')).toEqual(mockColumns)
@@ -248,7 +257,7 @@ describe('genericList', () => {
                     columns: dateColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -271,7 +280,7 @@ describe('genericList', () => {
                     columns: timeColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -294,7 +303,7 @@ describe('genericList', () => {
                     columns: yearColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -311,7 +320,7 @@ describe('genericList', () => {
                     visible: true,
                     changeable: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -326,7 +335,7 @@ describe('genericList', () => {
                     visible: true,
                     editEnabled: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -341,7 +350,7 @@ describe('genericList', () => {
                     visible: true,
                     deleteEnabled: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -356,7 +365,7 @@ describe('genericList', () => {
                     visible: true,
                     filterDisplay: 'menu',
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -373,7 +382,7 @@ describe('genericList', () => {
                     columns: mockColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const vm = wrapper.vm as any
@@ -390,7 +399,7 @@ describe('genericList', () => {
                     columns: mockColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const vm = wrapper.vm as any
@@ -406,7 +415,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const vm = wrapper.vm as any
@@ -425,7 +434,7 @@ describe('genericList', () => {
                     visible: true,
                     deleteEnabled: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const vm = wrapper.vm as any
@@ -468,7 +477,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const vm = wrapper.vm as any
@@ -488,7 +497,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const vm = wrapper.vm as any
@@ -515,7 +524,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const vm = wrapper.vm as any
@@ -564,7 +573,7 @@ describe('genericList', () => {
                     columns: listColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -587,7 +596,7 @@ describe('genericList', () => {
                     columns: idColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -625,7 +634,7 @@ describe('genericList', () => {
                     enumTypeLabelPrefixes,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -659,7 +668,7 @@ describe('genericList', () => {
                     columns: imageColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -682,7 +691,7 @@ describe('genericList', () => {
                     columns: customColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -716,7 +725,7 @@ describe('genericList', () => {
                     columns: defaultColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -735,7 +744,7 @@ describe('genericList', () => {
                     editEnabled: true,
                     changeable: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -751,7 +760,7 @@ describe('genericList', () => {
                     deleteEnabled: true,
                     changeable: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -780,7 +789,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const reloadButton = wrapper.findAllComponents({ name: 'Button' }).find(btn =>
@@ -809,7 +818,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const dataTable = wrapper.findComponent({ name: 'DataTable' })
@@ -836,7 +845,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const dataTable = wrapper.findComponent({ name: 'DataTable' })
@@ -863,7 +872,7 @@ describe('genericList', () => {
                     columns: filterableColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -886,7 +895,7 @@ describe('genericList', () => {
                     columns: filterableColumns,
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -906,7 +915,7 @@ describe('genericList', () => {
                 slots: {
                     extra_list_actions: '<div class="extra-list-action">Custom Action</div>',
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.find('.extra-list-action').exists()).toBe(true)
@@ -923,7 +932,7 @@ describe('genericList', () => {
                 slots: {
                     extra_row_actions: '<div class="extra-row-action">Row Action</div>',
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             expect(wrapper.exists()).toBe(true)
@@ -939,7 +948,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const dataTable = wrapper.findComponent({ name: 'DataTable' })
@@ -954,7 +963,7 @@ describe('genericList', () => {
                     queryKey: 'test-query',
                     visible: true,
                 },
-                global: createGlobalMountOptions(),
+                global: createMountOptions(),
             })
 
             const dataTable = wrapper.findComponent({ name: 'DataTable' })

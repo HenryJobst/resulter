@@ -31,9 +31,6 @@ public class CookieUtils {
     @Value("${server.servlet.session.cookie.domain:}")
     private @Nullable String cookieDomain;
 
-    @Value("${server.servlet.session.cookie.secure:true}")
-    private boolean cookieSecure;
-
     // CSRF cookie name (Spring Security default)
     private static final String CSRF_COOKIE_NAME = "XSRF-TOKEN";
 
@@ -73,7 +70,7 @@ public class CookieUtils {
             }
         }
 
-        cookie.setSecure(cookieSecure);
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(httpOnly);
         cookie.setMaxAge(maxAge);

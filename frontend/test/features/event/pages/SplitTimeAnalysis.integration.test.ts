@@ -5,6 +5,7 @@ import SplitTimeAnalysis from '../../../../src/features/event/pages/SplitTimeAna
 import { cleanupTest, createGlobalMountOptions, mockUseQuery } from '../../../helpers/testSetup'
 
 vi.mock('vue-router', () => ({
+    useRoute: vi.fn(() => ({ params: {}, query: {}, meta: {} })),
     useRouter: vi.fn(() => ({
         back: vi.fn(),
     })),

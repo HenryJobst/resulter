@@ -17,6 +17,9 @@ import type { PersonKey } from '@/features/person/model/person_key'
 import axiosInstance from '@/features/auth/services/api'
 import { GenericService } from '@/features/generic/services/GenericService'
 
+const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+const quoteRegex = /['"]/g
+
 const eventUrl: string = '/event'
 const resultListUrl: string = '/result_list'
 const eventStatusUrl: string = '/event_status'
@@ -138,11 +141,9 @@ export class EventService extends GenericService<SportEvent> {
                 let filename = 'download.pdf' // Standard-Dateiname, falls nichts im Header gefunden wird
                 if (contentDisposition) {
                     // Improved regex to handle different possible formats of Content-Disposition
-                    const filenameMatch = contentDisposition.match(
-                        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
-                    )
+                    const filenameMatch = contentDisposition.match(filenameRegex)
                     if (filenameMatch && filenameMatch.length > 1)
-                        filename = filenameMatch[1].replace(/['"]/g, '') // Remove any quotes
+                        filename = filenameMatch[1].replace(quoteRegex, '') // Remove any quotes
                 }
                 // Erstellen einer URL aus dem Blob
                 const fileURL = window.URL.createObjectURL(new Blob([response.data]))

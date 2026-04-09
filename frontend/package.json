@@ -38,9 +38,7 @@
         "test:e2e:event-form": "playwright test event-form.spec.ts",
         "test:e2e:report": "playwright show-report",
         "test:e2e:trace": "playwright show-trace",
-        "test:e2e:check": "bash scripts/run-e2e.sh",
-        "test:cypress": "start-server-and-test preview http://localhost:4173 'cypress run --e2e'",
-        "test:cypress:dev": "start-server-and-test 'vite dev --port 4173' http://localhost:4173 'cypress open --e2e'"
+        "test:e2e:check": "bash scripts/run-e2e.sh"
     },
     "dependencies": {
         "@base2/pretty-print-object": "^1.0.2",
@@ -97,10 +95,8 @@
         "autoprefixer": "^10.4.27",
         "axe-core": "^4.11.2",
         "baseline-browser-mapping": "^2.10.13",
-        "cypress": "^15.13.0",
         "dotenv": "^17.4.1",
         "eslint": "^9.39.4",
-        "eslint-plugin-cypress": "^5.4.0",
         "eslint-plugin-format": "^1.5.0",
         "eslint-plugin-vue": "^10.8.0",
         "jsdom": "^27.4.0",
@@ -113,7 +109,6 @@
         "prettier": "^3.8.1",
         "sass": "^1.99.0",
         "simple-git-hooks": "^2.13.1",
-        "start-server-and-test": "^2.1.5",
         "tailwindcss": "^4.2.2",
         "typescript": "~5.9.3",
         "unocss": "^66.6.7",
@@ -143,7 +138,6 @@
             "yaml@^2.0.0": "^2.8.3"
         },
         "onlyBuiltDependencies": [
-            "cypress",
             "nx",
             "vue-demi"
         ]

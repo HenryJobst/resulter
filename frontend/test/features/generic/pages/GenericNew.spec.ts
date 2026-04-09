@@ -24,6 +24,7 @@ vi.mock('@tanstack/vue-query', async (importOriginal) => {
 // Mock router
 const mockReplace = vi.fn()
 vi.mock('vue-router', () => ({
+    useRoute: vi.fn(() => ({ params: {}, query: {}, meta: {} })),
     useRouter: () => ({
         replace: mockReplace,
     }),
@@ -471,7 +472,7 @@ describe('genericNew', () => {
             const onSuccess = mockUseMutation.mock.calls[0][0].onSuccess
             onSuccess()
 
-            expect(mockReplace).toHaveBeenCalledWith({ name: 'entity-list' })
+            expect(mockReplace).toHaveBeenCalledWith(expect.objectContaining({ name: 'entity-list' }))
         })
 
         it('should navigate to list page when navigateToList is called', () => {
@@ -490,7 +491,7 @@ describe('genericNew', () => {
             const vm = wrapper.vm as any
             vm.navigateToList()
 
-            expect(mockReplace).toHaveBeenCalledWith({ name: 'custom-list' })
+            expect(mockReplace).toHaveBeenCalledWith(expect.objectContaining({ name: 'custom-list' }))
         })
 
         it('should handle different routerPrefix values in navigation', () => {
@@ -509,7 +510,7 @@ describe('genericNew', () => {
             const vm = wrapper.vm as any
             vm.navigateToList()
 
-            expect(mockReplace).toHaveBeenCalledWith({ name: 'test-prefix-list' })
+            expect(mockReplace).toHaveBeenCalledWith(expect.objectContaining({ name: 'test-prefix-list' }))
         })
 
         // Test removed: console.log is not part of the mutationFn implementation

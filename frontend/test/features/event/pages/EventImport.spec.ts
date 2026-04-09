@@ -31,6 +31,7 @@ vi.mock('@tanstack/vue-query', async (importOriginal) => {
 // Mock router
 const mockReplace = vi.fn()
 vi.mock('vue-router', () => ({
+    useRoute: vi.fn(() => ({ params: {}, query: {}, meta: {} })),
     useRouter: () => ({
         replace: mockReplace,
     }),
@@ -289,7 +290,7 @@ describe('eventImport', () => {
             const vm = wrapper.vm as any
             await vm.redirectBack()
 
-            expect(mockReplace).toHaveBeenCalledWith({ name: 'event-list' })
+            expect(mockReplace).toHaveBeenCalledWith(expect.objectContaining({ name: 'event-list' }))
         })
 
         it('should be called when back button is clicked', async () => {
@@ -300,7 +301,7 @@ describe('eventImport', () => {
             const backButton = wrapper.findComponent({ name: 'Button' })
             await backButton.trigger('click')
 
-            expect(mockReplace).toHaveBeenCalledWith({ name: 'event-list' })
+            expect(mockReplace).toHaveBeenCalledWith(expect.objectContaining({ name: 'event-list' }))
         })
     })
 

@@ -8,6 +8,8 @@
 import type { Page } from '@playwright/test'
 import process from 'node:process'
 
+const apiRouteRegex = /\/api\//
+
 export interface DatabaseConfig {
     /**
      * Timeout in milliseconds for database creation.
@@ -149,7 +151,7 @@ export function useDatabaseIsolation(dbIdentifier: string) {
 export async function setupDatabaseRouting(page: Page, dbIdentifier: string): Promise<void> {
     // Intercept only API requests (not OAuth2) and add database identifier header
     // Pattern matches any URL containing /api/ (includes both localhost:5173 and localhost:8080)
-    await page.route(/\/api\//, async (route) => {
+    await page.route(apiRouteRegex, async (route) => {
         const url = route.request().url()
         console.log(`[Route Interception] Intercepting request to: ${url}`)
         console.log(`[Route Interception] Adding X-DB-Identifier: ${dbIdentifier}`)

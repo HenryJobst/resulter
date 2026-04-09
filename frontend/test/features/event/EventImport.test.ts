@@ -14,6 +14,7 @@ vi.mock('@/features/keycloak/services/keycloak', () => ({
 
 // Mock vue-router
 vi.mock('vue-router', () => ({
+    useRoute: vi.fn(() => ({ params: {}, query: {}, meta: {} })),
     useRouter: vi.fn(() => ({
         push: vi.fn(),
     })),

@@ -109,16 +109,18 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
             List<PersonResult> rankedPersonResults = new ArrayList<>();
             int position = 1;
 
-            // Eligible: positions 1..n, state=OK
+            // Eligible: positions 1..n, state=OK (or source state if no OK result)
             for (PersonResult pr : eligible) {
+                double best = bestOkRuntime(pr);
+                boolean hasOkResult = best < Double.MAX_VALUE;
                 PersonRaceResult newRaceResult = new PersonRaceResult(
                         shortName,
                         pr.personId(),
                         DateTime.empty(),
                         DateTime.empty(),
-                        PunchTime.of(bestOkRuntime(pr)),
+                        hasOkResult ? PunchTime.of(best) : PunchTime.of(null),
                         Position.of((long) position),
-                        ResultStatus.OK,
+                        hasOkResult ? ResultStatus.OK : bestSourceStatus(pr),
                         RaceNumber.of((byte) 0),
                         null);
                 rankedPersonResults.add(PersonResult.of(
@@ -126,16 +128,18 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                 position++;
             }
 
-            // Non-eligible: positions n+1..m, state=NOT_COMPETING
+            // Non-eligible: positions n+1..m, state=NOT_COMPETING (only if source result is OK)
             for (PersonResult pr : nonEligible) {
+                double best = bestOkRuntime(pr);
+                boolean hasOkResult = best < Double.MAX_VALUE;
                 PersonRaceResult newRaceResult = new PersonRaceResult(
                         shortName,
                         pr.personId(),
                         DateTime.empty(),
                         DateTime.empty(),
-                        PunchTime.of(bestOkRuntime(pr)),
+                        hasOkResult ? PunchTime.of(best) : PunchTime.of(null),
                         Position.of((long) position),
-                        ResultStatus.NOT_COMPETING,
+                        hasOkResult ? ResultStatus.NOT_COMPETING : bestSourceStatus(pr),
                         RaceNumber.of((byte) 0),
                         null);
                 rankedPersonResults.add(PersonResult.of(
@@ -240,6 +244,18 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
         OrganisationId orgId = pr.organisationId();
         if (orgId == null) return false;
         return baseOrg.containsOrganisationWithId(orgId, orgTree);
+    }
+
+    /**
+     * Returns the non-OK status of the person's first source PersonRaceResult,
+     * used when no OK result exists to preserve the original status (e.g. MissingPunch, DidNotFinish).
+     */
+    private ResultStatus bestSourceStatus(PersonResult pr) {
+        return pr.personRaceResults().value().stream()
+                .map(PersonRaceResult::getState)
+                .filter(s -> s != null && !ResultStatus.OK.equals(s))
+                .findFirst()
+                .orElse(ResultStatus.MISSING_PUNCH);
     }
 
     /**

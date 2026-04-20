@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Set;
+
 @RestController
 @Slf4j
 public class ChampionshipFilterController {
@@ -19,30 +22,43 @@ public class ChampionshipFilterController {
     }
 
     /**
-     * Marks all PersonRaceResults of non-eligible participants as NOT_COMPETING.
-     * Eligibility: participant's club must be within the given base organisation's tree.
+     * Returns the distinct class result short names for all (non-race-0) result lists of the event.
+     */
+    @GetMapping("/event/{id}/championship_class_short_names")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Set<String>> getClassShortNames(@PathVariable Long id) {
+        return ResponseEntity.ok(championshipFilterService.findClassShortNames(EventId.of(id)));
+    }
+
+    /**
+     * Marks non-eligible participants as NOT_COMPETING and reorders positions.
+     *
+     * @param excludeClassShortNames classes to skip; if omitted all classes are processed
      */
     @PutMapping("/event/{id}/championship_cleanup")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> applyChampionshipCleanup(
             @PathVariable Long id,
-            @RequestParam Long organisationId) {
+            @RequestParam Long organisationId,
+            @RequestParam(required = false, defaultValue = "") List<String> excludeClassShortNames) {
         championshipFilterService.applyChampionshipCleanup(
-                EventId.of(id), OrganisationId.of(organisationId));
+                EventId.of(id), OrganisationId.of(organisationId), Set.copyOf(excludeClassShortNames));
         return ResponseEntity.noContent().build();
     }
 
     /**
-     * Creates a Race-0 ResultList: eligible participants ranked first (state=OK),
-     * non-eligible follow (state=NOT_COMPETING).
+     * Creates a Race-0 ResultList with championship ranking.
+     *
+     * @param excludeClassShortNames classes to skip; if omitted all classes are included
      */
     @PutMapping("/event/{id}/championship_ranking")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> addChampionshipRanking(
             @PathVariable Long id,
-            @RequestParam Long organisationId) {
+            @RequestParam Long organisationId,
+            @RequestParam(required = false, defaultValue = "") List<String> excludeClassShortNames) {
         championshipFilterService.addChampionshipRanking(
-                EventId.of(id), OrganisationId.of(organisationId));
+                EventId.of(id), OrganisationId.of(organisationId), Set.copyOf(excludeClassShortNames));
         return ResponseEntity.noContent().build();
     }
 }

@@ -251,7 +251,6 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
         List<ClassResult> updatedClassResults = new ArrayList<>();
         for (ClassResult cr : resultList.getClassResults()) {
             if (excludeClassShortNames.contains(cr.classResultShortName().value())) {
-                updatedClassResults.add(cr);
                 continue;
             }
 

@@ -206,13 +206,14 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
 
         List<ClassResult> updatedClassResults = new ArrayList<>();
         for (ClassResult cr : resultList.getClassResults()) {
-            List<PersonResult> updatedPersonResults = new ArrayList<>();
+
+            // Step 1: mark non-eligible PersonRaceResults as NOT_COMPETING (only when source is OK)
+            List<PersonResult> markedPersonResults = new ArrayList<>();
             for (PersonResult pr : cr.personResults().value()) {
                 if (isEligible(pr, baseOrg, orgTree)) {
-                    updatedPersonResults.add(pr);
+                    markedPersonResults.add(pr);
                 } else {
-                    // Replace all PersonRaceResults with NOT_COMPETING copies
-                    List<PersonRaceResult> notCompetingResults = pr.personRaceResults().value().stream()
+                    List<PersonRaceResult> updated = pr.personRaceResults().value().stream()
                             .map(prr -> new PersonRaceResult(
                                     prr.getClassResultShortName(),
                                     prr.getPersonId(),
@@ -220,23 +221,135 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                                     prr.getFinishTime(),
                                     prr.getRuntime(),
                                     prr.getPosition(),
-                                    ResultStatus.NOT_COMPETING,
+                                    ResultStatus.OK.equals(prr.getState())
+                                            ? ResultStatus.NOT_COMPETING
+                                            : prr.getState(),
                                     prr.getRaceNumber(),
                                     prr.getSplitTimeListId()))
                             .collect(Collectors.toList());
-                    updatedPersonResults.add(PersonResult.of(
-                            pr.classResultShortName(), pr.personId(), pr.organisationId(), notCompetingResults));
+                    markedPersonResults.add(PersonResult.of(
+                            pr.classResultShortName(), pr.personId(), pr.organisationId(), updated));
                 }
             }
-            ClassResult updatedClassResult = new ClassResult(
+
+            // Step 2: reorder positions per raceNumber:
+            //   1. OK (eligible) sorted by runtime asc
+            //   2. NOT_COMPETING with valid runtime sorted by runtime asc
+            //   3. everything else (MissingPunch, DNS, DNF, …) sorted by personId
+            List<PersonResult> reorderedPersonResults =
+                    reorderPositions(markedPersonResults, cr.classResultShortName());
+
+            updatedClassResults.add(new ClassResult(
                     cr.classResultName(),
                     cr.classResultShortName(),
                     cr.gender(),
-                    PersonResults.of(updatedPersonResults),
-                    cr.courseId());
-            updatedClassResults.add(updatedClassResult);
+                    PersonResults.of(reorderedPersonResults),
+                    cr.courseId()));
         }
         resultList.setClassResults(updatedClassResults);
+    }
+
+    /**
+     * Reassigns positions within a class for every race number.
+     * Order: OK by runtime → NOT_COMPETING by runtime → everything else by personId.
+     */
+    private List<PersonResult> reorderPositions(
+            List<PersonResult> personResults, ClassResultShortName shortName) {
+
+        // Collect all raceNumbers present
+        Set<RaceNumber> raceNumbers = personResults.stream()
+                .flatMap(pr -> pr.personRaceResults().value().stream())
+                .map(PersonRaceResult::getRaceNumber)
+                .collect(Collectors.toSet());
+
+        // Build a lookup: personId → mutable map of raceNumber → PersonRaceResult
+        Map<PersonId, Map<RaceNumber, PersonRaceResult>> prrByPerson = new LinkedHashMap<>();
+        for (PersonResult pr : personResults) {
+            Map<RaceNumber, PersonRaceResult> byRace = new LinkedHashMap<>();
+            for (PersonRaceResult prr : pr.personRaceResults().value()) {
+                byRace.put(prr.getRaceNumber(), prr);
+            }
+            prrByPerson.put(pr.personId(), byRace);
+        }
+
+        // For each raceNumber assign new positions
+        Map<PersonId, Map<RaceNumber, PersonRaceResult>> updatedPrr = new LinkedHashMap<>(prrByPerson);
+        for (RaceNumber raceNumber : raceNumbers) {
+            List<PersonResult> forRace = personResults.stream()
+                    .filter(pr -> pr.personRaceResults().value().stream()
+                            .anyMatch(prr -> prr.getRaceNumber().equals(raceNumber)))
+                    .toList();
+
+            List<PersonResult> group1 = forRace.stream()
+                    .filter(pr -> statusForRace(pr, raceNumber) == ResultStatus.OK)
+                    .sorted(Comparator.comparingDouble((PersonResult pr) -> runtimeForRace(pr, raceNumber))
+                            .thenComparingLong(pr -> pr.personId().value()))
+                    .toList();
+
+            List<PersonResult> group2 = forRace.stream()
+                    .filter(pr -> statusForRace(pr, raceNumber) == ResultStatus.NOT_COMPETING
+                            && runtimeForRace(pr, raceNumber) < Double.MAX_VALUE)
+                    .sorted(Comparator.comparingDouble((PersonResult pr) -> runtimeForRace(pr, raceNumber))
+                            .thenComparingLong(pr -> pr.personId().value()))
+                    .toList();
+
+            List<PersonResult> group3 = forRace.stream()
+                    .filter(pr -> statusForRace(pr, raceNumber) != ResultStatus.OK
+                            && statusForRace(pr, raceNumber) != ResultStatus.NOT_COMPETING)
+                    .sorted(Comparator.comparingLong(pr -> pr.personId().value()))
+                    .toList();
+
+            int pos = 1;
+            for (PersonResult pr : group1) {
+                PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);
+                updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, pos++));
+            }
+            for (PersonResult pr : group2) {
+                PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);
+                updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, pos++));
+            }
+            for (PersonResult pr : group3) {
+                PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);
+                updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, pos++));
+            }
+        }
+
+        // Rebuild PersonResult list in original order
+        return personResults.stream().map(pr -> {
+            List<PersonRaceResult> newPrrs = new ArrayList<>(updatedPrr.get(pr.personId()).values());
+            return PersonResult.of(pr.classResultShortName(), pr.personId(), pr.organisationId(), newPrrs);
+        }).toList();
+    }
+
+    private ResultStatus statusForRace(PersonResult pr, RaceNumber raceNumber) {
+        return pr.personRaceResults().value().stream()
+                .filter(prr -> prr.getRaceNumber().equals(raceNumber))
+                .map(PersonRaceResult::getState)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private double runtimeForRace(PersonResult pr, RaceNumber raceNumber) {
+        return pr.personRaceResults().value().stream()
+                .filter(prr -> prr.getRaceNumber().equals(raceNumber))
+                .map(prr -> prr.getRuntime() != null && prr.getRuntime().value() != null
+                        ? prr.getRuntime().value()
+                        : Double.MAX_VALUE)
+                .findFirst()
+                .orElse(Double.MAX_VALUE);
+    }
+
+    private PersonRaceResult withPosition(PersonRaceResult prr, int position) {
+        return new PersonRaceResult(
+                prr.getClassResultShortName(),
+                prr.getPersonId(),
+                prr.getStartTime(),
+                prr.getFinishTime(),
+                prr.getRuntime(),
+                Position.of((long) position),
+                prr.getState(),
+                prr.getRaceNumber(),
+                prr.getSplitTimeListId());
     }
 
     private boolean isEligible(

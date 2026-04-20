@@ -349,6 +349,7 @@
         "OverTime": "OverTime",
         "SportingWithdrawal": "SportingWithdrawal",
         "NotCompeting": "NotCompeting",
+        "NotCompetingShort": "NC",
         "Moved": "Moved",
         "MovedUp": "MovedUp",
         "DidNotStart": "DidNotStart",

@@ -95,10 +95,16 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                 }
             }
 
-            // Sort eligible by best OK runtime ascending
-            eligible.sort(Comparator.comparing(pr -> bestOkRuntime(pr)));
-            // Sort non-eligible by best OK runtime ascending
-            nonEligible.sort(Comparator.comparing(pr -> bestOkRuntime(pr)));
+            // Sort eligible by best OK runtime ascending, with personId as tiebreaker
+            eligible = eligible.stream()
+                    .sorted(Comparator.comparingDouble(this::bestOkRuntime)
+                            .thenComparingLong(pr -> pr.personId().value()))
+                    .collect(Collectors.toList());
+            // Sort non-eligible by best OK runtime ascending, with personId as tiebreaker
+            nonEligible = nonEligible.stream()
+                    .sorted(Comparator.comparingDouble(this::bestOkRuntime)
+                            .thenComparingLong(pr -> pr.personId().value()))
+                    .collect(Collectors.toList());
 
             List<PersonResult> rankedPersonResults = new ArrayList<>();
             int position = 1;
@@ -252,11 +258,13 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
      * Returns true if the ResultList represents race 0 (championship ranking list).
      * getRaceNumber() throws if there are no PersonRaceResults, so we wrap it.
      */
-    private boolean isRace0(ResultList rl) {
+    private boolean isRace0(ResultList resultList) {
+        if (resultList.getClassResults() == null || resultList.getClassResults().isEmpty()) return false;
         try {
-            return rl.getRaceNumber().value() != null
-                    && rl.getRaceNumber().value() == 0;
-        } catch (Exception e) {
+            RaceNumber rn = resultList.getRaceNumber();
+            return rn.value() != null && rn.value() == 0;
+        } catch (NoSuchElementException e) {
+            // ResultList has no PersonRaceResults — cannot be a race-0 list
             return false;
         }
     }

@@ -122,7 +122,7 @@ class ChampionshipFilterServiceImplTest {
         when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(resultList));
         when(organisationRepository.loadOrganisationTree(any())).thenReturn(tree);
 
-        service.applyChampionshipCleanup(eventId, baseOrgId);
+        service.applyChampionshipCleanup(eventId, baseOrgId, Set.of());
 
         // Capture what was saved
         verify(resultListRepository).update(resultList);
@@ -144,7 +144,7 @@ class ChampionshipFilterServiceImplTest {
         when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(resultList));
         when(organisationRepository.loadOrganisationTree(any())).thenReturn(tree);
 
-        service.applyChampionshipCleanup(eventId, baseOrgId);
+        service.applyChampionshipCleanup(eventId, baseOrgId, Set.of());
 
         verify(resultListRepository).update(resultList);
         ResultStatus state = resultList.getClassResults().stream()
@@ -173,7 +173,7 @@ class ChampionshipFilterServiceImplTest {
         when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(resultList));
         when(organisationRepository.loadOrganisationTree(any())).thenReturn(tree);
 
-        service.applyChampionshipCleanup(eventId, baseOrgId);
+        service.applyChampionshipCleanup(eventId, baseOrgId, Set.of());
 
         verify(resultListRepository).update(resultList);
         ResultStatus state = resultList.getClassResults().stream()
@@ -213,7 +213,7 @@ class ChampionshipFilterServiceImplTest {
                 ResultListId.of(2L), eventId, race0.getId(), "test", null, null, null);
         when(resultListRepository.findOrCreate(any(ResultList.class))).thenReturn(savedResultList);
 
-        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId);
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
 
         assertThat(result).hasSize(1);
         verify(resultListRepository).findOrCreate(any(ResultList.class));
@@ -273,7 +273,7 @@ class ChampionshipFilterServiceImplTest {
                 ResultListId.of(2L), eventId, race0.getId(), "test", null, null, null);
         when(resultListRepository.findOrCreate(any(ResultList.class))).thenReturn(savedResultList);
 
-        service.addChampionshipRanking(eventId, baseOrgId);
+        service.addChampionshipRanking(eventId, baseOrgId, Set.of());
 
         org.mockito.ArgumentCaptor<ResultList> captor = org.mockito.ArgumentCaptor.forClass(ResultList.class);
         verify(resultListRepository).findOrCreate(captor.capture());
@@ -337,7 +337,7 @@ class ChampionshipFilterServiceImplTest {
         when(auditorAware.getCurrentAuditor()).thenReturn(Optional.of("test"));
         when(resultListRepository.findOrCreate(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        List<ResultList> created = service.addChampionshipRanking(eventId, baseOrgId);
+        List<ResultList> created = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
 
         // Should create exactly one new race-0 list with only the source (race-1) data
         assertThat(created).hasSize(1);
@@ -350,7 +350,7 @@ class ChampionshipFilterServiceImplTest {
         when(resultListRepository.findByEventId(eventId)).thenReturn(Collections.emptyList());
         when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
 
-        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId);
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
 
         assertThat(result).isEmpty();
         verify(resultListRepository, never()).findOrCreate(any(ResultList.class));

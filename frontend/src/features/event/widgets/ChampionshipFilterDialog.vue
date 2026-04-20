@@ -3,6 +3,7 @@ import type { Organisation } from '@/features/organisation/model/organisation'
 import { useQuery } from '@tanstack/vue-query'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
+import MultiSelect from 'primevue/multiselect'
 import Select from 'primevue/select'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref } from 'vue'
@@ -25,12 +26,18 @@ const { t } = useI18n()
 const toast = useToast()
 
 const selectedOrgId = ref<number | null>(null)
+const excludedClasses = ref<string[]>([])
 const isLoadingCleanup = ref(false)
 const isLoadingRanking = ref(false)
 
 const organisationQuery = useQuery({
     queryKey: ['organisations'],
     queryFn: () => organisationService.getAllUnpaged(t),
+})
+
+const classShortNamesQuery = useQuery({
+    queryKey: ['championshipClassShortNames', props.eventId],
+    queryFn: () => EventService.getChampionshipClassShortNames(props.eventId, t),
 })
 
 // Filter: only NationalFederation and NationalRegion
@@ -52,6 +59,7 @@ const defaultOrgId = computed(() => {
 
 function onDialogShow() {
     selectedOrgId.value = defaultOrgId.value
+    excludedClasses.value = []
 }
 
 async function handleCleanup() {
@@ -59,7 +67,7 @@ async function handleCleanup() {
         return
     isLoadingCleanup.value = true
     try {
-        await EventService.applyChampionshipCleanup(props.eventId, selectedOrgId.value, t)
+        await EventService.applyChampionshipCleanup(props.eventId, selectedOrgId.value, excludedClasses.value, t)
         emit('done')
         emit('update:visible', false)
     }
@@ -82,7 +90,7 @@ async function handleRanking() {
         return
     isLoadingRanking.value = true
     try {
-        await EventService.addChampionshipRanking(props.eventId, selectedOrgId.value, t)
+        await EventService.addChampionshipRanking(props.eventId, selectedOrgId.value, excludedClasses.value, t)
         emit('done')
         emit('update:visible', false)
     }
@@ -107,7 +115,7 @@ async function handleRanking() {
         :header="t('messages.championship_filter_title')"
         modal
         dismissable-mask
-        :style="{ width: '30rem' }"
+        :style="{ width: '35rem' }"
         :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
         @update:visible="emit('update:visible', $event)"
         @show="onDialogShow"
@@ -125,6 +133,19 @@ async function handleRanking() {
                     :loading="organisationQuery.isPending.value"
                     class="w-full"
                     filter
+                />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="excludeClasses">{{ t('messages.championship_filter_exclude_classes') }}</label>
+                <MultiSelect
+                    id="excludeClasses"
+                    v-model="excludedClasses"
+                    :options="classShortNamesQuery.data.value ?? []"
+                    :placeholder="t('messages.championship_filter_exclude_classes_placeholder')"
+                    :loading="classShortNamesQuery.isPending.value"
+                    class="w-full"
+                    filter
+                    display="chip"
                 />
             </div>
         </div>

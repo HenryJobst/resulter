@@ -33,22 +33,34 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Set<String> findClassShortNames(EventId eventId) {
+        Collection<ResultList> resultLists = resultListRepository.findByEventId(eventId);
+        return resultLists.stream()
+                .filter(rl -> !isRace0(rl))
+                .filter(rl -> rl.getClassResults() != null)
+                .flatMap(rl -> rl.getClassResults().stream())
+                .map(cr -> cr.classResultShortName().value())
+                .collect(Collectors.toCollection(java.util.TreeSet::new));
+    }
+
+    @Override
     @Transactional
-    public void applyChampionshipCleanup(EventId eventId, OrganisationId baseOrgId) {
+    public void applyChampionshipCleanup(EventId eventId, OrganisationId baseOrgId, Set<String> excludeClassShortNames) {
         Collection<ResultList> resultLists = resultListRepository.findByEventId(eventId);
 
         Map<OrganisationId, Organisation> orgTree = loadOrgTree(resultLists, baseOrgId);
         Organisation baseOrg = findBaseOrg(orgTree, baseOrgId);
 
         for (ResultList resultList : resultLists) {
-            applyCleanupToResultList(resultList, baseOrg, orgTree);
+            applyCleanupToResultList(resultList, baseOrg, orgTree, excludeClassShortNames);
             resultListRepository.update(resultList);
         }
     }
 
     @Override
     @Transactional
-    public List<ResultList> addChampionshipRanking(EventId eventId, OrganisationId baseOrgId) {
+    public List<ResultList> addChampionshipRanking(EventId eventId, OrganisationId baseOrgId, Set<String> excludeClassShortNames) {
         Collection<ResultList> allResultLists = resultListRepository.findByEventId(eventId);
 
         Map<OrganisationId, Organisation> orgTree = loadOrgTree(allResultLists, baseOrgId);
@@ -71,6 +83,7 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
             if (rl.getClassResults() == null) continue;
             for (ClassResult cr : rl.getClassResults()) {
                 ClassResultShortName shortName = cr.classResultShortName();
+                if (excludeClassShortNames.contains(shortName.value())) continue;
                 mergedByClass.computeIfAbsent(shortName, k -> new ArrayList<>())
                         .addAll(cr.personResults().value());
                 classMetaByShortName.putIfAbsent(shortName, cr);
@@ -201,11 +214,16 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
     }
 
     private void applyCleanupToResultList(
-            ResultList resultList, Organisation baseOrg, Map<OrganisationId, Organisation> orgTree) {
+            ResultList resultList, Organisation baseOrg, Map<OrganisationId, Organisation> orgTree,
+            Set<String> excludeClassShortNames) {
         if (resultList.getClassResults() == null) return;
 
         List<ClassResult> updatedClassResults = new ArrayList<>();
         for (ClassResult cr : resultList.getClassResults()) {
+            if (excludeClassShortNames.contains(cr.classResultShortName().value())) {
+                updatedClassResults.add(cr);
+                continue;
+            }
 
             // Step 1: mark non-eligible PersonRaceResults as NOT_COMPETING (only when source is OK)
             List<PersonResult> markedPersonResults = new ArrayList<>();

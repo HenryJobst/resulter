@@ -324,11 +324,11 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
             }
             for (PersonResult pr : group2) {
                 PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);
-                updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, pos++));
+                updatedPrr.get(pr.personId()).put(raceNumber, withNullPosition(prr));
             }
             for (PersonResult pr : group3) {
                 PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);
-                updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, pos++));
+                updatedPrr.get(pr.personId()).put(raceNumber, withNullPosition(prr));
             }
         }
 
@@ -365,6 +365,19 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                 prr.getFinishTime(),
                 prr.getRuntime(),
                 Position.of((long) position),
+                prr.getState(),
+                prr.getRaceNumber(),
+                prr.getSplitTimeListId());
+    }
+
+    private PersonRaceResult withNullPosition(PersonRaceResult prr) {
+        return new PersonRaceResult(
+                prr.getClassResultShortName(),
+                prr.getPersonId(),
+                prr.getStartTime(),
+                prr.getFinishTime(),
+                prr.getRuntime(),
+                Position.of(null),
                 prr.getState(),
                 prr.getRaceNumber(),
                 prr.getSplitTimeListId());

@@ -4,10 +4,12 @@ import { useQuery } from '@tanstack/vue-query'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Select from 'primevue/select'
+import { useToast } from 'primevue/usetoast'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { EventService } from '@/features/event/services/event.service'
 import { organisationService } from '@/features/organisation/services/organisation.service'
+import { toastDisplayDuration } from '@/utils/constants'
 
 const props = defineProps<{
     eventId: number
@@ -20,6 +22,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 
 const selectedOrgId = ref<number | null>(null)
 const isLoadingCleanup = ref(false)
@@ -60,6 +63,15 @@ async function handleCleanup() {
         emit('done')
         emit('update:visible', false)
     }
+    catch (error) {
+        console.error('Championship cleanup failed:', error)
+        toast.add({
+            severity: 'error',
+            summary: t('messages.error'),
+            detail: t('messages.championship_cleanup_failed') || 'Championship cleanup failed',
+            life: toastDisplayDuration,
+        })
+    }
     finally {
         isLoadingCleanup.value = false
     }
@@ -73,6 +85,15 @@ async function handleRanking() {
         await EventService.addChampionshipRanking(props.eventId, selectedOrgId.value, t)
         emit('done')
         emit('update:visible', false)
+    }
+    catch (error) {
+        console.error('Championship ranking failed:', error)
+        toast.add({
+            severity: 'error',
+            summary: t('messages.error'),
+            detail: t('messages.championship_ranking_failed') || 'Championship ranking failed',
+            life: toastDisplayDuration,
+        })
     }
     finally {
         isLoadingRanking.value = false

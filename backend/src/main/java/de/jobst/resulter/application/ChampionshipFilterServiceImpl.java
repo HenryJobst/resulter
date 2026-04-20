@@ -290,8 +290,15 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
             prrByPerson.put(pr.personId(), byRace);
         }
 
-        // For each raceNumber assign new positions
+        // Use the first (or only) raceNumber to determine the overall display order.
+        // For each raceNumber: assign positions to OK results, null for everyone else.
+        RaceNumber primaryRace = raceNumbers.stream()
+                .min(Comparator.comparingInt(rn -> rn.value() & 0xFF))
+                .orElseThrow();
+
         Map<PersonId, Map<RaceNumber, PersonRaceResult>> updatedPrr = new LinkedHashMap<>(prrByPerson);
+        List<PersonResult> sortedOrder = null;
+
         for (RaceNumber raceNumber : raceNumbers) {
             List<PersonResult> forRace = personResults.stream()
                     .filter(pr -> pr.personRaceResults().value().stream()
@@ -314,7 +321,8 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
             List<PersonResult> group3 = forRace.stream()
                     .filter(pr -> statusForRace(pr, raceNumber) != ResultStatus.OK
                             && statusForRace(pr, raceNumber) != ResultStatus.NOT_COMPETING)
-                    .sorted(Comparator.comparingLong(pr -> pr.personId().value()))
+                    .sorted(Comparator.comparingDouble((PersonResult pr) -> runtimeForRace(pr, raceNumber))
+                            .thenComparingLong(pr -> pr.personId().value()))
                     .toList();
 
             int pos = 1;
@@ -330,10 +338,19 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                 PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);
                 updatedPrr.get(pr.personId()).put(raceNumber, withNullPosition(prr));
             }
+
+            // Capture the display order from the primary race
+            if (raceNumber.equals(primaryRace)) {
+                List<PersonResult> ordered = new ArrayList<>(group1);
+                ordered.addAll(group2);
+                ordered.addAll(group3);
+                sortedOrder = ordered;
+            }
         }
 
-        // Rebuild PersonResult list in original order
-        return personResults.stream().map(pr -> {
+        // Return PersonResults in sorted group order (group1 → group2 → group3 by runtime)
+        final List<PersonResult> finalOrder = sortedOrder != null ? sortedOrder : personResults;
+        return finalOrder.stream().map(pr -> {
             List<PersonRaceResult> newPrrs = new ArrayList<>(updatedPrr.get(pr.personId()).values());
             return PersonResult.of(pr.classResultShortName(), pr.personId(), pr.organisationId(), newPrrs);
         }).toList();

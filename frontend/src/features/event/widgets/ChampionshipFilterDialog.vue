@@ -1,0 +1,131 @@
+<script setup lang="ts">
+import type { Organisation } from '@/features/organisation/model/organisation'
+import { useQuery } from '@tanstack/vue-query'
+import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
+import Select from 'primevue/select'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { EventService } from '@/features/event/services/event.service'
+import { organisationService } from '@/features/organisation/services/organisation.service'
+
+const props = defineProps<{
+    eventId: number
+    visible: boolean
+}>()
+
+const emit = defineEmits<{
+    (e: 'update:visible', value: boolean): void
+    (e: 'done'): void
+}>()
+
+const { t } = useI18n()
+
+const selectedOrgId = ref<number | null>(null)
+const isLoadingCleanup = ref(false)
+const isLoadingRanking = ref(false)
+
+const organisationQuery = useQuery({
+    queryKey: ['organisations'],
+    queryFn: () => organisationService.getAllUnpaged(t),
+})
+
+// Filter: only NationalFederation and NationalRegion
+const eligibleOrganisations = computed<Organisation[]>(() => {
+    if (!organisationQuery.data.value)
+        return []
+    return (organisationQuery.data.value as Organisation[]).filter(
+        org => org.type?.id === 'NationalFederation' || org.type?.id === 'NationalRegion',
+    )
+})
+
+// Pre-select BBM if available
+const defaultOrgId = computed(() => {
+    const bbm = eligibleOrganisations.value.find(org =>
+        org.shortName?.toUpperCase().includes('BBM') || org.name?.toUpperCase().includes('BBM'),
+    )
+    return bbm?.id ?? null
+})
+
+function onDialogShow() {
+    selectedOrgId.value = defaultOrgId.value
+}
+
+async function handleCleanup() {
+    if (!selectedOrgId.value)
+        return
+    isLoadingCleanup.value = true
+    try {
+        await EventService.applyChampionshipCleanup(props.eventId, selectedOrgId.value, t)
+        emit('done')
+        emit('update:visible', false)
+    }
+    finally {
+        isLoadingCleanup.value = false
+    }
+}
+
+async function handleRanking() {
+    if (!selectedOrgId.value)
+        return
+    isLoadingRanking.value = true
+    try {
+        await EventService.addChampionshipRanking(props.eventId, selectedOrgId.value, t)
+        emit('done')
+        emit('update:visible', false)
+    }
+    finally {
+        isLoadingRanking.value = false
+    }
+}
+</script>
+
+<template>
+    <Dialog
+        :visible="props.visible"
+        :header="t('messages.championship_filter_title')"
+        modal
+        dismissable-mask
+        :style="{ width: '30rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+        @update:visible="emit('update:visible', $event)"
+        @show="onDialogShow"
+    >
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+                <label for="baseOrg">{{ t('messages.championship_filter_base_org') }}</label>
+                <Select
+                    id="baseOrg"
+                    v-model="selectedOrgId"
+                    :options="eligibleOrganisations"
+                    option-label="name"
+                    option-value="id"
+                    :placeholder="t('messages.championship_filter_select_placeholder')"
+                    :loading="organisationQuery.isPending.value"
+                    class="w-full"
+                    filter
+                />
+            </div>
+        </div>
+
+        <template #footer>
+            <Button
+                v-tooltip="t('messages.championship_cleanup_tooltip')"
+                :label="t('messages.championship_cleanup_label')"
+                icon="pi pi-filter-slash"
+                severity="warning"
+                :disabled="!selectedOrgId"
+                :loading="isLoadingCleanup"
+                @click="handleCleanup"
+            />
+            <Button
+                v-tooltip="t('messages.championship_ranking_tooltip')"
+                :label="t('messages.championship_ranking_label')"
+                icon="pi pi-list"
+                :disabled="!selectedOrgId"
+                :loading="isLoadingRanking"
+                @click="handleRanking"
+            />
+        </template>
+    </Dialog>
+</template>

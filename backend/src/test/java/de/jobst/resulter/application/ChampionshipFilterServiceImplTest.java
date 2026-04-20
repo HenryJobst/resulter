@@ -297,6 +297,55 @@ class ChampionshipFilterServiceImplTest {
     }
 
     @Test
+    void ranking_existingRace0_isExcludedFromSources() {
+        // Setup: one race-1 source list and one existing race-0 list
+        PersonRaceResult race1Prr = makeRaceResult("H35", ELIGIBLE_PERSON_ID, 1000.0, ResultStatus.OK, (byte) 1);
+        PersonResult eligibleInRace1 = PersonResult.of(
+                ClassResultShortName.of("H35"), PersonId.of(ELIGIBLE_PERSON_ID), eligibleClubId, List.of(race1Prr));
+        ClassResult race1ClassResult = ClassResult.of("H35 (M35-)", "H35", Gender.M, List.of(eligibleInRace1), null);
+        ResultList sourceList = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, List.of(race1ClassResult));
+
+        // Existing race-0 list: contains a PersonRaceResult with raceNumber=0
+        PersonRaceResult race0Prr = new PersonRaceResult(
+                ClassResultShortName.of("H35"),
+                PersonId.of(ELIGIBLE_PERSON_ID),
+                DateTime.empty(),
+                DateTime.empty(),
+                PunchTime.of(1000.0),
+                Position.of(1L),
+                ResultStatus.OK,
+                RaceNumber.of((byte) 0),
+                null);
+        PersonResult existingRace0Person = PersonResult.of(
+                ClassResultShortName.of("H35"), PersonId.of(ELIGIBLE_PERSON_ID), eligibleClubId, List.of(race0Prr));
+        ClassResult existingRace0ClassResult = ClassResult.of(
+                "H35 (M35-)", "H35", Gender.M, List.of(existingRace0Person), null);
+        ResultList existingRace0List = new ResultList(
+                ResultListId.of(2L),
+                eventId,
+                RaceId.of(99L),
+                "test",
+                null,
+                "active",
+                List.of(existingRace0ClassResult));
+
+        Race race0 = Race.of(eventId, (byte) 0);
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(sourceList, existingRace0List));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(race0);
+        when(auditorAware.getCurrentAuditor()).thenReturn(Optional.of("test"));
+        when(resultListRepository.findOrCreate(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<ResultList> created = service.addChampionshipRanking(eventId, baseOrgId);
+
+        // Should create exactly one new race-0 list with only the source (race-1) data
+        assertThat(created).hasSize(1);
+        ClassResult cr = created.getFirst().getClassResults().iterator().next();
+        assertThat(cr.personResults().value()).hasSize(1); // only the eligible person from race-1
+    }
+
+    @Test
     void ranking_emptySourceResultLists_returnsEmpty() {
         when(resultListRepository.findByEventId(eventId)).thenReturn(Collections.emptyList());
         when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());

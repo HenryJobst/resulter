@@ -269,6 +269,11 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
+    public List<String> findClassShortNamesByEventId(EventId eventId) {
+        return resultListJdbcRepository.findClassShortNamesByEventId(eventId.value());
+    }
+
+    @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
         // 1. Clone parent rows (person_result) for the new person

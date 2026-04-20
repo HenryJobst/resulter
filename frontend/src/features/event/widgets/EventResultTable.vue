@@ -82,9 +82,11 @@ const organisationQuery = useQuery({
 })
 
 function resultColumn(data: PersonResult): string {
-    return data.resultStatus === 'OK'
-        ? formatTime(data.runTime)
-        : t(`result_state.${data.resultStatus}`)
+    if (data.resultStatus === 'OK')
+        return formatTime(data.runTime)
+    if (data.resultStatus === 'NotCompeting' && data.runTime)
+        return `${formatTime(data.runTime)} ${t('result_state.NotCompetingShort')}`
+    return t(`result_state.${data.resultStatus}`)
 }
 
 function cupScore(cup: Cup, data: PersonResult, cupScoreLists: CupScoreList[] | undefined): string {

@@ -234,6 +234,7 @@
         "OverTime": "Zeitüberschreitung",
         "SportingWithdrawal": "SportingWithdrawal",
         "NotCompeting": "Ausser Konkurrenz",
+        "NotCompetingShort": "AK",
         "Moved": "Moved",
         "MovedUp": "MovedUp",
         "DidNotStart": "N Ang",

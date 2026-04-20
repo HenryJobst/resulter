@@ -72,6 +72,26 @@ export class EventService extends GenericService<SportEvent> {
             .then(response => response.data)
     }
 
+    static async applyChampionshipCleanup(
+        eventId: number,
+        organisationId: number,
+        _t: (key: string) => string,
+    ): Promise<void> {
+        await axiosInstance.put(
+            `${eventUrl}/${eventId}/championship_cleanup?organisationId=${organisationId}`,
+        )
+    }
+
+    static async addChampionshipRanking(
+        eventId: number,
+        organisationId: number,
+        _t: (key: string) => string,
+    ): Promise<void> {
+        await axiosInstance.put(
+            `${eventUrl}/${eventId}/championship_ranking?organisationId=${organisationId}`,
+        )
+    }
+
     static async getEventStatus(_t: (key: string) => string): Promise<EventStatus[] | null> {
         return await axiosInstance
             .get<EventStatus[]>(eventStatusUrl)

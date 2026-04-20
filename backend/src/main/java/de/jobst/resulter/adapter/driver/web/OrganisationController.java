@@ -106,7 +106,7 @@ public class OrganisationController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<OrganisationDto> createOrganisation(@RequestBody OrganisationDto organisationDto) {
         Organisation organisation = organisationService.createOrganisation(
                 OrganisationName.of(organisationDto.name()),

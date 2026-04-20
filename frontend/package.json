@@ -106,7 +106,7 @@
         "oxfmt": "^0.43.0",
         "playwright": "^1.59.1",
         "postcss": "^8.5.8",
-        "prettier": "^3.8.1",
+        "prettier": "^3.8.3",
         "sass": "^1.99.0",
         "simple-git-hooks": "^2.13.1",
         "tailwindcss": "^4.2.2",

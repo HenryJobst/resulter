@@ -379,7 +379,9 @@
         "championship_cleanup_tooltip": "Setzt alle Teilnehmer, deren Verein nicht zur gewählten Organisation gehört, auf 'Außer Konkurrenz'.",
         "championship_ranking_label": "Gesamtwertung ergänzen",
         "championship_ranking_tooltip": "Erstellt eine Race-0-Ergebnisliste mit Meisterschaftswertung: Berechtigte Teilnehmer zuerst (Platz 1..n), Nicht-Berechtigte dahinter.",
-        "championship_filter_select_placeholder": "Organisation auswählen..."
+        "championship_filter_select_placeholder": "Organisation auswählen...",
+        "championship_cleanup_failed": "Bereinigung fehlgeschlagen",
+        "championship_ranking_failed": "Gesamtwertung ergänzen fehlgeschlagen"
     },
     "errors": {
         "notFound": "Die angefragte Ressource wurde nicht gefunden. {message}",

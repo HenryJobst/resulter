@@ -35,13 +35,7 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
     @Override
     @Transactional(readOnly = true)
     public Set<String> findClassShortNames(EventId eventId) {
-        Collection<ResultList> resultLists = resultListRepository.findByEventId(eventId);
-        return resultLists.stream()
-                .filter(rl -> !isRace0(rl))
-                .filter(rl -> rl.getClassResults() != null)
-                .flatMap(rl -> rl.getClassResults().stream())
-                .map(cr -> cr.classResultShortName().value())
-                .collect(Collectors.toCollection(java.util.TreeSet::new));
+        return new java.util.TreeSet<>(resultListRepository.findClassShortNamesByEventId(eventId));
     }
 
     @Override
@@ -99,12 +93,15 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
 
             // Split into eligible and non-eligible
             List<PersonResult> eligible = new ArrayList<>();
-            List<PersonResult> nonEligible = new ArrayList<>();
+            List<PersonResult> nonEligibleWithTime = new ArrayList<>();
+            List<PersonResult> nonEligibleWithoutTime = new ArrayList<>();
             for (PersonResult pr : allPersonResults) {
                 if (isEligible(pr, baseOrg, orgTree)) {
                     eligible.add(pr);
+                } else if (bestOkRuntime(pr) < Double.MAX_VALUE) {
+                    nonEligibleWithTime.add(pr);
                 } else {
-                    nonEligible.add(pr);
+                    nonEligibleWithoutTime.add(pr);
                 }
             }
 
@@ -113,26 +110,43 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                     .sorted(Comparator.comparingDouble(this::bestOkRuntime)
                             .thenComparingLong(pr -> pr.personId().value()))
                     .collect(Collectors.toList());
-            // Sort non-eligible by best OK runtime ascending, with personId as tiebreaker
-            nonEligible = nonEligible.stream()
+            // Sort non-eligible-with-time by runtime ascending
+            nonEligibleWithTime = nonEligibleWithTime.stream()
                     .sorted(Comparator.comparingDouble(this::bestOkRuntime)
                             .thenComparingLong(pr -> pr.personId().value()))
+                    .collect(Collectors.toList());
+            // Sort non-eligible-without-time by personId
+            nonEligibleWithoutTime = nonEligibleWithoutTime.stream()
+                    .sorted(Comparator.comparingLong(pr -> pr.personId().value()))
                     .collect(Collectors.toList());
 
             List<PersonResult> rankedPersonResults = new ArrayList<>();
             int position = 1;
 
-            // Eligible: positions 1..n, state=OK (or source state if no OK result)
-            for (PersonResult pr : eligible) {
+            // Eligible: Olympic ranking on OK results
+            double lastOkRuntime = Double.NaN;
+            int lastOkPos = 1;
+            for (int i = 0; i < eligible.size(); i++) {
+                PersonResult pr = eligible.get(i);
                 double best = bestOkRuntime(pr);
                 boolean hasOkResult = best < Double.MAX_VALUE;
+                int assignedPos;
+                if (hasOkResult) {
+                    if (i == 0 || best != lastOkRuntime) {
+                        lastOkPos = position;
+                        lastOkRuntime = best;
+                    }
+                    assignedPos = lastOkPos;
+                } else {
+                    assignedPos = position;
+                }
                 PersonRaceResult newRaceResult = new PersonRaceResult(
                         shortName,
                         pr.personId(),
                         DateTime.empty(),
                         DateTime.empty(),
                         hasOkResult ? PunchTime.of(best) : PunchTime.of(null),
-                        Position.of((long) position),
+                        Position.of((long) assignedPos),
                         hasOkResult ? ResultStatus.OK : bestSourceStatus(pr),
                         RaceNumber.of((byte) 0),
                         null);
@@ -141,18 +155,34 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                 position++;
             }
 
-            // Non-eligible: positions n+1..m, state=NOT_COMPETING (only if source result is OK)
-            for (PersonResult pr : nonEligible) {
+            // Non-eligible with time: NOT_COMPETING, sequential positions for DB ordering
+            for (PersonResult pr : nonEligibleWithTime) {
                 double best = bestOkRuntime(pr);
-                boolean hasOkResult = best < Double.MAX_VALUE;
                 PersonRaceResult newRaceResult = new PersonRaceResult(
                         shortName,
                         pr.personId(),
                         DateTime.empty(),
                         DateTime.empty(),
-                        hasOkResult ? PunchTime.of(best) : PunchTime.of(null),
+                        PunchTime.of(best),
                         Position.of((long) position),
-                        hasOkResult ? ResultStatus.NOT_COMPETING : bestSourceStatus(pr),
+                        ResultStatus.NOT_COMPETING,
+                        RaceNumber.of((byte) 0),
+                        null);
+                rankedPersonResults.add(PersonResult.of(
+                        shortName, pr.personId(), pr.organisationId(), List.of(newRaceResult)));
+                position++;
+            }
+
+            // Non-eligible without valid time: original non-OK status, sequential positions
+            for (PersonResult pr : nonEligibleWithoutTime) {
+                PersonRaceResult newRaceResult = new PersonRaceResult(
+                        shortName,
+                        pr.personId(),
+                        DateTime.empty(),
+                        DateTime.empty(),
+                        PunchTime.of(null),
+                        Position.of((long) position),
+                        bestSourceStatus(pr),
                         RaceNumber.of((byte) 0),
                         null);
                 rankedPersonResults.add(PersonResult.of(
@@ -340,13 +370,15 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                 updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, lastPos));
                 pos++;
             }
+            // group2 and group3 get sequential positions for correct DB ordering,
+            // but the UI only displays positions for OK results.
             for (PersonResult pr : group2) {
                 PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);
-                updatedPrr.get(pr.personId()).put(raceNumber, withNullPosition(prr));
+                updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, pos++));
             }
             for (PersonResult pr : group3) {
                 PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);
-                updatedPrr.get(pr.personId()).put(raceNumber, withNullPosition(prr));
+                updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, pos++));
             }
 
             // Capture the display order from the primary race

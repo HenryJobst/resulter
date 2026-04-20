@@ -6,7 +6,7 @@ import type { Certificate } from '@/features/certificate/model/certificate'
 import type { CertificateKey } from '@/features/certificate/model/certificate_key'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import DatePicker from 'primevue/datepicker'
@@ -33,6 +33,7 @@ const { t } = useI18n()
 
 const showChampionshipDialog = ref(false)
 const authStore = useAuthStore()
+const queryClient = useQueryClient()
 
 const event = computed({
     get: () => props.event,
@@ -333,7 +334,7 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
             v-if="event && event.id"
             v-model:visible="showChampionshipDialog"
             :event-id="event.id"
-            @done="() => {}"
+            @done="() => queryClient.invalidateQueries({ queryKey: ['eventResults', event.id] })"
         />
     </div>
 </template>

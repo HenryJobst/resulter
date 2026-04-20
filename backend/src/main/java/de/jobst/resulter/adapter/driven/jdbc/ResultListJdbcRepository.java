@@ -103,4 +103,8 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     @Modifying
     @Query("DELETE FROM public.person_result pr WHERE pr.person_id = :personId")
     long deleteByPersonId(@Param("personId") Long personId);
+
+    @Modifying
+    @Query("DELETE FROM result_list WHERE event_id = :eventId")
+    void deleteByEventId(@Param("eventId") Long eventId);
 }

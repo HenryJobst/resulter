@@ -455,6 +455,7 @@
         "response_not_found": "Antwort nicht gefunden",
         "successfully_retrieved": "Erfolgreich abgerufen",
         "bad_request": "Fehlerhafte Anfrage",
+        "method_not_allowed": "Methode nicht erlaubt",
         "entity_lock_conflict": "Daten bereits geändert, bitte neu laden"
     },
     "cupStatistics": {

@@ -325,10 +325,20 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                             .thenComparingLong(pr -> pr.personId().value()))
                     .toList();
 
+            // Assign positions with Olympic ranking: tied runtimes share the same position
             int pos = 1;
-            for (PersonResult pr : group1) {
+            double lastRuntime = Double.NaN;
+            int lastPos = 1;
+            for (int i = 0; i < group1.size(); i++) {
+                PersonResult pr = group1.get(i);
+                double rt = runtimeForRace(pr, raceNumber);
+                if (i == 0 || rt != lastRuntime) {
+                    lastPos = pos;
+                    lastRuntime = rt;
+                }
                 PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);
-                updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, pos++));
+                updatedPrr.get(pr.personId()).put(raceNumber, withPosition(prr, lastPos));
+                pos++;
             }
             for (PersonResult pr : group2) {
                 PersonRaceResult prr = updatedPrr.get(pr.personId()).get(raceNumber);

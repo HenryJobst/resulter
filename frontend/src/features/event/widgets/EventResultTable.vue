@@ -151,7 +151,7 @@ function certificate(resultListId: number, classResultShortName: string, data: P
         <Column field="position" :header="t('labels.position')" class="font-semibold">
             <template #body="slotProps">
                 <div :id="`person-result-${slotProps.data.personId}`" class="font-medium">
-                    {{ slotProps.data.resultStatus === 'NotCompeting' ? '' : slotProps.data.position }}
+                    {{ slotProps.data.resultStatus === 'OK' ? slotProps.data.position : '' }}
                 </div>
             </template>
         </Column>

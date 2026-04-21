@@ -212,17 +212,25 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
         String creator = auditorAware.getCurrentAuditor()
                 .orElse(SpringSecurityAuditorAware.UNKNOWN);
 
-        // Build new ResultList
+        // Reuse existing Race-0 result list ID if present, so a re-run replaces instead of duplicates
+        Optional<ResultList> existingRace0 = allResultLists.stream()
+                .filter(this::isRace0)
+                .findFirst();
+
+        ResultListId resultListId = existingRace0
+                .map(ResultList::getId)
+                .orElse(ResultListId.empty());
+
         ResultList newResultList = new ResultList(
-                ResultListId.empty(),
+                resultListId,
                 eventId,
                 race0.getId(),
                 creator,
                 ZonedDateTime.now(),
-                null,
+                existingRace0.map(ResultList::getStatus).orElse(null),
                 championshipClassResults);
 
-        ResultList saved = resultListRepository.findOrCreate(newResultList);
+        ResultList saved = resultListRepository.save(newResultList);
         return List.of(saved);
     }
 

@@ -39,6 +39,12 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public boolean hasMultipleRaces(EventId eventId) {
+        return resultListRepository.countNonZeroRacesByEventId(eventId) > 1;
+    }
+
+    @Override
     @Transactional
     public void applyChampionshipCleanup(EventId eventId, OrganisationId baseOrgId, Set<String> excludeClassShortNames) {
         Collection<ResultList> resultLists = resultListRepository.findByEventId(eventId);

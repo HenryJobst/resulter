@@ -17,6 +17,12 @@ public interface ChampionshipFilterService {
     Set<String> findClassShortNames(EventId eventId);
 
     /**
+     * Returns true if the event has more than one real race (non-race-0 result list).
+     * In that case, race-0 represents a true overall ranking ("Gesamtwertung") across multiple races.
+     */
+    boolean hasMultipleRaces(EventId eventId);
+
+    /**
      * Marks all PersonRaceResults of participants whose club is NOT within the
      * base organisation's tree as NOT_COMPETING (across all races / all ResultLists
      * belonging to the given event).

@@ -271,6 +271,11 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     }
 
     @Override
+    public int countNonZeroRacesByEventId(EventId eventId) {
+        return resultListJdbcRepository.countNonZeroRacesByEventId(eventId.value());
+    }
+
+    @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void replacePersonId(PersonId oldPersonId, PersonId newPersonId) {
         // 1. Clone parent rows (person_result) for the new person

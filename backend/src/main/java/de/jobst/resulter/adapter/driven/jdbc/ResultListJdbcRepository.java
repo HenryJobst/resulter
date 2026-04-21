@@ -124,4 +124,19 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
         ORDER BY cr.short_name
         """)
     List<String> findClassShortNamesByEventId(@Param("eventId") Long eventId);
+
+    /**
+     * Counts the number of distinct race_ids in non-race-0 result lists for the given event.
+     * Returns > 1 when the event has multiple real races and race-0 represents a true overall ranking.
+     */
+    @Query("""
+        SELECT COUNT(DISTINCT rl.race_id)
+        FROM result_list rl
+        WHERE rl.event_id = :eventId
+          AND NOT EXISTS (
+              SELECT 1 FROM person_race_result prr
+              WHERE prr.result_list_id = rl.id AND prr.race_number = 0
+          )
+        """)
+    int countNonZeroRacesByEventId(@Param("eventId") Long eventId);
 }

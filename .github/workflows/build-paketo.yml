@@ -300,18 +300,12 @@ jobs:
         run: |
           pack build temp-frontend:build \
             --builder paketobuildpacks/builder-jammy-base \
-            --buildpack paketo-buildpacks/syft \
             --buildpack paketo-buildpacks/nginx \
             --env BP_WEB_SERVER=nginx \
             --env BP_WEB_SERVER_ROOT=dist \
             --env BP_NGINX_CONF_FILE=default.conf \
             --path . \
             --verbose
-
-      - name: Verify SBOM metadata exists (frontend)
-        run: |
-          BUILD_METADATA=$(docker inspect temp-frontend:build --format '{{ index .Config.Labels "io.buildpacks.build.metadata" }}')
-          echo "$BUILD_METADATA" | grep -q '"bom"' || (echo "SBOM metadata missing in frontend image" && exit 1)
 
       - name: Install Trivy
         run: |

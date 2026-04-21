@@ -169,6 +169,9 @@ jobs:
             echo "IS_VERSION_SET=false" >> $GITHUB_ENV
           fi
 
+      - name: Remove local-dev symlinks from backend
+        run: rm -f backend/compose.yml backend/.env
+
       - name: Build backend with Paketo
         working-directory: ./backend
         run: |
@@ -179,7 +182,6 @@ jobs:
             --env BP_MAVEN_VERSION=3.9.x \
             --env BP_MAVEN_BUILD_ARGUMENTS="-Dmaven.test.skip=true clean install" \
             --env BP_MAVEN_SETTINGS_PATH=settings.xml \
-            --env BP_EXCLUDE_FILES="compose.yml:.env" \
             --path . \
             --verbose
 

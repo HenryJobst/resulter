@@ -413,6 +413,21 @@
                 <artifactId>jackson-databind</artifactId>
                 <version>3.1.2</version> <!-- align with jackson-core fix -->
             </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>11.0.21</version> <!-- fix CVE-2026-34483 -->
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-el</artifactId>
+                <version>11.0.21</version> <!-- fix CVE-2026-34483 -->
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>11.0.21</version> <!-- fix CVE-2026-34483 -->
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -31,6 +31,15 @@ public class ChampionshipFilterController {
     }
 
     /**
+     * Returns true if the event has more than one real race (i.e. race-0 is a true overall ranking).
+     */
+    @GetMapping("/event/{id}/championship_has_multiple_races")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Boolean> hasMultipleRaces(@PathVariable Long id) {
+        return ResponseEntity.ok(championshipFilterService.hasMultipleRaces(EventId.of(id)));
+    }
+
+    /**
      * Marks non-eligible participants as NOT_COMPETING and reorders positions.
      *
      * @param excludeClassShortNames classes to skip; if omitted all classes are processed

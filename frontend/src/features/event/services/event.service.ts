@@ -81,6 +81,15 @@ export class EventService extends GenericService<SportEvent> {
             .then(r => r.data)
     }
 
+    static async getChampionshipHasMultipleRaces(
+        eventId: number,
+        _t: (key: string) => string,
+    ): Promise<boolean> {
+        return axiosInstance
+            .get<boolean>(`${eventUrl}/${eventId}/championship_has_multiple_races`)
+            .then(r => r.data)
+    }
+
     static async applyChampionshipCleanup(
         eventId: number,
         organisationId: number,

@@ -100,6 +100,11 @@ public class InMemoryResultListRepository implements ResultListRepository {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
+    @Override
+    public int countNonZeroRacesByEventId(EventId eventId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
     @SuppressWarnings("unused")
     public List<ResultList> savedResultLists() {
         return savedResultLists;

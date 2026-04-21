@@ -333,6 +333,7 @@
         "championship_cleanup_label": "Cleanup (mark not eligible)",
         "championship_cleanup_tooltip": "Sets all participants whose club is not in the selected organisation tree to 'Not Competing'.",
         "championship_ranking_label": "Add Championship Ranking",
+        "championship_ranking_label_multi_race": "Add Overall Ranking",
         "championship_ranking_tooltip": "Creates a Race-0 result list: eligible participants first (place 1..n), non-eligible participants after.",
         "championship_filter_select_placeholder": "Select organisation...",
         "championship_filter_exclude_classes": "Exclude classes",

@@ -227,7 +227,7 @@ watch(
             </div>
             <div
                 v-if="certificateQuery.status.value"
-                class="fixed-element flex flex-col flex-grow ml-3"
+                class="preview-panel flex flex-col ml-3"
             >
                 <div class="flex flex-row justify-between">
                     <label for="preview" class="col-fixed w-32">{{ t('labels.preview') }}</label>
@@ -257,10 +257,10 @@ watch(
 </template>
 
 <style scoped>
-.fixed-element {
-    position: fixed;
+.preview-panel {
+    position: sticky;
     top: 130px;
-    left: 780px;
+    align-self: flex-start;
     padding: 10px;
 }
 </style>

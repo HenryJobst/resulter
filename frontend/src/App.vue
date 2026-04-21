@@ -115,7 +115,7 @@ function setDetails(details: string) {
         />
 
         <!-- Main Content Area with Sidebar -->
-        <div class="main-container flex overflow-x-hidden">
+        <div class="main-container flex overflow-x-clip">
             <!-- Admin Sidebar (only shown for admins) -->
             <AdminSidebar
                 v-if="authStore.isAdmin"
@@ -124,7 +124,7 @@ function setDetails(details: string) {
             />
 
             <!-- Main Content -->
-            <main id="main-content" class="flex-1 p-6 min-h-screen bg-adaptive overflow-x-auto">
+            <main id="main-content" class="flex-1 p-6 min-h-screen bg-adaptive overflow-x-clip">
                 <Toast position="top-right">
                     <template #message="slotProps">
                         <div class="flex flex-column flex-auto">

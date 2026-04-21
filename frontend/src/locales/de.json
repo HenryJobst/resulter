@@ -91,6 +91,7 @@
         "certificate_stats": "{count} Urkunden erstellt",
         "race_number": "Lauf {raceNumber}",
         "overall": "Gesamtwertung",
+        "championship_ranking": "Meisterschaftswertung",
         "certificate_stat": "Urkundenerzeugungseintrag",
         "schema": "Schema",
         "help": "Hilfe",
@@ -234,6 +235,7 @@
         "OverTime": "Zeitüberschreitung",
         "SportingWithdrawal": "SportingWithdrawal",
         "NotCompeting": "Ausser Konkurrenz",
+        "NotCompetingShort": "AK",
         "Moved": "Moved",
         "MovedUp": "MovedUp",
         "DidNotStart": "N Ang",
@@ -372,7 +374,18 @@
         "mistake_detection_absolute_detail": "Zeitverlust > 30 Sekunden",
         "mistake_detection_explanation": "Die Median-Differenz (Median der Zeitverlust-Prozente) wird zur Bestimmung der individuellen Schwelle verwendet. Die Methode umfasst zwei Schritte: 1. Berechnung eines vorläufigen Medians. 2. Filterung aller Segmente, die den Kriterien (Median + 25% UND > 30 Sekunden) entsprechen. Der endgültige Normal PI wird aus dem Median der verbleibenden (guten) Segmente berechnet.",
         "pi_reference_time_note": "Referenzzeit = Durchschnitt der Top 3 Zeiten (robuster als einzelne Bestzeit)",
-        "pi_value_gt_1": "Langsamer als Referenzzeit"
+        "pi_value_gt_1": "Langsamer als Referenzzeit",
+        "championship_filter_title": "Meisterschaftsfilter",
+        "championship_filter_base_org": "Basisorganisation",
+        "championship_cleanup_label": "Bereinigung",
+        "championship_cleanup_tooltip": "Setzt alle Teilnehmer, deren Verein nicht zur gewählten Organisation gehört, auf 'Außer Konkurrenz'.",
+        "championship_ranking_label": "Meisterschaftswertung ergänzen",
+        "championship_ranking_tooltip": "Erstellt eine Race-0-Ergebnisliste mit Meisterschaftswertung: Berechtigte Teilnehmer zuerst (Platz 1..n), Nicht-Berechtigte dahinter.",
+        "championship_filter_select_placeholder": "Organisation auswählen...",
+        "championship_filter_exclude_classes": "Kategorien ausschließen",
+        "championship_filter_exclude_classes_placeholder": "Keine Ausschlüsse (alle Kategorien)",
+        "championship_cleanup_failed": "Bereinigung fehlgeschlagen",
+        "championship_ranking_failed": "Gesamtwertung ergänzen fehlgeschlagen"
     },
     "errors": {
         "notFound": "Die angefragte Ressource wurde nicht gefunden. {message}",
@@ -446,6 +459,7 @@
         "response_not_found": "Antwort nicht gefunden",
         "successfully_retrieved": "Erfolgreich abgerufen",
         "bad_request": "Fehlerhafte Anfrage",
+        "method_not_allowed": "Methode nicht erlaubt",
         "entity_lock_conflict": "Daten bereits geändert, bitte neu laden"
     },
     "cupStatistics": {

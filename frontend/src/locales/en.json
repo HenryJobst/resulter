@@ -91,6 +91,7 @@
         "certificate_stats": "{count} certificates created",
         "race_number": "Race {raceNumber}",
         "overall": "Overall",
+        "championship_ranking": "Championship Ranking",
         "certificate_stat": "certificate creation entry",
         "schema": "Schema",
         "help": "Help",
@@ -327,7 +328,18 @@
         "mistake_detection_absolute_detail": "Time loss > 30 seconds",
         "mistake_detection_explanation": "The median difference is the runner's 'normalized performance'. The 30-second threshold prevents small pace variations on short segments from being incorrectly identified as mistakes.",
         "pi_reference_time_note": "Reference time = Average of top 3 times (more robust than single best time)",
-        "pi_value_gt_1": "Slower than reference time"
+        "pi_value_gt_1": "Slower than reference time",
+        "championship_filter_title": "Championship Filter",
+        "championship_filter_base_org": "Base Organisation",
+        "championship_cleanup_label": "Cleanup (mark not eligible)",
+        "championship_cleanup_tooltip": "Sets all participants whose club is not in the selected organisation tree to 'Not Competing'.",
+        "championship_ranking_label": "Add Championship Ranking",
+        "championship_ranking_tooltip": "Creates a Race-0 result list: eligible participants first (place 1..n), non-eligible participants after.",
+        "championship_filter_select_placeholder": "Select organisation...",
+        "championship_filter_exclude_classes": "Exclude classes",
+        "championship_filter_exclude_classes_placeholder": "No exclusions (all classes)",
+        "championship_cleanup_failed": "Cleanup failed",
+        "championship_ranking_failed": "Add championship ranking failed"
     },
     "result_state": {
         "OK": "OK",
@@ -340,6 +352,7 @@
         "OverTime": "OverTime",
         "SportingWithdrawal": "SportingWithdrawal",
         "NotCompeting": "NotCompeting",
+        "NotCompetingShort": "NC",
         "Moved": "Moved",
         "MovedUp": "MovedUp",
         "DidNotStart": "DidNotStart",
@@ -446,6 +459,7 @@
         "response_not_found": "Response not found",
         "successfully_retrieved": "Successfully retrieved",
         "bad_request": "Invalid data on request",
+        "method_not_allowed": "Method not allowed",
         "entity_lock_conflict": "Entity already changed, please reload"
     },
     "cupStatistics": {

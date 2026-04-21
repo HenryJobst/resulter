@@ -19,7 +19,28 @@ public class DashboardJdbcRepository implements DashboardRepository {
 
     @Override
     public long countEvents() {
-        String sql = "SELECT COUNT(*) FROM event";
+        String sql = """
+            SELECT COUNT(*) FROM event e
+            WHERE e.start_time IS NULL
+               OR NOT EXISTS (
+                   SELECT 1 FROM event e2
+                   WHERE e2.start_time = e.start_time
+                     AND e2.id < e.id
+                     AND (
+                         -- both have no organisers
+                         (NOT EXISTS (SELECT 1 FROM event_organisation WHERE event_id = e.id)
+                          AND NOT EXISTS (SELECT 1 FROM event_organisation WHERE event_id = e2.id))
+                         OR
+                         -- share at least one organiser
+                         EXISTS (
+                             SELECT 1 FROM event_organisation eo1
+                             INNER JOIN event_organisation eo2
+                                 ON eo1.organisation_id = eo2.organisation_id
+                             WHERE eo1.event_id = e.id AND eo2.event_id = e2.id
+                         )
+                     )
+               )
+            """;
         Long count = jdbcTemplate.queryForObject(sql, Long.class);
         return count != null ? count : 0L;
     }
@@ -62,7 +83,29 @@ public class DashboardJdbcRepository implements DashboardRepository {
 
     @Override
     public long countRaces() {
-        String sql = "SELECT COUNT(*) FROM race";
+        String sql = """
+            SELECT COUNT(*) FROM race r
+            INNER JOIN event e ON r.event_id = e.id
+            WHERE e.start_time IS NULL
+               OR NOT EXISTS (
+                   SELECT 1 FROM event e2
+                   WHERE e2.start_time = e.start_time
+                     AND e2.id < e.id
+                     AND (
+                         -- both have no organisers
+                         (NOT EXISTS (SELECT 1 FROM event_organisation WHERE event_id = e.id)
+                          AND NOT EXISTS (SELECT 1 FROM event_organisation WHERE event_id = e2.id))
+                         OR
+                         -- share at least one organiser
+                         EXISTS (
+                             SELECT 1 FROM event_organisation eo1
+                             INNER JOIN event_organisation eo2
+                                 ON eo1.organisation_id = eo2.organisation_id
+                             WHERE eo1.event_id = e.id AND eo2.event_id = e2.id
+                         )
+                     )
+               )
+            """;
         Long count = jdbcTemplate.queryForObject(sql, Long.class);
         return count != null ? count : 0L;
     }

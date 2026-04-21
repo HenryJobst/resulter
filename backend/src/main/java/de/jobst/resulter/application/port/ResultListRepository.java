@@ -31,4 +31,8 @@ public interface ResultListRepository {
             ResultListId resultListId, ClassResultShortName classResultShortName, PersonId personId);
 
     void replacePersonId(PersonId oldPersonId, PersonId newPersonId);
+
+    List<String> findClassShortNamesByEventId(EventId eventId);
+
+    int countNonZeroRacesByEventId(EventId eventId);
 }

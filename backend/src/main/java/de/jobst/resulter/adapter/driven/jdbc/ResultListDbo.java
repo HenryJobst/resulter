@@ -20,7 +20,6 @@ import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -72,29 +71,30 @@ public class ResultListDbo {
         this.createTimeZone = createTimeZone;
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static ResultListDbo from(ResultList resultList, DboResolvers dboResolvers) {
+        Timestamp createTime = null != resultList.getCreateTime()
+                ? Timestamp.from(resultList.getCreateTime().toOffsetDateTime().toInstant())
+                : null;
+        String createTimeZone = null != resultList.getCreateTime()
+                ? resultList.getCreateTime().getZone().getId()
+                : null;
         ResultListDbo resultListDbo;
         if (resultList.getId().isPersistent()) {
-            resultListDbo = Objects.requireNonNull(
-                dboResolvers.getResultListDboResolver().findDboById(resultList.getId()));
-            resultListDbo.setEventId(AggregateReference.to(resultList.getEventId().value()));
-            resultListDbo.setRaceId(AggregateReference.to(resultList.getRaceId().value()));
-            resultListDbo.setCreator(resultList.getCreator());
-            resultListDbo.setCreateTime(null != resultList.getCreateTime() ?
-                                        Timestamp.from(resultList.getCreateTime().toOffsetDateTime().toInstant()) :
-                                        null);
-            resultListDbo.setCreateTimeZone(
-                null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
+            resultListDbo = new ResultListDbo(
+                    AggregateReference.to(resultList.getEventId().value()),
+                    AggregateReference.to(resultList.getRaceId().value()),
+                    resultList.getCreator(),
+                    createTime,
+                    createTimeZone)
+                .withId(resultList.getId().value());
+            resultListDbo.setStatus(resultList.getStatus() != null ? resultList.getStatus() : "COMPLETE");
         } else {
-            resultListDbo = new ResultListDbo(AggregateReference.to(resultList.getEventId().value()),
-                AggregateReference.to(resultList.getRaceId().value()),
-                resultList.getCreator(),
-                null != resultList.getCreateTime() ?
-                Timestamp.from(resultList.getCreateTime().toOffsetDateTime().toInstant()) :
-                null,
-                null != resultList.getCreateTime() ? resultList.getCreateTime().getZone().getId() : null);
-
+            resultListDbo = new ResultListDbo(
+                    AggregateReference.to(resultList.getEventId().value()),
+                    AggregateReference.to(resultList.getRaceId().value()),
+                    resultList.getCreator(),
+                    createTime,
+                    createTimeZone);
         }
         if (resultList.getClassResults() != null && !resultList.getClassResults().isEmpty()) {
             resultListDbo.setClassResults(resultList.getClassResults()

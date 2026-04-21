@@ -19,7 +19,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
 
     @Query("""
            SELECT DISTINCT
-               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
+               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.creator, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
                cl.short_name AS class_list_short_name, cl.name AS class_list_name, cl.gender AS class_gender, cl.course_id,
                pr.person_id, pr.organisation_id,
                prr.start_time, prr.start_time_zone, prr.punch_time, prr.position, prr.race_number, prr.state
@@ -34,7 +34,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
 
     @Query("""
            SELECT
-               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
+               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.creator, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
                cl.short_name AS class_list_short_name, cl.name AS class_list_name, cl.gender AS class_gender, cl.course_id,
                pr.person_id, pr.organisation_id,
                prr.start_time, prr.start_time_zone, prr.punch_time, prr.position, prr.race_number, prr.state
@@ -49,7 +49,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
 
     @Query("""
            SELECT
-               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
+               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.creator, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
                cl.short_name AS class_list_short_name, cl.name AS class_list_name, cl.gender AS class_gender, cl.course_id,
                pr.person_id, pr.organisation_id,
                prr.start_time, prr.start_time_zone, prr.punch_time, prr.position, prr.race_number, prr.state

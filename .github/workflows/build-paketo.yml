@@ -179,6 +179,7 @@ jobs:
             --env BP_MAVEN_VERSION=3.9.x \
             --env BP_MAVEN_BUILD_ARGUMENTS="-Dmaven.test.skip=true clean install" \
             --env BP_MAVEN_SETTINGS_PATH=settings.xml \
+            --env BP_EXCLUDE_FILES="compose.yml:.env" \
             --path . \
             --verbose
 

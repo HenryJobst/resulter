@@ -1,7 +1,5 @@
-import type { ApiResponse } from '@/features/common/model/apiResponse'
 import { AxiosError } from 'axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import * as apiResponseFunctions from '@/features/common/services/apiResponseFunctions'
 import {
     BackendException,
     getDetail,
@@ -9,9 +7,18 @@ import {
     handleApiError,
 } from '@/utils/HandleError'
 
-vi.mock('@/features/common/services/apiResponseFunctions', () => ({
-    getApiResponse: vi.fn(),
-}))
+interface ApiResponse<T> {
+    success: boolean
+    message: {
+        messageKey: { key: string }
+        messageParameters?: Record<string, any>
+    }
+    data: T | null
+    errors: string[] | null
+    errorCode: number
+    timestamp: number
+    path: string
+}
 
 describe('handleError', () => {
     let mockT: (key: string, params?: any) => string
@@ -84,8 +91,6 @@ describe('handleError', () => {
                     config: {} as any,
                 }
 
-                vi.mocked(apiResponseFunctions.getApiResponse).mockResolvedValue(mockApiResponse)
-
                 await expect(handleApiError(axiosError, mockT)).rejects.toThrow(BackendException)
 
                 try {
@@ -106,8 +111,6 @@ describe('handleError', () => {
                     headers: {},
                     config: {} as any,
                 }
-
-                vi.mocked(apiResponseFunctions.getApiResponse).mockResolvedValue(undefined)
 
                 await expect(handleApiError(axiosError, mockT)).rejects.toThrow(BackendException)
 
@@ -142,8 +145,6 @@ describe('handleError', () => {
                     headers: {},
                     config: {} as any,
                 }
-
-                vi.mocked(apiResponseFunctions.getApiResponse).mockResolvedValue(mockApiResponse)
 
                 await expect(handleApiError(axiosError, mockT)).rejects.toThrow(BackendException)
 
@@ -292,8 +293,6 @@ describe('handleError', () => {
 
             const exception = new BackendException(axiosError, 'Test error')
 
-            vi.mocked(apiResponseFunctions.getApiResponse).mockResolvedValue(mockApiResponse)
-
             const detail = await getDetail(exception, mockT)
 
             expect(detail).toBe('Error 1, Error 2, Error 3')
@@ -323,8 +322,6 @@ describe('handleError', () => {
             }
 
             const exception = new BackendException(axiosError, 'Test error')
-
-            vi.mocked(apiResponseFunctions.getApiResponse).mockResolvedValue(mockApiResponse)
 
             const detail = await getDetail(exception, mockT)
 
@@ -358,27 +355,24 @@ describe('handleError', () => {
 
             const detail = await getDetail(exception, mockT)
 
-            expect(detail).toBe(axiosError.stack)
+            expect(detail).toBe(exception.stack)
         })
 
-        it('should return stack trace when ApiResponse is undefined', async () => {
+        it('should return stack trace when response data is null', async () => {
             const axiosError = new AxiosError('Request failed')
             axiosError.response = {
-                data: {},
+                data: null,
                 status: 500,
                 statusText: 'Internal Server Error',
                 headers: {},
                 config: {} as any,
             }
-            axiosError.stack = 'AxiosError: Request failed'
 
             const exception = new BackendException(axiosError)
 
-            vi.mocked(apiResponseFunctions.getApiResponse).mockResolvedValue(undefined)
-
             const detail = await getDetail(exception, mockT)
 
-            expect(detail).toBe(axiosError.stack)
+            expect(detail).toBe(exception.stack)
         })
 
         it('should handle error object without stack', async () => {

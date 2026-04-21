@@ -45,12 +45,6 @@ const hasMultipleRacesQuery = useQuery({
     queryFn: () => EventService.getChampionshipHasMultipleRaces(props.eventId, t),
 })
 
-const rankingLabel = computed(() =>
-    hasMultipleRacesQuery.data.value
-        ? t('messages.championship_ranking_label_multi_race')
-        : t('messages.championship_ranking_label'),
-)
-
 // Filter: only NationalFederation and NationalRegion
 const eligibleOrganisations = computed<Organisation[]>(() => {
     if (!organisationQuery.data.value)
@@ -173,9 +167,9 @@ async function handleRanking() {
             />
             <Button
                 v-tooltip="t('messages.championship_ranking_tooltip')"
-                :label="rankingLabel"
+                :label="t('messages.championship_ranking_label')"
                 icon="pi pi-list"
-                :disabled="!selectedOrgId"
+                :disabled="!selectedOrgId || !!hasMultipleRacesQuery.data.value"
                 :loading="isLoadingRanking"
                 @click="handleRanking"
             />

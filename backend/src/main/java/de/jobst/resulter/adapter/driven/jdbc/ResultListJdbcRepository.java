@@ -107,4 +107,21 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     @Modifying
     @Query("DELETE FROM result_list WHERE event_id = :eventId")
     void deleteByEventId(@Param("eventId") Long eventId);
+
+    /**
+     * Returns distinct class result short names for non-race-0 result lists of the given event.
+     * Race-0 lists are identified by having at least one person_race_result with race_number = 0.
+     */
+    @Query("""
+        SELECT DISTINCT cr.short_name
+        FROM class_result cr
+        INNER JOIN result_list rl ON rl.id = cr.result_list_id
+        WHERE rl.event_id = :eventId
+          AND NOT EXISTS (
+              SELECT 1 FROM person_race_result prr
+              WHERE prr.result_list_id = rl.id AND prr.race_number = 0
+          )
+        ORDER BY cr.short_name
+        """)
+    List<String> findClassShortNamesByEventId(@Param("eventId") Long eventId);
 }

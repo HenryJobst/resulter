@@ -124,6 +124,7 @@ const hasMultipleRaces = computed(() => {
             .flatMap((c: ClassResult) => c.personResults)
             .flatMap(pr => pr.raceNumber)
             .reduce((a: string) => a)
+            .toString()
         if (raceNum !== '0') {
             nonZeroRaceIds.add(rl.raceId)
         }

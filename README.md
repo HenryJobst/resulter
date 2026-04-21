@@ -92,7 +92,7 @@ added in upcoming versions.
 
 Documentation:
 - Guide for integrating new fonts into document PDF export (iText):
-  [`doc/itext-font-integration-guide.md`](doc/itext-font-integration-guide.md)
+  [`doc/itext-font-integration-guide-generic.md`](doc/itext-font-integration-guide-generic.md)
 
 ## Contributions
 
@@ -195,7 +195,7 @@ Punkteberechnungen werden in kommenden Versionen ergänzt.
 
 Dokumentation:
 - Anleitung zum Einbinden neuer Schriftarten in den Dokument-PDF-Export (iText):
-  [`doc/itext-font-integration-guide.md`](doc/itext-font-integration-guide.md)
+  [`doc/itext-font-integration-guide-generic.md`](doc/itext-font-integration-guide-generic.md)
 
 ## Beiträge
 

@@ -6,16 +6,19 @@ import type { Certificate } from '@/features/certificate/model/certificate'
 import type { CertificateKey } from '@/features/certificate/model/certificate_key'
 import type { SportEvent } from '@/features/event/model/sportEvent'
 import type { OrganisationKey } from '@/features/organisation/model/organisation_key'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import DatePicker from 'primevue/datepicker'
 import InputText from 'primevue/inputtext'
 import MultiSelect from 'primevue/multiselect'
 import Select from 'primevue/select'
-import { computed, onBeforeUpdate, onMounted } from 'vue'
+import { computed, onBeforeUpdate, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { certificateService } from '@/features/certificate/services/certificate.service'
 import { EventService } from '@/features/event/services/event.service'
+import ChampionshipFilterDialog from '@/features/event/widgets/ChampionshipFilterDialog.vue'
 import { organisationService } from '@/features/organisation/services/organisation.service'
 
 const props = defineProps<{
@@ -27,6 +30,10 @@ const props = defineProps<{
 const emit = defineEmits(['update:modelValue'])
 
 const { t } = useI18n()
+
+const showChampionshipDialog = ref(false)
+const authStore = useAuthStore()
+const queryClient = useQueryClient()
 
 const event = computed({
     get: () => props.event,
@@ -313,6 +320,22 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
                 />
             </div>
         </div>
+        <!-- Championship Filter (Admin only) -->
+        <div v-if="authStore.isAdmin" class="flex flex-row mt-4">
+            <Button
+                :label="t('messages.championship_filter_title')"
+                icon="pi pi-trophy"
+                severity="secondary"
+                @click="showChampionshipDialog = true"
+            />
+        </div>
+
+        <ChampionshipFilterDialog
+            v-if="event && event.id"
+            v-model:visible="showChampionshipDialog"
+            :event-id="event.id"
+            @done="() => queryClient.invalidateQueries({ queryKey: ['eventResults', event.id] })"
+        />
     </div>
 </template>
 

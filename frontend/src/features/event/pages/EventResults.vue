@@ -116,6 +116,22 @@ function formatCreateTime(date: Date | string, locale: Ref<Locale>) {
     })
 }
 
+const hasMultipleRaces = computed(() => {
+    const resultLists = eventResultsQuery.data.value?.resultLists ?? []
+    const nonZeroRaceIds = new Set<number>()
+    for (const rl of resultLists) {
+        const raceNum = rl.classResults
+            .flatMap((c: ClassResult) => c.personResults)
+            .flatMap(pr => pr.raceNumber)
+            .reduce((a: string) => a)
+            .toString()
+        if (raceNum !== '0') {
+            nonZeroRaceIds.add(rl.raceId)
+        }
+    }
+    return nonZeroRaceIds.size > 1
+})
+
 function getResultListLabel(resultList: ResultList) {
     if (!raceQuery.data?.value || !Array.isArray(raceQuery.data.value)) {
         return ''
@@ -144,7 +160,7 @@ function getResultListLabel(resultList: ResultList) {
             }
         }
         else {
-            name = t('labels.overall')
+            name = hasMultipleRaces.value ? t('labels.overall') : t('labels.championship_ranking')
         }
     }
     return `${(name ? `${name}, ` : '') + t('labels.created')} ${formatCreateTime(resultList.createTime, locale).value}`

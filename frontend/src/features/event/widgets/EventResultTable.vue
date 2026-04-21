@@ -82,9 +82,17 @@ const organisationQuery = useQuery({
 })
 
 function resultColumn(data: PersonResult): string {
-    return data.resultStatus === 'OK'
-        ? formatTime(data.runTime)
-        : t(`result_state.${data.resultStatus}`)
+    if (data.resultStatus === 'OK' || data.resultStatus === 'NotCompeting')
+        return data.runTime ? formatTime(data.runTime) : ''
+    return t(`result_state.${data.resultStatus}`)
+}
+
+function personNameColumn(data: PersonResult): string {
+    const person = findPerson(data.personId)
+    const name = person ? `${person.givenName} ${person.familyName}` : ''
+    if (data.resultStatus === 'NotCompeting')
+        return `${name} (${t('result_state.NotCompetingShort')})`
+    return name
 }
 
 function cupScore(cup: Cup, data: PersonResult, cupScoreLists: CupScoreList[] | undefined): string {
@@ -115,14 +123,6 @@ function findOrganisation(organisationId: number): Organisation | undefined {
     return undefined
 }
 
-function personNameColumn(data: PersonResult): string {
-    const person = findPerson(data.personId)
-    if (person)
-        return `${person.givenName} ${person.familyName}`
-
-    return ''
-}
-
 function organisationNameColumn(data: PersonResult): string {
     const organisation = findOrganisation(data.organisationId)
     if (organisation)
@@ -151,7 +151,7 @@ function certificate(resultListId: number, classResultShortName: string, data: P
         <Column field="position" :header="t('labels.position')" class="font-semibold">
             <template #body="slotProps">
                 <div :id="`person-result-${slotProps.data.personId}`" class="font-medium">
-                    {{ slotProps.data.position }}
+                    {{ slotProps.data.resultStatus === 'OK' ? slotProps.data.position : '' }}
                 </div>
             </template>
         </Column>

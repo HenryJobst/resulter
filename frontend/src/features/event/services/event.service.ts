@@ -72,6 +72,48 @@ export class EventService extends GenericService<SportEvent> {
             .then(response => response.data)
     }
 
+    static async getChampionshipClassShortNames(
+        eventId: number,
+        _t: (key: string) => string,
+    ): Promise<string[]> {
+        return axiosInstance
+            .get<string[]>(`${eventUrl}/${eventId}/championship_class_short_names`)
+            .then(r => r.data)
+    }
+
+    static async getChampionshipHasMultipleRaces(
+        eventId: number,
+        _t: (key: string) => string,
+    ): Promise<boolean> {
+        return axiosInstance
+            .get<boolean>(`${eventUrl}/${eventId}/championship_has_multiple_races`)
+            .then(r => r.data)
+    }
+
+    static async applyChampionshipCleanup(
+        eventId: number,
+        organisationId: number,
+        excludeClassShortNames: string[],
+        _t: (key: string) => string,
+    ): Promise<void> {
+        const params = new URLSearchParams()
+        params.append('organisationId', String(organisationId))
+        excludeClassShortNames.forEach(n => params.append('excludeClassShortNames', n))
+        await axiosInstance.put(`${eventUrl}/${eventId}/championship_cleanup?${params.toString()}`)
+    }
+
+    static async addChampionshipRanking(
+        eventId: number,
+        organisationId: number,
+        excludeClassShortNames: string[],
+        _t: (key: string) => string,
+    ): Promise<void> {
+        const params = new URLSearchParams()
+        params.append('organisationId', String(organisationId))
+        excludeClassShortNames.forEach(n => params.append('excludeClassShortNames', n))
+        await axiosInstance.put(`${eventUrl}/${eventId}/championship_ranking?${params.toString()}`)
+    }
+
     static async getEventStatus(_t: (key: string) => string): Promise<EventStatus[] | null> {
         return await axiosInstance
             .get<EventStatus[]>(eventStatusUrl)

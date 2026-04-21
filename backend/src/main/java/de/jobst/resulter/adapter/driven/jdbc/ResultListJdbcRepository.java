@@ -19,7 +19,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
 
     @Query("""
            SELECT DISTINCT
-               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
+               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.creator, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
                cl.short_name AS class_list_short_name, cl.name AS class_list_name, cl.gender AS class_gender, cl.course_id,
                pr.person_id, pr.organisation_id,
                prr.start_time, prr.start_time_zone, prr.punch_time, prr.position, prr.race_number, prr.state
@@ -34,7 +34,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
 
     @Query("""
            SELECT
-               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
+               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.creator, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
                cl.short_name AS class_list_short_name, cl.name AS class_list_name, cl.gender AS class_gender, cl.course_id,
                pr.person_id, pr.organisation_id,
                prr.start_time, prr.start_time_zone, prr.punch_time, prr.position, prr.race_number, prr.state
@@ -49,7 +49,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
 
     @Query("""
            SELECT
-               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
+               rl.event_id, rl.id AS result_list_id, rl.race_id, rl.creator, rl.create_time, rl.create_time_zone, rl.status AS result_list_status,
                cl.short_name AS class_list_short_name, cl.name AS class_list_name, cl.gender AS class_gender, cl.course_id,
                pr.person_id, pr.organisation_id,
                prr.start_time, prr.start_time_zone, prr.punch_time, prr.position, prr.race_number, prr.state
@@ -103,4 +103,40 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
     @Modifying
     @Query("DELETE FROM public.person_result pr WHERE pr.person_id = :personId")
     long deleteByPersonId(@Param("personId") Long personId);
+
+    @Modifying
+    @Query("DELETE FROM result_list WHERE event_id = :eventId")
+    void deleteByEventId(@Param("eventId") Long eventId);
+
+    /**
+     * Returns distinct class result short names for non-race-0 result lists of the given event.
+     * Race-0 lists are identified by having at least one person_race_result with race_number = 0.
+     */
+    @Query("""
+        SELECT DISTINCT cr.short_name
+        FROM class_result cr
+        INNER JOIN result_list rl ON rl.id = cr.result_list_id
+        WHERE rl.event_id = :eventId
+          AND NOT EXISTS (
+              SELECT 1 FROM person_race_result prr
+              WHERE prr.result_list_id = rl.id AND prr.race_number = 0
+          )
+        ORDER BY cr.short_name
+        """)
+    List<String> findClassShortNamesByEventId(@Param("eventId") Long eventId);
+
+    /**
+     * Counts the number of distinct race_ids in non-race-0 result lists for the given event.
+     * Returns > 1 when the event has multiple real races and race-0 represents a true overall ranking.
+     */
+    @Query("""
+        SELECT COUNT(DISTINCT rl.race_id)
+        FROM result_list rl
+        WHERE rl.event_id = :eventId
+          AND NOT EXISTS (
+              SELECT 1 FROM person_race_result prr
+              WHERE prr.result_list_id = rl.id AND prr.race_number = 0
+          )
+        """)
+    int countNonZeroRacesByEventId(@Param("eventId") Long eventId);
 }

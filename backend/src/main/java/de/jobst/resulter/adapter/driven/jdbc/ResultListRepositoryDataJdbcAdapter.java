@@ -43,10 +43,7 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     @Override
     @Transactional
     public @Nullable ResultList save(ResultList resultList) {
-        DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setResultListDboResolver(
-                id -> resultListJdbcRepository.findById(id.value()).orElseThrow());
-        ResultListDbo resultListDbo = ResultListDbo.from(resultList, dboResolvers);
+        ResultListDbo resultListDbo = ResultListDbo.from(resultList, DboResolvers.empty());
         ResultListDbo savedResultListEntity = resultListJdbcRepository.save(resultListDbo);
         return ResultListDbo.asResultLists(List.of(savedResultListEntity)).stream()
                 .findFirst()
@@ -266,6 +263,16 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
                         PersonRaceResultJdbcDto.asResultLists(List.of(personRaceResultJdbcDto)).stream()
                                 .findFirst())
                 .orElse(null);
+    }
+
+    @Override
+    public List<String> findClassShortNamesByEventId(EventId eventId) {
+        return resultListJdbcRepository.findClassShortNamesByEventId(eventId.value());
+    }
+
+    @Override
+    public int countNonZeroRacesByEventId(EventId eventId) {
+        return resultListJdbcRepository.countNonZeroRacesByEventId(eventId.value());
     }
 
     @Override

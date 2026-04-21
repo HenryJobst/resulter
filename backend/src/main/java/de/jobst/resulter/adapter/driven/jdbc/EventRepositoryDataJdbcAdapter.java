@@ -38,6 +38,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     private final OrganisationRepository organisationRepository;
     private final CountryJdbcRepository countryJdbcRepository;
     private final EventCertificateJdbcRepository eventCertificateJdbcRepository;
+    private final ResultListJdbcRepository resultListJdbcRepository;
     private final FilterStringConverter filterStringConverter;
     private final FilterNodeTransformer<MappingFilterNodeTransformResult> filterNodeTransformer;
 
@@ -48,6 +49,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
             OrganisationRepository organisationRepository,
             CountryJdbcRepository countryJdbcRepository,
             EventCertificateJdbcRepository eventCertificateJdbcRepository,
+            ResultListJdbcRepository resultListJdbcRepository,
             FilterStringConverter filterStringConverter) {
         this.eventJdbcRepository = eventJdbcRepository;
         this.personJdbcRepository = personJdbcRepository;
@@ -55,6 +57,7 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
         this.organisationRepository = organisationRepository;
         this.countryJdbcRepository = countryJdbcRepository;
         this.eventCertificateJdbcRepository = eventCertificateJdbcRepository;
+        this.resultListJdbcRepository = resultListJdbcRepository;
         this.filterStringConverter = filterStringConverter;
         this.filterNodeTransformer = new MappingFilterNodeTransformer(new DefaultConversionService());
     }
@@ -133,7 +136,11 @@ public class EventRepositoryDataJdbcAdapter implements EventRepository {
     }
 
     @Override
+    @Transactional
     public void deleteEvent(Event event) {
+        // Delete result_lists first so class_result rows (which reference course via RESTRICT FK)
+        // are removed before Spring Data JDBC deletes the course rows as part of the event aggregate.
+        resultListJdbcRepository.deleteByEventId(event.getId().value());
         eventJdbcRepository.deleteById(event.getId().value());
     }
 

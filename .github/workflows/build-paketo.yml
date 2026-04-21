@@ -300,6 +300,7 @@ jobs:
         run: |
           pack build temp-frontend:build \
             --builder paketobuildpacks/builder-jammy-base \
+            --buildpack paketo-buildpacks/syft \
             --buildpack paketo-buildpacks/nginx \
             --env BP_WEB_SERVER=nginx \
             --env BP_WEB_SERVER_ROOT=dist \

@@ -273,7 +273,17 @@ jobs:
             echo "IS_VERSION_SET=false" >> $GITHUB_ENV
           fi
 
-      - name: Build frontend with Paketo
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: ./frontend/pnpm-lock.yaml
+
+      - name: Build frontend with pnpm
         working-directory: ./frontend
         env:
           VITE_API_ENDPOINT: ${{ secrets.VITE_API_ENDPOINT }}
@@ -282,19 +292,15 @@ jobs:
           VITE_PRIVACY_TEXT_DE: ${{ vars.VITE_PRIVACY_TEXT_DE }}
           VITE_PRIVACY_TEXT_EN: ${{ vars.VITE_PRIVACY_TEXT_EN }}
         run: |
+          pnpm install --frozen-lockfile
+          pnpm build-only
+
+      - name: Package frontend with Paketo (nginx)
+        working-directory: ./frontend
+        run: |
           pack build temp-frontend:build \
             --builder paketobuildpacks/builder-jammy-base \
-            --buildpack paketo-buildpacks/nodejs \
             --buildpack paketo-buildpacks/nginx \
-            --env BP_NODE_VERSION=22.x \
-            --env BP_NODE_PROJECT_PATH=. \
-            --env BP_NODE_RUN_SCRIPTS=build \
-            --env BP_ENABLE_PNPM=true \
-            --env VITE_API_ENDPOINT="${VITE_API_ENDPOINT}" \
-            --env VITE_IMPRESS_TEXT_DE="${VITE_IMPRESS_TEXT_DE}" \
-            --env VITE_IMPRESS_TEXT_EN="${VITE_IMPRESS_TEXT_EN}" \
-            --env VITE_PRIVACY_TEXT_DE="${VITE_PRIVACY_TEXT_DE}" \
-            --env VITE_PRIVACY_TEXT_EN="${VITE_PRIVACY_TEXT_EN}" \
             --env BP_WEB_SERVER=nginx \
             --env BP_WEB_SERVER_ROOT=dist \
             --env BP_NGINX_CONF_FILE=default.conf \

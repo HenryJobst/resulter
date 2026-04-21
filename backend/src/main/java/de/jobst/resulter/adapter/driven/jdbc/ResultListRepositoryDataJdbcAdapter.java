@@ -43,10 +43,7 @@ public class ResultListRepositoryDataJdbcAdapter implements ResultListRepository
     @Override
     @Transactional
     public @Nullable ResultList save(ResultList resultList) {
-        DboResolvers dboResolvers = DboResolvers.empty();
-        dboResolvers.setResultListDboResolver(
-                id -> resultListJdbcRepository.findById(id.value()).orElseThrow());
-        ResultListDbo resultListDbo = ResultListDbo.from(resultList, dboResolvers);
+        ResultListDbo resultListDbo = ResultListDbo.from(resultList, DboResolvers.empty());
         ResultListDbo savedResultListEntity = resultListJdbcRepository.save(resultListDbo);
         return ResultListDbo.asResultLists(List.of(savedResultListEntity)).stream()
                 .findFirst()

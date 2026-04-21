@@ -15,6 +15,7 @@ public record PersonRaceResultJdbcDto(
         Long eventId,
         Long resultListId,
         Long raceId,
+        @Nullable String creator,
         @Nullable OffsetDateTime createTime,
         @Nullable String createTimeZone,
         String resultListStatus,
@@ -119,7 +120,7 @@ public record PersonRaceResultJdbcDto(
                             ResultListId.of(resultListId1),
                             EventId.of(sampleDto.eventId()),
                             RaceId.of(sampleDto.raceId()),
-                            "",
+                            sampleDto.creator(),
                             sampleDto.createTime() == null || sampleDto.createTimeZone() == null
                                     ? null
                                     : sampleDto.createTime().atZoneSameInstant(ZoneId.of(sampleDto.createTimeZone())),

@@ -98,7 +98,7 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
             for (PersonResult pr : allPersonResults) {
                 if (isEligible(pr, baseOrg, orgTree)) {
                     eligible.add(pr);
-                } else if (bestOkRuntime(pr) < Double.MAX_VALUE) {
+                } else if (bestRuntime(pr) < Double.MAX_VALUE) {
                     nonEligibleWithTime.add(pr);
                 } else {
                     nonEligibleWithoutTime.add(pr);
@@ -107,12 +107,12 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
 
             // Sort eligible by best OK runtime ascending, with personId as tiebreaker
             eligible = eligible.stream()
-                    .sorted(Comparator.comparingDouble(this::bestOkRuntime)
+                    .sorted(Comparator.comparingDouble(this::bestRuntime)
                             .thenComparingLong(pr -> pr.personId().value()))
                     .collect(Collectors.toList());
             // Sort non-eligible-with-time by runtime ascending
             nonEligibleWithTime = nonEligibleWithTime.stream()
-                    .sorted(Comparator.comparingDouble(this::bestOkRuntime)
+                    .sorted(Comparator.comparingDouble(this::bestRuntime)
                             .thenComparingLong(pr -> pr.personId().value()))
                     .collect(Collectors.toList());
             // Sort non-eligible-without-time by personId
@@ -128,7 +128,7 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
             int lastOkPos = 1;
             for (int i = 0; i < eligible.size(); i++) {
                 PersonResult pr = eligible.get(i);
-                double best = bestOkRuntime(pr);
+                double best = bestRuntime(pr);
                 boolean hasOkResult = best < Double.MAX_VALUE;
                 int assignedPos;
                 if (hasOkResult) {
@@ -157,7 +157,7 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
 
             // Non-eligible with time: NOT_COMPETING, sequential positions for DB ordering
             for (PersonResult pr : nonEligibleWithTime) {
-                double best = bestOkRuntime(pr);
+                double best = bestRuntime(pr);
                 PersonRaceResult newRaceResult = new PersonRaceResult(
                         shortName,
                         pr.personId(),
@@ -347,9 +347,13 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                             .thenComparingLong(pr -> pr.personId().value()))
                     .toList();
 
+            // group3: everything not in group1 or group2
+            // (includes NOT_COMPETING without valid runtime, MissingPunch, DNF, etc.)
+            Set<PersonId> inGroup1or2 = java.util.stream.Stream.concat(group1.stream(), group2.stream())
+                    .map(PersonResult::personId)
+                    .collect(Collectors.toSet());
             List<PersonResult> group3 = forRace.stream()
-                    .filter(pr -> statusForRace(pr, raceNumber) != ResultStatus.OK
-                            && statusForRace(pr, raceNumber) != ResultStatus.NOT_COMPETING)
+                    .filter(pr -> !inGroup1or2.contains(pr.personId()))
                     .sorted(Comparator.comparingDouble((PersonResult pr) -> runtimeForRace(pr, raceNumber))
                             .thenComparingLong(pr -> pr.personId().value()))
                     .toList();
@@ -461,13 +465,15 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
     }
 
     /**
-     * Returns the best (minimum) OK runtime for the person, or Double.MAX_VALUE if none.
+     * Returns the best (minimum) runtime for the person regardless of status, or Double.MAX_VALUE if none.
+     * This handles the case where a previous cleanup has already changed OK → NOT_COMPETING
+     * but preserved the original runtime.
      */
-    private double bestOkRuntime(PersonResult pr) {
+    private double bestRuntime(PersonResult pr) {
         return pr.personRaceResults().value().stream()
-                .filter(prr -> ResultStatus.OK.equals(prr.getState()))
-                .map(prr -> prr.getRuntime().value())
-                .filter(Objects::nonNull)
+                .map(prr -> prr.getRuntime() != null && prr.getRuntime().value() != null
+                        ? prr.getRuntime().value()
+                        : Double.MAX_VALUE)
                 .min(Double::compareTo)
                 .orElse(Double.MAX_VALUE);
     }

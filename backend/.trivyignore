@@ -1,0 +1,7 @@
+# CVEs in Paketo buildpack helper binaries (bellsoft-liberica, ca-certificates,
+# spring-boot), compiled with Go 1.26.1. Fixed in Go 1.26.2 / buildpack update.
+# Track upstream: https://github.com/paketo-buildpacks/bellsoft-liberica/releases
+CVE-2026-32280
+CVE-2026-32281
+CVE-2026-32283
+CVE-2026-33810

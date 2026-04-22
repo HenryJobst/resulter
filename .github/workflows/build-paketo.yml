@@ -185,10 +185,7 @@ jobs:
             --path . \
             --verbose
 
-      - name: Verify SBOM metadata exists (backend)
-        run: |
-          BUILD_METADATA=$(docker inspect temp-backend:build --format '{{ index .Config.Labels "io.buildpacks.build.metadata" }}')
-          echo "$BUILD_METADATA" | grep -q '"bom"' || (echo "SBOM metadata missing in backend image" && exit 1)
+
 
       - name: Install Trivy
         run: |

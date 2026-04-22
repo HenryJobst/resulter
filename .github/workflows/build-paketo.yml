@@ -130,6 +130,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set lowercase image names
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          echo "IMAGE_NAME_BACKEND=${REPO,,}/backend" >> $GITHUB_ENV
+          echo "IMAGE_NAME_FRONTEND=${REPO,,}/frontend" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -233,6 +240,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set lowercase image names
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          echo "IMAGE_NAME_BACKEND=${REPO,,}/backend" >> $GITHUB_ENV
+          echo "IMAGE_NAME_FRONTEND=${REPO,,}/frontend" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

@@ -70,7 +70,7 @@
         "@intlify/unplugin-vue-i18n": "^11.1.1",
         "@nx/eslint": "22.6.4",
         "@nx/playwright": "22.6.5",
-        "@nx/vite": "22.6.5",
+        "@nx/vite": "22.7.0",
         "@nx/vue": "22.6.4",
         "@nx/web": "22.6.4",
         "@pinia/testing": "^1.0.3",

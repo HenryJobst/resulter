@@ -39,7 +39,7 @@
         <spring-framework.version>7.0.7</spring-framework.version>
         <spring-oxm.version>7.0.7</spring-oxm.version>
         <tomcat.version>11.0.21</tomcat.version>
-        <springdoc-openapi-starter-webmvc-ui.version>3.0.2</springdoc-openapi-starter-webmvc-ui.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <testcontainers.version>2.0.4</testcontainers.version>
         <thumbnailator.version>0.4.21</thumbnailator.version>
         <tika-core.version>3.2.3</tika-core.version>

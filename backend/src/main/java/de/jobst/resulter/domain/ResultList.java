@@ -152,8 +152,8 @@ public class ResultList implements Comparable<ResultList> {
     }
 
     public Set<OrganisationId> getReferencedOrganisationIds() {
-        assert getClassResults() != null;
-        return getClassResults().stream()
+        if (classResults == null) return Set.of();
+        return classResults.stream()
                 .flatMap(x -> x.personResults().value().stream())
                 .map(PersonResult::organisationId)
                 .filter(Objects::nonNull)

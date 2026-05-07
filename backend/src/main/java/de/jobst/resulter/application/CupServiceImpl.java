@@ -389,8 +389,11 @@ public class CupServiceImpl implements CupService {
                                 if (mainCupScoreList.isPresent()
                                         && mainCupScoreList.get().isPresent()) {
                                     var cupScoreList = mainCupScoreList.get().get();
-                                    var organisations = organisationService.findAllById(
-                                            mainResultList.get().resultList().getReferencedOrganisationIds());
+                                    Set<OrganisationId> organisationIds = cupScoreList.getCupScores().stream()
+                                            .map(CupScore::organisationId)
+                                            .filter(Objects::nonNull)
+                                            .collect(Collectors.toSet());
+                                    var organisations = organisationService.findAllById(organisationIds);
                                     return new RaceOrganisationGroupedCupScore(
                                             race,
                                             organisations.stream()

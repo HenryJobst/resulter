@@ -8,8 +8,8 @@ import axiosInstance from '@/features/auth/services/api'
  * @returns Promise with version string
  */
 async function fetchBackendVersion(): Promise<string> {
-    const response = await axiosInstance.get<string>('/version')
-    return response.data
+    const response = await axiosInstance.get('/version', { responseType: 'text' })
+    return response.data as string
 }
 
 /**

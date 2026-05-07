@@ -186,6 +186,7 @@ jobs:
             --builder paketobuildpacks/builder-jammy-base \
             --buildpack paketo-buildpacks/java \
             --env BP_JVM_VERSION=21 \
+            --env BP_JVM_TYPE=JDK \
             --env BP_MAVEN_VERSION=3.9.x \
             --env BP_MAVEN_BUILD_ARGUMENTS="-Dmaven.test.skip=true clean install" \
             --env BP_MAVEN_SETTINGS_PATH=settings.xml \
@@ -226,8 +227,12 @@ jobs:
 
           if [ "${{ env.IS_VERSION_SET }}" == "true" ]; then
             docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ env.VERSION }}
-            docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ env.MAJOR_VERSION }}
-            docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ env.MAJOR_MINOR_VERSION }}
+            if [[ "${{ env.VERSION}" == *.*.*.* ]]; then
+              echo "Patch release (x.y.z.w) - not tagging major/minor versions"
+            else
+              docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ env.MAJOR_VERSION }}
+              docker tag temp-backend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:paketo-${{ env.MAJOR_MINOR_VERSION }}
+            fi
           fi
 
           docker push --all-tags ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
@@ -353,8 +358,12 @@ jobs:
 
           if [ "${{ env.IS_VERSION_SET }}" == "true" ]; then
             docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ env.VERSION }}
-            docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ env.MAJOR_VERSION }}
-            docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ env.MAJOR_MINOR_VERSION }}
+            if [[ "${{ env.VERSION}" == *.*.*.* ]]; then
+              echo "Patch release (x.y.z.w) - not tagging major/minor versions"
+            else
+              docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ env.MAJOR_VERSION }}
+              docker tag temp-frontend:build ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:paketo-${{ env.MAJOR_MINOR_VERSION }}
+            fi
           fi
 
           docker push --all-tags ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}

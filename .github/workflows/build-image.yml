@@ -57,6 +57,12 @@ jobs :
                     MAJOR_VERSION=$(echo $BRANCH_NAME | cut -d'.' -f1 | cut -d'v' -f2)
                     # Extract major.minor version (1.0)
                     MAJOR_MINOR_VERSION=$(echo $BRANCH_NAME | awk -F'.' '{print $1"."$2}' | cut -d'v' -f2)
+                    # Check if patch release (x.y.z.w format)
+                    if [[ "$FULL_VERSION" == *.*.*.* ]]; then
+                        echo "IS_PATCH_RELEASE=true" >> $GITHUB_ENV
+                    else
+                        echo "IS_PATCH_RELEASE=false" >> $GITHUB_ENV
+                    fi
                     # Export the variables
                     echo "FULL_VERSION=${FULL_VERSION}" >> $GITHUB_ENV
                     echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
@@ -80,11 +86,11 @@ jobs :
                     tags : |
                         type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/') }}
                         type=semver,pattern={{version}}
-                        type=semver,pattern={{major}}.{{minor}}
-                        type=semver,pattern={{major}}
+                        type=semver,pattern={{major}}.{{minor}},enable=${{ env.IS_PATCH_RELEASE != 'true' }}
+                        type=semver,pattern={{major}},enable=${{ env.IS_PATCH_RELEASE != 'true' }}
                         type=raw,value=${{ env.FULL_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-                        type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-                        type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' && env.IS_PATCH_RELEASE != 'true' }}
+                        type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' && env.IS_PATCH_RELEASE != 'true' }}
                         type=ref,event=branch
                         type=sha,format=short
 
@@ -128,6 +134,12 @@ jobs :
                     MAJOR_VERSION=$(echo $BRANCH_NAME | cut -d'.' -f1 | cut -d'v' -f2)
                     # Extract major.minor version (1.0)
                     MAJOR_MINOR_VERSION=$(echo $BRANCH_NAME | awk -F'.' '{print $1"."$2}' | cut -d'v' -f2)
+                    # Check if patch release (x.y.z.w format)
+                    if [[ "$FULL_VERSION" == *.*.*.* ]]; then
+                        echo "IS_PATCH_RELEASE=true" >> $GITHUB_ENV
+                    else
+                        echo "IS_PATCH_RELEASE=false" >> $GITHUB_ENV
+                    fi
                     # Export the variables
                     echo "FULL_VERSION=${FULL_VERSION}" >> $GITHUB_ENV
                     echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
@@ -151,11 +163,11 @@ jobs :
                     tags : |
                         type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/') }}
                         type=semver,pattern={{version}}
-                        type=semver,pattern={{major}}.{{minor}}
-                        type=semver,pattern={{major}}
+                        type=semver,pattern={{major}}.{{minor}},enable=${{ env.IS_PATCH_RELEASE != 'true' }}
+                        type=semver,pattern={{major}},enable=${{ env.IS_PATCH_RELEASE != 'true' }}
                         type=raw,value=${{ env.FULL_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-                        type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
-                        type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' }}
+                        type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' && env.IS_PATCH_RELEASE != 'true' }}
+                        type=raw,value=${{ env.MAJOR_MINOR_VERSION }},enable=${{ env.IS_VERSION_SET == 'true' && env.IS_PATCH_RELEASE != 'true' }}
                         type=ref,event=branch
                         type=sha,format=short
 

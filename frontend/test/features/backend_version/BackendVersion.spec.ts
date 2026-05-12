@@ -35,7 +35,7 @@ describe('backendVersion', () => {
 
             await flushPromises()
 
-            expect(axiosInstance.get).toHaveBeenCalledWith('/version')
+            expect(axiosInstance.get).toHaveBeenCalledWith('/version', { responseType: 'text' })
         })
 
         it('should call /version endpoint exactly once', async () => {
@@ -115,7 +115,7 @@ describe('backendVersion', () => {
             await flushPromises()
 
             // Verify API was called and got the right version
-            expect(axiosInstance.get).toHaveBeenCalledWith('/version')
+            expect(axiosInstance.get).toHaveBeenCalledWith('/version', { responseType: 'text' })
         })
 
         it('should fetch version with build number', async () => {
@@ -127,7 +127,7 @@ describe('backendVersion', () => {
 
             await flushPromises()
 
-            expect(axiosInstance.get).toHaveBeenCalledWith('/version')
+            expect(axiosInstance.get).toHaveBeenCalledWith('/version', { responseType: 'text' })
         })
 
         it('should fetch version with commit hash', async () => {
@@ -139,7 +139,7 @@ describe('backendVersion', () => {
 
             await flushPromises()
 
-            expect(axiosInstance.get).toHaveBeenCalledWith('/version')
+            expect(axiosInstance.get).toHaveBeenCalledWith('/version', { responseType: 'text' })
         })
     })
 
@@ -155,7 +155,7 @@ describe('backendVersion', () => {
 
             // The text contains the translation key since we don't have real translations
             expect(axiosInstance.get).toHaveBeenCalledTimes(1)
-            expect(axiosInstance.get).toHaveBeenCalledWith('/version')
+            expect(axiosInstance.get).toHaveBeenCalledWith('/version', { responseType: 'text' })
         })
     })
 })

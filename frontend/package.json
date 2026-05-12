@@ -58,7 +58,7 @@
         "pinia-plugin-persistedstate": "^4.7.1",
         "primeflex": "^4.0.0",
         "primeicons": "^7.0.0",
-        "primevue": "^4.5.4",
+        "primevue": "^4.5.5",
         "spring-filter-query-builder": "^1.1.1",
         "vue": "^3.5.32",
         "vue-i18n": "^11.3.1",

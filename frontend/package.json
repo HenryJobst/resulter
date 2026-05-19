@@ -117,7 +117,7 @@
         "vitest": "^4.1.6",
         "vitest-browser-vue": "^2.1.0",
         "vue-mess-detector": "^0.68.1",
-        "vue-tsc": "^3.2.8"
+        "vue-tsc": "^3.3.0"
     },
     "pnpm": {
         "overrides": {

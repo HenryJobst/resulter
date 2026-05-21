@@ -34,7 +34,7 @@
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
         <micrometer-bom.version>1.16.5</micrometer-bom.version>
         <mockito-core.version>5.23.0</mockito-core.version>
-<p6spy-spring-boot-starter.version>2.0.0</p6spy-spring-boot-starter.version>
+<p6spy-spring-boot-starter.version>2.0.1</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
         <spring-framework.version>7.0.7</spring-framework.version>
         <spring-oxm.version>7.0.7</spring-oxm.version>

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Europe/Berlin",
+  "schedule": ["every weekend"],
+  "dependencyDashboard": true,
+  "labels": ["renovate"],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  },
+  "packageRules": [
+    {
+      "description": "Major-Updates: nur per Dashboard-Freigabe",
+      "matchUpdateTypes": ["major"],
+      "labels": ["renovate", "major-update"],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}

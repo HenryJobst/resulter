@@ -427,7 +427,7 @@
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-websocket</artifactId>
-                <version>11.0.21</version> <!-- fix CVE-2026-34483 -->
+                <version>11.0.22</version> <!-- fix CVE-2026-34483 -->
             </dependency>
         </dependencies>
     </dependencyManagement>

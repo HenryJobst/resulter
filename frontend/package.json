@@ -135,7 +135,7 @@
             "picomatch@^2.0.0": "2.3.2",
             "picomatch@^4.0.0": "4.0.4",
             "rollup": ">=4.59.0",
-            "yaml@^1.0.0": "^1.10.3",
+            "yaml@^1.0.0": "^2.0.0",
             "yaml@^2.0.0": "^2.8.3"
         },
         "onlyBuiltDependencies": [

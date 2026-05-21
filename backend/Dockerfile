@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:experimental
-FROM eclipse-temurin:21-jdk-alpine as build
+FROM eclipse-temurin:25.0.3_9-jdk-alpine as build
 WORKDIR /workspace/app
 
 # All runtime configuration (including secrets) is injected at container start
@@ -61,7 +61,7 @@ RUN --mount=type=cache,target=/root/.m2/repository ./mvnw install -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 RUN mkdir -p media && mkdir -p media/thumbnails
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25.0.3_9-jre-alpine
 VOLUME /tmp
 ARG DEPENDENCY=/workspace/app/target/dependency
 

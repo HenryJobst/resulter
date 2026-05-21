@@ -9,7 +9,7 @@ include = [
 
 [[io.buildpacks.group]]
 id = "paketo-buildpacks/nginx"
-version = "~0.20"
+version = "1.0.27"
 
 [build]
 

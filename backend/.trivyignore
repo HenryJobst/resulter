@@ -6,6 +6,14 @@ CVE-2026-32281
 CVE-2026-32283
 CVE-2026-33810
 
+# CVEs in Paketo buildpack helper binaries compiled with Go 1.26.2. Fixed in Go 1.26.3.
+# Upstream: https://github.com/paketo-buildpacks/bellsoft-liberica/releases
+CVE-2026-33811
+CVE-2026-33814
+CVE-2026-39820
+CVE-2026-39836
+CVE-2026-42499
+
 # Known CVEs in v4.7.3 code that will be fixed in future releases
 CVE-2026-40976
 CVE-2026-40973

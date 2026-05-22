@@ -17,4 +17,5 @@ if git show-ref --verify --quiet "refs/remotes/origin/${BRANCH}"; then
 fi
 
 git branch "$BRANCH" main
-echo "Branch '${BRANCH}' von main erstellt."
+git push origin "$BRANCH"
+echo "Branch '${BRANCH}' von main erstellt und gepusht."

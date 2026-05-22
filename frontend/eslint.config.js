@@ -17,6 +17,7 @@ export default antfu(
         ignores: [
             '**/*.md/**', // Ignore code blocks in markdown files
             '.playwright-cli/**',
+            '**/pnpm-workspace.yaml', // managed directly by pnpm
         ],
 
         formatters: false,
@@ -31,10 +32,6 @@ export default antfu(
         files: ['**/*.yaml', '**/*.yml'],
         rules: {
             'style/no-multi-spaces': 'off',
-            'pnpm/yaml-enforce-settings': ['error', {
-                settings: { shellEmulator: true, trustPolicy: 'permissive' },
-                autofix: true,
-            }],
         },
     },
 )

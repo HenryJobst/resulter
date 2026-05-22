@@ -31,6 +31,10 @@ export default antfu(
         files: ['**/*.yaml', '**/*.yml'],
         rules: {
             'style/no-multi-spaces': 'off',
+            'pnpm/yaml-enforce-settings': ['error', {
+                settings: { shellEmulator: true, trustPolicy: 'permissive' },
+                autofix: true,
+            }],
         },
     },
 )

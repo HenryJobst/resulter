@@ -1,6 +1,6 @@
 shellEmulator: true
 
-trustPolicy: no-downgrade
+trustPolicy: permissive
 
 overrides:
     ajv@^6.0.0: ^6.14.0

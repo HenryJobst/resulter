@@ -57,7 +57,7 @@ for FILE in "${FILES[@]}"; do
 done
 
 git -C "$SCRIPT_DIR" add "${FILES[@]}"
-git -C "$SCRIPT_DIR" commit -m "feat: bump version to ${NEW}"
+CI=true git -C "$SCRIPT_DIR" commit -m "feat: bump version to ${NEW}"
 
 echo ""
 echo "Fertig. Neue Version: $NEW"

@@ -11,7 +11,7 @@ LABEL org.opencontainers.image.description="Frontend for the resulter app"
 LABEL org.opencontainers.image.source=https://github.com/HenryJobst/resulter
 LABEL org.opencontainers.image.licenses='CC BY-NC-ND 4.0'
 
-COPY package.json ./
+COPY package.json pnpm-workspace.yaml ./
 
 RUN npm install -g corepack@latest && corepack enable pnpm && pnpm --version
 

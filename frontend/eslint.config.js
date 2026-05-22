@@ -27,4 +27,10 @@ export default antfu(
             'no-console': 'off',
         },
     },
+    {
+        files: ['**/*.yaml', '**/*.yml'],
+        rules: {
+            'style/no-multi-spaces': 'off',
+        },
+    },
 )

@@ -26,3 +26,10 @@ onlyBuiltDependencies:
   - nx
   - simple-git-hooks
   - vue-demi
+
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  nx: true
+  simple-git-hooks: true
+  vue-demi: true

@@ -16,6 +16,11 @@ usage() {
 BUMP="$1"
 [[ "$BUMP" != "major" && "$BUMP" != "minor" && "$BUMP" != "patch" ]] && usage
 
+if ! git -C "$SCRIPT_DIR" diff --quiet || ! git -C "$SCRIPT_DIR" diff --cached --quiet; then
+  echo "Fehler: Es gibt uncommittete Änderungen. Bitte zuerst committen oder stashen." >&2
+  exit 1
+fi
+
 # Aktuelle Version aus root pom.xml lesen
 CURRENT=$(grep -m1 '<version>' "$SCRIPT_DIR/pom.xml" | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
 
@@ -50,6 +55,9 @@ for FILE in "${FILES[@]}"; do
     echo "  ✗ $FILE (Version $CURRENT nicht gefunden — übersprungen)"
   fi
 done
+
+git -C "$SCRIPT_DIR" add "${FILES[@]}"
+git -C "$SCRIPT_DIR" commit -m "feat: bump version to ${NEW}"
 
 echo ""
 echo "Fertig. Neue Version: $NEW"

@@ -12,6 +12,15 @@ Die Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [4.8.12] - 2026-05-24
+
+### Fixed
+- **CI**: `--trust-lockfile` zu allen `pnpm install`-Aufrufen in `build.yml` und `build-paketo.yml` hinzugefügt
+  - pnpm v11.3.0 erzwingt eine 24h-`minimumReleaseAge`-Policy, die kürzlich gemergte Lock-File-Einträge (TanStack-Pakete) blockierte
+  - Committed Lock-Files sind vertrauenswürdige Artefakte (CI-geprüft, Code-reviewed) — `--trust-lockfile` ist der laut pnpm-Docs vorgesehene Weg
+
+---
+
 ## [4.8.11] - 2026-05-24
 
 ### Security

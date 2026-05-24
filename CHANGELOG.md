@@ -12,6 +12,15 @@ Die Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [4.8.11] - 2026-05-24
+
+### Security
+- **CVE-2026-8723** (CVSS 5.3, mittel): `qs` auf v6.15.2 angehoben via Override in `pnpm-workspace.yaml`
+  - Transitiv: `@nx/web` → `http-server` → `union` → `qs@6.14.2`
+  - `qs.stringify` mit `arrayFormat:'comma'` + `encodeValuesOnly:true` auf `null`/`undefined`-Elementen warf synchronen `TypeError` (DoS)
+
+---
+
 ## [4.8.10] - 2026-05-24
 
 ### Dependencies

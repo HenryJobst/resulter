@@ -7,8 +7,15 @@ Die Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
-### Dependencies (ausstehend)
-- `sass` auf v1.100.0 (#380, Rebase durch Renovate ausstehend)
+---
+
+## [4.8.13] - 2026-05-24
+
+### Dependencies
+
+#### Frontend
+- **sass** auf v1.100.0 (#380)
+- **TanStack Query Monorepo** auf aktuelle Version aktualisiert (#383)
 
 ---
 

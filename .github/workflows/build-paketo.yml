@@ -115,7 +115,7 @@ jobs:
           corepack enable
           pnpm --version
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --no-frozen-lockfile --trust-lockfile
         working-directory: ./frontend
       - name: Build frontend
         run: pnpm build
@@ -311,7 +311,7 @@ jobs:
           VITE_PRIVACY_TEXT_DE: ${{ vars.VITE_PRIVACY_TEXT_DE }}
           VITE_PRIVACY_TEXT_EN: ${{ vars.VITE_PRIVACY_TEXT_EN }}
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --trust-lockfile
           pnpm build-only
 
       - name: Package frontend with Paketo (nginx)

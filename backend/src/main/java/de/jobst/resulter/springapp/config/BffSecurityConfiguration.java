@@ -20,9 +20,8 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -98,7 +97,9 @@ public class BffSecurityConfiguration {
                             }
                         }))
                 .logout(logout -> logout
-                        .logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/bff/logout"))
+                        .logoutRequestMatcher((RequestMatcher) request ->
+                                "POST".equals(request.getMethod())
+                                && "/bff/logout".equals(request.getServletPath()))
                         .logoutSuccessHandler(oidcLogoutSuccessHandler())
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
@@ -111,12 +112,13 @@ public class BffSecurityConfiguration {
                     repository.setCookiePath("/"); // Set path to root for frontend JavaScript access
                     csrf.csrfTokenRepository(repository)
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                        // Logout is exempt from CSRF: the HttpOnly session cookie is the primary
-                        // protection; logout-CSRF risk (forced sign-out) is low and cookie-based
-                        // CSRF is unreliable across origins/proxies in SPA/BFF setups.
-                        .ignoringRequestMatchers(
-                            PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/bff/logout")
-                        );
+                        // Logout is CSRF-exempt: HttpOnly session cookie provides primary protection.
+                        // Lambda uses getServletPath() which is reliable with ForwardedHeaderFilter +
+                        // Traefik stripprefix (PathPatternRequestMatcher's path.subPath() arithmetic
+                        // breaks under X-Forwarded-Prefix in Spring Security 7.x).
+                        .ignoringRequestMatchers((RequestMatcher) request ->
+                                "POST".equals(request.getMethod())
+                                && "/bff/logout".equals(request.getServletPath()));
                 })
                 .cors(cors -> cors.configurationSource(corsConfigurationSource));
 

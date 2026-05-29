@@ -11,11 +11,13 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -225,8 +227,13 @@ public class OAuth2ResourceServerSecurityConfiguration {
                                 "/split_time_analysis/result_list/{id}/split_table/options",
                                 "/version")
                         .permitAll()
+                        .requestMatchers("/error")
+                        .permitAll()
                         .anyRequest()
                         .hasRole(ADMIN))
+                // Return 401 for unauthenticated requests (default Http403ForbiddenEntryPoint is wrong here)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 // Session-based authentication from BFF login (no JWT)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))

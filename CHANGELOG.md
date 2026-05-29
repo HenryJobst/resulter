@@ -9,6 +9,25 @@ Die Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [4.8.15] - 2026-05-29
+
+### Security
+- **GHSA-ph9p-34f9-6g65** (high): `tmp` auf v0.2.7 angehoben via Override in `pnpm-workspace.yaml`
+  - Transitiv: `nx` → `@nx/devkit` → `tmp@0.2.4`
+  - Path-Traversal-Lücke durch unsanitisierte `prefix`/`postfix`-Parameter; reine Dev-Dependency, kein Produktionsrisiko
+
+---
+
+## [4.8.14] - 2026-05-29
+
+### Fixed
+- **BFF-Logout**: POST `/bff/logout` lieferte 403, da `PathPatternRequestMatcher` unter Traefik-`stripprefix` + `X-Forwarded-Prefix` in Spring Security 7.x nicht korrekt matcht
+  - `logoutRequestMatcher` und `ignoringRequestMatchers` in `BffSecurityConfiguration` auf Lambda-Matcher mit `getServletPath()` umgestellt
+  - `BffController.getCsrfToken()` ruft jetzt `csrfToken.getToken()` auf, um den deferred Token aufzulösen und den `XSRF-TOKEN`-Cookie tatsächlich zu setzen (Spring Security 6+ lazy evaluation)
+  - `sessionApiSecurityFilterChain` gibt 401 statt 403 für unauthentifizierte Anfragen; `/error` als `permitAll()` ergänzt
+
+---
+
 ## [4.8.13] - 2026-05-24
 
 ### Dependencies

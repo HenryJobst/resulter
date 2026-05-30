@@ -320,5 +320,20 @@ class PerformanceIndexTest {
             assertThat(pi.value()).isEqualTo(PerformanceIndex.MISTAKE_THRESHOLD);
             assertThat(pi.isMistake()).isTrue();
         }
+
+        @Test
+        @DisplayName("Should return false for isMistake when value is null")
+        void shouldReturnFalseForIsMistake_WhenValueIsNull() {
+            PerformanceIndex pi = new PerformanceIndex(null);
+            assertThat(pi.isMistake()).isFalse();
+            assertThat(pi.isMistake(1.0)).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should return true for isMistake with custom threshold when value exceeds it")
+        void shouldReturnTrueForIsMistakeWithCustomThreshold_WhenValueExceedsThreshold() {
+            PerformanceIndex pi = new PerformanceIndex(1.60);
+            assertThat(pi.isMistake(1.50)).isTrue();
+        }
     }
 }

@@ -3,7 +3,9 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.port.CountryRepository;
 import de.jobst.resulter.application.port.CourseRepository;
 import de.jobst.resulter.application.port.CupScoreListRepository;
+import de.jobst.resulter.application.port.EventCertificateRepository;
 import de.jobst.resulter.application.port.EventCertificateStatRepository;
+import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.PersonRepository;
 import de.jobst.resulter.application.port.RaceRepository;
@@ -473,5 +475,105 @@ class SimpleServiceImplTest {
         Person p1 = Person.of(1L, "Müller", "Hans", null, Gender.M);
         Person p2 = Person.of(2L, "Xyz", "Abc", null, Gender.F);
         assertThat(personService.determineGroupLeaders(List.of(p1, p2))).isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
+    // EventServiceImpl
+    // -------------------------------------------------------------------------
+
+    @Mock EventRepository eventRepository;
+    @Mock EventCertificateRepository eventCertificateRepository;
+    @InjectMocks EventServiceImpl eventService;
+
+    @Test
+    void eventService_findAll_delegatesToRepository() {
+        when(eventRepository.findAll()).thenReturn(List.of());
+        assertThat(eventService.findAll()).isEmpty();
+    }
+
+    @Test
+    void eventService_findById_delegatesToRepository() {
+        when(eventRepository.findById(EventId.of(1L))).thenReturn(Optional.empty());
+        assertThat(eventService.findById(EventId.of(1L))).isEmpty();
+    }
+
+    @Test
+    void eventService_getById_returnsEventWhenFound() {
+        Event event = Event.of(1L, "Sprint");
+        when(eventRepository.findById(EventId.of(1L))).thenReturn(Optional.of(event));
+        assertThat(eventService.getById(EventId.of(1L))).isEqualTo(event);
+    }
+
+    @Test
+    void eventService_getById_throwsWhenNotFound() {
+        when(eventRepository.findById(EventId.of(99L))).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> eventService.getById(EventId.of(99L)))
+                .isInstanceOf(de.jobst.resulter.domain.util.ResourceNotFoundException.class);
+    }
+
+    @Test
+    void eventService_findOrCreate_delegatesToRepository() {
+        Event event = Event.of(1L, "Sprint");
+        when(eventRepository.findOrCreate(event)).thenReturn(event);
+        assertThat(eventService.findOrCreate(event)).isEqualTo(event);
+    }
+
+    @Test
+    void eventService_findAllById_delegatesToRepository() {
+        when(eventRepository.findAllById(List.of())).thenReturn(List.of());
+        assertThat(eventService.findAllById(List.of())).isEmpty();
+    }
+
+    @Test
+    void eventService_findAllByIdAsMap_withSingleEvent() {
+        Event event = Event.of(1L, "Lauf");
+        when(eventRepository.findAllById(Set.of(EventId.of(1L)))).thenReturn(List.of(event));
+        var map = eventService.findAllByIdAsMap(Set.of(EventId.of(1L)));
+        assertThat(map).containsKey(EventId.of(1L));
+    }
+
+    @Test
+    void eventService_getByIds_allFound_returnsAll() {
+        Event event = Event.of(1L, "Sprint");
+        when(eventRepository.findAllById(List.of(EventId.of(1L)))).thenReturn(List.of(event));
+        assertThat(eventService.getByIds(List.of(EventId.of(1L)))).hasSize(1);
+    }
+
+    @Test
+    void eventService_getByIds_missingEvent_throwsException() {
+        when(eventRepository.findAllById(List.of(EventId.of(1L), EventId.of(2L)))).thenReturn(List.of());
+        assertThatThrownBy(() -> eventService.getByIds(List.of(EventId.of(1L), EventId.of(2L))))
+                .isInstanceOf(de.jobst.resulter.domain.util.ResourceNotFoundException.class);
+    }
+
+    @Test
+    void eventService_findAll_paged_delegatesToRepository() {
+        Page<Event> page = new PageImpl<>(List.of());
+        when(eventRepository.findAll(null, PageRequest.of(0, 10))).thenReturn(page);
+        assertThat(eventService.findAll(null, PageRequest.of(0, 10))).isEmpty();
+    }
+
+    @Test
+    void eventService_createEvent_savesEvent() {
+        Event saved = Event.of(1L, "Test");
+        when(organisationRepository.findByIds(Set.of())).thenReturn(List.of());
+        when(eventRepository.save(any())).thenReturn(saved);
+        var result = eventService.createEvent("Test", null, Set.of(), "Sprint", false);
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void eventService_deleteEvent_deletesWhenFound() {
+        Event event = Event.of(1L, "Sprint");
+        when(eventRepository.findById(EventId.of(1L))).thenReturn(Optional.of(event));
+        eventService.deleteEvent(EventId.of(1L));
+        verify(eventRepository).deleteEvent(event);
+    }
+
+    @Test
+    void eventService_deleteEvent_throwsWhenNotFound() {
+        when(eventRepository.findById(EventId.of(99L))).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> eventService.deleteEvent(EventId.of(99L)))
+                .isInstanceOf(de.jobst.resulter.domain.util.ResourceNotFoundException.class);
     }
 }

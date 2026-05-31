@@ -4,6 +4,7 @@ import de.jobst.resulter.application.port.ClassGroupOption;
 import de.jobst.resulter.application.port.CourseGroupOption;
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.domain.analysis.ControlSegment;
+import de.jobst.resulter.domain.analysis.ControlSequenceSegment;
 import de.jobst.resulter.domain.analysis.RunnerSplit;
 import de.jobst.resulter.domain.analysis.SequenceRunnerSplit;
 import org.junit.jupiter.api.Test;
@@ -846,5 +847,88 @@ class SimpleDtoTest {
         ControlSegmentDto dto = ControlSegmentDto.from(segment);
         assertThat(dto.segmentLabel()).isEqualTo("31 ↔ 32");
         assertThat(dto.bidirectional()).isTrue();
+    }
+
+    // -------------------------------------------------------------------------
+    // CupDto — mapOrdersDtoToDomain / mapOrdersDomainToDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void cupDto_mapOrdersDtoToDomain_id() {
+        assertThat(CupDto.mapOrdersDtoToDomain(Sort.Order.asc("id"))).isEqualTo("id.value");
+    }
+
+    @Test
+    void cupDto_mapOrdersDtoToDomain_name() {
+        assertThat(CupDto.mapOrdersDtoToDomain(Sort.Order.asc("name"))).isEqualTo("name.value");
+    }
+
+    @Test
+    void cupDto_mapOrdersDtoToDomain_year() {
+        assertThat(CupDto.mapOrdersDtoToDomain(Sort.Order.asc("year"))).isEqualTo("year");
+    }
+
+    @Test
+    void cupDto_mapOrdersDtoToDomain_default() {
+        assertThat(CupDto.mapOrdersDtoToDomain(Sort.Order.asc("unknown"))).isEqualTo("id.value");
+    }
+
+    @Test
+    void cupDto_mapOrdersDomainToDto_idValue() {
+        assertThat(CupDto.mapOrdersDomainToDto(Sort.Order.asc("id.value"))).isEqualTo("id");
+    }
+
+    @Test
+    void cupDto_mapOrdersDomainToDto_nameValue() {
+        assertThat(CupDto.mapOrdersDomainToDto(Sort.Order.asc("name.value"))).isEqualTo("name");
+    }
+
+    @Test
+    void cupDto_mapOrdersDomainToDto_year() {
+        assertThat(CupDto.mapOrdersDomainToDto(Sort.Order.asc("year"))).isEqualTo("year");
+    }
+
+    @Test
+    void cupDto_mapOrdersDomainToDto_default() {
+        assertThat(CupDto.mapOrdersDomainToDto(Sort.Order.asc("unknown"))).isEqualTo("id");
+    }
+
+    // -------------------------------------------------------------------------
+    // ControlSequenceSegmentDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void controlSequenceSegmentDto_from_withEmptyRunnerSplits() {
+        ControlSequenceSegment segment = new ControlSequenceSegment(
+                List.of(ControlCode.of("31"), ControlCode.of("32"), ControlCode.of("33")),
+                List.of(),
+                List.of("H21"));
+        ControlSequenceSegmentDto dto = ControlSequenceSegmentDto.from(segment);
+        assertThat(dto.segmentLabel()).isEqualTo("31 → 32 → 33");
+        assertThat(dto.controls()).containsExactly("31", "32", "33");
+        assertThat(dto.runnerSplits()).isEmpty();
+        assertThat(dto.classes()).containsExactly("H21");
+    }
+
+    // -------------------------------------------------------------------------
+    // ResultListKeyDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void resultListKeyDto_from_mapsAllFields() {
+        PersonRaceResult prr = PersonRaceResult.of(
+                "H21", 1L, null, null, 100.0, 1L, (byte) 1, ResultStatus.OK);
+        PersonResult person = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(1L), null, List.of(prr));
+        ClassResult cr = ClassResult.of("Herren 21", "H21", Gender.M, List.of(person), null);
+        ResultList resultList = new ResultList(
+                ResultListId.of(5L), EventId.of(1L), RaceId.of(2L), "test", null, null, List.of(cr));
+        Event event = Event.of(1L, "Sprint");
+        Race race = Race.of(RaceId.of(2L), EventId.of(1L), "Sprint", (byte) 1);
+
+        ResultListKeyDto dto = ResultListKeyDto.from(resultList, event, race);
+        assertThat(dto.id()).isEqualTo(5L);
+        assertThat(dto.event().id()).isEqualTo(1L);
+        assertThat(dto.race().id()).isEqualTo(2L);
     }
 }

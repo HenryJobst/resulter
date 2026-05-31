@@ -3,6 +3,8 @@ package de.jobst.resulter.application.certificate;
 import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -169,6 +171,22 @@ class CertificateUtilTest {
     @Test
     void jsonToTextParagraph_canBeInstantiated() {
         assertThat(new JsonToTextParagraph()).isNotNull();
+    }
+
+    @Test
+    void textBlockDeserializer_withNoTextField_returnsNullContent() throws Exception {
+        // Direkter Aufruf des TextBlockDeserializers ohne BlockDeserializer
+        // → node.get("text") → null → text != null → false → null content
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(TextBlock.class, new TextBlockDeserializer());
+        JsonMapper mapper = JsonMapper.builder().addModule(module).build();
+        TextBlock result = mapper.readValue("{\"font\": \"Arial\"}", TextBlock.class);
+        assertThat(result.text().content()).isNull();
+    }
+
+    @Test
+    void textBlockProcessor_canBeInstantiated() {
+        assertThat(new TextBlockProcessor()).isNotNull();
     }
 
     // -------------------------------------------------------------------------

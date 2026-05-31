@@ -2,6 +2,7 @@ package de.jobst.resulter.adapter.driver.web.mapper;
 
 import de.jobst.resulter.domain.*;
 import de.jobst.resulter.adapter.driver.web.dto.EventDto;
+import de.jobst.resulter.adapter.driver.web.dto.ResultListDto;
 import de.jobst.resulter.domain.aggregations.CupOverallStatistics;
 import de.jobst.resulter.domain.aggregations.CupStatistics;
 import de.jobst.resulter.domain.aggregations.EventRacesCupScore;
@@ -559,6 +560,49 @@ class SimpleMapperTest {
         EventCertificate cert = EventCertificate.of(1L, "Test", null, null, null, false);
         var dtos = EventCertificateMapper.toDtos(List.of(cert), Map.of(), Map.of(), "/tmp/");
         assertThat(dtos).hasSize(1);
+    }
+
+    // -------------------------------------------------------------------------
+    // EventResultsMapper — toDto (exercising ResultListMapper.toDto)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventResultsMapper_toDto_withSingleResultList() {
+        PersonRaceResult prr = PersonRaceResult.of(
+                "H21", 1L, null, null, 120.0, 1L, (byte) 1, ResultStatus.OK);
+        PersonResult person = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(1L), null, List.of(prr));
+        ClassResult cr = ClassResult.of("Herren 21", "H21", Gender.M, List.of(person), null);
+        ResultList resultList = new ResultList(
+                ResultListId.of(1L), EventId.of(1L), RaceId.of(1L),
+                "test", null, null, List.of(cr));
+        Event event = Event.of(1L, "Sprint");
+
+        var dto = EventResultsMapper.toDto(event, false, List.of(resultList));
+        assertThat(dto.resultLists()).hasSize(1);
+        ResultListDto rlDto = dto.resultLists().stream().findFirst().orElseThrow();
+        assertThat(rlDto.id()).isEqualTo(1L);
+        assertThat(rlDto.isSplitTimeAvailable()).isFalse();
+    }
+
+    @Test
+    void eventResultsMapper_toDto_withSplitTimeListId() {
+        PersonRaceResult prr = new PersonRaceResult(
+                ClassResultShortName.of("H21"), PersonId.of(2L),
+                DateTime.empty(), DateTime.empty(),
+                PunchTime.of(90.0), Position.of(1L), ResultStatus.OK,
+                RaceNumber.of((byte) 1), SplitTimeListId.of(42L));
+        PersonResult person = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(2L), null, List.of(prr));
+        ClassResult cr = ClassResult.of("Damen 21", "D21", Gender.F, List.of(person), null);
+        ResultList resultList = new ResultList(
+                ResultListId.of(2L), EventId.of(1L), RaceId.of(1L),
+                "test", null, null, List.of(cr));
+        Event event = Event.of(1L, "Mitteldistanz");
+
+        var dto = EventResultsMapper.toDto(event, false, List.of(resultList));
+        Boolean isSplitTimeAvailable = dto.resultLists().stream().findFirst().orElseThrow().isSplitTimeAvailable();
+        assertThat(isSplitTimeAvailable).isTrue();
     }
 
     // -------------------------------------------------------------------------

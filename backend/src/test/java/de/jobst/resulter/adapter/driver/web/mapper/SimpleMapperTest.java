@@ -529,4 +529,106 @@ class SimpleMapperTest {
         var dtos = EventMapper.toDtos(List.of(event), Map.of(EventId.of(1L), false), Map.of(), Map.of());
         assertThat(dtos).hasSize(1);
     }
+
+    // -------------------------------------------------------------------------
+    // EventCertificateMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventCertificateMapper_toDto_withNoEventAndNoMediaFile() {
+        EventCertificate cert = EventCertificate.of(1L, "Urkunde", null, null, null, true);
+        var dto = EventCertificateMapper.toDto(cert, Map.of(), Map.of(), "/tmp/");
+        assertThat(dto.id()).isEqualTo(1L);
+        assertThat(dto.name()).isEqualTo("Urkunde");
+        assertThat(dto.event()).isNull();
+        assertThat(dto.blankCertificate()).isNull();
+        assertThat(dto.primary()).isTrue();
+    }
+
+    @Test
+    void eventCertificateMapper_toDto_withEvent() {
+        Event event = Event.of(5L, "Stadtlauf");
+        EventCertificate cert = EventCertificate.of(2L, "Zertifikat", EventId.of(5L), null, null, false);
+        var dto = EventCertificateMapper.toDto(cert, Map.of(EventId.of(5L), event), Map.of(), "/tmp/");
+        assertThat(dto.event()).isNotNull();
+        assertThat(dto.event().id()).isEqualTo(5L);
+    }
+
+    @Test
+    void eventCertificateMapper_toDtos_returnsList() {
+        EventCertificate cert = EventCertificate.of(1L, "Test", null, null, null, false);
+        var dtos = EventCertificateMapper.toDtos(List.of(cert), Map.of(), Map.of(), "/tmp/");
+        assertThat(dtos).hasSize(1);
+    }
+
+    // -------------------------------------------------------------------------
+    // PersonMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void personMapper_privateConstructor_isAccessible() throws Exception {
+        Constructor<PersonMapper> c = PersonMapper.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        assertThatCode(c::newInstance).doesNotThrowAnyException();
+    }
+
+    @Test
+    void personMapper_toDto_withId_usesId() {
+        Person person = Person.of(42L, "Müller", "Hans", null, Gender.M);
+        var dto = PersonMapper.toDto(person);
+        assertThat(dto.id()).isEqualTo(42L);
+        assertThat(dto.familyName()).isEqualTo("Müller");
+        assertThat(dto.givenName()).isEqualTo("Hans");
+        assertThat(dto.showMergeButton()).isFalse();
+        assertThat(dto.birthDate()).isNull();
+    }
+
+    @Test
+    void personMapper_toDto_withoutId_usesZero() {
+        Person person = Person.of(null, "Schneider", "Eva", null, Gender.F);
+        var dto = PersonMapper.toDto(person);
+        assertThat(dto.id()).isEqualTo(0L);
+    }
+
+    @Test
+    void personMapper_toDto_withBirthDate_mapsBirthDate() {
+        java.time.LocalDate date = java.time.LocalDate.of(1990, 5, 15);
+        Person person = Person.of(1L, "Braun", "Klaus", date, Gender.M);
+        var dto = PersonMapper.toDto(person);
+        assertThat(dto.birthDate()).isEqualTo(date);
+    }
+
+    @Test
+    void personMapper_toDto_showMergeButton_true() {
+        Person person = Person.of(3L, "Koch", "Anna", null, Gender.F);
+        var dto = PersonMapper.toDto(person, true);
+        assertThat(dto.showMergeButton()).isTrue();
+    }
+
+    @Test
+    void personMapper_toDtos_simpleList() {
+        Person p1 = Person.of(1L, "Weber", "Fritz", null, Gender.M);
+        Person p2 = Person.of(2L, "Bauer", "Lena", null, Gender.F);
+        var dtos = PersonMapper.toDtos(java.util.List.of(p1, p2));
+        assertThat(dtos).hasSize(2);
+        assertThat(dtos.get(0).familyName()).isEqualTo("Weber");
+        assertThat(dtos.get(1).familyName()).isEqualTo("Bauer");
+    }
+
+    @Test
+    void personMapper_toDtos_withShowMergeButton() {
+        Person person = Person.of(5L, "Huber", "Max", null, Gender.M);
+        var dtos = PersonMapper.toDtos(java.util.List.of(person), true);
+        assertThat(dtos).hasSize(1);
+        assertThat(dtos.get(0).showMergeButton()).isTrue();
+    }
+
+    @Test
+    void personMapper_toDtos_withGroupLeaderIds_marksLeader() {
+        Person leader = Person.of(10L, "König", "Karl", null, Gender.M);
+        Person member = Person.of(20L, "Richter", "Lisa", null, Gender.F);
+        var dtos = PersonMapper.toDtos(java.util.List.of(leader, member), java.util.Set.of(10L));
+        assertThat(dtos.get(0).showMergeButton()).isTrue();
+        assertThat(dtos.get(1).showMergeButton()).isFalse();
+    }
 }

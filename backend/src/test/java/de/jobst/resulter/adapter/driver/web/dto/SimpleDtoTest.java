@@ -3,6 +3,9 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.application.port.ClassGroupOption;
 import de.jobst.resulter.application.port.CourseGroupOption;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.analysis.ControlSegment;
+import de.jobst.resulter.domain.analysis.RunnerSplit;
+import de.jobst.resulter.domain.analysis.SequenceRunnerSplit;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 
@@ -682,5 +685,166 @@ class SimpleDtoTest {
         assertThat(dto.courseName()).isEqualTo("Lang");
         assertThat(dto.classNames()).containsExactly("H21", "D21");
         assertThat(dto.runnerCount()).isEqualTo(50);
+    }
+
+    // -------------------------------------------------------------------------
+    // PersonDto — mapOrdersDtoToDomain / mapOrdersDomainToDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void personDto_mapOrdersDtoToDomain_id() {
+        assertThat(PersonDto.mapOrdersDtoToDomain(Sort.Order.asc("id"))).isEqualTo("id.value");
+    }
+
+    @Test
+    void personDto_mapOrdersDtoToDomain_familyName() {
+        assertThat(PersonDto.mapOrdersDtoToDomain(Sort.Order.asc("familyName"))).isEqualTo("personName.familyName.value");
+    }
+
+    @Test
+    void personDto_mapOrdersDtoToDomain_givenName() {
+        assertThat(PersonDto.mapOrdersDtoToDomain(Sort.Order.asc("givenName"))).isEqualTo("personName.givenName.value");
+    }
+
+    @Test
+    void personDto_mapOrdersDtoToDomain_gender() {
+        assertThat(PersonDto.mapOrdersDtoToDomain(Sort.Order.asc("gender"))).isEqualTo("gender.id");
+    }
+
+    @Test
+    void personDto_mapOrdersDtoToDomain_birthDate() {
+        assertThat(PersonDto.mapOrdersDtoToDomain(Sort.Order.asc("birthDate"))).isEqualTo("birthDate.value");
+    }
+
+    @Test
+    void personDto_mapOrdersDtoToDomain_default() {
+        assertThat(PersonDto.mapOrdersDtoToDomain(Sort.Order.asc("unknown"))).isEqualTo("id.value");
+    }
+
+    @Test
+    void personDto_mapOrdersDomainToDto_idValue() {
+        assertThat(PersonDto.mapOrdersDomainToDto(Sort.Order.asc("id.value"))).isEqualTo("id");
+    }
+
+    @Test
+    void personDto_mapOrdersDomainToDto_familyName() {
+        assertThat(PersonDto.mapOrdersDomainToDto(Sort.Order.asc("personName.familyName.value"))).isEqualTo("familyName");
+    }
+
+    @Test
+    void personDto_mapOrdersDomainToDto_givenName() {
+        assertThat(PersonDto.mapOrdersDomainToDto(Sort.Order.asc("personName.givenName.value"))).isEqualTo("givenName");
+    }
+
+    @Test
+    void personDto_mapOrdersDomainToDto_gender() {
+        assertThat(PersonDto.mapOrdersDomainToDto(Sort.Order.asc("gender.id"))).isEqualTo("gender");
+    }
+
+    @Test
+    void personDto_mapOrdersDomainToDto_birthDate() {
+        assertThat(PersonDto.mapOrdersDomainToDto(Sort.Order.asc("birthDate.value"))).isEqualTo("birthDate");
+    }
+
+    @Test
+    void personDto_mapOrdersDomainToDto_default() {
+        assertThat(PersonDto.mapOrdersDomainToDto(Sort.Order.asc("unknown"))).isEqualTo("id");
+    }
+
+    // -------------------------------------------------------------------------
+    // MediaFileDto — mapOrdersDtoToDomain / mapOrdersDomainToDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void mediaFileDto_mapOrdersDtoToDomain_returnsProperty() {
+        assertThat(MediaFileDto.mapOrdersDtoToDomain(Sort.Order.asc("fileName"))).isEqualTo("fileName");
+    }
+
+    @Test
+    void mediaFileDto_mapOrdersDomainToDto_returnsProperty() {
+        assertThat(MediaFileDto.mapOrdersDomainToDto(Sort.Order.asc("fileName"))).isEqualTo("fileName");
+    }
+
+    // -------------------------------------------------------------------------
+    // SequenceRunnerSplitDto.from — formatTime / formatTimeBehind Branches
+    // -------------------------------------------------------------------------
+
+    @Test
+    void sequenceRunnerSplitDto_from_withNullSplitTime_usesEmptyString() {
+        SequenceRunnerSplit split = new SequenceRunnerSplit(
+                PersonId.of(1L), "H21", 1, null, null, null);
+        SequenceRunnerSplitDto dto = SequenceRunnerSplitDto.from(split);
+        assertThat(dto.splitTime()).isEmpty();
+        assertThat(dto.timeBehind()).isEmpty();
+        assertThat(dto.legSplitTimes()).isEmpty();
+    }
+
+    @Test
+    void sequenceRunnerSplitDto_from_withSplitTimeAndTimeBehind_formatsCorrectly() {
+        SequenceRunnerSplit split = new SequenceRunnerSplit(
+                PersonId.of(2L), "D21", 2, 125.0, 30.0, List.of(60.0, 65.0));
+        SequenceRunnerSplitDto dto = SequenceRunnerSplitDto.from(split);
+        assertThat(dto.splitTime()).isEqualTo("2:05");
+        assertThat(dto.timeBehind()).isEqualTo("+0:30");
+        assertThat(dto.legSplitTimesSeconds()).containsExactly(60.0, 65.0);
+    }
+
+    @Test
+    void sequenceRunnerSplitDto_from_withZeroTimeBehind_usesEmptyString() {
+        SequenceRunnerSplit split = new SequenceRunnerSplit(
+                PersonId.of(3L), "H14", 1, 60.0, 0.0, List.of());
+        SequenceRunnerSplitDto dto = SequenceRunnerSplitDto.from(split);
+        assertThat(dto.timeBehind()).isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
+    // RunnerSplitDto.from — formatTime / formatTimeBehind Branches
+    // -------------------------------------------------------------------------
+
+    @Test
+    void runnerSplitDto_from_withNullSplitTime_usesEmptyString() {
+        RunnerSplit split = new RunnerSplit(PersonId.of(1L), "H21", 1, null, null, false);
+        RunnerSplitDto dto = RunnerSplitDto.from(split);
+        assertThat(dto.splitTime()).isEmpty();
+        assertThat(dto.timeBehind()).isEmpty();
+    }
+
+    @Test
+    void runnerSplitDto_from_withSplitTimeAndBehind_formatsCorrectly() {
+        RunnerSplit split = new RunnerSplit(PersonId.of(2L), "D21", 3, 90.0, 15.0, true);
+        RunnerSplitDto dto = RunnerSplitDto.from(split);
+        assertThat(dto.splitTime()).isEqualTo("1:30");
+        assertThat(dto.timeBehind()).isEqualTo("+0:15");
+        assertThat(dto.reversed()).isTrue();
+    }
+
+    @Test
+    void runnerSplitDto_from_withZeroTimeBehind_usesEmptyString() {
+        RunnerSplit split = new RunnerSplit(PersonId.of(3L), "H14", 1, 45.0, 0.0, false);
+        RunnerSplitDto dto = RunnerSplitDto.from(split);
+        assertThat(dto.timeBehind()).isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
+    // ControlSegmentDto.from — unidirectional / bidirectional
+    // -------------------------------------------------------------------------
+
+    @Test
+    void controlSegmentDto_from_unidirectional_usesArrow() {
+        ControlSegment segment = new ControlSegment(
+                ControlCode.of("31"), ControlCode.of("32"), List.of(), List.of("H21"), false);
+        ControlSegmentDto dto = ControlSegmentDto.from(segment);
+        assertThat(dto.segmentLabel()).isEqualTo("31 → 32");
+        assertThat(dto.bidirectional()).isFalse();
+        assertThat(dto.runnerSplits()).isEmpty();
+    }
+
+    @Test
+    void controlSegmentDto_from_bidirectional_usesDoubleArrow() {
+        ControlSegment segment = new ControlSegment(
+                ControlCode.of("31"), ControlCode.of("32"), List.of(), List.of(), true);
+        ControlSegmentDto dto = ControlSegmentDto.from(segment);
+        assertThat(dto.segmentLabel()).isEqualTo("31 ↔ 32");
+        assertThat(dto.bidirectional()).isTrue();
     }
 }

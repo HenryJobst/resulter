@@ -4,7 +4,9 @@ import de.jobst.resulter.application.port.ClassGroupOption;
 import de.jobst.resulter.application.port.CourseGroupOption;
 import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
+import java.time.Year;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -308,6 +310,114 @@ class SimpleDtoTest {
         EventCertificateKeyDto dto = EventCertificateKeyDto.from(cert);
         assertThat(dto.id()).isEqualTo(9L);
         assertThat(dto.name()).isEqualTo("Urkunde");
+    }
+
+    // -------------------------------------------------------------------------
+    // ClassResultDto — Accessors + compareTo
+    // -------------------------------------------------------------------------
+
+    @Test
+    void classResultDto_accessorsReturnCorrectValues() {
+        ClassResultDto dto = new ClassResultDto("H21", "Herren 21", 5L, List.of());
+        assertThat(dto.shortName()).isEqualTo("H21");
+        assertThat(dto.name()).isEqualTo("Herren 21");
+        assertThat(dto.courseId()).isEqualTo(5L);
+        assertThat(dto.personResults()).isEmpty();
+    }
+
+    @Test
+    void classResultDto_compareTo_comparesByName() {
+        ClassResultDto a = new ClassResultDto("H21", "Alpha", null, List.of());
+        ClassResultDto b = new ClassResultDto("D21", "Beta", null, List.of());
+        assertThat(a.compareTo(b)).isNegative();
+        assertThat(b.compareTo(a)).isPositive();
+    }
+
+    // -------------------------------------------------------------------------
+    // CountryDto — from() mit und ohne Id
+    // -------------------------------------------------------------------------
+
+    @Test
+    void countryDto_from_withId_usesId() {
+        Country country = Country.of(3L, "DE", "Deutschland");
+        CountryDto dto = CountryDto.from(country);
+        assertThat(dto.id()).isEqualTo(3L);
+        assertThat(dto.name()).isEqualTo("Deutschland");
+        assertThat(dto.code()).isEqualTo("DE");
+    }
+
+    @Test
+    void countryDto_from_withoutId_usesZero() {
+        Country country = Country.of(null, "AT", "Österreich");
+        CountryDto dto = CountryDto.from(country);
+        assertThat(dto.id()).isEqualTo(0L);
+    }
+
+    // -------------------------------------------------------------------------
+    // CupKeyDto — from() mit und ohne Id
+    // -------------------------------------------------------------------------
+
+    @Test
+    void cupKeyDto_from_withId_usesId() {
+        Cup cup = Cup.of(7L, "NOR Cup", CupType.NOR, Year.of(2025), List.of());
+        CupKeyDto dto = CupKeyDto.from(cup);
+        assertThat(dto.id()).isEqualTo(7L);
+        assertThat(dto.name()).isEqualTo("NOR Cup");
+        assertThat(dto.cupType()).isEqualTo(CupType.NOR);
+    }
+
+    @Test
+    void cupKeyDto_from_withoutId_usesZero() {
+        Cup cup = Cup.of(null, "KJ Cup", CupType.KJ, Year.of(2025), List.of());
+        CupKeyDto dto = CupKeyDto.from(cup);
+        assertThat(dto.id()).isEqualTo(0L);
+    }
+
+    // -------------------------------------------------------------------------
+    // OrganisationDto — mapOrdersDtoToDomain / mapOrdersDomainToDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void organisationDto_mapOrdersDtoToDomain_knownProperties() {
+        assertThat(OrganisationDto.mapOrdersDtoToDomain(Sort.Order.asc("id"))).isEqualTo("id.value");
+        assertThat(OrganisationDto.mapOrdersDtoToDomain(Sort.Order.asc("name"))).isEqualTo("name.value");
+        assertThat(OrganisationDto.mapOrdersDtoToDomain(Sort.Order.asc("shortName"))).isEqualTo("shortName.value");
+        assertThat(OrganisationDto.mapOrdersDtoToDomain(Sort.Order.asc("type"))).isEqualTo("type.id");
+        assertThat(OrganisationDto.mapOrdersDtoToDomain(Sort.Order.asc("country.name"))).isEqualTo("country.name.value");
+        assertThat(OrganisationDto.mapOrdersDtoToDomain(Sort.Order.asc("childOrganisationIds"))).isEqualTo("childOrganisationIds");
+    }
+
+    @Test
+    void organisationDto_mapOrdersDtoToDomain_unknownProperty_returnsAsIs() {
+        assertThat(OrganisationDto.mapOrdersDtoToDomain(Sort.Order.asc("other"))).isEqualTo("other");
+    }
+
+    @Test
+    void organisationDto_mapOrdersDomainToDto_knownProperties() {
+        assertThat(OrganisationDto.mapOrdersDomainToDto(Sort.Order.asc("id.value"))).isEqualTo("id");
+        assertThat(OrganisationDto.mapOrdersDomainToDto(Sort.Order.asc("name.value"))).isEqualTo("name");
+        assertThat(OrganisationDto.mapOrdersDomainToDto(Sort.Order.asc("shortName.value"))).isEqualTo("shortName");
+        assertThat(OrganisationDto.mapOrdersDomainToDto(Sort.Order.asc("type.id"))).isEqualTo("type");
+        assertThat(OrganisationDto.mapOrdersDomainToDto(Sort.Order.asc("country.name.value"))).isEqualTo("country.name");
+        assertThat(OrganisationDto.mapOrdersDomainToDto(Sort.Order.asc("childOrganisationIds"))).isEqualTo("childOrganisationIds");
+    }
+
+    @Test
+    void organisationDto_mapOrdersDomainToDto_unknownProperty_returnsAsIs() {
+        assertThat(OrganisationDto.mapOrdersDomainToDto(Sort.Order.asc("other"))).isEqualTo("other");
+    }
+
+    // -------------------------------------------------------------------------
+    // OrganisationScoreDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void organisationScoreDto_accessorsReturnCorrectValues() {
+        PersonWithScoreDto pws = new PersonWithScoreDto(1L, 9.0, "H21");
+        OrganisationScoreDto dto = new OrganisationScoreDto(null, 42.5, List.of(pws));
+        assertThat(dto.organisation()).isNull();
+        assertThat(dto.score()).isEqualTo(42.5);
+        assertThat(dto.personWithScores()).hasSize(1);
     }
 
     // -------------------------------------------------------------------------

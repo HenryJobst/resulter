@@ -353,6 +353,40 @@ class SimpleMapperTest {
     }
 
     // -------------------------------------------------------------------------
+    // PersonResultMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void personResultMapper_toDto_withOrganisationAndRunTime() {
+        PersonRaceResult rr = PersonRaceResult.of("H21", 1L, null, null, 1000.0, 1L, (byte) 1, ResultStatus.OK);
+        PersonResult person = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(7L), OrganisationId.of(3L), List.of(rr));
+        var dto = PersonResultMapper.toDto(person);
+        assertThat(dto.personId()).isEqualTo(7L);
+        assertThat(dto.organisationId()).isEqualTo(3L);
+        assertThat(dto.runTime()).isNotNull();
+    }
+
+    @Test
+    void personResultMapper_toDto_withoutOrganisationAndNullRunTime() {
+        PersonRaceResult rr = PersonRaceResult.of("H21", 1L, null, null, null, null, (byte) 1, ResultStatus.DID_NOT_START);
+        PersonResult person = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(5L), null, List.of(rr));
+        var dto = PersonResultMapper.toDto(person);
+        assertThat(dto.organisationId()).isNull();
+        assertThat(dto.runTime()).isNull();
+    }
+
+    @Test
+    void personResultMapper_toDtos_returnsList() {
+        PersonRaceResult rr = PersonRaceResult.of("H21", 1L, null, null, 500.0, 1L, (byte) 1, ResultStatus.OK);
+        PersonResult person = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(1L), null, List.of(rr));
+        var dtos = PersonResultMapper.toDtos(List.of(person));
+        assertThat(dtos).hasSize(1);
+    }
+
+    // -------------------------------------------------------------------------
     // ClassResultMapper
     // -------------------------------------------------------------------------
 

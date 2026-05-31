@@ -243,6 +243,11 @@ class SimpleMapperTest {
         assertThat(dto.organisationScores()).isEmpty();
     }
 
+    @Test
+    void raceOrganisationGroupedCupScoreMapper_canBeInstantiated() {
+        assertThat(new RaceOrganisationGroupedCupScoreMapper()).isNotNull();
+    }
+
     // -------------------------------------------------------------------------
     // EventResultsMapper — Default-Konstruktor
     // -------------------------------------------------------------------------
@@ -253,8 +258,13 @@ class SimpleMapperTest {
     }
 
     // -------------------------------------------------------------------------
-    // RaceMapper — true-branch (Race mit gesetzter Id)
+    // RaceMapper — Default-Konstruktor + true-branch (Race mit gesetzter Id)
     // -------------------------------------------------------------------------
+
+    @Test
+    void raceMapper_canBeInstantiated() {
+        assertThat(new RaceMapper()).isNotNull();
+    }
 
     @Test
     void raceMapper_toDtoStatic_withNonEmptyId_usesId() {
@@ -274,6 +284,20 @@ class SimpleMapperTest {
     // -------------------------------------------------------------------------
     // OrganisationMapper
     // -------------------------------------------------------------------------
+
+    @Test
+    void organisationMapper_privateConstructor_isAccessible() throws Exception {
+        Constructor<OrganisationMapper> c = OrganisationMapper.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        assertThatCode(c::newInstance).doesNotThrowAnyException();
+    }
+
+    @Test
+    void organisationMapper_toDtos_returnsList() {
+        Organisation org = Organisation.of("TSB OJ", "TSB");
+        var dtos = OrganisationMapper.toDtos(List.of(org), Map.of(), Map.of());
+        assertThat(dtos).hasSize(1);
+    }
 
     @Test
     void organisationMapper_toKeyDto_mapsNameAndId() {
@@ -301,8 +325,13 @@ class SimpleMapperTest {
     }
 
     // -------------------------------------------------------------------------
-    // OrganisationStatisticsMapper
+    // OrganisationStatisticsMapper — Default-Konstruktor + Tests
     // -------------------------------------------------------------------------
+
+    @Test
+    void organisationStatisticsMapper_canBeInstantiated() {
+        assertThat(new OrganisationStatisticsMapper()).isNotNull();
+    }
 
     @Test
     void organisationStatisticsMapper_toDto_mapsCorrectly() {

@@ -6,7 +6,9 @@ import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 
+import java.time.Duration;
 import java.time.Year;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -492,6 +494,129 @@ class SimpleDtoTest {
         EventDto a = new EventDto(1L, "Same", "2025-01-01", null, List.of(), null, false, null, false);
         EventDto b = new EventDto(2L, "Same", "2025-01-01", null, List.of(), null, false, null, false);
         assertThat(a.compareTo(b)).isNegative();
+    }
+
+    // -------------------------------------------------------------------------
+    // CupScoreDto — from() + compareTo
+    // -------------------------------------------------------------------------
+
+    @Test
+    void cupScoreDto_from_mapsCorrectly() {
+        CupScore score = CupScore.of(PersonId.of(1L), OrganisationId.of(1L), ClassResultShortName.of("H21"), 12.0);
+        CupScoreDto dto = CupScoreDto.from(score);
+        assertThat(dto.personId()).isEqualTo(1L);
+        assertThat(dto.classShortName()).isEqualTo("H21");
+        assertThat(dto.score()).isEqualTo(12.0);
+    }
+
+    @Test
+    void cupScoreDto_compareTo_comparesByClassThenScoreThenPerson() {
+        CupScoreDto a = new CupScoreDto(1L, "D21", 10.0);
+        CupScoreDto b = new CupScoreDto(2L, "H21", 10.0);
+        assertThat(a.compareTo(b)).isNegative(); // D21 < H21
+    }
+
+    @Test
+    void cupScoreDto_compareTo_sameClassHigherScoreFirst() {
+        CupScoreDto a = new CupScoreDto(1L, "H21", 15.0);
+        CupScoreDto b = new CupScoreDto(2L, "H21", 10.0);
+        assertThat(a.compareTo(b)).isPositive(); // 15 > 10
+    }
+
+    @Test
+    void cupScoreDto_compareTo_sameClassAndScore_comparesByPerson() {
+        CupScoreDto a = new CupScoreDto(1L, "H21", 10.0);
+        CupScoreDto b = new CupScoreDto(2L, "H21", 10.0);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    // -------------------------------------------------------------------------
+    // CupScoreListDto — from()
+    // -------------------------------------------------------------------------
+
+    @Test
+    void cupScoreListDto_from_withCreateTime_mapsCorrectly() {
+        ZonedDateTime now = ZonedDateTime.now();
+        CupScoreList csl = new CupScoreList(
+                CupScoreListId.of(1L), CupId.of(2L), ResultListId.of(3L),
+                List.of(), "creator", now);
+        CupScoreListDto dto = CupScoreListDto.from(csl);
+        assertThat(dto.id()).isEqualTo(1L);
+        assertThat(dto.cupId()).isEqualTo(2L);
+        assertThat(dto.resultListId()).isEqualTo(3L);
+        assertThat(dto.creator()).isEqualTo("creator");
+        assertThat(dto.createTime()).isNotNull();
+        assertThat(dto.cupScores()).isEmpty();
+    }
+
+    @Test
+    void cupScoreListDto_from_withNullCreateTime_mapsCorrectly() {
+        CupScoreList csl = new CupScoreList(
+                CupScoreListId.of(1L), CupId.of(2L), ResultListId.of(3L),
+                List.of(), null, null);
+        CupScoreListDto dto = CupScoreListDto.from(csl);
+        assertThat(dto.createTime()).isNull();
+    }
+
+    // -------------------------------------------------------------------------
+    // PersonResultDto — compareTo-Branches
+    // -------------------------------------------------------------------------
+
+    @Test
+    void personResultDto_accessorsReturnCorrectValues() {
+        PersonResultDto dto = new PersonResultDto(1L, 2L, Duration.ofMinutes(30), "OK", 3L, (byte) 1);
+        assertThat(dto.position()).isEqualTo(1L);
+        assertThat(dto.personId()).isEqualTo(2L);
+        assertThat(dto.runTime()).isEqualTo(Duration.ofMinutes(30));
+        assertThat(dto.resultStatus()).isEqualTo("OK");
+        assertThat(dto.organisationId()).isEqualTo(3L);
+        assertThat(dto.raceNumber()).isEqualTo((byte) 1);
+    }
+
+    @Test
+    void personResultDto_compareTo_comparesByPosition() {
+        PersonResultDto a = new PersonResultDto(1L, 1L, Duration.ofMinutes(30), "OK", 1L, (byte) 1);
+        PersonResultDto b = new PersonResultDto(2L, 2L, Duration.ofMinutes(35), "OK", 1L, (byte) 1);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    @Test
+    void personResultDto_compareTo_samePosition_comparesByRunTime() {
+        PersonResultDto a = new PersonResultDto(1L, 1L, Duration.ofMinutes(30), "OK", 1L, (byte) 1);
+        PersonResultDto b = new PersonResultDto(1L, 2L, Duration.ofMinutes(35), "OK", 1L, (byte) 1);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    @Test
+    void personResultDto_compareTo_samePositionAndRunTime_comparesByStatus() {
+        PersonResultDto a = new PersonResultDto(1L, 1L, null, "DNS", 1L, (byte) 1);
+        PersonResultDto b = new PersonResultDto(1L, 2L, null, "OK", 1L, (byte) 1);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    @Test
+    void personResultDto_compareTo_samePositionRunTimeAndStatus_comparesByPersonId() {
+        PersonResultDto a = new PersonResultDto(1L, 1L, null, "OK", 1L, (byte) 1);
+        PersonResultDto b = new PersonResultDto(1L, 2L, null, "OK", 1L, (byte) 1);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    // -------------------------------------------------------------------------
+    // EventCertificateDto — mapOrders
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventCertificateDto_mapOrdersDtoToDomain_knownProperties() {
+        assertThat(EventCertificateDto.mapOrdersDtoToDomain(Sort.Order.asc("id"))).isEqualTo("id.value");
+        assertThat(EventCertificateDto.mapOrdersDtoToDomain(Sort.Order.asc("name"))).isEqualTo("name.value");
+        assertThat(EventCertificateDto.mapOrdersDtoToDomain(Sort.Order.asc("other"))).isEqualTo("id.value");
+    }
+
+    @Test
+    void eventCertificateDto_mapOrdersDomainToDto_knownProperties() {
+        assertThat(EventCertificateDto.mapOrdersDomainToDto(Sort.Order.asc("id.value"))).isEqualTo("id");
+        assertThat(EventCertificateDto.mapOrdersDomainToDto(Sort.Order.asc("name.value"))).isEqualTo("name");
+        assertThat(EventCertificateDto.mapOrdersDomainToDto(Sort.Order.asc("other"))).isEqualTo("id");
     }
 
     // -------------------------------------------------------------------------

@@ -3,13 +3,19 @@ package de.jobst.resulter.application;
 import de.jobst.resulter.application.port.CountryRepository;
 import de.jobst.resulter.application.port.CourseRepository;
 import de.jobst.resulter.application.port.CupScoreListRepository;
+import de.jobst.resulter.application.port.EventCertificateQueryService;
 import de.jobst.resulter.application.port.EventCertificateRepository;
+import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventCertificateStatRepository;
 import de.jobst.resulter.application.port.EventRepository;
+import de.jobst.resulter.application.port.EventService;
+import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.PersonRepository;
+import de.jobst.resulter.application.port.PersonService;
 import de.jobst.resulter.application.port.RaceRepository;
 import de.jobst.resulter.application.port.ResultListRepository;
+import de.jobst.resulter.application.port.ResultListService;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
@@ -477,6 +483,56 @@ class SimpleServiceImplTest {
         assertThat(personService.determineGroupLeaders(List.of(p1, p2))).isEmpty();
     }
 
+    @Test
+    void personService_findDoubles_viaPersonId_usesRepository() {
+        Person base = Person.of(1L, "Müller", "Hans", null, Gender.M);
+        Person similar = Person.of(2L, "Müller", "Hans", null, Gender.M);
+        when(personRepository.findById(PersonId.of(1L))).thenReturn(Optional.of(base));
+        when(personRepository.findAll()).thenReturn(List.of(base, similar));
+        var result = personService.findDoubles(PersonId.of(1L));
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void personService_findStrictDuplicates_withIdenticalPersons_returnsMatch() {
+        Person base = Person.of(1L, "Müller", "Hans", null, Gender.M);
+        Person identical = Person.of(2L, "Müller", "Hans", null, Gender.M);
+        var result = personService.findStrictDuplicates(base, List.of(base, identical));
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void personService_findStrictDuplicates_withDifferentPersons_returnsEmpty() {
+        Person base = Person.of(1L, "Müller", "Hans", null, Gender.M);
+        Person different = Person.of(2L, "Xyz", "Abc", null, Gender.F);
+        var result = personService.findStrictDuplicates(base, List.of(base, different));
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void personService_mergePersons_replaceAndDelete() {
+        Person person = Person.of(1L, "Müller", "Hans", null, Gender.M);
+        Person merge = Person.of(2L, "Müller", "Hans", null, Gender.M);
+        when(personRepository.findById(PersonId.of(1L))).thenReturn(Optional.of(person));
+        when(personRepository.findById(PersonId.of(2L))).thenReturn(Optional.of(merge));
+        var result = personService.mergePersons(PersonId.of(1L), PersonId.of(2L));
+        assertThat(result).isEqualTo(person);
+        verify(personRepository).delete(merge);
+        verify(resultListRepository).replacePersonId(PersonId.of(2L), PersonId.of(1L));
+        verify(splitTimeListRepository).replacePersonId(PersonId.of(2L), PersonId.of(1L));
+        verify(cupScoreListRepository).replacePersonId(PersonId.of(2L), PersonId.of(1L));
+        verify(eventCertificateStatRepository).replacePersonId(PersonId.of(2L), PersonId.of(1L));
+    }
+
+    @Test
+    void personService_determineGroupLeaders_withStrictDuplicates_returnsLeader() {
+        Person p1 = Person.of(1L, "Müller", "Hans", null, Gender.M);
+        Person p2 = Person.of(2L, "Müller", "Hans", null, Gender.M);
+        var leaders = personService.determineGroupLeaders(List.of(p1, p2));
+        // The smallest ID should be the leader
+        assertThat(leaders).contains(1L);
+    }
+
     // -------------------------------------------------------------------------
     // EventServiceImpl
     // -------------------------------------------------------------------------
@@ -575,5 +631,58 @@ class SimpleServiceImplTest {
         when(eventRepository.findById(EventId.of(99L))).thenReturn(Optional.empty());
         assertThatThrownBy(() -> eventService.deleteEvent(EventId.of(99L)))
                 .isInstanceOf(de.jobst.resulter.domain.util.ResourceNotFoundException.class);
+    }
+
+    // -------------------------------------------------------------------------
+    // EventCertificateQueryServiceImpl
+    // -------------------------------------------------------------------------
+
+    @Mock EventCertificateService eventCertificateServiceMock;
+    @Mock EventService eventServiceMock;
+    @Mock MediaFileService mediaFileServiceMock;
+    @Mock PersonService personServiceMock;
+    @Mock ResultListService resultListServiceMock;
+    @InjectMocks EventCertificateQueryServiceImpl eventCertQueryService;
+
+    @Test
+    void eventCertQueryService_findAll_withNoCertificates_returnsEmptyBatch() {
+        when(eventCertificateServiceMock.findAll()).thenReturn(List.of());
+        var result = eventCertQueryService.findAll();
+        assertThat(result.eventCertificates()).isEmpty();
+    }
+
+    @Test
+    void eventCertQueryService_findAll_withCertificates_buildsBatchResult() {
+        EventCertificate cert = EventCertificate.of(1L, "Urkunde", EventId.of(1L), null, null, true);
+        Event event = Event.of(1L, "Sprint");
+        when(eventCertificateServiceMock.findAll()).thenReturn(List.of(cert));
+        when(eventServiceMock.findAllByIdAsMap(any())).thenReturn(Map.of(EventId.of(1L), event));
+        when(mediaFileServiceMock.findAllByIdAsMap(any())).thenReturn(Map.of());
+        var result = eventCertQueryService.findAll();
+        assertThat(result.eventCertificates()).hasSize(1);
+    }
+
+    @Test
+    void eventCertQueryService_findById_whenFound_returnsBatch() {
+        EventCertificate cert = EventCertificate.of(1L, "Urkunde", null, null, null, true);
+        when(eventCertificateServiceMock.findById(EventCertificateId.of(1L))).thenReturn(Optional.of(cert));
+        when(eventServiceMock.findAllByIdAsMap(any())).thenReturn(Map.of());
+        when(mediaFileServiceMock.findAllByIdAsMap(any())).thenReturn(Map.of());
+        var result = eventCertQueryService.findById(1L);
+        assertThat(result).isPresent();
+    }
+
+    @Test
+    void eventCertQueryService_findById_whenNotFound_returnsEmpty() {
+        when(eventCertificateServiceMock.findById(EventCertificateId.of(99L))).thenReturn(Optional.empty());
+        var result = eventCertQueryService.findById(99L);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void eventCertQueryService_getCertificateStats_withEmptyStats_returnsEmpty() {
+        when(resultListServiceMock.getCertificateStats(EventId.of(1L))).thenReturn(List.of());
+        var result = eventCertQueryService.getCertificateStats(EventId.of(1L));
+        assertThat(result.eventCertificateStats()).isEmpty();
     }
 }

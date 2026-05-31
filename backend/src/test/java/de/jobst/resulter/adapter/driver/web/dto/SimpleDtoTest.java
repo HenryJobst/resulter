@@ -433,6 +433,50 @@ class SimpleDtoTest {
     }
 
     // -------------------------------------------------------------------------
+    // SplitTimeTableMetadataDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void splitTimeTableMetadataDto_from_mapsCorrectly() {
+        de.jobst.resulter.domain.analysis.SplitTimeTableMetadata metadata =
+                new de.jobst.resulter.domain.analysis.SplitTimeTableMetadata(10, 8, 15, true, 3600.0);
+        SplitTimeTableMetadataDto dto = SplitTimeTableMetadataDto.from(metadata);
+        assertThat(dto.totalRunners()).isEqualTo(10);
+        assertThat(dto.runnersWithCompleteSplits()).isEqualTo(8);
+        assertThat(dto.totalControls()).isEqualTo(15);
+        assertThat(dto.reliableData()).isTrue();
+        assertThat(dto.winnerTime()).isEqualTo(3600.0);
+    }
+
+    // -------------------------------------------------------------------------
+    // ResultListDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void resultListDto_accessorsReturnCorrectValues() {
+        ResultListDto dto = new ResultListDto(1L, 2L, 3L, "creator", "2025-01-01", "Active",
+                List.of(), false, false, false);
+        assertThat(dto.id()).isEqualTo(1L);
+        assertThat(dto.eventId()).isEqualTo(2L);
+        assertThat(dto.raceId()).isEqualTo(3L);
+        assertThat(dto.creator()).isEqualTo("creator");
+        assertThat(dto.classResults()).isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
+    // CupDetailedDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void cupDetailedDto_accessorsReturnCorrectValues() {
+        CupDetailedDto dto = new CupDetailedDto(5L, "NOR Cup", null, List.of(), List.of(),
+                List.of(), List.of(), java.util.Map.of(), null);
+        assertThat(dto.id()).isEqualTo(5L);
+        assertThat(dto.name()).isEqualTo("NOR Cup");
+        assertThat(dto.events()).isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
     // CourseGroupOptionDto
     // -------------------------------------------------------------------------
 

@@ -351,6 +351,26 @@ class SimpleMapperTest {
     }
 
     // -------------------------------------------------------------------------
+    // ClassResultMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void classResultMapper_toDto_withoutCourseId() {
+        ClassResult cr = ClassResult.of("Herren 21", "H21", null, List.of(), null);
+        var dto = ClassResultMapper.toDto(cr);
+        assertThat(dto.shortName()).isEqualTo("H21");
+        assertThat(dto.courseId()).isNull();
+        assertThat(dto.personResults()).isEmpty();
+    }
+
+    @Test
+    void classResultMapper_toDto_withCourseId() {
+        ClassResult cr = ClassResult.of("Damen 21", "D21", null, List.of(), CourseId.of(5L));
+        var dto = ClassResultMapper.toDto(cr);
+        assertThat(dto.courseId()).isEqualTo(5L);
+    }
+
+    // -------------------------------------------------------------------------
     // EventMapper — toKeyDto
     // -------------------------------------------------------------------------
 

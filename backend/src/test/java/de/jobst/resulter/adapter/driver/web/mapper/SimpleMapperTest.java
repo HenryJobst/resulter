@@ -1,11 +1,19 @@
 package de.jobst.resulter.adapter.driver.web.mapper;
 
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.aggregations.CupOverallStatistics;
+import de.jobst.resulter.domain.aggregations.CupStatistics;
+import de.jobst.resulter.domain.aggregations.OrganisationStatistics;
+import de.jobst.resulter.domain.aggregations.RaceClassResultGroupedCupScore;
+import de.jobst.resulter.domain.aggregations.RaceOrganisationGroupedCupScore;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class SimpleMapperTest {
 
@@ -74,5 +82,254 @@ class SimpleMapperTest {
         assertThat(dto.id()).isEqualTo(0L);
         assertThat(dto.familyName()).isEqualTo("Schmidt");
         assertThat(dto.givenName()).isEqualTo("Anna");
+    }
+
+    // -------------------------------------------------------------------------
+    // Private-Konstruktoren (Reflection)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void countryMapper_privateConstructor_isAccessible() throws Exception {
+        Constructor<CountryMapper> c = CountryMapper.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        assertThatCode(c::newInstance).doesNotThrowAnyException();
+    }
+
+    @Test
+    void personKeyMapper_privateConstructor_isAccessible() throws Exception {
+        Constructor<PersonKeyMapper> c = PersonKeyMapper.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        assertThatCode(c::newInstance).doesNotThrowAnyException();
+    }
+
+    // -------------------------------------------------------------------------
+    // CourseMapper — Default-Konstruktor
+    // -------------------------------------------------------------------------
+
+    @Test
+    void courseMapper_canBeInstantiated() {
+        assertThat(new CourseMapper()).isNotNull();
+    }
+
+    // -------------------------------------------------------------------------
+    // EventCertificateStatMapper — Default-Konstruktor
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventCertificateStatMapper_canBeInstantiated() {
+        assertThat(new EventCertificateStatMapper()).isNotNull();
+    }
+
+    // -------------------------------------------------------------------------
+    // PersonWithScoreMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void personWithScoreMapper_toDto_mapsCorrectly() {
+        PersonWithScore pws = new PersonWithScore(PersonId.of(7L), 8.5, ClassResultShortName.of("H21"));
+        var dto = PersonWithScoreMapper.toDto(pws);
+        assertThat(dto.personId()).isEqualTo(7L);
+        assertThat(dto.score()).isEqualTo(8.5);
+        assertThat(dto.classShortName()).isEqualTo("H21");
+    }
+
+    @Test
+    void personWithScoreMapper_toDtos_returnsList() {
+        PersonWithScore pws = new PersonWithScore(PersonId.of(1L), 5.0, ClassResultShortName.of("D18"));
+        var dtos = PersonWithScoreMapper.toDtos(List.of(pws));
+        assertThat(dtos).hasSize(1);
+    }
+
+    // -------------------------------------------------------------------------
+    // ClassResultScoreMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void classResultScoreMapper_toDto_mapsCorrectly() {
+        ClassResultScores scores = new ClassResultScores(ClassResultShortName.of("H14"), List.of());
+        var dto = ClassResultScoreMapper.toDto(scores);
+        assertThat(dto.classResultShortName()).isEqualTo("H14");
+        assertThat(dto.personWithScores()).isEmpty();
+    }
+
+    @Test
+    void classResultScoreMapper_toDtos_returnsList() {
+        ClassResultScores scores = new ClassResultScores(ClassResultShortName.of("D21"), List.of());
+        var dtos = ClassResultScoreMapper.toDtos(List.of(scores));
+        assertThat(dtos).hasSize(1);
+    }
+
+    // -------------------------------------------------------------------------
+    // CupOverallStatisticsMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void cupOverallStatisticsMapper_toDto_mapsAllFields() {
+        CupOverallStatistics stats = CupOverallStatistics.of(100, 10, 200, 20);
+        var dto = CupOverallStatisticsMapper.toDto(stats);
+        assertThat(dto.totalRunners()).isEqualTo(100);
+        assertThat(dto.totalOrganisations()).isEqualTo(10);
+        assertThat(dto.totalStarts()).isEqualTo(200);
+        assertThat(dto.totalNonScoringStarts()).isEqualTo(20);
+    }
+
+    // -------------------------------------------------------------------------
+    // CupStatisticsMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void cupStatisticsMapper_toDto_mapsCorrectly() {
+        CupOverallStatistics overall = CupOverallStatistics.of(50, 5, 100, 5);
+        CupStatistics stats = new CupStatistics(overall, List.of());
+        var dto = CupStatisticsMapper.toDto(stats, Map.of(), Map.of());
+        assertThat(dto.overallStatistics()).isNotNull();
+        assertThat(dto.organisationStatistics()).isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
+    // RaceClassResultGroupedCupScoreMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void raceClassResultGroupedCupScoreMapper_toDto_withEmptyList() {
+        Race race = Race.of(EventId.of(1L), "Sprint", (byte) 1);
+        RaceClassResultGroupedCupScore grouped = new RaceClassResultGroupedCupScore(race, List.of());
+        var dto = RaceClassResultGroupedCupScoreMapper.toDto(grouped);
+        assertThat(dto.classResultScores()).isEmpty();
+    }
+
+    @Test
+    void raceClassResultGroupedCupScoreMapper_toDto_withNullList() {
+        Race race = Race.of(EventId.of(1L), "Mittel", (byte) 2);
+        RaceClassResultGroupedCupScore grouped = new RaceClassResultGroupedCupScore(race, null);
+        var dto = RaceClassResultGroupedCupScoreMapper.toDto(grouped);
+        assertThat(dto.classResultScores()).isEmpty();
+    }
+
+    @Test
+    void raceClassResultGroupedCupScoreMapper_toDtos_returnsList() {
+        Race race = Race.of(EventId.of(1L), "Lang", (byte) 1);
+        var dtos = RaceClassResultGroupedCupScoreMapper.toDtos(
+                List.of(new RaceClassResultGroupedCupScore(race, List.of())));
+        assertThat(dtos).hasSize(1);
+    }
+
+    // -------------------------------------------------------------------------
+    // CupStatisticsMapper — Default-Konstruktor
+    // -------------------------------------------------------------------------
+
+    @Test
+    void cupStatisticsMapper_canBeInstantiated() {
+        assertThat(new CupStatisticsMapper()).isNotNull();
+    }
+
+    // -------------------------------------------------------------------------
+    // RaceOrganisationGroupedCupScoreMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void raceOrganisationGroupedCupScoreMapper_toDto_withEmptyList() {
+        Race race = Race.of(EventId.of(1L), "Sprint", (byte) 1);
+        RaceOrganisationGroupedCupScore grouped = new RaceOrganisationGroupedCupScore(race, List.of());
+        var dto = RaceOrganisationGroupedCupScoreMapper.toDto(grouped, Map.of(), Map.of());
+        assertThat(dto.organisationScores()).isEmpty();
+    }
+
+    @Test
+    void raceOrganisationGroupedCupScoreMapper_toDto_withNullList() {
+        Race race = Race.of(EventId.of(1L), "Mittel", (byte) 2);
+        RaceOrganisationGroupedCupScore grouped = new RaceOrganisationGroupedCupScore(race, null);
+        var dto = RaceOrganisationGroupedCupScoreMapper.toDto(grouped, Map.of(), Map.of());
+        assertThat(dto.organisationScores()).isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
+    // EventResultsMapper — Default-Konstruktor
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventResultsMapper_canBeInstantiated() {
+        assertThat(new EventResultsMapper()).isNotNull();
+    }
+
+    // -------------------------------------------------------------------------
+    // RaceMapper — true-branch (Race mit gesetzter Id)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void raceMapper_toDtoStatic_withNonEmptyId_usesId() {
+        Race race = Race.of(RaceId.of(3L), EventId.of(1L), "Lang", (byte) 1);
+        var dto = RaceMapper.toDtoStatic(race);
+        assertThat(dto.id()).isEqualTo(3L);
+        assertThat(dto.name()).isEqualTo("Lang");
+    }
+
+    @Test
+    void raceMapper_toDtos_returnsList() {
+        Race race = Race.of(EventId.of(1L), "Sprint", (byte) 1);
+        var dtos = RaceMapper.toDtos(List.of(race));
+        assertThat(dtos).hasSize(1);
+    }
+
+    // -------------------------------------------------------------------------
+    // OrganisationMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void organisationMapper_toKeyDto_mapsNameAndId() {
+        Organisation org = Organisation.of(7L, "OLOV", "O");
+        var dto = OrganisationMapper.toKeyDto(org);
+        assertThat(dto.id()).isEqualTo(7L);
+        assertThat(dto.name()).isEqualTo("OLOV");
+    }
+
+    @Test
+    void organisationMapper_toDto_withoutCountry() {
+        Organisation org = Organisation.of("TSB OJ", "TSB");
+        var dto = OrganisationMapper.toDto(org, Map.of(), Map.of());
+        assertThat(dto.name()).isEqualTo("TSB OJ");
+        assertThat(dto.country()).isNull();
+    }
+
+    @Test
+    void organisationMapper_toDto_withCountry() {
+        Country country = Country.of(1L, "DE", "Deutschland");
+        Organisation org = Organisation.of("TSB OJ", "TSB", CountryId.of(1L));
+        var dto = OrganisationMapper.toDto(org, Map.of(CountryId.of(1L), country), Map.of());
+        assertThat(dto.country()).isNotNull();
+        assertThat(dto.country().name()).isEqualTo("Deutschland");
+    }
+
+    // -------------------------------------------------------------------------
+    // OrganisationStatisticsMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void organisationStatisticsMapper_toDto_mapsCorrectly() {
+        Organisation org = Organisation.of("OLOV", "O");
+        OrganisationStatistics stats = OrganisationStatistics.of(org, 10, 20, 2);
+        var dto = OrganisationStatisticsMapper.toDto(stats, Map.of(), Map.of());
+        assertThat(dto.runnerCount()).isEqualTo(10);
+        assertThat(dto.totalStarts()).isEqualTo(20);
+    }
+
+    @Test
+    void organisationStatisticsMapper_toDtos_returnsList() {
+        Organisation org = Organisation.of("OLOV", "O");
+        OrganisationStatistics stats = OrganisationStatistics.of(org, 5, 10, 1);
+        var dtos = OrganisationStatisticsMapper.toDtos(List.of(stats), Map.of(), Map.of());
+        assertThat(dtos).hasSize(1);
+    }
+
+    // -------------------------------------------------------------------------
+    // EventMapper — toKeyDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventMapper_toKeyDto_mapsCorrectly() {
+        Event event = Event.of(42L, "Stadtlauf");
+        var dto = EventMapper.toKeyDto(event);
+        assertThat(dto.id()).isEqualTo(42L);
+        assertThat(dto.name()).isEqualTo("Stadtlauf");
     }
 }

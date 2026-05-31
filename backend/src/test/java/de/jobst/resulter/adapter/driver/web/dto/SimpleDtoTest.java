@@ -2,8 +2,7 @@ package de.jobst.resulter.adapter.driver.web.dto;
 
 import de.jobst.resulter.application.port.ClassGroupOption;
 import de.jobst.resulter.application.port.CourseGroupOption;
-import de.jobst.resulter.domain.CupType;
-import de.jobst.resulter.domain.Gender;
+import de.jobst.resulter.domain.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -184,6 +183,36 @@ class SimpleDtoTest {
         assertThat(dto.event()).isNull();
         assertThat(dto.raceOrganisationGroupedCupScores()).isEmpty();
         assertThat(dto.raceClassResultGroupedCupScores()).isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
+    // CourseDto.from — with non-empty id (true-branch)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void courseDto_from_withNonEmptyId_usesId() {
+        Course course = new Course(
+                CourseId.of(5L),
+                EventId.of(1L),
+                CourseName.of("Lang"),
+                CourseLength.of(8.0),
+                CourseClimb.of(300.0),
+                NumberOfControls.of(25));
+        CourseDto dto = CourseDto.from(course);
+        assertThat(dto.id()).isEqualTo(5L);
+        assertThat(dto.name()).isEqualTo("Lang");
+    }
+
+    // -------------------------------------------------------------------------
+    // EventCertificateKeyDto.from — with non-null id (true-branch)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventCertificateKeyDto_from_withNonNullId_usesId() {
+        EventCertificate cert = EventCertificate.of(9L, "Urkunde", null, null, null, false);
+        EventCertificateKeyDto dto = EventCertificateKeyDto.from(cert);
+        assertThat(dto.id()).isEqualTo(9L);
+        assertThat(dto.name()).isEqualTo("Urkunde");
     }
 
     // -------------------------------------------------------------------------

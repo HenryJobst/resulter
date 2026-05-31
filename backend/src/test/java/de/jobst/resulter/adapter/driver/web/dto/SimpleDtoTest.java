@@ -186,6 +186,101 @@ class SimpleDtoTest {
     }
 
     // -------------------------------------------------------------------------
+    // UserPermissionsDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void userPermissionsDto_from_withAdminRole_allTrue() {
+        UserPermissionsDto dto = UserPermissionsDto.from(List.of("ADMIN"), List.of());
+        assertThat(dto.canManageEvents()).isTrue();
+        assertThat(dto.canUploadResults()).isTrue();
+        assertThat(dto.canManageCups()).isTrue();
+        assertThat(dto.canViewReports()).isTrue();
+        assertThat(dto.canManageUsers()).isTrue();
+        assertThat(dto.canAccessAdmin()).isTrue();
+    }
+
+    @Test
+    void userPermissionsDto_from_withAdminGroup_allTrue() {
+        UserPermissionsDto dto = UserPermissionsDto.from(List.of(), List.of("ADMIN"));
+        assertThat(dto.canManageEvents()).isTrue();
+    }
+
+    @Test
+    void userPermissionsDto_from_withEndpointAdminRole_onlyAccessAdmin() {
+        UserPermissionsDto dto = UserPermissionsDto.from(List.of("ENDPOINT_ADMIN"), List.of());
+        assertThat(dto.canManageEvents()).isFalse();
+        assertThat(dto.canAccessAdmin()).isTrue();
+    }
+
+    @Test
+    void userPermissionsDto_from_withEndpointAdminGroup_onlyAccessAdmin() {
+        UserPermissionsDto dto = UserPermissionsDto.from(List.of(), List.of("ENDPOINT_ADMIN"));
+        assertThat(dto.canManageEvents()).isFalse();
+        assertThat(dto.canAccessAdmin()).isTrue();
+    }
+
+    @Test
+    void userPermissionsDto_from_withNoRoles_allFalseExceptViewReports() {
+        UserPermissionsDto dto = UserPermissionsDto.from(List.of(), List.of());
+        assertThat(dto.canManageEvents()).isFalse();
+        assertThat(dto.canViewReports()).isTrue();
+        assertThat(dto.canAccessAdmin()).isFalse();
+    }
+
+    // -------------------------------------------------------------------------
+    // EventKeyDto — compareTo-Branches
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventKeyDto_compareTo_bothStartTimesNull_comparesByName() {
+        EventKeyDto a = new EventKeyDto(1L, "Alpha", null);
+        EventKeyDto b = new EventKeyDto(2L, "Beta", null);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    @Test
+    void eventKeyDto_compareTo_firstStartTimeNull_secondNotNull_returnsPositive() {
+        EventKeyDto a = new EventKeyDto(1L, "Alpha", null);
+        EventKeyDto b = new EventKeyDto(2L, "Beta", java.time.ZonedDateTime.now());
+        assertThat(a.compareTo(b)).isPositive();
+    }
+
+    @Test
+    void eventKeyDto_compareTo_firstNotNull_secondNull_returnsNegative() {
+        EventKeyDto a = new EventKeyDto(1L, "Alpha", java.time.ZonedDateTime.now());
+        EventKeyDto b = new EventKeyDto(2L, "Beta", null);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    @Test
+    void eventKeyDto_compareTo_sameStartTime_comparesByName() {
+        java.time.ZonedDateTime t = java.time.ZonedDateTime.now();
+        EventKeyDto a = new EventKeyDto(1L, "Alpha", t);
+        EventKeyDto b = new EventKeyDto(2L, "Beta", t);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    @Test
+    void eventKeyDto_compareTo_sameStartTimeAndName_comparesById() {
+        java.time.ZonedDateTime t = java.time.ZonedDateTime.now();
+        EventKeyDto a = new EventKeyDto(1L, "Same", t);
+        EventKeyDto b = new EventKeyDto(2L, "Same", t);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    // -------------------------------------------------------------------------
+    // OrganisationKeyDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void organisationKeyDto_accessorsReturnCorrectValues() {
+        OrganisationKeyDto dto = new OrganisationKeyDto(3L, "TSB OJ");
+        assertThat(dto.id()).isEqualTo(3L);
+        assertThat(dto.name()).isEqualTo("TSB OJ");
+    }
+
+    // -------------------------------------------------------------------------
     // CourseDto.from — with non-empty id (true-branch)
     // -------------------------------------------------------------------------
 

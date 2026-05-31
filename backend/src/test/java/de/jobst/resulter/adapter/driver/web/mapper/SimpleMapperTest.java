@@ -1,8 +1,10 @@
 package de.jobst.resulter.adapter.driver.web.mapper;
 
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.adapter.driver.web.dto.EventDto;
 import de.jobst.resulter.domain.aggregations.CupOverallStatistics;
 import de.jobst.resulter.domain.aggregations.CupStatistics;
+import de.jobst.resulter.domain.aggregations.EventRacesCupScore;
 import de.jobst.resulter.domain.aggregations.OrganisationStatistics;
 import de.jobst.resulter.domain.aggregations.RaceClassResultGroupedCupScore;
 import de.jobst.resulter.domain.aggregations.RaceOrganisationGroupedCupScore;
@@ -368,6 +370,75 @@ class SimpleMapperTest {
         ClassResult cr = ClassResult.of("Damen 21", "D21", null, List.of(), CourseId.of(5L));
         var dto = ClassResultMapper.toDto(cr);
         assertThat(dto.courseId()).isEqualTo(5L);
+    }
+
+    // -------------------------------------------------------------------------
+    // OrganisationScoreMapper — Default-Konstruktor
+    // -------------------------------------------------------------------------
+
+    @Test
+    void organisationScoreMapper_canBeInstantiated() {
+        assertThat(new OrganisationScoreMapper()).isNotNull();
+    }
+
+    // -------------------------------------------------------------------------
+    // CupMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void cupMapper_canBeInstantiated() {
+        assertThat(new CupMapper()).isNotNull();
+    }
+
+    @Test
+    void cupMapper_toDto_withId() {
+        Cup cup = Cup.of(7L, "NOR Cup", CupType.NOR, java.time.Year.of(2025), List.of());
+        var dto = CupMapper.toDto(cup, Map.of());
+        assertThat(dto.id()).isEqualTo(7L);
+        assertThat(dto.name()).isEqualTo("NOR Cup");
+        assertThat(dto.events()).isEmpty();
+    }
+
+    @Test
+    void cupMapper_toDto_withoutId() {
+        Cup cup = Cup.of(null, "KJ Cup", CupType.KJ, java.time.Year.of(2025), List.of());
+        var dto = CupMapper.toDto(cup, Map.of());
+        assertThat(dto.id()).isEqualTo(0L);
+    }
+
+    @Test
+    void cupMapper_toDtos_returnsList() {
+        Cup cup = Cup.of(1L, "Test", CupType.NOR, java.time.Year.of(2025), List.of());
+        var dtos = CupMapper.toDtos(List.of(cup), Map.of());
+        assertThat(dtos).hasSize(1);
+    }
+
+    // -------------------------------------------------------------------------
+    // EventRacesCupScoreMapper
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventRacesCupScoreMapper_canBeInstantiated() {
+        assertThat(new EventRacesCupScoreMapper()).isNotNull();
+    }
+
+    @Test
+    void eventRacesCupScoreMapper_toDto_withEmptyLists() {
+        Event event = Event.of(1L, "Sprint");
+        EventDto eventDto = new EventDto(1L, "Sprint", null, null, List.of(), null, false, null, false);
+        EventRacesCupScore score = new EventRacesCupScore(event, List.of(), List.of());
+        var dto = EventRacesCupScoreMapper.toDto(score, eventDto, Map.of(), Map.of());
+        assertThat(dto.raceOrganisationGroupedCupScores()).isEmpty();
+        assertThat(dto.raceClassResultGroupedCupScores()).isEmpty();
+    }
+
+    @Test
+    void eventRacesCupScoreMapper_toDtos_filtersUnknownEvents() {
+        Event event = Event.of(1L, "Lauf");
+        EventRacesCupScore score = new EventRacesCupScore(event, List.of(), List.of());
+        // leere eventDtosById → wird herausgefiltert
+        var dtos = EventRacesCupScoreMapper.toDtos(List.of(score), Map.of(), Map.of(), Map.of());
+        assertThat(dtos).isEmpty();
     }
 
     // -------------------------------------------------------------------------

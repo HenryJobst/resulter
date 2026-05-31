@@ -433,6 +433,68 @@ class SimpleDtoTest {
     }
 
     // -------------------------------------------------------------------------
+    // EventDto — mapOrders + compareTo
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventDto_mapOrdersDtoToDomain_knownProperties() {
+        assertThat(EventDto.mapOrdersDtoToDomain(Sort.Order.asc("id"))).isEqualTo("id.value");
+        assertThat(EventDto.mapOrdersDtoToDomain(Sort.Order.asc("name"))).isEqualTo("event.name.value");
+        assertThat(EventDto.mapOrdersDtoToDomain(Sort.Order.asc("startTime"))).isEqualTo("startTime.value");
+        assertThat(EventDto.mapOrdersDtoToDomain(Sort.Order.asc("state"))).isEqualTo("state.id");
+        assertThat(EventDto.mapOrdersDtoToDomain(Sort.Order.asc("organisations"))).isEqualTo("organisations");
+        assertThat(EventDto.mapOrdersDtoToDomain(Sort.Order.asc("discipline"))).isEqualTo("discipline.id");
+        assertThat(EventDto.mapOrdersDtoToDomain(Sort.Order.asc("hasSplitTimes"))).isEqualTo("startTime.value");
+        assertThat(EventDto.mapOrdersDtoToDomain(Sort.Order.asc("other"))).isEqualTo("id.value");
+    }
+
+    @Test
+    void eventDto_mapOrdersDomainToDto_knownProperties() {
+        assertThat(EventDto.mapOrdersDomainToDto(Sort.Order.asc("id.value"))).isEqualTo("id");
+        assertThat(EventDto.mapOrdersDomainToDto(Sort.Order.asc("event.name.value"))).isEqualTo("name");
+        assertThat(EventDto.mapOrdersDomainToDto(Sort.Order.asc("startTime.value"))).isEqualTo("startTime");
+        assertThat(EventDto.mapOrdersDomainToDto(Sort.Order.asc("state.id"))).isEqualTo("state");
+        assertThat(EventDto.mapOrdersDomainToDto(Sort.Order.asc("organisations"))).isEqualTo("organisations");
+        assertThat(EventDto.mapOrdersDomainToDto(Sort.Order.asc("discipline.id"))).isEqualTo("discipline");
+        assertThat(EventDto.mapOrdersDomainToDto(Sort.Order.asc("other"))).isEqualTo("other");
+    }
+
+    @Test
+    void eventDto_compareTo_bothStartTimesNull_comparesByName() {
+        EventDto a = new EventDto(1L, "Alpha", null, null, List.of(), null, false, null, false);
+        EventDto b = new EventDto(2L, "Beta", null, null, List.of(), null, false, null, false);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    @Test
+    void eventDto_compareTo_firstStartTimeNull_secondNotNull_returnsPositive() {
+        EventDto a = new EventDto(1L, "Alpha", null, null, List.of(), null, false, null, false);
+        EventDto b = new EventDto(2L, "Beta", "2025-01-01", null, List.of(), null, false, null, false);
+        assertThat(a.compareTo(b)).isPositive();
+    }
+
+    @Test
+    void eventDto_compareTo_firstStartTimeNotNull_secondNull_returnsNegative() {
+        EventDto a = new EventDto(1L, "Alpha", "2025-01-01", null, List.of(), null, false, null, false);
+        EventDto b = new EventDto(2L, "Beta", null, null, List.of(), null, false, null, false);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    @Test
+    void eventDto_compareTo_sameStartTime_comparesByName() {
+        EventDto a = new EventDto(1L, "Alpha", "2025-01-01", null, List.of(), null, false, null, false);
+        EventDto b = new EventDto(2L, "Beta", "2025-01-01", null, List.of(), null, false, null, false);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    @Test
+    void eventDto_compareTo_sameStartTimeAndName_comparesById() {
+        EventDto a = new EventDto(1L, "Same", "2025-01-01", null, List.of(), null, false, null, false);
+        EventDto b = new EventDto(2L, "Same", "2025-01-01", null, List.of(), null, false, null, false);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
+    // -------------------------------------------------------------------------
     // SplitTimeTableMetadataDto
     // -------------------------------------------------------------------------
 

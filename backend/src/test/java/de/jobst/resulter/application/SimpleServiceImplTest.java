@@ -9,6 +9,7 @@ import de.jobst.resulter.application.port.EventCertificateService;
 import de.jobst.resulter.application.port.EventCertificateStatRepository;
 import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.EventService;
+import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.application.port.MediaFileService;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.PersonRepository;
@@ -633,6 +634,43 @@ class SimpleServiceImplTest {
                 .isInstanceOf(de.jobst.resulter.domain.util.ResourceNotFoundException.class);
     }
 
+    @Test
+    void eventService_updateEvent_withoutCertificate_savesEvent() {
+        Event event = Event.of(1L, "Sprint");
+        when(eventRepository.findById(EventId.of(1L))).thenReturn(Optional.of(event));
+        when(organisationRepository.findByIds(any())).thenReturn(List.of());
+        when(eventRepository.save(any())).thenReturn(event);
+        Event updated = eventService.updateEvent(
+                EventId.of(1L), EventName.of("Neu"), null, EventStatus.PLANNED, List.of(), null, Discipline.SPRINT, false);
+        assertThat(updated).isNotNull();
+        verify(eventRepository).save(any());
+    }
+
+    @Test
+    void eventService_updateEvent_withCertificate_savesCertificate() {
+        Event event = Event.of(1L, "Sprint");
+        EventCertificate cert = EventCertificate.of(0L, "MyCert", null, null, null, true);
+        cert.setId(EventCertificateId.of(5L));
+        when(eventRepository.findById(EventId.of(1L))).thenReturn(Optional.of(event));
+        when(organisationRepository.findByIds(any())).thenReturn(List.of());
+        when(eventCertificateRepository.findById(EventCertificateId.of(5L))).thenReturn(Optional.of(cert));
+        when(eventCertificateRepository.findAllByEvent(EventId.of(1L))).thenReturn(List.of(cert));
+        when(eventRepository.save(any())).thenReturn(event);
+        Event updated = eventService.updateEvent(
+                EventId.of(1L), EventName.of("Neu"), null, EventStatus.PLANNED, List.of(), EventCertificateId.of(5L), Discipline.SPRINT, false);
+        assertThat(updated).isNotNull();
+        verify(eventCertificateRepository).saveAll(any());
+        verify(eventCertificateRepository).save(cert);
+    }
+
+    @Test
+    void eventService_updateEvent_throwsWhenNotFound() {
+        when(eventRepository.findById(EventId.of(99L))).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> eventService.updateEvent(
+                EventId.of(99L), EventName.of("X"), null, EventStatus.PLANNED, List.of(), null, Discipline.SPRINT, false))
+                .isInstanceOf(de.jobst.resulter.domain.util.ResourceNotFoundException.class);
+    }
+
     // -------------------------------------------------------------------------
     // EventCertificateQueryServiceImpl
     // -------------------------------------------------------------------------
@@ -684,5 +722,67 @@ class SimpleServiceImplTest {
         when(resultListServiceMock.getCertificateStats(EventId.of(1L))).thenReturn(List.of());
         var result = eventCertQueryService.getCertificateStats(EventId.of(1L));
         assertThat(result.eventCertificateStats()).isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
+    // EventCertificateServiceImpl
+    // -------------------------------------------------------------------------
+
+    @Mock MediaFileRepository mediaFileRepository;
+    @InjectMocks EventCertificateServiceImpl eventCertService;
+
+    @Test
+    void eventCertService_findAll_delegatesToRepository() {
+        when(eventCertificateRepository.findAll()).thenReturn(List.of());
+        assertThat(eventCertService.findAll()).isEmpty();
+    }
+
+    @Test
+    void eventCertService_findById_delegatesToRepository() {
+        when(eventCertificateRepository.findById(EventCertificateId.of(1L))).thenReturn(Optional.empty());
+        assertThat(eventCertService.findById(EventCertificateId.of(1L))).isEmpty();
+    }
+
+    @Test
+    void eventCertService_getById_throwsWhenNotFound() {
+        when(eventCertificateRepository.findById(EventCertificateId.of(99L))).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> eventCertService.getById(EventCertificateId.of(99L)))
+                .isInstanceOf(de.jobst.resulter.domain.util.ResourceNotFoundException.class);
+    }
+
+    @Test
+    void eventCertService_findAllByIdAsMap_delegatesToRepository() {
+        when(eventCertificateRepository.findAllByIdAsMap(Set.of())).thenReturn(Map.of());
+        assertThat(eventCertService.findAllByIdAsMap(Set.of())).isEmpty();
+    }
+
+    @Test
+    void eventCertService_deleteEventCertificate_throwsWhenNotFound() {
+        when(eventCertificateRepository.findById(EventCertificateId.of(99L))).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> eventCertService.deleteEventCertificate(EventCertificateId.of(99L)))
+                .isInstanceOf(de.jobst.resulter.domain.util.ResourceNotFoundException.class);
+    }
+
+    @Test
+    void eventCertService_deleteEventCertificate_deletesWhenFound() {
+        EventCertificate cert = EventCertificate.of(1L, "Test", null, null, null, false);
+        when(eventCertificateRepository.findById(EventCertificateId.of(1L))).thenReturn(Optional.of(cert));
+        eventCertService.deleteEventCertificate(EventCertificateId.of(1L));
+        verify(eventCertificateRepository).delete(cert);
+    }
+
+    @Test
+    void eventCertService_createEventCertificate_withNullEventAndNoMediaFile_saves() {
+        EventCertificate saved = EventCertificate.of(1L, "Neu", null, null, null, false);
+        when(eventCertificateRepository.save(any())).thenReturn(saved);
+        var result = eventCertService.createEventCertificate("Neu", null, null, null, false);
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void eventCertService_findAll_paged_delegatesToRepository() {
+        Page<EventCertificate> page = new PageImpl<>(List.of());
+        when(eventCertificateRepository.findAll(null, PageRequest.of(0, 10))).thenReturn(page);
+        assertThat(eventCertService.findAll(null, PageRequest.of(0, 10))).isEmpty();
     }
 }

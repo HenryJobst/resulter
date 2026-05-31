@@ -36,7 +36,7 @@ public class InMemoryPersonRepository implements PersonRepository {
         } else {
             savedPerson = person;
         }
-        persons.put(person.id(), savedPerson);
+        persons.put(savedPerson.id(), savedPerson);
         savedPersons.add(savedPerson);
         return savedPerson;
     }

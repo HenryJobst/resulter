@@ -3,10 +3,7 @@ package de.jobst.resulter.adapter.driver.web.dto;
 import de.jobst.resulter.application.port.ClassGroupOption;
 import de.jobst.resulter.application.port.CourseGroupOption;
 import de.jobst.resulter.domain.*;
-import de.jobst.resulter.domain.analysis.ControlSegment;
-import de.jobst.resulter.domain.analysis.ControlSequenceSegment;
-import de.jobst.resulter.domain.analysis.RunnerSplit;
-import de.jobst.resulter.domain.analysis.SequenceRunnerSplit;
+import de.jobst.resulter.domain.analysis.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 
@@ -16,6 +13,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SimpleDtoTest {
 
@@ -930,5 +928,90 @@ class SimpleDtoTest {
         assertThat(dto.id()).isEqualTo(5L);
         assertThat(dto.event().id()).isEqualTo(1L);
         assertThat(dto.race().id()).isEqualTo(2L);
+    }
+
+    // -------------------------------------------------------------------------
+    // SplitTimeTableCellDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void splitTimeTableCellDto_from_mapsAllFields() {
+        SplitTimeTableCell cell = new SplitTimeTableCell(
+                "101", 120.0, 1, 30.0, 2, false, ErrorSeverity.NONE, null, true, false);
+        SplitTimeTableCellDto dto = SplitTimeTableCellDto.from(cell);
+        assertThat(dto.controlCode()).isEqualTo("101");
+        assertThat(dto.cumulativeTime()).isEqualTo(120.0);
+        assertThat(dto.cumulativePosition()).isEqualTo(1);
+        assertThat(dto.segmentTime()).isEqualTo(30.0);
+        assertThat(dto.segmentPosition()).isEqualTo(2);
+        assertThat(dto.isError()).isFalse();
+        assertThat(dto.errorSeverity()).isEqualTo("NONE");
+        assertThat(dto.errorMagnitude()).isNull();
+        assertThat(dto.isBestCumulative()).isTrue();
+        assertThat(dto.isBestSegment()).isFalse();
+    }
+
+    @Test
+    void splitTimeTableCellDto_from_withError() {
+        SplitTimeTableCell cell = new SplitTimeTableCell(
+                "102", 200.0, 3, 50.0, 5, true, ErrorSeverity.HIGH, 0.35, false, false);
+        SplitTimeTableCellDto dto = SplitTimeTableCellDto.from(cell);
+        assertThat(dto.isError()).isTrue();
+        assertThat(dto.errorSeverity()).isEqualTo("HIGH");
+        assertThat(dto.errorMagnitude()).isEqualTo(0.35);
+    }
+
+    // -------------------------------------------------------------------------
+    // SplitTimeTableRowDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void splitTimeTableRowDto_from_mapsAllFields() {
+        SplitTimeTableCell cell = new SplitTimeTableCell(
+                "F", 300.0, 1, 60.0, 1, false, ErrorSeverity.NONE, null, true, true);
+        SplitTimeTableRow row = new SplitTimeTableRow(
+                42L, "Müller, Hans", "H21E", List.of(cell), false, false, 300.0, 1);
+        SplitTimeTableRowDto dto = SplitTimeTableRowDto.from(row);
+        assertThat(dto.personId()).isEqualTo(42L);
+        assertThat(dto.personName()).isEqualTo("Müller, Hans");
+        assertThat(dto.className()).isEqualTo("H21E");
+        assertThat(dto.cells()).hasSize(1);
+        assertThat(dto.hasIncompleteSplits()).isFalse();
+        assertThat(dto.notCompeting()).isFalse();
+        assertThat(dto.finishTime()).isEqualTo(300.0);
+        assertThat(dto.position()).isEqualTo(1);
+    }
+
+    // -------------------------------------------------------------------------
+    // SplitTimeTableMetadataDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void splitTimeTableMetadataDto_from_mapsAllFields() {
+        SplitTimeTableMetadata meta = new SplitTimeTableMetadata(10, 8, 15, true, 180.0);
+        SplitTimeTableMetadataDto dto = SplitTimeTableMetadataDto.from(meta);
+        assertThat(dto.totalRunners()).isEqualTo(10);
+        assertThat(dto.runnersWithCompleteSplits()).isEqualTo(8);
+        assertThat(dto.totalControls()).isEqualTo(15);
+        assertThat(dto.reliableData()).isTrue();
+        assertThat(dto.winnerTime()).isEqualTo(180.0);
+    }
+
+    // -------------------------------------------------------------------------
+    // SplitTimeTableDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void splitTimeTableDto_from_mapsAllFields() {
+        SplitTimeTableMetadata meta = new SplitTimeTableMetadata(5, 5, 10, true, 200.0);
+        SplitTimeTable table = new SplitTimeTable(
+                "CLASS", "H21E", List.of("H21E"), List.of("S", "101", "F"), List.of(), meta);
+        SplitTimeTableDto dto = SplitTimeTableDto.from(table);
+        assertThat(dto.groupByType()).isEqualTo("CLASS");
+        assertThat(dto.groupId()).isEqualTo("H21E");
+        assertThat(dto.groupNames()).containsExactly("H21E");
+        assertThat(dto.controlCodes()).containsExactly("S", "101", "F");
+        assertThat(dto.rows()).isEmpty();
+        assertThat(dto.metadata().totalRunners()).isEqualTo(5);
     }
 }

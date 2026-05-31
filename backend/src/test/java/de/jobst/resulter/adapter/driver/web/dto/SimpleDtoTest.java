@@ -601,6 +601,13 @@ class SimpleDtoTest {
         assertThat(a.compareTo(b)).isNegative();
     }
 
+    @Test
+    void personResultDto_compareTo_sameUntilRaceNumber_comparesByRaceNumber() {
+        PersonResultDto a = new PersonResultDto(1L, 1L, null, "OK", 1L, (byte) 1);
+        PersonResultDto b = new PersonResultDto(1L, 1L, null, "OK", 1L, (byte) 2);
+        assertThat(a.compareTo(b)).isNegative();
+    }
+
     // -------------------------------------------------------------------------
     // EventCertificateDto — mapOrders
     // -------------------------------------------------------------------------

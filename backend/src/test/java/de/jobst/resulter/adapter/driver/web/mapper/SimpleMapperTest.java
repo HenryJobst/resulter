@@ -407,12 +407,31 @@ class SimpleMapperTest {
     }
 
     // -------------------------------------------------------------------------
-    // OrganisationScoreMapper — Default-Konstruktor
+    // OrganisationScoreMapper — Default-Konstruktor + Tests
     // -------------------------------------------------------------------------
 
     @Test
     void organisationScoreMapper_canBeInstantiated() {
         assertThat(new OrganisationScoreMapper()).isNotNull();
+    }
+
+    @Test
+    void organisationScoreMapper_toDto_withEmptyPersonList() {
+        Organisation org = Organisation.of("TSB", "T");
+        de.jobst.resulter.domain.aggregations.OrganisationScore score =
+                new de.jobst.resulter.domain.aggregations.OrganisationScore(org, 42.0, List.of());
+        var dto = OrganisationScoreMapper.toDto(score, Map.of(), Map.of());
+        assertThat(dto.score()).isEqualTo(42.0);
+        assertThat(dto.personWithScores()).isEmpty();
+    }
+
+    @Test
+    void organisationScoreMapper_toDtos_returnsList() {
+        Organisation org = Organisation.of("OLOV", "O");
+        de.jobst.resulter.domain.aggregations.OrganisationScore score =
+                new de.jobst.resulter.domain.aggregations.OrganisationScore(org, 10.0, List.of());
+        var dtos = OrganisationScoreMapper.toDtos(List.of(score), Map.of(), Map.of());
+        assertThat(dtos).hasSize(1);
     }
 
     // -------------------------------------------------------------------------
@@ -476,7 +495,7 @@ class SimpleMapperTest {
     }
 
     // -------------------------------------------------------------------------
-    // EventMapper — toKeyDto
+    // EventMapper — toKeyDto + toDto + toDtos
     // -------------------------------------------------------------------------
 
     @Test
@@ -485,5 +504,29 @@ class SimpleMapperTest {
         var dto = EventMapper.toKeyDto(event);
         assertThat(dto.id()).isEqualTo(42L);
         assertThat(dto.name()).isEqualTo("Stadtlauf");
+    }
+
+    @Test
+    void eventMapper_toKeyDto_withNullId_usesZero() {
+        Event event = Event.of(null, "Test");
+        var dto = EventMapper.toKeyDto(event);
+        assertThat(dto.id()).isEqualTo(0L);
+    }
+
+    @Test
+    void eventMapper_toDto_withMinimalEvent() {
+        Event event = Event.of(1L, "Sprint");
+        var dto = EventMapper.toDto(event, Map.of(), Map.of(), false);
+        assertThat(dto.id()).isEqualTo(1L);
+        assertThat(dto.name()).isEqualTo("Sprint");
+        assertThat(dto.startTime()).isNull();
+        assertThat(dto.certificate()).isNull();
+    }
+
+    @Test
+    void eventMapper_toDtos_returnsList() {
+        Event event = Event.of(1L, "Lauf");
+        var dtos = EventMapper.toDtos(List.of(event), Map.of(EventId.of(1L), false), Map.of(), Map.of());
+        assertThat(dtos).hasSize(1);
     }
 }

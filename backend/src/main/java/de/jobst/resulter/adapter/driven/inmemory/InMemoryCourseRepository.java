@@ -33,7 +33,7 @@ public class InMemoryCourseRepository implements CourseRepository {
         } else {
             savedCourse = course;
         }
-        courses.put(course.getId(), savedCourse);
+        courses.put(savedCourse.getId(), savedCourse);
         savedCourses.add(savedCourse);
         return savedCourse;
     }

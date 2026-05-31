@@ -13,6 +13,7 @@ import de.jobst.resulter.domain.ResultListId;
 import de.jobst.resulter.domain.SplitTime;
 import de.jobst.resulter.domain.SplitTimeList;
 import de.jobst.resulter.domain.SplitTimeListId;
+import de.jobst.resulter.domain.analysis.ControlSegment;
 import de.jobst.resulter.domain.analysis.ControlSequenceSegment;
 import de.jobst.resulter.domain.analysis.SplitTimeAnalysis;
 import org.junit.jupiter.api.Test;
@@ -348,6 +349,252 @@ class SplitTimeRankingServiceImplTest {
 
         assertThat(analyses).hasSize(1);
         assertThat(analyses.getFirst().sequenceSegments()).isEmpty();
+    }
+
+    // =========================================================================
+    // calculateControlSegments
+    // =========================================================================
+
+    @Test
+    void controlSegments_shouldContainBothRunnersOnSharedControlPair() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository, personRepository, resultListRepository);
+
+        ResultListId resultListId = ResultListId.of(20L);
+        // Beide Läufer passieren Posten 31 und 32
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
+                SplitTime.of("32", 190.0, SplitTimeListId.of(1L))
+        ));
+        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
+                SplitTime.of("31", 110.0, SplitTimeListId.of(2L)),
+                SplitTime.of("32", 205.0, SplitTimeListId.of(2L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId, false, List.of(), false, false, 2);
+
+        List<ControlSegment> segments = analyses.getFirst().controlSegments();
+        // S→31 und 31→32 sollen jeweils beide Läufer enthalten
+        assertThat(segments).isNotEmpty();
+
+        ControlSegment seg31to32 = segments.stream()
+                .filter(s -> s.fromControl().value().equals("31") && s.toControl().value().equals("32"))
+                .findFirst()
+                .orElseThrow();
+        assertThat(seg31to32.runnerSplits()).hasSize(2);
+        assertThat(seg31to32.runnerSplits().stream().map(rs -> rs.personId().value()).toList())
+                .containsExactlyInAnyOrder(1L, 2L);
+    }
+
+    @Test
+    void controlSegments_runnersShouldBeSortedByTimeWithCorrectPositionsAndTimeBehind() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository, personRepository, resultListRepository);
+
+        ResultListId resultListId = ResultListId.of(21L);
+        // Runner1: S→31 = 100s; Runner2: S→31 = 90s (schneller)
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L))
+        ));
+        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
+                SplitTime.of("31", 90.0, SplitTimeListId.of(2L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId, false, List.of(), false, false, 2);
+
+        ControlSegment segSto31 = analyses.getFirst().controlSegments().stream()
+                .filter(s -> s.fromControl().value().equals("S") && s.toControl().value().equals("31"))
+                .findFirst()
+                .orElseThrow();
+
+        // Schnellster zuerst (runner2 mit 90s)
+        assertThat(segSto31.runnerSplits().get(0).personId().value()).isEqualTo(2L);
+        assertThat(segSto31.runnerSplits().get(0).position()).isEqualTo(1);
+        assertThat(segSto31.runnerSplits().get(0).timeBehindLeader()).isEqualTo(0.0);
+
+        assertThat(segSto31.runnerSplits().get(1).personId().value()).isEqualTo(1L);
+        assertThat(segSto31.runnerSplits().get(1).position()).isEqualTo(2);
+        assertThat(segSto31.runnerSplits().get(1).timeBehindLeader()).isEqualTo(10.0);
+    }
+
+    @Test
+    void controlSegments_shouldSkipSegmentWithOnlySingleRunnerWhenNoFilterActive() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository, personRepository, resultListRepository);
+
+        ResultListId resultListId = ResultListId.of(22L);
+        // Nur ein Läufer → Segment S→31 hat nur einen Eintrag → soll nicht erscheinen
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId, false, List.of(), false, false, 2);
+
+        assertThat(analyses.getFirst().controlSegments()).isEmpty();
+    }
+
+    @Test
+    void controlSegments_shouldSkipSegmentWithNullPunchTime() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository, personRepository, resultListRepository);
+
+        ResultListId resultListId = ResultListId.of(23L);
+        // Runner1: Posten 31 fehlt (null → DNF-Stempel), Runner2: normaler Lauf
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", null, SplitTimeListId.of(1L)),
+                SplitTime.of("32", 200.0, SplitTimeListId.of(1L))
+        ));
+        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
+                SplitTime.of("31", 110.0, SplitTimeListId.of(2L)),
+                SplitTime.of("32", 210.0, SplitTimeListId.of(2L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId, false, List.of(), false, false, 2);
+
+        // S→31: runner1 hat null → nur runner2 → wird übersprungen (< 2 Läufer)
+        boolean hasSto31withRunner1 = analyses.getFirst().controlSegments().stream()
+                .filter(s -> s.fromControl().value().equals("S") && s.toControl().value().equals("31"))
+                .flatMap(s -> s.runnerSplits().stream())
+                .anyMatch(rs -> rs.personId().value().equals(1L));
+        assertThat(hasSto31withRunner1).isFalse();
+
+        // 31→32: runner1 überspringt dieses Segment weil punchTime[31] null ist
+        boolean has31to32withRunner1 = analyses.getFirst().controlSegments().stream()
+                .filter(s -> s.fromControl().value().equals("31") && s.toControl().value().equals("32"))
+                .flatMap(s -> s.runnerSplits().stream())
+                .anyMatch(rs -> rs.personId().value().equals(1L));
+        assertThat(has31to32withRunner1).isFalse();
+    }
+
+    @Test
+    void controlSegments_shouldApplyPersonFilter() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository, personRepository, resultListRepository);
+
+        ResultListId resultListId = ResultListId.of(24L);
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L))
+        ));
+        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
+                SplitTime.of("31", 110.0, SplitTimeListId.of(2L))
+        ));
+        SplitTimeList runner3 = splitTimeList(3L, "H21", List.of(
+                SplitTime.of("31", 120.0, SplitTimeListId.of(3L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner1, runner2, runner3));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        // Nur runner1 und runner2 filtern
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId, false, List.of(1L, 2L), false, false, 2);
+
+        analyses.getFirst().controlSegments().forEach(seg ->
+                seg.runnerSplits().forEach(rs ->
+                        assertThat(rs.personId().value()).isIn(1L, 2L)
+                )
+        );
+        analyses.getFirst().controlSegments().forEach(seg ->
+                assertThat(seg.runnerSplits().stream().map(rs -> rs.personId().value()).toList())
+                        .doesNotContain(3L)
+        );
+    }
+
+    @Test
+    void controlSegments_shouldMergeBidirectionalSegments() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+
+        SplitTimeRankingServiceImpl service = new SplitTimeRankingServiceImpl(
+                splitTimeListRepository, personRepository, resultListRepository);
+
+        ResultListId resultListId = ResultListId.of(25L);
+        // Runner1+2 laufen 31→32; Runner3+4 laufen 32→31 (umgekehrter Kurs)
+        // Jeweils mind. 2 Läufer pro Richtung damit Segmente nicht als Einzel-Läufer verworfen werden
+        SplitTimeList runner1 = splitTimeList(1L, "H21", List.of(
+                SplitTime.of("31", 100.0, SplitTimeListId.of(1L)),
+                SplitTime.of("32", 190.0, SplitTimeListId.of(1L))
+        ));
+        SplitTimeList runner2 = splitTimeList(2L, "H21", List.of(
+                SplitTime.of("31", 105.0, SplitTimeListId.of(2L)),
+                SplitTime.of("32", 196.0, SplitTimeListId.of(2L))
+        ));
+        SplitTimeList runner3 = splitTimeList(3L, "D21", List.of(
+                SplitTime.of("32",  90.0, SplitTimeListId.of(3L)),
+                SplitTime.of("31", 180.0, SplitTimeListId.of(3L))
+        ));
+        SplitTimeList runner4 = splitTimeList(4L, "D21", List.of(
+                SplitTime.of("32",  95.0, SplitTimeListId.of(4L)),
+                SplitTime.of("31", 186.0, SplitTimeListId.of(4L))
+        ));
+
+        when(splitTimeListRepository.findByResultListId(resultListId))
+                .thenReturn(List.of(runner1, runner2, runner3, runner4));
+        when(personRepository.findAllById(org.mockito.ArgumentMatchers.anySet())).thenReturn(Map.of());
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList(resultListId)));
+
+        List<SplitTimeAnalysis> analyses = service.analyzeSplitTimesRanking(
+                resultListId, true, List.of(), false, false, 2);
+
+        // Nach Merge darf kein separates 32→31-Segment mehr existieren
+        boolean hasForward = analyses.getFirst().controlSegments().stream()
+                .anyMatch(s -> s.fromControl().value().equals("31") && s.toControl().value().equals("32"));
+        boolean hasReverse = analyses.getFirst().controlSegments().stream()
+                .anyMatch(s -> s.fromControl().value().equals("32") && s.toControl().value().equals("31"));
+
+        assertThat(hasForward).isTrue();
+        assertThat(hasReverse).isFalse();
+
+        // Das verbleibende bidirektionale Segment enthält alle vier Läufer
+        ControlSegment merged = analyses.getFirst().controlSegments().stream()
+                .filter(s -> s.fromControl().value().equals("31") && s.toControl().value().equals("32"))
+                .findFirst()
+                .orElseThrow();
+        assertThat(merged.bidirectional()).isTrue();
+        assertThat(merged.runnerSplits().stream().map(rs -> rs.personId().value()).toList())
+                .containsExactlyInAnyOrder(1L, 2L, 3L, 4L);
     }
 
     private static SplitTimeList splitTimeList(Long personId, String className, List<SplitTime> splitTimes) {

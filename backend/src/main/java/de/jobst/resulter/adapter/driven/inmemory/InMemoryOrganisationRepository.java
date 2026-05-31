@@ -37,7 +37,7 @@ public class InMemoryOrganisationRepository implements OrganisationRepository {
         } else {
             savedOrganisation = organisation;
         }
-        organisations.put(organisation.getId(), savedOrganisation);
+        organisations.put(savedOrganisation.getId(), savedOrganisation);
         savedOrganisations.add(savedOrganisation);
         return savedOrganisation;
     }

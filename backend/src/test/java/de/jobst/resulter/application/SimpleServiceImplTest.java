@@ -534,6 +534,20 @@ class SimpleServiceImplTest {
         assertThat(leaders).contains(1L);
     }
 
+    @Test
+    void personService_findAll_paged_deprecated_delegatesToFindAllOrPossibleDuplicates() {
+        Page<Person> page = new PageImpl<>(List.of());
+        when(personRepository.findAll(null, PageRequest.of(0, 10))).thenReturn(page);
+        assertThat(personService.findAll(null, PageRequest.of(0, 10))).isEmpty();
+    }
+
+    @Test
+    void personService_findDuplicates_paged_deprecated_delegatesToFindAllOrPossibleDuplicates() {
+        Page<Person> page = new PageImpl<>(List.of());
+        when(personRepository.findDuplicates(null, PageRequest.of(0, 10))).thenReturn(page);
+        assertThat(personService.findDuplicates(null, PageRequest.of(0, 10))).isEmpty();
+    }
+
     // -------------------------------------------------------------------------
     // EventServiceImpl
     // -------------------------------------------------------------------------
@@ -724,6 +738,27 @@ class SimpleServiceImplTest {
         assertThat(result.eventCertificateStats()).isEmpty();
     }
 
+    @Test
+    void eventCertQueryService_findAll_paged_buildsBatchResult() {
+        EventCertificate cert = EventCertificate.of(1L, "Urkunde", null, null, null, true);
+        Page<EventCertificate> page = new PageImpl<>(List.of(cert));
+        when(eventCertificateServiceMock.findAll(any(), any())).thenReturn(page);
+        when(eventServiceMock.findAllByIdAsMap(any())).thenReturn(Map.of());
+        when(mediaFileServiceMock.findAllByIdAsMap(any())).thenReturn(Map.of());
+        var result = eventCertQueryService.findAll(null, PageRequest.of(0, 10));
+        assertThat(result.eventCertificates()).hasSize(1);
+    }
+
+    @Test
+    void eventCertQueryService_getCertificateStats_withStats_buildsResult() {
+        EventCertificateStat stat = EventCertificateStat.of(null, EventId.of(1L), PersonId.of(2L), java.time.Instant.now());
+        when(resultListServiceMock.getCertificateStats(EventId.of(1L))).thenReturn(List.of(stat));
+        when(eventServiceMock.findAllByIdAsMap(any())).thenReturn(Map.of());
+        when(personServiceMock.findAllByIdAsMap(any())).thenReturn(Map.of());
+        var result = eventCertQueryService.getCertificateStats(EventId.of(1L));
+        assertThat(result.eventCertificateStats()).hasSize(1);
+    }
+
     // -------------------------------------------------------------------------
     // EventCertificateServiceImpl
     // -------------------------------------------------------------------------
@@ -784,5 +819,60 @@ class SimpleServiceImplTest {
         Page<EventCertificate> page = new PageImpl<>(List.of());
         when(eventCertificateRepository.findAll(null, PageRequest.of(0, 10))).thenReturn(page);
         assertThat(eventCertService.findAll(null, PageRequest.of(0, 10))).isEmpty();
+    }
+
+    @Test
+    void eventCertService_getById_returnsWhenFound() {
+        EventCertificate cert = EventCertificate.of(1L, "Test", null, null, null, false);
+        when(eventCertificateRepository.findById(EventCertificateId.of(1L))).thenReturn(Optional.of(cert));
+        assertThat(eventCertService.getById(EventCertificateId.of(1L))).isEqualTo(cert);
+    }
+
+    @Test
+    void eventCertService_createEventCertificate_withEvent_savesWithEventId() {
+        EventCertificate saved = EventCertificate.of(1L, "Urkunde", EventId.of(1L), null, null, false);
+        Event event = Event.of(1L, "Sprint");
+        when(eventRepository.findById(EventId.of(1L))).thenReturn(Optional.of(event));
+        when(eventCertificateRepository.save(any())).thenReturn(saved);
+        var result = eventCertService.createEventCertificate("Urkunde", EventId.of(1L), null, null, false);
+        assertThat(result.getEvent()).isEqualTo(EventId.of(1L));
+    }
+
+    @Test
+    void eventCertService_updateEventCertificate_withoutEvent_savesUpdated() {
+        EventCertificate cert = EventCertificate.of(1L, "Alt", null, null, null, false);
+        when(eventCertificateRepository.findById(EventCertificateId.of(1L))).thenReturn(Optional.of(cert));
+        when(eventCertificateRepository.save(any())).thenReturn(cert);
+        var result = eventCertService.updateEventCertificate(
+                EventCertificateId.of(1L),
+                EventCertificateName.of("Neu"),
+                null, null, null, false);
+        assertThat(result).isNotNull();
+        verify(eventCertificateRepository).save(cert);
+    }
+
+    @Test
+    void eventCertService_updateEventCertificate_throwsWhenNotFound() {
+        when(eventCertificateRepository.findById(EventCertificateId.of(99L))).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> eventCertService.updateEventCertificate(
+                EventCertificateId.of(99L), EventCertificateName.of("X"), null, null, null, false))
+                .isInstanceOf(de.jobst.resulter.domain.util.ResourceNotFoundException.class);
+    }
+
+    @Test
+    void eventCertService_updateEventCertificate_withEvent_primaryTrue_savesAllCerts() {
+        EventCertificate cert = EventCertificate.of(1L, "Alt", EventId.of(1L), null, null, true);
+        Event event = Event.of(1L, "Sprint");
+        when(eventCertificateRepository.findById(EventCertificateId.of(1L))).thenReturn(Optional.of(cert));
+        when(eventRepository.findById(EventId.of(1L))).thenReturn(Optional.of(event));
+        when(eventCertificateRepository.findAllByEvent(EventId.of(1L))).thenReturn(List.of());
+        when(eventCertificateRepository.save(any())).thenReturn(cert);
+        var result = eventCertService.updateEventCertificate(
+                EventCertificateId.of(1L),
+                EventCertificateName.of("Neu"),
+                EventId.of(1L), null, null, true);
+        assertThat(result).isNotNull();
+        verify(eventCertificateRepository).saveAll(any());
+        verify(eventRepository).save(any());
     }
 }

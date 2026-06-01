@@ -103,7 +103,7 @@
         "lint-staged": "^17.0.0",
         "npm-run-all2": "^9.0.0",
         "nx": "22.7.3",
-        "oxfmt": "^0.51.0",
+        "oxfmt": "^0.53.0",
         "playwright": "^1.60.0",
         "postcss": "^8.5.14",
         "prettier": "^3.8.3",

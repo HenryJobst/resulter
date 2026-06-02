@@ -4,6 +4,7 @@ import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.application.port.SegmentPI;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.analysis.MentalClassification;
 import de.jobst.resulter.domain.analysis.MentalResilienceAnalysis;
 import de.jobst.resulter.domain.analysis.PerformanceIndex;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.*;
 
 class MentalResilienceServiceImplTest {
@@ -138,6 +140,154 @@ class MentalResilienceServiceImplTest {
         MentalResilienceAnalysis result = service.analyzeMentalResilience(resultListId, List.of());
 
         // No profiles with mistakes, but runner was analyzed
+        assertThat(result.runnerProfiles()).isEmpty();
+    }
+
+    @Test
+    void analyzeMentalResilience_returnsProfile_withPanicClassification() {
+        SplitTimeList stl = splitTimeList("H21", 1L);
+        ResultList resultList = emptyResultList();
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(stl));
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList));
+        when(splitTimeAnalysisService.buildRuntimeMap(resultList)).thenReturn(Map.of());
+        when(splitTimeAnalysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+        when(splitTimeAnalysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+
+        // 3 segments: seg0 (mistake), seg1 (reaction, PANIC pi=0.8), seg2 (last, not mistake)
+        SegmentPI seg0 = new SegmentPI(0, "31", "32", 500.0, 100.0, new PerformanceIndex(5.0));
+        SegmentPI seg1 = new SegmentPI(1, "32", "33", 80.0, 100.0, new PerformanceIndex(0.8));
+        SegmentPI seg2 = new SegmentPI(2, "33", "F", 100.0, 100.0, new PerformanceIndex(1.0));
+
+        when(splitTimeAnalysisService.calculateSegmentTimes(any(), any())).thenReturn(List.of(
+                new SegmentTime(0, "31", "32", 500.0),
+                new SegmentTime(1, "32", "33", 80.0),
+                new SegmentTime(2, "33", "F", 100.0)
+        ));
+        when(splitTimeAnalysisService.calculateSegmentPIs(any(), any(), eq("H21")))
+                .thenReturn(List.of(seg0, seg1, seg2));
+        when(splitTimeAnalysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+        // seg0 is a mistake, seg1 is not (not chain error)
+        when(splitTimeAnalysisService.isMistake(eq(seg0), anyDouble())).thenReturn(true);
+        when(splitTimeAnalysisService.isMistake(eq(seg1), anyDouble())).thenReturn(false);
+        // last segment check: seg2 is not a mistake
+        when(splitTimeAnalysisService.isMistakeBase(eq(seg2), anyDouble()))
+                .thenReturn(new MistakeResult(0.0, 0.0, false));
+        when(splitTimeAnalysisService.calculateMedian(any())).thenReturn(-0.2);
+
+        MentalResilienceAnalysis result = service.analyzeMentalResilience(resultListId, List.of());
+
+        assertThat(result.runnerProfiles()).hasSize(1);
+        assertThat(result.runnerProfiles().getFirst().classification()).isEqualTo(MentalClassification.PANIC);
+        assertThat(result.statistics().totalRunners()).isEqualTo(1);
+        assertThat(result.statistics().runnersWithMistakes()).isEqualTo(1);
+        assertThat(result.statistics().panicReactions()).isEqualTo(1);
+    }
+
+    @Test
+    void analyzeMentalResilience_returnsProfile_withChainErrorClassification() {
+        SplitTimeList stl = splitTimeList("H21", 1L);
+        ResultList resultList = emptyResultList();
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(stl));
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList));
+        when(splitTimeAnalysisService.buildRuntimeMap(resultList)).thenReturn(Map.of());
+        when(splitTimeAnalysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+        when(splitTimeAnalysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+
+        SegmentPI seg0 = new SegmentPI(0, "31", "32", 500.0, 100.0, new PerformanceIndex(5.0));
+        SegmentPI seg1 = new SegmentPI(1, "32", "33", 500.0, 100.0, new PerformanceIndex(5.0));
+        SegmentPI seg2 = new SegmentPI(2, "33", "F", 100.0, 100.0, new PerformanceIndex(1.0));
+
+        when(splitTimeAnalysisService.calculateSegmentTimes(any(), any())).thenReturn(List.of(
+                new SegmentTime(0, "31", "32", 500.0),
+                new SegmentTime(1, "32", "33", 500.0),
+                new SegmentTime(2, "33", "F", 100.0)
+        ));
+        when(splitTimeAnalysisService.calculateSegmentPIs(any(), any(), eq("H21")))
+                .thenReturn(List.of(seg0, seg1, seg2));
+        when(splitTimeAnalysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+        // Both seg0 and seg1 are mistakes → chain error
+        when(splitTimeAnalysisService.isMistake(eq(seg0), anyDouble())).thenReturn(true);
+        when(splitTimeAnalysisService.isMistake(eq(seg1), anyDouble())).thenReturn(true);
+        when(splitTimeAnalysisService.isMistakeBase(eq(seg2), anyDouble()))
+                .thenReturn(new MistakeResult(0.0, 0.0, false));
+        when(splitTimeAnalysisService.calculateMedian(any())).thenReturn(null);
+
+        MentalResilienceAnalysis result = service.analyzeMentalResilience(resultListId, List.of());
+
+        assertThat(result.runnerProfiles()).hasSize(1);
+        assertThat(result.runnerProfiles().getFirst().mistakeReactions().getFirst().classification())
+                .isEqualTo(MentalClassification.CHAIN_ERROR);
+    }
+
+    @Test
+    void analyzeMentalResilience_skipsReaction_whenNextSegmentIsFinal() {
+        SplitTimeList stl = splitTimeList("H21", 1L);
+        ResultList resultList = emptyResultList();
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(stl));
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList));
+        when(splitTimeAnalysisService.buildRuntimeMap(resultList)).thenReturn(Map.of());
+        when(splitTimeAnalysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+        when(splitTimeAnalysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+
+        // 2 segments: seg0 (mistake), seg1 (next = final "F") → reaction skipped
+        SegmentPI seg0 = new SegmentPI(0, "31", "32", 500.0, 100.0, new PerformanceIndex(5.0));
+        SegmentPI seg1 = new SegmentPI(1, "32", "F", 50.0, 50.0, new PerformanceIndex(1.0));
+
+        when(splitTimeAnalysisService.calculateSegmentTimes(any(), any())).thenReturn(List.of(
+                new SegmentTime(0, "31", "32", 500.0),
+                new SegmentTime(1, "32", "F", 50.0)
+        ));
+        when(splitTimeAnalysisService.calculateSegmentPIs(any(), any(), eq("H21")))
+                .thenReturn(List.of(seg0, seg1));
+        when(splitTimeAnalysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+        when(splitTimeAnalysisService.isMistake(eq(seg0), anyDouble())).thenReturn(true);
+        // seg1 is final code → reaction skipped
+        when(splitTimeAnalysisService.isMistakeBase(eq(seg1), anyDouble()))
+                .thenReturn(new MistakeResult(0.0, 0.0, false));
+        when(splitTimeAnalysisService.calculateMedian(any())).thenReturn(null);
+
+        MentalResilienceAnalysis result = service.analyzeMentalResilience(resultListId, List.of());
+
+        // Reaction skipped → no profiles with mistakes
+        assertThat(result.runnerProfiles()).isEmpty();
+    }
+
+    @Test
+    void analyzeMentalResilience_detectsLastSegmentMistake() {
+        SplitTimeList stl = splitTimeList("H21", 1L);
+        ResultList resultList = emptyResultList();
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(stl));
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList));
+        when(splitTimeAnalysisService.buildRuntimeMap(resultList)).thenReturn(Map.of());
+        when(splitTimeAnalysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+        when(splitTimeAnalysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+
+        // 3 segments: seg0 (not mistake), seg1 (not mistake), seg2 (last = mistake)
+        SegmentPI seg0 = new SegmentPI(0, "S", "31", 100.0, 100.0, new PerformanceIndex(1.0));
+        SegmentPI seg1 = new SegmentPI(1, "31", "32", 100.0, 100.0, new PerformanceIndex(1.0));
+        SegmentPI seg2 = new SegmentPI(2, "32", "F", 500.0, 100.0, new PerformanceIndex(5.0));
+
+        when(splitTimeAnalysisService.calculateSegmentTimes(any(), any())).thenReturn(List.of(
+                new SegmentTime(0, "S", "31", 100.0),
+                new SegmentTime(1, "31", "32", 100.0),
+                new SegmentTime(2, "32", "F", 500.0)
+        ));
+        when(splitTimeAnalysisService.calculateSegmentPIs(any(), any(), eq("H21")))
+                .thenReturn(List.of(seg0, seg1, seg2));
+        when(splitTimeAnalysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+        when(splitTimeAnalysisService.isMistake(any(SegmentPI.class), anyDouble())).thenReturn(false);
+        // Last segment IS a mistake → logged but no reaction available
+        when(splitTimeAnalysisService.isMistakeBase(eq(seg2), anyDouble()))
+                .thenReturn(new MistakeResult(100.0, 400.0, true));
+        when(splitTimeAnalysisService.calculateMedian(any())).thenReturn(null);
+
+        MentalResilienceAnalysis result = service.analyzeMentalResilience(resultListId, List.of());
+
+        // Last segment mistake logged but not added to profiles (no reaction)
         assertThat(result.runnerProfiles()).isEmpty();
     }
 

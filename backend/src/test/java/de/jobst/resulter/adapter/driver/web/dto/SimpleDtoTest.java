@@ -1065,4 +1065,103 @@ class SimpleDtoTest {
         assertThat(dto.runnerProfiles()).isEmpty();
         assertThat(dto.statistics().runnersWithHanging()).isEqualTo(3);
     }
+
+    @Test
+    void mistakeReactionPairDto_from_mapsAllFields() {
+        PerformanceIndex mistakePI = new PerformanceIndex(1.8);
+        PerformanceIndex reactionPI = new PerformanceIndex(1.2);
+        PerformanceIndex normalPI = new PerformanceIndex(1.05);
+        MentalResilienceIndex mri = MentalResilienceIndex.of(reactionPI, normalPI);
+        MistakeReactionPair pair = new MistakeReactionPair(
+                2, ControlCode.of("31"), ControlCode.of("32"), mistakePI,
+                3, ControlCode.of("32"), ControlCode.of("33"), reactionPI,
+                mri, MentalClassification.ICE_MAN
+        );
+
+        MistakeReactionPairDto dto = MistakeReactionPairDto.from(pair);
+
+        assertThat(dto.mistakeLegNumber()).isEqualTo(2);
+        assertThat(dto.mistakeSegmentLabel()).isEqualTo("31 → 32");
+        assertThat(dto.mistakePI()).isEqualTo(1.8);
+        assertThat(dto.reactionLegNumber()).isEqualTo(3);
+        assertThat(dto.reactionSegmentLabel()).isEqualTo("32 → 33");
+        assertThat(dto.reactionPI()).isEqualTo(1.2);
+        assertThat(dto.mri()).isEqualTo(mri.value());
+    }
+
+    @Test
+    void runnerMentalProfileDto_from_withNoMistakes_returnsEmptyList() {
+        PerformanceIndex normalPI = new PerformanceIndex(1.05);
+        RunnerMentalProfile profile = new RunnerMentalProfile(
+                PersonId.of(7L), "H21", RaceNumber.of((byte) 1),
+                5, true, normalPI, List.of(), 0.0, MentalClassification.ICE_MAN);
+
+        RunnerMentalProfileDto dto = RunnerMentalProfileDto.from(profile, 10);
+
+        assertThat(dto.personId()).isEqualTo(7L);
+        assertThat(dto.classResultShortName()).isEqualTo("H21");
+        assertThat(dto.raceNumber()).isEqualTo(1);
+        assertThat(dto.classRunnerCount()).isEqualTo(5);
+        assertThat(dto.reliableData()).isTrue();
+        assertThat(dto.normalPI()).isEqualTo(1.05);
+        assertThat(dto.mistakeReactions()).isEmpty();
+        assertThat(dto.averageMRI()).isEqualTo(0.0);
+        assertThat(dto.totalSegments()).isEqualTo(10);
+    }
+
+    @Test
+    void runnerMentalProfileDto_from_withoutTotalSegments_setsZero() {
+        PerformanceIndex normalPI = new PerformanceIndex(1.1);
+        RunnerMentalProfile profile = new RunnerMentalProfile(
+                PersonId.of(3L), "D21", RaceNumber.of((byte) 1),
+                3, false, normalPI, List.of(), 0.0, MentalClassification.PANIC);
+
+        RunnerMentalProfileDto dto = RunnerMentalProfileDto.from(profile);
+
+        assertThat(dto.totalSegments()).isEqualTo(0);
+        assertThat(dto.classification()).isEqualTo(MentalClassification.PANIC.getKey());
+    }
+
+    @Test
+    void hangingPairDto_from_mapsAllFields() {
+        PerformanceIndex passengerPI = new PerformanceIndex(0.9);
+        PerformanceIndex busDriverPI = new PerformanceIndex(0.8);
+        PerformanceIndex normalPI = new PerformanceIndex(1.1);
+        HangingIndex hi = HangingIndex.of(passengerPI, normalPI);
+        HangingPair pair = new HangingPair(
+                3, ControlCode.of("41"), ControlCode.of("42"),
+                PersonId.of(99L), "H21", RaceNumber.of((byte) 1),
+                15.0, passengerPI, busDriverPI, hi, 90.0, 80.0, 100.0
+        );
+
+        HangingPairDto dto = HangingPairDto.from(pair);
+
+        assertThat(dto.legNumber()).isEqualTo(3);
+        assertThat(dto.fromControl()).isEqualTo("41");
+        assertThat(dto.toControl()).isEqualTo("42");
+        assertThat(dto.busDriverId()).isEqualTo(99L);
+        assertThat(dto.timeDeltaSeconds()).isEqualTo(15.0);
+        assertThat(dto.passengerPI()).isEqualTo(0.9);
+        assertThat(dto.busDriverPI()).isEqualTo(0.8);
+        assertThat(dto.passengerActualTime()).isEqualTo(90.0);
+        assertThat(dto.referenceTime()).isEqualTo(100.0);
+    }
+
+    @Test
+    void runnerHangingProfileDto_from_withNoHanging_returnsEmptyPairs() {
+        PerformanceIndex normalPI = new PerformanceIndex(1.05);
+        RunnerHangingProfile profile = new RunnerHangingProfile(
+                PersonId.of(5L), "H21", RaceNumber.of((byte) 1),
+                PunchTime.of(null), 6, true, normalPI,
+                List.of(), 1.0, HangingClassification.NO_HANGING, 10);
+
+        RunnerHangingProfileDto dto = RunnerHangingProfileDto.from(profile);
+
+        assertThat(dto.personId()).isEqualTo(5L);
+        assertThat(dto.classResultShortName()).isEqualTo("H21");
+        assertThat(dto.hangingPairs()).isEmpty();
+        assertThat(dto.averageHangingIndex()).isEqualTo(1.0);
+        assertThat(dto.totalNonMistakeSegments()).isEqualTo(10);
+        assertThat(dto.hangingCount()).isEqualTo(0);
+    }
 }

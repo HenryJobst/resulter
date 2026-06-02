@@ -1,5 +1,6 @@
 package de.jobst.resulter.adapter.driver.web.dto;
 
+import de.jobst.resulter.application.analysis.SegmentKey;
 import de.jobst.resulter.application.port.ClassGroupOption;
 import de.jobst.resulter.application.port.CourseGroupOption;
 import de.jobst.resulter.domain.*;
@@ -1163,5 +1164,96 @@ class SimpleDtoTest {
         assertThat(dto.averageHangingIndex()).isEqualTo(1.0);
         assertThat(dto.totalNonMistakeSegments()).isEqualTo(10);
         assertThat(dto.hangingCount()).isEqualTo(0);
+    }
+
+    // -------------------------------------------------------------------------
+    // AnomaliesIndexInformationDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void anomaliesIndexInformationDto_from_mapsAllFields() {
+        PerformanceIndex pi = new PerformanceIndex(1.3);
+        PerformanceIndex piExpected = new PerformanceIndex(1.0);
+        SegmentKey key = new SegmentKey("H21", "31", "32");
+        AnomaliesIndex ai = AnomaliesIndex.of(1, key, pi, piExpected,
+                AnomalyClassification.MODERATE_SUSPICION, 100.0);
+        AnomaliesIndexInformation info = new AnomaliesIndexInformation(
+                1, ControlCode.of("31"), ControlCode.of("32"),
+                pi, ai, AnomalyClassification.MODERATE_SUSPICION, 130.0, 100.0);
+
+        AnomaliesIndexInformationDto dto = AnomaliesIndexInformationDto.from(info);
+
+        assertThat(dto.legNumber()).isEqualTo(1);
+        assertThat(dto.fromControl()).isEqualTo("31");
+        assertThat(dto.toControl()).isEqualTo("32");
+        assertThat(dto.classification()).isEqualTo(AnomalyClassification.MODERATE_SUSPICION);
+        assertThat(dto.actualTimeSeconds()).isEqualTo(130.0);
+        assertThat(dto.referenceTimeSeconds()).isEqualTo(100.0);
+    }
+
+    // -------------------------------------------------------------------------
+    // RunnerAnomalyProfileDto
+    // -------------------------------------------------------------------------
+
+    @Test
+    void runnerAnomalyProfileDto_from_withNoAnomalies_mapsAllFields() {
+        PerformanceIndex normalPI = new PerformanceIndex(1.05);
+        RunnerAnomalyProfile profile = new RunnerAnomalyProfile(
+                PersonId.of(3L), "H21", RaceNumber.of((byte) 1),
+                5, true, normalPI, 0.5, 2,
+                List.of(), AnomalyClassification.NO_SUSPICION);
+
+        RunnerAnomalyProfileDto dto = RunnerAnomalyProfileDto.from(profile, 8);
+
+        assertThat(dto.personId()).isEqualTo(3L);
+        assertThat(dto.classResultShortName()).isEqualTo("H21");
+        assertThat(dto.raceNumber()).isEqualTo(1);
+        assertThat(dto.classRunnerCount()).isEqualTo(5);
+        assertThat(dto.reliableData()).isTrue();
+        assertThat(dto.normalPI()).isEqualTo(1.05);
+        assertThat(dto.minimumAnomaliesIndex()).isEqualTo(0.5);
+        assertThat(dto.minimumAnomaliesLegNumber()).isEqualTo(2);
+        assertThat(dto.anomaliesIndexes()).isEmpty();
+        assertThat(dto.classification()).isEqualTo("NO_SUSPICION");
+        assertThat(dto.totalSegments()).isEqualTo(8);
+    }
+
+    @Test
+    void runnerAnomalyProfileDto_from_withoutTotalSegments_setsZero() {
+        PerformanceIndex normalPI = new PerformanceIndex(1.05);
+        RunnerAnomalyProfile profile = new RunnerAnomalyProfile(
+                PersonId.of(3L), "H21", RaceNumber.of((byte) 1),
+                5, true, normalPI, 0.5, 2,
+                List.of(), AnomalyClassification.HIGH_SUSPICION);
+
+        RunnerAnomalyProfileDto dto = RunnerAnomalyProfileDto.from(profile);
+
+        assertThat(dto.totalSegments()).isEqualTo(0);
+        assertThat(dto.classification()).isEqualTo("HIGH_SUSPICION");
+    }
+
+    @Test
+    void runnerAnomalyProfileDto_from_withAnomalies_mapsNestedDto() {
+        PerformanceIndex pi = new PerformanceIndex(1.3);
+        PerformanceIndex piExpected = new PerformanceIndex(1.0);
+        SegmentKey key = new SegmentKey("H21", "31", "32");
+        AnomaliesIndex ai = AnomaliesIndex.of(0, key, pi, piExpected,
+                AnomalyClassification.HIGH_SUSPICION, 100.0);
+        AnomaliesIndexInformation info = new AnomaliesIndexInformation(
+                0, ControlCode.of("31"), ControlCode.of("32"),
+                pi, ai, AnomalyClassification.HIGH_SUSPICION, 130.0, 100.0);
+        PerformanceIndex normalPI = new PerformanceIndex(1.0);
+        RunnerAnomalyProfile profile = new RunnerAnomalyProfile(
+                PersonId.of(7L), "D10", RaceNumber.of((byte) 2),
+                6, true, normalPI, 1.3, 0,
+                List.of(info), AnomalyClassification.HIGH_SUSPICION);
+
+        RunnerAnomalyProfileDto dto = RunnerAnomalyProfileDto.from(profile, 5);
+
+        assertThat(dto.anomaliesIndexes()).hasSize(1);
+        assertThat(dto.anomaliesIndexes().getFirst().fromControl()).isEqualTo("31");
+        assertThat(dto.anomaliesIndexes().getFirst().classification())
+                .isEqualTo(AnomalyClassification.HIGH_SUSPICION);
+        assertThat(dto.totalSegments()).isEqualTo(5);
     }
 }

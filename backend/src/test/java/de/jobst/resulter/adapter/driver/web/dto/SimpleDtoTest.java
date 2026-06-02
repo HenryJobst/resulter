@@ -1014,4 +1014,55 @@ class SimpleDtoTest {
         assertThat(dto.rows()).isEmpty();
         assertThat(dto.metadata().totalRunners()).isEqualTo(5);
     }
+
+    @Test
+    void mriStatisticsDto_from_mapsAllFields() {
+        MriStatistics stats = new MriStatistics(10, 4, 8, 2, 3, 3, 0.1, 0.05);
+        MriStatisticsDto dto = MriStatisticsDto.from(stats);
+        assertThat(dto.totalRunners()).isEqualTo(10);
+        assertThat(dto.runnersWithMistakes()).isEqualTo(4);
+        assertThat(dto.totalMistakes()).isEqualTo(8);
+        assertThat(dto.panicReactions()).isEqualTo(2);
+        assertThat(dto.iceManReactions()).isEqualTo(3);
+        assertThat(dto.resignerReactions()).isEqualTo(3);
+        assertThat(dto.averageMRI()).isEqualTo(0.1);
+        assertThat(dto.medianMRI()).isEqualTo(0.05);
+    }
+
+    @Test
+    void hangingStatisticsDto_from_mapsAllFields() {
+        HangingStatistics stats = new HangingStatistics(20, 5, 12, 2, 3, 1.5, 1.2);
+        HangingStatisticsDto dto = HangingStatisticsDto.from(stats);
+        assertThat(dto.totalRunners()).isEqualTo(20);
+        assertThat(dto.runnersWithHanging()).isEqualTo(5);
+        assertThat(dto.totalHangingSegments()).isEqualTo(12);
+        assertThat(dto.highHangingRunners()).isEqualTo(2);
+        assertThat(dto.moderateHangingRunners()).isEqualTo(3);
+        assertThat(dto.averageHangingIndex()).isEqualTo(1.5);
+        assertThat(dto.medianHangingIndex()).isEqualTo(1.2);
+    }
+
+    @Test
+    void mentalResilienceAnalysisDto_from_mapsAllFields() {
+        MriStatistics stats = new MriStatistics(5, 2, 3, 1, 1, 0, null, null);
+        MentalResilienceAnalysis analysis = new MentalResilienceAnalysis(
+                ResultListId.of(7L), EventId.of(3L), List.of(), stats);
+        MentalResilienceAnalysisDto dto = MentalResilienceAnalysisDto.from(analysis);
+        assertThat(dto.resultListId()).isEqualTo(7L);
+        assertThat(dto.eventId()).isEqualTo(3L);
+        assertThat(dto.runnerProfiles()).isEmpty();
+        assertThat(dto.statistics().totalRunners()).isEqualTo(5);
+    }
+
+    @Test
+    void hangingAnalysisDto_from_mapsAllFields() {
+        HangingStatistics stats = new HangingStatistics(8, 3, 6, 1, 2, null, null);
+        HangingAnalysis analysis = new HangingAnalysis(
+                ResultListId.of(11L), EventId.of(4L), List.of(), stats);
+        HangingAnalysisDto dto = HangingAnalysisDto.from(analysis);
+        assertThat(dto.resultListId()).isEqualTo(11L);
+        assertThat(dto.eventId()).isEqualTo(4L);
+        assertThat(dto.runnerProfiles()).isEmpty();
+        assertThat(dto.statistics().runnersWithHanging()).isEqualTo(3);
+    }
 }

@@ -105,4 +105,37 @@ class CupQueryServiceImplTest {
         Map<EventId, Boolean> result = service.batchHasSplitTimes(List.of(event));
         assertThat(result.get(EventId.of(1L))).isTrue();
     }
+
+    @Test
+    void findCupDetailed_returnsEmpty_whenResourceNotFoundException() {
+        when(cupService.getCupDetailed(CupId.of(99L)))
+                .thenThrow(new de.jobst.resulter.domain.util.ResourceNotFoundException("not found"));
+
+        Optional<de.jobst.resulter.application.port.CupDetailedBatchResult> result = service.findCupDetailed(99L);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void findCupDetailed_returnsResult_whenFound() {
+        de.jobst.resulter.domain.aggregations.CupStatistics stats =
+                new de.jobst.resulter.domain.aggregations.CupStatistics(
+                        new de.jobst.resulter.domain.aggregations.CupOverallStatistics(
+                                0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0),
+                        List.of());
+        de.jobst.resulter.domain.aggregations.CupDetailed cupDetailed =
+                new de.jobst.resulter.domain.aggregations.CupDetailed(
+                        cup(1L), List.of(), List.of(), Map.of(), stats);
+
+        when(cupService.getCupDetailed(CupId.of(1L))).thenReturn(cupDetailed);
+        when(eventService.findAllById(any())).thenReturn(List.of());
+        when(organisationService.findAllByIdAsMap(any())).thenReturn(Map.of());
+        when(eventCertificateService.findAllByIdAsMap(any())).thenReturn(Map.of());
+        when(countryService.batchLoadForOrganisations(any())).thenReturn(Map.of());
+        when(organisationService.batchLoadChildOrganisations(any())).thenReturn(Map.of());
+
+        Optional<de.jobst.resulter.application.port.CupDetailedBatchResult> result = service.findCupDetailed(1L);
+
+        assertThat(result).isPresent();
+    }
 }

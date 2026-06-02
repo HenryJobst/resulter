@@ -468,4 +468,76 @@ class ChampionshipFilterServiceImplTest {
                 .personRaceResults().value().stream().findFirst().orElseThrow();
         assertThat(prr.getState()).isEqualTo(ResultStatus.DID_NOT_FINISH);
     }
+
+    @Test
+    void cleanup_baseOrgNotInTree_throwsIllegalArgumentException() {
+        ResultList resultList = makeResultList(ELIGIBLE_PERSON_ID, eligibleClubId, ResultStatus.OK, (byte) 1);
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(resultList));
+        // Return a tree that does NOT contain baseOrgId
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(Map.of());
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                () -> service.applyChampionshipCleanup(eventId, baseOrgId, Set.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(String.valueOf(BASE_ORG_ID));
+    }
+
+    @Test
+    void ranking_isRace0_withEmptyPersonRaceResults_returnsFalse() {
+        // A result list whose class has no PersonRaceResults → getRaceNumber() throws NoSuchElementException
+        // isRace0 should catch that and return false (treated as non-race-0 source)
+        ClassResult emptyClassResult = ClassResult.of("H21", "H21", Gender.M, List.of(), null);
+        ResultList tricky = new ResultList(
+                ResultListId.of(5L), eventId, RaceId.of(1L), "test", null, null, List.of(emptyClassResult));
+
+        PersonRaceResult source = makeRaceResult("H21", ELIGIBLE_PERSON_ID, 500.0, ResultStatus.OK, (byte) 1);
+        PersonResult sourcePerson = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(ELIGIBLE_PERSON_ID), eligibleClubId, List.of(source));
+        ClassResult sourceCr = ClassResult.of("H21", "H21", Gender.M, List.of(sourcePerson), null);
+        ResultList sourceList = new ResultList(
+                ResultListId.of(6L), eventId, RaceId.of(1L), "test", null, null, List.of(sourceCr));
+
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(tricky, sourceList));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        Race race0 = Race.of(RaceId.of(100L), eventId, null, (byte) 0);
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(race0);
+        when(resultListRepository.save(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Should not throw and should process sourceList as a source
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void ranking_tiedRuntimes_getOlympicRanking() {
+        // Two eligible runners with the same runtime → both get position 1
+        long personId1 = 10L, personId2 = 11L;
+        PersonRaceResult prr1 = makeRaceResult("H21", personId1, 600.0, ResultStatus.OK, (byte) 1);
+        PersonResult p1 = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(personId1), eligibleClubId, List.of(prr1));
+        PersonRaceResult prr2 = makeRaceResult("H21", personId2, 600.0, ResultStatus.OK, (byte) 1);
+        PersonResult p2 = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(personId2), eligibleClubId, List.of(prr2));
+
+        ClassResult cr = ClassResult.of("H21", "H21", Gender.M, List.of(p1, p2), null);
+        ResultList source = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, List.of(cr));
+
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(source));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        Race race0 = Race.of(RaceId.of(100L), eventId, null, (byte) 0);
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(race0);
+        when(resultListRepository.save(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
+
+        assertThat(result).hasSize(1);
+        List<Long> positions = result.getFirst().getClassResults().stream()
+                .flatMap(c -> c.personResults().value().stream())
+                .flatMap(p -> p.personRaceResults().value().stream())
+                .map(r -> r.getPosition().value())
+                .toList();
+        // Both runners have equal time → both should be at position 1
+        assertThat(positions).containsOnly(1L);
+    }
 }

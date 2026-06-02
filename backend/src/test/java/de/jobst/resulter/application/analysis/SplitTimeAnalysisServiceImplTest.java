@@ -64,6 +64,17 @@ class SplitTimeAnalysisServiceImplTest {
         assertThat(service.buildRuntimeMap(rl)).isEmpty();
     }
 
+    @Test
+    void buildRuntimeMap_skipsNullRuntime() {
+        PersonRaceResult prr = PersonRaceResult.of("H21", 1L, null, null, null, 1L, (byte) 1, ResultStatus.OK);
+        PersonResult pr = PersonResult.of(ClassResultShortName.of("H21"), PersonId.of(1L), null, List.of(prr));
+        ClassResult cr = ClassResult.of("Herren 21", "H21", Gender.M, List.of(pr), null);
+        ResultList rl = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.of(1L),
+                null, null, null, List.of(cr));
+
+        assertThat(service.buildRuntimeMap(rl)).isEmpty();
+    }
+
     // -------------------------------------------------------------------------
     // countRunnersPerClass
     // -------------------------------------------------------------------------

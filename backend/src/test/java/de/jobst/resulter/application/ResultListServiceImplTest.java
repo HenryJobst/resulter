@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.time.Year;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -162,5 +164,192 @@ class ResultListServiceImplTest {
         when(cupScoreListRepository.findAllByResultListIdsAndCupId(any(), any()))
                 .thenReturn(Map.of());
         assertThat(service.getCupScoreListsByResultListIds(List.of(ResultListId.of(1L)), CupId.of(1L))).isEmpty();
+    }
+
+    @Test
+    void calculateScore_returnsEmpty_whenCupsEmpty() {
+        ClassResult cr = ClassResult.of("H21", "H21", Gender.M, List.of(), null);
+        ResultList rl = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.empty(),
+                null, null, null, List.of(cr));
+        when(resultListRepository.findById(ResultListId.of(1L))).thenReturn(Optional.of(rl));
+        when(cupRepository.findByEvent(EventId.of(1L))).thenReturn(List.of());
+        assertThat(service.calculateScore(ResultListId.of(1L))).isEmpty();
+    }
+
+    @Test
+    void createCertificate_returnsNull_whenResultListNull() {
+        when(resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(any(), any(), any()))
+                .thenReturn(null);
+        assertThat(service.createCertificate(
+                ResultListId.of(1L), ClassResultShortName.of("H21"), PersonId.of(1L)))
+                .isNull();
+    }
+
+    @Test
+    void createCertificate_returnsNull_whenClassResultsNull() {
+        when(resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(any(), any(), any()))
+                .thenReturn(resultList(1L));
+        assertThat(service.createCertificate(
+                ResultListId.of(1L), ClassResultShortName.of("H21"), PersonId.of(1L)))
+                .isNull();
+    }
+
+    @Test
+    void createCertificate_returnsNull_whenPersonNotFound() {
+        ClassResult cr = ClassResult.of("H21", "H21", Gender.M, List.of(), null);
+        ResultList rl = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.empty(),
+                null, null, null, List.of(cr));
+        when(resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(any(), any(), any()))
+                .thenReturn(rl);
+        when(personRepository.findById(any())).thenReturn(Optional.empty());
+        assertThat(service.createCertificate(
+                ResultListId.of(1L), ClassResultShortName.of("H21"), PersonId.of(1L)))
+                .isNull();
+    }
+
+    @Test
+    void createCertificate_returnsNull_whenEventNotFound() {
+        ClassResult cr = ClassResult.of("H21", "H21", Gender.M, List.of(), null);
+        ResultList rl = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.empty(),
+                null, null, null, List.of(cr));
+        Person person = Person.of(1L, "Doe", "Jane", null, Gender.F);
+        when(resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(any(), any(), any()))
+                .thenReturn(rl);
+        when(personRepository.findById(any())).thenReturn(Optional.of(person));
+        when(eventRepository.findById(EventId.of(1L))).thenReturn(Optional.empty());
+        assertThat(service.createCertificate(
+                ResultListId.of(1L), ClassResultShortName.of("H21"), PersonId.of(1L)))
+                .isNull();
+    }
+
+    @Test
+    void createCertificate_returnsNull_whenPersonResultNotFound() {
+        ClassResult cr = ClassResult.of("H21", "H21", Gender.M, List.of(), null);
+        ResultList rl = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.empty(),
+                null, null, null, List.of(cr));
+        Person person = Person.of(1L, "Doe", "Jane", null, Gender.F);
+        Event event = Event.of("TestEvent");
+        when(resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(any(), any(), any()))
+                .thenReturn(rl);
+        when(personRepository.findById(any())).thenReturn(Optional.of(person));
+        when(eventRepository.findById(any())).thenReturn(Optional.of(event));
+        assertThat(service.createCertificate(
+                ResultListId.of(1L), ClassResultShortName.of("H21"), PersonId.of(1L)))
+                .isNull();
+    }
+
+    @Test
+    void createCertificate_byEventAndCertificate_delegatesToCertificateService() {
+        Event event = Event.of("TestEvent");
+        EventCertificate cert = mock(EventCertificate.class);
+        when(certificateService.createCertificate(any(), any(), any())).thenReturn(null);
+        service.createCertificate(event, cert);
+        verify(certificateService).createCertificate(event, cert, mediaFileService);
+    }
+
+    @Test
+    void calculateScore_returnsEmpty_whenClassResultsEmpty() {
+        ResultList rl = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.empty(),
+                null, null, null, List.of());
+        when(resultListRepository.findById(ResultListId.of(1L))).thenReturn(Optional.of(rl));
+        assertThat(service.calculateScore(ResultListId.of(1L))).isEmpty();
+    }
+
+    @Test
+    void calculateScore_deletesEventWide_whenSingleResultList() {
+        ClassResult cr = ClassResult.of("H21", "H21", Gender.M, List.of(), null);
+        ResultList rl = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.empty(),
+                null, null, null, List.of(cr));
+        Cup cup = Cup.of(1L, "TestCup", CupType.ADD, Year.of(2024), List.of(EventId.of(1L)));
+
+        when(resultListRepository.findById(ResultListId.of(1L))).thenReturn(Optional.of(rl));
+        when(cupRepository.findByEvent(EventId.of(1L))).thenReturn(List.of(cup));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(Map.of());
+        when(springSecurityAuditorAware.getCurrentAuditor()).thenReturn(Optional.of("user"));
+        // 1 ResultList → shouldDeleteEventWide = true → deleteAllByEventId
+        when(resultListRepository.findByEventId(EventId.of(1L))).thenReturn(List.of(rl));
+        when(cupScoreListRepository.saveAll(any())).thenReturn(List.of());
+
+        service.calculateScore(ResultListId.of(1L));
+
+        verify(cupScoreListRepository).deleteAllByEventId(EventId.of(1L));
+        verify(cupScoreListRepository, never()).deleteAllByDomainKey(any());
+    }
+
+    @Test
+    void calculateScore_deletesByDomainKey_whenMultipleResultListsOnDifferentDays() {
+        ClassResult cr = ClassResult.of("H21", "H21", Gender.M, List.of(), null);
+        ZonedDateTime day1 = ZonedDateTime.of(2024, 10, 1, 10, 0, 0, 0, java.time.ZoneOffset.UTC);
+        ZonedDateTime day2 = ZonedDateTime.of(2024, 10, 2, 10, 0, 0, 0, java.time.ZoneOffset.UTC);
+        ResultList rl1 = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.empty(),
+                null, day1, null, List.of(cr));
+        ResultList rl2 = new ResultList(ResultListId.of(2L), EventId.of(1L), RaceId.empty(),
+                null, day2, null, null);
+        Cup cup = Cup.of(1L, "TestCup", CupType.ADD, Year.of(2024), List.of(EventId.of(1L)));
+
+        when(resultListRepository.findById(ResultListId.of(1L))).thenReturn(Optional.of(rl1));
+        when(cupRepository.findByEvent(EventId.of(1L))).thenReturn(List.of(cup));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(Map.of());
+        when(springSecurityAuditorAware.getCurrentAuditor()).thenReturn(Optional.of("user"));
+        // 2 ResultLists auf verschiedenen Tagen → shouldDeleteEventWide = false → deleteAllByDomainKey
+        when(resultListRepository.findByEventId(EventId.of(1L))).thenReturn(List.of(rl1, rl2));
+        when(cupScoreListRepository.saveAll(any())).thenReturn(List.of());
+
+        service.calculateScore(ResultListId.of(1L));
+
+        verify(cupScoreListRepository).deleteAllByDomainKey(any());
+        verify(cupScoreListRepository, never()).deleteAllByEventId(any());
+    }
+
+    @Test
+    void createCertificate_returnsNull_whenPersonRaceResultNotFound() {
+        // PersonResult gefunden, aber keine PersonRaceResults
+        PersonResult pr = PersonResult.of(ClassResultShortName.of("H21"), PersonId.of(1L), null, List.of());
+        ClassResult cr = ClassResult.of("H21", "H21", Gender.M, List.of(pr), null);
+        ResultList rl = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.empty(),
+                null, null, null, List.of(cr));
+        Person person = Person.of(1L, "Doe", "Jane", null, Gender.F);
+        Event event = Event.of("TestEvent");
+
+        when(resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(any(), any(), any()))
+                .thenReturn(rl);
+        when(personRepository.findById(any())).thenReturn(Optional.of(person));
+        when(eventRepository.findById(any())).thenReturn(Optional.of(event));
+
+        assertThat(service.createCertificate(
+                ResultListId.of(1L), ClassResultShortName.of("H21"), PersonId.of(1L)))
+                .isNull();
+    }
+
+    @Test
+    void createCertificate_returnsCertificate_whenAllDataPresent() {
+        PersonRaceResult prr = PersonRaceResult.of("H21", 1L, null, null, 100.0, 1L, (byte) 1, ResultStatus.OK);
+        PersonResult pr = PersonResult.of(ClassResultShortName.of("H21"), PersonId.of(1L),
+                OrganisationId.of(1L), List.of(prr));
+        ClassResult cr = ClassResult.of("H21", "H21", Gender.M, List.of(pr), null);
+        ResultList rl = new ResultList(ResultListId.of(1L), EventId.of(1L), RaceId.empty(),
+                null, null, null, List.of(cr));
+        Person person = Person.of(1L, "Doe", "Jane", null, Gender.F);
+        Event event = Event.of(1L, "TestEvent", null, null, List.of(), null,
+                EventCertificateId.of(1L), Discipline.getDefault(), false);
+        Organisation org = Organisation.of(1L, "TestOrg", "TO");
+        EventCertificate eventCert = EventCertificate.of(1L, "TestCert", null, null, null, false);
+        CertificateService.Certificate mockCert = mock(CertificateService.Certificate.class);
+
+        when(resultListRepository.findByResultListIdAndClassResultShortNameAndPersonId(any(), any(), any()))
+                .thenReturn(rl);
+        when(personRepository.findById(PersonId.of(1L))).thenReturn(Optional.of(person));
+        when(eventRepository.findById(EventId.of(1L))).thenReturn(Optional.of(event));
+        when(organisationRepository.findById(OrganisationId.of(1L))).thenReturn(Optional.of(org));
+        when(eventCertificateService.getById(EventCertificateId.of(1L))).thenReturn(eventCert);
+        when(certificateService.createCertificate(any(), any(), any(), any(), any(), any()))
+                .thenReturn(mockCert);
+        when(eventCertificateStatRepository.save(any())).thenReturn(null);
+
+        var result = service.createCertificate(
+                ResultListId.of(1L), ClassResultShortName.of("H21"), PersonId.of(1L));
+
+        assertThat(result).isNotNull();
+        verify(eventCertificateStatRepository).save(any());
     }
 }

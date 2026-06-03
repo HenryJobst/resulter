@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static de.jobst.resulter.application.analysis.SplitTimeAnalysisServiceImpl.FINAL_CODE;
 import static de.jobst.resulter.application.analysis.SplitTimeAnalysisServiceImpl.START_CODE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -686,6 +687,60 @@ class SplitTimeTableServiceImplTest {
         assertThat(options.getFirst().courseId()).isEqualTo(1L);
         assertThat(options.getFirst().classNames()).containsExactlyInAnyOrder("H21", "D21");
         assertThat(options.getFirst().runnerCount()).isEqualTo(2);
+    }
+
+    @Test
+    void generateByCourse_returnsEmptyTable_whenClassResultsIsNull() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+        SplitTimeAnalysisServiceImpl splitTimeAnalysisService = mock(SplitTimeAnalysisServiceImpl.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+
+        SplitTimeTableServiceImpl service = new SplitTimeTableServiceImpl(
+                splitTimeListRepository, resultListRepository, splitTimeAnalysisService, personRepository);
+
+        ResultListId resultListId = ResultListId.of(53L);
+        ResultList resultList = new ResultList(
+                resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, null);
+
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList));
+
+        SplitTimeTable table = service.generateByCourse(resultListId, 1L);
+
+        assertThat(table.groupByType()).isEqualTo("COURSE");
+        assertThat(table.rows()).isEmpty();
+    }
+
+    @Test
+    void generateByClass_usesStartAndFinishCodes_whenAllSplitTimesEmpty() {
+        SplitTimeListRepository splitTimeListRepository = mock(SplitTimeListRepository.class);
+        ResultListRepository resultListRepository = mock(ResultListRepository.class);
+        SplitTimeAnalysisServiceImpl splitTimeAnalysisService = mock(SplitTimeAnalysisServiceImpl.class);
+        PersonRepository personRepository = mock(PersonRepository.class);
+
+        SplitTimeTableServiceImpl service = new SplitTimeTableServiceImpl(
+                splitTimeListRepository, resultListRepository, splitTimeAnalysisService, personRepository);
+
+        ResultListId resultListId = ResultListId.of(80L);
+        String className = "H21";
+
+        SplitTimeList runner = splitTimeList(1L, className, List.of());
+
+        ResultList resultList = new ResultList(
+                resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(runner));
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList));
+        when(splitTimeAnalysisService.buildRuntimeMap(resultList)).thenReturn(Map.of());
+        when(splitTimeAnalysisService.calculateReferenceTimesPerSegment(anyList(), anyMap())).thenReturn(Map.of());
+        when(splitTimeAnalysisService.calculateSegmentTimes(any(SplitTimeList.class), anyMap())).thenReturn(List.of());
+        when(splitTimeAnalysisService.calculateSegmentPIs(anyList(), anyMap(), anyString())).thenReturn(List.of());
+        when(splitTimeAnalysisService.calculateNormalPI(anyList())).thenReturn(null);
+        when(personRepository.findAllById(anySet())).thenReturn(Map.of());
+
+        SplitTimeTable table = service.generateByClass(resultListId, className);
+
+        assertThat(table.controlCodes()).containsExactly(START_CODE, FINAL_CODE);
     }
 
     private static SplitTimeList splitTimeList(Long personId, String className, List<SplitTime> splitTimes) {

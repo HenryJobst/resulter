@@ -11,6 +11,7 @@ import de.jobst.resulter.application.port.EventRepository;
 import de.jobst.resulter.application.port.MediaFileRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.PersonRepository;
+import de.jobst.resulter.domain.Discipline;
 import de.jobst.resulter.domain.Event;
 import de.jobst.resulter.domain.EventCertificate;
 import de.jobst.resulter.domain.EventCertificateId;
@@ -85,5 +86,65 @@ class EventCertificateServiceImplTest {
                 .extracting(EventCertificate::getId)
                 .doesNotContain(updatedCertificateId);
         verify(eventRepository).save(event);
+    }
+
+    @Test
+    void updateEventCertificate_withNullEventAndNullMediaFile_savesWithoutLookups() {
+        EventCertificateId certId = EventCertificateId.of(5L);
+        EventCertificate cert = EventCertificate.of(5L, "Cert", null, null, null, false);
+        when(eventCertificateRepository.findById(certId)).thenReturn(Optional.of(cert));
+        when(eventCertificateRepository.save(any(EventCertificate.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        EventCertificate result = service.updateEventCertificate(
+                certId,
+                EventCertificateName.of("New Name"),
+                null,    // null event
+                null,
+                null,    // null mediaFile
+                false);
+
+        assertThat(result).isNotNull();
+        verify(eventCertificateRepository).save(cert);
+    }
+
+    @Test
+    void updateEventCertificate_whenNotPrimaryButEventHasCert_clearsCertificateFromEvent() {
+        EventCertificateId certId = EventCertificateId.of(7L);
+        EventId eventId = EventId.of(20L);
+        // Event currently holds this certId as its certificate
+        Event event = Event.of(20L, "TestEvent", null, null, List.of(), null,
+                certId, Discipline.getDefault(), false);
+        EventCertificate cert = EventCertificate.of(7L, "Cert", eventId, null, null, false);
+
+        when(eventCertificateRepository.findById(certId)).thenReturn(Optional.of(cert));
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(eventCertificateRepository.save(any(EventCertificate.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        service.updateEventCertificate(
+                certId,
+                EventCertificateName.of("Updated"),
+                eventId,
+                null,
+                null,
+                false);  // not primary → else-if branch: clear event's certificate
+
+        assertThat(event.getCertificate()).isNull();
+        verify(eventRepository).save(event);
+    }
+
+    @Test
+    void createEventCertificate_withNullEventAndNullMediaFile_savesNewCertificate() {
+        EventCertificate saved = EventCertificate.of(99L, "New Cert", null, null, null, false);
+        when(eventCertificateRepository.save(any(EventCertificate.class))).thenReturn(saved);
+
+        EventCertificate result = service.createEventCertificate(
+                "New Cert",
+                null,   // null event
+                null,
+                null,   // null mediaFile
+                false);
+
+        assertThat(result).isNotNull();
+        verify(eventCertificateRepository).save(any(EventCertificate.class));
     }
 }

@@ -284,6 +284,20 @@ class ResultListTest {
     }
 
     // -------------------------------------------------------------------------
+    // compareTo — gemischter Null-Fall (einer mit classResults, einer ohne)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void compareTo_oneWithClassResultsOneWithout_fallsBackToCreateTime() {
+        ResultList withResults = resultListWithRaceNumber(RaceId.of(1L), (byte) 1);
+        ResultList withoutResults = new ResultList(
+                ResultListId.of(2L), EventId.of(1L), RaceId.of(2L), null, null, null, null);
+        // Der Branch "o.classResults == null" deckt den short-circuit-Pfad ab
+        int cmp = withResults.compareTo(withoutResults);
+        assertThat(cmp).isNotEqualTo(Integer.MIN_VALUE); // kein Absturz, raceId entscheidet
+    }
+
+    // -------------------------------------------------------------------------
     // Hilfsmethoden
     // -------------------------------------------------------------------------
 

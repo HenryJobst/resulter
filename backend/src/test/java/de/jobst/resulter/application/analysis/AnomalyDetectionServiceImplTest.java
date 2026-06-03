@@ -1,6 +1,12 @@
 package de.jobst.resulter.application.analysis;
 
+import de.jobst.resulter.application.port.ResultListRepository;
+import de.jobst.resulter.application.port.SegmentPI;
+import de.jobst.resulter.application.port.SplitTimeListRepository;
+import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.analysis.AnomalyAnalysis;
 import de.jobst.resulter.domain.analysis.AnomalyClassification;
+import de.jobst.resulter.domain.analysis.PerformanceIndex;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,8 +18,13 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Comprehensive tests for AnomalyDetectionServiceImpl algorithm logic.
@@ -679,6 +690,23 @@ class AnomalyDetectionServiceImplTest {
         }
 
         @Test
+        @DisplayName("Should skip variance check when exactly 5 times and outer conditions met (size<6 branch)")
+        void shouldSkipVarianceCheck_whenExactlyFiveTimes() throws Exception {
+            // Exactly 5 times: outer conditions at line 248 are met, but size >= 6 is FALSE
+            // → inner variance block is skipped → falls through to CASE 3 (median of top 3)
+            List<Double> times = Arrays.asList(50.0, 52.0, 200.0, 210.0, 220.0);
+            // fastest=50, second=52, median=times[2]=200
+            // fastestVsMedianGap = (200-50)/50 = 3.0 > 0.50 ✓
+            // secondVsMedianGap = (200-52)/50 = 2.96 > 0.40 ✓
+            // But size=5 < 6 → inner block skipped → CASE 3 median of top 3
+            // topTimes = [50, 52, 200], size=3 (odd) → return topTimes.get(1) = 52.0
+
+            double result = invokeCalculateRobustReferenceTime(times);
+
+            assertThat(result).isEqualTo(52.0);
+        }
+
+        @Test
         @DisplayName("Should NOT trigger majority detection when variance is low")
         void shouldNotTriggerMajorityDetection_WhenVarianceLow() throws Exception {
             // Given - Normal distribution, no majority mistakes
@@ -805,6 +833,373 @@ class AnomalyDetectionServiceImplTest {
 
             // Then - Should NOT be flagged (AI consistency prevents false positive)
             assertThat(result).isEqualTo(AnomalyClassification.NO_SUSPICION);
+        }
+    }
+
+    @Nested
+    @DisplayName("analyzeAnomaly – service-level integration")
+    class AnalyzeAnomalyIntegration {
+
+        @Test
+        @DisplayName("Returns empty analysis when all dependencies are null")
+        void returnsEmpty_whenDependenciesNull() {
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(null, null, null);
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(ResultListId.of(1L), List.of());
+
+            assertThat(result.runnerProfiles()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Returns empty analysis when no split time lists exist")
+        void returnsEmpty_whenNoSplitTimeLists() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            when(stlRepo.findByResultListId(any())).thenReturn(List.of());
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(ResultListId.of(2L), List.of());
+
+            assertThat(result.runnerProfiles()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Throws when result list not found")
+        void throws_whenResultListNotFound() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            when(stlRepo.findByResultListId(any())).thenReturn(List.of(stl));
+            when(rlRepo.findById(any())).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> svc.analyzeAnomaly(ResultListId.of(3L), List.of()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Result list not found");
+        }
+
+        @Test
+        @DisplayName("Returns empty profiles when runner count is below threshold")
+        void returnsEmpty_whenRunnerCountBelowThreshold() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            ResultListId resultListId = ResultListId.of(4L);
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            ResultList resultList = new ResultList(resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+            when(stlRepo.findByResultListId(resultListId)).thenReturn(List.of(stl));
+            when(rlRepo.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(analysisService.buildRuntimeMap(any())).thenReturn(Map.of());
+            // Only 2 runners → below MIN_RUNNERS_PER_CLASS_FOR_ANALYSIS (3)
+            when(analysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 2));
+            when(analysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateAllTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateSegmentTimes(any(), any())).thenReturn(List.of());
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(resultListId, List.of());
+
+            assertThat(result.runnerProfiles()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Returns empty profiles when no segments found for runner")
+        void returnsEmpty_whenNoSegmentsForRunner() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            ResultListId resultListId = ResultListId.of(5L);
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            ResultList resultList = new ResultList(resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+            when(stlRepo.findByResultListId(resultListId)).thenReturn(List.of(stl));
+            when(rlRepo.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(analysisService.buildRuntimeMap(any())).thenReturn(Map.of());
+            when(analysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+            when(analysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateAllTimesPerSegment(any(), any())).thenReturn(Map.of());
+            // Empty segment times → runner is skipped
+            when(analysisService.calculateSegmentTimes(any(), any())).thenReturn(List.of());
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(resultListId, List.of());
+
+            assertThat(result.runnerProfiles()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Returns empty profiles when normalPI is null")
+        void returnsEmpty_whenNormalPINull() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            ResultListId resultListId = ResultListId.of(6L);
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            ResultList resultList = new ResultList(resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+            when(stlRepo.findByResultListId(resultListId)).thenReturn(List.of(stl));
+            when(rlRepo.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(analysisService.buildRuntimeMap(any())).thenReturn(Map.of());
+            when(analysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+            when(analysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateAllTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateSegmentTimes(any(), any()))
+                    .thenReturn(List.of(new SegmentTime(0, "31", "32", 100.0)));
+            when(analysisService.calculateSegmentPIs(any(), any(), any()))
+                    .thenReturn(List.of(new SegmentPI(0, "31", "32", 100.0, 100.0, new PerformanceIndex(1.0))));
+            when(analysisService.calculateNormalPI(any())).thenReturn(null);
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(resultListId, List.of());
+
+            assertThat(result.runnerProfiles()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Filters by person ID when filterPersonIds is provided")
+        void filtersPersonIds_whenFilterGiven() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            ResultListId resultListId = ResultListId.of(7L);
+            SplitTimeList stl1 = splitTimeList("H21", 1L);
+            SplitTimeList stl2 = splitTimeList("H21", 2L);
+            ResultList resultList = new ResultList(resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+            when(stlRepo.findByResultListId(resultListId)).thenReturn(List.of(stl1, stl2));
+            when(rlRepo.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(analysisService.buildRuntimeMap(any())).thenReturn(Map.of());
+            when(analysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+            when(analysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateAllTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateSegmentTimes(any(), any())).thenReturn(List.of());
+
+            // Filter: only person 1 → only stl1 analyzed
+            AnomalyAnalysis result = svc.analyzeAnomaly(resultListId, List.of(1L));
+
+            // calculateSegmentTimes called once for cross-class map + once for filtered runner
+            assertThat(result.runnerProfiles()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Returns HIGH_SUSPICION profile when runner anomalously fast on segment")
+        void returnsHighSuspicionProfile_whenRunnerAnomalouslyFast() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            ResultListId resultListId = ResultListId.of(10L);
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            ResultList resultList = new ResultList(resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+            // Runner: 30s on 31→32 where normal is ~125s (highly suspicious)
+            List<SegmentTime> segTimes = List.of(
+                    new SegmentTime(0, "S",  "31", 30.0),
+                    new SegmentTime(1, "31", "32", 30.0),
+                    new SegmentTime(2, "31", "F",  30.0));
+            List<SegmentPI> segPIs = List.of(
+                    new SegmentPI(0, "S",  "31", 30.0, 30.0,  new PerformanceIndex(1.0)),
+                    new SegmentPI(1, "31", "32", 30.0, 125.0, new PerformanceIndex(0.24)),
+                    new SegmentPI(2, "31", "F",  30.0, 30.0,  new PerformanceIndex(1.0)));
+            SegmentKey segKey = new SegmentKey("H21", "31", "32");
+            Map<SegmentKey, List<Double>> classSpecificTimes = Map.of(
+                    segKey, List.of(120.0, 125.0, 130.0, 135.0, 140.0));
+
+            when(stlRepo.findByResultListId(resultListId)).thenReturn(List.of(stl));
+            when(rlRepo.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(analysisService.buildRuntimeMap(any())).thenReturn(Map.of());
+            when(analysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+            when(analysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateAllTimesPerSegment(any(), any())).thenReturn(classSpecificTimes);
+            when(analysisService.calculateSegmentTimes(any(), any())).thenReturn(segTimes);
+            when(analysisService.calculateSegmentPIs(any(), any(), any())).thenReturn(segPIs);
+            when(analysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(resultListId, List.of());
+
+            assertThat(result.runnerProfiles()).hasSize(1);
+            assertThat(result.runnerProfiles().getFirst().personId().value()).isEqualTo(1L);
+            assertThat(result.runnerProfiles().getFirst().classification())
+                    .isEqualTo(AnomalyClassification.HIGH_SUSPICION);
+        }
+
+        @Test
+        @DisplayName("Returns empty profiles when all segments yield NO_SUSPICION")
+        void returnsEmpty_whenAnalysisYieldsNoSuspicion() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            ResultListId resultListId = ResultListId.of(11L);
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            ResultList resultList = new ResultList(resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+            // Runner: 125s on 31→32, same as reference → piReal≈1.0, aiValue≈1.0 → NO_SUSPICION
+            List<SegmentTime> segTimes = List.of(new SegmentTime(1, "31", "32", 125.0));
+            List<SegmentPI> segPIs = List.of(
+                    new SegmentPI(1, "31", "32", 125.0, 125.0, new PerformanceIndex(1.0)));
+            SegmentKey segKey = new SegmentKey("H21", "31", "32");
+            Map<SegmentKey, List<Double>> classSpecificTimes = Map.of(
+                    segKey, List.of(120.0, 125.0, 130.0, 135.0, 140.0));
+
+            when(stlRepo.findByResultListId(resultListId)).thenReturn(List.of(stl));
+            when(rlRepo.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(analysisService.buildRuntimeMap(any())).thenReturn(Map.of());
+            when(analysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+            when(analysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateAllTimesPerSegment(any(), any())).thenReturn(classSpecificTimes);
+            when(analysisService.calculateSegmentTimes(any(), any())).thenReturn(segTimes);
+            when(analysisService.calculateSegmentPIs(any(), any(), any())).thenReturn(segPIs);
+            when(analysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(resultListId, List.of());
+
+            assertThat(result.runnerProfiles()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Returns profile with two anomalies, covering comparator lambda and reliableData=false")
+        void returnsTwoAnomalyProfile_whenTwoSegmentsAreAnomalous() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            ResultListId resultListId = ResultListId.of(20L);
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            ResultList resultList = new ResultList(resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+            // Two anomalous middle segments (31→32 and 32→33), start/final skipped
+            List<SegmentTime> segTimes = List.of(
+                new SegmentTime(0, "S",  "31", 30.0),
+                new SegmentTime(1, "31", "32", 30.0),
+                new SegmentTime(2, "32", "33", 30.0),
+                new SegmentTime(3, "33", "F",  30.0));
+            List<SegmentPI> segPIs = List.of(
+                new SegmentPI(0, "S",  "31", 30.0, 30.0,  new PerformanceIndex(1.0)),
+                new SegmentPI(1, "31", "32", 30.0, 125.0, new PerformanceIndex(0.24)),
+                new SegmentPI(2, "32", "33", 30.0, 125.0, new PerformanceIndex(0.24)),
+                new SegmentPI(3, "33", "F",  30.0, 30.0,  new PerformanceIndex(1.0)));
+            SegmentKey key1 = new SegmentKey("H21", "31", "32");
+            SegmentKey key2 = new SegmentKey("H21", "32", "33");
+            Map<SegmentKey, List<Double>> classSpecificTimes = Map.of(
+                key1, List.of(120.0, 125.0, 130.0, 135.0, 140.0),
+                key2, List.of(120.0, 125.0, 130.0, 135.0, 140.0));
+
+            when(stlRepo.findByResultListId(resultListId)).thenReturn(List.of(stl));
+            when(rlRepo.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(analysisService.buildRuntimeMap(any())).thenReturn(Map.of());
+            // classRunnerCount=3: above MIN_RUNNERS_PER_CLASS (3), below RELIABLE_RUNNERS_THRESHOLD (5)
+            // → reliableData=false is exercised in analyzeRunner
+            when(analysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 3));
+            when(analysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateAllTimesPerSegment(any(), any())).thenReturn(classSpecificTimes);
+            when(analysisService.calculateSegmentTimes(any(), any())).thenReturn(segTimes);
+            when(analysisService.calculateSegmentPIs(any(), any(), any())).thenReturn(segPIs);
+            when(analysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(resultListId, List.of());
+
+            // Two anomalous segments → comparator lambda in stream().min() is invoked
+            assertThat(result.runnerProfiles()).hasSize(1);
+            assertThat(result.runnerProfiles().getFirst().classification())
+                .isEqualTo(AnomalyClassification.HIGH_SUSPICION);
+        }
+
+        @Test
+        @DisplayName("Returns NO_DATA when allTimes is empty for the segment (covers line 172-173)")
+        void returnsEmpty_whenAllTimesEmptyForSegment() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            ResultListId resultListId = ResultListId.of(21L);
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            ResultList resultList = new ResultList(resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+            // Cross-class uses a DIFFERENT segment (S→31) than the runner's segment (31→32)
+            // → crossClassTimes has no entry for SegmentKey(null, "31", "32")
+            // → allTimes is empty → calculateCleanedReferenceTime returns 0 immediately
+            List<SegmentTime> crossClassSegTimes = List.of(new SegmentTime(0, "S", "31", 50.0));
+            List<SegmentTime> runnerSegTimes = List.of(new SegmentTime(1, "31", "32", 30.0));
+            List<SegmentPI> segPIs = List.of(
+                new SegmentPI(1, "31", "32", 30.0, 30.0, new PerformanceIndex(1.0)));
+
+            when(stlRepo.findByResultListId(resultListId)).thenReturn(List.of(stl));
+            when(rlRepo.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(analysisService.buildRuntimeMap(any())).thenReturn(Map.of());
+            when(analysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+            when(analysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+            when(analysisService.calculateAllTimesPerSegment(any(), any())).thenReturn(Map.of());
+            // First call: calculateAllTimesPerSegmentCrossClass; Second call: analyzeRunner
+            when(analysisService.calculateSegmentTimes(any(), any()))
+                .thenReturn(crossClassSegTimes)
+                .thenReturn(runnerSegTimes);
+            when(analysisService.calculateSegmentPIs(any(), any(), any())).thenReturn(segPIs);
+            when(analysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(resultListId, List.of());
+
+            // allTimes empty → NO_DATA → no anomaly → empty profiles
+            assertThat(result.runnerProfiles()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Returns empty profiles when cross-class fallback yields NO_DATA (only own time)")
+        void returnsEmpty_whenCrossClassFallbackAndNoReferenceData() {
+            SplitTimeListRepository stlRepo = mock(SplitTimeListRepository.class);
+            ResultListRepository rlRepo = mock(ResultListRepository.class);
+            SplitTimeAnalysisServiceImpl analysisService = mock(SplitTimeAnalysisServiceImpl.class);
+            AnomalyDetectionServiceImpl svc = new AnomalyDetectionServiceImpl(stlRepo, rlRepo, analysisService);
+
+            ResultListId resultListId = ResultListId.of(12L);
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            ResultList resultList = new ResultList(resultListId, EventId.of(1L), RaceId.of(1L), null, null, null, List.of());
+
+            List<SegmentTime> segTimes = List.of(new SegmentTime(1, "31", "32", 30.0));
+            List<SegmentPI> segPIs = List.of(
+                    new SegmentPI(1, "31", "32", 30.0, 30.0, new PerformanceIndex(1.0)));
+
+            when(stlRepo.findByResultListId(resultListId)).thenReturn(List.of(stl));
+            when(rlRepo.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(analysisService.buildRuntimeMap(any())).thenReturn(Map.of());
+            when(analysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 5));
+            when(analysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+            // No class-specific times → triggers cross-class fallback
+            when(analysisService.calculateAllTimesPerSegment(any(), any())).thenReturn(Map.of());
+            // cross-class contains only runner's own time → filtered out → cleanedRefTime=0 → NO_DATA
+            when(analysisService.calculateSegmentTimes(any(), any())).thenReturn(segTimes);
+            when(analysisService.calculateSegmentPIs(any(), any(), any())).thenReturn(segPIs);
+            when(analysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+
+            AnomalyAnalysis result = svc.analyzeAnomaly(resultListId, List.of());
+
+            assertThat(result.runnerProfiles()).isEmpty();
+        }
+
+        private SplitTimeList splitTimeList(String className, long personId) {
+            return new SplitTimeList(
+                    SplitTimeListId.empty(),
+                    EventId.of(1L),
+                    ResultListId.of(1L),
+                    ClassResultShortName.of(className),
+                    PersonId.of(personId),
+                    RaceNumber.of((byte) 1),
+                    List.of()
+            );
         }
     }
 

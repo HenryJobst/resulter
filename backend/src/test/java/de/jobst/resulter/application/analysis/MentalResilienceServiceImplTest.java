@@ -1,5 +1,7 @@
 package de.jobst.resulter.application.analysis;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import de.jobst.resulter.application.port.ResultListRepository;
 import de.jobst.resulter.application.port.SegmentPI;
 import de.jobst.resulter.application.port.SplitTimeListRepository;
@@ -9,6 +11,7 @@ import de.jobst.resulter.domain.analysis.MentalResilienceAnalysis;
 import de.jobst.resulter.domain.analysis.PerformanceIndex;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -289,6 +292,72 @@ class MentalResilienceServiceImplTest {
 
         // Last segment mistake logged but not added to profiles (no reaction)
         assertThat(result.runnerProfiles()).isEmpty();
+    }
+
+    @Test
+    void analyzeMentalResilience_logsCompletionInfo_whenInfoEnabled() {
+        // Enables INFO level on the MentalResilienceServiceImpl logger so the
+        // if (log.isInfoEnabled()) { log.info(...) } block at the end of
+        // analyzeMentalResilience is executed, covering those 30 instructions.
+        // Uses a full flow (non-empty split time lists, result list found) so the
+        // log block at line 99-105 is actually reached.
+        Logger logger = (Logger) LoggerFactory.getLogger(MentalResilienceServiceImpl.class);
+        Level savedLevel = logger.getLevel();
+        logger.setLevel(Level.INFO);
+        try {
+            SplitTimeList stl = splitTimeList("H21", 1L);
+            ResultList resultList = emptyResultList();
+
+            when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(stl));
+            when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList));
+            when(splitTimeAnalysisService.buildRuntimeMap(resultList)).thenReturn(Map.of());
+            when(splitTimeAnalysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 2));
+            when(splitTimeAnalysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+
+            MentalResilienceAnalysis result = service.analyzeMentalResilience(resultListId, List.of());
+
+            assertThat(result.runnerProfiles()).isEmpty();
+        } finally {
+            logger.setLevel(savedLevel);
+        }
+    }
+
+    @Test
+    void analyzeRunner_setsReliableDataFalse_whenClassRunnerCountBelowThreshold() {
+        // classRunnerCount=4: above MIN_RUNNERS_PER_CLASS (3), below RELIABLE_RUNNERS_THRESHOLD (5)
+        // → reliableData = false exercised in analyzeRunner
+        SplitTimeList stl = splitTimeList("H21", 1L);
+        ResultList resultList = emptyResultList();
+
+        when(splitTimeListRepository.findByResultListId(resultListId)).thenReturn(List.of(stl));
+        when(resultListRepository.findById(resultListId)).thenReturn(Optional.of(resultList));
+        when(splitTimeAnalysisService.buildRuntimeMap(resultList)).thenReturn(Map.of());
+        when(splitTimeAnalysisService.countRunnersPerClass(any())).thenReturn(Map.of("H21", 4));
+        when(splitTimeAnalysisService.calculateReferenceTimesPerSegment(any(), any())).thenReturn(Map.of());
+
+        SegmentPI seg0 = new SegmentPI(0, "31", "32", 500.0, 100.0, new PerformanceIndex(5.0));
+        SegmentPI seg1 = new SegmentPI(1, "32", "33", 80.0, 100.0, new PerformanceIndex(0.8));
+        SegmentPI seg2 = new SegmentPI(2, "33", "F", 100.0, 100.0, new PerformanceIndex(1.0));
+
+        when(splitTimeAnalysisService.calculateSegmentTimes(any(), any())).thenReturn(List.of(
+            new SegmentTime(0, "31", "32", 500.0),
+            new SegmentTime(1, "32", "33", 80.0),
+            new SegmentTime(2, "33", "F", 100.0)));
+        when(splitTimeAnalysisService.calculateSegmentPIs(any(), any(), eq("H21")))
+            .thenReturn(List.of(seg0, seg1, seg2));
+        when(splitTimeAnalysisService.calculateNormalPI(any())).thenReturn(new PerformanceIndex(1.0));
+        when(splitTimeAnalysisService.isMistake(eq(seg0), anyDouble())).thenReturn(true);
+        when(splitTimeAnalysisService.isMistake(eq(seg1), anyDouble())).thenReturn(false);
+        when(splitTimeAnalysisService.isMistakeBase(eq(seg2), anyDouble()))
+            .thenReturn(new MistakeResult(0.0, 0.0, false));
+        when(splitTimeAnalysisService.calculateMedian(any())).thenReturn(-0.2);
+
+        MentalResilienceAnalysis result = service.analyzeMentalResilience(resultListId, List.of());
+
+        assertThat(result.runnerProfiles()).hasSize(1);
+        assertThat(result.runnerProfiles().getFirst().reliableData()).isFalse();
+        assertThat(result.runnerProfiles().getFirst().classification())
+            .isEqualTo(MentalClassification.PANIC);
     }
 
     // -------------------------------------------------------------------------

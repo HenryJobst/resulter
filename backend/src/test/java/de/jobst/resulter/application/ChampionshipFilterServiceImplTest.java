@@ -540,4 +540,206 @@ class ChampionshipFilterServiceImplTest {
         // Both runners have equal time → both should be at position 1
         assertThat(positions).containsOnly(1L);
     }
+
+    @Test
+    void ranking_sourceWithNullClassResults_isSkipped() {
+        ResultList nullClassResultsList = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, null);
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(nullClassResultsList));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        Race race0 = Race.of(RaceId.of(100L), eventId, null, (byte) 0);
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(race0);
+        when(resultListRepository.save(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getClassResults()).isEmpty();
+    }
+
+    @Test
+    void ranking_nonEligibleWithoutValidTime_preservesOriginalStatus() {
+        PersonRaceResult raceResult = new PersonRaceResult(
+                ClassResultShortName.of("M21"), PersonId.of(NON_ELIGIBLE_PERSON_ID),
+                DateTime.empty(), DateTime.empty(),
+                PunchTime.of((Double) null),
+                Position.of(1L), ResultStatus.DID_NOT_FINISH,
+                RaceNumber.of((byte) 1), null);
+        PersonResult nonEligiblePerson = PersonResult.of(
+                ClassResultShortName.of("M21"), PersonId.of(NON_ELIGIBLE_PERSON_ID),
+                nonEligibleClubId, List.of(raceResult));
+        ClassResult classResult = ClassResult.of("M21", "M21", Gender.M, List.of(nonEligiblePerson), null);
+        ResultList sourceResultList = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, List.of(classResult));
+
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(sourceResultList));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        Race race0 = Race.of(RaceId.of(100L), eventId, null, (byte) 0);
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(race0);
+        when(resultListRepository.save(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
+
+        assertThat(result).hasSize(1);
+        PersonRaceResult prr = result.getFirst().getClassResults().stream().findFirst().orElseThrow()
+                .personResults().value().stream().findFirst().orElseThrow()
+                .personRaceResults().value().stream().findFirst().orElseThrow();
+        assertThat(prr.getState()).isEqualTo(ResultStatus.DID_NOT_FINISH);
+    }
+
+    @Test
+    void ranking_twoNonEligibleWithSameRuntime_triggersTiebreaker() {
+        // Two non-eligible runners with the SAME best runtime → thenComparingLong(personId) is invoked
+        long p1 = 20L, p2 = 21L;
+        PersonRaceResult r1 = makeRaceResult("M21", p1, 800.0, ResultStatus.OK, (byte) 1);
+        PersonRaceResult r2 = makeRaceResult("M21", p2, 800.0, ResultStatus.OK, (byte) 1);
+        PersonResult ne1 = PersonResult.of(ClassResultShortName.of("M21"), PersonId.of(p1), nonEligibleClubId, List.of(r1));
+        PersonResult ne2 = PersonResult.of(ClassResultShortName.of("M21"), PersonId.of(p2), nonEligibleClubId, List.of(r2));
+        ClassResult cr = ClassResult.of("M21", "M21", Gender.M, List.of(ne1, ne2), null);
+        ResultList source = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, List.of(cr));
+
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(source));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        Race race0 = Race.of(RaceId.of(100L), eventId, null, (byte) 0);
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(race0);
+        when(resultListRepository.save(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
+
+        assertThat(result).hasSize(1);
+        List<PersonRaceResult> prrs = result.getFirst().getClassResults().stream()
+                .flatMap(c -> c.personResults().value().stream())
+                .flatMap(p -> p.personRaceResults().value().stream())
+                .toList();
+        assertThat(prrs).hasSize(2);
+        assertThat(prrs.stream().map(r -> r.getState()).toList())
+                .containsOnly(ResultStatus.NOT_COMPETING);
+    }
+
+    @Test
+    void ranking_twoNonEligibleWithoutTime_triggersSortByPersonId() {
+        // Two non-eligible runners with null runtime → sorted only by personId
+        long p1 = 30L, p2 = 31L;
+        PersonRaceResult r1 = new PersonRaceResult(
+                ClassResultShortName.of("M21"), PersonId.of(p1),
+                DateTime.empty(), DateTime.empty(), PunchTime.of((Double) null),
+                Position.of(1L), ResultStatus.DID_NOT_FINISH, RaceNumber.of((byte) 1), null);
+        PersonRaceResult r2 = new PersonRaceResult(
+                ClassResultShortName.of("M21"), PersonId.of(p2),
+                DateTime.empty(), DateTime.empty(), PunchTime.of((Double) null),
+                Position.of(2L), ResultStatus.DID_NOT_FINISH, RaceNumber.of((byte) 1), null);
+        PersonResult ne1 = PersonResult.of(ClassResultShortName.of("M21"), PersonId.of(p1), nonEligibleClubId, List.of(r1));
+        PersonResult ne2 = PersonResult.of(ClassResultShortName.of("M21"), PersonId.of(p2), nonEligibleClubId, List.of(r2));
+        ClassResult cr = ClassResult.of("M21", "M21", Gender.M, List.of(ne2, ne1), null);
+        ResultList source = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, List.of(cr));
+
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(source));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        Race race0 = Race.of(RaceId.of(100L), eventId, null, (byte) 0);
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(race0);
+        when(resultListRepository.save(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
+
+        assertThat(result).hasSize(1);
+        List<Long> personIds = result.getFirst().getClassResults().stream()
+                .flatMap(c -> c.personResults().value().stream())
+                .map(p -> p.personId().value())
+                .toList();
+        // Sorted ascending by personId
+        assertThat(personIds).containsExactly(30L, 31L);
+    }
+
+    @Test
+    void cleanup_twoNonEligibleWithSameRuntime_triggersSortTiebreaker() {
+        // Two non-eligible persons with same runtime → reorderPositions thenComparingLong is invoked
+        long p1 = 40L, p2 = 41L;
+        PersonRaceResult r1 = makeRaceResult("M21", p1, 750.0, ResultStatus.OK, (byte) 1);
+        PersonRaceResult r2 = makeRaceResult("M21", p2, 750.0, ResultStatus.OK, (byte) 1);
+        PersonResult ne1 = PersonResult.of(ClassResultShortName.of("M21"), PersonId.of(p1), nonEligibleClubId, List.of(r1));
+        PersonResult ne2 = PersonResult.of(ClassResultShortName.of("M21"), PersonId.of(p2), nonEligibleClubId, List.of(r2));
+        ClassResult cr = ClassResult.of("M21", "M21", Gender.M, List.of(ne2, ne1), null);
+        ResultList resultList = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, List.of(cr));
+
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(resultList));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+
+        service.applyChampionshipCleanup(eventId, baseOrgId, Set.of());
+
+        verify(resultListRepository).update(resultList);
+        List<Long> sortedPersonIds = resultList.getClassResults().stream()
+                .flatMap(c -> c.personResults().value().stream())
+                .map(p -> p.personId().value())
+                .toList();
+        // Both NOT_COMPETING with same runtime → sorted by personId ascending
+        assertThat(sortedPersonIds).containsExactly(40L, 41L);
+    }
+
+    @Test
+    void ranking_eligibleWithOkStatusAndNoRuntime_fallsBackToMissingPunch() {
+        // Eligible person with OK status but null runtime:
+        // bestRuntime()=MAX_VALUE → hasOkResult=false → bestSourceStatus() called
+        // All states are OK → filter excludes them → orElse(MISSING_PUNCH) returned
+        PersonRaceResult raceResult = new PersonRaceResult(
+                ClassResultShortName.of("H21"), PersonId.of(ELIGIBLE_PERSON_ID),
+                DateTime.empty(), DateTime.empty(),
+                PunchTime.of((Double) null),
+                Position.of(1L), ResultStatus.OK,
+                RaceNumber.of((byte) 1), null);
+        PersonResult eligiblePerson = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(ELIGIBLE_PERSON_ID),
+                eligibleClubId, List.of(raceResult));
+        ClassResult classResult = ClassResult.of("H21", "H21", Gender.M, List.of(eligiblePerson), null);
+        ResultList sourceResultList = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, List.of(classResult));
+
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(sourceResultList));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        Race race0 = Race.of(RaceId.of(100L), eventId, null, (byte) 0);
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(race0);
+        when(resultListRepository.save(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
+
+        assertThat(result).hasSize(1);
+        PersonRaceResult prr = result.getFirst().getClassResults().stream().findFirst().orElseThrow()
+                .personResults().value().stream().findFirst().orElseThrow()
+                .personRaceResults().value().stream().findFirst().orElseThrow();
+        assertThat(prr.getState()).isEqualTo(ResultStatus.MISSING_PUNCH);
+    }
+
+    @Test
+    void ranking_eligibleWithNoValidTime_preservesNonOkStatus() {
+        // Eligible person (wrong club → ineligible) with null runtime: goes to nonEligibleWithoutTime
+        // Eligible person FROM eligible club but with no time: goes to eligible-no-time path
+        PersonRaceResult raceResult = new PersonRaceResult(
+                ClassResultShortName.of("H21"), PersonId.of(ELIGIBLE_PERSON_ID),
+                DateTime.empty(), DateTime.empty(),
+                PunchTime.of((Double) null),
+                Position.of(1L), ResultStatus.MISSING_PUNCH,
+                RaceNumber.of((byte) 1), null);
+        PersonResult eligiblePerson = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(ELIGIBLE_PERSON_ID),
+                eligibleClubId, List.of(raceResult));
+        ClassResult classResult = ClassResult.of("H21", "H21", Gender.M, List.of(eligiblePerson), null);
+        ResultList sourceResultList = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, List.of(classResult));
+
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(sourceResultList));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        Race race0 = Race.of(RaceId.of(100L), eventId, null, (byte) 0);
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(race0);
+        when(resultListRepository.save(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
+
+        assertThat(result).hasSize(1);
+        PersonRaceResult prr = result.getFirst().getClassResults().stream().findFirst().orElseThrow()
+                .personResults().value().stream().findFirst().orElseThrow()
+                .personRaceResults().value().stream().findFirst().orElseThrow();
+        assertThat(prr.getState()).isEqualTo(ResultStatus.MISSING_PUNCH);
+    }
 }

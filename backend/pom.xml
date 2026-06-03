@@ -558,6 +558,18 @@
                     <excludes>
                         <!-- JAXB-generierte Klassen -->
                         <exclude>de/jobst/resulter/adapter/driver/web/jaxb/**</exclude>
+                        <!-- Spring Data JDBC: Adapter, Repositories, DBOs, Konverter — brauchen Spring-Kontext/Datenbank -->
+                        <exclude>de/jobst/resulter/adapter/driven/jdbc/**</exclude>
+                        <!-- In-Memory-Implementierungen für Entwicklung/Tests -->
+                        <exclude>de/jobst/resulter/adapter/driven/inmemory/**</exclude>
+                        <!-- REST-Controller, DTOs, Mapper — brauchen Spring MVC -->
+                        <exclude>de/jobst/resulter/adapter/driver/web/**</exclude>
+                        <!-- Spring-Konfiguration, Security, Filter -->
+                        <exclude>de/jobst/resulter/springapp/**</exclude>
+                        <!-- Main-Klasse (inkl. innere Klassen) -->
+                        <exclude>de/jobst/resulter/ResulterApplication*</exclude>
+                        <!-- Root-DTO -->
+                        <exclude>de/jobst/resulter/adapter/BffUserInfoDto</exclude>
                     </excludes>
                 </configuration>
             </plugin>

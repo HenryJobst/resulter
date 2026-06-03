@@ -51,6 +51,7 @@
         <eclipse-jdt.version>4.34</eclipse-jdt.version>
         <equalsverifier.version>4.5</equalsverifier.version>
         <dotenv-java.version>3.2.0</dotenv-java.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <jmolecules-archunit.version>1.6.0</jmolecules-archunit.version>
         <jmolecules-bom.version>2025.0.2</jmolecules-bom.version>
         <jmolecules-hexagonal-architecture.version>1.10.0
@@ -532,6 +533,44 @@
                     <nonFilteredFileExtensions>
                         <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
                     </nonFilteredFileExtensions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <!-- JAXB-generierte Klassen -->
+                        <exclude>de/jobst/resulter/adapter/driver/web/jaxb/**</exclude>
+                        <!-- Spring Data JDBC: Adapter, Repositories, DBOs, Konverter — brauchen Spring-Kontext/Datenbank -->
+                        <exclude>de/jobst/resulter/adapter/driven/jdbc/**</exclude>
+                        <!-- In-Memory-Implementierungen für Entwicklung/Tests -->
+                        <exclude>de/jobst/resulter/adapter/driven/inmemory/**</exclude>
+                        <!-- REST-Controller, DTOs, Mapper — brauchen Spring MVC -->
+                        <exclude>de/jobst/resulter/adapter/driver/web/**</exclude>
+                        <!-- Spring-Konfiguration, Security, Filter -->
+                        <exclude>de/jobst/resulter/springapp/**</exclude>
+                        <!-- Main-Klasse (inkl. innere Klassen) -->
+                        <exclude>de/jobst/resulter/ResulterApplication*</exclude>
+                        <!-- Root-DTO -->
+                        <exclude>de/jobst/resulter/adapter/BffUserInfoDto</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>

@@ -3,7 +3,7 @@
         "build" : "cd frontend && pnpm run build",
         "lint-staged" : "cd frontend && pnpm lint-staged"
     },
-    "packageManager": "pnpm@11.3.0",
+    "packageManager": "pnpm@11.5.1",
     "devDependencies" : {
         "@eslint/js" : "^10.0.0",
         "eslint" : "~10.4.0",

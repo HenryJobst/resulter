@@ -5,3 +5,7 @@ CVE-2026-32280
 CVE-2026-32281
 CVE-2026-32283
 CVE-2026-33810
+
+# CVE in paketo-buildpacks/nginx helper binary compiled with Go 1.26.3. Fixed in Go 1.26.4.
+# Upstream: https://github.com/paketo-buildpacks/nginx/releases
+CVE-2026-42504

@@ -120,7 +120,8 @@
         "vue-tsc": "^3.2.8"
     },
     "simple-git-hooks": {
-        "pre-commit": "pnpm lint-staged"
+        "pre-commit": "pnpm lint-staged",
+        "pre-push": "bash ./pre-push-trivy.sh"
     },
     "lint-staged": {
         "*": "eslint --fix"

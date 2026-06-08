@@ -28,4 +28,4 @@ value = "default.conf"
 
 [metadata]
 name = "resulter-frontend"
-version = "4.8.17"
+version = "4.8.18"

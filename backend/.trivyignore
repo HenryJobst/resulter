@@ -18,6 +18,10 @@ CVE-2026-42499
 # Upstream: https://github.com/paketo-buildpacks/bellsoft-liberica/releases
 CVE-2026-42504
 
+# CVE in Ubuntu 22.04 base image (libssl3). Fixed in 3.0.2-0ubuntu1.25 via Paketo base image update.
+# Upstream: https://github.com/paketo-buildpacks/jammy-base-stack/releases
+CVE-2026-45447
+
 # Known CVEs in v4.7.3 code that will be fixed in future releases
 CVE-2026-40976
 CVE-2026-40973

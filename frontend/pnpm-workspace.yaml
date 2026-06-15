@@ -39,3 +39,40 @@ allowBuilds:
   nx: true
   simple-git-hooks: true
   vue-demi: true
+
+minimumReleaseAgeExclude:
+  - '@oxfmt/binding-android-arm-eabi@0.55.0'
+  - '@oxfmt/binding-android-arm64@0.55.0'
+  - '@oxfmt/binding-darwin-arm64@0.55.0'
+  - '@oxfmt/binding-darwin-x64@0.55.0'
+  - '@oxfmt/binding-freebsd-x64@0.55.0'
+  - '@oxfmt/binding-linux-arm-gnueabihf@0.55.0'
+  - '@oxfmt/binding-linux-arm-musleabihf@0.55.0'
+  - '@oxfmt/binding-linux-arm64-gnu@0.55.0'
+  - '@oxfmt/binding-linux-arm64-musl@0.55.0'
+  - '@oxfmt/binding-linux-ppc64-gnu@0.55.0'
+  - '@oxfmt/binding-linux-riscv64-gnu@0.55.0'
+  - '@oxfmt/binding-linux-riscv64-musl@0.55.0'
+  - '@oxfmt/binding-linux-s390x-gnu@0.55.0'
+  - '@oxfmt/binding-linux-x64-gnu@0.55.0'
+  - '@oxfmt/binding-linux-x64-musl@0.55.0'
+  - '@oxfmt/binding-openharmony-arm64@0.55.0'
+  - '@oxfmt/binding-win32-arm64-msvc@0.55.0'
+  - '@oxfmt/binding-win32-ia32-msvc@0.55.0'
+  - '@oxfmt/binding-win32-x64-msvc@0.55.0'
+  - '@playwright/test@1.61.0'
+  - '@vitest/browser-playwright@4.1.9'
+  - '@vitest/browser@4.1.9'
+  - '@vitest/coverage-v8@4.1.9'
+  - '@vitest/expect@4.1.9'
+  - '@vitest/mocker@4.1.9'
+  - '@vitest/pretty-format@4.1.9'
+  - '@vitest/runner@4.1.9'
+  - '@vitest/snapshot@4.1.9'
+  - '@vitest/spy@4.1.9'
+  - '@vitest/ui@4.1.9'
+  - '@vitest/utils@4.1.9'
+  - oxfmt@0.55.0
+  - playwright-core@1.61.0
+  - playwright@1.61.0
+  - vitest@4.1.9

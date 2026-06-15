@@ -36,8 +36,8 @@
         <mockito-core.version>5.23.0</mockito-core.version>
 <p6spy-spring-boot-starter.version>2.0.1</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.10.2</spotbugs-annotations.version>
-        <spring-framework.version>7.0.7</spring-framework.version>
-        <spring-oxm.version>7.0.7</spring-oxm.version>
+        <spring-framework.version>7.0.8</spring-framework.version>
+        <spring-oxm.version>7.0.8</spring-oxm.version>
         <tomcat.version>11.0.21</tomcat.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <postgresql.version>42.7.11</postgresql.version>
@@ -408,12 +408,12 @@
             <dependency>
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>3.1.4</version> <!-- fix GHSA-2m67-wjpj-xhg9 -->
+                <version>3.2.0</version> <!-- fix GHSA-2m67-wjpj-xhg9 -->
             </dependency>
             <dependency>
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>3.1.4</version> <!-- align with jackson-core fix -->
+                <version>3.2.0</version> <!-- align with jackson-core fix -->
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>

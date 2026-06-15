@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version>
+        <version>4.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>de.jobst</groupId>
@@ -36,10 +36,7 @@
         <mockito-core.version>5.23.0</mockito-core.version>
 <p6spy-spring-boot-starter.version>2.0.1</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.10.2</spotbugs-annotations.version>
-        <spring-framework.version>7.0.8</spring-framework.version>
-        <spring-oxm.version>7.0.8</spring-oxm.version>
-        <tomcat.version>11.0.21</tomcat.version>
-        <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
+<springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <postgresql.version>42.7.11</postgresql.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <thumbnailator.version>0.4.21</thumbnailator.version>
@@ -200,7 +197,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-oxm</artifactId>
-            <version>${spring-oxm.version}</version>
+            <version>${spring-framework.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -414,21 +411,6 @@
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>3.2.0</version> <!-- align with jackson-core fix -->
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-core</artifactId>
-                <version>11.0.22</version> <!-- fix CVE-2026-34483 -->
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-el</artifactId>
-                <version>11.0.22</version> <!-- fix CVE-2026-34483 -->
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-websocket</artifactId>
-                <version>11.0.22</version> <!-- fix CVE-2026-34483 -->
             </dependency>
         </dependencies>
     </dependencyManagement>

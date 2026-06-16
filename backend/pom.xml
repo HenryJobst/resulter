@@ -388,6 +388,11 @@
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.22</version> <!-- align with jackson-core fix; note: annotations uses 2.22 not 2.22.0 -->
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>2.22.0</version> <!-- fix GHSA-72hv-8253-57qq, WS-2026-0003 -->
             </dependency>

@@ -20,6 +20,12 @@
       "description": "nx-Monorepo ignorieren bis @nx/vue vue-router v5 und vue-tsc v3 unterstützt",
       "matchPackageNames": ["nx", "@nx/eslint", "@nx/playwright", "@nx/vite", "@nx/vue", "@nx/web"],
       "enabled": false
+    },
+    {
+      "description": "ajv@^6-Override ignorieren: ESLint v10 nutzt ajv v6 API, v8 wäre breaking",
+      "matchPackageNames": ["ajv"],
+      "matchFileNames": ["frontend/pnpm-workspace.yaml"],
+      "enabled": false
     }
   ]
 }

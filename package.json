@@ -6,7 +6,7 @@
     "packageManager": "pnpm@11.8.0",
     "devDependencies" : {
         "@eslint/js" : "^10.0.0",
-        "eslint" : "~10.4.0",
+        "eslint" : "~10.5.0",
         "eslint-plugin-yml" : "^3.0.0"
     }
 }

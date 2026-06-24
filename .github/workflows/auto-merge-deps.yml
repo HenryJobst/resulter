@@ -85,7 +85,7 @@ jobs:
 
       - name: Benachrichtigung bei CI-Fehlern
         if: steps.process.outputs.failed_prs != ''
-        uses: dawidd6/action-send-mail@v3
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7  # v3
         with:
           server_address: ${{ secrets.SMTP_HOST }}
           server_port: ${{ secrets.SMTP_PORT }}
@@ -135,7 +135,7 @@ jobs:
 
       - name: Benachrichtigung Security-PRs
         if: steps.find.outputs.found == 'true'
-        uses: dawidd6/action-send-mail@v3
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7  # v3
         with:
           server_address: ${{ secrets.SMTP_HOST }}
           server_port: ${{ secrets.SMTP_PORT }}
@@ -206,7 +206,7 @@ jobs:
 
       - name: Tagesübersicht versenden
         if: steps.time.outputs.send == 'true'
-        uses: dawidd6/action-send-mail@v3
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7  # v3
         with:
           server_address: ${{ secrets.SMTP_HOST }}
           server_port: ${{ secrets.SMTP_PORT }}

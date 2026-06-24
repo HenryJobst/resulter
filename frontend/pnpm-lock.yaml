@@ -97,7 +97,7 @@ importers:
         version: 11.4.6(vue@3.5.38(typescript@6.0.3))
       vue-pdf-embed:
         specifier: ^2.1.4
-        version: 2.1.4(vue@3.5.38(typescript@6.0.3))
+        version: 2.1.5(vue@3.5.38(typescript@6.0.3))
       vue-router:
         specifier: ^5.1.0
         version: 5.1.0(@vue/compiler-sfc@3.5.38)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.38(typescript@6.0.3)))(vite@8.0.16(@types/node@25.9.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))(vue@3.5.38(typescript@6.0.3))
@@ -4648,9 +4648,9 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
-  pdfjs-dist@4.10.38:
-    resolution: {integrity: sha512-/Y3fcFrXEAsMjJXeL9J8+ZG9U01LbuWaYypvDW2ycW1jL269L3js3DVBjDJ0Up9Np1uqDXsDrRihHANhZOlwdQ==}
-    engines: {node: '>=20'}
+  pdfjs-dist@5.7.284:
+    resolution: {integrity: sha512-h4EdYQczmGhbOlqc3PPZwxevn7ApdWPbovAuWXOB/DjIyigSnwfy2oze7c6mRcSr9XgLp3eN3EeL4DyySTPMFw==}
+    engines: {node: '>=22.13.0 || >=24'}
 
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
@@ -5438,8 +5438,8 @@ packages:
     resolution: {integrity: sha512-6sdyEEGRL1/vIaLked48KXj9il9kxzjapYItZHnhnU2hkMwh7baLWAAbrt0qRy/e2x3aJv7PA2XAprhhTswmLg==}
     hasBin: true
 
-  vue-pdf-embed@2.1.4:
-    resolution: {integrity: sha512-rZuRpQ4kJXKXCdZBCg3WZcYfrhDMJElcJQsS1V8KlJICDtFzzAzeDDSJwQU89Dx447Dv018P3zj/4UiAjBwvyg==}
+  vue-pdf-embed@2.1.5:
+    resolution: {integrity: sha512-IGFVBYlnOz2zSql1zk4YJyBu584EZa6RUykk5f8wkHF/AR31khCa+ruJoRag+Ff2UyntkWu0brENIKoikQ7F8g==}
     peerDependencies:
       vue: ^3.3.0
 
@@ -10409,7 +10409,7 @@ snapshots:
 
   pathe@2.0.3: {}
 
-  pdfjs-dist@4.10.38:
+  pdfjs-dist@5.7.284:
     optionalDependencies:
       '@napi-rs/canvas': 0.1.100
 
@@ -11159,9 +11159,9 @@ snapshots:
       minimatch: 10.2.5
       yargs: 17.7.3
 
-  vue-pdf-embed@2.1.4(vue@3.5.38(typescript@6.0.3)):
+  vue-pdf-embed@2.1.5(vue@3.5.38(typescript@6.0.3)):
     dependencies:
-      pdfjs-dist: 4.10.38
+      pdfjs-dist: 5.7.284
       vue: 3.5.38(typescript@6.0.3)
 
   vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.38(typescript@6.0.3)))(vite@8.0.16(@types/node@25.9.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))(vue@3.5.38(typescript@6.0.3)):

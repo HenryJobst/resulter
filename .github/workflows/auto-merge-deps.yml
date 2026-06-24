@@ -1,0 +1,225 @@
+name: Auto-merge Dependency PRs
+
+# Läuft alle 4h, aligned auf 16:00 CEST (14 UTC) für die Tagesübersicht
+on:
+  schedule:
+    - cron: '0 2,6,10,14,18,22 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+
+jobs:
+  merge-prs:
+    name: Merge eligible dependency PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process and merge PRs
+        id: process
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 << 'PYEOF'
+          import subprocess, json, os
+
+          repo = os.environ['REPO']
+
+          result = subprocess.run(
+            ['gh', 'pr', 'list', '--repo', repo, '--state', 'open',
+             '--json', 'number,title,labels,mergeable,statusCheckRollup', '--limit', '50'],
+            capture_output=True, text=True, check=True
+          )
+          prs = json.loads(result.stdout)
+
+          failed, merged = [], []
+
+          for pr in prs:
+            labels = {l['name'] for l in pr['labels']}
+
+            # Nur Renovate/Dependabot-PRs
+            if not (labels & {'renovate', 'dependencies'}):
+              continue
+            # Major-Updates niemals automatisch mergen
+            if 'major-update' in labels:
+              continue
+
+            nr, title = pr['number'], pr['title']
+            checks = pr['statusCheckRollup']
+
+            if pr['mergeable'] != 'MERGEABLE':
+              print(f'PR #{nr}: nicht mergeable ({pr["mergeable"]}), übersprungen')
+              continue
+
+            if any(c['conclusion'] == 'FAILURE' for c in checks):
+              print(f'PR #{nr}: CI-Fehler')
+              failed.append(f'#{nr}: {title}')
+              continue
+
+            if any(c['status'] in ('IN_PROGRESS', 'QUEUED') for c in checks):
+              print(f'PR #{nr}: Checks laufen noch, übersprungen')
+              continue
+
+            print(f'Merge PR #{nr}: {title}')
+            r = subprocess.run(
+              ['gh', 'pr', 'merge', str(nr), '--repo', repo, '--merge', '--delete-branch'],
+              capture_output=True, text=True
+            )
+            if r.returncode == 0:
+              merged.append(f'#{nr}: {title}')
+            else:
+              print(f'Merge fehlgeschlagen: {r.stderr}')
+              failed.append(f'#{nr}: {title} (merge-Fehler)')
+
+          # Eindeutiger Delimiter verhindert Heredoc-Injection durch PR-Titel
+          delim = 'AUTOMERGE_OUTPUT_FAILED_7f3b9a1d'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f'failed_prs<<{delim}\n')
+            f.write('\n'.join(failed) + '\n')
+            f.write(f'{delim}\n')
+
+          print(f'Gemergt: {len(merged)}, Fehlgeschlagen: {len(failed)}')
+          PYEOF
+
+      - name: Benachrichtigung bei CI-Fehlern
+        if: steps.process.outputs.failed_prs != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: '[resulter] Dependency PR-Checks fehlgeschlagen'
+          to: github@jobst-berlin.de
+          from: resulter-bot <${{ secrets.SMTP_USER }}>
+          body: |
+            Folgende Dependency-PRs haben fehlgeschlagene CI-Checks:
+
+            ${{ steps.process.outputs.failed_prs }}
+
+            Bitte prüfen: https://github.com/${{ github.repository }}/pulls
+
+  check-security:
+    name: Prüfe offene Security-PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Security-PRs suchen
+        id: find
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 << 'PYEOF'
+          import subprocess, json, os
+
+          repo = os.environ['REPO']
+          result = subprocess.run(
+            ['gh', 'pr', 'list', '--repo', repo, '--state', 'open',
+             '--label', 'security', '--json', 'number,title', '--limit', '50'],
+            capture_output=True, text=True, check=True
+          )
+          prs = json.loads(result.stdout)
+
+          # Eindeutiger Delimiter verhindert Heredoc-Injection durch PR-Titel
+          delim = 'AUTOMERGE_OUTPUT_SECURITY_7f3b9a1d'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            if prs:
+              lines = '\n'.join(f'- #{p["number"]}: {p["title"]}' for p in prs)
+              f.write('found=true\n')
+              f.write(f'prs<<{delim}\n{lines}\n{delim}\n')
+            else:
+              f.write('found=false\n')
+          PYEOF
+
+      - name: Benachrichtigung Security-PRs
+        if: steps.find.outputs.found == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: '[resulter] Offene Security-PRs!'
+          to: github@jobst-berlin.de
+          from: resulter-bot <${{ secrets.SMTP_USER }}>
+          body: |
+            Folgende Security-PRs warten auf Merge:
+
+            ${{ steps.find.outputs.prs }}
+
+            Bitte sofort prüfen: https://github.com/${{ github.repository }}/pulls?q=label%3Asecurity
+
+  daily-summary:
+    name: Tägliche Dependency-Übersicht (16:00 Berlin)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Berliner Uhrzeit prüfen
+        id: time
+        run: |
+          HOUR=$(TZ='Europe/Berlin' date +%H)
+          echo "hour=$HOUR" >> $GITHUB_OUTPUT
+          # 16 Uhr CEST (UTC+2) oder 15 Uhr CET (UTC+1)
+          if [ "$HOUR" = "16" ] || [ "$HOUR" = "15" ]; then
+            echo "send=true" >> $GITHUB_OUTPUT
+          else
+            echo "send=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pending-Approval-Einträge aus Dashboard lesen
+        id: dashboard
+        if: steps.time.outputs.send == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 << 'PYEOF'
+          import subprocess, json, os, re
+
+          repo = os.environ['REPO']
+          result = subprocess.run(
+            ['gh', 'issue', 'list', '--repo', repo, '--state', 'open',
+             '--search', 'Dependency Dashboard', '--json', 'body', '--limit', '1'],
+            capture_output=True, text=True, check=True
+          )
+          issues = json.loads(result.stdout)
+
+          items = []
+          if issues:
+            body = issues[0]['body']
+            section = re.search(r'## Pending Approval\n(.*?)(?=\n## |\Z)', body, re.DOTALL)
+            if section:
+              for line in section.group(1).split('\n'):
+                m = re.search(r'- \[ \] <!--.*?-->(.*?)$', line)
+                if m and '🔐' not in line:
+                  items.append('- ' + m.group(1).strip())
+
+          output = '\n'.join(items) if items else 'Keine Einträge'
+          # Eindeutiger Delimiter verhindert Heredoc-Injection durch Dashboard-Inhalt
+          delim = 'AUTOMERGE_OUTPUT_DASHBOARD_7f3b9a1d'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f'items<<{delim}\n')
+            f.write(output + '\n')
+            f.write(f'{delim}\n')
+          PYEOF
+
+      - name: Tagesübersicht versenden
+        if: steps.time.outputs.send == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: '[resulter] Tägliche Dependency-Übersicht'
+          to: github@jobst-berlin.de
+          from: resulter-bot <${{ secrets.SMTP_USER }}>
+          body: |
+            Tägliche Dependency-Zusammenfassung — resulter
+
+            == Ausstehende Freigaben (Pending Approval) ==
+            ${{ steps.dashboard.outputs.items }}
+
+            Dashboard: https://github.com/${{ github.repository }}/issues/309
+            PRs:       https://github.com/${{ github.repository }}/pulls

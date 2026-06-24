@@ -85,21 +85,40 @@ jobs:
 
       - name: Benachrichtigung bei CI-Fehlern
         if: steps.process.outputs.failed_prs != ''
-        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7  # v3
-        with:
-          server_address: ${{ secrets.SMTP_HOST }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USER }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: '[resulter] Dependency PR-Checks fehlgeschlagen'
-          to: github@jobst-berlin.de
-          from: resulter-bot <${{ secrets.SMTP_USER }}>
-          body: |
-            Folgende Dependency-PRs haben fehlgeschlagene CI-Checks:
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MAIL_BODY: ${{ steps.process.outputs.failed_prs }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 << 'PYEOF'
+          import smtplib, os
+          from email.mime.text import MIMEText
 
-            ${{ steps.process.outputs.failed_prs }}
+          body = (
+            'Folgende Dependency-PRs haben fehlgeschlagene CI-Checks:\n\n'
+            + os.environ['MAIL_BODY']
+            + f'\n\nBitte prüfen: https://github.com/{os.environ["REPO"]}/pulls'
+          )
+          msg = MIMEText(body)
+          msg['Subject'] = '[resulter] Dependency PR-Checks fehlgeschlagen'
+          msg['From'] = f'resulter-bot <{os.environ["SMTP_USER"]}>'
+          msg['To'] = 'github@jobst-berlin.de'
 
-            Bitte prüfen: https://github.com/${{ github.repository }}/pulls
+          port = int(os.environ['SMTP_PORT'])
+          if port == 465:
+            with smtplib.SMTP_SSL(os.environ['SMTP_HOST'], port) as smtp:
+              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+              smtp.send_message(msg)
+          else:
+            with smtplib.SMTP(os.environ['SMTP_HOST'], port) as smtp:
+              smtp.starttls()
+              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+              smtp.send_message(msg)
+          print('E-Mail gesendet.')
+          PYEOF
 
   check-security:
     name: Prüfe offene Security-PRs
@@ -135,21 +154,40 @@ jobs:
 
       - name: Benachrichtigung Security-PRs
         if: steps.find.outputs.found == 'true'
-        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7  # v3
-        with:
-          server_address: ${{ secrets.SMTP_HOST }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USER }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: '[resulter] Offene Security-PRs!'
-          to: github@jobst-berlin.de
-          from: resulter-bot <${{ secrets.SMTP_USER }}>
-          body: |
-            Folgende Security-PRs warten auf Merge:
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MAIL_BODY: ${{ steps.find.outputs.prs }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 << 'PYEOF'
+          import smtplib, os
+          from email.mime.text import MIMEText
 
-            ${{ steps.find.outputs.prs }}
+          body = (
+            'Folgende Security-PRs warten auf Merge:\n\n'
+            + os.environ['MAIL_BODY']
+            + f'\n\nBitte sofort prüfen: https://github.com/{os.environ["REPO"]}/pulls?q=label%3Asecurity'
+          )
+          msg = MIMEText(body)
+          msg['Subject'] = '[resulter] Offene Security-PRs!'
+          msg['From'] = f'resulter-bot <{os.environ["SMTP_USER"]}>'
+          msg['To'] = 'github@jobst-berlin.de'
 
-            Bitte sofort prüfen: https://github.com/${{ github.repository }}/pulls?q=label%3Asecurity
+          port = int(os.environ['SMTP_PORT'])
+          if port == 465:
+            with smtplib.SMTP_SSL(os.environ['SMTP_HOST'], port) as smtp:
+              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+              smtp.send_message(msg)
+          else:
+            with smtplib.SMTP(os.environ['SMTP_HOST'], port) as smtp:
+              smtp.starttls()
+              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+              smtp.send_message(msg)
+          print('E-Mail gesendet.')
+          PYEOF
 
   daily-summary:
     name: Tägliche Dependency-Übersicht (16:00 Berlin)
@@ -206,23 +244,43 @@ jobs:
 
       - name: Tagesübersicht versenden
         if: steps.time.outputs.send == 'true'
-        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7  # v3
-        with:
-          server_address: ${{ secrets.SMTP_HOST }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USER }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: '[resulter] Tägliche Dependency-Übersicht'
-          to: github@jobst-berlin.de
-          from: resulter-bot <${{ secrets.SMTP_USER }}>
-          body: |
-            Tägliche Dependency-Zusammenfassung — resulter
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          PENDING_ITEMS: ${{ steps.dashboard.outputs.items }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 << 'PYEOF'
+          import smtplib, os
+          from email.mime.text import MIMEText
 
-            == Ausstehende Freigaben (Pending Approval) ==
-            ${{ steps.dashboard.outputs.items }}
+          repo = os.environ['REPO']
+          body = (
+            'Tägliche Dependency-Zusammenfassung — resulter\n\n'
+            '== Ausstehende Freigaben (Pending Approval) ==\n'
+            + os.environ['PENDING_ITEMS']
+            + f'\n\nDashboard: https://github.com/{repo}/issues/309'
+            + f'\nPRs:       https://github.com/{repo}/pulls'
+          )
+          msg = MIMEText(body)
+          msg['Subject'] = '[resulter] Tägliche Dependency-Übersicht'
+          msg['From'] = f'resulter-bot <{os.environ["SMTP_USER"]}>'
+          msg['To'] = 'github@jobst-berlin.de'
 
-            Dashboard: https://github.com/${{ github.repository }}/issues/309
-            PRs:       https://github.com/${{ github.repository }}/pulls
+          port = int(os.environ['SMTP_PORT'])
+          if port == 465:
+            with smtplib.SMTP_SSL(os.environ['SMTP_HOST'], port) as smtp:
+              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+              smtp.send_message(msg)
+          else:
+            with smtplib.SMTP(os.environ['SMTP_HOST'], port) as smtp:
+              smtp.starttls()
+              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+              smtp.send_message(msg)
+          print('E-Mail gesendet.')
+          PYEOF
 
   release-patch:
     name: Patch-Release nach täglichen Dependency-Merges

@@ -1,6 +1,6 @@
 name: Auto-merge Dependency PRs
 
-# Läuft alle 4h, aligned auf 16:00 CEST (14 UTC) für die Tagesübersicht
+# Läuft alle 4h, aligned auf 16:00 CEST (14 UTC) für Tagesübersicht und Patch-Release
 on:
   schedule:
     - cron: '0 2,6,10,14,18,22 * * *'
@@ -223,3 +223,79 @@ jobs:
 
             Dashboard: https://github.com/${{ github.repository }}/issues/309
             PRs:       https://github.com/${{ github.repository }}/pulls
+
+  release-patch:
+    name: Patch-Release nach täglichen Dependency-Merges
+    runs-on: macos-latest
+    needs: merge-prs
+    if: always()
+    steps:
+      - name: Berliner Uhrzeit prüfen
+        id: time
+        run: |
+          HOUR=$(TZ='Europe/Berlin' date +%H)
+          # 16 Uhr CEST (UTC+2) oder 15 Uhr CET (UTC+1)
+          if [ "$HOUR" = "16" ] || [ "$HOUR" = "15" ]; then
+            echo "release=true" >> $GITHUB_OUTPUT
+          else
+            echo "release=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Heutige Dependency-Merges prüfen
+        id: merges
+        if: steps.time.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          TODAY=$(TZ='Europe/Berlin' date +%Y-%m-%d)
+          COUNT=$(gh pr list --repo "$REPO" --state merged \
+            --search "merged:>=$TODAY" \
+            --json number,labels --limit 100 \
+            --jq '[.[] | select(.labels | map(.name) | (contains(["renovate"]) or contains(["dependencies"])))] | length')
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+          if [ "$COUNT" -gt 0 ]; then
+            echo "has_merges=true" >> $GITHUB_OUTPUT
+            echo "Heute $COUNT Dependency-PR(s) gemergt."
+          else
+            echo "has_merges=false" >> $GITHUB_OUTPUT
+            echo "Keine Dependency-Merges heute — kein Release nötig."
+          fi
+
+      - name: Repository auschecken
+        if: steps.merges.outputs.has_merges == 'true'
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Git konfigurieren
+        if: steps.merges.outputs.has_merges == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Prüfe ob heute schon ein Version-Bump stattfand
+        id: already-bumped
+        if: steps.merges.outputs.has_merges == 'true'
+        run: |
+          TODAY=$(TZ='Europe/Berlin' date +%Y-%m-%d)
+          BUMP=$(git log --oneline --after="$TODAY 00:00:00" --grep="feat: bump version" | head -1)
+          if [ -n "$BUMP" ]; then
+            echo "bumped=true" >> $GITHUB_OUTPUT
+            echo "Heute bereits gebumpt: $BUMP — übersprungen."
+          else
+            echo "bumped=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Patch-Version erhöhen
+        if: steps.merges.outputs.has_merges == 'true' && steps.already-bumped.outputs.bumped == 'false'
+        run: ./bump-version.sh patch
+
+      - name: Version-Bump auf main pushen
+        if: steps.merges.outputs.has_merges == 'true' && steps.already-bumped.outputs.bumped == 'false'
+        run: git push origin main
+
+      - name: Release-Branch erstellen
+        if: steps.merges.outputs.has_merges == 'true' && steps.already-bumped.outputs.bumped == 'false'
+        run: ./create-release-branch.sh

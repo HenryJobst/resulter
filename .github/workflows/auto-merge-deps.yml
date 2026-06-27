@@ -53,12 +53,12 @@ jobs:
               print(f'PR #{nr}: nicht mergeable ({pr["mergeable"]}), übersprungen')
               continue
 
-            if any(c['conclusion'] == 'FAILURE' for c in checks):
+            if any(c.get('conclusion') == 'FAILURE' or c.get('state') == 'FAILURE' for c in checks):
               print(f'PR #{nr}: CI-Fehler')
               failed.append(f'#{nr}: {title}')
               continue
 
-            if any(c['status'] in ('IN_PROGRESS', 'QUEUED') for c in checks):
+            if any(c.get('status') in ('IN_PROGRESS', 'QUEUED') for c in checks):
               print(f'PR #{nr}: Checks laufen noch, übersprungen')
               continue
 
@@ -85,6 +85,7 @@ jobs:
 
       - name: Benachrichtigung bei CI-Fehlern
         if: steps.process.outputs.failed_prs != ''
+        continue-on-error: true
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
@@ -97,6 +98,13 @@ jobs:
           import smtplib, os
           from email.mime.text import MIMEText
 
+          host = os.environ['SMTP_HOST']
+          port = int(os.environ['SMTP_PORT'])
+          user = os.environ['SMTP_USER']
+          pwd  = os.environ['SMTP_PASSWORD']
+          masked_user = user[:3] + '***' + user[user.rfind('@'):] if '@' in user else user[:3] + '***'
+          print(f'SMTP-Diagnose: host={host} port={port} user={masked_user} pwd_len={len(pwd)}')
+
           body = (
             'Folgende Dependency-PRs haben fehlgeschlagene CI-Checks:\n\n'
             + os.environ['MAIL_BODY']
@@ -104,18 +112,21 @@ jobs:
           )
           msg = MIMEText(body)
           msg['Subject'] = '[resulter] Dependency PR-Checks fehlgeschlagen'
-          msg['From'] = f'resulter-bot <{os.environ["SMTP_USER"]}>'
+          msg['From'] = f'resulter-bot <{user}>'
           msg['To'] = 'github@jobst-berlin.de'
 
-          port = int(os.environ['SMTP_PORT'])
           if port == 465:
-            with smtplib.SMTP_SSL(os.environ['SMTP_HOST'], port) as smtp:
-              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+            with smtplib.SMTP_SSL(host, port) as smtp:
+              print(f'Verbunden (SSL), Server-Banner: {smtp.ehlo_resp}')
+              smtp.login(user, pwd)
               smtp.send_message(msg)
           else:
-            with smtplib.SMTP(os.environ['SMTP_HOST'], port) as smtp:
+            with smtplib.SMTP(host, port) as smtp:
+              smtp.ehlo()
+              print(f'Verbunden (STARTTLS), EHLO-Antwort: {smtp.ehlo_resp}')
               smtp.starttls()
-              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+              smtp.ehlo()
+              smtp.login(user, pwd)
               smtp.send_message(msg)
           print('E-Mail gesendet.')
           PYEOF
@@ -154,6 +165,7 @@ jobs:
 
       - name: Benachrichtigung Security-PRs
         if: steps.find.outputs.found == 'true'
+        continue-on-error: true
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
@@ -166,6 +178,13 @@ jobs:
           import smtplib, os
           from email.mime.text import MIMEText
 
+          host = os.environ['SMTP_HOST']
+          port = int(os.environ['SMTP_PORT'])
+          user = os.environ['SMTP_USER']
+          pwd  = os.environ['SMTP_PASSWORD']
+          masked_user = user[:3] + '***' + user[user.rfind('@'):] if '@' in user else user[:3] + '***'
+          print(f'SMTP-Diagnose: host={host} port={port} user={masked_user} pwd_len={len(pwd)}')
+
           body = (
             'Folgende Security-PRs warten auf Merge:\n\n'
             + os.environ['MAIL_BODY']
@@ -173,18 +192,21 @@ jobs:
           )
           msg = MIMEText(body)
           msg['Subject'] = '[resulter] Offene Security-PRs!'
-          msg['From'] = f'resulter-bot <{os.environ["SMTP_USER"]}>'
+          msg['From'] = f'resulter-bot <{user}>'
           msg['To'] = 'github@jobst-berlin.de'
 
-          port = int(os.environ['SMTP_PORT'])
           if port == 465:
-            with smtplib.SMTP_SSL(os.environ['SMTP_HOST'], port) as smtp:
-              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+            with smtplib.SMTP_SSL(host, port) as smtp:
+              print(f'Verbunden (SSL), Server-Banner: {smtp.ehlo_resp}')
+              smtp.login(user, pwd)
               smtp.send_message(msg)
           else:
-            with smtplib.SMTP(os.environ['SMTP_HOST'], port) as smtp:
+            with smtplib.SMTP(host, port) as smtp:
+              smtp.ehlo()
+              print(f'Verbunden (STARTTLS), EHLO-Antwort: {smtp.ehlo_resp}')
               smtp.starttls()
-              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+              smtp.ehlo()
+              smtp.login(user, pwd)
               smtp.send_message(msg)
           print('E-Mail gesendet.')
           PYEOF
@@ -244,6 +266,7 @@ jobs:
 
       - name: Tagesübersicht versenden
         if: steps.time.outputs.send == 'true'
+        continue-on-error: true
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
@@ -256,6 +279,13 @@ jobs:
           import smtplib, os
           from email.mime.text import MIMEText
 
+          host = os.environ['SMTP_HOST']
+          port = int(os.environ['SMTP_PORT'])
+          user = os.environ['SMTP_USER']
+          pwd  = os.environ['SMTP_PASSWORD']
+          masked_user = user[:3] + '***' + user[user.rfind('@'):] if '@' in user else user[:3] + '***'
+          print(f'SMTP-Diagnose: host={host} port={port} user={masked_user} pwd_len={len(pwd)}')
+
           repo = os.environ['REPO']
           body = (
             'Tägliche Dependency-Zusammenfassung — resulter\n\n'
@@ -266,18 +296,21 @@ jobs:
           )
           msg = MIMEText(body)
           msg['Subject'] = '[resulter] Tägliche Dependency-Übersicht'
-          msg['From'] = f'resulter-bot <{os.environ["SMTP_USER"]}>'
+          msg['From'] = f'resulter-bot <{user}>'
           msg['To'] = 'github@jobst-berlin.de'
 
-          port = int(os.environ['SMTP_PORT'])
           if port == 465:
-            with smtplib.SMTP_SSL(os.environ['SMTP_HOST'], port) as smtp:
-              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+            with smtplib.SMTP_SSL(host, port) as smtp:
+              print(f'Verbunden (SSL), Server-Banner: {smtp.ehlo_resp}')
+              smtp.login(user, pwd)
               smtp.send_message(msg)
           else:
-            with smtplib.SMTP(os.environ['SMTP_HOST'], port) as smtp:
+            with smtplib.SMTP(host, port) as smtp:
+              smtp.ehlo()
+              print(f'Verbunden (STARTTLS), EHLO-Antwort: {smtp.ehlo_resp}')
               smtp.starttls()
-              smtp.login(os.environ['SMTP_USER'], os.environ['SMTP_PASSWORD'])
+              smtp.ehlo()
+              smtp.login(user, pwd)
               smtp.send_message(msg)
           print('E-Mail gesendet.')
           PYEOF
@@ -324,7 +357,7 @@ jobs:
         if: steps.merges.outputs.has_merges == 'true'
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0
 
       - name: Git konfigurieren

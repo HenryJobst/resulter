@@ -9,6 +9,7 @@ on :
             - 'v*'
         branches :
             - 'releases/**'
+    workflow_dispatch :
 env :
     REGISTRY : ${{ vars.IMAGE_DEPLOY_REPO }}
     IMAGE_NAME_FRONTEND : ${{ github.repository }}/frontend

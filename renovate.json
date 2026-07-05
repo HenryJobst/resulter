@@ -3,6 +3,7 @@
   "extends": ["config:recommended"],
   "timezone": "Europe/Berlin",
   "schedule": ["every weekend"],
+  "minimumReleaseAge": "1 day",
   "dependencyDashboard": true,
   "labels": ["renovate"],
   "vulnerabilityAlerts": {

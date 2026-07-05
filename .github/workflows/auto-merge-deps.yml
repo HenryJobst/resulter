@@ -324,9 +324,11 @@ jobs:
       - name: Berliner Uhrzeit prüfen
         id: time
         run: |
-          HOUR=$(TZ='Europe/Berlin' date +%H)
-          # 16 Uhr CEST (UTC+2) oder 15 Uhr CET (UTC+1)
-          if [ "$HOUR" = "16" ] || [ "$HOUR" = "15" ]; then
+          HOUR=$((10#$(TZ='Europe/Berlin' date +%H)))
+          # Ab 15 Uhr Berlin freigeben: GitHub verzögert Cron-Läufe oft um 30-90 min,
+          # ein starres 15/16-Uhr-Fenster verpasst dann das Tagesrelease. Der
+          # already-bumped-Guard stellt sicher, dass trotzdem nur 1x täglich released wird.
+          if [ "$HOUR" -ge 15 ]; then
             echo "release=true" >> $GITHUB_OUTPUT
           else
             echo "release=false" >> $GITHUB_OUTPUT

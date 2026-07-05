@@ -8,7 +8,8 @@
   "labels": ["renovate"],
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"]
+    "labels": ["security"],
+    "minimumReleaseAge": null
   },
   "packageRules": [
     {

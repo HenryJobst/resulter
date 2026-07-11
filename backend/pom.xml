@@ -409,12 +409,12 @@
             <dependency>
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>3.2.0</version> <!-- fix GHSA-2m67-wjpj-xhg9 -->
+                <version>3.2.1</version> <!-- fix GHSA-2m67-wjpj-xhg9 -->
             </dependency>
             <dependency>
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>3.2.0</version> <!-- align with jackson-core fix -->
+                <version>3.2.1</version> <!-- align with jackson-core fix -->
             </dependency>
         </dependencies>
     </dependencyManagement>

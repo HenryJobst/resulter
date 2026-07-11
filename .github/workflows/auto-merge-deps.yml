@@ -387,7 +387,9 @@ jobs:
 
       - name: Version-Bump auf main pushen
         if: steps.merges.outputs.has_merges == 'true' && steps.already-bumped.outputs.bumped == 'false'
-        run: git push origin main
+        run: |
+          git pull --rebase origin main
+          git push origin main
 
       - name: Release-Branch erstellen
         if: steps.merges.outputs.has_merges == 'true' && steps.already-bumped.outputs.bumped == 'false'

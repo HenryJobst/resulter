@@ -32,3 +32,7 @@ CVE-2026-22754
 CVE-2026-34483
 CVE-2026-34487
 GHSA-2m67-wjpj-xhg9
+
+# CVE in Paketo buildpack helper binaries compiled with Go 1.26.3/1.26.4. Fixed in Go 1.26.5.
+# Upstream: https://github.com/paketo-buildpacks/bellsoft-liberica/releases
+CVE-2026-39822

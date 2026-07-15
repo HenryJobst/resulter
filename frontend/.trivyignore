@@ -14,3 +14,7 @@ CVE-2026-27145
 # CVE in Ubuntu 22.04 base image (libssl3). Fixed in 3.0.2-0ubuntu1.25 via Paketo base image update.
 # Upstream: https://github.com/paketo-buildpacks/jammy-base-stack/releases
 CVE-2026-45447
+
+# CVE in paketo-buildpacks/nginx helper binary compiled with Go 1.26.3/1.26.4. Fixed in Go 1.26.5.
+# Upstream: https://github.com/paketo-buildpacks/nginx/releases
+CVE-2026-39822

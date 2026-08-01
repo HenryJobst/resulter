@@ -113,22 +113,22 @@ importers:
         version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
       '@nx/playwright':
         specifier: 22.7.5
-        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.0)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
       '@nx/vite':
         specifier: 22.7.5
         version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
       '@nx/vue':
         specifier: 22.7.5
-        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.0)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
+        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
       '@nx/web':
         specifier: 22.7.5
-        version: 22.7.5(55caf5ddc0529c5cd82daaaeb95eed77)
+        version: 22.7.5(1b3183150caad801f54dac66eb024da7)
       '@pinia/testing':
         specifier: ^1.0.3
         version: 1.0.3(pinia@3.0.4(typescript@6.0.3)(vue@3.5.40(typescript@6.0.3)))
       '@playwright/test':
         specifier: ^1.61.0
-        version: 1.62.0
+        version: 1.62.1
       '@rollup/plugin-dynamic-import-vars':
         specifier: ^2.1.5
         version: 2.1.5
@@ -158,7 +158,7 @@ importers:
         version: 6.0.8(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vue@3.5.40(typescript@6.0.3))
       '@vitest/browser-playwright':
         specifier: ^4.1.9
-        version: 4.1.10(playwright@1.62.0)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
+        version: 4.1.10(playwright@1.62.1)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
       '@vitest/coverage-v8':
         specifier: ^4.1.9
         version: 4.1.10(@vitest/browser@4.1.10)(vitest@4.1.10)
@@ -215,7 +215,7 @@ importers:
         version: 0.60.0
       playwright:
         specifier: ^1.61.0
-        version: 1.62.0
+        version: 1.62.1
       postcss:
         specifier: ^8.5.15
         version: 8.5.25
@@ -2139,8 +2139,8 @@ packages:
     resolution: {integrity: sha512-SEeaJLb3qBNF/OaXnaR1NmmBbFYk1zC0ZH/52fATcRPLFg/p791YrcyFFy44Bo9sLaGuSuLp5Q6axbb/O+v/RA==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  '@playwright/test@1.62.0':
-    resolution: {integrity: sha512-9zOJ6ZQRAena31MpOH9VSzIz8Ou3YJ/wtY/eQm5T2uhfhG7/U3COrMS8xOtUrZrp9OgdmzEnIYODye3nY1VqzA==}
+  '@playwright/test@1.62.1':
+    resolution: {integrity: sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -4827,13 +4827,13 @@ packages:
   pkg-types@2.3.1:
     resolution: {integrity: sha512-y+ichcgc2LrADuhLNAx8DFjVfgz91pRxfZdI3UDhxHvcVEZsenLO+7XaU5vOp0u/7V/wZ+plyuQxtrDlZJ+yeg==}
 
-  playwright-core@1.62.0:
-    resolution: {integrity: sha512-nsNRyq0r2zsG8AcRHWknc9QRA5XCueC7gWMrs+Gx2tlZn9hcl8zudfh00lhJPY1DE7NmZ6bDsT9g2yey8mXljA==}
+  playwright-core@1.62.1:
+    resolution: {integrity: sha512-wPYSwEBJY9GHraISXqyqtx0na0LpO3XEX7jNDhntbex7tzUS7kLnZsOlFruFJB4Hi/rhDMjXGqHewDZ68nYZVw==}
     engines: {node: '>=20'}
     hasBin: true
 
-  playwright@1.62.0:
-    resolution: {integrity: sha512-Z14dG305dgaLu6foB1TXQagFiW8JfSUIUaUuPaKQ6NtBPKF1P/qXcqfh6c6K/icPqdy37JmjbiBXf6JNg6Sylw==}
+  playwright@1.62.1:
+    resolution: {integrity: sha512-0M+L3LAD8/nm554LOla9Ayx0j0tmFZ0FBcoQ7F1VuVHpM/XpiC8RcDzBQB8W5+hA8L22THxELzeF+2WcUzvcLg==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -4858,10 +4858,6 @@ packages:
 
   postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
-
-  postcss@8.5.23:
-    resolution: {integrity: sha512-g50586zr4bZmwFiTlflMu8E0bDTb5I5gertgwAKmsdUlTQIhZtunzUlD1WSzwcVWPoAVpsrA6vlfCD7oXvRwgg==}
-    engines: {node: ^10 || ^12 || >=14}
 
   postcss@8.5.25:
     resolution: {integrity: sha512-DTPx3RWSSnWyzLxQnlH0rJP+EW5ekl16ZU4/psbIhA0e53kJfdgaN5vKM+xP7yJtXVu+nfdVFmlgFDEKAe4Pyw==}
@@ -7184,7 +7180,7 @@ snapshots:
   '@nx/nx-win32-x64-msvc@22.7.5':
     optional: true
 
-  '@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.0)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)':
+  '@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)':
     dependencies:
       '@nx/devkit': 22.7.5(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))
       '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
@@ -7192,7 +7188,7 @@ snapshots:
       minimatch: 10.2.6
       tslib: 2.8.1
     optionalDependencies:
-      '@playwright/test': 1.62.0
+      '@playwright/test': 1.62.1
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@nx/jest'
@@ -7251,19 +7247,19 @@ snapshots:
       - typescript
       - verdaccio
 
-  '@nx/vue@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.0)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)':
+  '@nx/vue@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)':
     dependencies:
       '@nx/devkit': 22.7.5(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))
       '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
       '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
       '@nx/vite': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
       '@nx/vitest': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
-      '@nx/web': 22.7.5(55caf5ddc0529c5cd82daaaeb95eed77)
+      '@nx/web': 22.7.5(1b3183150caad801f54dac66eb024da7)
       picomatch: 4.0.5
       semver: 7.8.5
       tslib: 2.8.1
     optionalDependencies:
-      '@nx/playwright': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.0)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+      '@nx/playwright': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@nx/jest'
@@ -7280,7 +7276,7 @@ snapshots:
       - vite
       - vitest
 
-  '@nx/web@22.7.5(55caf5ddc0529c5cd82daaaeb95eed77)':
+  '@nx/web@22.7.5(1b3183150caad801f54dac66eb024da7)':
     dependencies:
       '@nx/devkit': 22.7.5(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))
       '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
@@ -7290,7 +7286,7 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
-      '@nx/playwright': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.0)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+      '@nx/playwright': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
       '@nx/vite': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.8.0(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.5(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
     transitivePeerDependencies:
       - '@babel/traverse'
@@ -7572,9 +7568,9 @@ snapshots:
 
   '@pkgr/core@0.3.6': {}
 
-  '@playwright/test@1.62.0':
+  '@playwright/test@1.62.1':
     dependencies:
-      playwright: 1.62.0
+      playwright: 1.62.1
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -8236,11 +8232,11 @@ snapshots:
       vite: 8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0)
       vue: 3.5.40(typescript@6.0.3)
 
-  '@vitest/browser-playwright@4.1.10(playwright@1.62.0)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)':
+  '@vitest/browser-playwright@4.1.10(playwright@1.62.1)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)':
     dependencies:
       '@vitest/browser': 4.1.10(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
       '@vitest/mocker': 4.1.10(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
-      playwright: 1.62.0
+      playwright: 1.62.1
       tinyrainbow: 3.1.0
       vitest: 4.1.10(@types/node@25.9.5)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(@vitest/ui@4.1.10)(jsdom@29.1.1)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
     transitivePeerDependencies:
@@ -8444,7 +8440,7 @@ snapshots:
       '@vue/shared': 3.5.40
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.23
+      postcss: 8.5.25
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.39':
@@ -10804,11 +10800,11 @@ snapshots:
       exsolve: 1.1.0
       pathe: 2.0.3
 
-  playwright-core@1.62.0: {}
+  playwright-core@1.62.1: {}
 
-  playwright@1.62.0:
+  playwright@1.62.1:
     dependencies:
-      playwright-core: 1.62.0
+      playwright-core: 1.62.1
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -10833,12 +10829,6 @@ snapshots:
       util-deprecate: 1.0.2
 
   postcss-value-parser@4.2.0: {}
-
-  postcss@8.5.23:
-    dependencies:
-      nanoid: 3.3.16
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
 
   postcss@8.5.25:
     dependencies:
@@ -11470,7 +11460,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 25.9.5
-      '@vitest/browser-playwright': 4.1.10(playwright@1.62.0)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
+      '@vitest/browser-playwright': 4.1.10(playwright@1.62.1)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vitest@4.1.10)
       '@vitest/coverage-v8': 4.1.10(@vitest/browser@4.1.10)(vitest@4.1.10)
       '@vitest/ui': 4.1.10(vitest@4.1.10)
       jsdom: 29.1.1

@@ -57,7 +57,9 @@ build_backend() {
     --env BP_MAVEN_SETTINGS_PATH=settings.xml \
     --path "$REPO_ROOT/backend"
 
-  [[ -n "$compose_bak" ]] && mv "$compose_bak" "$REPO_ROOT/backend/compose.yml"
+  if [[ -n "$compose_bak" ]]; then
+    mv "$compose_bak" "$REPO_ROOT/backend/compose.yml"
+  fi
 }
 
 build_frontend() {

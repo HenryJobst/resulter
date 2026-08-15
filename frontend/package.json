@@ -1,7 +1,7 @@
 {
     "name": "resulter",
     "type": "module",
-    "version": "4.9.12",
+    "version": "4.9.13",
     "private": true,
     "packageManager": "pnpm@11.21.0",
     "scripts": {

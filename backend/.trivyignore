@@ -36,3 +36,21 @@ GHSA-2m67-wjpj-xhg9
 # CVE in Paketo buildpack helper binaries compiled with Go 1.26.3/1.26.4. Fixed in Go 1.26.5.
 # Upstream: https://github.com/paketo-buildpacks/bellsoft-liberica/releases
 CVE-2026-39822
+
+# CVEs in Paketo buildpack helper binaries (bellsoft-liberica, ca-certificates,
+# spring-boot, cnb lifecycle launcher) compiled with Go 1.26.5. Fixed in Go 1.26.6.
+# Upstream: https://github.com/paketo-buildpacks/bellsoft-liberica/releases
+CVE-2026-33818
+CVE-2026-39821
+CVE-2026-46600
+CVE-2026-56853
+CVE-2026-56858
+CVE-2026-56859
+CVE-2026-56860
+CVE-2026-56862
+
+# CVEs in docker-java-transport-zerodep (bundled with the pack CLI build
+# tooling used to assemble the image, not a resulter dependency — absent
+# from mvn dependency:tree). Fixed in httpcore5 5.4.3.
+CVE-2026-54399
+CVE-2026-54428

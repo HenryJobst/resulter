@@ -404,7 +404,7 @@
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
-                <version>4.0.3</version> <!-- fix CVE-2025-67030 -->
+                <version>4.1.0</version> <!-- fix CVE-2025-67030 -->
             </dependency>
             <dependency>
                 <groupId>tools.jackson.core</groupId>

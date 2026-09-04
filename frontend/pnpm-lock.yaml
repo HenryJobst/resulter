@@ -110,19 +110,19 @@ importers:
         version: 11.2.5(@vue/compiler-dom@3.5.42)(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vue-i18n@11.4.10(vue@3.5.42(typescript@6.0.3)))(vue@3.5.42(typescript@6.0.3))
       '@nx/eslint':
         specifier: 22.7.5
-        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
       '@nx/playwright':
         specifier: 22.7.5
-        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
       '@nx/vite':
         specifier: 22.7.5
-        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
+        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
       '@nx/vue':
         specifier: 22.7.5
-        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
+        version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
       '@nx/web':
         specifier: 22.7.5
-        version: 22.7.5(68b7da31fec8a968c6ba655b169a10d7)
+        version: 22.7.5(708c208df1861a7f1c57d85d247cc2a8)
       '@pinia/testing':
         specifier: ^1.0.3
         version: 1.0.3(pinia@3.0.4(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))
@@ -208,8 +208,8 @@ importers:
         specifier: ^9.0.2
         version: 9.0.3
       nx:
-        specifier: 22.7.7
-        version: 22.7.7(debug@4.4.3(supports-color@7.2.0))
+        specifier: 22.7.8
+        version: 22.7.8
       oxfmt:
         specifier: ^0.65.0
         version: 0.65.0
@@ -1545,8 +1545,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@nx/nx-darwin-arm64@22.7.7':
-    resolution: {integrity: sha512-HGu8Bc3DzmIFeKHzIEDBDScgI8/hOjVIj/EzJBE5289dUf+CQ5OSXc6kw2NL9SiCMAPKa0clqcJgLJLqP5t/DQ==}
+  '@nx/nx-darwin-arm64@22.7.8':
+    resolution: {integrity: sha512-IM1geDyWPFsS565de9dByYNZ5I3j8FQZvNUp9LIYw1dNu70sCWbAT0glw0anholOwlAb7JWEscoUeV7ouRBW0A==}
     cpu: [arm64]
     os: [darwin]
 
@@ -1555,8 +1555,8 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  '@nx/nx-darwin-x64@22.7.7':
-    resolution: {integrity: sha512-J7z/Hh+bEKB9xvHdmtO5sK7YytFx8Ry6YpvYI2PoSl2/xDBca7q69fzHKTtm4S/8FvA1Qoi/m//JTIMQUB7cKA==}
+  '@nx/nx-darwin-x64@22.7.8':
+    resolution: {integrity: sha512-X/AyooJCmAwHyp9f//bspkAmtaPsv2lPEKe6OiOScsyxJITP4nw+rOfIAJ4Ar64WQcMAY8WLP+ys4ah0K6DZSw==}
     cpu: [x64]
     os: [darwin]
 
@@ -1565,8 +1565,8 @@ packages:
     cpu: [x64]
     os: [freebsd]
 
-  '@nx/nx-freebsd-x64@22.7.7':
-    resolution: {integrity: sha512-9H4bbI3fBr8Ct+6xmF6dqDKEvER60XV3tanXTSVtUBxyAVw3cPmRh7aMAu5PNyN+ewzRAJvV6KI4Rx1kA+s9jw==}
+  '@nx/nx-freebsd-x64@22.7.8':
+    resolution: {integrity: sha512-mgdqiFag8txon4XugDtNj+hq+X9Whn8LBMuqwJSez93L1fralzpQFSUip7XnE7ejQRr5Zewg3BFscGlsk8Cy3A==}
     cpu: [x64]
     os: [freebsd]
 
@@ -1575,8 +1575,8 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@nx/nx-linux-arm-gnueabihf@22.7.7':
-    resolution: {integrity: sha512-QsGaaZ7PI18c7rFgvUe0F0UYa5oErSKY6Yff6HVXy2zAAWluM4F/TXIRYbtXlvSq++CHhFXxk29Xb3+/zGR/rg==}
+  '@nx/nx-linux-arm-gnueabihf@22.7.8':
+    resolution: {integrity: sha512-g7ojIloHGFI7wuMnUdg7io42EL7C7ae4zAolNVj7eXZM54amn3qoNjwbyqaVbBQvUNRiAKJizGyn1IhKpzvG9A==}
     cpu: [arm]
     os: [linux]
 
@@ -1586,8 +1586,8 @@ packages:
     os: [linux]
     libc: [glibc]
 
-  '@nx/nx-linux-arm64-gnu@22.7.7':
-    resolution: {integrity: sha512-CfzWaS+b32lI/inlYPv1ZAK9CWTWFHzT7TPThvOHML65nrgFl8cQ4Z4FeGdyCbHu2NoG3vR1E36O2tPI2/DLGg==}
+  '@nx/nx-linux-arm64-gnu@22.7.8':
+    resolution: {integrity: sha512-Kws8e7W4epfqpTWYaV7KLKaj33o+9JtJa2rErx/XFTtMXhfVzOs5hC4oIrZsYpgk1DuT0APp7UDvX06q2kdAVQ==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
@@ -1598,8 +1598,8 @@ packages:
     os: [linux]
     libc: [musl]
 
-  '@nx/nx-linux-arm64-musl@22.7.7':
-    resolution: {integrity: sha512-53QFuODMEHc1gobCT2WOmYz89DZtEIuLphirdIgnXkkPBTdrP77LPbJUXMRXCMKr90BQaSWhTX+J/ubANRE8og==}
+  '@nx/nx-linux-arm64-musl@22.7.8':
+    resolution: {integrity: sha512-fpnyVFL+mSqLdKBPk8+n/rHUEXiem7Xwr9cIOd2Dd5zxQ5wcwj4qSYTNRsBPI2qDFo3esHliwaoFJZULbTHldw==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
@@ -1610,8 +1610,8 @@ packages:
     os: [linux]
     libc: [glibc]
 
-  '@nx/nx-linux-x64-gnu@22.7.7':
-    resolution: {integrity: sha512-unzmqGIDXGzujo1ZtbrMj2e5D5ldQ1feZmqDPhvO4casK2d96jpT8LtgIILpVDUfhLjl+By185gb0ArrWTsyKw==}
+  '@nx/nx-linux-x64-gnu@22.7.8':
+    resolution: {integrity: sha512-KRbkSthClEwkbpt/LLJmBJhIOvOsyrp9OICisF9p3mOODjaxAuYmyOgrVreg09BT2F4hXN3JXpvt9eIZpTCRsw==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
@@ -1622,8 +1622,8 @@ packages:
     os: [linux]
     libc: [musl]
 
-  '@nx/nx-linux-x64-musl@22.7.7':
-    resolution: {integrity: sha512-oTjMGuM105ok8aH5rlg2YP0Kgkjg0VfUj1exwp49S70gGBJ0r8v5rEtJwOSdCf1WTHuEh0xi66Y/b1S0khF8dg==}
+  '@nx/nx-linux-x64-musl@22.7.8':
+    resolution: {integrity: sha512-pdPMWko1yZI5ZNI6/t2Y5rQPGgV/ah5DW+mlHo2aFKav4lnxvgisEh9e4HtOsYBfK/9PyYZ5u3M9hLSaMiJ75w==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
@@ -1633,8 +1633,8 @@ packages:
     cpu: [arm64]
     os: [win32]
 
-  '@nx/nx-win32-arm64-msvc@22.7.7':
-    resolution: {integrity: sha512-K741meG/l48TPPeDqnhYTV7pP+1ljjZ+0DRJBxMrPFIu8qKE3Abko/7NKWmWRjcSXJvtxvYkgG3wZds4N2Bhow==}
+  '@nx/nx-win32-arm64-msvc@22.7.8':
+    resolution: {integrity: sha512-yYDu3pj7AXu7LtN/T/bA4TMWWWbmvEE4wa8UW8ZU5JeWYblyXQA7HyYpPAb4fLzCtHb/dIrNDghVBRIeAAcnSw==}
     cpu: [arm64]
     os: [win32]
 
@@ -1643,8 +1643,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@nx/nx-win32-x64-msvc@22.7.7':
-    resolution: {integrity: sha512-AHVjXkreXjVKAKpMNCsF5nQC/et6lpQcERRm8AYOCncI59hTjYOLpdCMBLrIHA3hgc6SUYU8n5+tMAbv7zXXiQ==}
+  '@nx/nx-win32-x64-msvc@22.7.8':
+    resolution: {integrity: sha512-cSr0qMt/GgM2aOBFsapxllnIv55j0gAz/6eWvqEOx5sS8d3X1G0IgazZnPbjW2c8gfSYaBZ9UmYnfapWIO/jqg==}
     cpu: [x64]
     os: [win32]
 
@@ -3209,6 +3209,10 @@ packages:
     resolution: {integrity: sha512-kLpxurY4Z4r9sgMsyG0Z9uzsBlgiU/EFKhj/h91/8yHu0edo7XuixOIH3VcJ8kkxs6/jPzoI6U9Vj3WqbMQ94g==}
     engines: {node: 18 || 20 || >=22}
 
+  brace-expansion@5.0.8:
+    resolution: {integrity: sha512-JZyDyq3D4AUifKTPOB7DELf6XsB3WdPuNxCtob1vFXPsSXhdAiHBWJ/tJ8HAc9aH84BK+5JFZLNkJKx3G9kzQg==}
+    engines: {node: 20 || >=22}
+
   brace-expansion@5.0.9:
     resolution: {integrity: sha512-ScQ4IuvIEF1TMlP7Zt+vjJ//9zlPb2SDcxWxM3bk8s6t6GGdJ7KO1dCcTidOPJKePW30LE/2cT7wCyPho9/Wxg==}
     engines: {node: 20 || >=22}
@@ -4749,11 +4753,6 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  nanoid@3.3.17:
-    resolution: {integrity: sha512-xQLf0A3HOMlgHq0n247/LRuAOYmB7dXJ/DvAxGvsSBij45XtBSmQycu+F8ODbHwns/XyFZagyL1+J0Offw1E0g==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
   nanoid@3.3.18:
     resolution: {integrity: sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -4816,8 +4815,8 @@ packages:
       '@swc/core':
         optional: true
 
-  nx@22.7.7:
-    resolution: {integrity: sha512-T4hq5PMAPXeqAmm0Y6Gr5ApeI2I+T8MflWEKN1cZ12R1Rnq2uEpfOgiwAZ74bHONmNgv6LRG9P9+x8SX2tDIlw==}
+  nx@22.7.8:
+    resolution: {integrity: sha512-ceEhmaGCvY7oi7L7G/Nm/UZSnbfwaJxU1XbDLro7CTmVcnrmxAnxExCp0J/Tpf1xQaMZtwxgV7QATdKA/7vLQw==}
     hasBin: true
     peerDependencies:
       '@swc-node/register': ^1.11.1
@@ -5050,10 +5049,6 @@ packages:
 
   postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
-
-  postcss@8.5.26:
-    resolution: {integrity: sha512-u82N74LFzG8ca+dD8puPnplTXoGH4fTPpVGuIbt36G3qvNlkvfD0lEAZSxaly3KX8TS/L1A1gsCEmvKmBcVbkQ==}
-    engines: {node: ^10 || ^12 || >=14}
 
   postcss@8.5.28:
     resolution: {integrity: sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A==}
@@ -7299,21 +7294,21 @@ snapshots:
       tslib: 2.8.1
       yargs-parser: 21.1.1
 
-  '@nx/devkit@22.7.5(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))':
+  '@nx/devkit@22.7.5(nx@22.7.8)':
     dependencies:
       '@zkochan/js-yaml': 0.0.7
       ejs: 5.0.1
       enquirer: 2.3.6
       minimatch: 10.2.6
-      nx: 22.7.7(debug@4.4.3(supports-color@7.2.0))
+      nx: 22.7.8
       semver: 7.8.5
       tslib: 2.8.1
       yargs-parser: 21.1.1
 
-  '@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)':
+  '@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)':
     dependencies:
-      '@nx/devkit': 22.7.5(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))
-      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+      '@nx/devkit': 22.7.5(nx@22.7.8)
+      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
       eslint: 10.9.1(jiti@2.7.0)(supports-color@7.2.0)
       semver: 7.8.5
       tslib: 2.8.1
@@ -7329,7 +7324,7 @@ snapshots:
       - supports-color
       - verdaccio
 
-  '@nx/js@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)':
+  '@nx/js@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)':
     dependencies:
       '@babel/core': 8.0.1
       '@babel/plugin-proposal-decorators': 7.29.7(@babel/core@8.0.1)(supports-color@7.2.0)
@@ -7338,7 +7333,7 @@ snapshots:
       '@babel/preset-env': 7.29.7(@babel/core@8.0.1)(supports-color@7.2.0)
       '@babel/preset-typescript': 7.29.7(@babel/core@8.0.1)(supports-color@7.2.0)
       '@babel/runtime': 7.29.7
-      '@nx/devkit': 22.7.5(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))
+      '@nx/devkit': 22.7.5(nx@22.7.8)
       '@nx/workspace': 22.7.5(debug@4.4.3(supports-color@7.2.0))
       '@zkochan/js-yaml': 0.0.7
       babel-plugin-const-enum: 1.2.0(@babel/core@8.0.1)(supports-color@7.2.0)
@@ -7368,68 +7363,68 @@ snapshots:
   '@nx/nx-darwin-arm64@22.7.5':
     optional: true
 
-  '@nx/nx-darwin-arm64@22.7.7':
+  '@nx/nx-darwin-arm64@22.7.8':
     optional: true
 
   '@nx/nx-darwin-x64@22.7.5':
     optional: true
 
-  '@nx/nx-darwin-x64@22.7.7':
+  '@nx/nx-darwin-x64@22.7.8':
     optional: true
 
   '@nx/nx-freebsd-x64@22.7.5':
     optional: true
 
-  '@nx/nx-freebsd-x64@22.7.7':
+  '@nx/nx-freebsd-x64@22.7.8':
     optional: true
 
   '@nx/nx-linux-arm-gnueabihf@22.7.5':
     optional: true
 
-  '@nx/nx-linux-arm-gnueabihf@22.7.7':
+  '@nx/nx-linux-arm-gnueabihf@22.7.8':
     optional: true
 
   '@nx/nx-linux-arm64-gnu@22.7.5':
     optional: true
 
-  '@nx/nx-linux-arm64-gnu@22.7.7':
+  '@nx/nx-linux-arm64-gnu@22.7.8':
     optional: true
 
   '@nx/nx-linux-arm64-musl@22.7.5':
     optional: true
 
-  '@nx/nx-linux-arm64-musl@22.7.7':
+  '@nx/nx-linux-arm64-musl@22.7.8':
     optional: true
 
   '@nx/nx-linux-x64-gnu@22.7.5':
     optional: true
 
-  '@nx/nx-linux-x64-gnu@22.7.7':
+  '@nx/nx-linux-x64-gnu@22.7.8':
     optional: true
 
   '@nx/nx-linux-x64-musl@22.7.5':
     optional: true
 
-  '@nx/nx-linux-x64-musl@22.7.7':
+  '@nx/nx-linux-x64-musl@22.7.8':
     optional: true
 
   '@nx/nx-win32-arm64-msvc@22.7.5':
     optional: true
 
-  '@nx/nx-win32-arm64-msvc@22.7.7':
+  '@nx/nx-win32-arm64-msvc@22.7.8':
     optional: true
 
   '@nx/nx-win32-x64-msvc@22.7.5':
     optional: true
 
-  '@nx/nx-win32-x64-msvc@22.7.7':
+  '@nx/nx-win32-x64-msvc@22.7.8':
     optional: true
 
-  '@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)':
+  '@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)':
     dependencies:
-      '@nx/devkit': 22.7.5(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))
-      '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
-      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+      '@nx/devkit': 22.7.5(nx@22.7.8)
+      '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
+      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
       minimatch: 10.2.6
       tslib: 2.8.1
     optionalDependencies:
@@ -7446,11 +7441,11 @@ snapshots:
       - supports-color
       - verdaccio
 
-  '@nx/vite@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)':
+  '@nx/vite@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)':
     dependencies:
-      '@nx/devkit': 22.7.5(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))
-      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
-      '@nx/vitest': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
+      '@nx/devkit': 22.7.5(nx@22.7.8)
+      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
+      '@nx/vitest': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
       '@phenomnomnominal/tsquery': 6.2.0(typescript@6.0.3)
       ajv: 8.20.0
       enquirer: 2.3.6
@@ -7471,15 +7466,15 @@ snapshots:
       - typescript
       - verdaccio
 
-  '@nx/vitest@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)':
+  '@nx/vitest@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)':
     dependencies:
-      '@nx/devkit': 22.7.5(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))
-      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+      '@nx/devkit': 22.7.5(nx@22.7.8)
+      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
       '@phenomnomnominal/tsquery': 6.2.0(typescript@6.0.3)
       semver: 7.8.5
       tslib: 2.8.1
     optionalDependencies:
-      '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+      '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
       vite: 8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0)
       vitest: 4.1.11(@types/node@25.9.5)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-v8@4.1.11)(@vitest/ui@4.1.11)(jsdom@29.1.1)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))
     transitivePeerDependencies:
@@ -7492,19 +7487,19 @@ snapshots:
       - typescript
       - verdaccio
 
-  '@nx/vue@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)':
+  '@nx/vue@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)':
     dependencies:
-      '@nx/devkit': 22.7.5(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))
-      '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
-      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
-      '@nx/vite': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
-      '@nx/vitest': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
-      '@nx/web': 22.7.5(68b7da31fec8a968c6ba655b169a10d7)
+      '@nx/devkit': 22.7.5(nx@22.7.8)
+      '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
+      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
+      '@nx/vite': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
+      '@nx/vitest': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
+      '@nx/web': 22.7.5(708c208df1861a7f1c57d85d247cc2a8)
       picomatch: 4.0.7
       semver: 7.8.5
       tslib: 2.8.1
     optionalDependencies:
-      '@nx/playwright': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+      '@nx/playwright': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@nx/jest'
@@ -7521,18 +7516,18 @@ snapshots:
       - vite
       - vitest
 
-  '@nx/web@22.7.5(68b7da31fec8a968c6ba655b169a10d7)':
+  '@nx/web@22.7.5(708c208df1861a7f1c57d85d247cc2a8)':
     dependencies:
-      '@nx/devkit': 22.7.5(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))
-      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
+      '@nx/devkit': 22.7.5(nx@22.7.8)
+      '@nx/js': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
       detect-port: 2.1.0
       http-server: 14.1.1(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
       picocolors: 1.1.1
       tslib: 2.8.1
     optionalDependencies:
-      '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
-      '@nx/playwright': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)
-      '@nx/vite': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.7(debug@4.4.3(supports-color@7.2.0)))(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
+      '@nx/eslint': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
+      '@nx/playwright': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)
+      '@nx/vite': 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(debug@4.4.3(supports-color@7.2.0))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0))(debug@4.4.3(supports-color@7.2.0))(nx@22.7.8)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vitest@4.1.11)
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@swc-node/register'
@@ -8696,7 +8691,7 @@ snapshots:
       '@vue/shared': 3.5.42
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.26
+      postcss: 8.5.28
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.39':
@@ -9021,9 +9016,13 @@ snapshots:
     dependencies:
       balanced-match: 4.0.4
 
+  brace-expansion@5.0.8:
+    dependencies:
+      balanced-match: 4.0.4
+
   brace-expansion@5.0.9:
     dependencies:
-      balanced-match: 4.0.3
+      balanced-match: 4.0.4
 
   braces@3.0.3:
     dependencies:
@@ -10720,8 +10719,6 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  nanoid@3.3.17: {}
-
   nanoid@3.3.18: {}
 
   natural-compare@1.4.0: {}
@@ -10890,7 +10887,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  nx@22.7.7(debug@4.4.3(supports-color@7.2.0)):
+  nx@22.7.8:
     dependencies:
       '@emnapi/core': 1.4.5
       '@emnapi/runtime': 1.4.5
@@ -10900,6 +10897,7 @@ snapshots:
       '@tybys/wasm-util': 0.9.0
       '@yarnpkg/lockfile': 1.1.0
       '@zkochan/js-yaml': 0.0.7
+      agent-base: 6.0.2(supports-color@7.2.0)
       ansi-colors: 4.1.3
       ansi-regex: 5.0.1
       ansi-styles: 4.3.0
@@ -10909,7 +10907,7 @@ snapshots:
       balanced-match: 4.0.3
       base64-js: 1.5.1
       bl: 4.1.0
-      brace-expansion: 5.0.6
+      brace-expansion: 5.0.8
       buffer: 5.7.1
       call-bind-apply-helpers: 1.0.2
       chalk: 4.1.2
@@ -10920,6 +10918,7 @@ snapshots:
       color-convert: 2.0.1
       color-name: 1.1.4
       combined-stream: 1.0.8
+      debug: 4.4.3(supports-color@7.2.0)
       defaults: 1.0.4
       define-lazy-prop: 2.0.0
       delayed-stream: 1.0.0
@@ -10950,6 +10949,7 @@ snapshots:
       has-symbols: 1.1.0
       has-tostringtag: 1.0.2
       hasown: 2.0.4
+      https-proxy-agent: 5.0.1(supports-color@7.2.0)
       ieee754: 1.2.1
       ignore: 7.0.5
       inherits: 2.0.4
@@ -10968,6 +10968,7 @@ snapshots:
       mimic-fn: 2.1.0
       minimatch: 10.2.6
       minimist: 1.2.8
+      ms: 2.1.3
       npm-run-path: 4.0.1
       once: 1.4.0
       onetime: 5.1.2
@@ -11003,18 +11004,16 @@ snapshots:
       yargs: 17.7.2
       yargs-parser: 21.1.1
     optionalDependencies:
-      '@nx/nx-darwin-arm64': 22.7.7
-      '@nx/nx-darwin-x64': 22.7.7
-      '@nx/nx-freebsd-x64': 22.7.7
-      '@nx/nx-linux-arm-gnueabihf': 22.7.7
-      '@nx/nx-linux-arm64-gnu': 22.7.7
-      '@nx/nx-linux-arm64-musl': 22.7.7
-      '@nx/nx-linux-x64-gnu': 22.7.7
-      '@nx/nx-linux-x64-musl': 22.7.7
-      '@nx/nx-win32-arm64-msvc': 22.7.7
-      '@nx/nx-win32-x64-msvc': 22.7.7
-    transitivePeerDependencies:
-      - debug
+      '@nx/nx-darwin-arm64': 22.7.8
+      '@nx/nx-darwin-x64': 22.7.8
+      '@nx/nx-freebsd-x64': 22.7.8
+      '@nx/nx-linux-arm-gnueabihf': 22.7.8
+      '@nx/nx-linux-arm64-gnu': 22.7.8
+      '@nx/nx-linux-arm64-musl': 22.7.8
+      '@nx/nx-linux-x64-gnu': 22.7.8
+      '@nx/nx-linux-x64-musl': 22.7.8
+      '@nx/nx-win32-arm64-msvc': 22.7.8
+      '@nx/nx-win32-x64-msvc': 22.7.8
 
   object-assign@4.1.1: {}
 
@@ -11279,12 +11278,6 @@ snapshots:
       util-deprecate: 1.0.2
 
   postcss-value-parser@4.2.0: {}
-
-  postcss@8.5.26:
-    dependencies:
-      nanoid: 3.3.17
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
 
   postcss@8.5.28:
     dependencies:

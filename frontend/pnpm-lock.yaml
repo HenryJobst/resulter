@@ -100,7 +100,7 @@ importers:
         version: 2.1.6(vue@3.5.42(typescript@6.0.3))
       vue-router:
         specifier: ^5.1.0
-        version: 5.3.0(@vue/compiler-sfc@3.5.42)(esbuild@0.28.2)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.5)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.0)(yaml@2.9.0))(vue@3.5.42(typescript@6.0.3))
+        version: 5.3.1(@vue/compiler-sfc@3.5.42)(esbuild@0.28.2)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.5)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.0)(yaml@2.9.0))(vue@3.5.42(typescript@6.0.3))
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^9.0.0
@@ -5800,8 +5800,8 @@ packages:
     peerDependencies:
       vue: ^3.3.0
 
-  vue-router@5.3.0:
-    resolution: {integrity: sha512-a2PBXX9yfkS58JzSJALUffgDa09lEzKmCcEnLaepoIr88L+9hEnsgEQkcadJGID+vtHa0gFpVo064zmylA9fcg==}
+  vue-router@5.3.1:
+    resolution: {integrity: sha512-GDBZzgmILxA/kFnkFbJjQZdZ2QQbngnIMMuoUcjhZIfH1RGMaPjPwX5ASnV38qamuA9uhO0RDjSBHTDNG2uXyQ==}
     peerDependencies:
       '@pinia/colada': '>=0.21.2'
       '@vue/compiler-sfc': ^3.5.34 || ^4.0.0
@@ -6224,7 +6224,7 @@ snapshots:
 
   '@babel/parser@7.29.7':
     dependencies:
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
 
   '@babel/parser@7.29.8':
     dependencies:
@@ -7925,7 +7925,7 @@ snapshots:
   '@stylistic/eslint-plugin@5.10.0(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))':
     dependencies:
       '@eslint-community/eslint-utils': 4.10.1(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))
-      '@typescript-eslint/types': 8.67.0
+      '@typescript-eslint/types': 8.69.0
       eslint: 10.9.1(jiti@2.7.0)(supports-color@7.2.0)
       eslint-visitor-keys: 4.2.1
       espree: 10.4.0
@@ -11998,7 +11998,7 @@ snapshots:
       pdfjs-dist: 6.2.108
       vue: 3.5.42(typescript@6.0.3)
 
-  vue-router@5.3.0(@vue/compiler-sfc@3.5.42)(esbuild@0.28.2)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.5)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.0)(yaml@2.9.0))(vue@3.5.42(typescript@6.0.3)):
+  vue-router@5.3.1(@vue/compiler-sfc@3.5.42)(esbuild@0.28.2)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.5)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.0)(yaml@2.9.0))(vue@3.5.42(typescript@6.0.3)):
     dependencies:
       '@vue-macros/common': 3.1.4(vue@3.5.42(typescript@6.0.3))
       '@vue/devtools-api': 8.2.1

@@ -24,7 +24,7 @@
         <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
         <java-uuid-generator.version>5.2.0</java-uuid-generator.version>
         <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
-        <jaxb2-maven-plugin.version>4.1.0</jaxb2-maven-plugin.version>
+        <jaxb2-maven-plugin.version>4.2.0</jaxb2-maven-plugin.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
         <junit-jupiter-api.version>6.1.3</junit-jupiter-api.version>
         <lombok.version>1.18.48</lombok.version>

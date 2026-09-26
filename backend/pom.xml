@@ -396,12 +396,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>2.22.2</version> <!-- fix GHSA-72hv-8253-57qq, WS-2026-0003 -->
+                <version>2.22.3</version> <!-- fix GHSA-72hv-8253-57qq, WS-2026-0003 -->
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.22.2</version> <!-- align with jackson-core fix -->
+                <version>2.22.3</version> <!-- align with jackson-core fix -->
             </dependency>
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
@@ -411,12 +411,12 @@
             <dependency>
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>3.2.2</version> <!-- fix GHSA-2m67-wjpj-xhg9 -->
+                <version>3.2.3</version> <!-- fix GHSA-2m67-wjpj-xhg9 -->
             </dependency>
             <dependency>
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>3.2.2</version> <!-- align with jackson-core fix -->
+                <version>3.2.3</version> <!-- align with jackson-core fix -->
             </dependency>
         </dependencies>
     </dependencyManagement>

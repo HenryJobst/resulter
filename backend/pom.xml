@@ -32,7 +32,7 @@
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
         <micrometer-bom.version>1.17.1</micrometer-bom.version>
-        <mockito-core.version>5.23.0</mockito-core.version>
+        <mockito-core.version>5.24.0</mockito-core.version>
 <p6spy-spring-boot-starter.version>2.0.1</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.10.4</spotbugs-annotations.version>
 <springdoc-openapi-starter-webmvc-ui.version>3.1.1</springdoc-openapi-starter-webmvc-ui.version>

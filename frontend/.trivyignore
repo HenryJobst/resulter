@@ -30,3 +30,10 @@ CVE-2026-56858
 CVE-2026-56859
 CVE-2026-56860
 CVE-2026-56862
+
+# CVEs in cnb lifecycle launcher / paketo-buildpacks/nginx helper binary
+# compiled with Go 1.26.8/1.27.1. Fixed in Go 1.26.9/1.27.2.
+# Upstream: https://github.com/paketo-buildpacks/nginx/releases
+CVE-2026-78667
+CVE-2026-78669
+CVE-2026-97031

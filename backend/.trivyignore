@@ -54,3 +54,10 @@ CVE-2026-56862
 # from mvn dependency:tree). Fixed in httpcore5 5.4.3.
 CVE-2026-54399
 CVE-2026-54428
+
+# CVEs in Paketo buildpack helper binaries (bellsoft-liberica, ca-certificates,
+# spring-boot, cnb lifecycle launcher) compiled with Go 1.26.8/1.27.1. Fixed in Go 1.26.9/1.27.2.
+# Upstream: https://github.com/paketo-buildpacks/bellsoft-liberica/releases
+CVE-2026-78667
+CVE-2026-78669
+CVE-2026-97031

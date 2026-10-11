@@ -61,3 +61,7 @@ CVE-2026-54428
 CVE-2026-78667
 CVE-2026-78669
 CVE-2026-97031
+
+# CVE in Ubuntu 22.04 base image (libssl3). Fixed in 3.0.2-0ubuntu1.30 via Paketo base image update.
+# Upstream: https://github.com/paketo-buildpacks/jammy-base-stack/releases
+CVE-2026-84782

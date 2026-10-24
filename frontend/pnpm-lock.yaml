@@ -41,7 +41,7 @@ importers:
     dependencies:
       '@base2/pretty-print-object':
         specifier: ^1.0.2
-        version: 1.0.3
+        version: 1.0.4
       '@fontsource/fraunces':
         specifier: ^5.2.9
         version: 5.3.0
@@ -968,8 +968,8 @@ packages:
     resolution: {integrity: sha512-eY+Yn3dCqTGmyiq2QRU66lA5FL8lqqqvecHt0fF3uHONIa7ToYsaCiWV8lOKqAs0Rb2SjixiKFROngnulPtt2g==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
-  '@base2/pretty-print-object@1.0.3':
-    resolution: {integrity: sha512-XLUpZd1fT9mhpWNKuqSv1weEihGomQErTgqqTqOqj2RmpN0tOCgC10pDDqr9WY4qMix1+MpUi3qE7BUl6FM7kA==}
+  '@base2/pretty-print-object@1.0.4':
+    resolution: {integrity: sha512-ol/E9YYLhsKfNeyhxH46KxGTb0tm1dd/1lH8dSsspOsSDWdzbz0Dft6GG23sI7aCZiVo1d+q+AVvXC/KgaMSeA==}
 
   '@bcoe/v8-coverage@1.0.2':
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
@@ -7024,7 +7024,7 @@ snapshots:
       '@babel/helper-string-parser': 8.0.0
       '@babel/helper-validator-identifier': 8.0.4
 
-  '@base2/pretty-print-object@1.0.3': {}
+  '@base2/pretty-print-object@1.0.4': {}
 
   '@bcoe/v8-coverage@1.0.2': {}
 

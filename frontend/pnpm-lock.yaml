@@ -13,7 +13,7 @@ overrides:
   shell-quote: '>=1.8.4'
   brace-expansion@^1.0.0: ^5.0.0
   brace-expansion@^2.0.0: ^5.0.0
-  follow-redirects: '>=1.16.1'
+  follow-redirects: '>=1.16.2'
   glob: '>=10.5.0'
   lodash: '>=4.18.1'
   minimatch@^10.0.0: 11.0.3
@@ -34,6 +34,7 @@ overrides:
   katex: '>=0.18.2'
   seroval: '>=1.6.3'
   tinypool: '>=2.1.2'
+  '@intlify/shared': '>=11.4.15'
 
 importers:
 
@@ -1391,14 +1392,6 @@ packages:
     resolution: {integrity: sha512-dV6apms3MXAG3jZ/6bAq+IW2IKDGasmjA/Aoi0JVKCStVi6GbzrPruCVbU/Djn1n41w5EiM3KdnpTuo6I1qe5w==}
     engines: {node: '>= 22'}
 
-  '@intlify/shared@10.0.8':
-    resolution: {integrity: sha512-BcmHpb5bQyeVNrptC3UhzpBZB/YHHDoEREOUERrmF2BRxsyOEuRrq+Z96C/D4+2KJb8kuHiouzAei7BXlG0YYw==}
-    engines: {node: '>= 16'}
-
-  '@intlify/shared@11.4.14':
-    resolution: {integrity: sha512-f8zSlPs4+Yd9za3CPQfW9OHxAJBOeRQzB/hhOhkbGA7hlqWk0W0bUtSV/LmyrGNwdl8JriBnFtJqZyF140bjGg==}
-    engines: {node: '>= 22'}
-
   '@intlify/shared@11.4.15':
     resolution: {integrity: sha512-jlTJkM4bMdr267e1iUE2RMNz1LyoYU6IPReKjnQM6RvipEBUVwmMHbeUckDcOmR+WeungEGjaNmSQJdQzJcOfQ==}
     engines: {node: '>= 22'}
@@ -1423,9 +1416,15 @@ packages:
     resolution: {integrity: sha512-w0+70CvTmuqbskWfzeYhn0IXxllr6mU+IeM2MU0M+j9OW64jkrvqY+pYFWrUnIIC9bEdij3NICruicwd5EgUuQ==}
     engines: {node: '>= 18'}
     peerDependencies:
+      '@intlify/shared': '>=11.4.15'
+      '@vue/compiler-dom': ^3.0.0
       vue: ^3.0.0
       vue-i18n: ^9.0.0 || ^10.0.0 || ^11.0.0
     peerDependenciesMeta:
+      '@intlify/shared':
+        optional: true
+      '@vue/compiler-dom':
+        optional: true
       vue:
         optional: true
       vue-i18n:
@@ -4085,8 +4084,8 @@ packages:
   flatted@3.4.4:
     resolution: {integrity: sha512-5+ybhBZANEJxaH3X5evAFatUxLfEHSr7n6kYJ+1Qd0mUqr4eu9gIf6GDbWHf8RJijHrjjO8G+la14SlL2SeS1Q==}
 
-  follow-redirects@1.16.1:
-    resolution: {integrity: sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==}
+  follow-redirects@1.16.2:
+    resolution: {integrity: sha512-/kVP2U8z596Ia0gwFrwyIeo74ta5aVmSeU1FfAUMAmcEP5EP7zydmag3SLiN64NaRKef3lxsq7i/g7ltJQDGow==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -7348,7 +7347,7 @@ snapshots:
   '@intlify/bundle-utils@11.2.6(vue-i18n@11.4.15(vue@3.5.44(typescript@6.0.3)))':
     dependencies:
       '@intlify/message-compiler': 11.4.14
-      '@intlify/shared': 11.4.14
+      '@intlify/shared': 11.4.15
       acorn: 8.18.0
       esbuild: 0.28.2
       escodegen: 2.1.0
@@ -7372,7 +7371,7 @@ snapshots:
 
   '@intlify/message-compiler@11.4.14':
     dependencies:
-      '@intlify/shared': 11.4.14
+      '@intlify/shared': 11.4.15
       source-map-js: 1.2.2
 
   '@intlify/message-compiler@11.4.15':
@@ -7380,16 +7379,12 @@ snapshots:
       '@intlify/shared': 11.4.15
       source-map-js: 1.2.2
 
-  '@intlify/shared@10.0.8': {}
-
-  '@intlify/shared@11.4.14': {}
-
   '@intlify/shared@11.4.15': {}
 
   '@intlify/unplugin-vue-i18n@11.2.6(supports-color@7.2.0)(typescript@6.0.3)(vite@8.3.4(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.0)(yaml@2.9.0))(vue-i18n@11.4.15(vue@3.5.44(typescript@6.0.3)))(vue@3.5.44(typescript@6.0.3))':
     dependencies:
       '@intlify/bundle-utils': 11.2.6(vue-i18n@11.4.15(vue@3.5.44(typescript@6.0.3)))
-      '@intlify/shared': 11.4.14
+      '@intlify/shared': 11.4.15
       '@intlify/vue-i18n-extensions': 8.0.0(vue-i18n@11.4.15(vue@3.5.44(typescript@6.0.3)))(vue@3.5.44(typescript@6.0.3))
       '@rollup/pluginutils': 5.4.0
       '@typescript-eslint/scope-manager': 8.70.0
@@ -7411,7 +7406,7 @@ snapshots:
   '@intlify/vue-i18n-extensions@8.0.0(vue-i18n@11.4.15(vue@3.5.44(typescript@6.0.3)))(vue@3.5.44(typescript@6.0.3))':
     dependencies:
       '@babel/parser': 7.29.8
-      '@intlify/shared': 10.0.8
+      '@intlify/shared': 11.4.15
       '@vue/compiler-dom': 3.5.42
     optionalDependencies:
       vue: 3.5.44(typescript@6.0.3)
@@ -9344,7 +9339,7 @@ snapshots:
 
   axios@1.20.0(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0):
     dependencies:
-      follow-redirects: 1.16.1(debug@4.4.3(supports-color@7.2.0))
+      follow-redirects: 1.16.2(debug@4.4.3(supports-color@7.2.0))
       form-data: 4.0.6
       https-proxy-agent: 5.0.1(supports-color@7.2.0)
       proxy-from-env: 2.1.0
@@ -10241,7 +10236,7 @@ snapshots:
 
   flatted@3.4.4: {}
 
-  follow-redirects@1.16.1(debug@4.4.3(supports-color@7.2.0)):
+  follow-redirects@1.16.2(debug@4.4.3(supports-color@7.2.0)):
     optionalDependencies:
       debug: 4.4.3(supports-color@7.2.0)
 
@@ -10374,7 +10369,7 @@ snapshots:
   http-proxy@1.18.1(debug@4.4.3(supports-color@7.2.0)):
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.16.1(debug@4.4.3(supports-color@7.2.0))
+      follow-redirects: 1.16.2(debug@4.4.3(supports-color@7.2.0))
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug

@@ -124,7 +124,7 @@ function setDetails(details: string) {
             />
 
             <!-- Main Content -->
-            <main id="main-content" class="flex-1 p-6 min-h-screen bg-adaptive overflow-x-clip">
+            <main id="main-content" class="flex-1 min-w-0 p-6 min-h-screen bg-adaptive overflow-x-clip">
                 <Toast position="top-right">
                     <template #message="slotProps">
                         <div class="flex flex-column flex-auto">

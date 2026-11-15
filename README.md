@@ -64,8 +64,8 @@ communication with Keycloak, and the frontend uses secure session cookies.
 
    ```bash
    cd frontend
-   npm install
-   npm run serve
+   pnpm install
+   pnpm dev
    ```
 5. Deployment
 
@@ -167,8 +167,8 @@ Kommunikation mit Keycloak übernimmt und das Frontend sichere Session-Cookies v
 
     ```bash
     cd frontend
-    npm install
-    npm run serve
+    pnpm install
+    pnpm dev
     ```
 5. Deployment
 

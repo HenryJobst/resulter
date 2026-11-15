@@ -68,7 +68,8 @@ export function formatDateAndTime(date: DateInput, locale: Intl.LocalesArgument)
 }
 
 export function formatYear(date: DateInput, locale: Intl.LocalesArgument): string {
-    return formatDateTime(date, locale, 'year')
+    // CLDR 48+ renders a standalone 2-digit year as "’25" in English; keep only the digits
+    return formatDateTime(date, locale, 'year').replace(/\P{Nd}/gu, '')
 }
 
 export function formatTime(time: DateInput, locale: Intl.LocalesArgument): string {

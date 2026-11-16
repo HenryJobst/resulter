@@ -24,6 +24,12 @@
       "enabled": false
     },
     {
+      "description": "undici-Override bei 7.x halten: jsdom 29 braucht undici/lib/handler/wrap-handler.js, das in v8 fehlt",
+      "matchPackageNames": ["undici"],
+      "matchFileNames": ["frontend/pnpm-workspace.yaml"],
+      "allowedVersions": "<8"
+    },
+    {
       "description": "ajv@^6-Override ignorieren: ESLint v10 nutzt ajv v6 API, v8 wäre breaking",
       "matchPackageNames": ["ajv"],
       "matchFileNames": ["frontend/pnpm-workspace.yaml"],

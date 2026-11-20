@@ -94,7 +94,7 @@
         "autoprefixer": "^10.5.0",
         "axe-core": "^4.12.1",
         "baseline-browser-mapping": "^2.10.37",
-        "dotenv": "^17.4.2",
+        "dotenv": "^18.0.0",
         "eslint": "^10.5.0",
         "eslint-plugin-format": "^2.0.1",
         "eslint-plugin-vue": "^10.9.2",

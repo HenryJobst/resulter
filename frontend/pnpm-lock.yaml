@@ -146,9 +146,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.3.1
         version: 4.3.5
-      '@tsconfig/node24':
-        specifier: ^24.0.4
-        version: 24.0.6
+      '@tsconfig/node26':
+        specifier: ^26.0.0
+        version: 26.0.2
       '@types/jsdom':
         specifier: ^28.0.3
         version: 28.0.3
@@ -2560,8 +2560,8 @@ packages:
       '@vue/composition-api':
         optional: true
 
-  '@tsconfig/node24@24.0.6':
-    resolution: {integrity: sha512-/SK4JuydRQLGSCq7+hbiQ8fdAVR4Suv5EcBvkIAG3zo3GbXQvGoSclz4olL12Ar4OpH8gwGYJ67P4wwQqBRxKw==}
+  '@tsconfig/node26@26.0.2':
+    resolution: {integrity: sha512-RIBSoNGQxUQ8r4hSrEzS6TrUneoKaCuX6BjL4zF3wqttGq2w06zCea4d8P1gRvM/HZyDT1FQJ8trZSyy/63oMg==}
 
   '@tybys/wasm-util@0.9.0':
     resolution: {integrity: sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw==}
@@ -8233,7 +8233,7 @@ snapshots:
       vue: 3.5.45(typescript@6.0.3)
       vue-demi: 0.14.10(vue@3.5.45(typescript@6.0.3))
 
-  '@tsconfig/node24@24.0.6': {}
+  '@tsconfig/node26@26.0.2': {}
 
   '@tybys/wasm-util@0.9.0':
     dependencies:

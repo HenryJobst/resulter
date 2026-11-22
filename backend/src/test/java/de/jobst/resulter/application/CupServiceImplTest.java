@@ -160,10 +160,12 @@ class CupServiceImplTest {
 
         when(cupRepository.findById(CupId.of(1L))).thenReturn(Optional.of(c));
         when(eventService.getByIds(any())).thenReturn(List.of(event));
-        when(resultListService.findAllByEventIds(any())).thenReturn(Map.of(EventId.of(1L), List.of(rl)));
+        when(resultListService.findByEventId(EventId.of(1L))).thenReturn(List.of(rl));
 
         service.calculateScore(CupId.of(1L));
 
+        // findAllByEventIds liefert Listen ohne Klassenergebnisse und darf hier nicht benutzt werden
+        verify(resultListService, never()).findAllByEventIds(any());
         verify(cupScoreListRepository).saveAll(any());
         verify(cupScoreListRepository).deleteAllByDomainKey(any());
     }

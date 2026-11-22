@@ -20,7 +20,7 @@
         <archunit.version>1.5.1</archunit.version>
         <build-helper-maven-plugin.version>3.8.0</build-helper-maven-plugin.version>
         <commons-text.version>1.15.0</commons-text.version>
-        <itext-core.version>9.8.0</itext-core.version>
+        <itext-core.version>9.8.1</itext-core.version>
         <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
         <java-uuid-generator.version>5.2.0</java-uuid-generator.version>
         <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
@@ -35,7 +35,7 @@
         <mockito-core.version>5.24.0</mockito-core.version>
 <p6spy-spring-boot-starter.version>2.1.0</p6spy-spring-boot-starter.version>
         <spotbugs-annotations.version>4.10.5</spotbugs-annotations.version>
-<springdoc-openapi-starter-webmvc-ui.version>3.2.0</springdoc-openapi-starter-webmvc-ui.version>
+<springdoc-openapi-starter-webmvc-ui.version>3.2.1</springdoc-openapi-starter-webmvc-ui.version>
         <postgresql.version>42.7.13</postgresql.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <!-- ponytail: CVE-2026-65182/65905/68525 fixed in 11.0.25, override until Spring Boot bumps tomcat.version -->
@@ -43,7 +43,7 @@
         <thumbnailator.version>0.4.21</thumbnailator.version>
         <tika-core.version>3.3.3</tika-core.version>
         <turkraft-springfilter-core.version>3.2.5</turkraft-springfilter-core.version>
-        <spotless-maven-plugin.version>3.11.0</spotless-maven-plugin.version>
+        <spotless-maven-plugin.version>3.12.0</spotless-maven-plugin.version>
         <google-java-format.version>1.25.2</google-java-format.version>
         <cleanthat.version>2.22</cleanthat.version>
         <eclipse-jdt.version>4.34</eclipse-jdt.version>
@@ -406,7 +406,7 @@
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
-                <version>4.1.0</version> <!-- fix CVE-2025-67030 -->
+                <version>4.2.0</version> <!-- fix CVE-2025-67030 -->
             </dependency>
             <dependency>
                 <groupId>tools.jackson.core</groupId>

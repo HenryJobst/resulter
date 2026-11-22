@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Paketo Buildpack build script for Resulter Frontend
-# Alternative to Dockerfile-based build
 
 set -e
 

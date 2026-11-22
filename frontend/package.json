@@ -115,7 +115,7 @@
         "vite-plugin-vue-devtools": "^8.1.3",
         "vitest": "^4.1.9",
         "vitest-browser-vue": "^2.1.0",
-        "vue-mess-detector": "^0.68.1",
+        "vue-mess-detector": "^0.69.0",
         "vue-tsc": "^3.3.5"
     },
     "simple-git-hooks": {

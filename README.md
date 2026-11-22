@@ -69,13 +69,7 @@ communication with Keycloak, and the frontend uses secure session cookies.
    ```
 5. Deployment
 
-   **Two build approaches available:**
-
-   **Option 1: Dockerfile-based build (default)**
-   - Separate build scripts for frontend and backend: `./backend/build.sh` and `./frontend/build.sh`
-   - Traditional Docker build with Alpine base images
-
-   **Option 2: Paketo Buildpacks (Cloud Native Buildpacks)**
+   Images are built with Paketo Buildpacks (Cloud Native Buildpacks):
    - Build scripts: `./backend/build-paketo.sh` and `./frontend/build-paketo.sh`
    - Requires pack CLI: `brew install buildpacks/tap/pack` (macOS) or see [buildpacks.io](https://buildpacks.io/docs/tools/pack/)
    - Benefits: 12-factor apps, runtime configuration, automatic SBOM generation, non-root user
@@ -172,13 +166,7 @@ Kommunikation mit Keycloak übernimmt und das Frontend sichere Session-Cookies v
     ```
 5. Deployment
 
-   **Zwei Build-Varianten verfügbar:**
-
-   **Option 1: Dockerfile-basierter Build (Standard)**
-   - Separate Build-Skripte für Frontend und Backend: `./backend/build.sh` und `./frontend/build.sh`
-   - Traditioneller Docker-Build mit Alpine-Base-Images
-
-   **Option 2: Paketo Buildpacks (Cloud Native Buildpacks)**
+   Die Images werden mit Paketo Buildpacks (Cloud Native Buildpacks) gebaut:
    - Build-Skripte: `./backend/build-paketo.sh` und `./frontend/build-paketo.sh`
    - Benötigt pack CLI: `brew install buildpacks/tap/pack` (macOS) oder siehe [buildpacks.io](https://buildpacks.io/docs/tools/pack/)
    - Vorteile: 12-Faktor-Apps, Runtime-Konfiguration, automatische SBOM-Generierung, Non-Root-User

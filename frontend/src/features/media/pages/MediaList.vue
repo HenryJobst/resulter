@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
+import Button from 'primevue/button'
 import Chip from 'primevue/chip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import GenericList from '@/features/generic/pages/GenericList.vue'
-import { mediaService } from '@/features/media/services/media.service'
+import { mediaService, MediaService } from '@/features/media/services/media.service'
 
 const authStore = useAuthStore()
 const { t } = useI18n() // same as `useI18n({ useScope: 'global' })`
@@ -67,6 +68,19 @@ const columns: GenericListColumn[] = [
         :edit-enabled="true"
         :delete-enabled="true"
     >
+        <template #extra_row_actions="{ value }">
+            <Button
+                v-if="authStore.isAdmin"
+                v-tooltip="t('labels.download')"
+                icon="pi pi-download"
+                class="mr-2"
+                outlined
+                raised
+                rounded
+                :aria-label="t('labels.download')"
+                @click="MediaService.download(value.id, value.fileName)"
+            />
+        </template>
         <template #contentType="{ value }">
             <Chip class="contenttype-chip">
                 <span class="contenttype-name">{{ value }}</span>

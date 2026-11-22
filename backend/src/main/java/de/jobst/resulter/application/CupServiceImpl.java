@@ -109,7 +109,9 @@ public class CupServiceImpl implements CupService {
             races.stream().map(r -> r.getRaceNumber().value()).toList());
 
         Map<EventId, Event> eventsById = eventService.findAllByIdAsMap(eventIdSet);
-        Map<EventId, List<ResultList>> resultListsByEvent = resultListService.findAllByEventIds(eventIdSet);
+        // findAllByEventIds liefert Ergebnislisten ohne Klassenergebnisse; Statistik und Organisationsbaum brauchen sie
+        Map<EventId, List<ResultList>> resultListsByEvent = eventIdSet.stream()
+                .collect(Collectors.toMap(id -> id, id -> List.copyOf(resultListService.findByEventId(id))));
 
         List<EventResultList> eventResultLists = eventIds.stream()
                 .map(eventId -> new EventResultLists(

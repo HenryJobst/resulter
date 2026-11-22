@@ -180,7 +180,7 @@ class CupServiceImplTest {
         when(cupRepository.findById(CupId.of(1L))).thenReturn(Optional.of(c));
         when(raceService.findAllByEventIds(any())).thenReturn(List.of(race));
         when(eventService.findAllByIdAsMap(any())).thenReturn(Map.of(EventId.of(1L), event));
-        when(resultListService.findAllByEventIds(any())).thenReturn(Map.of(EventId.of(1L), List.of(rl)));
+        when(resultListService.findByEventId(EventId.of(1L))).thenReturn(List.of(rl));
 
         CupDetailed result = service.getCupDetailed(CupId.of(1L));
 
@@ -203,7 +203,7 @@ class CupServiceImplTest {
         when(cupRepository.findById(CupId.of(1L))).thenReturn(Optional.of(c));
         when(raceService.findAllByEventIds(any())).thenReturn(List.of(race));
         when(eventService.findAllByIdAsMap(any())).thenReturn(Map.of(EventId.of(1L), event));
-        when(resultListService.findAllByEventIds(any())).thenReturn(Map.of(EventId.of(1L), List.of(rl)));
+        when(resultListService.findByEventId(EventId.of(1L))).thenReturn(List.of(rl));
         when(organisationRepository.loadOrganisationTree(any())).thenReturn(Map.of(OrganisationId.of(1L), org));
 
         CupDetailed result = service.getCupDetailed(CupId.of(1L));
@@ -228,7 +228,7 @@ class CupServiceImplTest {
         when(cupRepository.findById(CupId.of(1L))).thenReturn(Optional.of(c));
         when(raceService.findAllByEventIds(any())).thenReturn(List.of(race));
         when(eventService.findAllByIdAsMap(any())).thenReturn(Map.of(EventId.of(1L), event));
-        when(resultListService.findAllByEventIds(any())).thenReturn(Map.of(EventId.of(1L), List.of(rl)));
+        when(resultListService.findByEventId(EventId.of(1L))).thenReturn(List.of(rl));
         when(resultListService.getCupScoreListsByResultListIds(any(), any()))
                 .thenReturn(Map.of(ResultListId.of(1L), List.of(csl)));
 
@@ -250,7 +250,7 @@ class CupServiceImplTest {
         when(cupRepository.findById(CupId.of(1L))).thenReturn(Optional.of(c));
         when(raceService.findAllByEventIds(any())).thenReturn(List.of(race));
         when(eventService.findAllByIdAsMap(any())).thenReturn(Map.of(EventId.of(2L), event));
-        when(resultListService.findAllByEventIds(any())).thenReturn(Map.of(EventId.of(2L), List.of(rl)));
+        when(resultListService.findByEventId(EventId.of(2L))).thenReturn(List.of(rl));
 
         CupDetailed result = service.getCupDetailed(CupId.of(1L));
 
@@ -276,7 +276,7 @@ class CupServiceImplTest {
         when(cupRepository.findById(CupId.of(1L))).thenReturn(Optional.of(c));
         when(raceService.findAllByEventIds(any())).thenReturn(List.of(race));
         when(eventService.findAllByIdAsMap(any())).thenReturn(Map.of(EventId.of(4L), event));
-        when(resultListService.findAllByEventIds(any())).thenReturn(Map.of(EventId.of(4L), List.of(rl)));
+        when(resultListService.findByEventId(EventId.of(4L))).thenReturn(List.of(rl));
         when(organisationRepository.loadOrganisationTree(any()))
                 .thenReturn(Map.of(OrganisationId.of(2L), org));
         when(personRepository.findAllById(any())).thenReturn(Map.of());
@@ -304,8 +304,7 @@ class CupServiceImplTest {
         when(cupRepository.findById(CupId.of(1L))).thenReturn(Optional.of(c));
         when(raceService.findAllByEventIds(any())).thenReturn(List.of(race));
         when(eventService.findAllByIdAsMap(any())).thenReturn(Map.of(EventId.of(3L), event));
-        when(resultListService.findAllByEventIds(any()))
-                .thenReturn(Map.of(EventId.of(3L), List.of(rl)));
+        when(resultListService.findByEventId(EventId.of(3L))).thenReturn(List.of(rl));
         when(resultListService.getCupScoreListsByResultListIds(any(), any()))
                 .thenReturn(Map.of(ResultListId.of(3L), List.of(csl)));
         // Empty organisationById → KJStrategy.validClubs empty → all orgs valid

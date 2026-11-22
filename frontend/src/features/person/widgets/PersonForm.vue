@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Person } from '@/features/person/model/person'
 import { useQuery } from '@tanstack/vue-query'
+import Checkbox from 'primevue/checkbox'
 import DatePicker from 'primevue/datepicker'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
@@ -123,6 +124,18 @@ const birthDate = computed({
                     data-key="id"
                     :placeholder="t('messages.select')"
                     class="w-full md:w-14rem"
+                    :disabled="!props.changeable"
+                />
+            </div>
+        </div>
+        <div class="flex flex-row">
+            <label for="ignored" class="col-fixed w-32">{{ t('labels.ignored') }}</label>
+            <div class="col">
+                <Checkbox
+                    id="ignored"
+                    v-model="person.ignored"
+                    v-tooltip="t('labels.ignored_hint')"
+                    binary
                     :disabled="!props.changeable"
                 />
             </div>

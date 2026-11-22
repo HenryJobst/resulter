@@ -28,6 +28,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
                INNER JOIN class_result cl ON prr.result_list_id = cl.result_list_id and prr.class_result_short_name = cl.short_name
                INNER JOIN person_result pr ON prr.result_list_id = pr.result_list_id and prr.class_result_short_name = pr.class_result_short_name and prr.person_id = pr.person_id
            WHERE prr.state != 'DID_NOT_START'
+             AND pr.person_id NOT IN (SELECT id FROM person WHERE ignored)
            ORDER BY rl.id, cl.short_name, prr.race_number, prr.position, pr.person_id;
            """)
     Collection<PersonRaceResultJdbcDto> findPersonRaceResultsByResultListId(@Param("resultListId") Long resultListId);
@@ -43,6 +44,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
                INNER JOIN class_result cl ON prr.result_list_id = cl.result_list_id and prr.class_result_short_name = cl.short_name
                INNER JOIN person_result pr ON prr.result_list_id = pr.result_list_id and prr.class_result_short_name = pr.class_result_short_name and prr.person_id = pr.person_id
            WHERE prr.state != 'DID_NOT_START'
+             AND pr.person_id NOT IN (SELECT id FROM person WHERE ignored)
            ORDER BY rl.id, cl.short_name, prr.race_number, prr.position, pr.person_id;
            """)
     Collection<PersonRaceResultJdbcDto> findPersonRaceResultsByEventId(@Param("eventId") Long eventId);
@@ -58,6 +60,7 @@ public interface ResultListJdbcRepository extends CrudRepository<ResultListDbo, 
                INNER JOIN class_result cl ON prr.result_list_id = cl.result_list_id and prr.class_result_short_name = cl.short_name and cl.short_name = :classResultShortName
                INNER JOIN person_result pr ON prr.result_list_id = pr.result_list_id and prr.class_result_short_name = pr.class_result_short_name and prr.person_id = pr.person_id and pr.person_id = :personId
            WHERE prr.state != 'DID_NOT_START'
+             AND pr.person_id NOT IN (SELECT id FROM person WHERE ignored)
            ORDER BY rl.id, prr.race_number, cl.short_name, prr.race_number, prr.position, pr.person_id;
            """)
     List<PersonRaceResultJdbcDto> findPersonRaceResultByResultListIdAndClassResultShortNameAndPersonId(

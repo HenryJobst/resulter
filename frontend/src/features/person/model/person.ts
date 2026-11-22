@@ -7,4 +7,5 @@ export interface Person {
     gender: Gender
     birthDate: string | Date | null
     showMergeButton?: boolean
+    ignored?: boolean
 }

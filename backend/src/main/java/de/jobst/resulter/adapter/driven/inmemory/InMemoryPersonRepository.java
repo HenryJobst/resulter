@@ -32,7 +32,8 @@ public class InMemoryPersonRepository implements PersonRepository {
                     PersonId.of(sequence.incrementAndGet()),
                     person.personName(),
                     person.birthDate(),
-                    person.gender());
+                    person.gender(),
+                    person.ignored());
         } else {
             savedPerson = person;
         }

@@ -72,6 +72,8 @@
         "climb_abbreviation": "m climb",
         "control_abbreviation": "controls",
         "family_name": "Family name",
+        "ignored": "Ignore",
+        "ignored_hint": "Person is not considered in result lists and cup scores",
         "given_name": "Given name",
         "media": "Media file | Media files",
         "fileName": "File name",

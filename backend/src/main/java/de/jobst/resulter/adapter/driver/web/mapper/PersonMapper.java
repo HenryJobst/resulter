@@ -24,7 +24,8 @@ public class PersonMapper {
                 person.personName().givenName().value(),
                 GenderDto.from(person.gender()),
                 person.birthDate() != null ? person.birthDate().value() : null,
-                showMergeButton);
+                showMergeButton,
+                person.ignored());
     }
 
     public static List<PersonDto> toDtos(List<Person> persons) {

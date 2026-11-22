@@ -156,6 +156,17 @@ public class MediaFileServiceImpl implements MediaFileService {
     }
 
     @Override
+    public Path getFilePath(MediaFileId mediaFileId) {
+        MediaFile mediaFile = getById(mediaFileId);
+        Path basePath = Paths.get(mediaFilePath).toAbsolutePath().normalize();
+        Path filePath = basePath.resolve(mediaFile.getMediaFileName().value()).normalize();
+        if (!filePath.startsWith(basePath) || !Files.isRegularFile(filePath)) {
+            throw new ResourceNotFoundException();
+        }
+        return filePath;
+    }
+
+    @Override
     public boolean delete(MediaFileId mediaFileId) {
         if (mediaFileId.isPersistent()) {
             mediaFileRepository.delete(mediaFileId);

@@ -18,6 +18,18 @@ export class MediaService extends GenericService<Media> {
             })
             .then(response => response.data)
     }
+
+    static async download(id: number, fileName: string) {
+        const response = await axiosInstance.get(`${mediaUrl}/${id}/download`, { responseType: 'blob' })
+        const fileURL = window.URL.createObjectURL(response.data)
+        const fileLink = document.createElement('a')
+        fileLink.href = fileURL
+        fileLink.setAttribute('download', fileName)
+        document.body.appendChild(fileLink)
+        fileLink.click()
+        document.body.removeChild(fileLink)
+        window.URL.revokeObjectURL(fileURL)
+    }
 }
 
 export const mediaService = new MediaService()

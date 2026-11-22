@@ -12,6 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +68,23 @@ public class MediaFileController {
         return mediaFile
                 .map(value -> ResponseEntity.ok(MediaFileDto.from(value, mediaFileThumbnailsPath)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/media/{id}/download")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Resource> downloadMediaFile(@PathVariable Long id) {
+        MediaFileId mediaFileId = MediaFileId.of(id);
+        MediaFile mediaFile = mediaFileService.getById(mediaFileId);
+        Resource resource = new FileSystemResource(mediaFileService.getFilePath(mediaFileId));
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(mediaFile.getContentType().value()))
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename(mediaFile.getMediaFileName().value())
+                                .build()
+                                .toString())
+                .body(resource);
     }
 
     @PutMapping("/media/{id}")

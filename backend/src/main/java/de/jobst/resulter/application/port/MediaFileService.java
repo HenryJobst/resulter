@@ -20,6 +20,9 @@ public interface MediaFileService {
 
     boolean delete(MediaFileId mediaFileId);
 
+    /** Absolute path of the stored original file; throws ResourceNotFoundException if unknown or missing. */
+    java.nio.file.Path getFilePath(MediaFileId mediaFileId);
+
     List<MediaFile> findAll();
 
     Page<@NonNull MediaFile> findAll(@Nullable String filter, @NonNull Pageable pageable);

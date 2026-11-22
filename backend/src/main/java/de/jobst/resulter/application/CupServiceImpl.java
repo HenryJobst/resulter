@@ -440,7 +440,9 @@ public class CupServiceImpl implements CupService {
         Collection<Event> events = eventService.getByIds(cup.getEventIds());
 
         Set<EventId> eventIds = events.stream().map(Event::getId).collect(Collectors.toSet());
-        Map<EventId, List<ResultList>> resultListsByEvent = resultListService.findAllByEventIds(eventIds);
+        // findAllByEventIds liefert Ergebnislisten ohne Klassenergebnisse, die Berechnung braucht sie
+        Map<EventId, List<ResultList>> resultListsByEvent = eventIds.stream()
+                .collect(Collectors.toMap(eid -> eid, eid -> List.copyOf(resultListService.findByEventId(eid))));
         Map<EventId, Event> eventById = events.stream().collect(Collectors.toMap(Event::getId, event -> event));
 
         events.forEach(event -> {

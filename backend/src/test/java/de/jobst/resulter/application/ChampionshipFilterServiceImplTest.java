@@ -742,4 +742,34 @@ class ChampionshipFilterServiceImplTest {
                 .personRaceResults().value().stream().findFirst().orElseThrow();
         assertThat(prr.getState()).isEqualTo(ResultStatus.MISSING_PUNCH);
     }
+
+    @Test
+    void ranking_eligibleNotCompetingWithRuntime_keepsStatusAndDoesNotTakePlace() {
+        PersonResult okPerson = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(ELIGIBLE_PERSON_ID), eligibleClubId,
+                List.of(makeRaceResult("H21", ELIGIBLE_PERSON_ID, 2000.0, ResultStatus.OK, (byte) 1)));
+        PersonResult akPerson = PersonResult.of(
+                ClassResultShortName.of("H21"), PersonId.of(3L), eligibleClubId,
+                List.of(makeRaceResult("H21", 3L, 1500.0, ResultStatus.NOT_COMPETING, (byte) 1)));
+        ClassResult classResult = ClassResult.of("H21", "H21", Gender.M, List.of(akPerson, okPerson), null);
+        ResultList sourceResultList = new ResultList(
+                ResultListId.of(1L), eventId, RaceId.of(1L), "test", null, null, List.of(classResult));
+
+        when(resultListRepository.findByEventId(eventId)).thenReturn(List.of(sourceResultList));
+        when(organisationRepository.loadOrganisationTree(any())).thenReturn(orgTree());
+        when(raceRepository.findOrCreate(any(Race.class))).thenReturn(Race.of(RaceId.of(100L), eventId, null, (byte) 0));
+        when(resultListRepository.save(any(ResultList.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<ResultList> result = service.addChampionshipRanking(eventId, baseOrgId, Set.of());
+
+        List<PersonResult> persons = List.copyOf(result.getFirst().getClassResults().stream().findFirst().orElseThrow()
+                .personResults().value());
+        assertThat(persons).extracting(pr -> pr.personId().value()).containsExactly(ELIGIBLE_PERSON_ID, 3L);
+        PersonRaceResult ok = persons.get(0).personRaceResults().value().iterator().next();
+        PersonRaceResult ak = persons.get(1).personRaceResults().value().iterator().next();
+        assertThat(ok.getState()).isEqualTo(ResultStatus.OK);
+        assertThat(ok.getPosition().value()).isEqualTo(1L);
+        assertThat(ak.getState()).isEqualTo(ResultStatus.NOT_COMPETING);
+        assertThat(ak.getRuntime().value()).isEqualTo(1500.0);
+    }
 }

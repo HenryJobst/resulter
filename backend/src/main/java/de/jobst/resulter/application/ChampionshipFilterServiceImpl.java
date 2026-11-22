@@ -111,9 +111,9 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                 }
             }
 
-            // Sort eligible by best OK runtime ascending, with personId as tiebreaker
+            // Sort eligible by best OK runtime ascending (non-OK, e.g. AK, last), with personId as tiebreaker
             eligible = eligible.stream()
-                    .sorted(Comparator.comparingDouble(this::bestRuntime)
+                    .sorted(Comparator.comparingDouble(this::okRuntime)
                             .thenComparingLong(pr -> pr.personId().value()))
                     .collect(Collectors.toList());
             // Sort non-eligible-with-time by runtime ascending
@@ -134,7 +134,8 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
             int lastOkPos = 1;
             for (int i = 0; i < eligible.size(); i++) {
                 PersonResult pr = eligible.get(i);
-                double best = bestRuntime(pr);
+                // Only a real OK result counts; AK/MP/DNF with a runtime must keep their status
+                double best = okRuntime(pr);
                 boolean hasOkResult = best < Double.MAX_VALUE;
                 int assignedPos;
                 if (hasOkResult) {
@@ -151,7 +152,7 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                         pr.personId(),
                         DateTime.empty(),
                         DateTime.empty(),
-                        hasOkResult ? PunchTime.of(best) : PunchTime.of(null),
+                        hasOkResult ? PunchTime.of(best) : PunchTime.of(nonOkRuntime(pr)),
                         Position.of((long) assignedPos),
                         hasOkResult ? ResultStatus.OK : bestSourceStatus(pr),
                         RaceNumber.of((byte) 0),
@@ -476,6 +477,27 @@ public class ChampionshipFilterServiceImpl implements ChampionshipFilterService 
                 .filter(s -> s != null && !ResultStatus.OK.equals(s))
                 .findFirst()
                 .orElse(ResultStatus.MISSING_PUNCH);
+    }
+
+    /**
+     * Returns the best runtime among results with status OK, or Double.MAX_VALUE if there is none.
+     */
+    private double okRuntime(PersonResult pr) {
+        return pr.personRaceResults().value().stream()
+                .filter(prr -> ResultStatus.OK.equals(prr.getState()))
+                .map(prr -> prr.getRuntime() != null && prr.getRuntime().value() != null
+                        ? prr.getRuntime().value()
+                        : Double.MAX_VALUE)
+                .min(Double::compareTo)
+                .orElse(Double.MAX_VALUE);
+    }
+
+    /**
+     * Returns the runtime to display for an eligible person without OK result (e.g. AK), or null.
+     */
+    private Double nonOkRuntime(PersonResult pr) {
+        double best = bestRuntime(pr);
+        return best < Double.MAX_VALUE ? best : null;
     }
 
     /**

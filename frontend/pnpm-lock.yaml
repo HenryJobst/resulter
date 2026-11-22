@@ -132,8 +132,8 @@ importers:
         specifier: 22.7.5
         version: 22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(nx@23.3.0)(supports-color@7.2.0))(@nx/playwright@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@playwright/test@1.65.1)(@zkochan/js-yaml@0.0.7)(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(nx@23.3.0)(supports-color@7.2.0))(@nx/vite@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@nx/eslint@22.7.5(@babel/traverse@7.29.7(supports-color@7.2.0))(@zkochan/js-yaml@0.0.7)(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(nx@23.3.0)(supports-color@7.2.0))(nx@23.3.0)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.3.8(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.108.2)(yaml@2.9.0))(vitest@4.1.12))(debug@4.4.3(supports-color@7.2.0))(nx@23.3.0)(supports-color@7.2.0)
       '@pinia/testing':
-        specifier: ^1.0.3
-        version: 1.0.3(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3)))
+        specifier: ^2.0.0
+        version: 2.0.2(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3)))
       '@playwright/test':
         specifier: ^1.61.0
         version: 1.65.1
@@ -2191,10 +2191,10 @@ packages:
     peerDependencies:
       typescript: '>3.0.0'
 
-  '@pinia/testing@1.0.3':
-    resolution: {integrity: sha512-g+qR49GNdI1Z8rZxKrQC3GN+LfnGTNf5Kk8Nz5Cz6mIGva5WRS+ffPXQfzhA0nu6TveWzPNYTjGl4nJqd3Cu9Q==}
+  '@pinia/testing@2.0.2':
+    resolution: {integrity: sha512-Dfbng8WYNTeS2ufcg+cL/prWES95RVx8VIY5JITFl8c19vs4Fx0Gd/ufkBRDLhWlQXugSkZ1kwKSXJg1c+eTkw==}
     peerDependencies:
-      pinia: '>=3.0.4'
+      pinia: '>=4.1.0'
 
   '@pkgr/core@0.3.6':
     resolution: {integrity: sha512-SEeaJLb3qBNF/OaXnaR1NmmBbFYk1zC0ZH/52fATcRPLFg/p791YrcyFFy44Bo9sLaGuSuLp5Q6axbb/O+v/RA==}
@@ -7910,8 +7910,9 @@ snapshots:
       esquery: 1.7.0
       typescript: 6.0.3
 
-  '@pinia/testing@1.0.3(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3)))':
+  '@pinia/testing@2.0.2(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3)))':
     dependencies:
+      nostics: 1.3.0
       pinia: 4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3))
 
   '@pkgr/core@0.3.6': {}

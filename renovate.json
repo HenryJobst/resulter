@@ -4,7 +4,9 @@
   "timezone": "Europe/Berlin",
   "schedule": ["every weekend"],
   "minimumReleaseAge": "1 day",
-  "dependencyDashboard": true,
+  "dependencyDashboard": {
+    "enabled": true
+  },
   "labels": ["renovate"],
   "vulnerabilityAlerts": {
     "enabled": true,

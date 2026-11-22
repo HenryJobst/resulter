@@ -9,8 +9,13 @@ import org.jmolecules.ddd.annotation.Identity;
 import org.jspecify.annotations.Nullable;
 
 @AggregateRoot
-public record Person(@Identity PersonId id, PersonName personName, @Nullable BirthDate birthDate, Gender gender)
+public record Person(@Identity PersonId id, PersonName personName, @Nullable BirthDate birthDate, Gender gender,
+                     boolean ignored)
     implements Comparable<Person> {
+
+    public Person(PersonId id, PersonName personName, @Nullable BirthDate birthDate, Gender gender) {
+        this(id, personName, birthDate, gender, false);
+    }
 
     public record DomainKey(PersonName personName, @Nullable BirthDate birthDate, Gender gender) implements Comparable<DomainKey> {
 

@@ -30,7 +30,7 @@ public interface PersonService {
     Collection<PersonRepository.PersonPerson> findOrCreate(Collection<Person> persons);
 
     @NonNull
-    Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender);
+    Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender, boolean ignored);
 
     /**
      * Unified search for persons with optional duplicate mode.

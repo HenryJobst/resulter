@@ -72,6 +72,8 @@
         "climb_abbreviation": "Hm",
         "control_abbreviation": "P",
         "family_name": "Familienname",
+        "ignored": "Ignorieren",
+        "ignored_hint": "Person wird in Ergebnislisten und Cup-Wertungen nicht berücksichtigt",
         "given_name": "Vorname",
         "media": "Mediendatei | Mediendateien",
         "fileName": "Dateiname",

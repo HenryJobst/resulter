@@ -1,0 +1,21 @@
+databaseChangeLog :
+    -   changeSet :
+            id : 000042_person_ignored
+            author : Henry Jobst
+            preConditions :
+                -   onFail : MARK_RAN
+                -   not :
+                        -   columnExists :
+                                tableName : person
+                                columnName : ignored
+            comment : Add flag ignored to table person (person is ignored in result lists and cup scores),
+            changes :
+                -   addColumn :
+                        tableName : person
+                        columns :
+                            -   column :
+                                    name : ignored
+                                    type : boolean
+                                    constraints :
+                                        nullable : false
+                                    defaultValueBoolean : false

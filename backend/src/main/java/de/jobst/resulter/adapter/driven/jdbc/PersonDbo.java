@@ -38,6 +38,9 @@ public class PersonDbo {
     @Nullable
     private LocalDate birthDate;
 
+    @Column("ignored")
+    private boolean ignored;
+
     public PersonDbo(String familyName, String givenName) {
         this.id = null;
         this.familyName = familyName;
@@ -55,6 +58,7 @@ public class PersonDbo {
                 new PersonDbo(person.personName().familyName().value(), person.personName().givenName().value());
         }
         personDbo.setGender(person.gender());
+        personDbo.setIgnored(person.ignored());
         if (person.birthDate() != null) {
             personDbo.setBirthDate(person.birthDate().value());
         } else {
@@ -68,7 +72,8 @@ public class PersonDbo {
     }
 
     public Person asPerson() {
-        return Person.of(id != null ? id : 0, familyName, givenName, birthDate, gender);
+        Person person = Person.of(id != null ? id : 0, familyName, givenName, birthDate, gender);
+        return new Person(person.id(), person.personName(), person.birthDate(), person.gender(), ignored);
     }
 
     public static String mapOrdersDomainToDbo(Sort.Order order) {

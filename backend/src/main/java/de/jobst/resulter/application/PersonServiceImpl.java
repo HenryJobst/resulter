@@ -100,9 +100,10 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender) {
+    public Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender,
+                               boolean ignored) {
         return findById(personId)
-                .map(person -> personRepository.save(new Person(person.id(), personName, birthDate, gender)))
+                .map(person -> personRepository.save(new Person(person.id(), personName, birthDate, gender, ignored)))
                 .orElseThrow(ResourceNotFoundException::new);
     }
 

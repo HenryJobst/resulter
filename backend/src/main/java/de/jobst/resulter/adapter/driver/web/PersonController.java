@@ -87,7 +87,8 @@ public class PersonController {
                 PersonId.of(id),
                 PersonName.of(personDto.familyName(), personDto.givenName()),
                 ObjectUtils.isNotEmpty(personDto.birthDate()) ? BirthDate.of(personDto.birthDate()) : null,
-                Gender.of(personDto.gender().id()));
+                Gender.of(personDto.gender().id()),
+                Boolean.TRUE.equals(personDto.ignored()));
         return ResponseEntity.ok(PersonMapper.toDto(person));
     }
 

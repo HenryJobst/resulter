@@ -10,7 +10,7 @@ import sys
 from collections import defaultdict
 
 CUPS = {15: 2021, 1: 2022, 2: 2023, 3: 2024, 9: 2025, 17: 2026}
-GROUP = re.compile(r'[+&/,]| und |^Team ')
+GROUP = re.compile(r'[+&/,]| und |^Team ', re.IGNORECASE)
 # Klassen, die weder zur Altersklassen-Schwierigkeit noch zur Altersauswertung ausgeschlossen sind,
 # aber nicht als "schwieriger" gelten: Anfänger, Begleitung, Hasen, offene Bahnen, Kinderklasse
 NOT_RANKED = re.compile(r'^(BK|BL|Begleitung|Hasen|Off.*|KL|D/H.*)$|^[DH]-?\d+[AB]?B$|^[DH]-?(10|12)[ -]?B.*$')

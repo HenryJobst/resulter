@@ -1,0 +1,3 @@
+-- Export aller NOR-Starts (Cups 2021-2026) fuer nor_auswertung.py. Nur lesend.
+-- Aufruf siehe README.md. Cup-IDs: 2021=15, 2022=1, 2023=2, 2024=3, 2025=9, 2026=17.
+\copy (select ce.cup_id cup, extract(year from e.start_time)::int yr, e.id ev, p.id pid, extract(year from p.birth_date)::int yob, p.given_name||' '||p.family_name nm, prr.class_result_short_name cls, prr.state from person p join person_race_result prr on prr.person_id=p.id join result_list rl on rl.id=prr.result_list_id join event e on e.id=rl.event_id join cup_event ce on ce.event_id=e.id and ce.cup_id in (15,1,2,3,9,17) where prr.state!='DID_NOT_START' and not p.ignored) to stdout with csv header

@@ -92,9 +92,12 @@ def harder(rows):
 def missing_birth_year(rows):
     print('\nNOR 2026: Personen ohne Geburtsjahr (nicht ignoriert)')
     miss = defaultdict(set)
+    starts = 0
     for r in rows:
         if int(r['cup']) == 17 and not r['yob']:
             miss[(r['pid'], r['nm'])].add(r['cls'])
+            starts += is_person(r)
+    print(f'  {starts} Starts von Einzelpersonen (ohne Sammel- und Begleitungseinträge, ohne Geburtsjahr)')
     for (pid, nm), cls in sorted(miss.items(), key=lambda x: x[0][1]):
         print(f'  {pid:>5}  {nm}  ({", ".join(sorted(cls))})')
 

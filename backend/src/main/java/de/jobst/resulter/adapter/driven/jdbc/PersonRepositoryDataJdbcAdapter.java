@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
@@ -166,6 +165,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
                     dbo.setGender(Gender.of(rs.getString("gender")));
                     java.sql.Date bd = rs.getDate("birth_date");
                     dbo.setBirthDate(bd != null ? bd.toLocalDate() : null);
+                    dbo.setIgnored(rs.getBoolean("ignored"));
                     return dbo;
                 })
                 .list();
@@ -186,19 +186,10 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     @Override
     public Page<Person> findAll(@Nullable String filter, Pageable pageable) {
-        Page<PersonDbo> page;
-        Pageable dboPageable = mapPageableToDbo(pageable);
         if (filter != null) {
-            PersonDbo personDbo = new PersonDbo();
-            AtomicReference<ExampleMatcher> matcher = new AtomicReference<>(ExampleMatcher.matching());
-            MappingFilterNodeTransformResult transformResult = parseFilter(filter);
-            applyTransformToExample(transformResult, personDbo, matcher);
-
-            page = personJdbcRepository.findAll(Example.of(personDbo, matcher.get()), dboPageable);
-        } else {
-            page = personJdbcRepository.findAll(dboPageable);
+            return findPage("FROM person p", filter, pageable);
         }
-        return mapDboPageToDomain(page);
+        return mapDboPageToDomain(personJdbcRepository.findAll(mapPageableToDbo(pageable)));
     }
 
     private MappingFilterNodeTransformResult parseFilter(String filter) {
@@ -216,29 +207,6 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
                 page.stream().map(dbo -> dbo.asPerson()).toList(),
                 FilterAndSortConverter.mapOrderProperties(page.getPageable(), PersonDbo::mapOrdersDboToDomain),
                 page.getTotalElements());
-    }
-
-    private void applyTransformToExample(
-            MappingFilterNodeTransformResult transformResult,
-            PersonDbo personDbo,
-            AtomicReference<ExampleMatcher> matcher) {
-        transformResult.filterMap().forEach((key, value) -> {
-            String unquotedValue = value.value().replace("'", "");
-            switch (key) {
-                case "familyName" -> {
-                    personDbo.setFamilyName(unquotedValue);
-                    matcher.set(matcher.get().withMatcher("familyName", m -> m.stringMatcher(value.matcher())));
-                }
-                case "givenName" -> {
-                    personDbo.setGivenName(unquotedValue);
-                    matcher.set(matcher.get().withMatcher("givenName", m -> m.stringMatcher(value.matcher())));
-                }
-                case "id" -> {
-                    personDbo.setId(Long.parseLong(unquotedValue));
-                    matcher.set(matcher.get().withMatcher("id", ExampleMatcher.GenericPropertyMatcher::exact));
-                }
-            }
-        });
     }
 
     private SqlParts buildSqlWhereAndParamsFromTransform(MappingFilterNodeTransformResult transform) {
@@ -265,10 +233,19 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
 
     @Override
     public Page<Person> findDuplicates(@Nullable String filter, Pageable pageable) {
-        // Base join for duplicates
-        String base =
-                "FROM person p JOIN (SELECT family_name, given_name FROM person GROUP BY family_name, given_name HAVING COUNT(*) > 1) d ON p.family_name = d.family_name AND p.given_name = d.given_name";
+        // Base join for duplicates: same family name and either the same given name or, with a matching birth year
+        // (or an unknown one), the same first three letters of the given name (Mattes/Matthes, Doro/Dorothee).
+        String base = "FROM person p JOIN (SELECT DISTINCT a.id FROM person a JOIN person b ON a.id <> b.id"
+                + " AND LOWER(TRIM(a.family_name)) = LOWER(TRIM(b.family_name))"
+                + " AND (LOWER(TRIM(a.given_name)) = LOWER(TRIM(b.given_name))"
+                + " OR (LEFT(LOWER(TRIM(a.given_name)), 3) = LEFT(LOWER(TRIM(b.given_name)), 3)"
+                + " AND (a.birth_date IS NULL OR b.birth_date IS NULL"
+                + " OR EXTRACT(YEAR FROM a.birth_date) = EXTRACT(YEAR FROM b.birth_date)))))"
+                + " d ON p.id = d.id";
+        return findPage(base, filter, pageable);
+    }
 
+    private Page<Person> findPage(String base, @Nullable String filter, Pageable pageable) {
         // Build WHERE and params using shared filter parsing
         SqlParts sqlParts;
         if (filter != null) {
@@ -283,7 +260,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         int limit = dboPageable.isPaged() ? dboPageable.getPageSize() : Integer.MAX_VALUE;
         int offset = dboPageable.isPaged() ? (dboPageable.getPageNumber() * dboPageable.getPageSize()) : 0;
 
-        String selectSql = "SELECT p.id, p.family_name, p.given_name, p.gender, p.birth_date " + base
+        String selectSql = "SELECT p.id, p.family_name, p.given_name, p.gender, p.birth_date, p.ignored " + base
                 + sqlParts.whereSql + orderBy + " LIMIT :limit OFFSET :offset";
         sqlParts.params.put("limit", limit);
         sqlParts.params.put("offset", offset);
@@ -358,6 +335,7 @@ public class PersonRepositoryDataJdbcAdapter implements PersonRepository {
         dbo.setGender(de.jobst.resulter.domain.Gender.of(gender));
         java.sql.Date bd = rs.getDate("birth_date");
         dbo.setBirthDate(bd != null ? bd.toLocalDate() : null);
+        dbo.setIgnored(rs.getBoolean("ignored"));
         return dbo.asPerson();
     }
 

@@ -38,14 +38,33 @@ check_deps() {
   done
 }
 
+# compose.yml und .env stören den Paketo-Build. Sie werden per mv beiseitegelegt
+# (erhält den Symlink) und über den EXIT-Trap immer zurückgelegt, auch bei Fehler/Abbruch.
+BACKEND_STASH_DIR=""
+
+restore_backend_files() {
+  [[ -n "$BACKEND_STASH_DIR" ]] || return 0
+  local f
+  for f in compose.yml .env; do
+    if [[ -e "$BACKEND_STASH_DIR/$f" || -L "$BACKEND_STASH_DIR/$f" ]]; then
+      mv "$BACKEND_STASH_DIR/$f" "$REPO_ROOT/backend/$f"
+    fi
+  done
+  rmdir "$BACKEND_STASH_DIR" 2>/dev/null || true
+  BACKEND_STASH_DIR=""
+}
+
 build_backend() {
   echo "==> Backend bauen mit Paketo..."
-  local compose_bak=""
-  if [[ -f "$REPO_ROOT/backend/compose.yml" ]]; then
-    compose_bak=$(mktemp)
-    cp "$REPO_ROOT/backend/compose.yml" "$compose_bak"
-  fi
-  rm -f "$REPO_ROOT/backend/compose.yml" "$REPO_ROOT/backend/.env" 2>/dev/null || true
+  BACKEND_STASH_DIR=$(mktemp -d)
+  trap restore_backend_files EXIT
+  trap 'exit 130' INT TERM
+  local f
+  for f in compose.yml .env; do
+    if [[ -e "$REPO_ROOT/backend/$f" || -L "$REPO_ROOT/backend/$f" ]]; then
+      mv "$REPO_ROOT/backend/$f" "$BACKEND_STASH_DIR/$f"
+    fi
+  done
 
   pack build "$BACKEND_IMAGE" \
     --builder paketobuildpacks/builder-jammy-base \
@@ -57,9 +76,7 @@ build_backend() {
     --env BP_MAVEN_SETTINGS_PATH=settings.xml \
     --path "$REPO_ROOT/backend"
 
-  if [[ -n "$compose_bak" ]]; then
-    mv "$compose_bak" "$REPO_ROOT/backend/compose.yml"
-  fi
+  restore_backend_files
 }
 
 build_frontend() {

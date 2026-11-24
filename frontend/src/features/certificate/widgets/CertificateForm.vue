@@ -18,6 +18,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import VuePdfEmbed from 'vue-pdf-embed'
 import { validateLayout } from '@/features/certificate/model/certificateLayoutValidation'
+import CertificateLayoutCanvas from '@/features/certificate/widgets/CertificateLayoutCanvas.vue'
 import CertificateLayoutEditor from '@/features/certificate/widgets/CertificateLayoutEditor.vue'
 import NumberedTextarea from '@/features/certificate/widgets/NumberedTextarea.vue'
 import { EventService, eventService } from '@/features/event/services/event.service'
@@ -56,8 +57,10 @@ const schemaQuery = useQuery({
 
 const visibleRight = ref(false)
 
-const layoutMode = ref<'visual' | 'json'>('visual')
+const layoutMode = ref<'graphic' | 'visual' | 'json'>('graphic')
+const selectedBlock = ref<{ pi: number, bi: number } | null>(null)
 const layoutModes = computed(() => [
+    { value: 'graphic', label: t('certificateLayout.graphic') },
     { value: 'visual', label: t('certificateLayout.visual') },
     { value: 'json', label: t('certificateLayout.json') },
 ])
@@ -272,10 +275,18 @@ watch(
                         >
                             {{ layoutCheck.syntaxError }}
                         </p>
+                        <CertificateLayoutCanvas
+                            v-if="layoutMode === 'graphic'"
+                            v-model="certificate.layoutDescription"
+                            v-model:selected="selectedBlock"
+                            :background="certificate.blankCertificate?.thumbnailContent"
+                            class="mb-3"
+                        />
                         <CertificateLayoutEditor
-                            v-if="layoutMode === 'visual'"
+                            v-if="layoutMode === 'graphic' || layoutMode === 'visual'"
                             v-model="certificate.layoutDescription"
                             :media-files="mediaFileNames"
+                            :selected="layoutMode === 'graphic' ? selectedBlock : null"
                         />
                         <NumberedTextarea
                             v-else

@@ -465,7 +465,7 @@
         "entity_lock_conflict": "Daten bereits geändert, bitte neu laden"
     },
     "certificateLayout": {
-        "visual": "Visuell",
+        "visual": "Formular",
         "json": "JSON",
         "invalid_json": "Das Layout ist kein gültiges Layout-JSON ({error}). Bitte im JSON-Modus korrigieren.",
         "add_paragraph": "Absatz hinzufügen",
@@ -506,7 +506,11 @@
             "CENTER": "Zentriert",
             "ANCHOR": "Anker"
         },
-        "set_color": "Farbe setzen"
+        "set_color": "Farbe setzen",
+        "graphic": "Grafisch",
+        "canvas_hint": "Anklicken wählt einen Block. Ziehen verschiebt: senkrecht ändert den Abstand oberhalb des Absatzes, waagerecht die Tabulator-Position. Doppelklick bearbeitet den Text, die Pfeiltasten verschieben (mit Umschalt in 10er-Schritten). Die Darstellung ist eine Annäherung, die PDF-Vorschau ist maßgeblich.",
+        "canvas_block": "Absatz {p}, Block {b}",
+        "empty_text": "(leer)"
     },
     "cupStatistics": {
         "header": {

@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -96,6 +97,8 @@ public class CupController {
     @PutMapping("/cup/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CupDto> updateCup(@PathVariable Long id, @RequestBody CupDto cupDto) {
+        Assert.notNull(cupDto.type(), "type is not set");
+        Assert.notNull(cupDto.year(), "year is not set");
         var cup = cupService.updateCup(
                 CupId.of(id),
                 CupName.of(cupDto.name()),
@@ -113,6 +116,8 @@ public class CupController {
     @PostMapping("/cup")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CupDto> createCup(@RequestBody CupDto cupDto) {
+        Assert.notNull(cupDto.type(), "type is not set");
+        Assert.notNull(cupDto.year(), "year is not set");
         var cup = cupService.createCup(
                 cupDto.name(),
                 CupType.fromValue(cupDto.type().id()),

@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -83,6 +84,9 @@ public class PersonController {
 
     @PutMapping("/person/{id}")
     public ResponseEntity<PersonDto> updatePerson(@PathVariable Long id, @RequestBody PersonDto personDto) {
+        Assert.hasText(personDto.familyName(), "familyName is not set");
+        Assert.hasText(personDto.givenName(), "givenName is not set");
+        Assert.notNull(personDto.gender(), "gender is not set");
         Person person = personService.updatePerson(
                 PersonId.of(id),
                 PersonName.of(personDto.familyName(), personDto.givenName()),

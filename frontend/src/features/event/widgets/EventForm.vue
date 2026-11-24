@@ -198,9 +198,9 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
 <template>
     <div v-if="event" class="flex flex-col">
         <div class="flex flex-row">
-            <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
+            <label for="name" class="col-fixed w-32">{{ t('labels.name') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
-                <InputText id="name" v-model="event.name" type="text" />
+                <InputText id="name" v-model="event.name" type="text" :invalid="!event.name" aria-required="true" />
             </div>
         </div>
         <div class="flex flex-row">

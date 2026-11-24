@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { createTestDatabase } from './helpers/database'
+import { selectFirstDiscipline } from './helpers/event'
 
 /**
  * Generate a future date string in DD.MM.YYYY format
@@ -48,6 +49,7 @@ test.describe('Event Creation', () => {
         await page.keyboard.press('Escape') // Close date picker overlay
         await page.locator('#startTime').getByRole('combobox').fill('15:30')
         await page.keyboard.press('Escape') // Close time picker overlay
+        await selectFirstDiscipline(page)
         await page.getByLabel('Save').click()
 
         // Verify redirect to event list

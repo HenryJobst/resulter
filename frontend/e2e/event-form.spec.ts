@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { createTestDatabase } from './helpers/database'
+import { selectFirstDiscipline } from './helpers/event'
 
 /**
  * Generate a future date string in DD.MM.YYYY format
@@ -97,6 +98,7 @@ test.describe('EventForm - Create Event', () => {
         }
 
         // Save event
+        await selectFirstDiscipline(page)
         await page.getByLabel('Save').click()
 
         // Verify redirect to event list
@@ -120,6 +122,7 @@ test.describe('EventForm - Create Event', () => {
         await page.keyboard.press('Escape') // Close time picker overlay
 
         // Save event
+        await selectFirstDiscipline(page)
         await page.getByLabel('Save').click()
 
         // Verify redirect to event list
@@ -167,6 +170,7 @@ test.describe('EventForm - Create Event', () => {
         await page.keyboard.press('Escape') // Close time picker overlay
 
         // Save event
+        await selectFirstDiscipline(page)
         await page.getByLabel('Save').click()
 
         // Verify creation
@@ -209,6 +213,7 @@ test.describe('EventForm - Create Event', () => {
         await page.keyboard.press('Escape')
 
         // Save event
+        await selectFirstDiscipline(page)
         await page.getByLabel('Save').click()
 
         // Verify creation
@@ -248,6 +253,7 @@ test.describe('EventForm - Create Event', () => {
         await page.keyboard.press('Escape')
 
         // Save event
+        await selectFirstDiscipline(page)
         await page.getByLabel('Save').click()
 
         // Verify creation
@@ -276,6 +282,7 @@ test.describe('EventForm - Create Event', () => {
         await page.getByRole('option', { name: /Cancelled/ }).click()
 
         // Save event
+        await selectFirstDiscipline(page)
         await page.getByLabel('Save').click()
 
         // Verify creation
@@ -328,6 +335,7 @@ test.describe('EventForm - Edit Event', () => {
         await page.keyboard.press('Escape')
         await page.locator('#startTime').getByRole('combobox').fill('10:00')
         await page.keyboard.press('Escape')
+        await selectFirstDiscipline(page)
         await page.getByLabel('Save').click()
         await expect(page).toHaveURL(/\/event$/, { timeout: 15000 })
 

@@ -68,17 +68,19 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
 <template>
     <div v-if="cup" class="flex flex-col">
         <div class="flex flex-row">
-            <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
+            <label for="name" class="col-fixed w-32">{{ t('labels.name') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
-                <InputText id="name" v-model="cup.name" type="text" class="w-96" />
+                <InputText id="name" v-model="cup.name" type="text" class="w-96" :invalid="!cup.name" aria-required="true" />
             </div>
         </div>
         <div class="flex flex-row">
-            <label for="year" class="col-fixed w-32">{{ t('labels.year') }}</label>
+            <label for="year" class="col-fixed w-32">{{ t('labels.year') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
                 <InputNumber
                     id="year"
                     v-model="cup.year"
+                    :invalid="cup.year == null"
+                    aria-required="true"
                     class="w-96"
                     mode="decimal"
                     show_buttons="true"
@@ -89,7 +91,7 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
             </div>
         </div>
         <div class="flex flex-row">
-            <label for="type" class="col-fixed w-32">{{ t('labels.type') }}</label>
+            <label for="type" class="col-fixed w-32">{{ t('labels.type') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
                 <span v-if="cupTypesQuery.status.value === 'pending'">{{
                     t('messages.loading')
@@ -98,6 +100,7 @@ function handleSelectionChange(ev: MultiSelectChangeEvent) {
                     v-else-if="cupTypesQuery.data && cupTypesQuery.data.value"
                     id="type"
                     v-model="cup.type"
+                    :invalid="!cup.type" aria-required="true"
                     :options="cupTypesQuery.data.value"
                     option-label="id"
                     data-key="id"

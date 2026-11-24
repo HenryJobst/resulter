@@ -68,22 +68,24 @@ const birthDate = computed({
 <template>
     <div v-if="person && props.visible" class="flex flex-col">
         <div class="flex flex-row">
-            <label for="family_name" class="col-fixed w-40">{{ t('labels.family_name') }}</label>
+            <label for="family_name" class="col-fixed w-40">{{ t('labels.family_name') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
                 <InputText
                     id="family_name"
                     v-model="person.familyName"
+                    :invalid="!person.familyName" aria-required="true"
                     type="text"
                     :disabled="!props.changeable"
                 />
             </div>
         </div>
         <div class="flex flex-row">
-            <label for="given_name" class="col-fixed w-40">{{ t('labels.given_name') }}</label>
+            <label for="given_name" class="col-fixed w-40">{{ t('labels.given_name') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
                 <InputText
                     id="given_name"
                     v-model="person.givenName"
+                    :invalid="!person.givenName" aria-required="true"
                     type="text"
                     :disabled="!props.changeable"
                 />
@@ -110,7 +112,7 @@ const birthDate = computed({
             </div>
         </div>
         <div class="flex flex-row">
-            <label for="type" class="col-fixed w-32">{{ t('labels.gender') }}</label>
+            <label for="type" class="col-fixed w-32">{{ t('labels.gender') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
                 <span v-if="genderQuery.status.value === 'pending'">{{
                     t('messages.loading')
@@ -119,6 +121,7 @@ const birthDate = computed({
                     v-else-if="genderQuery.data"
                     id="gender"
                     v-model="person.gender"
+                    :invalid="!person.gender" aria-required="true"
                     :options="localizedGenderOptions"
                     option-label="label"
                     data-key="id"

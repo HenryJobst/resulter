@@ -76,19 +76,19 @@ watch(() => childOrganisations.value, (newValue: number[] | undefined) => {
 <template>
     <div v-if="organisation" class="flex flex-col">
         <div class="flex flex-row">
-            <label for="name" class="col-fixed w-40">{{ t('labels.name') }}</label>
+            <label for="name" class="col-fixed w-40">{{ t('labels.name') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
-                <InputText id="name" v-model="organisation.name" type="text" />
+                <InputText id="name" v-model="organisation.name" type="text" :invalid="!organisation.name" aria-required="true" />
             </div>
         </div>
         <div class="flex flex-row">
-            <label for="shortname" class="col-fixed w-40">{{ t('labels.short_name') }}</label>
+            <label for="shortname" class="col-fixed w-40">{{ t('labels.short_name') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
-                <InputText id="shortname" v-model="organisation.shortName" type="text" />
+                <InputText id="shortname" v-model="organisation.shortName" type="text" :invalid="!organisation.shortName" aria-required="true" />
             </div>
         </div>
         <div class="flex flex-row">
-            <label for="type" class="col-fixed w-40">{{ t('labels.type') }}</label>
+            <label for="type" class="col-fixed w-40">{{ t('labels.type') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
                 <span v-if="organisationTypesQuery.status.value === 'pending'">{{
                     t('messages.loading')
@@ -97,6 +97,7 @@ watch(() => childOrganisations.value, (newValue: number[] | undefined) => {
                     v-else-if="organisationTypesQuery.data"
                     id="type"
                     v-model="organisation.type"
+                    :invalid="!organisation.type" aria-required="true"
                     :options="localizedOrganisationTypeOptions"
                     option-label="label"
                     data-key="id"

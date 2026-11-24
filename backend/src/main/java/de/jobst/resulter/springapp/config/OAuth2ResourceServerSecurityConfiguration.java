@@ -1,5 +1,6 @@
 package de.jobst.resulter.springapp.config;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
@@ -51,6 +52,10 @@ public class OAuth2ResourceServerSecurityConfiguration {
     @Value("#{'${cors.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;
 
+    // empty in prod; the e2e profile adds X-DB-Identifier for database isolation
+    @Value("${cors.extra-allowed-headers:}")
+    private List<String> extraAllowedHeaders;
+
     @Value("#{'${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}'}")
     private String jwkSetUri;
 
@@ -71,9 +76,11 @@ public class OAuth2ResourceServerSecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
-        configuration.setAllowedHeaders(List.of(
+        List<String> allowedHeaders = new ArrayList<>(List.of(
             "Authorization", "Content-Type", "Accept", "Origin",
             "X-Requested-With", "X-XSRF-TOKEN", "Cache-Control"));
+        allowedHeaders.addAll(extraAllowedHeaders);
+        configuration.setAllowedHeaders(allowedHeaders);
         configuration.setExposedHeaders(List.of("Content-Disposition"));
         configuration.setAllowCredentials(true); // Required for session cookies
         configuration.setMaxAge(CORS_PREFLIGHT_CACHE_MAX_AGE);

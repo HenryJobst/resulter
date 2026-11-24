@@ -2,6 +2,7 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ValueObjectChecks;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
@@ -102,6 +103,8 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender,
                                boolean ignored) {
+        ValueObjectChecks.requireNotEmpty(personName.familyName().value());
+        ValueObjectChecks.requireNotEmpty(personName.givenName().value());
         return findById(personId)
                 .map(person -> personRepository.save(new Person(person.id(), personName, birthDate, gender, ignored)))
                 .orElseThrow(ResourceNotFoundException::new);

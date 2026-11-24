@@ -4,6 +4,7 @@ import de.jobst.resulter.application.port.CountryRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.*;
+import de.jobst.resulter.domain.util.ValueObjectChecks;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import java.util.Collection;
 import java.util.List;
@@ -65,6 +66,8 @@ public class OrganisationServiceImpl implements OrganisationService {
             OrganisationType type,
             @org.jspecify.annotations.Nullable CountryId countryId,
             Collection<OrganisationId> childOrganisationIds) {
+        ValueObjectChecks.requireNotEmpty(name.value());
+        ValueObjectChecks.requireNotEmpty(shortName.value());
 
         Optional<Country> optionalCountry = Optional.ofNullable(countryId).flatMap(countryRepository::findById);
         List<Organisation> childOrganisations = findByIds(childOrganisationIds);
@@ -84,6 +87,8 @@ public class OrganisationServiceImpl implements OrganisationService {
             OrganisationType type,
             CountryId countryId,
             Collection<OrganisationId> childOrganisationIds) {
+        ValueObjectChecks.requireNotEmpty(name.value());
+        ValueObjectChecks.requireNotEmpty(shortName.value());
 
         Optional<Country> optionalCountry = countryRepository.findById(countryId);
         if (optionalCountry.isEmpty()) {

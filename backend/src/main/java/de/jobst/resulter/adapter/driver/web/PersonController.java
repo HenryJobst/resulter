@@ -84,8 +84,6 @@ public class PersonController {
 
     @PutMapping("/person/{id}")
     public ResponseEntity<PersonDto> updatePerson(@PathVariable Long id, @RequestBody PersonDto personDto) {
-        Assert.hasText(personDto.familyName(), "familyName is not set");
-        Assert.hasText(personDto.givenName(), "givenName is not set");
         Assert.notNull(personDto.gender(), "gender is not set");
         Person person = personService.updatePerson(
                 PersonId.of(id),

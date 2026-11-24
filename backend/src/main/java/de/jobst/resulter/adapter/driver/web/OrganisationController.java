@@ -84,8 +84,6 @@ public class OrganisationController {
     @PutMapping("/{id}")
     public ResponseEntity<OrganisationDto> updateOrganisation(
             @PathVariable Long id, @RequestBody OrganisationDto organisationDto) {
-        Assert.hasText(organisationDto.name(), "name is not set");
-        Assert.hasText(organisationDto.shortName(), "shortName is not set");
         Assert.notNull(organisationDto.type(), "type is not set");
         Organisation organisation = organisationService.updateOrganisation(
                 OrganisationId.of(id),
@@ -112,8 +110,6 @@ public class OrganisationController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("")
     public ResponseEntity<OrganisationDto> createOrganisation(@RequestBody OrganisationDto organisationDto) {
-        Assert.hasText(organisationDto.name(), "name is not set");
-        Assert.hasText(organisationDto.shortName(), "shortName is not set");
         Assert.notNull(organisationDto.type(), "type is not set");
         Organisation organisation = organisationService.createOrganisation(
                 OrganisationName.of(organisationDto.name()),

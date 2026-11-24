@@ -11,7 +11,7 @@ Das PDF vom Backend ist die einzige echte WYSIWYG-Wahrheit; die bestehende Vorsc
 
 1. **Neue Komponente** `frontend/src/features/certificate/widgets/CertificateLayoutEditor.vue`, `v-model` = der JSON-String (parse/stringify). Ungültiges JSON → Fallback auf Textmodus.
 2. **Umschalter** in `CertificateForm.vue`: Tab "Visuell" / "JSON" (`NumberedTextarea` bleibt als Expertenmodus, beide schreiben dasselbe `layoutDescription`).
-3. **Editor-Inhalt** (nur PrimeVue, keine neue Dep ausser ggf. `vuedraggable` für Umsortieren; alternativ PrimeVue `OrderList`):
+3. **Editor-Inhalt** (nur OpenVue, keine neue Dep ausser ggf. `vuedraggable` für Umsortieren; alternativ Auf/Ab-Buttons):
    - Dokument: Margins, vier Fonts (Select aus Schema-Enum).
    - Absatzliste: hinzufügen/löschen/umsortieren; Margins und Tab-Stops (Position + Alignment) je Absatz.
    - Block je Absatz: Typ Text/Medium; Text mit Platzhalter-Chips (`{{GIVEN_NAME}}` … aus `TextBlockProcessor`), fontSize, bold/italic, Font, `ColorPicker`; Medium per Select aus Media-Feature + Breite.
@@ -36,3 +36,15 @@ Stufe 1: ca. 3–5 Tage inkl. Tests. Stufe 2 / absolute Positionierung: deutlich
 - Bestehende Fixtures (`backend/src/test/resources/certificate/test_layout_description_*.json`) laden → Round-Trip parse/stringify ohne Verlust.
 - Manuell: Layout im Editor ändern, Vorschau-PDF prüfen, speichern, neu laden.
 - Vitest für Parse/Serialize; bestehende Backend-Tests unverändert grün.
+
+## Umsetzungsstand (Branch `feat/certificate-layout-editor`)
+Umgesetzt (Stufe 1, Punkte 1, 2, 3 und 5):
+- `model/certificateLayout.ts`: Typen, Parsen/Serialisieren, Hilfsfunktionen (Unit-Tests inkl. Round-Trip mit den Backend-Fixtures).
+- `widgets/CertificateLayoutEditor.vue`: Dokument-Einstellungen, Absätze, Tabulatoren, Text- und Bild-Blöcke, Platzhalter-Knöpfe, Farbe. Umsortieren per Auf/Ab-Buttons, keine neue Abhängigkeit.
+- `CertificateForm.vue`: Umschalter Visuell/JSON, Vorschau mit 800 ms Debounce.
+
+Offen:
+- Punkt 4: clientseitige Schema-Validierung (z. B. mit ajv, wäre eine neue Abhängigkeit). Fehler im JSON-Modus erscheinen weiter erst im Fehler-PDF.
+- Punkt 6: Schema-Lücke bei `document.margins` (`type`/`properties` fehlen) schließen.
+- Das Fixture `bbm-mittel-2024.json` nutzt das alte flache Format ohne `blocks` und besteht das aktuelle Schema nicht. Der Editor meldet es als ungültig.
+- Einfügen von Platzhaltern am Textende statt an der Cursor-Position.

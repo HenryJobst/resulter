@@ -11,8 +11,9 @@ const layout = JSON.stringify({
     paragraphs: [{ marginTop: 10, blocks: [{ block: { text: 'Hallo {{GIVEN_NAME}}', fontSize: 20 } }] }],
 })
 
-function mountEditor(modelValue: string) {
+function mountEditor(modelValue: string, attach = false) {
     return mount(CertificateLayoutEditor, {
+        attachTo: attach ? document.body : undefined,
         props: { modelValue, mediaFiles: ['logo.png'] },
         global: {
             plugins: [i18n, OpenVue],
@@ -45,6 +46,20 @@ describe('certificateLayoutEditor', () => {
         const result = JSON.parse(emitted![0]![0] as string)
         expect(result.paragraphs[0].blocks[0].block.text).toBe('Hallo {{GIVEN_NAME}}{{FAMILY_NAME}}')
         expect(result.paragraphs[0].marginTop).toBe(10)
+    })
+
+    it('inserts a placeholder at the cursor position', async () => {
+        const wrapper = mountEditor(layout, true)
+        const input = wrapper.findAll('input').find(i => (i.element as HTMLInputElement).value === 'Hallo {{GIVEN_NAME}}')!
+        const el = input.element as HTMLInputElement
+        el.focus()
+        el.setSelectionRange(5, 5)
+        const button = wrapper.findAll('button').find(b => b.text() === 'FAMILY_NAME')
+        await button!.trigger('click')
+        await wrapper.vm.$nextTick()
+        const result = JSON.parse(wrapper.emitted('update:modelValue')![0]![0] as string)
+        expect(result.paragraphs[0].blocks[0].block.text).toBe('Hallo{{FAMILY_NAME}} {{GIVEN_NAME}}')
+        expect(el.selectionStart).toBe(5 + '{{FAMILY_NAME}}'.length)
     })
 
     it('adds a paragraph', async () => {

@@ -14,7 +14,7 @@ import Fieldset from 'openvue/fieldset'
 import InputNumber from 'openvue/inputnumber'
 import InputText from 'openvue/inputtext'
 import Select from 'openvue/select'
-import { ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
     BOLD_FONTS,
@@ -171,8 +171,28 @@ function removeTabStop(paragraph: LayoutParagraph, index: number) {
     }
 }
 
-function insertPlaceholder(block: TextBlock, name: string) {
-    block.text += `{{${name}}}`
+// the text inputs, so a placeholder can be inserted where the cursor was
+const textInputs = new Map<string, { $el: HTMLInputElement }>()
+
+function setTextInput(pi: number, bi: number, el: unknown) {
+    const key = `${pi}-${bi}`
+    if (el) {
+        textInputs.set(key, el as { $el: HTMLInputElement })
+    }
+    else {
+        textInputs.delete(key)
+    }
+}
+
+async function insertPlaceholder(block: TextBlock, name: string, pi: number, bi: number) {
+    const token = `{{${name}}}`
+    const input = textInputs.get(`${pi}-${bi}`)?.$el
+    const start = input?.selectionStart ?? block.text.length
+    const end = input?.selectionEnd ?? start
+    block.text = block.text.slice(0, start) + token + block.text.slice(end)
+    await nextTick()
+    input?.focus()
+    input?.setSelectionRange(start + token.length, start + token.length)
 }
 
 function setColor(block: TextBlock, hex: string | null | undefined) {
@@ -379,6 +399,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                     <label class="flex flex-col text-sm">
                         {{ t('certificateLayout.text') }}
                         <InputText
+                            :ref="(el: unknown) => setTextInput(pi, bi, el)"
                             :model-value="asText(entry.block).text"
                             @update:model-value="(v: string | undefined) => (asText(entry.block).text = v ?? '')"
                         />
@@ -391,7 +412,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                             :label="name"
                             size="small"
                             outlined
-                            @click="insertPlaceholder(asText(entry.block), name)"
+                            @click="insertPlaceholder(asText(entry.block), name, pi, bi)"
                         />
                     </div>
                     <div class="flex flex-row flex-wrap items-end gap-3">

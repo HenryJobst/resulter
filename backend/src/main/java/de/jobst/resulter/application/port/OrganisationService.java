@@ -41,7 +41,7 @@ public interface OrganisationService {
             OrganisationName name,
             OrganisationShortName shortName,
             OrganisationType type,
-            CountryId countryId,
+            @org.jspecify.annotations.Nullable CountryId countryId,
             Collection<OrganisationId> childOrganisationIds);
 
     boolean deleteOrganisation(OrganisationId id);

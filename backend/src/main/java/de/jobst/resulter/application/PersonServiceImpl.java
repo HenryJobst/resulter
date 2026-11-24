@@ -2,7 +2,6 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.*;
-import de.jobst.resulter.domain.util.ValueObjectChecks;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
@@ -10,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,8 +103,8 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Person updatePerson(PersonId personId, PersonName personName, BirthDate birthDate, Gender gender,
                                boolean ignored) {
-        ValueObjectChecks.requireNotEmpty(personName.familyName().value());
-        ValueObjectChecks.requireNotEmpty(personName.givenName().value());
+        Assert.hasText(personName.familyName().value(), "familyName is not set");
+        Assert.hasText(personName.givenName().value(), "givenName is not set");
         return findById(personId)
                 .map(person -> personRepository.save(new Person(person.id(), personName, birthDate, gender, ignored)))
                 .orElseThrow(ResourceNotFoundException::new);

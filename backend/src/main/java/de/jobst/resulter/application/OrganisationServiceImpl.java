@@ -4,7 +4,6 @@ import de.jobst.resulter.application.port.CountryRepository;
 import de.jobst.resulter.application.port.OrganisationRepository;
 import de.jobst.resulter.application.port.OrganisationService;
 import de.jobst.resulter.domain.*;
-import de.jobst.resulter.domain.util.ValueObjectChecks;
 import de.jobst.resulter.domain.util.ResourceNotFoundException;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 @Service
 public class OrganisationServiceImpl implements OrganisationService {
@@ -66,8 +66,8 @@ public class OrganisationServiceImpl implements OrganisationService {
             OrganisationType type,
             @org.jspecify.annotations.Nullable CountryId countryId,
             Collection<OrganisationId> childOrganisationIds) {
-        ValueObjectChecks.requireNotEmpty(name.value());
-        ValueObjectChecks.requireNotEmpty(shortName.value());
+        Assert.hasText(name.value(), "name is not set");
+        Assert.hasText(shortName.value(), "shortName is not set");
 
         Optional<Country> optionalCountry = Optional.ofNullable(countryId).flatMap(countryRepository::findById);
         List<Organisation> childOrganisations = findByIds(childOrganisationIds);
@@ -85,14 +85,14 @@ public class OrganisationServiceImpl implements OrganisationService {
             OrganisationName name,
             OrganisationShortName shortName,
             OrganisationType type,
-            CountryId countryId,
+            @org.jspecify.annotations.Nullable CountryId countryId,
             Collection<OrganisationId> childOrganisationIds) {
-        ValueObjectChecks.requireNotEmpty(name.value());
-        ValueObjectChecks.requireNotEmpty(shortName.value());
+        Assert.hasText(name.value(), "name is not set");
+        Assert.hasText(shortName.value(), "shortName is not set");
 
-        Optional<Country> optionalCountry = countryRepository.findById(countryId);
-        if (optionalCountry.isEmpty()) {
-            return null;
+        Optional<Country> optionalCountry = Optional.ofNullable(countryId).flatMap(countryRepository::findById);
+        if (countryId != null && optionalCountry.isEmpty()) {
+            return null; // country given but unknown
         }
         List<Organisation> childOrganisations = findByIds(childOrganisationIds);
         Organisation organisation = Organisation.of(

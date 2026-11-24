@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Message from 'primevue/message'
+import Message from 'openvue/message'
 
 const props = defineProps<{ message: string | null }>()
 </script>

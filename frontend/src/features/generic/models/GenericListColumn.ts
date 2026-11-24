@@ -1,4 +1,4 @@
-import type { HintedString } from 'primevue/ts-helpers'
+import type { HintedString } from 'openvue/ts-helpers'
 
 export interface GenericListColumn {
     label: string

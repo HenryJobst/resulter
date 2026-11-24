@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Textarea from 'primevue/textarea'
+import Textarea from 'openvue/textarea'
 import { defineModel, onMounted, ref, watch } from 'vue'
 
 const modelValue = defineModel({

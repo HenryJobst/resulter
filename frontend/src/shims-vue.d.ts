@@ -1,4 +1,4 @@
-import type { PrimeVueConfiguration } from 'primevue/config'
+import type { PrimeVueConfiguration } from 'openvue/config'
 import 'vue'
 
 declare module '*.vue' {

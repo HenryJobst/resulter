@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
-import Select from 'primevue/select'
-import { useConfirm } from 'primevue/useconfirm'
+import Button from 'openvue/button'
+import Select from 'openvue/select'
+import { useConfirm } from 'openvue/useconfirm'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -265,7 +265,7 @@ watch(mobileNavOpen, (isOpen) => {
                         <span class="sr-only">{{ value }}</span>
                     </template>
                     <template #option="{ option }">
-                        <span :class="`mr-2 ${getFlagClass(option)}`" />
+                        <span class="mr-2" :class="getFlagClass(option)" />
                         <span class="sr-only">{{ option }}</span>
                         <div>{{ option }}</div>
                     </template>

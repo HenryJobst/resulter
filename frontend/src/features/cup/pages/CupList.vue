@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import type { TableSettings } from '@/features/generic/models/table_settings'
-import Button from 'primevue/button'
-import Chip from 'primevue/chip'
+import Button from 'openvue/button'
+import Chip from 'openvue/chip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/auth/store/auth.store'

@@ -177,3 +177,31 @@ export function hexToRgb(hex: string): RgbColor {
     const value = Number.parseInt(hex.replace('#', ''), 16)
     return { r: (value >> 16) & 255, g: (value >> 8) & 255, b: value & 255 }
 }
+
+// A4 in points, like the backend renderer
+export const PAGE_WIDTH = 595
+export const PAGE_HEIGHT = 842
+// margins the backend uses without a `document`: iText default
+export const DEFAULT_PAGE_MARGIN = 36
+// margins the backend uses when `document` exists but has no margins
+export const DEFAULT_DOCUMENT_MARGINS: Required<DocumentMargins> = { top: 30, bottom: 30, left: 20, right: 20 }
+
+/** The page margins the backend renderer really uses. */
+export function effectiveMargins(layout: CertificateLayout): Required<DocumentMargins> {
+    if (!layout.document) {
+        return { top: DEFAULT_PAGE_MARGIN, bottom: DEFAULT_PAGE_MARGIN, left: DEFAULT_PAGE_MARGIN, right: DEFAULT_PAGE_MARGIN }
+    }
+    return { ...DEFAULT_DOCUMENT_MARGINS, ...layout.document.margins }
+}
+
+/**
+ * Makes sure `document.margins` holds all four values. The backend fails with a
+ * NullPointerException when one is missing, and the default margins depend on whether a
+ * `document` exists, so the current margins are written down to keep the page unchanged.
+ */
+export function ensureDocumentMargins(layout: CertificateLayout): Required<DocumentMargins> {
+    const margins = effectiveMargins(layout)
+    layout.document ??= {}
+    layout.document.margins = margins
+    return margins
+}

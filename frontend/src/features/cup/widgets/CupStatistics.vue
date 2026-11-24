@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CupStatistics } from '@/features/cup/model/cup_statistics'
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
+import Button from 'openvue/button'
+import Dialog from 'openvue/dialog'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 

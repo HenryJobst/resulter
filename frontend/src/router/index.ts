@@ -1,6 +1,6 @@
 import type { I18n } from 'vue-i18n'
 import type { Router, RouteRecordRaw } from 'vue-router'
-import { ToastEventBus } from 'primevue'
+import { ToastEventBus } from 'openvue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { aboutRouting } from '@/features/about/about-routing'
 import { analysisRoutes } from '@/features/analysis/analysis-routing'

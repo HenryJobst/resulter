@@ -5,7 +5,7 @@ import EventImportForm from '@/features/event/widgets/EventImportForm.vue'
 import { createGlobalMountOptions } from '../../../helpers/testSetup'
 
 // Mock PrimeVue components
-vi.mock('primevue/usetoast', () => ({
+vi.mock('openvue/usetoast', () => ({
     useToast: vi.fn(() => ({
         add: vi.fn(),
     })),
@@ -263,7 +263,7 @@ describe('eventImportForm', () => {
 
         it('should show success toast on upload completion', async () => {
             const mockToastAdd = vi.fn()
-            const { useToast } = await import('primevue/usetoast')
+            const { useToast } = await import('openvue/usetoast')
             vi.mocked(useToast).mockReturnValue({
                 add: mockToastAdd,
                 remove: vi.fn(),

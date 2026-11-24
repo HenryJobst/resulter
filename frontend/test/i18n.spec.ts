@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getFlagClass, getLocale, setI18nLanguage, setLocale, setupI18n, SUPPORT_LOCALES } from '@/i18n'
 
 // Mock PrimeVue
-vi.mock('primevue/config', () => ({
+vi.mock('openvue/config', () => ({
     usePrimeVue: vi.fn(() => ({
         config: {
             locale: {},

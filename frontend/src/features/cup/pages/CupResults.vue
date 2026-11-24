@@ -4,7 +4,7 @@ import type { AggregatedPersonScores } from '@/features/cup/model/aggregated_per
 import type { EventRacesCupScore } from '@/features/cup/model/event_races_cup_score'
 import type { OrganisationScore } from '@/features/cup/model/organisation_score'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import Button from 'primevue/button'
+import Button from 'openvue/button'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'

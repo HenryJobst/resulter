@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Dialog from 'primevue/dialog'
+import Dialog from 'openvue/dialog'
 import { useI18n } from 'vue-i18n'
 import { useMessageDetailStore } from '@/features/common/stores/useMessageDetailStore.ts'
 

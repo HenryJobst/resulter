@@ -1,8 +1,11 @@
+import type { CertificateLayout } from '@/features/certificate/model/certificateLayout'
 import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import process from 'node:process'
 import { describe, expect, it } from 'vitest'
 import {
+    effectiveMargins,
+    ensureDocumentMargins,
     hexToRgb,
     isMediaBlock,
     moveItem,
@@ -59,6 +62,36 @@ describe('certificateLayout', () => {
             if ('layout' in parsed) {
                 expect(JSON.parse(serializeLayout(parsed.layout))).toEqual(JSON.parse(raw))
             }
+        })
+    })
+
+    describe('document margins', () => {
+        it('uses 36 on every side when there is no document', () => {
+            expect(effectiveMargins({ paragraphs: [] })).toEqual({ top: 36, bottom: 36, left: 36, right: 36 })
+        })
+
+        it('uses the backend defaults when the document has no margins', () => {
+            expect(effectiveMargins({ document: { font: 'Courier' }, paragraphs: [] }))
+                .toEqual({ top: 30, bottom: 30, left: 20, right: 20 })
+        })
+
+        it('uses the given margins', () => {
+            expect(effectiveMargins({ document: { margins: { top: 1, bottom: 2, left: 3, right: 4 } }, paragraphs: [] }))
+                .toEqual({ top: 1, bottom: 2, left: 3, right: 4 })
+        })
+
+        it('writes all four margins and keeps the current page unchanged', () => {
+            const none: CertificateLayout = { paragraphs: [] }
+            expect(ensureDocumentMargins(none)).toEqual({ top: 36, bottom: 36, left: 36, right: 36 })
+            expect(none.document?.margins).toBeDefined()
+
+            const noMargins: CertificateLayout = { document: { font: 'Courier' }, paragraphs: [] }
+            expect(ensureDocumentMargins(noMargins)).toEqual({ top: 30, bottom: 30, left: 20, right: 20 })
+        })
+
+        it('fills missing margins without touching the given ones', () => {
+            const partial: CertificateLayout = { document: { margins: { top: 50 } }, paragraphs: [] }
+            expect(ensureDocumentMargins(partial)).toEqual({ top: 50, bottom: 30, left: 20, right: 20 })
         })
     })
 

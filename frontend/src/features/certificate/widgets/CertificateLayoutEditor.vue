@@ -2,7 +2,6 @@
 import type {
     Block,
     BlockEntry,
-    CertificateLayout,
     LayoutParagraph,
     TabAlignment,
     TextBlock,
@@ -14,11 +13,14 @@ import Fieldset from 'openvue/fieldset'
 import InputNumber from 'openvue/inputnumber'
 import InputText from 'openvue/inputtext'
 import Select from 'openvue/select'
-import { nextTick, ref, watch } from 'vue'
+import { nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
     BOLD_FONTS,
     BOLD_ITALIC_FONTS,
+    DEFAULT_PAGE_MARGIN,
+    effectiveMargins,
+    ensureDocumentMargins,
     FONTS,
     hexToRgb,
     isMediaBlock,
@@ -27,68 +29,28 @@ import {
     newMediaBlockEntry,
     newParagraph,
     newTextBlockEntry,
-    parseLayout,
     PLACEHOLDERS,
     rgbToHex,
-    serializeLayout,
     setOptional,
     TAB_ALIGNMENTS,
 } from '@/features/certificate/model/certificateLayout'
+import { useLayoutSync } from '@/features/certificate/model/useLayoutSync'
 
 const props = defineProps<{
     modelValue: string
     /** file names of the media files that can be used as image blocks */
     mediaFiles: string[]
+    /** paragraph and block selected in the graphical view */
+    selected?: { pi: number, bi: number } | null
 }>()
 
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
 const { t } = useI18n()
 
-const layout = ref<CertificateLayout | null>(null)
-const error = ref<string | null>(null)
-
-// serialized layout the editor and the parent value agree on; loading a value must not
-// emit it again (that would reformat the JSON without any edit), and our own update
-// must not reload the editor
-let lastSerialized: string | null = null
-
-function load(json: string) {
-    const result = parseLayout(json)
-    if ('error' in result) {
-        error.value = result.error
-        layout.value = null
-    }
-    else {
-        error.value = null
-        lastSerialized = serializeLayout(result.layout)
-        layout.value = result.layout
-    }
-}
-
-watch(
+const { layout, error } = useLayoutSync(
     () => props.modelValue,
-    (value) => {
-        if (value !== lastSerialized) {
-            load(value)
-        }
-    },
-    { immediate: true },
-)
-
-watch(
-    layout,
-    (value) => {
-        if (!value) {
-            return
-        }
-        const serialized = serializeLayout(value)
-        if (serialized !== lastSerialized) {
-            lastSerialized = serialized
-            emit('update:modelValue', serialized)
-        }
-    },
-    { deep: true },
+    value => emit('update:modelValue', value),
 )
 
 const alignmentOptions = TAB_ALIGNMENTS.map(a => ({ id: a, label: t(`certificateLayout.alignments.${a}`) }))
@@ -99,32 +61,16 @@ const asText = (block: Block) => block as TextBlock
 type Side = 'top' | 'bottom' | 'left' | 'right'
 type FontKey = 'font' | 'boldFont' | 'italicFont' | 'boldItalicFont'
 
-function cleanupDocument() {
-    const doc = layout.value?.document
-    if (!doc || !layout.value) {
-        return
-    }
-    if (doc.margins && Object.keys(doc.margins).length === 0) {
-        delete doc.margins
-    }
-    if (Object.keys(doc).length === 0) {
-        delete layout.value.document
-    }
-}
-
 function setMargin(side: Side, value: number | null) {
-    const l = layout.value!
-    l.document ??= {}
-    l.document.margins ??= {}
-    setOptional(l.document.margins, side, value)
-    cleanupDocument()
+    // all four margins must stay set (the backend fails otherwise), a cleared one resets
+    const margins = ensureDocumentMargins(layout.value!)
+    margins[side] = value ?? DEFAULT_PAGE_MARGIN
 }
 
 function setDocFont(key: FontKey, value: string | null) {
-    const l = layout.value!
-    l.document ??= {}
-    setOptional(l.document, key, value)
-    cleanupDocument()
+    // creating `document` changes the default margins, so write them down first
+    ensureDocumentMargins(layout.value!)
+    setOptional(layout.value!.document!, key, value)
 }
 
 const documentFonts: { key: FontKey, label: string, options: string[] }[] = [
@@ -214,7 +160,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                         {{ t(`certificateLayout.${s.label}`) }}
                         <InputNumber
                             input-style="width: 7rem"
-                            :model-value="layout.document?.margins?.[s.key]"
+                            :model-value="effectiveMargins(layout)[s.key]"
                             :use-grouping="false"
                             @update:model-value="(v: number | null) => setMargin(s.key, v)"
                         />
@@ -242,7 +188,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
             v-for="(paragraph, pi) in layout.paragraphs"
             :key="pi"
             class="flex flex-col gap-2 p-3"
-            style="border: 1px solid #ccc; border-radius: 6px"
+            :style="{ border: `${props.selected?.pi === pi ? 2 : 1}px solid ${props.selected?.pi === pi ? '#ff7a00' : '#ccc'}`, borderRadius: '6px' }"
         >
             <div class="flex flex-row justify-between items-center">
                 <strong>{{ t('certificateLayout.paragraph', { n: pi + 1 }) }}</strong>
@@ -334,9 +280,10 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
 
             <div
                 v-for="(entry, bi) in paragraph.blocks"
+                :id="`layout-block-${pi}-${bi}`"
                 :key="bi"
                 class="flex flex-col gap-2 p-2"
-                style="border: 1px dashed #bbb; border-radius: 6px"
+                :style="{ border: `${props.selected?.pi === pi && props.selected?.bi === bi ? 2 : 1}px dashed ${props.selected?.pi === pi && props.selected?.bi === bi ? '#ff7a00' : '#bbb'}`, borderRadius: '6px' }"
             >
                 <div class="flex flex-row justify-between items-center">
                     <span class="text-sm">

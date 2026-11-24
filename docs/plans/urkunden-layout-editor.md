@@ -19,8 +19,21 @@ Das PDF vom Backend ist die einzige echte WYSIWYG-Wahrheit; die bestehende Vorsc
 5. **Vorschau-Debounce**: Deep-Watch (Zeile ~111) mit ~800 ms Debounce, damit nicht jeder Tastendruck ein PDF rendert.
 6. **Backend**: keine Änderung nötig. Optional: Lücke in `certificate_schema.json` für `document.margins` (`type: object`, `properties`) schliessen.
 
-## Optionale Stufe 2 (nur bei Bedarf)
-Klick ins PDF-Bild springt zum passenden Block. Aufwand hoch (Mapping PDF-Position ↔ Block), erst nach Stufe 1 bewerten.
+## Stufe 2: grafische Ansicht (Branch `feat/certificate-layout-canvas`)
+Umgesetzt auf dem gleichen Fließtext-Modell, ohne Backend-Änderung:
+- `model/certificateCanvas.ts`: Geometrie der Seite. Die Konstanten wurden an PDFs gemessen, die das Backend rendert (Auslesen der Textpositionen mit pdf.js): 4 pt Standardabstand oben und unten (ein angegebener Abstand ersetzt ihn), Zeilenhöhe 1,5 x Schriftgröße, Grundlinie 1,055 x Schriftgröße unter der Zeilenoberkante, Tabulatoren aufsteigend, ein Block steht auf dem nächsten Stopp hinter dem Ende des vorigen, danach auf dem nächsten Vielfachen von 50. Die Tests in `test/features/certificate/certificateCanvas.spec.ts` pinnen diese Messwerte.
+- `widgets/CertificateLayoutCanvas.vue`: A4-Seite mit Hintergrundbild und Randlinien, Beispieldaten wie in der Backend-Vorschau, Klick wählt einen Block, senkrechtes Ziehen ändert den Abstand oben, waagerechtes Ziehen den Tabulator, Pfeiltasten, Doppelklick bearbeitet den Text.
+- Modi im Formular: Grafisch (Grafik und Formular zusammen), Formular, JSON.
+- Gemessener Vergleich mit dem PDF-Rendering: Position von Absätzen und Tabulatoren stimmt auf etwa 1 pt.
+
+Bekannte Grenzen:
+- Die Textbreite ist geschätzt (keine echten Schriftmetriken). Das wirkt sich nur auf zentrierte oder rechtsbündige Blöcke und auf die Lage nachfolgender Blöcke aus, nicht auf die Zeilenhöhe.
+- Zeilenumbruch langer Texte und Seitenumbruch sind nicht abgebildet.
+- Die Höhe von Bild-Blöcken ist geschätzt (Breite mal 0,5), das echte Seitenverhältnis ist unbekannt.
+- Eigene Schriften (`.ttf`) werden mit einer ähnlichen Web-Schrift dargestellt.
+- Das Hintergrundbild ist die Vorschau-Miniatur des Backends, daher unscharf.
+
+Mögliche nächste Stufe: Blockpositionen vom Backend liefern lassen (genaue Breiten und Umbrüche) und die Rahmen über die PDF-Vorschau legen.
 
 ## Aufwand (grob)
 Stufe 1: ca. 3–5 Tage inkl. Tests. Stufe 2 / absolute Positionierung: deutlich mehr, nicht empfohlen.

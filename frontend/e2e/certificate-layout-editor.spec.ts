@@ -68,6 +68,18 @@ test.describe('Certificate layout editor', () => {
         await page.getByLabel('Font size').first().fill('30')
         await page.getByLabel('Bold').first().check()
 
+        // the graphical view shows the block with sample data and lets you drag it
+        const canvasBox = page.getByTestId('layout-canvas').getByRole('button').first()
+        await expect(canvasBox).toContainText('Hello Max')
+        await canvasBox.scrollIntoViewIfNeeded()
+        const area = await canvasBox.boundingBox()
+        const cx = area!.x + area!.width / 2
+        const cy = area!.y + area!.height / 2
+        await page.mouse.move(cx, cy)
+        await page.mouse.down()
+        await page.mouse.move(cx, cy + 40, { steps: 5 })
+        await page.mouse.up()
+
         // the preview renders the PDF from the layout
         await expect(page.locator('.preview-panel canvas').first()).toBeVisible({ timeout: 30000 })
 
@@ -76,6 +88,10 @@ test.describe('Certificate layout editor', () => {
         const json = page.locator('textarea').first()
         await expect(json).toHaveValue(/"text": "Hello \{\{GIVEN_NAME\}\}"/)
         await expect(json).toHaveValue(/"fontSize": 30/)
+        // 40 px on screen are about 52 points on the page (the page is 460 px wide for 595 pt)
+        const dragged = JSON.parse(await json.inputValue()).paragraphs[0].marginTop
+        expect(dragged).toBeGreaterThan(40)
+        expect(dragged).toBeLessThan(65)
         await expect(page.getByRole('alert')).toHaveCount(0)
 
         // a schema violation is reported while typing

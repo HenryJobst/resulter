@@ -465,7 +465,7 @@
         "entity_lock_conflict": "Entity already changed, please reload"
     },
     "certificateLayout": {
-        "visual": "Visual",
+        "visual": "Form",
         "json": "JSON",
         "invalid_json": "The layout is not a valid layout JSON ({error}). Please fix it in JSON mode.",
         "add_paragraph": "Add paragraph",
@@ -506,7 +506,11 @@
             "CENTER": "Center",
             "ANCHOR": "Anchor"
         },
-        "set_color": "Set color"
+        "set_color": "Set color",
+        "graphic": "Graphic",
+        "canvas_hint": "Click selects a block. Dragging moves it: vertically changes the space above the paragraph, horizontally the tab stop position. Double click edits the text, the arrow keys move it (10 steps with Shift). The view is an approximation, the PDF preview is authoritative.",
+        "canvas_block": "Paragraph {p}, block {b}",
+        "empty_text": "(empty)"
     },
     "cupStatistics": {
         "header": {

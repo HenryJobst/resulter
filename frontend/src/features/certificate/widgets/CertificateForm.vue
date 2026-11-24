@@ -7,14 +7,17 @@ import type { Media } from '@/features/media/model/media'
 import type { MediaKey } from '@/features/media/model/media_key'
 import { prettyPrint } from '@base2/pretty-print-object'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useDebounceFn } from '@vueuse/core'
 import Button from 'openvue/button'
 import Checkbox from 'openvue/checkbox'
 import Drawer from 'openvue/drawer'
 import InputText from 'openvue/inputtext'
 import Select from 'openvue/select'
+import SelectButton from 'openvue/selectbutton'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import VuePdfEmbed from 'vue-pdf-embed'
+import CertificateLayoutEditor from '@/features/certificate/widgets/CertificateLayoutEditor.vue'
 import NumberedTextarea from '@/features/certificate/widgets/NumberedTextarea.vue'
 import { EventService, eventService } from '@/features/event/services/event.service'
 import { mediaService } from '@/features/media/services/media.service'
@@ -51,6 +54,13 @@ const schemaQuery = useQuery({
 })
 
 const visibleRight = ref(false)
+
+const layoutMode = ref<'visual' | 'json'>('visual')
+const layoutModes = computed(() => [
+    { value: 'visual', label: t('certificateLayout.visual') },
+    { value: 'json', label: t('certificateLayout.json') },
+])
+const mediaFileNames = computed(() => mediaQuery.data.value?.map(m => m.fileName) ?? [])
 
 const formattedSchema = computed(() => {
     if (schemaQuery.isFetched)
@@ -108,10 +118,15 @@ function handleMediaSelectionChange(ev: SelectChangeEvent) {
     }
 }
 
+// the preview is a rendered PDF, so wait until the user pauses typing
+const refreshPreview = useDebounceFn(() => {
+    queryClient.invalidateQueries({ queryKey: ['certificate'] })
+}, 800)
+
 watch(
     () => certificate.value,
     () => {
-        queryClient.invalidateQueries({ queryKey: ['certificate'] })
+        refreshPreview()
     },
     { deep: true },
 )
@@ -215,7 +230,21 @@ watch(
                         </Drawer>
                     </div>
                     <div class="col">
+                        <SelectButton
+                            v-model="layoutMode"
+                            :options="layoutModes"
+                            option-label="label"
+                            option-value="value"
+                            :allow-empty="false"
+                            class="mb-2"
+                        />
+                        <CertificateLayoutEditor
+                            v-if="layoutMode === 'visual'"
+                            v-model="certificate.layoutDescription"
+                            :media-files="mediaFileNames"
+                        />
                         <NumberedTextarea
+                            v-else
                             id="layoutDescription"
                             v-model="certificate.layoutDescription"
                         />

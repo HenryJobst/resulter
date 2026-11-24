@@ -17,6 +17,7 @@ import SelectButton from 'openvue/selectbutton'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import VuePdfEmbed from 'vue-pdf-embed'
+import { validateLayout } from '@/features/certificate/model/certificateLayoutValidation'
 import CertificateLayoutEditor from '@/features/certificate/widgets/CertificateLayoutEditor.vue'
 import NumberedTextarea from '@/features/certificate/widgets/NumberedTextarea.vue'
 import { EventService, eventService } from '@/features/event/services/event.service'
@@ -60,6 +61,23 @@ const layoutModes = computed(() => [
     { value: 'visual', label: t('certificateLayout.visual') },
     { value: 'json', label: t('certificateLayout.json') },
 ])
+// schema errors are shown in both modes, a JSON syntax error only in the JSON mode
+// (the visual mode reports it itself)
+const layoutCheck = computed<{ syntaxError: string | null, schemaErrors: string[] }>(() => {
+    const text = certificate.value?.layoutDescription
+    if (!text || text.trim() === '') {
+        return { syntaxError: null, schemaErrors: [] }
+    }
+    let data: unknown
+    try {
+        data = JSON.parse(text)
+    }
+    catch (e) {
+        return { syntaxError: e instanceof Error ? e.message : String(e), schemaErrors: [] }
+    }
+    const schema = schemaQuery.data.value
+    return { syntaxError: null, schemaErrors: schema ? validateLayout(schema, data) : [] }
+})
 const mediaFileNames = computed(() => mediaQuery.data.value?.map(m => m.fileName) ?? [])
 
 const formattedSchema = computed(() => {
@@ -238,6 +256,22 @@ watch(
                             :allow-empty="false"
                             class="mb-2"
                         />
+                        <ul
+                            v-if="layoutCheck.schemaErrors.length > 0"
+                            class="text-red-500 mb-2"
+                            role="alert"
+                        >
+                            <li v-for="message in layoutCheck.schemaErrors" :key="message">
+                                {{ message }}
+                            </li>
+                        </ul>
+                        <p
+                            v-if="layoutMode === 'json' && layoutCheck.syntaxError"
+                            class="text-red-500 mb-2"
+                            role="alert"
+                        >
+                            {{ layoutCheck.syntaxError }}
+                        </p>
                         <CertificateLayoutEditor
                             v-if="layoutMode === 'visual'"
                             v-model="certificate.layoutDescription"

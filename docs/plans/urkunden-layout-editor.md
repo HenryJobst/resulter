@@ -38,13 +38,14 @@ Stufe 1: ca. 3–5 Tage inkl. Tests. Stufe 2 / absolute Positionierung: deutlich
 - Vitest für Parse/Serialize; bestehende Backend-Tests unverändert grün.
 
 ## Umsetzungsstand (Branch `feat/certificate-layout-editor`)
-Umgesetzt (Stufe 1, Punkte 1, 2, 3 und 5):
+Umgesetzt (Stufe 1, alle sechs Punkte):
 - `model/certificateLayout.ts`: Typen, Parsen/Serialisieren, Hilfsfunktionen (Unit-Tests inkl. Round-Trip mit den Backend-Fixtures).
-- `widgets/CertificateLayoutEditor.vue`: Dokument-Einstellungen, Absätze, Tabulatoren, Text- und Bild-Blöcke, Platzhalter-Knöpfe, Farbe. Umsortieren per Auf/Ab-Buttons, keine neue Abhängigkeit.
+- `model/certificateLayoutValidation.ts`: Prüfung gegen das Backend-Schema mit `ajv` (bereits transitiv im Lockfile, jetzt direkte Abhängigkeit). Schema-Fehler erscheinen in beiden Modi, ein JSON-Syntaxfehler im JSON-Modus.
+- `widgets/CertificateLayoutEditor.vue`: Dokument-Einstellungen, Absätze, Tabulatoren, Text- und Bild-Blöcke, Platzhalter an der Cursor-Position, Farbe. Umsortieren per Auf/Ab-Buttons.
 - `CertificateForm.vue`: Umschalter Visuell/JSON, Vorschau mit 800 ms Debounce.
+- `certificate_schema.json`: `document.margins` hat jetzt `type`/`properties` (Zahlen, passend zum `Float` im Java-Modell).
+- E2E-Test `e2e/certificate-layout-editor.spec.ts` (Editor, PDF-Vorschau, Schema-Fehler, Speichern, Wiederöffnen).
 
-Offen:
-- Punkt 4: clientseitige Schema-Validierung (z. B. mit ajv, wäre eine neue Abhängigkeit). Fehler im JSON-Modus erscheinen weiter erst im Fehler-PDF.
-- Punkt 6: Schema-Lücke bei `document.margins` (`type`/`properties` fehlen) schließen.
-- Das Fixture `bbm-mittel-2024.json` nutzt das alte flache Format ohne `blocks` und besteht das aktuelle Schema nicht. Der Editor meldet es als ungültig.
-- Einfügen von Platzhaltern am Textende statt an der Cursor-Position.
+Bekannte Einschränkungen:
+- Das Fixture `bbm-mittel-2024.json` nutzt das alte flache Format ohne `blocks` und besteht das Schema nicht; der Editor meldet es als ungültig.
+- Das Layout bleibt Fließtext. Ein grafischer Editor mit direkter Manipulation ist als nächste Stufe offen (siehe Stufe 2).

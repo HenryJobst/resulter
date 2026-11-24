@@ -26,21 +26,25 @@
             "description" : "Defines the document's global font settings",
             "properties" : {
                 "margins": {
-                    "top" : {
-                        "type" : "integer",
-                        "description" : "The top margin of the document"
-                    },
-                    "bottom" : {
-                        "type" : "integer",
-                        "description" : "The bottom margin of the document"
-                    },
-                    "left" : {
-                        "type" : "integer",
-                        "description" : "The left margin of the document"
-                    },
-                    "right" : {
-                        "type" : "integer",
-                        "description" : "The right margin of the document"
+                    "type" : "object",
+                    "description" : "The margins of the document",
+                    "properties" : {
+                        "top" : {
+                            "type" : "number",
+                            "description" : "The top margin of the document"
+                        },
+                        "bottom" : {
+                            "type" : "number",
+                            "description" : "The bottom margin of the document"
+                        },
+                        "left" : {
+                            "type" : "number",
+                            "description" : "The left margin of the document"
+                        },
+                        "right" : {
+                            "type" : "number",
+                            "description" : "The right margin of the document"
+                        }
                     }
                 },
                 "font" : {

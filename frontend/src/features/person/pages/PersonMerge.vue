@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { Person } from '@/features/person/model/person'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import Button from 'primevue/button'
-import Select from 'primevue/select'
-import { useToast } from 'primevue/usetoast'
+import Button from 'openvue/button'
+import Select from 'openvue/select'
+import { useToast } from 'openvue/usetoast'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'

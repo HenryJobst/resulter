@@ -1,4 +1,4 @@
-import type { DataTableFilterMetaData } from 'primevue/datatable'
+import type { DataTableFilterMetaData } from 'openvue/datatable'
 import type { GenericEntity } from '@/features/generic/models/GenericEntity'
 import type { RestPageResult } from '@/features/generic/models/rest_page_result'
 import type { TableSettings } from '@/features/generic/models/table_settings'

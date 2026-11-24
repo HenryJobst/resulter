@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
-import Card from 'primevue/card'
-import Skeleton from 'primevue/skeleton'
+import Button from 'openvue/button'
+import Card from 'openvue/card'
+import Skeleton from 'openvue/skeleton'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import { useErrorStore } from '@/features/common/stores/useErrorStore'

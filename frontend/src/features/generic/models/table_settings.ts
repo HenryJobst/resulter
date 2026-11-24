@@ -1,4 +1,4 @@
-import type { DataTableFilterMeta, DataTableSortMeta } from 'primevue/datatable'
+import type { DataTableFilterMeta, DataTableSortMeta } from 'openvue/datatable'
 import type { PageSettings } from '@/features/generic/models/table_base_settings'
 
 export interface TableSettings extends PageSettings {

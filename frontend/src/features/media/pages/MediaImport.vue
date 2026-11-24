@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { FileUploadUploaderEvent } from 'primevue/fileupload'
+import type { FileUploadUploaderEvent } from 'openvue/fileupload'
 import type { Media } from '@/features/media/model/media'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import Button from 'primevue/button'
-import { useToast } from 'primevue/usetoast'
+import Button from 'openvue/button'
+import { useToast } from 'openvue/usetoast'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { MediaService, mediaService } from '@/features/media/services/media.service'

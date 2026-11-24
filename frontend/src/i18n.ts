@@ -1,5 +1,5 @@
 import type { Composer, I18n, I18nMode, I18nOptions, Locale, VueI18n } from 'vue-i18n'
-import { usePrimeVue } from 'primevue/config'
+import { usePrimeVue } from 'openvue/config'
 import { isRef, nextTick, ref } from 'vue'
 import { createI18n } from 'vue-i18n'
 import de from '@/locales/de.json'

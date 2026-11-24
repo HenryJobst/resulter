@@ -24,7 +24,7 @@ Object.defineProperty(window, 'localStorage', {
 })
 
 // Mock PrimeVue useToast globally for all tests
-vi.mock('primevue/usetoast', () => ({
+vi.mock('openvue/usetoast', () => ({
     useToast: vi.fn(() => ({
         add: vi.fn(),
         remove: vi.fn(),

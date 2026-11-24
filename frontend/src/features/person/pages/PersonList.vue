@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { GenericListColumn } from '@/features/generic/models/GenericListColumn'
 import type { TableSettings } from '@/features/generic/models/table_settings'
-import Button from 'primevue/button'
-import Checkbox from 'primevue/checkbox'
-import Chip from 'primevue/chip'
+import Button from 'openvue/button'
+import Checkbox from 'openvue/checkbox'
+import Chip from 'openvue/chip'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'

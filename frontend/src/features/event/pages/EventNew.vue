@@ -21,6 +21,7 @@ const localFormData = ref<SportEvent>({
     organisations: [],
     certificate: null,
     hasSplitTimes: false,
+    aggregateScore: false,
 })
 </script>
 

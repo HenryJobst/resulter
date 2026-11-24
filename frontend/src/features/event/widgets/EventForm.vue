@@ -277,7 +277,7 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
             </div>
         </div>
         <div class="flex flex-row">
-            <label for="discipline" class="col-fixed w-40">{{ t('labels.discipline') }}</label>
+            <label for="discipline" class="col-fixed w-40">{{ t('labels.discipline') }}<span aria-hidden="true"> *</span></label>
             <div class="col">
                 <span v-if="disciplineQuery.status.value === 'pending'">{{
                     t('messages.loading')
@@ -286,6 +286,8 @@ function handleCertificateSelectionChange(ev: SelectChangeEvent) {
                     v-else-if="disciplineQuery.data.value"
                     id="discipline"
                     v-model="event.discipline"
+                    :invalid="!event.discipline"
+                    aria-required="true"
                     :options="localizedDisciplineOptions"
                     option-label="label"
                     data-key="id"

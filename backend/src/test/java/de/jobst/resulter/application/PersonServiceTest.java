@@ -2,7 +2,10 @@ package de.jobst.resulter.application;
 
 import de.jobst.resulter.application.port.*;
 import de.jobst.resulter.domain.Gender;
+import de.jobst.resulter.domain.BirthDate;
 import de.jobst.resulter.domain.Person;
+import de.jobst.resulter.domain.PersonId;
+import de.jobst.resulter.domain.PersonName;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PersonServiceTest {
 
@@ -65,5 +69,16 @@ class PersonServiceTest {
         String str2 = "John";
         double similarity = jaroWinkler.apply(str1, str2);
         assertThat(similarity).isGreaterThan(0.9);
+    }
+
+    @Test
+    void updatePerson_shouldRejectEmptyNames() {
+        BirthDate birthDate = BirthDate.of(LocalDate.of(1990, 1, 1));
+        assertThatThrownBy(() -> personService.updatePerson(
+                        PersonId.of(1L), PersonName.of("", "Jim"), birthDate, Gender.M, false))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> personService.updatePerson(
+                        PersonId.of(1L), PersonName.of("Meier", " "), birthDate, Gender.M, false))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -37,19 +37,25 @@ NEW="${MAJOR}.${MINOR}.${PATCH}"
 echo "Bump: $CURRENT → $NEW ($BUMP)"
 echo ""
 
-FILES=(
-  "$SCRIPT_DIR/pom.xml"
-  "$SCRIPT_DIR/backend/pom.xml"
-  "$SCRIPT_DIR/frontend/package.json"
-  "$SCRIPT_DIR/frontend/project.toml"
-  "$SCRIPT_DIR/backend/project.toml"
-  "$SCRIPT_DIR/backend/src/main/resources/application.properties"
-  "$SCRIPT_DIR/README.md"
+# Datei|Text vor der Version|Text nach der Version. Nur diese Stellen werden ersetzt,
+# damit gleichlautende Dependency-Versionen (z. B. spotbugs) unberührt bleiben.
+TARGETS=(
+  "$SCRIPT_DIR/pom.xml|<version>|</version>"
+  "$SCRIPT_DIR/backend/pom.xml|<version>|</version>"
+  "$SCRIPT_DIR/frontend/package.json|\"version\": \"|\""
+  "$SCRIPT_DIR/frontend/project.toml|version = \"|\""
+  "$SCRIPT_DIR/backend/project.toml|version = \"|\""
+  "$SCRIPT_DIR/backend/src/main/resources/application.properties|openapi.config.version=|"
+  "$SCRIPT_DIR/README.md|version-|-blue"
 )
 
-for FILE in "${FILES[@]}"; do
-  if grep -qF "$CURRENT" "$FILE"; then
-    sed -i '' "s/${CURRENT}/${NEW}/g" "$FILE"
+CURRENT_RE="${CURRENT//./\\.}"
+FILES=()
+for TARGET in "${TARGETS[@]}"; do
+  IFS='|' read -r FILE PRE POST <<< "$TARGET"
+  if grep -qF "${PRE}${CURRENT}${POST}" "$FILE"; then
+    sed -i '' "s|${PRE}${CURRENT_RE}${POST}|${PRE}${NEW}${POST}|g" "$FILE"
+    FILES+=("$FILE")
     echo "  ✓ $FILE"
   else
     echo "  ✗ $FILE (Version $CURRENT nicht gefunden — übersprungen)"

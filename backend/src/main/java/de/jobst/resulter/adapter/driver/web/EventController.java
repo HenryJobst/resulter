@@ -96,6 +96,9 @@ public class EventController {
         if (eventDto.name().isEmpty()) {
             throw new IllegalArgumentException("name is not set");
         }
+        if (eventDto.discipline() == null) {
+            throw new IllegalArgumentException("discipline is not set");
+        }
         Event event = eventService.createEvent(
                 eventDto.name(),
                 ObjectUtils.isNotEmpty(eventDto.startTime())
@@ -140,6 +143,9 @@ public class EventController {
     @PutMapping("/event/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
+        if (eventDto.discipline() == null) {
+            throw new IllegalArgumentException("discipline is not set");
+        }
         Event event = eventService.updateEvent(
                 EventId.of(id),
                 EventName.of(eventDto.name()),

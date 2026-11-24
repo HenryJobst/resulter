@@ -122,18 +122,19 @@ watch(
         <div class="flex flex-row">
             <div class="flex flex-col">
                 <div class="flex flex-row">
-                    <label for="name" class="col-fixed w-32">{{ t('labels.name') }}</label>
+                    <label for="name" class="col-fixed w-32">{{ t('labels.name') }}<span aria-hidden="true"> *</span></label>
                     <div class="col flex flex-grow">
                         <InputText
                             id="name"
                             v-model="certificate.name"
+                            :invalid="!certificate.name" aria-required="true"
                             type="text"
                             class="flex-grow"
                         />
                     </div>
                 </div>
                 <div class="flex flex-row">
-                    <label for="event" class="col-fixed w-32">{{ t('labels.event') }}</label>
+                    <label for="event" class="col-fixed w-32">{{ t('labels.event') }}<span aria-hidden="true"> *</span></label>
                     <div class="col flex">
                         <span v-if="eventQuery.status.value === 'pending'">{{
                             t('messages.loading')
@@ -142,6 +143,7 @@ watch(
                             v-else-if="eventQuery.data.value"
                             id="event"
                             :model-value="certificate.event"
+                            :invalid="!certificate.event" aria-required="true"
                             :options="eventQuery.data.value"
                             option-label="name"
                             data-key="id"
@@ -154,7 +156,7 @@ watch(
                     </div>
                 </div>
                 <div class="flex flex-row">
-                    <label for="media" class="col-fixed w-32">{{ t('labels.background') }}</label>
+                    <label for="media" class="col-fixed w-32">{{ t('labels.background') }}<span aria-hidden="true"> *</span></label>
                     <div class="col flex">
                         <span v-if="mediaQuery.status.value === 'pending'">{{
                             t('messages.loading')
@@ -163,6 +165,7 @@ watch(
                             v-else-if="mediaQuery.data.value"
                             id="media"
                             :model-value="certificate.blankCertificate"
+                            :invalid="!certificate.blankCertificate" aria-required="true"
                             :options="mediaQuery.data?.value"
                             data-key="id"
                             option-label="fileName"

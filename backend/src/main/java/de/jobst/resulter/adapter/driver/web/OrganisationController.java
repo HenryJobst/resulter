@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -83,6 +84,9 @@ public class OrganisationController {
     @PutMapping("/{id}")
     public ResponseEntity<OrganisationDto> updateOrganisation(
             @PathVariable Long id, @RequestBody OrganisationDto organisationDto) {
+        Assert.hasText(organisationDto.name(), "name is not set");
+        Assert.hasText(organisationDto.shortName(), "shortName is not set");
+        Assert.notNull(organisationDto.type(), "type is not set");
         Organisation organisation = organisationService.updateOrganisation(
                 OrganisationId.of(id),
                 OrganisationName.of(organisationDto.name()),
@@ -108,6 +112,9 @@ public class OrganisationController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("")
     public ResponseEntity<OrganisationDto> createOrganisation(@RequestBody OrganisationDto organisationDto) {
+        Assert.hasText(organisationDto.name(), "name is not set");
+        Assert.hasText(organisationDto.shortName(), "shortName is not set");
+        Assert.notNull(organisationDto.type(), "type is not set");
         Organisation organisation = organisationService.createOrganisation(
                 OrganisationName.of(organisationDto.name()),
                 OrganisationShortName.of(organisationDto.shortName()),

@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -73,6 +74,9 @@ public class EventCertificateController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventCertificateDto> createEventCertificate(
             @Validated(CreateDtoGroup.class) @RequestBody EventCertificateDto eventCertificateDto) {
+        Assert.hasText(eventCertificateDto.name(), "name is not set");
+        Assert.notNull(eventCertificateDto.event(), "event is not set");
+        Assert.notNull(eventCertificateDto.blankCertificate(), "blankCertificate is not set");
         var eventCertificate = eventCertificateService.createEventCertificate(
                 eventCertificateDto.name(),
                 EventId.of(eventCertificateDto.event().id()),
@@ -111,6 +115,9 @@ public class EventCertificateController {
     public ResponseEntity<EventCertificateDto> updateEventCertificate(
             @ValidId @PathVariable Long id,
             @RequestBody @Validated(KeyDtoGroup.class) EventCertificateDto eventCertificateDto) {
+        Assert.hasText(eventCertificateDto.name(), "name is not set");
+        Assert.notNull(eventCertificateDto.event(), "event is not set");
+        Assert.notNull(eventCertificateDto.blankCertificate(), "blankCertificate is not set");
         eventCertificateService.updateEventCertificate(
                 EventCertificateId.of(id),
                 EventCertificateName.of(eventCertificateDto.name()),

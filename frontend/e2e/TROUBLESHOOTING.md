@@ -147,7 +147,7 @@ or Keycloak shows "Invalid username or password"
 
 ```bash
 # Open Keycloak Admin Console
-open https://keycloak.jobst24.de/admin
+open https://keycloak.jobst-server.de/admin
 
 # Navigate to:
 # Realm: resulter

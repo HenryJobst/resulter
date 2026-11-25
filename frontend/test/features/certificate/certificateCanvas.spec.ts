@@ -144,7 +144,9 @@ describe('helpers', () => {
         expect(fontFamilyFor(undefined)).toContain('Helvetica')
         expect(fontFamilyFor('Times-Roman')).toContain('serif')
         expect(fontFamilyFor('Courier-Bold')).toContain('monospace')
-        expect(fontFamilyFor('Satisfy-Regular.ttf')).toContain('cursive')
+        expect(fontFamilyFor('Satisfy-Regular.ttf')).toContain('"Satisfy"')
+        expect(fontFamilyFor('Amaranth-Bold.ttf')).toContain('"Amaranth"')
+        expect(fontFamilyFor('Montserrat-Regular.ttf')).toContain('"Montserrat"')
     })
 
     it('replaces placeholders with sample data', () => {
@@ -159,5 +161,50 @@ describe('helpers', () => {
         expect(estimateWidth('A long first block', 16)).toBeLessThan(135)
         expect(estimateWidth('abc', 20)).toBeGreaterThan(estimateWidth('abc', 10))
         expect(estimateWidth('abcd', 10, 'Courier')).toBeCloseTo(24)
+    })
+})
+
+describe('computeBoxes: images', () => {
+    const layout = {
+        paragraphs: [{ blocks: [{ block: { media: 'logo.png', width: 100 } }] }, { blocks: [{ block: { text: 'x', fontSize: 10 } }] }],
+    } as CertificateLayout
+
+    it('uses the real aspect of the image for height and for the following paragraph', () => {
+        const [image, next] = computeBoxes(layout, { 'logo.png': 1.5 })
+        expect(image!.height).toBe(150)
+        expect(next!.y).toBe(36 + 4 + 150 + 4 + 4)
+    })
+
+    it('guesses half the width without aspect', () => {
+        expect(computeBoxes(layout)[0]!.height).toBe(50)
+    })
+})
+
+describe('computeBoxes: font dependent line height', () => {
+    // measured on the staging PDF of "BBM Mittel 2026": the baselines of the first two lines are 63.0 pt apart
+    const layout = {
+        document: { font: 'Montserrat-Regular.ttf', boldFont: 'Montserrat-Bold.ttf' },
+        paragraphs: [
+            { marginTop: 160, marginBottom: 0, blocks: [{ block: { text: 'a', fontSize: 28, bold: true } }] },
+            { marginTop: 4, blocks: [{ block: { text: 'b', fontSize: 28, bold: true } }] },
+        ],
+    } as CertificateLayout
+
+    it('uses the line height of the document font', () => {
+        const [first, second] = computeBoxes(layout)
+        expect(first!.font).toBe('Montserrat-Bold.ttf')
+        expect(second!.y + second!.baseline - (first!.y + first!.baseline)).toBeCloseTo(63, 0)
+    })
+
+    it('a block font wins over the document font', () => {
+        const withFont = { ...layout, paragraphs: [{ blocks: [{ block: { text: 'a', font: 'Times-Roman' } }] }] } as CertificateLayout
+        expect(computeBoxes(withFont)[0]!.font).toBe('Times-Roman')
+    })
+})
+
+describe('computeBoxes: measured widths', () => {
+    it('uses the given measure function for the block width', () => {
+        const layout = { paragraphs: [{ blocks: [{ block: { text: 'abc', fontSize: 10 } }] }] } as CertificateLayout
+        expect(computeBoxes(layout, {}, () => 77)[0]!.width).toBe(77)
     })
 })

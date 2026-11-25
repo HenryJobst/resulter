@@ -86,10 +86,10 @@ const sides: { key: Side, label: string }[] = [
     { key: 'right', label: 'margin_right' },
 ]
 const paragraphMargins = [
-    { key: 'marginTop', label: 'margin_top' },
-    { key: 'marginBottom', label: 'margin_bottom' },
-    { key: 'marginLeft', label: 'margin_left' },
-    { key: 'marginRight', label: 'margin_right' },
+    { key: 'marginTop', label: 'margin_top', fallback: 4 },
+    { key: 'marginBottom', label: 'margin_bottom', fallback: 4 },
+    { key: 'marginLeft', label: 'margin_left', fallback: 0 },
+    { key: 'marginRight', label: 'margin_right', fallback: 0 },
 ] as const
 
 // paragraphs and blocks
@@ -226,6 +226,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                     <InputNumber
                         input-style="width: 7rem"
                         :model-value="paragraph[m.key]"
+                        :placeholder="String(m.fallback)"
                         :use-grouping="false"
                         @update:model-value="(v: number | null) => setOptional(paragraph, m.key, v)"
                     />
@@ -336,6 +337,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                             <InputNumber
                                 input-style="width: 7rem"
                                 :model-value="entry.block.width"
+                                placeholder="100"
                                 :use-grouping="false"
                                 @update:model-value="(v: number | null) => setOptional(entry.block, 'width', v)"
                             />
@@ -368,6 +370,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                             <InputNumber
                                 input-style="width: 7rem"
                                 :model-value="asText(entry.block).fontSize"
+                                placeholder="12"
                                 :use-grouping="false"
                                 @update:model-value="(v: number | null) => setOptional(entry.block, 'fontSize', v)"
                             />
@@ -432,6 +435,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                     <InputNumber
                         input-style="width: 7rem"
                         :model-value="entry.tabPosition"
+                        placeholder="1"
                         :use-grouping="false"
                         :max-fraction-digits="2"
                         @update:model-value="(v: number | null) => setOptional(entry, 'tabPosition', v)"

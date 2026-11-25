@@ -18,11 +18,25 @@ import { effectiveMargins, isMediaBlock } from '@/features/certificate/model/cer
 export const DEFAULT_TAB_STOP = { position: 261.5, alignment: 'CENTER' } as const
 // iText default text size of a Paragraph
 const DEFAULT_FONT_SIZE = 12
-// measured: line height and distance from the top of the line to the baseline, times font size
-const LINE_HEIGHT = 1.5
-export const BASELINE = 1.055
+// Line height and baseline (times font size) depend on the font. Fitted on the PDFs of the 13
+// certificates on staging (they match to 0.1 pt). Tangerine is only used in a last line there, its
+// line height is an estimate.
+const FONT_LINES: Array<[prefix: string, lineHeight: number, baseline: number]> = [
+    ['Times', 1.458, 1.009],
+    ['Courier', 1.273, 0.92],
+    ['Amaranth', 1.964, 1.426],
+    ['Montserrat', 2.108, 1.382],
+    ['Satisfy', 1.921, 1.183],
+    ['Tangerine', 1.45, 0.949],
+]
+const HELVETICA_LINE = { lineHeight: 1.499, baseline: 1.056 }
+function lineFor(font: string | undefined) {
+    const found = FONT_LINES.find(([prefix]) => font?.startsWith(prefix))
+    return found ? { lineHeight: found[1], baseline: found[2] } : HELVETICA_LINE
+}
+export const BASELINE = HELVETICA_LINE.baseline
 // measured: default space above and below a paragraph
-const DEFAULT_PARAGRAPH_SPACE = 4
+export const DEFAULT_PARAGRAPH_SPACE = 4
 // measured: tabs behind the last stop go to the next multiple of this
 const TAB_INTERVAL = 50
 // height estimate of an image block relative to its width (the real aspect is not known here)
@@ -41,6 +55,8 @@ export interface CanvasBox {
     anchor: 'left' | 'center' | 'right'
     fontSize: number
     lineHeight: number
+    /** distance from the top of the line to the baseline in points */
+    baseline: number
     bold: boolean
     italic: boolean
     font: string | undefined
@@ -67,7 +83,7 @@ export function sampleText(text: string): string {
     return text.replace(/\{\{(\w+)\}\}/g, (match, name: string) => SAMPLES[name] ?? match)
 }
 
-/** Closest web font stack for a PDF font name. */
+/** The web font of a PDF font: the bundled families are loaded by certificateFonts.css. */
 export function fontFamilyFor(font: string | undefined): string {
     if (font?.startsWith('Times')) {
         return '"Times New Roman", Times, serif'
@@ -75,11 +91,22 @@ export function fontFamilyFor(font: string | undefined): string {
     if (font?.startsWith('Courier')) {
         return '"Courier New", Courier, monospace'
     }
-    if (font?.startsWith('Satisfy') || font?.startsWith('Tangerine')) {
-        return 'cursive'
+    for (const family of ['Amaranth', 'Montserrat']) {
+        if (font?.startsWith(family)) {
+            return `"${family}", Helvetica, Arial, sans-serif`
+        }
+    }
+    for (const family of ['Satisfy', 'Tangerine']) {
+        if (font?.startsWith(family)) {
+            return `"${family}", cursive`
+        }
     }
     return 'Helvetica, Arial, sans-serif'
 }
+
+/** Whether the font name itself says bold / italic (e.g. a block with font "Amaranth-Bold.ttf"). */
+export const isBoldFont = (font: string | undefined) => /Bold/.test(font ?? '')
+export const isItalicFont = (font: string | undefined) => /Italic|Oblique/.test(font ?? '')
 
 const NARROW = 'iljtf.,:;!|\'` ()[]{}-/'
 const WIDE = 'mwMW@'
@@ -116,7 +143,15 @@ export function estimateWidth(text: string, fontSize: number, font?: string, bol
 
 interface Stop { position: number, alignment: string, index: number }
 
-export function computeBoxes(layout: CertificateLayout): CanvasBox[] {
+/** `aspects` maps an image file name to height / width; without it a guess is used. */
+export type MeasureText = (text: string, fontSize: number, font: string | undefined, bold: boolean, italic: boolean) => number
+
+/** `measure` returns the width of a text; the default is the rough `estimateWidth`. */
+export function computeBoxes(
+    layout: CertificateLayout,
+    aspects: Record<string, number> = {},
+    measure: MeasureText = (text, fontSize, font, bold) => estimateWidth(text, fontSize, font, bold),
+): CanvasBox[] {
     const margins = effectiveMargins(layout)
     const boxes: CanvasBox[] = []
     let y = margins.top
@@ -132,16 +167,25 @@ export function computeBoxes(layout: CertificateLayout): CanvasBox[] {
             .map((entry, bi) => ({ entry, bi }))
             .sort((a, b) => (a.entry.tabPosition ?? 1) - (b.entry.tabPosition ?? 1))
 
-        let lineHeight = 0
+        const firstBox = boxes.length
         let cursor = 0
         for (const { entry, bi } of ordered) {
             const block = entry.block
             const media = isMediaBlock(block)
             const fontSize = media ? DEFAULT_FONT_SIZE : (block.fontSize ?? DEFAULT_FONT_SIZE)
             const text = media ? '' : sampleText(block.text)
+            const doc = layout.document
+            const bold = !media && block.bold === true
+            const italic = !media && block.italic === true
+            // like the backend: the block's own font, else the document font for its style
+            const font = media
+                ? undefined
+                : (block.font
+                    ?? (bold && italic ? doc?.boldItalicFont : bold ? doc?.boldFont : italic ? doc?.italicFont : undefined)
+                    ?? doc?.font)
             const width = media
                 ? (block.width ?? 100)
-                : estimateWidth(text, fontSize, block.font, block.bold === true)
+                : measure(text, fontSize, font, bold || isBoldFont(font), italic || isItalicFont(font))
 
             // a tab goes to the next stop behind the current position
             const stop = stops.find(s => s.position > cursor)
@@ -149,8 +193,8 @@ export function computeBoxes(layout: CertificateLayout): CanvasBox[] {
             const alignment = stop?.alignment ?? 'LEFT'
             cursor = alignment === 'CENTER' ? position + width / 2 : alignment === 'RIGHT' ? position : position + width
 
-            const height = media ? width * MEDIA_ASPECT : fontSize * LINE_HEIGHT
-            lineHeight = Math.max(lineHeight, height)
+            const line = lineFor(font)
+            const height = media ? width * (aspects[block.media] ?? MEDIA_ASPECT) : fontSize * line.lineHeight
             const color = !media && block.fontRGBColor
                 ? `rgb(${block.fontRGBColor.r}, ${block.fontRGBColor.g}, ${block.fontRGBColor.b})`
                 : 'rgb(0, 0, 0)'
@@ -165,16 +209,25 @@ export function computeBoxes(layout: CertificateLayout): CanvasBox[] {
                 anchor: alignment === 'CENTER' ? 'center' : alignment === 'RIGHT' ? 'right' : 'left',
                 fontSize,
                 lineHeight: height,
-                bold: !media && block.bold === true,
-                italic: !media && block.italic === true,
-                font: media ? undefined : block.font,
+                baseline: fontSize * line.baseline,
+                bold,
+                italic,
+                font,
                 color,
                 width,
                 height,
                 tabIndex: stop ? stop.index : null,
             })
         }
-        y += lineHeight + (paragraph.marginBottom ?? DEFAULT_PARAGRAPH_SPACE)
+        // texts and images sit on one baseline: an image reaches up from it, a text has its
+        // ascent above and its descent below it
+        const added = boxes.slice(firstBox)
+        const ascent = Math.max(0, ...added.map(b => (b.kind === 'media' ? b.height : b.baseline)))
+        const descent = Math.max(0, ...added.map(b => (b.kind === 'media' ? 0 : b.lineHeight - b.baseline)))
+        for (const box of added) {
+            box.y = y + ascent - (box.kind === 'media' ? box.height : box.baseline)
+        }
+        y += ascent + descent + (paragraph.marginBottom ?? DEFAULT_PARAGRAPH_SPACE)
     })
     return boxes
 }

@@ -1,0 +1,76 @@
+/*
+ * The fonts of the certificate PDF (copies of backend/src/main/resources/fonts, SIL Open Font
+ * License), so the graphical layout view shows the real glyphs. This file is imported by the
+ * canvas component only, so it is part of the lazy certificate pages and the font files are
+ * fetched by the browser only when a text uses them.
+ */
+@font-face {
+    font-family: 'Amaranth';
+    src: url('./fonts/Amaranth-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Amaranth';
+    src: url('./fonts/Amaranth-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Amaranth';
+    src: url('./fonts/Amaranth-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Amaranth';
+    src: url('./fonts/Amaranth-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./fonts/Montserrat-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./fonts/Montserrat-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./fonts/Montserrat-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./fonts/Montserrat-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Satisfy';
+    src: url('./fonts/Satisfy-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Tangerine';
+    src: url('./fonts/Tangerine-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}

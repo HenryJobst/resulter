@@ -1,26 +1,33 @@
 <script setup lang="ts">
 import type { CanvasBox } from '@/features/certificate/model/certificateCanvas'
 import type { LayoutParagraph, TextBlock } from '@/features/certificate/model/certificateLayout'
-import { computed, nextTick, ref, shallowRef } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
     computeBoxes,
+    DEFAULT_PARAGRAPH_SPACE,
     DEFAULT_TAB_STOP,
+    estimateWidth,
     fontFamilyFor,
+    isBoldFont,
+    isItalicFont,
     sampleText,
 } from '@/features/certificate/model/certificateCanvas'
 import { effectiveMargins, PAGE_HEIGHT, PAGE_WIDTH } from '@/features/certificate/model/certificateLayout'
 import { useLayoutSync } from '@/features/certificate/model/useLayoutSync'
+import '@/features/certificate/assets/certificateFonts.css'
 
 const props = withDefaults(
     defineProps<{
         modelValue: string
         /** base64 JPEG of the background image, shown behind the text */
         background?: string | null
+        /** base64 thumbnails of the media files by file name, used to show image blocks */
+        media?: Record<string, string>
         /** width of the page on screen in px */
         width?: number
     }>(),
-    { background: null, width: 460 },
+    { background: null, media: () => ({}), width: 460 },
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
@@ -40,7 +47,42 @@ const editInput = shallowRef<HTMLInputElement | null>(null)
 
 const scale = computed(() => props.width / PAGE_WIDTH)
 const pageHeight = computed(() => PAGE_HEIGHT * scale.value)
-const boxes = computed(() => (layout.value ? computeBoxes(layout.value) : []))
+// height / width of the images, read from the thumbnails; the PDF keeps the aspect of an image
+const aspects = ref<Record<string, number>>({})
+watchEffect(() => {
+    for (const [name, data] of Object.entries(props.media)) {
+        const image = new Image()
+        image.onload = () => {
+            if (image.naturalWidth > 0) {
+                aspects.value = { ...aspects.value, [name]: image.naturalHeight / image.naturalWidth }
+            }
+        }
+        image.src = `data:image/jpeg;base64,${data}`
+    }
+})
+// Text widths are measured with the real fonts; they are loaded when the first text uses them,
+// so measure again when the browser has finished loading a font.
+const fontsLoaded = ref(0)
+const onFontsLoaded = () => fontsLoaded.value++
+onMounted(() => document.fonts?.addEventListener('loadingdone', onFontsLoaded))
+onBeforeUnmount(() => document.fonts?.removeEventListener('loadingdone', onFontsLoaded))
+let measureContext: CanvasRenderingContext2D | null | undefined
+function measure(text: string, fontSize: number, font: string | undefined, bold: boolean, italic: boolean) {
+    // without a browser (tests) there is no font loading and no canvas: use the estimate
+    if (!document.fonts) {
+        return estimateWidth(text, fontSize, font, bold)
+    }
+    measureContext ??= document.createElement('canvas').getContext('2d')
+    if (!measureContext) {
+        return estimateWidth(text, fontSize, font, bold)
+    }
+    measureContext.font = `${italic ? 'italic' : 'normal'} ${bold ? 'bold' : 'normal'} ${fontSize}px ${fontFamilyFor(font)}`
+    return measureContext.measureText(text).width
+}
+const boxes = computed(() => {
+    void fontsLoaded.value
+    return layout.value ? computeBoxes(layout.value, aspects.value, measure) : []
+})
 const margins = computed(() => (layout.value ? effectiveMargins(layout.value) : null))
 
 const pageStyle = computed(() => ({
@@ -62,18 +104,27 @@ const marginStyle = computed(() => {
         : {}
 })
 
+// the browser puts the baseline in the middle of the line (half-leading), iText near the top:
+// shift the box so that both baselines coincide (a typical sans-serif has ascent .905, descent .212)
+function baselineShift(box: CanvasBox) {
+    if (box.kind === 'media') {
+        return 0
+    }
+    return box.baseline - ((box.lineHeight - 1.117 * box.fontSize) / 2 + 0.905 * box.fontSize)
+}
+
 function boxStyle(box: CanvasBox) {
     const s = scale.value
     const shift = box.anchor === 'center' ? '-50%' : box.anchor === 'right' ? '-100%' : '0'
     return {
         left: `${box.x * s}px`,
-        top: `${box.y * s}px`,
+        top: `${(box.y + baselineShift(box)) * s}px`,
         transform: `translateX(${shift})`,
         fontSize: `${box.fontSize * s}px`,
         lineHeight: `${box.lineHeight * s}px`,
         fontFamily: fontFamilyFor(box.font),
-        fontWeight: box.bold ? 'bold' : 'normal',
-        fontStyle: box.italic ? 'italic' : 'normal',
+        fontWeight: box.bold || isBoldFont(box.font) ? 'bold' : 'normal',
+        fontStyle: box.italic || isItalicFont(box.font) ? 'italic' : 'normal',
         color: box.color,
         ...(box.kind === 'media' ? { width: `${box.width * s}px`, height: `${box.height * s}px` } : {}),
     }
@@ -118,7 +169,7 @@ function onPointerDown(event: PointerEvent, box: CanvasBox) {
         startX: event.clientX,
         startY: event.clientY,
         axis: null,
-        marginTop: paragraph.marginTop ?? 0,
+        marginTop: paragraph.marginTop ?? DEFAULT_PARAGRAPH_SPACE,
         position: tabPosition(paragraph, box.tabIndex),
     }
     ;(event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId)
@@ -158,7 +209,7 @@ function onKeyDown(event: KeyboardEvent, box: CanvasBox) {
     const paragraph = layout.value.paragraphs[box.pi]!
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
         const delta = event.key === 'ArrowUp' ? -step : step
-        paragraph.marginTop = Math.max(0, (paragraph.marginTop ?? 0) + delta)
+        paragraph.marginTop = Math.max(0, (paragraph.marginTop ?? DEFAULT_PARAGRAPH_SPACE) + delta)
     }
     else if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && box.tabIndex !== null) {
         const delta = event.key === 'ArrowLeft' ? -step : step
@@ -244,6 +295,13 @@ function cancelEdit() {
                     @keydown.esc.stop.prevent="cancelEdit"
                     @blur="commitEdit"
                 >
+                <img
+                    v-else-if="box.kind === 'media' && props.media[box.media]"
+                    class="canvas-image"
+                    :src="`data:image/jpeg;base64,${props.media[box.media]}`"
+                    :alt="box.media"
+                    draggable="false"
+                >
                 <template v-else-if="box.kind === 'media'">
                     {{ box.media || t('certificateLayout.image') }}
                 </template>
@@ -260,7 +318,9 @@ function cancelEdit() {
     position: relative;
     overflow: hidden;
     background-color: #fff;
-    background-size: 100% 100%;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     border: 1px solid #ccc;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
     touch-action: none;
@@ -289,9 +349,16 @@ function cancelEdit() {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(120, 120, 120, 0.25);
     font-size: 11px !important;
     overflow: hidden;
+}
+.canvas-box-media:not(:has(img)) {
+    background: rgba(120, 120, 120, 0.25);
+}
+.canvas-image {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
 .canvas-input {
     font: inherit;

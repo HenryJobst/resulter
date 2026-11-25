@@ -82,6 +82,9 @@ const layoutCheck = computed<{ syntaxError: string | null, schemaErrors: string[
     return { syntaxError: null, schemaErrors: schema ? validateLayout(schema, data) : [] }
 })
 const mediaFileNames = computed(() => mediaQuery.data.value?.map(m => m.fileName) ?? [])
+const mediaThumbnails = computed(() =>
+    Object.fromEntries((mediaQuery.data.value ?? []).map(m => [m.fileName, m.thumbnailContent])),
+)
 
 const formattedSchema = computed(() => {
     if (schemaQuery.isFetched)
@@ -280,6 +283,7 @@ watch(
                             v-model="certificate.layoutDescription"
                             v-model:selected="selectedBlock"
                             :background="certificate.blankCertificate?.thumbnailContent"
+                            :media="mediaThumbnails"
                             class="mb-3"
                         />
                         <CertificateLayoutEditor

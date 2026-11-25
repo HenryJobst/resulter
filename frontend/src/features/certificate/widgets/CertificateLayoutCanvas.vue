@@ -123,8 +123,11 @@ function boxStyle(box: CanvasBox) {
         fontSize: `${box.fontSize * s}px`,
         lineHeight: `${box.lineHeight * s}px`,
         fontFamily: fontFamilyFor(box.font),
-        fontWeight: box.bold || isBoldFont(box.font) ? 'bold' : 'normal',
-        fontStyle: box.italic || isItalicFont(box.font) ? 'italic' : 'normal',
+        fontWeight: isBoldFont(box.font) ? 'bold' : 'normal',
+        fontStyle: isItalicFont(box.font) ? 'italic' : 'normal',
+        // like iText: bold is a stroke of 1/30 em, italic a slant of about 12 degrees
+        ...(box.simulatedBold ? { WebkitTextStroke: `${(box.fontSize * s) / 30}px currentColor` } : {}),
+        ...(box.simulatedItalic ? { transform: `translateX(${shift}) skewX(-12deg)`, transformOrigin: '50% 75%' } : {}),
         color: box.color,
         ...(box.kind === 'media' ? { width: `${box.width * s}px`, height: `${box.height * s}px` } : {}),
     }

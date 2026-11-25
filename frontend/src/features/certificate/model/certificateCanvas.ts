@@ -59,6 +59,9 @@ export interface CanvasBox {
     baseline: number
     bold: boolean
     italic: boolean
+    /** the PDF fakes the style (stroke / slant) because there is no font file for it */
+    simulatedBold: boolean
+    simulatedItalic: boolean
     font: string | undefined
     color: string
     width: number
@@ -177,15 +180,21 @@ export function computeBoxes(
             const doc = layout.document
             const bold = !media && block.bold === true
             const italic = !media && block.italic === true
-            // like the backend: the block's own font, else the document font for its style
-            const font = media
-                ? undefined
-                : (block.font
-                    ?? (bold && italic ? doc?.boldItalicFont : bold ? doc?.boldFont : italic ? doc?.italicFont : undefined)
-                    ?? doc?.font)
+            // like the backend (setGlobalFonts, setLocalFont): a block font wins and gets simulated
+            // bold / italic; else the document font for the style, simulated when the document has
+            // no font for that style. Simulated styles do not change the glyph widths.
+            let font: string | undefined
+            let simulatedBold = false
+            let simulatedItalic = false
+            if (!media) {
+                const styled = bold && italic ? doc?.boldItalicFont : bold ? doc?.boldFont : italic ? doc?.italicFont : undefined
+                font = block.font ?? styled ?? doc?.font
+                simulatedBold = bold && (block.font !== undefined || !styled)
+                simulatedItalic = italic && (block.font !== undefined || !styled)
+            }
             const width = media
                 ? (block.width ?? 100)
-                : measure(text, fontSize, font, bold || isBoldFont(font), italic || isItalicFont(font))
+                : measure(text, fontSize, font, isBoldFont(font), isItalicFont(font))
 
             // a tab goes to the next stop behind the current position
             const stop = stops.find(s => s.position > cursor)
@@ -212,6 +221,8 @@ export function computeBoxes(
                 baseline: fontSize * line.baseline,
                 bold,
                 italic,
+                simulatedBold,
+                simulatedItalic,
                 font,
                 color,
                 width,

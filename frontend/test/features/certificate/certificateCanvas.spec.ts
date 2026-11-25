@@ -208,3 +208,28 @@ describe('computeBoxes: measured widths', () => {
         expect(computeBoxes(layout, {}, () => 77)[0]!.width).toBe(77)
     })
 })
+
+describe('computeBoxes: bold and italic like the backend', () => {
+    const one = (document: object | undefined, block: object) =>
+        computeBoxes({ document, paragraphs: [{ blocks: [{ block: { text: 'x', fontSize: 10, ...block } }] }] } as CertificateLayout)[0]!
+
+    it('fakes bold without a bold font of the document', () => {
+        expect(one(undefined, { bold: true })).toMatchObject({ simulatedBold: true, font: undefined })
+        expect(one({ font: 'Amaranth-Regular.ttf' }, { bold: true })).toMatchObject({ simulatedBold: true, font: 'Amaranth-Regular.ttf' })
+    })
+
+    it('uses the bold font of the document as is', () => {
+        expect(one({ font: 'Amaranth-Regular.ttf', boldFont: 'Amaranth-Bold.ttf' }, { bold: true }))
+            .toMatchObject({ simulatedBold: false, font: 'Amaranth-Bold.ttf' })
+    })
+
+    it('fakes the style on a block font even when the document has a bold font', () => {
+        expect(one({ boldFont: 'Amaranth-Bold.ttf' }, { bold: true, font: 'Times-Roman' }))
+            .toMatchObject({ simulatedBold: true, font: 'Times-Roman' })
+    })
+
+    it('fakes italic separately', () => {
+        expect(one({ boldFont: 'Amaranth-Bold.ttf' }, { bold: true, italic: true }))
+            .toMatchObject({ simulatedBold: true, simulatedItalic: true })
+    })
+})

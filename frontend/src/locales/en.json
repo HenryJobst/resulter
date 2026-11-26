@@ -508,7 +508,9 @@
         },
         "set_color": "Set color",
         "graphic": "Graphic",
-        "canvas_hint": "Click selects a block. Dragging moves it: vertically changes the space above the paragraph, horizontally the tab stop position. Double click edits the text, the arrow keys move it (10 steps with Shift). The view is an approximation, the PDF preview is authoritative.",
+        "canvas_add_text": "Add text",
+        "canvas_add_image": "Add image",
+        "canvas_hint": "Click selects a block. Dragging moves it: vertically changes the space above the paragraph, horizontally the tab stop position. Double click edits the text, the arrow keys move it (10 steps with Shift). The view is an approximation, the PDF preview is authoritative. Delete removes the selected block. When moving vertically the blocks below stay in place; hold Alt to move them along.",
         "canvas_block": "Paragraph {p}, block {b}",
         "empty_text": "(empty)"
     },

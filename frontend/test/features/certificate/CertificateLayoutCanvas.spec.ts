@@ -31,10 +31,10 @@ function lastLayout(wrapper: ReturnType<typeof mountCanvas>) {
     return JSON.parse(emitted[emitted.length - 1]![0] as string)
 }
 
-function drag(wrapper: ReturnType<typeof mountCanvas>, box: ReturnType<typeof wrapper.find>, dx: number, dy: number) {
+function drag(wrapper: ReturnType<typeof mountCanvas>, box: ReturnType<typeof wrapper.find>, dx: number, dy: number, altKey = false) {
     return (async () => {
         await box.trigger('pointerdown', { clientX: 100, clientY: 100, pointerId: 1 })
-        await wrapper.find('[data-testid="layout-canvas"]').trigger('pointermove', { clientX: 100 + dx, clientY: 100 + dy, pointerId: 1 })
+        await wrapper.find('[data-testid="layout-canvas"]').trigger('pointermove', { clientX: 100 + dx, clientY: 100 + dy, pointerId: 1, altKey })
         await wrapper.find('[data-testid="layout-canvas"]').trigger('pointerup', { pointerId: 1 })
     })()
 }
@@ -75,10 +75,36 @@ describe('certificateLayoutCanvas', () => {
         expect(lastLayout(wrapper).paragraphs[0].tabStops).toEqual([{ position: 291.5, alignment: 'CENTER' }])
     })
 
-    it('never makes the space above negative', async () => {
+    it('keeps the paragraphs below in place when a block is dragged', async () => {
+        const wrapper = mountCanvas()
+        await drag(wrapper, wrapper.findAll('[role="button"]')[0]!, 0, 30)
+        const result = lastLayout(wrapper)
+        expect(result.paragraphs[0].marginTop).toBe(40)
+        expect(result.paragraphs[1].marginTop).toBe(-26)
+    })
+
+    it('pushes the paragraphs below along with Alt', async () => {
+        const wrapper = mountCanvas()
+        await drag(wrapper, wrapper.findAll('[role="button"]')[0]!, 0, 30, true)
+        const result = lastLayout(wrapper)
+        expect(result.paragraphs[0].marginTop).toBe(40)
+        expect(result.paragraphs[1].marginTop).toBe(4)
+    })
+
+    it('keeps the paragraphs below in place with the arrow keys, Alt pushes them', async () => {
+        const wrapper = mountCanvas()
+        const box = wrapper.findAll('[role="button"]')[0]!
+        await box.trigger('keydown', { key: 'ArrowDown' })
+        expect(lastLayout(wrapper).paragraphs[1].marginTop).toBe(3)
+        await box.trigger('keydown', { key: 'ArrowDown', altKey: true })
+        expect(lastLayout(wrapper).paragraphs[0].marginTop).toBe(12)
+        expect(lastLayout(wrapper).paragraphs[1].marginTop).toBe(3)
+    })
+
+    it('allows a negative space above to move upwards', async () => {
         const wrapper = mountCanvas()
         await drag(wrapper, wrapper.findAll('[role="button"]')[0]!, 0, -500)
-        expect(lastLayout(wrapper).paragraphs[0].marginTop).toBe(0)
+        expect(lastLayout(wrapper).paragraphs[0].marginTop).toBeLessThan(0)
     })
 
     it('moves the selected block with the arrow keys', async () => {
@@ -90,6 +116,25 @@ describe('certificateLayoutCanvas', () => {
         expect(lastLayout(wrapper).paragraphs[0].marginTop).toBe(1)
         await box.trigger('keydown', { key: 'ArrowRight' })
         expect(lastLayout(wrapper).paragraphs[0].tabStops[0].position).toBe(262.5)
+    })
+
+    it('removes the selected block with Delete and its paragraph when it is empty', async () => {
+        const wrapper = mountCanvas()
+        const boxes = wrapper.findAll('[role="button"]').length
+        await wrapper.findAll('[role="button"]')[0]!.trigger('keydown', { key: 'Delete' })
+        const after = lastLayout(wrapper)
+        expect(wrapper.findAll('[role="button"]').length).toBe(boxes - 1)
+        expect(after.paragraphs.every((p: any) => p.blocks.length > 0)).toBe(true)
+    })
+
+    it('adds a text and an image paragraph with the buttons', async () => {
+        const wrapper = mountCanvas()
+        const buttons = wrapper.findAll('button')
+        await buttons[0]!.trigger('click')
+        await buttons[1]!.trigger('click')
+        const last = lastLayout(wrapper).paragraphs.slice(-2)
+        expect('text' in last[0].blocks[0].block).toBe(true)
+        expect('media' in last[1].blocks[0].block).toBe(true)
     })
 
     it('edits the text on the page', async () => {

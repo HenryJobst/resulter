@@ -508,7 +508,9 @@
         },
         "set_color": "Farbe setzen",
         "graphic": "Grafisch",
-        "canvas_hint": "Anklicken wählt einen Block. Ziehen verschiebt: senkrecht ändert den Abstand oberhalb des Absatzes, waagerecht die Tabulator-Position. Doppelklick bearbeitet den Text, die Pfeiltasten verschieben (mit Umschalt in 10er-Schritten). Die Darstellung ist eine Annäherung, die PDF-Vorschau ist maßgeblich.",
+        "canvas_add_text": "Text hinzufügen",
+        "canvas_add_image": "Bild hinzufügen",
+        "canvas_hint": "Anklicken wählt einen Block. Ziehen verschiebt: senkrecht ändert den Abstand oberhalb des Absatzes, waagerecht die Tabulator-Position. Doppelklick bearbeitet den Text, die Pfeiltasten verschieben (mit Umschalt in 10er-Schritten). Die Darstellung ist eine Annäherung, die PDF-Vorschau ist maßgeblich. Entf löscht den ausgewählten Block. Beim senkrechten Verschieben bleiben die Blöcke darunter stehen, mit gehaltener Alt-Taste rücken sie mit.",
         "canvas_block": "Absatz {p}, Block {b}",
         "empty_text": "(leer)"
     },

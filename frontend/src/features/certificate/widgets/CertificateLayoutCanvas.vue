@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CanvasBox } from '@/features/certificate/model/certificateCanvas'
-import type { LayoutParagraph, TextBlock } from '@/features/certificate/model/certificateLayout'
+import type { BlockEntry, LayoutParagraph, TextBlock } from '@/features/certificate/model/certificateLayout'
+import Button from 'openvue/button'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
@@ -13,7 +14,7 @@ import {
     isItalicFont,
     sampleText,
 } from '@/features/certificate/model/certificateCanvas'
-import { effectiveMargins, PAGE_HEIGHT, PAGE_WIDTH } from '@/features/certificate/model/certificateLayout'
+import { effectiveMargins, newMediaBlockEntry, newTextBlockEntry, PAGE_HEIGHT, PAGE_WIDTH } from '@/features/certificate/model/certificateLayout'
 import { useLayoutSync } from '@/features/certificate/model/useLayoutSync'
 import '@/features/certificate/assets/certificateFonts.css'
 
@@ -147,6 +148,8 @@ interface Drag {
     startY: number
     axis: 'x' | 'y' | null
     marginTop: number
+    /** space above the next paragraph when the drag started */
+    nextMarginTop: number
     position: number
 }
 let drag: Drag | null = null
@@ -161,6 +164,20 @@ function setTabPosition(paragraph: LayoutParagraph, index: number, position: num
     paragraph.tabStops[index]!.position = position
 }
 
+/**
+ * Moves a paragraph up or down by `delta` from the given start values. The paragraphs below keep
+ * their place (the next one gets the opposite delta) unless `pushRest` is set (Alt key): then
+ * they move along.
+ */
+function moveVertically(pi: number, marginTop: number, nextMarginTop: number, delta: number, pushRest: boolean) {
+    const paragraphs = layout.value!.paragraphs
+    paragraphs[pi]!.marginTop = marginTop + delta
+    const next = paragraphs[pi + 1]
+    if (next) {
+        next.marginTop = nextMarginTop - (pushRest ? 0 : delta)
+    }
+}
+
 function onPointerDown(event: PointerEvent, box: CanvasBox) {
     if (editing.value || !layout.value) {
         return
@@ -173,6 +190,7 @@ function onPointerDown(event: PointerEvent, box: CanvasBox) {
         startY: event.clientY,
         axis: null,
         marginTop: paragraph.marginTop ?? DEFAULT_PARAGRAPH_SPACE,
+        nextMarginTop: layout.value.paragraphs[box.pi + 1]?.marginTop ?? DEFAULT_PARAGRAPH_SPACE,
         position: tabPosition(paragraph, box.tabIndex),
     }
     ;(event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId)
@@ -193,10 +211,10 @@ function onPointerMove(event: PointerEvent) {
     }
     const paragraph = layout.value.paragraphs[drag.box.pi]!
     if (drag.axis === 'y') {
-        paragraph.marginTop = Math.max(0, drag.marginTop + Math.round(dy / scale.value))
+        moveVertically(drag.box.pi, drag.marginTop, drag.nextMarginTop, Math.round(dy / scale.value), event.altKey)
     }
     else {
-        setTabPosition(paragraph, drag.box.tabIndex!, Math.max(0, drag.position + Math.round(dx / scale.value)))
+        setTabPosition(paragraph, drag.box.tabIndex!, drag.position + Math.round(dx / scale.value))
     }
 }
 
@@ -212,19 +230,49 @@ function onKeyDown(event: KeyboardEvent, box: CanvasBox) {
     const paragraph = layout.value.paragraphs[box.pi]!
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
         const delta = event.key === 'ArrowUp' ? -step : step
-        paragraph.marginTop = Math.max(0, (paragraph.marginTop ?? DEFAULT_PARAGRAPH_SPACE) + delta)
+        const next = layout.value.paragraphs[box.pi + 1]
+        moveVertically(
+            box.pi,
+            paragraph.marginTop ?? DEFAULT_PARAGRAPH_SPACE,
+            next?.marginTop ?? DEFAULT_PARAGRAPH_SPACE,
+            delta,
+            event.altKey,
+        )
     }
     else if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && box.tabIndex !== null) {
         const delta = event.key === 'ArrowLeft' ? -step : step
-        setTabPosition(paragraph, box.tabIndex, Math.max(0, tabPosition(paragraph, box.tabIndex) + delta))
+        setTabPosition(paragraph, box.tabIndex, tabPosition(paragraph, box.tabIndex) + delta)
     }
     else if (event.key === 'Enter' && box.kind === 'text') {
         startEdit(box)
+    }
+    else if (event.key === 'Delete' || event.key === 'Backspace') {
+        removeBlock(box)
     }
     else {
         return
     }
     event.preventDefault()
+}
+
+function removeBlock(box: CanvasBox) {
+    const paragraphs = layout.value!.paragraphs
+    const paragraph = paragraphs[box.pi]!
+    paragraph.blocks.splice(box.bi, 1)
+    // an empty paragraph is invalid (and invisible), so it goes with its last block
+    if (paragraph.blocks.length === 0) {
+        paragraphs.splice(box.pi, 1)
+    }
+    selected.value = null
+}
+
+/** A new paragraph with one block at the end; it is selected so it can be moved right away. */
+function addParagraph(entry: BlockEntry) {
+    if (!layout.value) {
+        return
+    }
+    layout.value.paragraphs.push({ blocks: [entry] })
+    selected.value = { pi: layout.value.paragraphs.length - 1, bi: 0 }
 }
 
 const isEditing = (box: CanvasBox) => editing.value?.pi === box.pi && editing.value?.bi === box.bi
@@ -263,6 +311,22 @@ function cancelEdit() {
         <p class="text-sm" style="max-width: 460px">
             {{ t('certificateLayout.canvas_hint') }}
         </p>
+        <div class="flex flex-row gap-2">
+            <Button
+                :label="t('certificateLayout.canvas_add_text')"
+                icon="pi pi-plus"
+                size="small"
+                outlined
+                @click="addParagraph(newTextBlockEntry())"
+            />
+            <Button
+                :label="t('certificateLayout.canvas_add_image')"
+                icon="pi pi-plus"
+                size="small"
+                outlined
+                @click="addParagraph(newMediaBlockEntry())"
+            />
+        </div>
         <div
             class="canvas-page"
             data-testid="layout-canvas"
@@ -319,7 +383,9 @@ function cancelEdit() {
 <style scoped>
 .canvas-page {
     position: relative;
-    overflow: hidden;
+    /* blocks may reach over the page edge (the PDF cuts them off); the margin keeps them grabbable */
+    overflow: visible;
+    margin: 40px;
     background-color: #fff;
     background-size: contain;
     background-position: center;

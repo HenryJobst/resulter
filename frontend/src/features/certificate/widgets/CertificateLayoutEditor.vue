@@ -159,7 +159,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                     <label v-for="s in sides" :key="s.key" class="flex flex-col text-sm">
                         {{ t(`certificateLayout.${s.label}`) }}
                         <InputNumber
-                            input-style="width: 7rem"
+                            :input-style="{ width: '7rem' }"
                             :model-value="effectiveMargins(layout)[s.key]"
                             :use-grouping="false"
                             @update:model-value="(v: number | null) => setMargin(s.key, v)"
@@ -224,7 +224,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                 <label v-for="m in paragraphMargins" :key="m.key" class="flex flex-col text-sm">
                     {{ t(`certificateLayout.${m.label}`) }}
                     <InputNumber
-                        input-style="width: 7rem"
+                        :input-style="{ width: '7rem' }"
                         :model-value="paragraph[m.key]"
                         :placeholder="String(m.fallback)"
                         :use-grouping="false"
@@ -254,7 +254,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                         {{ t('certificateLayout.tab_stop_position') }}
                         <InputNumber
                             v-model="stop.position"
-                            input-style="width: 7rem"
+                            :input-style="{ width: '7rem' }"
                             :use-grouping="false"
                             :max-fraction-digits="2"
                         />
@@ -335,7 +335,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                         <label class="flex flex-col text-sm">
                             {{ t('certificateLayout.width') }}
                             <InputNumber
-                                input-style="width: 7rem"
+                                :input-style="{ width: '7rem' }"
                                 :model-value="entry.block.width"
                                 placeholder="100"
                                 :use-grouping="false"
@@ -368,7 +368,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                         <label class="flex flex-col text-sm">
                             {{ t('certificateLayout.font_size') }}
                             <InputNumber
-                                input-style="width: 7rem"
+                                :input-style="{ width: '7rem' }"
                                 :model-value="asText(entry.block).fontSize"
                                 placeholder="12"
                                 :use-grouping="false"
@@ -433,7 +433,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                 <label class="flex flex-col text-sm" style="max-width: 12rem">
                     {{ t('certificateLayout.tab_position') }}
                     <InputNumber
-                        input-style="width: 7rem"
+                        :input-style="{ width: '7rem' }"
                         :model-value="entry.tabPosition"
                         placeholder="1"
                         :use-grouping="false"

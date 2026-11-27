@@ -646,135 +646,178 @@ function cancelEdit() {
     <div v-if="error" class="text-red-500" role="alert">
         {{ t('certificateLayout.invalid_json', { error }) }}
     </div>
-    <div v-else-if="layout" class="flex flex-col gap-1">
-        <p class="text-sm" style="max-width: 460px">
-            {{ t('certificateLayout.canvas_hint') }}
-        </p>
-        <div class="flex flex-row gap-2">
+    <div v-else-if="layout" class="flex flex-col gap-1 min-w-0 max-w-full">
+        <details class="text-sm" data-testid="canvas-help">
+            <summary class="cursor-pointer">
+                {{ t('certificateLayout.canvas_hint') }}
+            </summary>
+            <ul class="list-disc pl-5 mt-1">
+                <li v-for="n in 8" :key="n">
+                    {{ t(`certificateLayout.canvas_help_${n}`) }}
+                </li>
+            </ul>
+        </details>
+        <!-- The two tool rows always have the same height (controls are disabled, not hidden), else the
+             page would jump under the pointer when a block gets selected. -->
+        <div class="flex flex-row flex-nowrap items-center gap-2 min-w-0" style="overflow-x: auto" data-testid="add-bar">
             <Button
-                :label="t('certificateLayout.canvas_add_text')"
+                :label="t('certificateLayout.canvas_add_text_short')"
                 icon="pi pi-plus"
                 size="small"
                 outlined
+                class="flex-shrink-0"
+                :aria-label="t('certificateLayout.canvas_add_text')"
+                :title="t('certificateLayout.canvas_add_text')"
                 @click="addParagraph(newTextBlockEntry())"
             />
             <Button
-                :label="t('certificateLayout.canvas_add_image')"
+                :label="t('certificateLayout.canvas_add_image_short')"
                 icon="pi pi-plus"
                 size="small"
                 outlined
+                class="flex-shrink-0"
+                :aria-label="t('certificateLayout.canvas_add_image')"
+                :title="t('certificateLayout.canvas_add_image')"
                 @click="picker = 'new'"
             />
-            <template v-if="selected">
-                <Button
-                    :label="t('certificateLayout.add_text_to_line')"
-                    icon="pi pi-plus"
-                    size="small"
-                    outlined
-                    @click="addToLine(newTextBlockEntry())"
-                />
-                <Button
-                    :label="t('certificateLayout.add_image_to_line')"
-                    icon="pi pi-plus"
-                    size="small"
-                    outlined
-                    @click="picker = 'line'"
-                />
-                <Button
-                    :label="t('certificateLayout.duplicate_line')"
-                    icon="pi pi-copy"
-                    size="small"
-                    outlined
-                    @click="duplicateLine"
-                />
-            </template>
+            <span class="text-sm flex-shrink-0 ml-2">{{ t('certificateLayout.to_line') }}</span>
+            <Button
+                :label="t('certificateLayout.canvas_add_text_short')"
+                icon="pi pi-plus"
+                size="small"
+                outlined
+                class="flex-shrink-0"
+                :disabled="!selected"
+                :aria-label="t('certificateLayout.add_text_to_line')"
+                :title="t('certificateLayout.add_text_to_line')"
+                @click="addToLine(newTextBlockEntry())"
+            />
+            <Button
+                :label="t('certificateLayout.canvas_add_image_short')"
+                icon="pi pi-plus"
+                size="small"
+                outlined
+                class="flex-shrink-0"
+                :disabled="!selected"
+                :aria-label="t('certificateLayout.add_image_to_line')"
+                :title="t('certificateLayout.add_image_to_line')"
+                @click="picker = 'line'"
+            />
+            <Button
+                icon="pi pi-copy"
+                size="small"
+                outlined
+                class="flex-shrink-0"
+                :disabled="!selected"
+                :aria-label="t('certificateLayout.duplicate_line')"
+                :title="t('certificateLayout.duplicate_line')"
+                @click="duplicateLine"
+            />
         </div>
-        <!-- the bar keeps its height when nothing is selected, else the page would jump under the pointer -->
-        <div class="flex flex-row flex-wrap items-center gap-2" style="min-height: 2.75rem" data-testid="format-bar">
-            <template v-if="selectedText">
-                <div v-if="editing" class="flex flex-row gap-2" style="overflow-x: auto; white-space: nowrap; max-width: 100%">
-                    <Button
-                        v-for="name in PLACEHOLDERS"
-                        :key="name"
-                        :label="name"
-                        size="small"
-                        severity="secondary"
-                        outlined
-                        @pointerdown.prevent
-                        @click="insertPlaceholder(name)"
-                    />
-                </div>
-                <template v-else>
-                    <Button
-                        icon="pi pi-bold"
-                        size="small"
-                        :outlined="!selectedText.bold"
-                        :aria-label="t('certificateLayout.bold')"
-                        :aria-pressed="selectedText.bold === true"
-                        :title="t('certificateLayout.bold')"
-                        @click="applyText(b => setOptional(b, 'bold', selectedText!.bold ? null : true))"
-                    />
-                    <Button
-                        icon="pi pi-italic"
-                        size="small"
-                        :outlined="!selectedText.italic"
-                        :aria-label="t('certificateLayout.italic')"
-                        :aria-pressed="selectedText.italic === true"
-                        :title="t('certificateLayout.italic')"
-                        @click="applyText(b => setOptional(b, 'italic', selectedText!.italic ? null : true))"
-                    />
-                    <InputNumber
-                        :model-value="selectedText.fontSize ?? 12"
-                        :min="1"
-                        :use-grouping="false"
-                        :aria-label="t('certificateLayout.font_size')"
-                        :title="t('certificateLayout.font_size')"
-                        input-class="w-4rem"
-                        @update:model-value="(v: number | null) => applyText(b => setOptional(b, 'fontSize', v))"
-                    />
-                    <Select
-                        :model-value="selectedText.font ?? ''"
-                        :options="fontOptions"
-                        option-label="label"
-                        option-value="id"
-                        :aria-label="t('certificateLayout.font')"
-                        :title="t('certificateLayout.font')"
-                        @update:model-value="(v: string) => applyText(b => setOptional(b, 'font', v))"
-                    />
-                    <ColorPicker
-                        :model-value="rgbToHex(selectedText.fontRGBColor ?? { r: 0, g: 0, b: 0 })"
-                        format="hex"
-                        :aria-label="t('certificateLayout.color')"
-                        @update:model-value="(v: string | undefined) => v && applyText(b => (b.fontRGBColor = hexToRgb(v)))"
-                    />
-                    <Select
-                        v-if="selectedTabIndex !== null"
-                        :model-value="currentAlignment"
-                        :options="alignmentOptions"
-                        option-label="label"
-                        option-value="id"
-                        :aria-label="t('certificateLayout.alignment')"
-                        :title="t('certificateLayout.alignment')"
-                        @update:model-value="setAlignment"
-                    />
-                </template>
-            </template>
-            <template v-if="selected && !editing">
+        <div
+            class="flex flex-row flex-nowrap items-center gap-2 min-w-0"
+            style="overflow-x: auto; min-height: 2.75rem"
+            data-testid="format-bar"
+        >
+            <div v-if="editing" class="flex flex-row flex-nowrap gap-2">
                 <Button
-                    v-if="selectedTabIndex === null"
-                    icon="pi pi-plus-circle"
+                    v-for="name in PLACEHOLDERS"
+                    :key="name"
+                    :label="name"
                     size="small"
+                    severity="secondary"
                     outlined
-                    :label="t('certificateLayout.add_tab_stop')"
-                    @click="createTabStop"
+                    class="flex-shrink-0"
+                    @pointerdown.prevent
+                    @click="insertPlaceholder(name)"
+                />
+            </div>
+            <template v-else>
+                <Button
+                    :label="t('certificateLayout.bold_short')"
+                    size="small"
+                    class="flex-shrink-0 font-bold"
+                    :outlined="!selectedText?.bold"
+                    :disabled="!selectedText"
+                    :aria-label="t('certificateLayout.bold')"
+                    :aria-pressed="selectedText?.bold === true"
+                    :title="t('certificateLayout.bold')"
+                    @click="applyText(b => setOptional(b, 'bold', selectedText!.bold ? null : true))"
                 />
                 <Button
-                    v-else-if="mainBox && layout?.paragraphs[mainBox.pi]?.tabStops"
+                    :label="t('certificateLayout.italic_short')"
+                    size="small"
+                    class="flex-shrink-0 italic"
+                    :outlined="!selectedText?.italic"
+                    :disabled="!selectedText"
+                    :aria-label="t('certificateLayout.italic')"
+                    :aria-pressed="selectedText?.italic === true"
+                    :title="t('certificateLayout.italic')"
+                    @click="applyText(b => setOptional(b, 'italic', selectedText!.italic ? null : true))"
+                />
+                <InputNumber
+                    :model-value="selectedText?.fontSize ?? 12"
+                    :min="1"
+                    :use-grouping="false"
+                    :disabled="!selectedText"
+                    :aria-label="t('certificateLayout.font_size')"
+                    :title="t('certificateLayout.font_size')"
+                    input-class="w-4rem"
+                    class="flex-shrink-0"
+                    @update:model-value="(v: number | null) => applyText(b => setOptional(b, 'fontSize', v))"
+                />
+                <Select
+                    :model-value="selectedText?.font ?? ''"
+                    :options="fontOptions"
+                    option-label="label"
+                    option-value="id"
+                    :disabled="!selectedText"
+                    :aria-label="t('certificateLayout.font')"
+                    :title="t('certificateLayout.font')"
+                    class="flex-shrink-0"
+                    style="width: 9rem"
+                    @update:model-value="(v: string) => applyText(b => setOptional(b, 'font', v))"
+                />
+                <ColorPicker
+                    :model-value="rgbToHex(selectedText?.fontRGBColor ?? { r: 0, g: 0, b: 0 })"
+                    format="hex"
+                    :disabled="!selectedText"
+                    :aria-label="t('certificateLayout.color')"
+                    class="flex-shrink-0"
+                    @update:model-value="(v: string | undefined) => v && applyText(b => (b.fontRGBColor = hexToRgb(v)))"
+                />
+                <Select
+                    :model-value="currentAlignment"
+                    :options="alignmentOptions"
+                    option-label="label"
+                    option-value="id"
+                    :disabled="selectedTabIndex === null"
+                    :aria-label="t('certificateLayout.alignment')"
+                    :title="t('certificateLayout.alignment')"
+                    class="flex-shrink-0"
+                    style="width: 10rem"
+                    @update:model-value="setAlignment"
+                />
+                <Button
+                    v-if="selectedTabIndex !== null && mainBox && layout?.paragraphs[mainBox.pi]?.tabStops"
                     icon="pi pi-minus-circle"
                     size="small"
                     outlined
-                    :label="t('certificateLayout.remove_tab_stop')"
+                    class="flex-shrink-0"
+                    :aria-label="t('certificateLayout.remove_tab_stop')"
+                    :title="t('certificateLayout.remove_tab_stop')"
                     @click="removeTabStop"
+                />
+                <Button
+                    v-else
+                    icon="pi pi-plus-circle"
+                    size="small"
+                    outlined
+                    class="flex-shrink-0"
+                    :disabled="!selected || selectedTabIndex !== null"
+                    :aria-label="t('certificateLayout.add_tab_stop')"
+                    :title="t('certificateLayout.add_tab_stop')"
+                    @click="createTabStop"
                 />
             </template>
         </div>

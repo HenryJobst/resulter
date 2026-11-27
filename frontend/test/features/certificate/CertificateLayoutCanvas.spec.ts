@@ -184,7 +184,7 @@ describe('certificateLayoutCanvas', () => {
     it('adds a block to the line of the selected block and duplicates the line', async () => {
         const wrapper = mountCanvas()
         await wrapper.findAll('[role="button"]')[1]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
-        const byLabel = (label: string) => wrapper.findAll('button').find(b => b.text().includes(label))!
+        const byLabel = (label: string) => wrapper.find(`[aria-label="${label}"]`)
         await byLabel('Text zur Zeile').trigger('click')
         const line = lastLayout(wrapper).paragraphs[1].blocks
         expect(line).toHaveLength(3)
@@ -250,9 +250,9 @@ describe('certificateLayoutCanvas', () => {
         const json = JSON.stringify({ paragraphs: [{ tabStops: [{ position: 10, alignment: 'LEFT' }], blocks: [{ block: { text: 'a' } }, { block: { text: 'b' } }] }] })
         const wrapper = mountCanvas(json)
         await wrapper.findAll('[role="button"]')[1]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
-        await wrapper.findAll('button').find(b => b.text().includes('Tabulator hinzufügen'))!.trigger('click')
+        await wrapper.find('[aria-label="Tabulator hinzufügen"]').trigger('click')
         expect(lastLayout(wrapper).paragraphs[0].tabStops).toHaveLength(2)
-        await wrapper.findAll('button').find(b => b.text().includes('Tabulator entfernen'))!.trigger('click')
+        await wrapper.find('[aria-label="Tabulator entfernen"]').trigger('click')
         expect(lastLayout(wrapper).paragraphs[0].tabStops).toHaveLength(1)
     })
 

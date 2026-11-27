@@ -189,7 +189,7 @@ watch(
 <template>
     <div v-if="certificate" class="flex flex-col">
         <div class="flex flex-row">
-            <div class="flex flex-col">
+            <div class="flex flex-col min-w-0">
                 <div class="flex flex-row">
                     <label for="name" class="col-fixed w-32">{{ t('labels.name') }}<span aria-hidden="true"> *</span></label>
                     <div class="col flex flex-grow">
@@ -283,7 +283,7 @@ watch(
                             <pre>{{ formattedSchema }}</pre>
                         </Drawer>
                     </div>
-                    <div class="col" @keydown="onHistoryKey">
+                    <div class="col min-w-0" @keydown="onHistoryKey">
                         <div class="flex flex-row gap-2 align-items-center mb-2">
                             <Button
                                 icon="pi pi-undo"

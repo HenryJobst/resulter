@@ -28,7 +28,9 @@ needed a rule for languages and file names.
 2. **Documentation exists in both languages.** This applies to the README, the user manual
    (`docs/manual`) and the ADRs (`docs/adr`). **English is the primary version.** It keeps the
    plain file name (`README.md`, `0001-...md`). **The German version has the same name with the
-   language code before the extension** (`README.de.md`, `0001-....de.md`), in the same directory.
+   language code before the extension** (`README.de.md`, `0001-....de.md`), in the same directory. All Markdown documents of the repository follow
+   this scheme: `CHANGELOG.md`, the files in `doc/` and `docs/plans/`, the notes in `scripts/`, the
+   backend and frontend documentation and the end-to-end test guides.
 
 3. **The versions link to each other.** Every document has a language switch near the top (line 3 in the ADRs and the manual, below the title in the README):
    `> [Deutsch](name.de.md) · **English**` in the English file and
@@ -56,18 +58,20 @@ needed a rule for languages and file names.
 **Negative / costs**
 
 - Every documentation change has to be made twice. The two versions can drift apart.
-- No automated check compares the versions. A script that checks that every English document has a
-  German sibling and that the links match was used once when the files were created; it is not
-  part of the build. The message files `en.json` and `de.json` are not compared by a test either
-  (the existing tests in `frontend/test/i18n.spec.ts` cover the helper functions only).
+- The checks only count what a reader can count; they cannot read meaning. `scripts/docs-parity.mjs`
+  (`pnpm docs:check`, also a job in `.github/workflows/build.yml`) requires that every Markdown
+  document has its other-language sibling and a language switch, that headings, tables and their rows,
+  list items, link targets and code blocks match, that links and anchors resolve and that a version
+  links to the version of its own language. `frontend/test/locales.spec.ts` compares the keys, named
+  parameters and plural choices of `en.json` and `de.json` and of the component library texts. The
+  approach follows the parity check of the MergeWarden project.
 - Screenshots have to be taken twice, once per language.
-- Some files do not follow the scheme yet (see below).
 
-**Open**
+**Notes**
 
-- `CHANGELOG.md`, `docs/plans/*`, `doc/prometheus-token.md` and `doc/itext-font-integration-guide-generic.md`
-  are German only or bilingual within one file. They are not covered by this decision yet and
-  should be moved to the scheme.
+- Files that were German only were renamed to `.de.md` and received an English version. Files that
+  were English only received a German version. The iText guide, which held both languages in one
+  file, was split. The Vue project template text in `frontend/README.md` is translated as well.
 - The backend returns no localized texts. Texts in the certificate layout are content, not
   interface text, and are not translated.
 

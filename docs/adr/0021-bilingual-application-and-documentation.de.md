@@ -29,7 +29,10 @@ das neue Benutzerhandbuch und die ADR fehlte eine Regel für Sprachen und Datein
    Benutzerhandbuch (`docs/manual`) und die ADR (`docs/adr`). **Englisch ist die primäre
    Fassung.** Sie behält den einfachen Dateinamen (`README.md`, `0001-...md`). **Die deutsche
    Fassung hat denselben Namen mit dem Sprachkürzel vor der Endung** (`README.de.md`,
-   `0001-....de.md`), im selben Verzeichnis.
+   `0001-....de.md`), im selben Verzeichnis. Alle Markdown-Dokumente des Repositorys folgen
+   diesem Schema: `CHANGELOG.md`, die Dateien in `doc/` und `docs/plans/`, die Hinweise in
+   `scripts/`, die Backend- und Frontend-Dokumentation und die Anleitungen für die
+   End-to-End-Tests.
 
 3. **Die Fassungen verlinken sich gegenseitig.** Jedes Dokument hat oben einen Sprachwechsel (Zeile 3 in ADR und Handbuch, unter dem Titel in der README):
    `> [Deutsch](name.de.md) · **English**` in der englischen und
@@ -60,20 +63,23 @@ das neue Benutzerhandbuch und die ADR fehlte eine Regel für Sprachen und Datein
 
 - Jede Änderung an der Dokumentation muss zweimal erfolgen. Die beiden Fassungen können
   auseinanderlaufen.
-- Kein automatischer Test vergleicht die Fassungen. Ein Skript, das prüft, dass jedes englische
-  Dokument ein deutsches Gegenstück hat und die Verweise stimmen, wurde einmal beim Anlegen der
-  Dateien benutzt und ist nicht Teil des Builds. Auch die Textdateien `en.json` und `de.json`
-  vergleicht kein Test (die vorhandenen Tests in `frontend/test/i18n.spec.ts` decken nur die
-  Hilfsfunktionen ab).
+- Die Prüfungen zählen nur, was ein Leser zählen kann; Bedeutung können sie nicht lesen.
+  `scripts/docs-parity.mjs` (`pnpm docs:check`, außerdem ein Job in
+  `.github/workflows/build.yml`) verlangt, dass jedes Markdown-Dokument sein Gegenstück in der
+  anderen Sprache und einen Sprachwechsel hat, dass Überschriften, Tabellen mit ihren Zeilen,
+  Listenpunkte, Linkziele und Codeblöcke übereinstimmen, dass Links und Anker auflösbar sind und
+  dass eine Fassung auf die Fassung ihrer eigenen Sprache verweist.
+  `frontend/test/locales.spec.ts` vergleicht Schlüssel, benannte Parameter und Pluralvarianten von
+  `en.json` und `de.json` sowie der Komponentenbibliothek. Das Vorgehen folgt der Paritätsprüfung
+  des Projekts MergeWarden.
 - Screenshots müssen zweimal aufgenommen werden, einmal je Sprache.
-- Einige Dateien folgen dem Schema noch nicht (siehe unten).
 
-**Offen**
+**Hinweise**
 
-- `CHANGELOG.md`, `docs/plans/*`, `doc/prometheus-token.md` und
-  `doc/itext-font-integration-guide-generic.md` sind nur deutsch oder in einer Datei
-  zweisprachig. Sie sind von dieser Entscheidung noch nicht erfasst und sollten auf das Schema
-  umgestellt werden.
+- Bisher nur deutsche Dateien wurden in `.de.md` umbenannt und erhielten eine englische Fassung.
+  Bisher nur englische Dateien erhielten eine deutsche Fassung. Der iText-Leitfaden, der beide
+  Sprachen in einer Datei hielt, wurde aufgeteilt. Auch der Vorlagentext des Vue-Projekts in
+  `frontend/README.md` ist übersetzt.
 - Das Backend liefert keine lokalisierten Texte. Texte im Urkunden-Layout sind Inhalt, keine
   Oberflächentexte, und werden nicht übersetzt.
 

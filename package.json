@@ -1,7 +1,9 @@
 {
     "scripts" : {
         "build" : "cd frontend && pnpm run build",
-        "lint-staged" : "cd frontend && pnpm lint-staged"
+        "lint-staged" : "cd frontend && pnpm lint-staged",
+        "docs:check" : "node scripts/docs-parity.mjs",
+        "docs:test" : "node --test scripts/"
     },
     "packageManager": "pnpm@11.29.0",
     "devDependencies" : {

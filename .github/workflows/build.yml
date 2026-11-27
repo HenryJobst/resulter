@@ -81,6 +81,19 @@ jobs:
           exit 1
         working-directory: ./backend
 
+  docs-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+      - name: Documentation parity (English and German)
+        run: node scripts/docs-parity.mjs
+      - name: Tests of the parity check
+        run: node --test scripts/
+
   frontend-build:
     runs-on: ubuntu-latest
     steps:

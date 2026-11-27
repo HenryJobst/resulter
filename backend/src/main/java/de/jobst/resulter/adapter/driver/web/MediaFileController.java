@@ -78,6 +78,7 @@ public class MediaFileController {
         Resource resource = new FileSystemResource(mediaFileService.getFilePath(mediaFileId));
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(mediaFile.getContentType().value()))
+                .header("X-Content-Type-Options", "nosniff")
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
                         ContentDisposition.attachment()

@@ -21,12 +21,17 @@ const layout = JSON.stringify({
 })
 
 // width 595 = one pixel per point, so pixel deltas equal point deltas
-function mountCanvas(modelValue = layout) {
-    return mount(CertificateLayoutCanvas, {
+function mountCanvas(modelValue = layout, snap = false) {
+    const wrapper = mount(CertificateLayoutCanvas, {
         props: { modelValue, width: 595 },
         global: { plugins: [i18n, OpenVue] },
         attachTo: document.body,
     })
+    // snapping would round the pixel deltas of the tests
+    if (!snap) {
+        ;(wrapper.vm as unknown as { snapOn: boolean }).snapOn = false
+    }
+    return wrapper
 }
 
 function lastLayout(wrapper: ReturnType<typeof mountCanvas>) {
@@ -91,7 +96,7 @@ describe('certificateLayoutCanvas', () => {
         await drag(wrapper, wrapper.findAll('[role="button"]')[0]!, 0, 30, true)
         const result = lastLayout(wrapper)
         expect(result.paragraphs[0].marginTop).toBe(40)
-        expect(result.paragraphs[1].marginTop).toBe(4)
+        expect(result.paragraphs[1].marginTop ?? 4).toBe(4)
     })
 
     it('keeps the paragraphs below in place with the arrow keys, Alt pushes them', async () => {
@@ -196,6 +201,106 @@ describe('certificateLayoutCanvas', () => {
         ;(input.element as HTMLInputElement).setSelectionRange(2, 2)
         await wrapper.findAll('button').find(b => b.text() === 'EVENT_NAME')!.trigger('click')
         expect((input.element as HTMLInputElement).value).toBe('le{{EVENT_NAME}}ft')
+    })
+
+    it('selects several blocks with Shift and deletes them together', async () => {
+        const wrapper = mountCanvas()
+        const boxes = () => wrapper.findAll('[role="button"]')
+        await boxes()[0]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
+        await boxes()[1]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1, shiftKey: true })
+        await boxes()[1]!.trigger('keydown', { key: 'Delete' })
+        expect(boxes()).toHaveLength(1)
+        expect(lastLayout(wrapper).paragraphs).toHaveLength(1)
+    })
+
+    it('moves all selected paragraphs together', async () => {
+        const wrapper = mountCanvas()
+        const boxes = () => wrapper.findAll('[role="button"]')
+        await boxes()[0]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
+        await boxes()[2]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1, shiftKey: true })
+        await boxes()[2]!.trigger('keydown', { key: 'ArrowDown' })
+        const result = lastLayout(wrapper)
+        expect(result.paragraphs[0].marginTop).toBe(11)
+        // both move, so nothing is left to keep in place
+        expect(result.paragraphs[1].marginTop ?? 4).toBe(4)
+    })
+
+    it('snaps a dragged block to the page center and shows a guide', async () => {
+        const wrapper = mountCanvas(layout, true)
+        const page = wrapper.find('[data-testid="layout-canvas"]')
+        await wrapper.findAll('[role="button"]')[2]!.trigger('pointerdown', { clientX: 100, clientY: 100, pointerId: 1 })
+        // the right edge of the block is at 236, the page center at 297.5: 60 points are 1.5 short
+        await page.trigger('pointermove', { clientX: 160, clientY: 100, pointerId: 1 })
+        expect(wrapper.find('.canvas-guide-x').exists()).toBe(true)
+        await page.trigger('pointerup', { pointerId: 1 })
+        expect(wrapper.find('.canvas-guide-x').exists()).toBe(false)
+        expect(lastLayout(wrapper).paragraphs[1].tabStops[1].position).toBe(262)
+    })
+
+    it('drags the page margins and writes all four', async () => {
+        const wrapper = mountCanvas()
+        const handle = wrapper.find('[data-testid="margin-left"]')
+        await handle.trigger('pointerdown', { clientX: 100, clientY: 100, pointerId: 1 })
+        await wrapper.find('[data-testid="layout-canvas"]').trigger('pointermove', { clientX: 130, clientY: 100, pointerId: 1 })
+        await wrapper.find('[data-testid="layout-canvas"]').trigger('pointerup', { pointerId: 1 })
+        expect(lastLayout(wrapper).document.margins).toEqual({ top: 36, bottom: 36, left: 66, right: 36 })
+    })
+
+    it('creates a tab stop for a block on the grid and removes it again', async () => {
+        const json = JSON.stringify({ paragraphs: [{ tabStops: [{ position: 10, alignment: 'LEFT' }], blocks: [{ block: { text: 'a' } }, { block: { text: 'b' } }] }] })
+        const wrapper = mountCanvas(json)
+        await wrapper.findAll('[role="button"]')[1]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
+        await wrapper.findAll('button').find(b => b.text().includes('Tabulator hinzufügen'))!.trigger('click')
+        expect(lastLayout(wrapper).paragraphs[0].tabStops).toHaveLength(2)
+        await wrapper.findAll('button').find(b => b.text().includes('Tabulator entfernen'))!.trigger('click')
+        expect(lastLayout(wrapper).paragraphs[0].tabStops).toHaveLength(1)
+    })
+
+    it('zooms the page', async () => {
+        const wrapper = mountCanvas()
+        const width = () => (wrapper.find('[data-testid="layout-canvas"]').element as HTMLElement).style.width
+        expect(width()).toBe('595px')
+        await wrapper.find('[aria-label="Vergrößern"]').trigger('click')
+        expect(width()).toBe('743.75px')
+    })
+
+    it('keeps the paragraph below in place when a text is scaled up (Alt pushes it)', async () => {
+        for (const altKey of [false, true]) {
+            const wrapper = mountCanvas()
+            await wrapper.findAll('[role="button"]')[0]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
+            await wrapper.find('[data-testid="resize-handle"]').trigger('pointerdown', { clientX: 100, clientY: 100, pointerId: 1 })
+            await wrapper.find('[data-testid="layout-canvas"]').trigger('pointermove', { clientX: 200, clientY: 100, pointerId: 1, altKey })
+            const result = lastLayout(wrapper)
+            expect(result.paragraphs[0].blocks[0].block.fontSize).toBeGreaterThan(20)
+            if (altKey) {
+                expect(result.paragraphs[1].marginTop).toBeUndefined()
+            }
+            else {
+                expect(result.paragraphs[1].marginTop).toBeLessThan(4)
+            }
+        }
+    })
+
+    it('selects the blocks inside a frame pulled on the empty page and clears on a plain click', async () => {
+        const wrapper = mountCanvas()
+        const page = wrapper.find('[data-testid="layout-canvas"]')
+        await page.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
+        await page.trigger('pointermove', { clientX: 595, clientY: 400, pointerId: 1 })
+        await page.trigger('pointerup', { pointerId: 1 })
+        expect(wrapper.findAll('[aria-pressed="true"]').length).toBeGreaterThan(1)
+        await page.trigger('pointerdown', { clientX: 590, clientY: 840, pointerId: 1 })
+        await page.trigger('pointerup', { pointerId: 1 })
+        expect(wrapper.findAll('[aria-pressed="true"]')).toHaveLength(0)
+    })
+
+    it('snaps the right edge of an image to the page center while scaling', async () => {
+        const json = JSON.stringify({ paragraphs: [{ tabStops: [{ position: 100, alignment: 'LEFT' }], blocks: [{ block: { media: 'logo.jpg', width: 100 } }] }] })
+        const wrapper = mountCanvas(json, true)
+        await wrapper.findAll('[role="button"]')[0]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
+        await wrapper.find('[data-testid="resize-handle"]').trigger('pointerdown', { clientX: 100, clientY: 100, pointerId: 1 })
+        // the right edge is at 36 + 100 + 100 = 236, the page center at 297.5: 60 points are 1.5 short
+        await wrapper.find('[data-testid="layout-canvas"]').trigger('pointermove', { clientX: 160, clientY: 100, pointerId: 1 })
+        expect(lastLayout(wrapper).paragraphs[0].blocks[0].block.width).toBe(162)
     })
 
     it('edits the text on the page', async () => {

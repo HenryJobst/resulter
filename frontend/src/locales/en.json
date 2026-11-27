@@ -517,7 +517,12 @@
         "add_text_to_line": "Add text to line",
         "add_image_to_line": "Add image to line",
         "duplicate_line": "Duplicate line",
-        "canvas_hint": "Click selects a block. Dragging moves it: vertically changes the space above the paragraph, horizontally the tab stop position. Double click edits the text, the arrow keys move it (10 steps with Shift). The view is an approximation, the PDF preview is authoritative. Delete removes the selected block. When moving vertically the blocks below stay in place; hold Alt to move them along. Double-click an image to choose another one. The handle at the bottom right of the selected block scales it: the width of an image, the font size of a text.",
+        "zoom_in": "Zoom in",
+        "zoom_out": "Zoom out",
+        "zoom_reset": "Reset to 100 %",
+        "snap": "Snap",
+        "remove_tab_stop": "Remove tab stop",
+        "canvas_hint": "Click selects a block. Dragging moves it: vertically changes the space above the paragraph, horizontally the tab stop position. Double click edits the text, the arrow keys move it (10 steps with Shift). The view is an approximation, the PDF preview is authoritative. Delete removes the selected block. When moving vertically the blocks below stay in place; hold Alt to move them along. Double-click an image to choose another one. The handle at the bottom right of the selected block scales it: the width of an image, the font size of a text. Shift+click selects several blocks. The dashed page margins can be dragged. The orange lines show the tab stops of the paragraph. When scaling, the blocks below stay in place; hold Alt to move them along.",
         "canvas_block": "Paragraph {p}, block {b}",
         "empty_text": "(empty)"
     },

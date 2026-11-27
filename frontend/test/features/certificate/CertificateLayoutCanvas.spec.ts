@@ -127,14 +127,39 @@ describe('certificateLayoutCanvas', () => {
         expect(after.paragraphs.every((p: any) => p.blocks.length > 0)).toBe(true)
     })
 
-    it('adds a text and an image paragraph with the buttons', async () => {
-        const wrapper = mountCanvas()
+    it('adds a text paragraph and an image paragraph with the chosen image', async () => {
+        const wrapper = mount(CertificateLayoutCanvas, {
+            props: { modelValue: layout, width: 595, media: { 'logo.jpg': 'AAAA', 'other.jpg': 'BBBB' } },
+            global: { plugins: [i18n, OpenVue] },
+            attachTo: document.body,
+        })
         const buttons = wrapper.findAll('button')
         await buttons[0]!.trigger('click')
         await buttons[1]!.trigger('click')
+        // the dialog is rendered outside the component
+        const item = [...document.body.querySelectorAll<HTMLButtonElement>('.picker-item')].find(i => i.textContent?.includes('other.jpg'))!
+        item.click()
+        await wrapper.vm.$nextTick()
         const last = lastLayout(wrapper).paragraphs.slice(-2)
         expect('text' in last[0].blocks[0].block).toBe(true)
-        expect('media' in last[1].blocks[0].block).toBe(true)
+        expect(last[1].blocks[0].block).toEqual({ media: 'other.jpg', width: 100 })
+        wrapper.unmount()
+    })
+
+    it('scales the font size of a text and the width of an image with the handle', async () => {
+        const wrapper = mountCanvas(JSON.stringify({
+            paragraphs: [
+                { blocks: [{ block: { text: 'abc', fontSize: 20 } }] },
+                { blocks: [{ block: { media: 'logo.jpg', width: 100 } }] },
+            ],
+        }))
+        for (const [index, key, expected] of [[0, 'fontSize', (v: number) => v > 20], [1, 'width', (v: number) => v === 150]] as const) {
+            await wrapper.findAll('[role="button"]')[index]!.trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
+            await wrapper.find('[data-testid="resize-handle"]').trigger('pointerdown', { clientX: 100, clientY: 100, pointerId: 1 })
+            await wrapper.find('[data-testid="layout-canvas"]').trigger('pointermove', { clientX: 150, clientY: 100, pointerId: 1 })
+            await wrapper.find('[data-testid="layout-canvas"]').trigger('pointerup', { pointerId: 1 })
+            expect(expected(lastLayout(wrapper).paragraphs[index].blocks[0].block[key])).toBe(true)
+        }
     })
 
     it('edits the text on the page', async () => {

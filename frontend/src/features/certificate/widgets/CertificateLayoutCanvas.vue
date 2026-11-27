@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { CanvasBox } from '@/features/certificate/model/certificateCanvas'
-import type { BlockEntry, LayoutParagraph, TextBlock } from '@/features/certificate/model/certificateLayout'
+import type { BlockEntry, LayoutParagraph, MediaBlock, TextBlock } from '@/features/certificate/model/certificateLayout'
 import Button from 'openvue/button'
+import Dialog from 'openvue/dialog'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
@@ -14,7 +15,7 @@ import {
     isItalicFont,
     sampleText,
 } from '@/features/certificate/model/certificateCanvas'
-import { effectiveMargins, newMediaBlockEntry, newTextBlockEntry, PAGE_HEIGHT, PAGE_WIDTH } from '@/features/certificate/model/certificateLayout'
+import { effectiveMargins, isMediaBlock, newTextBlockEntry, PAGE_HEIGHT, PAGE_WIDTH } from '@/features/certificate/model/certificateLayout'
 import { useLayoutSync } from '@/features/certificate/model/useLayoutSync'
 import '@/features/certificate/assets/certificateFonts.css'
 
@@ -196,7 +197,41 @@ function onPointerDown(event: PointerEvent, box: CanvasBox) {
     ;(event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId)
 }
 
+// scaling the selected block with the handle at its bottom right: an image gets wider (the PDF
+// keeps its aspect), a text gets a larger font in proportion to the way the handle was pulled
+interface Resize { box: CanvasBox, startX: number, start: number }
+let resize: Resize | null = null
+
+function onResizeDown(event: PointerEvent, box: CanvasBox) {
+    const block = layout.value?.paragraphs[box.pi]?.blocks[box.bi]?.block
+    if (!block) {
+        return
+    }
+    const start = isMediaBlock(block) ? (block.width ?? 100) : (block.fontSize ?? 12)
+    resize = { box, startX: event.clientX, start }
+    ;(event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId)
+}
+
+function onResizeMove(event: PointerEvent) {
+    const block = layout.value?.paragraphs[resize!.box.pi]?.blocks[resize!.box.bi]?.block
+    if (!block) {
+        return
+    }
+    const dx = (event.clientX - resize!.startX) / scale.value
+    if (isMediaBlock(block)) {
+        block.width = Math.max(1, Math.round(resize!.start + dx))
+    }
+    else {
+        const factor = (resize!.box.width + dx) / Math.max(1, resize!.box.width)
+        block.fontSize = Math.max(1, Math.round(resize!.start * factor))
+    }
+}
+
 function onPointerMove(event: PointerEvent) {
+    if (resize) {
+        onResizeMove(event)
+        return
+    }
     if (!drag || !layout.value) {
         return
     }
@@ -220,6 +255,7 @@ function onPointerMove(event: PointerEvent) {
 
 function onPointerUp() {
     drag = null
+    resize = null
 }
 
 function onKeyDown(event: KeyboardEvent, box: CanvasBox) {
@@ -266,6 +302,33 @@ function removeBlock(box: CanvasBox) {
     selected.value = null
 }
 
+// choosing the image of an image block: for a new block or for the one that was double-clicked
+const picker = ref<{ pi: number, bi: number } | 'new' | null>(null)
+const pickerVisible = computed({
+    get: () => picker.value !== null,
+    set: (value: boolean) => {
+        if (!value) {
+            picker.value = null
+        }
+    },
+})
+
+function pickImage(fileName: string) {
+    const target = picker.value
+    picker.value = null
+    if (!layout.value || !target) {
+        return
+    }
+    if (target === 'new') {
+        addParagraph({ block: { media: fileName, width: 100 } })
+        return
+    }
+    const block = layout.value.paragraphs[target.pi]?.blocks[target.bi]?.block
+    if (block && isMediaBlock(block)) {
+        ;(block as MediaBlock).media = fileName
+    }
+}
+
 /** A new paragraph with one block at the end; it is selected so it can be moved right away. */
 function addParagraph(entry: BlockEntry) {
     if (!layout.value) {
@@ -278,7 +341,12 @@ function addParagraph(entry: BlockEntry) {
 const isEditing = (box: CanvasBox) => editing.value?.pi === box.pi && editing.value?.bi === box.bi
 
 function startEdit(box: CanvasBox) {
-    if (box.kind !== 'text' || !layout.value) {
+    if (box.kind === 'media') {
+        selected.value = { pi: box.pi, bi: box.bi }
+        picker.value = { pi: box.pi, bi: box.bi }
+        return
+    }
+    if (!layout.value) {
         return
     }
     selected.value = { pi: box.pi, bi: box.bi }
@@ -324,7 +392,7 @@ function cancelEdit() {
                 icon="pi pi-plus"
                 size="small"
                 outlined
-                @click="addParagraph(newMediaBlockEntry())"
+                @click="picker = 'new'"
             />
         </div>
         <div
@@ -351,6 +419,12 @@ function cancelEdit() {
                 @dblclick="startEdit(box)"
                 @keydown="onKeyDown($event, box)"
             >
+                <span
+                    v-if="isSelected(box) && !isEditing(box)"
+                    class="canvas-resize"
+                    data-testid="resize-handle"
+                    @pointerdown.stop="onResizeDown($event, box)"
+                />
                 <input
                     v-if="isEditing(box)"
                     :ref="(el: unknown) => (editInput = el as HTMLInputElement | null)"
@@ -377,10 +451,64 @@ function cancelEdit() {
                 </template>
             </div>
         </div>
+        <Dialog
+            v-model:visible="pickerVisible"
+            modal
+            :header="t('certificateLayout.pick_image')"
+            :style="{ width: '40rem' }"
+            :breakpoints="{ '575px': '90vw' }"
+        >
+            <p v-if="Object.keys(props.media).length === 0">
+                {{ t('certificateLayout.no_images') }}
+            </p>
+            <div class="flex flex-row flex-wrap gap-3">
+                <button
+                    v-for="(thumbnail, name) in props.media"
+                    :key="name"
+                    type="button"
+                    class="picker-item"
+                    @click="pickImage(String(name))"
+                >
+                    <img :src="`data:image/jpeg;base64,${thumbnail}`" :alt="String(name)" draggable="false">
+                    <span>{{ name }}</span>
+                </button>
+            </div>
+        </Dialog>
     </div>
 </template>
 
 <style scoped>
+.canvas-resize {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 10px;
+    height: 10px;
+    background: rgb(255, 122, 0);
+    cursor: nwse-resize;
+}
+.picker-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 8rem;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    word-break: break-all;
+}
+.picker-item:hover {
+    border-color: rgb(255, 122, 0);
+}
+.picker-item img {
+    max-width: 100%;
+    max-height: 6rem;
+    object-fit: contain;
+}
 .canvas-page {
     position: relative;
     /* blocks may reach over the page edge (the PDF cuts them off); the margin keeps them grabbable */

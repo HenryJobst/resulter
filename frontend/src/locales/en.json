@@ -510,7 +510,9 @@
         "graphic": "Graphic",
         "canvas_add_text": "Add text",
         "canvas_add_image": "Add image",
-        "canvas_hint": "Click selects a block. Dragging moves it: vertically changes the space above the paragraph, horizontally the tab stop position. Double click edits the text, the arrow keys move it (10 steps with Shift). The view is an approximation, the PDF preview is authoritative. Delete removes the selected block. When moving vertically the blocks below stay in place; hold Alt to move them along.",
+        "pick_image": "Choose image",
+        "no_images": "No images available.",
+        "canvas_hint": "Click selects a block. Dragging moves it: vertically changes the space above the paragraph, horizontally the tab stop position. Double click edits the text, the arrow keys move it (10 steps with Shift). The view is an approximation, the PDF preview is authoritative. Delete removes the selected block. When moving vertically the blocks below stay in place; hold Alt to move them along. Double-click an image to choose another one. The handle at the bottom right of the selected block scales it: the width of an image, the font size of a text.",
         "canvas_block": "Paragraph {p}, block {b}",
         "empty_text": "(empty)"
     },

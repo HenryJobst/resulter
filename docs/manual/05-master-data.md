@@ -201,12 +201,11 @@ Allowed file types:
 
 | Check | Types |
 |---|---|
-| Browser, when choosing and uploading | JPEG, PNG, GIF, WebP |
+| Browser, when choosing and uploading | JPEG, PNG, GIF, WebP, SVG, PDF |
 | Server, by the content of the file | JPEG, PNG, GIF, WebP, SVG, PDF |
 
 The server decides by the content, not by the file name or the type the browser reports. A file
-that the server does not accept is rejected. SVG and PDF are accepted by the server, but the browser check skips them, so they
-cannot be uploaded through this page. A file that fails the check in the browser is skipped without a message on the
+that the server does not accept is rejected. A file that fails the check in the browser is skipped without a message on the
 page. The size limit of one file is 20 MB in the application settings. For JPEG, PNG, GIF and WebP
 a reduced preview image is created.
 

@@ -207,12 +207,11 @@ Erlaubte Dateitypen:
 
 | Prüfung | Typen |
 |---|---|
-| Browser, beim Auswählen und Hochladen | JPEG, PNG, GIF, WebP |
+| Browser, beim Auswählen und Hochladen | JPEG, PNG, GIF, WebP, SVG, PDF |
 | Server, nach dem Inhalt der Datei | JPEG, PNG, GIF, WebP, SVG, PDF |
 
 Der Server entscheidet nach dem Inhalt, nicht nach dem Dateinamen oder dem Typ, den der Browser
-meldet. Eine Datei, die der Server nicht akzeptiert, wird abgewiesen. SVG und PDF nimmt der Server an, die
-Prüfung im Browser überspringt sie aber, sie lassen sich über diese Seite also nicht hochladen. Eine Datei, die die Prüfung im
+meldet. Eine Datei, die der Server nicht akzeptiert, wird abgewiesen. Eine Datei, die die Prüfung im
 Browser nicht besteht, wird ohne Meldung auf der Seite übersprungen. Die Größengrenze für eine
 Datei beträgt 20 MB in den Einstellungen der Anwendung. Für JPEG, PNG, GIF und WebP wird ein
 verkleinertes Vorschaubild erzeugt.

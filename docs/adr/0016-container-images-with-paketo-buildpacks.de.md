@@ -76,4 +76,4 @@ Vorteile gegenüber eigenen Dockerfiles hat.
 - [`frontend/project.toml`](../../frontend/project.toml)
 - [`default.conf`](../../frontend/default.conf)
 - [`trivy-scan-local.sh`](../../trivy-scan-local.sh)
-- [README, Abschnitt Deployment](../../README.md)
+- [README, Abschnitt Deployment](../../README.de.md)

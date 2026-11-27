@@ -73,6 +73,6 @@ auch das Frontend dieselben Schriften, damit die Vorschau die echten Zeichen zei
 - [`backend/src/main/resources/fonts`](../../backend/src/main/resources/fonts)
 - [`certificate_schema.json`](../../backend/src/main/resources/schema/certificate_schema.json)
 - [`certificateFonts.css`](../../frontend/src/features/certificate/assets/certificateFonts.css)
-- [`assets/fonts/README.md`](../../frontend/src/features/certificate/assets/fonts/README.md)
+- [`assets/fonts/README.md`](../../frontend/src/features/certificate/assets/fonts/README.de.md)
 - [`certificateLayout.ts`](../../frontend/src/features/certificate/model/certificateLayout.ts)
-- [`itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.md)
+- [`itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.de.md)

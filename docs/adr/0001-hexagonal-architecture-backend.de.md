@@ -69,7 +69,7 @@ Persistenz-Adapter an dieser Architektur aus.
 
 - [`HexagonalArchitectureTest.java`](../../backend/src/it/java/de/jobst/resulter/HexagonalArchitectureTest.java)
 - [`JMoleculesRulesUnitTests.java`](../../backend/src/test/java/de/jobst/resulter/domain/JMoleculesRulesUnitTests.java)
-- [`aggregates.md`](../../backend/src/main/java/de/jobst/resulter/domain/aggregates.md)
+- [`aggregates.md`](../../backend/src/main/java/de/jobst/resulter/domain/aggregates.de.md)
 - [`adapter/package-info.java`](../../backend/src/main/java/de/jobst/resulter/adapter/package-info.java)
 - [`pom.xml` des Backends](../../backend/pom.xml)
-- [README, Abschnitt Architecture](../../README.md)
+- [README, Abschnitt Architecture](../../README.de.md)

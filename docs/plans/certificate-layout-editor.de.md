@@ -1,5 +1,7 @@
 # Plan: Visueller Editor für Urkunden-Layouts
 
+> **Deutsch** · [English](certificate-layout-editor.md)
+
 ## Context
 `layoutDescription` ist ein JSON-String, den man heute in `CertificateForm.vue` (Zeilen 214–219, `NumberedTextarea`) von Hand editiert. Fehler zeigen sich erst im Fehler-PDF. Ziel: ein WYSIWYG-nahes Bearbeiten, ohne Backend und Speicherformat zu ändern.
 

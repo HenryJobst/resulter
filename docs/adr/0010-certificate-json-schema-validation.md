@@ -11,7 +11,7 @@
 The certificate layout is a freely editable JSON text
 ([ADR 0009](0009-certificate-layout-as-json-flowing-text-with-itext.md)). Without validation, an
 error in the layout only shows up at render time. The plan
-`docs/plans/urkunden-layout-editor.md` names this as a problem: "Errors only show up
+`docs/plans/certificate-layout-editor.md` names this as a problem: "Errors only show up
 in the error PDF."
 
 ## Decision
@@ -71,4 +71,4 @@ in the error PDF."
 - [`JsonSchemaValidator.java`](../../backend/src/main/java/de/jobst/resulter/application/certificate/JsonSchemaValidator.java)
 - [`CertificateServiceImpl.java`](../../backend/src/main/java/de/jobst/resulter/application/certificate/CertificateServiceImpl.java)
 - [`certificateLayoutValidation.ts`](../../frontend/src/features/certificate/model/certificateLayoutValidation.ts)
-- [`urkunden-layout-editor.md`](../plans/urkunden-layout-editor.md)
+- [`urkunden-layout-editor.md`](../plans/certificate-layout-editor.md)

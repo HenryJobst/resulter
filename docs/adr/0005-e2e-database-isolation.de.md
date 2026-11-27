@@ -68,8 +68,8 @@ CORS erlaubt im Profil `e2e-frontend-tests` den zusätzlichen Header `X-DB-Ident
 
 ## Verwandte Dokumente
 
-- [`E2E_DATABASE_ISOLATION.md`](../../frontend/e2e/E2E_DATABASE_ISOLATION.md)
-- [`frontend/e2e/README.md`](../../frontend/e2e/README.md)
+- [`E2E_DATABASE_ISOLATION.md`](../../frontend/e2e/E2E_DATABASE_ISOLATION.de.md)
+- [`frontend/e2e/README.md`](../../frontend/e2e/README.de.md)
 - [`DataSourceManager.java`](../../backend/src/main/java/de/jobst/resulter/springapp/config/DataSourceManager.java)
 - [`DataSourceInterceptor.java`](../../backend/src/main/java/de/jobst/resulter/springapp/config/DataSourceInterceptor.java)
 - [`DynamicRoutingDataSource.java`](../../backend/src/main/java/de/jobst/resulter/springapp/config/DynamicRoutingDataSource.java)

@@ -1,5 +1,7 @@
 # E2E Database Isolation - Complete Technical Documentation
 
+> [Deutsch](E2E_DATABASE_ISOLATION.de.md) · **English**
+
 ## Table of Contents
 
 1. [Overview](#overview)

@@ -45,10 +45,10 @@ Die Schriftnamen im Layout sind die der PDF-Bibliothek.
 - Gibt es für einen Stil keine Schrift, **täuscht** der PDF-Druck Fett (Umrandung) und Kursiv
   (Schrägstellung um etwa 12°) vor. Die Breite der Buchstaben ändert sich dabei nicht.
 - Weitere Schriften lassen sich einbinden, siehe
-  [`doc/itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.md).
+  [`doc/itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.de.md).
   Die Lizenzen der mitgelieferten Schriften (Amaranth, Montserrat und Tangerine unter der SIL Open
   Font License 1.1, Satisfy unter Apache 2.0) stehen in
-  [`frontend/src/features/certificate/assets/fonts`](../../frontend/src/features/certificate/assets/fonts/README.md).
+  [`frontend/src/features/certificate/assets/fonts`](../../frontend/src/features/certificate/assets/fonts/README.de.md).
 
 ## Maße und Standardwerte
 

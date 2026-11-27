@@ -92,7 +92,7 @@ Dokumentation:
 - Benutzerhandbuch: [`docs/manual`](docs/manual/README.de.md) (Englisch: [`README.md`](docs/manual/README.md))
 - Architekturentscheidungen (ADR): [`docs/adr`](docs/adr/README.de.md) (Englisch: [`README.md`](docs/adr/README.md))
 - Anleitung zum Einbinden neuer Schriftarten in den Dokument-PDF-Export (iText):
-  [`doc/itext-font-integration-guide-generic.md`](doc/itext-font-integration-guide-generic.md)
+  [`doc/itext-font-integration-guide-generic.md`](doc/itext-font-integration-guide-generic.de.md)
 
 ## Beiträge
 

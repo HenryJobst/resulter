@@ -68,6 +68,6 @@ Server liegen, ist nicht belegt.
 - [`prometheus-prod.yml`](../../prometheus/prometheus-prod.yml)
 - [`startPrometheus.sh`](../../prometheus/startPrometheus.sh)
 - [`startGrafana.sh`](../../grafana/startGrafana.sh)
-- [`prometheus-token.md`](../../doc/prometheus-token.md)
+- [`prometheus-token.md`](../../doc/prometheus-token.de.md)
 - [`PrometheusApiTokenFilter.java`](../../backend/src/main/java/de/jobst/resulter/springapp/config/PrometheusApiTokenFilter.java)
 - [`application-prod.properties`](../../backend/src/main/resources/application-prod.properties)

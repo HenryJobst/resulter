@@ -1,117 +1,117 @@
-# Prometheus API Token verwalten
+# Managing the Prometheus API Token
 
-Der Prometheus-Scraper authentifiziert sich am `/actuator/prometheus`-Endpunkt des Backends
-mit einem statischen Bearer-Token. Dieses Dokument beschreibt, wie das Token erstellt,
-konfiguriert und rotiert wird.
+> [Deutsch](prometheus-token.de.md) · **English**
 
-## Funktionsweise
+The Prometheus scraper authenticates at the backend's `/actuator/prometheus` endpoint
+with a static bearer token. This document describes how to create, configure and
+rotate the token.
 
-Der `PrometheusApiTokenFilter` prüft bei jedem Request auf `/actuator/prometheus`, ob der
-HTTP-Header `Authorization: Bearer <token>` mit dem serverseitig konfigurierten Wert
-übereinstimmt (zeitkonstanter Vergleich via `MessageDigest.isEqual`). Das Token hat keine
-Ablaufzeit und muss manuell rotiert werden.
+## How it works
+
+On every request to `/actuator/prometheus`, the `PrometheusApiTokenFilter` checks whether the
+HTTP header `Authorization: Bearer <token>` matches the value configured on the server
+(constant-time comparison via `MessageDigest.isEqual`). The token has no
+expiry and must be rotated manually.
 
 ```
 Prometheus → GET /actuator/prometheus
-            Authorization: Bearer <token>   ←  aus prometheus_api_token-Datei
+            Authorization: Bearer <token>   ←  from the prometheus_api_token file
                         ↓
             PrometheusApiTokenFilter
                         ↓
-            Vergleich mit $PROMETHEUS_API_TOKEN
+            Comparison with $PROMETHEUS_API_TOKEN
                         ↓
             200 OK  /  401 Unauthorized
 ```
 
-## Token erstellen
+## Creating the token
 
-Ein kryptographisch sicheres Token generieren:
+Generate a cryptographically secure token:
 
 ```bash
 openssl rand -base64 32
 ```
 
-Beispielausgabe:
+Example output:
 
 ```
-REMOVED-TOKEN
+<44 base64 characters>
 ```
 
-Diesen Wert in den folgenden zwei Stellen eintragen.
+Enter this value in the following two places.
 
-## Konfiguration
+## Configuration
 
-### 1. Backend — Umgebungsvariable
+### 1. Backend: environment variable
 
-Die Umgebungsvariable `PROMETHEUS_API_TOKEN` setzen. Der Wert wird über
-`application.properties` (`security.prometheus.api-token=${PROMETHEUS_API_TOKEN}`)
-in die Spring-Konfiguration eingelesen.
+Set the environment variable `PROMETHEUS_API_TOKEN`. The value is read into the Spring
+configuration via `application.properties` (`security.prometheus.api-token=${PROMETHEUS_API_TOKEN}`).
 
-**`.env`-Datei oder Docker Compose:**
+**`.env` file or Docker Compose:**
 
 ```env
-PROMETHEUS_API_TOKEN=REMOVED-TOKEN
+PROMETHEUS_API_TOKEN=<generated-token>
 ```
 
 **Systemd / Shell:**
 
 ```bash
-export PROMETHEUS_API_TOKEN=REMOVED-TOKEN
+export PROMETHEUS_API_TOKEN=<generated-token>
 ```
 
-### 2. Prometheus — Token-Datei
+### 2. Prometheus: token file
 
-Die Datei `prometheus/prometheus_api_token` mit **exakt demselben Wert** befüllen —
-ohne abschließenden Zeilenumbruch. Prometheus liest sie via `bearer_token_file`
-und sendet den Inhalt als `Authorization: Bearer`-Header.
+Fill the file `prometheus/prometheus_api_token` with **exactly the same value**,
+without a trailing newline. Prometheus reads it via `bearer_token_file`
+and sends the content as the `Authorization: Bearer` header.
 
 ```bash
 printf 'HIER_TOKEN_EINTRAGEN' > prometheus/prometheus_api_token
 ```
 
-> **Hinweis:** `printf` statt `echo` verwenden, damit kein Zeilenumbruch angehängt wird.
-> Ein Zeilenumbruch am Ende würde die Token-Prüfung fehlschlagen lassen.
+> **Note:** Use `printf` instead of `echo` so that no newline is appended.
+> A trailing newline would make the token check fail.
 
-## Token rotieren
+## Rotating the token
 
-1. Neues Token generieren:
+1. Generate a new token:
    ```bash
    openssl rand -base64 32
    ```
 
-2. `prometheus/prometheus_api_token` aktualisieren — Prometheus liest die Datei bei
-   jedem Scrape neu, kein Neustart nötig.
+2. Update `prometheus/prometheus_api_token`. Prometheus re-reads the file on
+   every scrape, no restart needed.
 
-3. `PROMETHEUS_API_TOKEN` in der Backend-Umgebung setzen und das Backend neu starten.
+3. Set `PROMETHEUS_API_TOKEN` in the backend environment and restart the backend.
 
-> **Reihenfolge beachten:** Erst die Prometheus-Datei aktualisieren, dann das Backend
-> neu starten. Andernfalls schlägt Prometheus während des Neustarts kurzzeitig mit
-> `401 Unauthorized` fehl.
+> **Mind the order:** Update the Prometheus file first, then restart the backend.
+> Otherwise Prometheus briefly fails with `401 Unauthorized` during the restart.
 
-## Fehlerdiagnose
+## Troubleshooting
 
-| HTTP-Status | Ursache | Lösung |
+| HTTP status | Cause | Solution |
 |-------------|---------|--------|
-| `500 Internal Server Error` | `PROMETHEUS_API_TOKEN` nicht gesetzt oder leer | Umgebungsvariable prüfen und Backend neu starten |
-| `403 Forbidden` | Kein `Authorization`-Header im Request | `prometheus_api_token`-Datei prüfen und Prometheus neu laden |
-| `401 Unauthorized` | Token stimmt nicht überein | Beide Stellen auf denselben Wert prüfen |
+| `500 Internal Server Error` | `PROMETHEUS_API_TOKEN` not set or empty | Check the environment variable and restart the backend |
+| `403 Forbidden` | No `Authorization` header in the request | Check the `prometheus_api_token` file and reload Prometheus |
+| `401 Unauthorized` | Token does not match | Check that both places have the same value |
 
-Prometheus-Logs prüfen:
+Check the Prometheus logs:
 
 ```bash
 docker logs <prometheus-container> 2>&1 | grep "prometheus"
 ```
 
-Backend-Logs prüfen:
+Check the backend logs:
 
 ```bash
 docker logs <backend-container> 2>&1 | grep -i "prometheus\|actuator"
 ```
 
-## Sicherheitshinweise
+## Security notes
 
-- Das Token niemals in die Versionskontrolle einchecken. Die Datei
-  `prometheus/prometheus_api_token` ist in `.gitignore` einzutragen.
-- Für Produktionsumgebungen ein Secret-Management-System (z. B. Vault, Kubernetes
-  Secrets, Docker Secrets) verwenden statt einer Klartextdatei.
-- Das Token regelmäßig rotieren — mindestens bei Mitarbeiterwechsel oder
-  Sicherheitsvorfällen.
+- Never commit the token to version control. Add the file
+  `prometheus/prometheus_api_token` to `.gitignore`.
+- For production environments, use a secret management system (e.g. Vault, Kubernetes
+  Secrets, Docker Secrets) instead of a plain text file.
+- Rotate the token regularly, at least when staff change or after
+  security incidents.

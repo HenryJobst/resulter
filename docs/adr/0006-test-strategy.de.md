@@ -66,10 +66,10 @@ das Frontend hat umfangreiche Formulare und seit 2026 einen grafischen Urkunden-
 
 ## Verwandte Dokumente
 
-- [`TESTING.md`](../../frontend/TESTING.md)
+- [`TESTING.md`](../../frontend/TESTING.de.md)
 - [`vitest.config.ts`](../../frontend/vitest.config.ts)
 - [`playwright.config.ts`](../../frontend/playwright.config.ts)
-- [`frontend/e2e/README.md`](../../frontend/e2e/README.md)
+- [`frontend/e2e/README.md`](../../frontend/e2e/README.de.md)
 - [`EqualsVerifierTestCase.java`](../../backend/src/test/java/de/jobst/resulter/domain/EqualsVerifierTestCase.java)
 - [`build.yml`](../../.github/workflows/build.yml)
 - [`build-paketo.yml`](../../.github/workflows/build-paketo.yml)

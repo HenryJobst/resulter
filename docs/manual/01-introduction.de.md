@@ -10,7 +10,7 @@
 Resulter liest Ergebnisdateien von Orientierungsläufen ein und zeigt daraus Ergebnislisten. Dazu
 kommen Cup- und Ranglistenpunkte (Nebel-Cup, Kristall-Cup, Nord-Ost-Rangliste), eine
 Splitzeiten-Analyse und Urkunden, die für jeden Teilnehmer erzeugt werden können. Eine kurze
-Übersicht steht in der [README](../../README.md) des Projekts.
+Übersicht steht in der [README](../../README.de.md) des Projekts.
 
 ## Aufbau der Oberfläche
 

@@ -27,7 +27,7 @@ dem Test im Browser arbeitet (Quelltext nach Version 4.12.3, siehe
 | 10 Stammdaten | Organisationen, Personen, Medien | in Vorbereitung |
 
 Die Kapitel 7 bis 10 sind noch nicht geschrieben. Welche Funktionen es dort gibt, steht in der
-[README](../../README.md) des Projekts.
+[README](../../README.de.md) des Projekts.
 
 ## So ist das Handbuch aufgebaut
 
@@ -52,5 +52,5 @@ Die Kapitel 7 bis 10 sind noch nicht geschrieben. Welche Funktionen es dort gibt
 ## Weitere Dokumentation
 
 - Architekturentscheidungen: [`docs/adr`](../adr/README.de.md)
-- Plan des Urkunden-Editors: [`docs/plans/urkunden-layout-editor.md`](../plans/urkunden-layout-editor.md)
-- Anleitung zum Einbinden neuer Schriften: [`doc/itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.md)
+- Plan des Urkunden-Editors: [`docs/plans/certificate-layout-editor.de.md`](../plans/certificate-layout-editor.de.md)
+- Anleitung zum Einbinden neuer Schriften: [`doc/itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.de.md)

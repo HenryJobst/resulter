@@ -55,5 +55,5 @@ verhindern.
 ## Verwandte Dokumente
 
 - [`LICENSE.txt`](../../LICENSE.txt)
-- [README, Abschnitt License](../../README.md)
+- [README, Abschnitt License](../../README.de.md)
 - [ADR 0011: Eingebundene Urkunden-Schriften](0011-certificate-fonts.de.md)

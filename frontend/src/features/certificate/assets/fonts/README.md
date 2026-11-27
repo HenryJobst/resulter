@@ -1,5 +1,7 @@
 # Fonts of the certificate layout view
 
+> [Deutsch](README.de.md) · **English**
+
 Copies of `backend/src/main/resources/fonts`, so the graphical layout editor shows the same
 glyphs as the PDF. Loaded by `../certificateFonts.css` on the certificate pages only.
 

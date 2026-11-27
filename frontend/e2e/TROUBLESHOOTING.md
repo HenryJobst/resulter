@@ -1,5 +1,7 @@
 # E2E Tests Troubleshooting Guide
 
+> [Deutsch](TROUBLESHOOTING.de.md) · **English**
+
 Detailed solutions for common E2E test problems with database isolation.
 
 ## 🔍 Quick Diagnostics

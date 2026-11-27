@@ -70,5 +70,5 @@ passieren. Die Auslieferung liegt außerhalb dieses Repositorys.
 - [`trivy-scan-local.sh`](../../trivy-scan-local.sh)
 - [`build-paketo.yml`](../../.github/workflows/build-paketo.yml)
 - [`auto-merge-deps.yml`](../../.github/workflows/auto-merge-deps.yml)
-- [`CHANGELOG.md`](../../CHANGELOG.md)
+- [`CHANGELOG.md`](../../CHANGELOG.de.md)
 - [`package.json` des Frontends](../../frontend/package.json)

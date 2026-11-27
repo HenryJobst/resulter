@@ -1,50 +1,52 @@
-# 🧠 Metrik: Mental Resilience Index (Mentale Widerstandsfähigkeit)
+# 🧠 Metric: Mental Resilience Index
 
-## 1. Ziel und Konzept
+> [Deutsch](mental-resilience-index-metric.de.md) · **English**
 
-Der **Mental Resilience Index (MRI)** misst die **mentale Reaktion** eines Orientierungsläufers, nachdem er einen signifikanten Navigationsfehler gemacht hat.
+## 1. Goal and Concept
 
-Gängige Auswertetools zeigen *wo* Zeit verloren wurde. Der MRI zeigt, *wie der Läufer daraufhin seine Geschwindigkeit und sein Risiko anpasst*.
+The **Mental Resilience Index (MRI)** measures the **mental reaction** of an orienteer after a significant navigation error.
 
-Die Metrik klassifiziert Läufer in drei Typen:
+Common analysis tools show *where* time was lost. The MRI shows *how the runner then adjusts speed and risk*.
 
-1.  **Panik-Läufer (Hohes Risiko):** Reagieren auf einen Fehler, indem sie am nächsten Posten deutlich schneller laufen, als es ihr normales physisches Niveau erlaubt (Index ist stark negativ).
-2.  **Resignierer (Unsicherheit):** Reduzieren die Geschwindigkeit nach einem Fehler stark (Index ist stark positiv).
-3.  **Ice-Man (Stabil):** Laufen trotz des Fehlers am nächsten Posten ihre normale Geschwindigkeit weiter (Index liegt nahe Null).
+The metric classifies runners into three types:
+
+1.  **Panic runner (high risk):** React to a mistake by running clearly faster at the next control than their normal physical level allows (index is strongly negative).
+2.  **Resigner (uncertainty):** Slow down sharply after a mistake (index is strongly positive).
+3.  **Ice-Man (stable):** Keep running at their normal speed at the next control despite the mistake (index is close to zero).
 
 ---
 
-## 2. Berechnungsgrundlagen
+## 2. Calculation Basics
 
-Die Berechnung basiert auf der Normalisierung der Split-Zeiten über den **Performance Index (PI)**.
+The calculation is based on normalizing the split times via the **Performance Index (PI)**.
 
 ### A. Performance Index (PI)
 
-Der PI normalisiert alle Streckenlängen und Klassen, indem er die Läuferzeit zur Bestzeit auf dem gleichen Abschnitt in Beziehung setzt.
+The PI normalizes all course lengths and classes by relating the runner's time to the best time on the same leg.
 
 $$PI = \frac{\text{Zeit des Läufers auf Abschnitt } n}{\text{Bestzeit auf Abschnitt } n}$$
 
-### B. Berechnung des Mental Resilience Index (MRI)
+### B. Calculating the Mental Resilience Index (MRI)
 
-Der MRI ist die Abweichung des PI des Folgepostens ($n+1$) vom individuellen Normalniveau ($\text{NormalPI}$), nachdem auf dem aktuellen Posten ($n$) ein Fehler ($PI > 1.30$) festgestellt wurde.
+The MRI is the deviation of the PI at the following control ($n+1$) from the individual normal level ($\text{NormalPI}$), after a mistake ($PI > 1.30$) was detected at the current control ($n$).
 
 $$\text{MRI} = PI_{n+1} - \text{NormalPI}$$
 
-| Wert | Klassifizierung | Bedeutung |
+| Value | Classification | Meaning |
 | :---: | :---: | :---: |
-| $\text{MRI} \approx 0$ | **Ice-Man** | Läufer hält konstantes Pacing bei. |
-| $\text{MRI} < -0.05$ | **Panik** | Läufer ist deutlich schneller als normal (riskiert neuen Fehler). |
-| $\text{MRI} > +0.05$ | **Resignation** | Läufer ist deutlich langsamer als normal (verliert Zeit durch Unsicherheit). |
+| $\text{MRI} \approx 0$ | **Ice-Man** | Runner keeps a constant pace. |
+| $\text{MRI} < -0.05$ | **Panic** | Runner is clearly faster than normal (risks a new mistake). |
+| $\text{MRI} > +0.05$ | **Resignation** | Runner is clearly slower than normal (loses time through uncertainty). |
 
-### C. Das individuelle Normalniveau ($\text{NormalPI}$)
+### C. The Individual Normal Level ($\text{NormalPI}$)
 
-Das $\text{NormalPI}$ ist der Durchschnitts-PI des Läufers im gesamten Rennen, **wobei alle Split-Zeiten, die als grobe Fehler interpretiert werden ($PI > 1.30$), ignoriert werden.**
+The $\text{NormalPI}$ is the runner's average PI over the whole race, **ignoring all split times that are interpreted as gross errors ($PI > 1.30$).**
 
 ---
 
-## 3. Quellcode (Java)
+## 3. Source Code (Java)
 
-Der folgende Code enthält die notwendigen Java-Modelle (`record`) und die Service-Logik (`MentalScoreService`) zur Berechnung des MRI. Die Modelle wurden für die Cup- und Jahres-Analyse erweitert.
+The following code contains the necessary Java models (`record`) and the service logic (`MentalScoreService`) for calculating the MRI. The models were extended for cup and yearly analysis.
 
 ```java
 import java.util.ArrayList;
@@ -53,8 +55,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Entität für die angereicherten Rohdaten aus der Datenbank.
- * Enthält Kontext-Informationen für Cup- und Jahres-Aggregation.
+ * Entity for the enriched raw data from the database.
+ * Contains context information for cup and yearly aggregation.
  */
 public record RunnerSplitData(
     long runnerId,
@@ -67,33 +69,33 @@ public record RunnerSplitData(
 ) {}
 
 /**
- * Entität für das Ergebnis der Analyse: ein Fehler-Reaktions-Paar.
+ * Entity for the result of the analysis: a mistake-reaction pair.
  */
 public record MentalScoreResult(
     long runnerId,
     long raceId,
     int mistakeLeg,
-    double mistakeSeverity, // PI des Fehlerabschnitts
-    double mentalReactionIndex // Die Abweichung des PI am Folgeposten vom Normal-PI
+    double mistakeSeverity, // PI of the mistake leg
+    double mentalReactionIndex // The deviation of the PI at the following control from the normal PI
 ) {}
 
 
 public class MentalScoreService {
 
-    // Schwellenwert für Fehler: 30% langsamer als die Bestzeit (PI > 1.30)
+    // Threshold for a mistake: 30% slower than the best time (PI > 1.30)
     private static final double MISTAKE_THRESHOLD_PI = 1.30; 
     
-    // Toleranz für "Ice-Man"-Stabilität: +/- 5% Abweichung vom normalen PI
+    // Tolerance for "Ice-Man" stability: +/- 5% deviation from the normal PI
     private static final double STABILITY_TOLERANCE_PI = 0.05; 
 
     /**
-     * Führt die Kernanalyse der mentalen Widerstandsfähigkeit durch.
-     * @param allSplits Liste aller rohen Split-Daten, sortiert nach Läufer und Postennummer.
-     * @return Eine Liste aller festgestellten Fehler-Reaktions-Paare (MRI-Instanzen).
+     * Performs the core analysis of mental resilience.
+     * @param allSplits List of all raw split data, sorted by runner and control number.
+     * @return A list of all detected mistake-reaction pairs (MRI instances).
      */
     public List<MentalScoreResult> analyzeSplits(List<RunnerSplitData> allSplits) {
         
-        // Gruppierung der Splits nach Läufer und Rennen
+        // Group the splits by runner and race
         Map<Long, Map<Long, List<RunnerSplitData>>> groupedSplits = allSplits.stream()
             .collect(Collectors.groupingBy(
                 RunnerSplitData::runnerId,
@@ -111,14 +113,14 @@ public class MentalScoreService {
 
                 if (splits.size() < 2) continue;
 
-                // 1. Normal-PI (Baseline) berechnen: Durchschnitt aller Nicht-Fehler-Splits
+                // 1. Calculate normal PI (baseline): average of all non-mistake splits
                 double normalPI = splits.stream()
                     .mapToDouble(s -> s.seconds() / s.bestTimeSeconds())
                     .filter(pi -> pi < MISTAKE_THRESHOLD_PI) 
                     .average()
                     .orElse(1.0); 
 
-                // 2. Analyse der Posten-Paare (Fehler n und Reaktion n+1)
+                // 2. Analyze the control pairs (mistake n and reaction n+1)
                 for (int i = 0; i < splits.size() - 1; i++) {
                     RunnerSplitData currentSplit = splits.get(i);
                     RunnerSplitData nextSplit = splits.get(i + 1);
@@ -126,10 +128,10 @@ public class MentalScoreService {
                     double currentPI = currentSplit.seconds() / currentSplit.bestTimeSeconds();
                     double nextPI = nextSplit.seconds() / nextSplit.bestTimeSeconds();
                     
-                    // A. Fehler erkannt? (Auslöser)
+                    // A. Mistake detected? (trigger)
                     if (currentPI >= MISTAKE_THRESHOLD_PI) {
                         
-                        // B. Reaktion (Mental Resilience Index) berechnen
+                        // B. Calculate the reaction (Mental Resilience Index)
                         double mentalReactionIndex = nextPI - normalPI;
                         
                         results.add(new MentalScoreResult(
@@ -147,52 +149,52 @@ public class MentalScoreService {
     }
 
 
-    // --- Aggregations-Methoden für Cup und Jahr ---
+    // --- Aggregation methods for cup and year ---
 
     /**
-     * Berechnet den durchschnittlichen Mental Resilience Index pro Läufer und Cup.
+     * Calculates the average Mental Resilience Index per runner and cup.
      */
     public Map<Long, Map<Long, Double>> calculateAverageCupScore(List<MentalScoreResult> results, List<RunnerSplitData> allSplits) {
         
-        // 1. Mapping von Race-ID zu Cup-ID erstellen
+        // 1. Create a mapping from race ID to cup ID
         Map<Long, Long> raceToCupMap = allSplits.stream()
             .filter(s -> s.cupId() != null)
             .collect(Collectors.toMap(RunnerSplitData::raceId, RunnerSplitData::cupId, (existing, replacement) -> existing));
         
-        // 2. Gruppierung und Berechnung
+        // 2. Grouping and calculation
         return results.stream()
             .filter(r -> raceToCupMap.containsKey(r.raceId()))
             .collect(Collectors.groupingBy(
                 MentalScoreResult::runnerId,
                 Collectors.groupingBy(
-                    r -> raceToCupMap.get(r.raceId()), // Gruppierung nach Cup-ID
+                    r -> raceToCupMap.get(r.raceId()), // Grouping by cup ID
                     Collectors.averagingDouble(MentalScoreResult::mentalReactionIndex)
                 )
             ));
     }
 
     /**
-     * Berechnet den durchschnittlichen Mental Resilience Index pro Läufer und Jahr.
+     * Calculates the average Mental Resilience Index per runner and year.
      */
     public Map<Long, Map<Integer, Double>> calculateAverageYearlyScore(List<MentalScoreResult> results, List<RunnerSplitData> allSplits) {
         
-        // 1. Mapping von Race-ID zu Jahr erstellen
+        // 1. Create a mapping from race ID to year
         Map<Long, Integer> raceToYearMap = allSplits.stream()
             .collect(Collectors.toMap(RunnerSplitData::raceId, RunnerSplitData::raceYear, (existing, replacement) -> existing));
         
-        // 2. Gruppierung und Berechnung
+        // 2. Grouping and calculation
         return results.stream()
             .collect(Collectors.groupingBy(
                 MentalScoreResult::runnerId,
                 Collectors.groupingBy(
-                    r -> raceToYearMap.get(r.raceId()), // Gruppierung nach Jahr
+                    r -> raceToYearMap.get(r.raceId()), // Grouping by year
                     Collectors.averagingDouble(MentalScoreResult::mentalReactionIndex)
                 )
             ));
     }
 
     /**
-     * Hilfsfunktion zur Klassifizierung der Reaktion (für die finale Ausgabe).
+     * Helper function for classifying the reaction (for the final output).
      */
     public String classifyReaction(double reactionIndex) {
         if (reactionIndex < -STABILITY_TOLERANCE_PI) {
@@ -204,3 +206,4 @@ public class MentalScoreService {
         }
     }
 }
+```

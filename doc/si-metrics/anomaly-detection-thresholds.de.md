@@ -1,5 +1,7 @@
 # Anomalie-Erkennung - Aktuelle Schwellenwerte
 
+> **Deutsch** · [English](anomaly-detection-thresholds.md)
+
 **Stand:** 10.12.2025
 **Version:** Ultra-Konservativ (Iteration 5)
 

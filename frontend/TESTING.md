@@ -1,5 +1,7 @@
 # Testing Guide
 
+> [Deutsch](TESTING.de.md) · **English**
+
 Comprehensive guide for running tests in the Resulter frontend application.
 
 ## Quick Start

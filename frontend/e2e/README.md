@@ -1,5 +1,7 @@
 # E2E Tests with Playwright
 
+> [Deutsch](README.de.md) · **English**
+
 End-to-end tests for the Resulter frontend application with **database isolation** for reliable, parallel test execution.
 
 ## 📚 Documentation

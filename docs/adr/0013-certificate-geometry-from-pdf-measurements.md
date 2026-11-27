@@ -75,5 +75,5 @@ the frontend cannot run iText and has no access to the backend logic.
 
 - [`certificateCanvas.ts`](../../frontend/src/features/certificate/model/certificateCanvas.ts)
 - [`certificateCanvas.spec.ts`](../../frontend/test/features/certificate/certificateCanvas.spec.ts)
-- [`urkunden-layout-editor.md`](../plans/urkunden-layout-editor.md)
+- [`urkunden-layout-editor.md`](../plans/certificate-layout-editor.md)
 - [`CertificateServiceImpl.java`](../../backend/src/main/java/de/jobst/resulter/application/certificate/CertificateServiceImpl.java)

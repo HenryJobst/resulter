@@ -4,7 +4,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-11-24
-- **Context:** Commits `23b46d1c` ("visual layout editor") and `200477f2` ("graphical layout view"); plan in `docs/plans/urkunden-layout-editor.md`
+- **Context:** Commits `23b46d1c` ("visual layout editor") and `200477f2` ("graphical layout view"); plan in `docs/plans/certificate-layout-editor.md`
 
 ## Context
 
@@ -74,7 +74,7 @@ backend and the storage format ([ADR 0009](0009-certificate-layout-as-json-flowi
 
 ## Related documents
 
-- [`urkunden-layout-editor.md`](../plans/urkunden-layout-editor.md)
+- [`urkunden-layout-editor.md`](../plans/certificate-layout-editor.md)
 - [`CertificateForm.vue`](../../frontend/src/features/certificate/widgets/CertificateForm.vue)
 - [`CertificateLayoutCanvas.vue`](../../frontend/src/features/certificate/widgets/CertificateLayoutCanvas.vue)
 - [`CertificateLayoutEditor.vue`](../../frontend/src/features/certificate/widgets/CertificateLayoutEditor.vue)

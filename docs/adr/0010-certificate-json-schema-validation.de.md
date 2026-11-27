@@ -11,7 +11,7 @@
 Das Urkunden-Layout ist ein frei bearbeitbarer JSON-Text
 ([ADR 0009](0009-certificate-layout-as-json-flowing-text-with-itext.de.md)). Ohne Prüfung zeigt
 sich ein Fehler im Layout erst beim Rendern. Der Plan
-`docs/plans/urkunden-layout-editor.md` nennt das als Problem: „Fehler zeigen sich erst
+`docs/plans/certificate-layout-editor.de.md` nennt das als Problem: „Fehler zeigen sich erst
 im Fehler-PDF.“
 
 ## Entscheidung
@@ -71,4 +71,4 @@ im Fehler-PDF.“
 - [`JsonSchemaValidator.java`](../../backend/src/main/java/de/jobst/resulter/application/certificate/JsonSchemaValidator.java)
 - [`CertificateServiceImpl.java`](../../backend/src/main/java/de/jobst/resulter/application/certificate/CertificateServiceImpl.java)
 - [`certificateLayoutValidation.ts`](../../frontend/src/features/certificate/model/certificateLayoutValidation.ts)
-- [`urkunden-layout-editor.md`](../plans/urkunden-layout-editor.md)
+- [`urkunden-layout-editor.md`](../plans/certificate-layout-editor.de.md)

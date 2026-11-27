@@ -74,4 +74,4 @@ Architektur.
 - [`application.properties`](../../backend/src/main/resources/application.properties)
 - [`api.ts`](../../frontend/src/features/auth/services/api.ts)
 - [`bffAuthService.ts`](../../frontend/src/features/auth/services/bffAuthService.ts)
-- [`CHANGELOG.md`](../../CHANGELOG.md) (Eintrag 4.8.14)
+- [`CHANGELOG.md`](../../CHANGELOG.de.md) (Eintrag 4.8.14)

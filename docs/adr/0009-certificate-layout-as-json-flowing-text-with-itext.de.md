@@ -24,7 +24,7 @@ gespeichert, vom Benutzer bearbeitet und im Backend in ein PDF verwandelt werden
    hintereinander in einem Absatz und springen auf Tabulatoren (`tabPosition`);
    Absätze fließen untereinander. Es gibt keine x/y-Koordinaten. Das Modell entspricht
    iText-Objekten: `Paragraph`, `Text`, `TabStop`, `Image`. Der Plan
-   `docs/plans/urkunden-layout-editor.md` hält ausdrücklich fest, dass ein freier
+   `docs/plans/certificate-layout-editor.de.md` hält ausdrücklich fest, dass ein freier
    Drag-and-Drop-Canvas nicht zum Renderer passt und eine Umstellung auf x/y-Koordinaten
    bestehende Layouts brechen würde.
 
@@ -70,5 +70,5 @@ gespeichert, vom Benutzer bearbeitet und im Backend in ein PDF verwandelt werden
 - [`ParagraphDefinition.java`](../../backend/src/main/java/de/jobst/resulter/application/certificate/ParagraphDefinition.java)
 - [`TextBlockProcessor.java`](../../backend/src/main/java/de/jobst/resulter/application/certificate/TextBlockProcessor.java)
 - [`test_layout_description_1.json`](../../backend/src/test/resources/certificate/test_layout_description_1.json)
-- [`urkunden-layout-editor.md`](../plans/urkunden-layout-editor.md)
-- [`itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.md)
+- [`urkunden-layout-editor.md`](../plans/certificate-layout-editor.de.md)
+- [`itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.de.md)

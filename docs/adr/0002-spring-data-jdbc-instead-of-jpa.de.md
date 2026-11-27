@@ -66,4 +66,4 @@ Begründung der Umstellung (Projektinhaber): Spring Data JDBC ist leichtgewichti
 - [`EventRepositoryDataJdbcAdapter.java`](../../backend/src/main/java/de/jobst/resulter/adapter/driven/jdbc/EventRepositoryDataJdbcAdapter.java)
 - [`NPlusOneReviewIT.java`](../../backend/src/test/java/de/jobst/resulter/adapter/driver/web/NPlusOneReviewIT.java)
 - [`.cursorrules`](../../.cursorrules)
-- [README, Abschnitt Technologies](../../README.md)
+- [README, Abschnitt Technologies](../../README.de.md)

@@ -1,5 +1,7 @@
 ### Aggregates, Root-Entities(RE), Entities (E), ValueObjects (VO)  ###
 
+> [Deutsch](aggregates.de.md) · **English**
+
 - Cup (RE)
     - CupId (VO)
     - CupName (VO)

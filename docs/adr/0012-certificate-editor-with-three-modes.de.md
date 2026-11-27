@@ -4,7 +4,7 @@
 
 - **Status:** akzeptiert
 - **Datum:** 2026-11-24
-- **Kontext:** Commit `23b46d1c` („visual layout editor“) und `200477f2` („graphical layout view“); Plan in `docs/plans/urkunden-layout-editor.md`
+- **Kontext:** Commit `23b46d1c` („visual layout editor“) und `200477f2` („graphical layout view“); Plan in `docs/plans/certificate-layout-editor.de.md`
 
 ## Kontext
 
@@ -74,7 +74,7 @@ Backend und Speicherformat zu ändern ([ADR 0009](0009-certificate-layout-as-jso
 
 ## Verwandte Dokumente
 
-- [`urkunden-layout-editor.md`](../plans/urkunden-layout-editor.md)
+- [`urkunden-layout-editor.md`](../plans/certificate-layout-editor.de.md)
 - [`CertificateForm.vue`](../../frontend/src/features/certificate/widgets/CertificateForm.vue)
 - [`CertificateLayoutCanvas.vue`](../../frontend/src/features/certificate/widgets/CertificateLayoutCanvas.vue)
 - [`CertificateLayoutEditor.vue`](../../frontend/src/features/certificate/widgets/CertificateLayoutEditor.vue)

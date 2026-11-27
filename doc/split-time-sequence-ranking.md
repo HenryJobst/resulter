@@ -1,50 +1,52 @@
-# Abschnittsfolgen in der Zwischenzeiten-Rangliste
+# Section Sequences in the Split Time Ranking
 
-## Ziel
-Die Zwischenzeiten-Rangliste wurde um **zusammenhängende Abschnittsfolgen** erweitert. Neben der bisherigen Einzelabschnitts-Auswertung (z. B. `31 → 32`) werden nun auch Folgen über mehrere Kontrollen ausgewertet (z. B. `S → 31 → 32`).
+> [Deutsch](split-time-sequence-ranking.de.md) · **English**
 
-## Fachliche Semantik
-- Es werden nur **zusammenhängende** Folgen gebildet (Sliding Window).
-- Die maximale Folgenlänge ist intern auf **`n-1` Posten** begrenzt (bezogen auf den verfügbaren Kontrollverlauf des Läufers).
-- Die minimale Folgenlänge ist über `sequenceMinControls` steuerbar.
-- Bestehende Filterregeln gelten konsistent:
-  - `filterPersonIds`: nur ausgewählte Läufer
-  - `filterIntersection=true`: nur Folgen, in denen alle gefilterten Läufer vorkommen
-- Ohne Personenfilter werden Folgen mit nur einem Läufer ausgeblendet.
+## Goal
+The split time ranking was extended with **contiguous section sequences**. Besides the existing single-section analysis (e.g. `31 → 32`), sequences spanning several controls are now analyzed as well (e.g. `S → 31 → 32`).
 
-## API-Erweiterung
+## Domain semantics
+- Only **contiguous** sequences are built (sliding window).
+- The maximum sequence length is internally limited to **`n-1` controls** (based on the control sequence available for the runner).
+- The minimum sequence length is controlled via `sequenceMinControls`.
+- Existing filter rules apply consistently:
+  - `filterPersonIds`: only selected runners
+  - `filterIntersection=true`: only sequences in which all filtered runners appear
+- Without a person filter, sequences with only one runner are hidden.
+
+## API extension
 Endpoint: `GET /split_time_analysis/result_list/{id}/ranking`
 
-Neue optionale Query-Parameter:
+New optional query parameters:
 - `includeSequences` (boolean, default `false`)
 - `sequenceMinControls` (int, default `3`)
 
-Rückwärtskompatibilität:
-- Ohne neue Parameter bleibt Verhalten identisch zur bisherigen Einzelabschnitts-Ausgabe.
+Backward compatibility:
+- Without the new parameters, the behavior is identical to the previous single-section output.
 
 ## Guardrails
-Zur Begrenzung von Payload und Laufzeit:
-- maximale Läufer pro Folge: `100`
-- maximale Anzahl Folgen in der Antwort: `500`
-- deterministische Auswahl/Sortierung vor dem Cut
+To limit payload and runtime:
+- maximum runners per sequence: `100`
+- maximum number of sequences in the response: `500`
+- deterministic selection/sorting before the cut
 
-## Manuelle Abnahmeszenarien
-1. Basisfall mit Folgen aktiv
+## Manual acceptance scenarios
+1. Base case with sequences enabled
 - Request: `...?includeSequences=true&sequenceMinControls=3`
-- Erwartung: `sequenceSegments` ist vorhanden und enthält Folgenlabels mit mindestens 3 Kontrollen.
+- Expectation: `sequenceSegments` is present and contains sequence labels with at least 3 controls.
 
-2. Rückwärtskompatibilität
-- Request ohne neue Parameter
-- Erwartung: `sequenceSegments` leer, Einzelabschnittslogik unverändert.
+2. Backward compatibility
+- Request without the new parameters
+- Expectation: `sequenceSegments` is empty, single-section logic unchanged.
 
-3. Intersection-Filter
-- Request mit `filterPersonIds` (>=2) und `filterIntersection=true`
-- Erwartung: nur Folgen, die alle gefilterten Läufer enthalten.
+3. Intersection filter
+- Request with `filterPersonIds` (>=2) and `filterIntersection=true`
+- Expectation: only sequences that contain all filtered runners.
 
-4. Klassenfilter im UI
-- In der Zwischenzeiten-Seite Klassenfilter setzen
-- Erwartung: Einzelabschnitte und Abschnittsfolgen werden konsistent gefiltert.
+4. Class filter in the UI
+- Set a class filter on the split time page
+- Expectation: single sections and section sequences are filtered consistently.
 
-5. Große Ergebnisliste
-- Mit vielen Läufern/Kontrollen testen
-- Erwartung: Antwort bleibt performant, Sequenzen werden bei Bedarf auf Guardrail-Limits begrenzt.
+5. Large result list
+- Test with many runners/controls
+- Expectation: the response stays performant, sequences are limited to the guardrail limits if needed.

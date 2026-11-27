@@ -71,6 +71,6 @@ Commit-Nachricht nennt keine weitere Begründung.
 
 - [`renovate.json`](../../renovate.json)
 - [`auto-merge-deps.yml`](../../.github/workflows/auto-merge-deps.yml)
-- [`CHANGELOG.md`](../../CHANGELOG.md)
+- [`CHANGELOG.md`](../../CHANGELOG.de.md)
 - [`pnpm-workspace.yaml`](../../frontend/pnpm-workspace.yaml)
 - [`bump-version.sh`](../../bump-version.sh)

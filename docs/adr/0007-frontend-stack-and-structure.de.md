@@ -76,4 +76,4 @@ Technologiewahl steht im Repository nicht; belegt sind die Abhängigkeiten in
 - [`certificate-routing.ts`](../../frontend/src/features/certificate/certificate-routing.ts)
 - [`default.conf`](../../frontend/default.conf)
 - [`vite.config.ts`](../../frontend/vite.config.ts)
-- [README, Abschnitt Technologies](../../README.md)
+- [README, Abschnitt Technologies](../../README.de.md)

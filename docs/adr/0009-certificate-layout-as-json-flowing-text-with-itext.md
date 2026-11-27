@@ -24,7 +24,7 @@ edited by the user and turned into a PDF in the backend.
    one another within a paragraph and jump to tab stops (`tabPosition`);
    paragraphs flow downward. There are no x/y coordinates. The model corresponds to
    iText objects: `Paragraph`, `Text`, `TabStop`, `Image`. The plan
-   `docs/plans/urkunden-layout-editor.md` explicitly states that a free
+   `docs/plans/certificate-layout-editor.md` explicitly states that a free
    drag-and-drop canvas does not fit the renderer and that switching to x/y coordinates
    would break existing layouts.
 
@@ -69,5 +69,5 @@ edited by the user and turned into a PDF in the backend.
 - [`ParagraphDefinition.java`](../../backend/src/main/java/de/jobst/resulter/application/certificate/ParagraphDefinition.java)
 - [`TextBlockProcessor.java`](../../backend/src/main/java/de/jobst/resulter/application/certificate/TextBlockProcessor.java)
 - [`test_layout_description_1.json`](../../backend/src/test/resources/certificate/test_layout_description_1.json)
-- [`urkunden-layout-editor.md`](../plans/urkunden-layout-editor.md)
+- [`urkunden-layout-editor.md`](../plans/certificate-layout-editor.md)
 - [`itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.md)

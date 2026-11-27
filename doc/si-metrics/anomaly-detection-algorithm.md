@@ -1,5 +1,7 @@
 # Anomaly Detection Algorithm - Configuration Overview
 
+> [Deutsch](anomaly-detection-algorithm.de.md) · **English**
+
 **Last Updated:** 2025-12-10
 **Version:** Ultra-Conservative (Iteration 5)
 

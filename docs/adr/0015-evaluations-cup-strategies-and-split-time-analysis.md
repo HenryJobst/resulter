@@ -78,6 +78,6 @@ computationally expensive and must not inflate the responses without limit.
 - [`SplitTimeAnalysisController.java`](../../backend/src/main/java/de/jobst/resulter/adapter/driver/web/SplitTimeAnalysisController.java)
 - [`SplitTimeRankingServiceImpl.java`](../../backend/src/main/java/de/jobst/resulter/application/analysis/SplitTimeRankingServiceImpl.java)
 - [`split-time-sequence-ranking.md`](../../doc/split-time-sequence-ranking.md)
-- [`anomalie-erkennungs-schwellenwerte.md`](../../doc/si-metrics/anomalie-erkennungs-schwellenwerte.md)
+- [`anomalie-erkennungs-schwellenwerte.md`](../../doc/si-metrics/anomaly-detection-thresholds.md)
 - [`mental-resilience-index-metric.md`](../../doc/si-metrics/mental-resilience-index-metric.md)
 - [README, Overview section](../../README.md)

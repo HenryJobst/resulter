@@ -51,5 +51,5 @@ Chapters 7 to 10 are not written yet. The features they will cover are listed in
 ## Further documentation
 
 - Architecture decisions: [`docs/adr`](../adr/README.md)
-- Plan of the certificate editor: [`docs/plans/urkunden-layout-editor.md`](../plans/urkunden-layout-editor.md)
+- Plan of the certificate editor: [`docs/plans/certificate-layout-editor.md`](../plans/certificate-layout-editor.md)
 - Guide to adding new fonts: [`doc/itext-font-integration-guide-generic.md`](../../doc/itext-font-integration-guide-generic.md)

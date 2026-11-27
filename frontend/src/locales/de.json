@@ -304,6 +304,8 @@
         "entity_deleted": "{entity} gelöscht",
         "detail": "Detail",
         "details": "Details...",
+        "delete_confirm_header": "Löschen?",
+        "delete_confirm_message": "Soll dieser Eintrag ({entity}) wirklich gelöscht werden? Das lässt sich nicht rückgängig machen.",
         "logout_confirm_header": "Abmelden?",
         "logout_confirm_message": "Möchtest du dich wirklich abmelden?",
         "noMessages": "Keine Meldungen",

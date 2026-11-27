@@ -138,7 +138,6 @@ const classificationOptions = [
     { label: t('labels.panic'), value: 'panic' },
     { label: t('labels.ice_man'), value: 'ice_man' },
     { label: t('labels.resigner'), value: 'resigner' },
-    { label: t('labels.chain_error'), value: 'chain_error' },
 ]
 
 // Sort options

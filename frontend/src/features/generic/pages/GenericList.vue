@@ -10,6 +10,7 @@ import Button from 'openvue/button'
 import Column from 'openvue/column'
 import DataTable from 'openvue/datatable'
 import InputText from 'openvue/inputtext'
+import { useConfirm } from 'openvue/useconfirm'
 import { useToast } from 'openvue/usetoast'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -122,6 +123,7 @@ const dataValue = computed((): RestPageResult<any> | undefined => {
 })
 
 const toast = useToast()
+const confirm = useConfirm()
 
 const deleteMutation = useMutation({
     mutationFn: (id: number) => props.entityService!.deleteById(id, t),
@@ -137,7 +139,15 @@ const deleteMutation = useMutation({
 })
 
 function deleteEntity(id: number) {
-    deleteMutation.mutate(id)
+    confirm.require({
+        header: t('messages.delete_confirm_header'),
+        message: t('messages.delete_confirm_message', { entity: props.entityLabel }),
+        icon: 'pi pi-trash',
+        acceptLabel: t('labels.delete'),
+        rejectLabel: t('labels.cancel'),
+        acceptSeverity: 'danger',
+        accept: () => deleteMutation.mutate(id),
+    })
 }
 
 function reload() {

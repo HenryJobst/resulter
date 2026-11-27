@@ -194,7 +194,6 @@ const hasUnreliableClasses = computed(() => {
 const classificationOptions = [
     { label: t('labels.high_hanging'), value: 'HIGH_HANGING' },
     { label: t('labels.moderate_hanging'), value: 'MODERATE_HANGING' },
-    { label: t('labels.no_hanging'), value: 'NO_HANGING' },
 ]
 
 // Sort options

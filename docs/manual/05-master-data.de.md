@@ -90,7 +90,7 @@ Formular der Organisation darüber gewählt, und die Liste zeigt sie in der Spal
 
 ### Löschen
 
-Der Papierkorb in der Zeile löscht die Organisation ohne Rückfrage und zeigt die Meldung
+Der Papierkorb in der Zeile fragt nach und löscht dann die Organisation. Er zeigt die Meldung
 **organisation gelöscht**. Was mit Wettkämpfen und Ergebnissen geschieht, die noch auf die
 Organisation verweisen: Im Quelltext nicht belegt.
 
@@ -171,7 +171,7 @@ Vor dem Zusammenführen gibt es keine Rückfrage.
 
 ### Löschen
 
-Der Papierkorb in der Zeile löscht die Person ohne Rückfrage. Was mit Ergebnissen geschieht, die
+Der Papierkorb in der Zeile fragt nach und löscht dann die Person. Was mit Ergebnissen geschieht, die
 noch auf die Person verweisen: Im Quelltext nicht belegt.
 
 ## Mediendateien
@@ -207,12 +207,12 @@ Erlaubte Dateitypen:
 
 | Prüfung | Typen |
 |---|---|
-| Browser, beim Auswählen und Hochladen | JPEG, PNG, GIF, BMP, WebP |
+| Browser, beim Auswählen und Hochladen | JPEG, PNG, GIF, WebP |
 | Server, nach dem Inhalt der Datei | JPEG, PNG, GIF, WebP, SVG, PDF |
 
 Der Server entscheidet nach dem Inhalt, nicht nach dem Dateinamen oder dem Typ, den der Browser
-meldet. Eine Datei, die der Server nicht akzeptiert, wird abgewiesen. BMP-Dateien bestehen die
-Prüfung im Browser, stehen aber nicht in der Liste des Servers. Eine Datei, die die Prüfung im
+meldet. Eine Datei, die der Server nicht akzeptiert, wird abgewiesen. SVG und PDF nimmt der Server an, die
+Prüfung im Browser überspringt sie aber, sie lassen sich über diese Seite also nicht hochladen. Eine Datei, die die Prüfung im
 Browser nicht besteht, wird ohne Meldung auf der Seite übersprungen. Die Größengrenze für eine
 Datei beträgt 20 MB in den Einstellungen der Anwendung. Für JPEG, PNG, GIF und WebP wird ein
 verkleinertes Vorschaubild erzeugt.
@@ -229,7 +229,7 @@ Der Urkunden-Editor bietet die Bilder dieser Seite als **Hintergrund** an (siehe
 
 ### Löschen
 
-Der Papierkorb in der Zeile löscht die Mediendatei ohne Rückfrage. In der Datenbank verweist eine
+Der Papierkorb in der Zeile fragt nach und löscht dann die Mediendatei. In der Datenbank verweist eine
 Urkunde auf ihr Hintergrundbild. Was geschieht, wenn eine Datei gelöscht wird, die noch als
 Hintergrund dient: Im Quelltext nicht belegt.
 

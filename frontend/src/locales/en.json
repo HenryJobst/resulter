@@ -258,6 +258,8 @@
         "entity_deleted": "{entity} deleted",
         "detail": "Detail",
         "details": "Details...",
+        "delete_confirm_header": "Delete?",
+        "delete_confirm_message": "Do you really want to delete this entry ({entity})? This cannot be undone.",
         "logout_confirm_header": "Sign out?",
         "logout_confirm_message": "Are you sure you want to sign out?",
         "noMessages": "No messages",

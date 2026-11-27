@@ -153,11 +153,11 @@ The page **Mental Resilience Analysis** shows how runners react in the segment t
 | Input | Meaning |
 |---|---|
 | **Filter by Name** | Selects runners. The analysis is requested again for them only. |
-| **Filter by Classification** | **Panic Mode**, **Cool Head**, **Resignation** or **Chain Error** |
+| **Filter by Classification** | **Panic Mode**, **Cool Head** or **Resignation** |
 | **Sort By** | **MRI** (default, lowest first), **Mistake Count** (highest first), **Normal PI** (lowest first), **Name** |
 | **Help** | Opens a dialog with the explanations |
 
-The filter **Chain Error** never shows runners: the overall classification of a runner has only the three other values.
+The overall classification of a runner has only these three values. **Chain Error** exists only for single pairs and is not offered as a filter.
 
 ### How it is calculated
 
@@ -236,11 +236,11 @@ The page **Cheat Detection** (German **Anomalie-Erkennung**) looks for segments 
 | Input | Meaning |
 |---|---|
 | **Filter by Name** | Selects runners |
-| **Filter by Classification** | **High Likelihood**, **Moderate Likelihood** or **Unlikely** |
+| **Filter by Classification** | **High Likelihood** or **Moderate Likelihood** |
 | **Sort By** | **Anomalies Index** (default, lowest first), **Anomalies** (count, highest first), **Normal PI** (lowest first), **Name** |
 | **Help** | Opens a dialog with the explanations |
 
-Only runners with at least one flagged segment appear in the list. The filter **Unlikely** therefore stays empty.
+Only runners with at least one flagged segment appear in the list.
 
 ### How it is calculated
 
@@ -308,7 +308,7 @@ The page **Hanging Detection (Bus Driver & Passenger)** (German **Tram-Erkennung
 | **Sort By** | **Hanging Index (HI)** (default, lowest first), **Hanging Count** (highest first), **Normal PI**, **Name** |
 | **Help** | Opens a dialog with the explanations |
 
-The list contains only runners with at least one hanging segment, so the entry **No Hanging** gives an empty list.
+The list contains only runners with at least one hanging segment.
 
 ### How it is calculated
 

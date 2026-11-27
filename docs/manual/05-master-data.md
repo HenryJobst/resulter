@@ -89,7 +89,7 @@ Loops in the hierarchy: Not verified in the source.
 
 ### Deleting
 
-The trash can in the row deletes the organisation without a confirmation prompt and shows the
+The trash can in the row asks for confirmation and then deletes the organisation. It shows the
 message **organisation deleted**. What happens to events and results that still refer to the
 organisation: Not verified in the source.
 
@@ -165,7 +165,7 @@ There is no confirmation prompt before the merge.
 
 ### Deleting
 
-The trash can in the row deletes the person without a confirmation prompt. What happens to results
+The trash can in the row asks for confirmation and then deletes the person. What happens to results
 that still refer to the person: Not verified in the source.
 
 ## Media files
@@ -201,12 +201,12 @@ Allowed file types:
 
 | Check | Types |
 |---|---|
-| Browser, when choosing and uploading | JPEG, PNG, GIF, BMP, WebP |
+| Browser, when choosing and uploading | JPEG, PNG, GIF, WebP |
 | Server, by the content of the file | JPEG, PNG, GIF, WebP, SVG, PDF |
 
 The server decides by the content, not by the file name or the type the browser reports. A file
-that the server does not accept is rejected. BMP files pass the check in the browser but are not in
-the server list. A file that fails the check in the browser is skipped without a message on the
+that the server does not accept is rejected. SVG and PDF are accepted by the server, but the browser check skips them, so they
+cannot be uploaded through this page. A file that fails the check in the browser is skipped without a message on the
 page. The size limit of one file is 20 MB in the application settings. For JPEG, PNG, GIF and WebP
 a reduced preview image is created.
 
@@ -222,7 +222,7 @@ The certificate editor offers the images of this page as **Background** (see
 
 ### Deleting
 
-The trash can in the row deletes the media file without a confirmation prompt. In the database
+The trash can in the row asks for confirmation and then deletes the media file. In the database
 a certificate refers to its background image. What happens when a file that is still used as a
 background is deleted: Not verified in the source.
 

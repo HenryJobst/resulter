@@ -136,7 +136,6 @@ const hasUnreliableClasses = computed(() => {
 const classificationOptions = [
     { label: t('labels.high_suspicion'), value: 'HIGH_SUSPICION' },
     { label: t('labels.moderate_suspicion'), value: 'MODERATE_SUSPICION' },
-    { label: t('labels.no_suspicion'), value: 'NO_SUSPICION' },
 ]
 
 // Sort options

@@ -23,6 +23,11 @@ vi.mock('@tanstack/vue-query', async (importOriginal) => {
 })
 
 // Mock VueUse
+const mockConfirmRequire = vi.fn()
+vi.mock('openvue/useconfirm', () => ({
+    useConfirm: () => ({ require: mockConfirmRequire }),
+}))
+
 vi.mock('@vueuse/core', () => ({
     useDebounceFn: vi.fn((fn: any) => fn),
 }))
@@ -425,7 +430,15 @@ describe('genericList', () => {
     })
 
     describe('deleteEntity function', () => {
+        beforeEach(() => mockConfirmRequire.mockClear())
+
         it('should call deleteMutation with entity id', () => {
+            const mockMutate = vi.fn()
+            mockUseMutation.mockReturnValue({
+                mutate: mockMutate,
+                status: { value: 'idle' },
+                reset: vi.fn(),
+            })
             const wrapper = mount(GenericList, {
                 props: {
                     entityService: mockEntityService,
@@ -438,18 +451,12 @@ describe('genericList', () => {
             })
 
             const vm = wrapper.vm as any
-            const mockMutate = vi.fn()
-            mockUseMutation.mockReturnValue({
-                mutate: mockMutate,
-                status: { value: 'idle' },
-                reset: vi.fn(),
-            })
-
-            wrapper.vm.$forceUpdate()
             vm.deleteEntity(123)
 
-            // The mutation would be called in a real scenario
-            expect(vm).toBeDefined()
+            expect(mockConfirmRequire).toHaveBeenCalledOnce()
+            expect(mockMutate).not.toHaveBeenCalled()
+            mockConfirmRequire.mock.calls[0][0].accept()
+            expect(mockMutate).toHaveBeenCalledWith(123)
         })
     })
 

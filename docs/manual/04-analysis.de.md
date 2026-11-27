@@ -153,11 +153,11 @@ Die Seite **Mentale Widerstandsfähigkeit** zeigt, wie Läufer auf dem Abschnitt
 | Eingabe | Bedeutung |
 |---|---|
 | **Nach Name filtern** | Wählt Läufer. Die Analyse wird nur für sie neu abgefragt. |
-| **Nach Klassifizierung filtern** | **Panik-Modus**, **Cool Head**, **Resignation** oder **Kettenfehler** |
+| **Nach Klassifizierung filtern** | **Panik-Modus**, **Cool Head** oder **Resignation** |
 | **Sortieren nach** | **MRI** (Voreinstellung, niedrigster zuerst), **Fehleranzahl** (höchste zuerst), **Normal-PI** (niedrigster zuerst), **Name** |
 | **Hilfe** | Öffnet einen Dialog mit den Erklärungen |
 
-Der Filter **Kettenfehler** zeigt nie Läufer: Die Gesamtklassifizierung eines Läufers kennt nur die drei anderen Werte.
+Die Gesamtklassifizierung eines Läufers kennt nur diese drei Werte. **Kettenfehler** gibt es nur für einzelne Paare und wird nicht als Filter angeboten.
 
 ### So wird gerechnet
 
@@ -236,11 +236,11 @@ Die Seite **Anomalie-Erkennung** (englisch **Cheat Detection**) sucht Abschnitte
 | Eingabe | Bedeutung |
 |---|---|
 | **Nach Name filtern** | Wählt Läufer |
-| **Nach Klassifizierung filtern** | **Hohe Wahrscheinlichkeit**, **Mittlere Wahrscheinlichkeit** oder **Unwahrscheinlich** |
+| **Nach Klassifizierung filtern** | **Hohe Wahrscheinlichkeit** oder **Mittlere Wahrscheinlichkeit** |
 | **Sortieren nach** | **Anomalie-Index** (Voreinstellung, niedrigster zuerst), **Auffälligkeiten** (Anzahl, höchste zuerst), **Normal-PI** (niedrigster zuerst), **Name** |
 | **Hilfe** | Öffnet einen Dialog mit den Erklärungen |
 
-In der Liste erscheinen nur Läufer mit mindestens einem auffälligen Abschnitt. Der Filter **Unwahrscheinlich** bleibt daher leer.
+In der Liste erscheinen nur Läufer mit mindestens einem auffälligen Abschnitt.
 
 ### So wird gerechnet
 
@@ -308,7 +308,7 @@ Die Seite **Tram-Erkennung (Fahrer & Mitfahrer)** (englisch **Hanging Detection 
 | **Sortieren nach** | **Tram-Index (HI)** (Voreinstellung, niedrigster zuerst), **Tram-Anzahl** (höchste zuerst), **Normal-PI**, **Name** |
 | **Hilfe** | Öffnet einen Dialog mit den Erklärungen |
 
-Die Liste enthält nur Läufer mit mindestens einem Tram-Abschnitt, der Eintrag **Kein Nachlaufen** ergibt daher eine leere Liste.
+Die Liste enthält nur Läufer mit mindestens einem Tram-Abschnitt.
 
 ### So wird gerechnet
 

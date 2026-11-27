@@ -1,0 +1,10 @@
+title = "Resulter gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Fake credentials in tests"
+paths = [
+  '''frontend/test/features/keycloak/services/api\.spec\.ts''',
+]

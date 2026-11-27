@@ -47,6 +47,7 @@ TARGETS=(
   "$SCRIPT_DIR/backend/project.toml|version = \"|\""
   "$SCRIPT_DIR/backend/src/main/resources/application.properties|openapi.config.version=|"
   "$SCRIPT_DIR/README.md|version-|-blue"
+  "$SCRIPT_DIR/README.de.md|version-|-blue"
 )
 
 CURRENT_RE="${CURRENT//./\\.}"

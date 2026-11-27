@@ -2,9 +2,6 @@
 
 > **Deutsch** · [English](01-introduction.md)
 
-> Dieses Kapitel ist ein Gerüst. Es enthält, was aus dem Quelltext und den Aufnahmen belegt ist.
-> Weitere Abschnitte folgen.
-
 ## Was Resulter ist
 
 Resulter liest Ergebnisdateien von Orientierungsläufen ein und zeigt daraus Ergebnislisten. Dazu
@@ -52,10 +49,13 @@ Anmeldedienst gepflegt.
 ## Die Urkunden-Seiten
 
 Alle Urkunden-Funktionen sind in der Seitenleiste unter **Urkunden** erreichbar. Sie sind im
-[Kapitel 2](02-certificates.de.md) beschrieben, der Editor in den Kapiteln 3 bis 5.
+[Kapitel 6](06-certificates.de.md) beschrieben, der Editor in den Kapiteln 7 bis 9.
 
-## Offene Abschnitte
+## Die übrigen Seiten
 
-- Navigation durch Wettkämpfe, Ergebnislisten und Cups (Kapitel 7 und 8)
-- Sprachwahl und Darstellung auf kleinen Bildschirmen
-- Rollen und Berechtigungen im Betrieb (Rücksprache mit dem Betreiber nötig)
+- Cups und Ranglisten: [Kapitel 2](02-cups-and-rankings.de.md)
+- Wettkämpfe, Import und Ergebnislisten: [Kapitel 3](03-events-and-results.de.md)
+- Splitzeiten-Analyse und die weiteren Auswertungen: [Kapitel 4](04-analysis.de.md)
+- Organisationen, Personen und Medien: [Kapitel 5](05-master-data.de.md)
+
+Jedes dieser Kapitel endet mit einer Tabelle, wer was darf.

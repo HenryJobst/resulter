@@ -2,9 +2,6 @@
 
 > [Deutsch](01-introduction.de.md) · **English**
 
-> This chapter is an outline. It contains what is verified by the source code and the
-> screenshots. More sections will follow.
-
 ## What Resulter is
 
 Resulter reads result files from orienteering events and shows result lists from them. It also
@@ -52,10 +49,13 @@ service.
 ## The certificate pages
 
 All certificate functions are available in the sidebar under **Certificates**. They are described
-in [chapter 2](02-certificates.md), the editor in chapters 3 to 5.
+in [chapter 6](06-certificates.md), the editor in chapters 7 to 9.
 
-## Open sections
+## The other pages
 
-- Navigation through events, result lists and cups (chapters 7 and 8)
-- Language selection and display on small screens
-- Roles and permissions in operation (needs confirmation from the operator)
+- Cups and rankings: [chapter 2](02-cups-and-rankings.md)
+- Events, import and result lists: [chapter 3](03-events-and-results.md)
+- Split time analysis and the other evaluations: [chapter 4](04-analysis.md)
+- Organisations, persons and media: [chapter 5](05-master-data.md)
+
+Each of these chapters ends with a table of who may do what.

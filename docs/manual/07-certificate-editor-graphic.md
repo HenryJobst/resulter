@@ -1,10 +1,10 @@
-# 3 Certificate editor: Graphic
+# 7 Certificate editor: Graphic
 
-> [Deutsch](03-certificate-editor-graphic.de.md) · **English**
+> [Deutsch](07-certificate-editor-graphic.de.md) · **English**
 
 The graphic editor is the default view when editing a certificate. It shows the page in A4 format
 with the background image and lets you grab, move, enlarge and label the text blocks and images
-directly. Below it, with the same changes, is the form (see [chapter 4](04-certificate-editor-form.md)).
+directly. Below it, with the same changes, is the form (see [chapter 8](08-certificate-editor-form.md)).
 
 You switch with the three tabs **Graphic**, **Form** and **JSON** above the editor.
 All three tabs edit the same layout. What you change in one is immediately visible in the
@@ -33,7 +33,7 @@ greyed out instead of hidden. This way the page does not jump when you click a b
 The page view uses sample data (Max Mustermann, Kaulsdorfer OLV Berlin,
 Beispiel-OL, H35-, 32:14, 1st place). Font, line height and image proportions match the
 PDF. Line breaks of long texts are not reproduced. The
-[PDF preview](02-certificates.md#the-preview) remains authoritative.
+[PDF preview](06-certificates.md#the-preview) remains authoritative.
 
 ## Selecting blocks
 
@@ -101,7 +101,7 @@ for editing.
 During editing, the format bar shows the placeholders (**Insert placeholder**, for example
 `CATEGORY`) instead of the formatting. A click inserts `{{CATEGORY}}` at the cursor position
 without ending the editing. The list of placeholders is in
-[chapter 6](06-certificate-reference.md#placeholders).
+[chapter 10](10-certificate-reference.md#placeholders).
 
 ![Inserting a placeholder](images/editor-placeholders.webp)
 
@@ -253,4 +253,4 @@ and **Ctrl+Y** (on the Mac **Cmd**) do the same. **Shift+Ctrl+Z** also redoes.
   The PDF standard fonts (Helvetica, Times, Courier) appear with similar
   system fonts.
 
-Further details are in [chapter 6](06-certificate-reference.md#limits-of-the-page-view).
+Further details are in [chapter 10](10-certificate-reference.md#limits-of-the-page-view).

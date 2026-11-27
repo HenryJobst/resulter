@@ -1,6 +1,6 @@
-# 6 Certificate editor reference
+# 10 Certificate editor reference
 
-> [Deutsch](06-certificate-reference.de.md) · **English**
+> [Deutsch](10-certificate-reference.de.md) · **English**
 
 Reference for placeholders, fonts, dimensions, keyboard shortcuts and limits.
 
@@ -115,5 +115,5 @@ dimensions come from measurements on real PDFs of 13 certificates. Deviations re
   from width times ratio.
 - The page view has so far been checked in the Chromium browser. Firefox and Safari are not tested.
 
-The [PDF preview](02-certificates.md#the-preview) remains authoritative. The decision behind it is in
+The [PDF preview](06-certificates.md#the-preview) remains authoritative. The decision behind it is in
 [ADR 0013](../adr/0013-certificate-geometry-from-pdf-measurements.md).

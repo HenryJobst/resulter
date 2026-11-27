@@ -1,6 +1,6 @@
-# 5 Urkunden-Editor: JSON
+# 9 Urkunden-Editor: JSON
 
-> **Deutsch** · [English](05-certificate-editor-json.md)
+> **Deutsch** · [English](09-certificate-editor-json.md)
 
 Der Reiter **JSON** zeigt das Layout als Text. Er ist der Expertenmodus: Alles, was die beiden
 anderen Reiter können, steht hier als Text, und es gibt Einstellungen, die man nur hier setzt.
@@ -59,7 +59,7 @@ Ein Layout ist ein Objekt mit zwei Teilen:
 
 Die genaue, vollständige Beschreibung liefert das JSON-Schema. Es lässt sich in der Anwendung
 ansehen: Der Knopf mit dem Fragezeichen neben **Layout-Beschreibung**
-([Kapitel 2](02-certificates.de.md#die-hilfe-zum-schema)). Die Quelle liegt im Repository unter
+([Kapitel 6](06-certificates.de.md#die-hilfe-zum-schema)). Die Quelle liegt im Repository unter
 `backend/src/main/resources/schema/certificate_schema.json`.
 
 **Bei Bildern** steht in `media` der **Dateiname** aus der Medienverwaltung, nicht eine

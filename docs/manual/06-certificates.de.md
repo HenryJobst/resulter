@@ -1,6 +1,6 @@
-# 2 Urkunden
+# 6 Urkunden
 
-> **Deutsch** · [English](02-certificates.md)
+> **Deutsch** · [English](06-certificates.md)
 
 Eine **Urkunde** ist in Resulter eine Vorlage. Aus ihr erzeugt die Anwendung für jeden Teilnehmer
 eines Wettkampfs ein PDF mit dessen Namen, Platz, Zeit und Verein. Dieses Kapitel beschreibt die
@@ -43,7 +43,7 @@ Felder und der Editor, rechts die Vorschau.
 | **Name** \* | Frei wählbarer Name der Vorlage |
 | **Wettkampf** \* | Der Wettkampf, mit dem die Vorschau erzeugt wird |
 | **Hintergrund** \* | Das Bild, auf das der Text gedruckt wird (Auswahl mit Suche und Vorschau) |
-| **Layout-Beschreibung** | Das Layout des Textes (siehe unten und Kapitel 3 bis 5) |
+| **Layout-Beschreibung** | Das Layout des Textes (siehe unten und Kapitel 7 bis 9) |
 | **Primär** | Markierung der Hauptvorlage |
 
 Ein Stern (\*) kennzeichnet Pflichtfelder. Ein leeres Pflichtfeld ist rot umrandet. Gespeichert
@@ -69,10 +69,10 @@ Rechts erzeugt die Anwendung das echte PDF, so wie es auch für die Teilnehmer e
   Editors arbeitet dagegen mit festen Beispielwerten und zeigt als Wettkampfnamen
   „Beispiel-OL“. Der Unterschied ist in den Bildern dieses Handbuchs gut zu sehen.
 - Die Vorschau ist die maßgebliche Darstellung. Die Seitenansicht im Editor ist eine
-  Annäherung (siehe [Kapitel 6](06-certificate-reference.de.md#grenzen-der-seitenansicht)).
+  Annäherung (siehe [Kapitel 10](10-certificate-reference.de.md#grenzen-der-seitenansicht)).
 - Ist das Layout fehlerhaft, zeigt die Vorschau statt der Urkunde ein PDF mit den Fehlertexten. Die
   Fehler zeigt auch der Editor selbst an (siehe
-  [Kapitel 5](05-certificate-editor-json.de.md#fehlermeldungen)).
+  [Kapitel 9](09-certificate-editor-json.de.md#fehlermeldungen)).
 
 ## Das Layout: Fließtext in Absätzen
 
@@ -94,7 +94,7 @@ ganze Bedienung:
 
 Weil der Text fließt, verschiebt sich alles darunter, wenn man einen Absatz höher macht oder
 größer schreibt. Die Seitenansicht des Editors gleicht das beim Verschieben und Skalieren
-standardmäßig aus (siehe [Kapitel 3](03-certificate-editor-graphic.de.md)).
+standardmäßig aus (siehe [Kapitel 7](07-certificate-editor-graphic.de.md)).
 
 Die Begründung für dieses Modell steht in
 [ADR 0009](../adr/0009-certificate-layout-as-json-flowing-text-with-itext.de.md).
@@ -103,7 +103,7 @@ Die Begründung für dieses Modell steht in
 
 In Texten können Platzhalter stehen, die beim Erzeugen durch die Daten des Teilnehmers ersetzt
 werden, zum Beispiel `{{GIVEN_NAME}} {{FAMILY_NAME}}`. Die Liste steht in
-[Kapitel 6](06-certificate-reference.de.md#platzhalter).
+[Kapitel 10](10-certificate-reference.de.md#platzhalter).
 
 ## Die Hilfe zum Schema
 
@@ -117,4 +117,4 @@ Felder, Schriften und Wertebereiche auf.
 
 Die Auswahl der Urkunde steht im Formular des Wettkampfs (Feld **Urkunde**). Wie Teilnehmer die
 Urkunde dann herunterladen und was Administratoren in der Statistik der erzeugten Urkunden
-sehen, wird in Kapitel 7 beschrieben (in Vorbereitung).
+sehen, wird in [Kapitel 3](03-events-and-results.de.md) beschrieben.

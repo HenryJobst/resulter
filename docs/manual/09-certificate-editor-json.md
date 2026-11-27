@@ -1,6 +1,6 @@
-# 5 Certificate editor: JSON
+# 9 Certificate editor: JSON
 
-> [Deutsch](05-certificate-editor-json.de.md) · **English**
+> [Deutsch](09-certificate-editor-json.de.md) · **English**
 
 The tab **JSON** shows the layout as text. It is the expert mode: everything the other two tabs
 can do is here as text, and there are settings that can only be made here.
@@ -59,7 +59,7 @@ A layout is an object with two parts:
 
 The exact, complete description is provided by the JSON schema. It can be viewed in the
 application: the button with the question mark next to **Layout description**
-([chapter 2](02-certificates.md#the-schema-help)). The source is in the repository at
+([chapter 6](06-certificates.md#the-schema-help)). The source is in the repository at
 `backend/src/main/resources/schema/certificate_schema.json`.
 
 **For images,** `media` contains the **file name** from the media management, not a

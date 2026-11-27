@@ -1,11 +1,11 @@
-# 3 Urkunden-Editor: Grafisch
+# 7 Urkunden-Editor: Grafisch
 
-> **Deutsch** · [English](03-certificate-editor-graphic.md)
+> **Deutsch** · [English](07-certificate-editor-graphic.md)
 
 Der grafische Editor ist die Standardansicht beim Bearbeiten einer Urkunde. Er zeigt die Seite
 im Format A4 mit dem Hintergrundbild und lässt die Textblöcke und Bilder direkt anfassen,
 verschieben, vergrößern und beschriften. Darunter steht, mit denselben Änderungen, das
-Formular (siehe [Kapitel 4](04-certificate-editor-form.de.md)).
+Formular (siehe [Kapitel 8](08-certificate-editor-form.de.md)).
 
 Umgeschaltet wird mit den drei Reitern **Grafisch**, **Formular** und **JSON** über dem Editor.
 Alle drei Reiter bearbeiten dasselbe Layout. Was man in einem ändert, sieht man sofort in den
@@ -33,7 +33,7 @@ ausgegraut und nicht verschwunden. So springt die Seite nicht, wenn man einen Bl
 Die Seitenansicht verwendet Beispieldaten (Max Mustermann, Kaulsdorfer OLV Berlin,
 Beispiel-OL, H35-, 32:14, 1. Platz). Schrift, Zeilenhöhe und Bildproportionen entsprechen dem
 PDF. Zeilenumbrüche langer Texte bildet sie nicht ab. Maßgeblich bleibt die
-[PDF-Vorschau](02-certificates.de.md#die-vorschau).
+[PDF-Vorschau](06-certificates.de.md#die-vorschau).
 
 ## Blöcke auswählen
 
@@ -102,7 +102,7 @@ ein ausgewählter Block zum Bearbeiten öffnen.
 Während der Bearbeitung zeigt die Format-Leiste statt der Formatierung die **Platzhalter**
 (zum Beispiel `CATEGORY`). Ein Klick fügt `{{CATEGORY}}` an der Cursor-Stelle ein, ohne dass die
 Bearbeitung endet. Die Liste der Platzhalter steht in
-[Kapitel 6](06-certificate-reference.de.md#platzhalter).
+[Kapitel 10](10-certificate-reference.de.md#platzhalter).
 
 ![Platzhalter einfügen](images/de/editor-platzhalter.webp)
 
@@ -258,4 +258,4 @@ stellen sie wieder her. Dasselbe tun **Strg+Z** und **Strg+Y** (auf dem Mac **Cm
   geladen. Die PDF-Standardschriften (Helvetica, Times, Courier) erscheinen mit ähnlichen
   Systemschriften.
 
-Weitere Einzelheiten stehen in [Kapitel 6](06-certificate-reference.de.md#grenzen-der-seitenansicht).
+Weitere Einzelheiten stehen in [Kapitel 10](10-certificate-reference.de.md#grenzen-der-seitenansicht).

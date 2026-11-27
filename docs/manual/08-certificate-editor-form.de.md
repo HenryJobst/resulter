@@ -1,6 +1,6 @@
-# 4 Urkunden-Editor: Formular
+# 8 Urkunden-Editor: Formular
 
-> **Deutsch** · [English](04-certificate-editor-form.md)
+> **Deutsch** · [English](08-certificate-editor-form.md)
 
 Der Reiter **Formular** zeigt das Layout als Eingabefelder. Er eignet sich für genaue Zahlen, für
 Einstellungen, die die Seitenansicht nicht hat (Dokumentschriften, Abstände unten, links und
@@ -29,9 +29,9 @@ Die Gruppe **Dokument** ist zugeklappt. Ein Klick auf die Überschrift öffnet s
   geleertes Feld fällt auf 36 pt zurück.
 - Die Dokumentschriften gelten für alle Texte, die keine eigene Schrift haben. Das Kreuz in
   einem Feld entfernt die Einstellung. Welche Schriften es gibt, steht in
-  [Kapitel 6](06-certificate-reference.de.md#schriften).
+  [Kapitel 10](10-certificate-reference.de.md#schriften).
 - Ohne Eintrag bei **Schrift fett** und **Schrift kursiv** wird fetter und kursiver Text
-  vorgetäuscht (siehe [Kapitel 3](03-certificate-editor-graphic.de.md#die-format-leiste)).
+  vorgetäuscht (siehe [Kapitel 7](07-certificate-editor-graphic.de.md#die-format-leiste)).
 
 ## Absätze
 
@@ -117,5 +117,5 @@ hinzufügen** am Ende des Formulars legt einen neuen Absatz mit einem leeren Tex
 
 Ist der JSON-Text im Hintergrund nicht lesbar, zeigt das Formular statt der Felder die
 Meldung, das Layout sei kein gültiges Layout-JSON, mit der Ursache. Zum Korrigieren wechselt man
-zum Reiter **JSON** ([Kapitel 5](05-certificate-editor-json.de.md)). Verstöße gegen das Schema listet
+zum Reiter **JSON** ([Kapitel 9](09-certificate-editor-json.de.md)). Verstöße gegen das Schema listet
 das Formular über den Eingabefeldern in roter Schrift auf.

@@ -1,6 +1,6 @@
-# 4 Certificate editor: Form
+# 8 Certificate editor: Form
 
-> [Deutsch](04-certificate-editor-form.de.md) · **English**
+> [Deutsch](08-certificate-editor-form.de.md) · **English**
 
 The tab **Form** shows the layout as input fields. It is suited for exact numbers, for
 settings the page view does not have (document fonts, spacing at the bottom, left and
@@ -29,9 +29,9 @@ The group **Document** is collapsed. A click on the heading opens it.
   cleared field falls back to 36 pt.
 - The document fonts apply to all texts that have no font of their own. The cross in
   a field removes the setting. Which fonts exist is described in
-  [chapter 6](06-certificate-reference.md#fonts).
+  [chapter 10](10-certificate-reference.md#fonts).
 - Without an entry for **Bold font** and **Italic font**, bold and italic text is faked
-  (see [chapter 3](03-certificate-editor-graphic.md#the-format-bar)).
+  (see [chapter 7](07-certificate-editor-graphic.md#the-format-bar)).
 
 ## Paragraphs
 
@@ -117,5 +117,5 @@ at the end of the form creates a new paragraph with an empty text block
 
 If the JSON text in the background cannot be read, the form shows, instead of the fields, the
 message that the layout is not a valid layout JSON, with the cause. To fix it, switch
-to the tab **JSON** ([chapter 5](05-certificate-editor-json.md)). Violations of the schema are
+to the tab **JSON** ([chapter 9](09-certificate-editor-json.md)). Violations of the schema are
 listed by the form above the input fields in red text.

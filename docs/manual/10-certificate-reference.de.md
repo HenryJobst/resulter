@@ -1,6 +1,6 @@
-# 6 Referenz zum Urkunden-Editor
+# 10 Referenz zum Urkunden-Editor
 
-> **Deutsch** · [English](06-certificate-reference.md)
+> **Deutsch** · [English](10-certificate-reference.md)
 
 Nachschlagewerk für Platzhalter, Schriften, Maße, Tastenkürzel und Grenzen.
 
@@ -116,5 +116,5 @@ Maße stammen aus Messungen an echten PDFs von 13 Urkunden. Es bleiben Abweichun
   aus Breite mal Verhältnis.
 - Die Seitenansicht wurde bisher im Browser Chromium geprüft. Firefox und Safari sind nicht getestet.
 
-Maßgeblich bleibt die [PDF-Vorschau](02-certificates.de.md#die-vorschau). Die Entscheidung dahinter steht in
+Maßgeblich bleibt die [PDF-Vorschau](06-certificates.de.md#die-vorschau). Die Entscheidung dahinter steht in
 [ADR 0013](../adr/0013-certificate-geometry-from-pdf-measurements.de.md).

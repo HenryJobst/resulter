@@ -1,11 +1,11 @@
-# 2 Certificates
+# 6 Certificates
 
-> [Deutsch](02-certificates.de.md) · **English**
+> [Deutsch](06-certificates.de.md) · **English**
 
 In Resulter, a **certificate** is a template. From it, the application generates a PDF for each
 participant of an event with their name, position, time and club. This chapter describes how to
 manage the templates and the principle of the layout. The three ways to edit a layout are
-described in chapters 3 to 5.
+described in chapters 7 to 9.
 
 ## The list of certificates
 
@@ -42,7 +42,7 @@ on the left, the preview on the right.
 | **Name** \* | Freely chosen name of the template |
 | **Event** \* | The event used to generate the preview |
 | **Background** \* | The image the text is printed on (selection with search and preview) |
-| **Layout description** | The layout of the text (see below and chapters 3 to 5) |
+| **Layout description** | The layout of the text (see below and chapters 7 to 9) |
 | **Primary** | Marks the main template |
 
 An asterisk (\*) marks required fields. An empty required field has a red outline. Saving is done
@@ -69,10 +69,10 @@ participants.
   contrast, works with fixed sample values and shows "Beispiel-OL" as the event name. The
   difference is easy to see in the images of this manual.
 - The preview is the authoritative display. The page view in the editor is an approximation (see
-  [chapter 6](06-certificate-reference.md#limits-of-the-page-view)).
+  [chapter 10](10-certificate-reference.md#limits-of-the-page-view)).
 - If the layout is faulty, the preview shows a PDF with the error texts instead of the
   certificate. The editor itself also shows the errors (see
-  [chapter 5](05-certificate-editor-json.md#error-messages)).
+  [chapter 9](09-certificate-editor-json.md#error-messages)).
 
 ## The layout: flowing text in paragraphs
 
@@ -95,7 +95,7 @@ everything works:
 
 Because the text flows, everything below moves when you make a paragraph taller or write it
 larger. By default, the page view of the editor compensates for this when moving and scaling (see
-[chapter 3](03-certificate-editor-graphic.md)).
+[chapter 7](07-certificate-editor-graphic.md)).
 
 The reasoning behind this model is in
 [ADR 0009](../adr/0009-certificate-layout-as-json-flowing-text-with-itext.md).
@@ -104,7 +104,7 @@ The reasoning behind this model is in
 
 Texts can contain placeholders that are replaced by the participant's data when the certificate
 is generated, for example `{{GIVEN_NAME}} {{FAMILY_NAME}}`. The list is in
-[chapter 6](06-certificate-reference.md#placeholders).
+[chapter 10](10-certificate-reference.md#placeholders).
 
 ## The schema help
 
@@ -118,4 +118,4 @@ and value ranges.
 
 The certificate is selected in the event form (field **Certificate**). How participants then
 download the certificate and what administrators see in the statistics of the generated
-certificates is described in chapter 7 (in preparation).
+certificates is described in [chapter 3](03-events-and-results.md).

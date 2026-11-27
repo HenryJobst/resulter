@@ -512,6 +512,11 @@
         "canvas_add_image": "Bild hinzufügen",
         "pick_image": "Bild wählen",
         "no_images": "Keine Bilder vorhanden.",
+        "undo": "Rückgängig",
+        "redo": "Wiederholen",
+        "add_text_to_line": "Text zur Zeile",
+        "add_image_to_line": "Bild zur Zeile",
+        "duplicate_line": "Zeile duplizieren",
         "canvas_hint": "Anklicken wählt einen Block. Ziehen verschiebt: senkrecht ändert den Abstand oberhalb des Absatzes, waagerecht die Tabulator-Position. Doppelklick bearbeitet den Text, die Pfeiltasten verschieben (mit Umschalt in 10er-Schritten). Die Darstellung ist eine Annäherung, die PDF-Vorschau ist maßgeblich. Entf löscht den ausgewählten Block. Beim senkrechten Verschieben bleiben die Blöcke darunter stehen, mit gehaltener Alt-Taste rücken sie mit. Doppelklick auf ein Bild wählt ein anderes Bild. Der Griff unten rechts am ausgewählten Block skaliert: bei Bildern die Breite, bei Texten die Schriftgröße.",
         "canvas_block": "Absatz {p}, Block {b}",
         "empty_text": "(leer)"

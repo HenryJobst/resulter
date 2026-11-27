@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { CanvasBox } from '@/features/certificate/model/certificateCanvas'
-import type { BlockEntry, LayoutParagraph, MediaBlock, TextBlock } from '@/features/certificate/model/certificateLayout'
+import type { BlockEntry, LayoutParagraph, MediaBlock, TabAlignment, TextBlock } from '@/features/certificate/model/certificateLayout'
 import Button from 'openvue/button'
+import ColorPicker from 'openvue/colorpicker'
 import Dialog from 'openvue/dialog'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watchEffect } from 'vue'
+import InputNumber from 'openvue/inputnumber'
+import Select from 'openvue/select'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, toRaw, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
     computeBoxes,
@@ -15,7 +18,7 @@ import {
     isItalicFont,
     sampleText,
 } from '@/features/certificate/model/certificateCanvas'
-import { effectiveMargins, isMediaBlock, newTextBlockEntry, PAGE_HEIGHT, PAGE_WIDTH } from '@/features/certificate/model/certificateLayout'
+import { effectiveMargins, FONTS, hexToRgb, isMediaBlock, newTextBlockEntry, PAGE_HEIGHT, PAGE_WIDTH, PLACEHOLDERS, rgbToHex, setOptional, TAB_ALIGNMENTS } from '@/features/certificate/model/certificateLayout'
 import { useLayoutSync } from '@/features/certificate/model/useLayoutSync'
 import '@/features/certificate/assets/certificateFonts.css'
 
@@ -302,8 +305,32 @@ function removeBlock(box: CanvasBox) {
     selected.value = null
 }
 
+// format bar for the selected text block
+const selectedText = computed(() => {
+    const block = selected.value && layout.value?.paragraphs[selected.value.pi]?.blocks[selected.value.bi]?.block
+    return block && !isMediaBlock(block) ? block : null
+})
+const selectedTabIndex = computed(() => boxes.value.find(b => isSelected(b))?.tabIndex ?? null)
+const fontOptions = [{ id: '', label: '–' }, ...FONTS.map(f => ({ id: f, label: f }))]
+const alignmentOptions = computed(() =>
+    TAB_ALIGNMENTS.map(a => ({ id: a, label: t(`certificateLayout.alignments.${a}`) })))
+
+function setAlignment(alignment: TabAlignment) {
+    const paragraph = layout.value?.paragraphs[selected.value!.pi]
+    if (paragraph && selectedTabIndex.value !== null) {
+        // the default stop only exists implicitly, write it down before changing it
+        paragraph.tabStops ??= [{ ...DEFAULT_TAB_STOP }]
+        paragraph.tabStops[selectedTabIndex.value]!.alignment = alignment
+    }
+}
+const currentAlignment = computed(() => {
+    const paragraph = selected.value && layout.value?.paragraphs[selected.value.pi]
+    const index = selectedTabIndex.value
+    return paragraph && index !== null ? (paragraph.tabStops ?? [DEFAULT_TAB_STOP])[index]?.alignment : undefined
+})
+
 // choosing the image of an image block: for a new block or for the one that was double-clicked
-const picker = ref<{ pi: number, bi: number } | 'new' | null>(null)
+const picker = ref<{ pi: number, bi: number } | 'new' | 'line' | null>(null)
 const pickerVisible = computed({
     get: () => picker.value !== null,
     set: (value: boolean) => {
@@ -323,10 +350,48 @@ function pickImage(fileName: string) {
         addParagraph({ block: { media: fileName, width: 100 } })
         return
     }
+    if (target === 'line') {
+        addToLine({ block: { media: fileName, width: 100 } })
+        return
+    }
     const block = layout.value.paragraphs[target.pi]?.blocks[target.bi]?.block
     if (block && isMediaBlock(block)) {
         ;(block as MediaBlock).media = fileName
     }
+}
+
+/** Puts a block behind the others of the selected block's paragraph (on the next tab stop). */
+function addToLine(entry: BlockEntry) {
+    const paragraph = layout.value?.paragraphs[selected.value?.pi ?? -1]
+    if (!paragraph) {
+        return
+    }
+    entry.tabPosition = Math.max(0, ...paragraph.blocks.map(b => b.tabPosition ?? 1)) + 1
+    paragraph.blocks.push(entry)
+    selected.value = { pi: selected.value!.pi, bi: paragraph.blocks.length - 1 }
+}
+
+/** Copies the paragraph of the selected block right behind it. */
+function duplicateLine() {
+    const pi = selected.value?.pi ?? -1
+    const paragraph = layout.value?.paragraphs[pi]
+    if (paragraph) {
+        layout.value!.paragraphs.splice(pi + 1, 0, structuredClone(toRaw(paragraph)))
+        selected.value = { pi: pi + 1, bi: selected.value!.bi }
+    }
+}
+
+/** Inserts a placeholder at the cursor of the text that is being edited. */
+function insertPlaceholder(name: string) {
+    const input = editInput.value
+    const token = `{{${name}}}`
+    const start = input?.selectionStart ?? editText.value.length
+    const end = input?.selectionEnd ?? start
+    editText.value = editText.value.slice(0, start) + token + editText.value.slice(end)
+    nextTick(() => {
+        input?.focus()
+        input?.setSelectionRange(start + token.length, start + token.length)
+    })
 }
 
 /** A new paragraph with one block at the end; it is selected so it can be moved right away. */
@@ -394,6 +459,100 @@ function cancelEdit() {
                 outlined
                 @click="picker = 'new'"
             />
+            <template v-if="selected">
+                <Button
+                    :label="t('certificateLayout.add_text_to_line')"
+                    icon="pi pi-plus"
+                    size="small"
+                    outlined
+                    @click="addToLine(newTextBlockEntry())"
+                />
+                <Button
+                    :label="t('certificateLayout.add_image_to_line')"
+                    icon="pi pi-plus"
+                    size="small"
+                    outlined
+                    @click="picker = 'line'"
+                />
+                <Button
+                    :label="t('certificateLayout.duplicate_line')"
+                    icon="pi pi-copy"
+                    size="small"
+                    outlined
+                    @click="duplicateLine"
+                />
+            </template>
+        </div>
+        <!-- the bar keeps its height when nothing is selected, else the page would jump under the pointer -->
+        <div class="flex flex-row flex-wrap items-center gap-2" style="min-height: 2.75rem" data-testid="format-bar">
+            <template v-if="selectedText">
+                <div v-if="editing" class="flex flex-row gap-2" style="overflow-x: auto; white-space: nowrap; max-width: 100%">
+                    <Button
+                        v-for="name in PLACEHOLDERS"
+                        :key="name"
+                        :label="name"
+                        size="small"
+                        severity="secondary"
+                        outlined
+                        @pointerdown.prevent
+                        @click="insertPlaceholder(name)"
+                    />
+                </div>
+                <template v-else>
+                    <Button
+                        icon="pi pi-bold"
+                        size="small"
+                        :outlined="!selectedText.bold"
+                        :aria-label="t('certificateLayout.bold')"
+                        :aria-pressed="selectedText.bold === true"
+                        :title="t('certificateLayout.bold')"
+                        @click="setOptional(selectedText, 'bold', selectedText.bold ? null : true)"
+                    />
+                    <Button
+                        icon="pi pi-italic"
+                        size="small"
+                        :outlined="!selectedText.italic"
+                        :aria-label="t('certificateLayout.italic')"
+                        :aria-pressed="selectedText.italic === true"
+                        :title="t('certificateLayout.italic')"
+                        @click="setOptional(selectedText, 'italic', selectedText.italic ? null : true)"
+                    />
+                    <InputNumber
+                        :model-value="selectedText.fontSize ?? 12"
+                        :min="1"
+                        :use-grouping="false"
+                        :aria-label="t('certificateLayout.font_size')"
+                        :title="t('certificateLayout.font_size')"
+                        input-class="w-4rem"
+                        @update:model-value="(v: number | null) => setOptional(selectedText!, 'fontSize', v)"
+                    />
+                    <Select
+                        :model-value="selectedText.font ?? ''"
+                        :options="fontOptions"
+                        option-label="label"
+                        option-value="id"
+                        :aria-label="t('certificateLayout.font')"
+                        :title="t('certificateLayout.font')"
+                        @update:model-value="(v: string) => setOptional(selectedText!, 'font', v)"
+                    />
+                    <ColorPicker
+                        :model-value="rgbToHex(selectedText.fontRGBColor ?? { r: 0, g: 0, b: 0 })"
+                        format="hex"
+                        :aria-label="t('certificateLayout.color')"
+                        @update:model-value="(v: string | undefined) => v && (selectedText!.fontRGBColor = hexToRgb(v))"
+                    />
+                    <Select
+                        v-if="selectedTabIndex !== null"
+                        :model-value="currentAlignment"
+                        :options="alignmentOptions"
+                        option-label="label"
+                        option-value="id"
+                        :aria-label="t('certificateLayout.alignment')"
+                        :title="t('certificateLayout.alignment')"
+                        @update:model-value="setAlignment"
+                    />
+                </template>
+            </template>
         </div>
         <div
             class="canvas-page"

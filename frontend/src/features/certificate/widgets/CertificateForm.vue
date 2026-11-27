@@ -18,6 +18,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import VuePdfEmbed from 'vue-pdf-embed'
 import { validateLayout } from '@/features/certificate/model/certificateLayoutValidation'
+import { useLayoutHistory } from '@/features/certificate/model/useLayoutHistory'
 import CertificateLayoutCanvas from '@/features/certificate/widgets/CertificateLayoutCanvas.vue'
 import CertificateLayoutEditor from '@/features/certificate/widgets/CertificateLayoutEditor.vue'
 import NumberedTextarea from '@/features/certificate/widgets/NumberedTextarea.vue'
@@ -59,6 +60,35 @@ const visibleRight = ref(false)
 
 const layoutMode = ref<'graphic' | 'visual' | 'json'>('graphic')
 const selectedBlock = ref<{ pi: number, bi: number } | null>(null)
+const history = useLayoutHistory(
+    () => certificate.value?.layoutDescription ?? '',
+    (value) => { certificate.value.layoutDescription = value },
+    () => certificate.value?.id,
+)
+function undo() {
+    selectedBlock.value = null
+    history.undo()
+}
+function redo() {
+    selectedBlock.value = null
+    history.redo()
+}
+// Ctrl+Z / Ctrl+Y in the graphic and visual mode; text fields keep their own undo
+function onHistoryKey(event: KeyboardEvent) {
+    const target = event.target as HTMLElement
+    if (!(event.ctrlKey || event.metaKey) || target.closest('input, textarea, [contenteditable]')) {
+        return
+    }
+    const key = event.key.toLowerCase()
+    if (key === 'z') {
+        event.preventDefault()
+        event.shiftKey ? redo() : undo()
+    }
+    else if (key === 'y') {
+        event.preventDefault()
+        redo()
+    }
+}
 const layoutModes = computed(() => [
     { value: 'graphic', label: t('certificateLayout.graphic') },
     { value: 'visual', label: t('certificateLayout.visual') },
@@ -253,7 +283,27 @@ watch(
                             <pre>{{ formattedSchema }}</pre>
                         </Drawer>
                     </div>
-                    <div class="col">
+                    <div class="col" @keydown="onHistoryKey">
+                        <div class="flex flex-row gap-2 align-items-center mb-2">
+                            <Button
+                                icon="pi pi-undo"
+                                size="small"
+                                outlined
+                                :disabled="!history.canUndo.value"
+                                :aria-label="t('certificateLayout.undo')"
+                                :title="t('certificateLayout.undo')"
+                                @click="undo"
+                            />
+                            <Button
+                                icon="pi pi-replay"
+                                size="small"
+                                outlined
+                                :disabled="!history.canRedo.value"
+                                :aria-label="t('certificateLayout.redo')"
+                                :title="t('certificateLayout.redo')"
+                                @click="redo"
+                            />
+                        </div>
                         <SelectButton
                             v-model="layoutMode"
                             :options="layoutModes"
@@ -319,7 +369,7 @@ watch(
                             raised
                             rounded
                             severity="primary"
-                            icon="pi pi-refresh"
+                            icon="pi pi-replay"
                             class="mb-2"
                             :aria-label="t('labels.reload')"
                             @click="certificateQuery.refetch()"

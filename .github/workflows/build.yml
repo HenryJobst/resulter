@@ -80,10 +80,11 @@ jobs:
           echo "Build failed after 3 attempts"
           exit 1
         working-directory: ./backend
-      # ResultListServiceTest reads the media path through Dotenv, so it needs a .env next to the POM
+      # ResultListServiceTest reads the media path through Dotenv, so it needs a .env next to the POM;
+      # the images of its layout are test resources
       - name: Run backend tests
         run: |
-          cp ../.env.example .env
+          echo "RESULTER_MEDIA_FILE_PATH=src/test/resources/certificate/" > .env
           mvn --batch-mode test
         working-directory: ./backend
 

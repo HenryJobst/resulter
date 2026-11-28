@@ -58,3 +58,4 @@ belegt ist, steht das ausdrücklich im jeweiligen ADR.
 | 0019 | [Betriebsmetriken mit Micrometer, Prometheus und Grafana](0019-observability-with-prometheus-and-grafana.de.md) | akzeptiert | 2025-02-16 |
 | 0020 | [Lizenz CC BY-NC-ND 4.0](0020-license-cc-by-nc-nd-4-0.de.md) | akzeptiert | 2023-12-16 |
 | 0021 | [Zweisprachige Anwendung und Dokumentation (Englisch und Deutsch)](0021-bilingual-application-and-documentation.de.md) | akzeptiert | 2026-11-27 |
+| 0022 | [Unit-Tests in der CI](0022-unit-tests-in-ci.de.md) | akzeptiert | 2026-11-28 |

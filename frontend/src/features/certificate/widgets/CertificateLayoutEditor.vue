@@ -40,8 +40,6 @@ const props = defineProps<{
     modelValue: string
     /** file names of the media files that can be used as image blocks */
     mediaFiles: string[]
-    /** paragraph and block selected in the graphical view */
-    selected?: { pi: number, bi: number } | null
 }>()
 
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
@@ -188,7 +186,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
             v-for="(paragraph, pi) in layout.paragraphs"
             :key="pi"
             class="flex flex-col gap-2 p-3"
-            :style="{ border: `${props.selected?.pi === pi ? 2 : 1}px solid ${props.selected?.pi === pi ? '#ff7a00' : '#ccc'}`, borderRadius: '6px' }"
+            :style="{ border: '1px solid #ccc', borderRadius: '6px' }"
         >
             <div class="flex flex-row justify-between items-center">
                 <strong>{{ t('certificateLayout.paragraph', { n: pi + 1 }) }}</strong>
@@ -284,7 +282,7 @@ function setColor(block: TextBlock, hex: string | null | undefined) {
                 :id="`layout-block-${pi}-${bi}`"
                 :key="bi"
                 class="flex flex-col gap-2 p-2"
-                :style="{ border: `${props.selected?.pi === pi && props.selected?.bi === bi ? 2 : 1}px dashed ${props.selected?.pi === pi && props.selected?.bi === bi ? '#ff7a00' : '#bbb'}`, borderRadius: '6px' }"
+                :style="{ border: '1px dashed #bbb', borderRadius: '6px' }"
             >
                 <div class="flex flex-row justify-between items-center">
                     <span class="text-sm">

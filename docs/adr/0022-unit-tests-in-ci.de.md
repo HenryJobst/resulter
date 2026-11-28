@@ -25,9 +25,11 @@ fand. Die Begründung, warum die CI keine Tests ausführt, ist im Repository nic
    für vorübergehende Repository-Fehler; die Tests laufen danach einmal, damit ein fehlschlagender
    Test nicht wiederholt wird.
 
-3. **Der Backend-Schritt legt eine `.env` an.** Er kopiert vor den Tests `.env.example` nach
-   `backend/.env`, weil `ResultListServiceTest` `RESULTER_MEDIA_FILE_PATH` braucht. Git ignoriert die
-   Datei, sie wird nicht committet.
+3. **Der Backend-Schritt legt eine `.env` an.** Er schreibt vor den Tests `backend/.env` mit
+   `RESULTER_MEDIA_FILE_PATH=src/test/resources/certificate/`, weil `ResultListServiceTest` die
+   Variable und die Bilder seines Layouts braucht. Die Bilder sind Testressourcen; das Verzeichnis
+   `data/` ignoriert Git, eine Kopie von `.env.example` zeigte also auf Dateien, die auf einem Runner
+   fehlen. Die `.env`-Datei ignoriert Git, sie wird nicht committet.
 
 4. **End-to-End-Tests bleiben außerhalb der CI.** Sie brauchen Keycloak, Testcontainers und drei
    Browser; ob ein eigener Job entsteht, bleibt offen.

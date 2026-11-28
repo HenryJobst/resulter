@@ -24,9 +24,11 @@ tests in CI is not documented in the repository.
 2. **The test step is separate from the build step.** The Maven build keeps its retry loop for
    transient repository errors; the tests run once after it, so a failing test is not repeated.
 
-3. **The backend step creates a `.env`.** It copies `.env.example` to `backend/.env` before the
-   tests, because `ResultListServiceTest` needs `RESULTER_MEDIA_FILE_PATH`. The file is ignored by
-   Git and is not committed.
+3. **The backend step creates a `.env`.** It writes `backend/.env` with
+   `RESULTER_MEDIA_FILE_PATH=src/test/resources/certificate/` before the tests, because
+   `ResultListServiceTest` needs the variable and the images of its layout. The images are test
+   resources; the directory `data/` is ignored by Git, so a copy of `.env.example` would point to
+   files that do not exist on a runner. The `.env` file is ignored by Git and is not committed.
 
 4. **End-to-end tests stay out of CI.** They need Keycloak, Testcontainers and three browsers; the
    decision on a separate job is left open.

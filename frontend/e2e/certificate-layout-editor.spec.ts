@@ -61,7 +61,8 @@ test.describe('Certificate layout editor', () => {
         await page.locator('#media').click()
         await page.getByRole('option').first().click()
 
-        // build a layout with the visual editor
+        // build a layout with the form editor, which is a view of its own
+        await page.getByText('Form', { exact: true }).click()
         await page.getByRole('button', { name: 'Add paragraph' }).click()
         await page.getByLabel('Text', { exact: true }).first().fill('Hello ')
         await page.getByRole('button', { name: 'GIVEN_NAME' }).first().click()
@@ -69,6 +70,7 @@ test.describe('Certificate layout editor', () => {
         await page.getByLabel('Bold').first().check()
 
         // the graphical view shows the block with sample data and lets you drag it
+        await page.getByText('Graphic', { exact: true }).click()
         const canvasBox = page.getByTestId('layout-canvas').getByRole('button').first()
         await expect(canvasBox).toContainText('Hello Max')
         await canvasBox.scrollIntoViewIfNeeded()
@@ -104,9 +106,10 @@ test.describe('Certificate layout editor', () => {
         await page.getByLabel('Save').click()
         await expect(page).toHaveURL(/\/certificate$/)
 
-        // reopening shows the saved layout in the visual editor
+        // reopening shows the saved layout in the form editor
         const row = page.getByRole('row').filter({ hasText: 'Editor Certificate' })
         await row.getByLabel('Edit').click()
+        await page.getByText('Form', { exact: true }).click()
         await expect(page.getByText('Paragraph 1')).toBeVisible()
         await expect(page.getByLabel('Text', { exact: true }).first()).toHaveValue('Hello {{GIVEN_NAME}}')
     })

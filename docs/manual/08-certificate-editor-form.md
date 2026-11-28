@@ -36,7 +36,7 @@ The group **Document** is collapsed. A click on the heading opens it.
 ## Paragraphs
 
 Each paragraph has a group of its own with the heading **Paragraph 1**, **Paragraph 2** and so
-on. In the graphic view, the paragraph of the selected block has an orange outline.
+on.
 
 ![A paragraph in the form](images/editor-form-paragraph.webp)
 

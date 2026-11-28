@@ -4,7 +4,7 @@
 
 The graphic editor is the default view when editing a certificate. It shows the page in A4 format
 with the background image and lets you grab, move, enlarge and label the text blocks and images
-directly. Below it, with the same changes, is the form (see [chapter 8](08-certificate-editor-form.md)).
+directly. The form is a separate view (see [chapter 8](08-certificate-editor-form.md)); both change the same layout.
 
 You switch with the three tabs **Graphic**, **Form** and **JSON** above the editor.
 All three tabs edit the same layout. What you change in one is immediately visible in the

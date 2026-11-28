@@ -36,7 +36,7 @@ Die Gruppe **Dokument** ist zugeklappt. Ein Klick auf die Überschrift öffnet s
 ## Absätze
 
 Jeder Absatz hat eine eigene Gruppe mit der Überschrift **Absatz 1**, **Absatz 2** und so
-weiter. In der grafischen Ansicht ist der Absatz des ausgewählten Blocks orange umrandet.
+weiter.
 
 ![Ein Absatz im Formular](images/de/editor-formular-absatz.webp)
 

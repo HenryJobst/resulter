@@ -295,9 +295,10 @@ watch(
                                 @click="undo"
                             />
                             <Button
-                                icon="pi pi-replay"
+                                icon="pi pi-undo"
                                 size="small"
                                 outlined
+                                class="-scale-x-100"
                                 :disabled="!history.canRedo.value"
                                 :aria-label="t('certificateLayout.redo')"
                                 :title="t('certificateLayout.redo')"
@@ -337,10 +338,9 @@ watch(
                             class="mb-3"
                         />
                         <CertificateLayoutEditor
-                            v-if="layoutMode === 'graphic' || layoutMode === 'visual'"
+                            v-if="layoutMode === 'visual'"
                             v-model="certificate.layoutDescription"
                             :media-files="mediaFileNames"
-                            :selected="layoutMode === 'graphic' ? selectedBlock : null"
                         />
                         <NumberedTextarea
                             v-else

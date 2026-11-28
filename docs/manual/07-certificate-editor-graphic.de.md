@@ -4,8 +4,8 @@
 
 Der grafische Editor ist die Standardansicht beim Bearbeiten einer Urkunde. Er zeigt die Seite
 im Format A4 mit dem Hintergrundbild und lässt die Textblöcke und Bilder direkt anfassen,
-verschieben, vergrößern und beschriften. Darunter steht, mit denselben Änderungen, das
-Formular (siehe [Kapitel 8](08-certificate-editor-form.de.md)).
+verschieben, vergrößern und beschriften. Das Formular ist eine eigene Ansicht (siehe
+[Kapitel 8](08-certificate-editor-form.de.md)); beide ändern dasselbe Layout.
 
 Umgeschaltet wird mit den drei Reitern **Grafisch**, **Formular** und **JSON** über dem Editor.
 Alle drei Reiter bearbeiten dasselbe Layout. Was man in einem ändert, sieht man sofort in den

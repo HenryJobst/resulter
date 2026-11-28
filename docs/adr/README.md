@@ -63,3 +63,4 @@ the suffix `.de.md`.
 | 0019 | [Operational metrics with Micrometer, Prometheus and Grafana](0019-observability-with-prometheus-and-grafana.md) | accepted | 2025-02-16 |
 | 0020 | [License CC BY-NC-ND 4.0](0020-license-cc-by-nc-nd-4-0.md) | accepted | 2023-12-16 |
 | 0021 | [Bilingual application and documentation (English and German)](0021-bilingual-application-and-documentation.md) | accepted | 2026-11-27 |
+| 0022 | [Unit tests in CI](0022-unit-tests-in-ci.md) | accepted | 2026-11-28 |

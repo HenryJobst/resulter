@@ -29,6 +29,8 @@ Das Frontend kommuniziert über eine REST-API mit dem Backend, welches im Muster
 implementiert ist. Die Authentifizierung folgt dem Backend-for-Frontend (BFF) Pattern, wobei das Backend die OAuth2/OIDC
 Kommunikation mit Keycloak übernimmt und das Frontend sichere Session-Cookies verwendet.
 
+Die vollständige Architekturdokumentation (arc42) steht in [docs/architecture.de.md](docs/architecture.de.md).
+
 ## Technologien
 
 - **Backend**: Java, SpringBoot, Spring Data JDBC

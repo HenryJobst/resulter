@@ -4,6 +4,7 @@
 
 - **Status:** accepted
 - **Date:** 2023-12-17
+- **Note:** Point 5 is superseded by [ADR 0022](0022-unit-tests-in-ci.md).
 - **Context:** Backend tests with JUnit since project start, frontend tests with Vitest since the frontend start (2023-12-17), Playwright E2E since 2024-06-19
 
 ## Context

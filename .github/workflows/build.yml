@@ -80,6 +80,12 @@ jobs:
           echo "Build failed after 3 attempts"
           exit 1
         working-directory: ./backend
+      # ResultListServiceTest reads the media path through Dotenv, so it needs a .env next to the POM
+      - name: Run backend tests
+        run: |
+          cp ../.env.example .env
+          mvn --batch-mode test
+        working-directory: ./backend
 
   docs-parity:
     runs-on: ubuntu-latest
@@ -129,4 +135,7 @@ jobs:
         working-directory: ./frontend
       - name: Build frontend
         run: pnpm build
+        working-directory: ./frontend
+      - name: Run frontend unit tests
+        run: pnpm test:unit
         working-directory: ./frontend

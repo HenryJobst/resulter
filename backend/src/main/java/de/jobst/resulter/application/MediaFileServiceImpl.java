@@ -76,8 +76,16 @@ public class MediaFileServiceImpl implements MediaFileService {
         }
 
         File originalFile = filePathAndName.filePath().toFile();
+        long storedSize = file.getSize();
         try {
-            file.transferTo(originalFile);
+            if ("image/svg+xml".equals(detectedType)) {
+                // SVG may carry scripts; store only the sanitized version
+                byte[] clean = SvgSanitizer.sanitize(file.getBytes());
+                Files.write(originalFile.toPath(), clean);
+                storedSize = clean.length;
+            } else {
+                file.transferTo(originalFile);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -100,7 +108,7 @@ public class MediaFileServiceImpl implements MediaFileService {
             thumbnailFileName = filePathAndName.fileName();
         }
 
-        MediaFile mediaFile = MediaFile.of(filePathAndName.fileName(), thumbnailFileName, detectedType, file.getSize());
+        MediaFile mediaFile = MediaFile.of(filePathAndName.fileName(), thumbnailFileName, detectedType, storedSize);
 
         return mediaFileRepository.save(mediaFile);
     }

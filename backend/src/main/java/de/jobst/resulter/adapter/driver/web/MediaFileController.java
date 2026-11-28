@@ -79,6 +79,7 @@ public class MediaFileController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(mediaFile.getContentType().value()))
                 .header("X-Content-Type-Options", "nosniff")
+                .header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox")
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
                         ContentDisposition.attachment()
